@@ -1,0 +1,1063 @@
+{
+  "status": "INVALIDATED",
+  "INVALIDATED_REASON": "PROVENANCE_CONTAMINATION",
+  "invalidated_at": "2026-08-10T03:46:34Z",
+  "scope": {
+    "prior_email_send_ready_count_claimed": 62,
+    "reason": "Cohort previously marked EMAIL_SEND_READY=62 contained demo00Xobra.com.br addresses labeled COMPANY_OWNED/VERIFIED associated with real CNPJs. All derived audit50, NEW-30-HUMAN-REVIEW, WRONG_CONTACT=0 counters, and Warmbly imports from that cohort are invalid as readiness proof.",
+    "invalidated_artifacts": [
+      "artifacts/confenge/pilot-integrity/EMAIL-SEND-READY-50-AUDIT.md",
+      "artifacts/confenge/pilot-integrity/NEW-30-HUMAN-REVIEW.md",
+      "artifacts/confenge/pilot-integrity/GO-NO-GO.md",
+      "artifacts/confenge/contact-enrichment/pilot-200-*",
+      "artifacts/confenge/contact-enrichment/expand-esr-20260810"
+    ],
+    "do_not_reuse_as_proof": true,
+    "history_preserved": true
+  },
+  "eradication_scan": {
+    "paths_with_demo_or_fixture_markers": 58,
+    "hits": [
+      {
+        "path": "artifacts/confenge/pilot-integrity/NEW-30-HUMAN-REVIEW.md",
+        "demo_emails_sample": [
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo006obra.com.br",
+          "licitacoes@demo007obra.com.br",
+          "licitacoes@demo008obra.com.br",
+          "licitacoes@demo009obra.com.br"
+        ],
+        "demo_email_count": 5,
+        "classification": "DERIVED_UNTRUSTED"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/pilot-200-20260808T144927Z/confenge-contact-candidates-v1.jsonl",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "joao.silva@demo020obra.com.br",
+          "joao.silva@demo021obra.com.br",
+          "joao.silva@demo022obra.com.br",
+          "joao.silva@demo023obra.com.br",
+          "joao.silva@demo024obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br"
+        ],
+        "demo_email_count": 25,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/pilot-200-20260808T144927Z/contacts_review_required.jsonl",
+        "demo_emails_sample": [],
+        "demo_email_count": 0,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/pilot-200-20260808T144927Z/contacts_verified.jsonl",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br",
+          "licitacoes@demo005obra.com.br",
+          "licitacoes@demo006obra.com.br",
+          "licitacoes@demo007obra.com.br",
+          "licitacoes@demo008obra.com.br",
+          "licitacoes@demo009obra.com.br"
+        ],
+        "demo_email_count": 20,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/pilot-200-20260808T144927Z/reuse_graph.json",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "joao.silva@demo020obra.com.br",
+          "joao.silva@demo021obra.com.br",
+          "joao.silva@demo022obra.com.br",
+          "joao.silva@demo023obra.com.br",
+          "joao.silva@demo024obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br"
+        ],
+        "demo_email_count": 25,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/pilot-200-20260808T145038Z/confenge-contact-candidates-v1.jsonl",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "joao.silva@demo020obra.com.br",
+          "joao.silva@demo021obra.com.br",
+          "joao.silva@demo022obra.com.br",
+          "joao.silva@demo023obra.com.br",
+          "joao.silva@demo024obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br"
+        ],
+        "demo_email_count": 25,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/pilot-200-20260808T145038Z/contacts_review_required.jsonl",
+        "demo_emails_sample": [],
+        "demo_email_count": 0,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/pilot-200-20260808T145038Z/contacts_verified.jsonl",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br",
+          "licitacoes@demo005obra.com.br",
+          "licitacoes@demo006obra.com.br",
+          "licitacoes@demo007obra.com.br",
+          "licitacoes@demo008obra.com.br",
+          "licitacoes@demo009obra.com.br"
+        ],
+        "demo_email_count": 20,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/pilot-200-20260808T145038Z/FINAL_REPORT.md",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "licitacoes@demo000obra.com.br"
+        ],
+        "demo_email_count": 2,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/pilot-200-20260808T145038Z/reuse_graph.json",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "joao.silva@demo020obra.com.br",
+          "joao.silva@demo021obra.com.br",
+          "joao.silva@demo022obra.com.br",
+          "joao.silva@demo023obra.com.br",
+          "joao.silva@demo024obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br"
+        ],
+        "demo_email_count": 25,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/pilot-200-fix-20260808T150117Z/confenge-contact-candidates-v1.jsonl",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "joao.silva@demo020obra.com.br",
+          "joao.silva@demo021obra.com.br",
+          "joao.silva@demo022obra.com.br",
+          "joao.silva@demo023obra.com.br",
+          "joao.silva@demo024obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br"
+        ],
+        "demo_email_count": 25,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/pilot-200-fix-20260808T150117Z/contacts_review_required.jsonl",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br",
+          "licitacoes@demo005obra.com.br",
+          "licitacoes@demo006obra.com.br",
+          "licitacoes@demo007obra.com.br",
+          "licitacoes@demo008obra.com.br",
+          "licitacoes@demo009obra.com.br"
+        ],
+        "demo_email_count": 20,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/pilot-200-fix-20260808T150117Z/reuse_graph.json",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "joao.silva@demo020obra.com.br",
+          "joao.silva@demo021obra.com.br",
+          "joao.silva@demo022obra.com.br",
+          "joao.silva@demo023obra.com.br",
+          "joao.silva@demo024obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br"
+        ],
+        "demo_email_count": 25,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/pilot-200-fix-20260808T150221Z/confenge-contact-candidates-v1.jsonl",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br",
+          "licitacoes@demo005obra.com.br",
+          "licitacoes@demo006obra.com.br",
+          "licitacoes@demo007obra.com.br",
+          "licitacoes@demo008obra.com.br",
+          "licitacoes@demo009obra.com.br"
+        ],
+        "demo_email_count": 20,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/pilot-200-fix-20260808T150221Z/contacts_review_required.jsonl",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br",
+          "licitacoes@demo005obra.com.br",
+          "licitacoes@demo006obra.com.br",
+          "licitacoes@demo007obra.com.br",
+          "licitacoes@demo008obra.com.br",
+          "licitacoes@demo009obra.com.br"
+        ],
+        "demo_email_count": 20,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/pilot-200-fix-20260808T150221Z/reuse_graph.json",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br",
+          "licitacoes@demo005obra.com.br",
+          "licitacoes@demo006obra.com.br",
+          "licitacoes@demo007obra.com.br",
+          "licitacoes@demo008obra.com.br",
+          "licitacoes@demo009obra.com.br"
+        ],
+        "demo_email_count": 20,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/pilot-200-fix-20260808T150320Z/confenge-contact-candidates-v1.jsonl",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br",
+          "licitacoes@demo005obra.com.br",
+          "licitacoes@demo006obra.com.br",
+          "licitacoes@demo007obra.com.br",
+          "licitacoes@demo008obra.com.br",
+          "licitacoes@demo009obra.com.br"
+        ],
+        "demo_email_count": 20,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/pilot-200-fix-20260808T150320Z/contacts_verified.jsonl",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br",
+          "licitacoes@demo005obra.com.br",
+          "licitacoes@demo006obra.com.br",
+          "licitacoes@demo007obra.com.br",
+          "licitacoes@demo008obra.com.br",
+          "licitacoes@demo009obra.com.br"
+        ],
+        "demo_email_count": 20,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/pilot-200-fix-20260808T150320Z/reuse_graph.json",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br",
+          "licitacoes@demo005obra.com.br",
+          "licitacoes@demo006obra.com.br",
+          "licitacoes@demo007obra.com.br",
+          "licitacoes@demo008obra.com.br",
+          "licitacoes@demo009obra.com.br"
+        ],
+        "demo_email_count": 20,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/real-1000-20260808T164758Z/reuse_graph.json",
+        "demo_emails_sample": [],
+        "demo_email_count": 0,
+        "classification": "DERIVED_UNTRUSTED"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/scale-1000-20260808T145122Z/confenge-contact-candidates-v1.jsonl",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "joao.silva@demo020obra.com.br",
+          "joao.silva@demo021obra.com.br",
+          "joao.silva@demo022obra.com.br",
+          "joao.silva@demo023obra.com.br",
+          "joao.silva@demo024obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br"
+        ],
+        "demo_email_count": 25,
+        "classification": "DERIVED_UNTRUSTED"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/scale-1000-20260808T145122Z/contacts_review_required.jsonl",
+        "demo_emails_sample": [],
+        "demo_email_count": 0,
+        "classification": "DERIVED_UNTRUSTED"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/scale-1000-20260808T145122Z/contacts_verified.jsonl",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br",
+          "licitacoes@demo005obra.com.br",
+          "licitacoes@demo006obra.com.br",
+          "licitacoes@demo007obra.com.br",
+          "licitacoes@demo008obra.com.br",
+          "licitacoes@demo009obra.com.br"
+        ],
+        "demo_email_count": 20,
+        "classification": "DERIVED_UNTRUSTED"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/scale-1000-20260808T145122Z/reuse_graph.json",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "joao.silva@demo020obra.com.br",
+          "joao.silva@demo021obra.com.br",
+          "joao.silva@demo022obra.com.br",
+          "joao.silva@demo023obra.com.br",
+          "joao.silva@demo024obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br"
+        ],
+        "demo_email_count": 25,
+        "classification": "DERIVED_UNTRUSTED"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/pilot-200-20260808T144927Z/warmbly_feed/contacts.jsonl",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "joao.silva@demo020obra.com.br",
+          "joao.silva@demo021obra.com.br",
+          "joao.silva@demo022obra.com.br",
+          "joao.silva@demo023obra.com.br",
+          "joao.silva@demo024obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br"
+        ],
+        "demo_email_count": 25,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/pilot-200-20260808T144927Z/warmbly_feed/contacts_enrollable.jsonl",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br",
+          "licitacoes@demo005obra.com.br",
+          "licitacoes@demo006obra.com.br",
+          "licitacoes@demo007obra.com.br",
+          "licitacoes@demo008obra.com.br",
+          "licitacoes@demo009obra.com.br"
+        ],
+        "demo_email_count": 20,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/pilot-200-20260808T145038Z/warmbly_feed/contacts.jsonl",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "joao.silva@demo020obra.com.br",
+          "joao.silva@demo021obra.com.br",
+          "joao.silva@demo022obra.com.br",
+          "joao.silva@demo023obra.com.br",
+          "joao.silva@demo024obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br"
+        ],
+        "demo_email_count": 25,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/pilot-200-20260808T145038Z/warmbly_feed/contacts_enrollable.jsonl",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br",
+          "licitacoes@demo005obra.com.br",
+          "licitacoes@demo006obra.com.br",
+          "licitacoes@demo007obra.com.br",
+          "licitacoes@demo008obra.com.br",
+          "licitacoes@demo009obra.com.br"
+        ],
+        "demo_email_count": 20,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/pilot-200-fix-20260808T150117Z/warmbly_feed/contacts.jsonl",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "joao.silva@demo020obra.com.br",
+          "joao.silva@demo021obra.com.br",
+          "joao.silva@demo022obra.com.br",
+          "joao.silva@demo023obra.com.br",
+          "joao.silva@demo024obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br"
+        ],
+        "demo_email_count": 25,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/pilot-200-fix-20260808T150221Z/warmbly_feed/contacts.jsonl",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br",
+          "licitacoes@demo005obra.com.br",
+          "licitacoes@demo006obra.com.br",
+          "licitacoes@demo007obra.com.br",
+          "licitacoes@demo008obra.com.br",
+          "licitacoes@demo009obra.com.br"
+        ],
+        "demo_email_count": 20,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/pilot-200-fix-20260808T150320Z/warmbly_feed/contacts.jsonl",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br",
+          "licitacoes@demo005obra.com.br",
+          "licitacoes@demo006obra.com.br",
+          "licitacoes@demo007obra.com.br",
+          "licitacoes@demo008obra.com.br",
+          "licitacoes@demo009obra.com.br"
+        ],
+        "demo_email_count": 20,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/pilot-200-fix-20260808T150320Z/warmbly_feed/contacts_enrollable.jsonl",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br",
+          "licitacoes@demo005obra.com.br",
+          "licitacoes@demo006obra.com.br",
+          "licitacoes@demo007obra.com.br",
+          "licitacoes@demo008obra.com.br",
+          "licitacoes@demo009obra.com.br"
+        ],
+        "demo_email_count": 20,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/scale-1000-20260808T145122Z/warmbly_feed/contacts.jsonl",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "joao.silva@demo020obra.com.br",
+          "joao.silva@demo021obra.com.br",
+          "joao.silva@demo022obra.com.br",
+          "joao.silva@demo023obra.com.br",
+          "joao.silva@demo024obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br"
+        ],
+        "demo_email_count": 25,
+        "classification": "DERIVED_UNTRUSTED"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/scale-1000-20260808T145122Z/warmbly_feed/contacts_enrollable.jsonl",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br",
+          "comercial@demo001obra.com.br",
+          "comercial@demo002obra.com.br",
+          "comercial@demo003obra.com.br",
+          "comercial@demo004obra.com.br",
+          "comercial@demo005obra.com.br",
+          "comercial@demo006obra.com.br",
+          "comercial@demo007obra.com.br",
+          "comercial@demo008obra.com.br",
+          "comercial@demo009obra.com.br",
+          "licitacoes@demo000obra.com.br",
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br",
+          "licitacoes@demo005obra.com.br",
+          "licitacoes@demo006obra.com.br",
+          "licitacoes@demo007obra.com.br",
+          "licitacoes@demo008obra.com.br",
+          "licitacoes@demo009obra.com.br"
+        ],
+        "demo_email_count": 20,
+        "classification": "DERIVED_UNTRUSTED"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/_inputs/fixtures_200/01127106000113_registry.json",
+        "demo_emails_sample": [
+          "comercial@demo007obra.com.br"
+        ],
+        "demo_email_count": 1,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/_inputs/fixtures_200/01127106000113_site.json",
+        "demo_emails_sample": [
+          "licitacoes@demo007obra.com.br"
+        ],
+        "demo_email_count": 1,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/_inputs/fixtures_200/01449930000190_registry.json",
+        "demo_emails_sample": [
+          "comercial@demo000obra.com.br"
+        ],
+        "demo_email_count": 1,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/_inputs/fixtures_200/01449930000190_site.json",
+        "demo_emails_sample": [
+          "licitacoes@demo000obra.com.br"
+        ],
+        "demo_email_count": 1,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/_inputs/fixtures_200/03276962000166_registry.json",
+        "demo_emails_sample": [
+          "comercial@demo009obra.com.br"
+        ],
+        "demo_email_count": 1,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/_inputs/fixtures_200/03276962000166_site.json",
+        "demo_emails_sample": [
+          "licitacoes@demo009obra.com.br"
+        ],
+        "demo_email_count": 1,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/_inputs/fixtures_200/08753223000131_registry.json",
+        "demo_emails_sample": [
+          "comercial@demo008obra.com.br"
+        ],
+        "demo_email_count": 1,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/_inputs/fixtures_200/08753223000131_site.json",
+        "demo_emails_sample": [
+          "licitacoes@demo008obra.com.br"
+        ],
+        "demo_email_count": 1,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/_inputs/fixtures_200/13385475000195_registry.json",
+        "demo_emails_sample": [
+          "comercial@demo006obra.com.br"
+        ],
+        "demo_email_count": 1,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/_inputs/fixtures_200/13385475000195_site.json",
+        "demo_emails_sample": [
+          "licitacoes@demo006obra.com.br"
+        ],
+        "demo_email_count": 1,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/_inputs/fixtures_200/14042710000199_registry.json",
+        "demo_emails_sample": [
+          "comercial@demo002obra.com.br"
+        ],
+        "demo_email_count": 1,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/_inputs/fixtures_200/14042710000199_site.json",
+        "demo_emails_sample": [
+          "licitacoes@demo002obra.com.br"
+        ],
+        "demo_email_count": 1,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/_inputs/fixtures_200/17244878000175_registry.json",
+        "demo_emails_sample": [
+          "comercial@demo003obra.com.br"
+        ],
+        "demo_email_count": 1,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/_inputs/fixtures_200/17244878000175_site.json",
+        "demo_emails_sample": [
+          "licitacoes@demo003obra.com.br"
+        ],
+        "demo_email_count": 1,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/_inputs/fixtures_200/38146510000144_registry.json",
+        "demo_emails_sample": [
+          "comercial@demo001obra.com.br"
+        ],
+        "demo_email_count": 1,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/_inputs/fixtures_200/38146510000144_site.json",
+        "demo_emails_sample": [
+          "licitacoes@demo001obra.com.br"
+        ],
+        "demo_email_count": 1,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/_inputs/fixtures_200/41576001000166_registry.json",
+        "demo_emails_sample": [
+          "comercial@demo004obra.com.br"
+        ],
+        "demo_email_count": 1,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/_inputs/fixtures_200/41576001000166_site.json",
+        "demo_emails_sample": [
+          "licitacoes@demo004obra.com.br"
+        ],
+        "demo_email_count": 1,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/_inputs/fixtures_200/47815614000195_registry.json",
+        "demo_emails_sample": [
+          "comercial@demo005obra.com.br"
+        ],
+        "demo_email_count": 1,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/contact-enrichment/_inputs/fixtures_200/47815614000195_site.json",
+        "demo_emails_sample": [
+          "licitacoes@demo005obra.com.br"
+        ],
+        "demo_email_count": 1,
+        "classification": "TEST_FIXTURE"
+      },
+      {
+        "path": "artifacts/confenge/pilot-integrity/rebuild-2026-08-09/email-send-ready-cohort.json",
+        "demo_emails_sample": [
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br",
+          "licitacoes@demo005obra.com.br",
+          "licitacoes@demo006obra.com.br",
+          "licitacoes@demo007obra.com.br",
+          "licitacoes@demo008obra.com.br",
+          "licitacoes@demo009obra.com.br"
+        ],
+        "demo_email_count": 9,
+        "classification": "DERIVED_UNTRUSTED"
+      },
+      {
+        "path": "artifacts/confenge/pilot-integrity/rebuild-2026-08-10/email-send-ready-joined.json",
+        "demo_emails_sample": [
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br",
+          "licitacoes@demo005obra.com.br",
+          "licitacoes@demo006obra.com.br",
+          "licitacoes@demo007obra.com.br",
+          "licitacoes@demo008obra.com.br",
+          "licitacoes@demo009obra.com.br"
+        ],
+        "demo_email_count": 9,
+        "classification": "DERIVED_UNTRUSTED"
+      },
+      {
+        "path": "artifacts/confenge/pilot-integrity/rebuild-2026-08-10/new30-review.json",
+        "demo_emails_sample": [
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo006obra.com.br",
+          "licitacoes@demo007obra.com.br",
+          "licitacoes@demo008obra.com.br",
+          "licitacoes@demo009obra.com.br"
+        ],
+        "demo_email_count": 5,
+        "classification": "DERIVED_UNTRUSTED"
+      },
+      {
+        "path": "artifacts/confenge/pilot-integrity/rebuild-2026-08-10b/email-send-ready-joined.json",
+        "demo_emails_sample": [
+          "licitacoes@demo001obra.com.br",
+          "licitacoes@demo002obra.com.br",
+          "licitacoes@demo003obra.com.br",
+          "licitacoes@demo004obra.com.br",
+          "licitacoes@demo005obra.com.br",
+          "licitacoes@demo006obra.com.br",
+          "licitacoes@demo007obra.com.br",
+          "licitacoes@demo008obra.com.br",
+          "licitacoes@demo009obra.com.br"
+        ],
+        "demo_email_count": 9,
+        "classification": "DERIVED_UNTRUSTED"
+      }
+    ]
+  },
+  "demo_domains_blocked": [
+    "demo000obra.com.br",
+    "demo001obra.com.br",
+    "demo002obra.com.br",
+    "demo003obra.com.br",
+    "demo004obra.com.br",
+    "demo005obra.com.br",
+    "demo006obra.com.br",
+    "demo007obra.com.br",
+    "demo008obra.com.br",
+    "demo009obra.com.br"
+  ],
+  "gates_enforced": [
+    "contact_resolution.ownership",
+    "contact_resolution.send_readiness",
+    "warmbly_bridge.export_mapping",
+    "warmbly.import_leadToCandidate",
+    "warmbly.CanEnroll"
+  ]
+}

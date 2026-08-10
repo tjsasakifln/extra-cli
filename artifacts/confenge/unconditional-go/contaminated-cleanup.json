@@ -1,0 +1,18 @@
+{
+  "contaminated_sendable_count": 0,
+  "demo_total": 9,
+  "demo_blocked": 9,
+  "demo_emails": [
+    "licitacoes@demo001obra.com.br",
+    "licitacoes@demo002obra.com.br",
+    "licitacoes@demo003obra.com.br",
+    "licitacoes@demo004obra.com.br",
+    "licitacoes@demo005obra.com.br",
+    "licitacoes@demo006obra.com.br",
+    "licitacoes@demo007obra.com.br",
+    "licitacoes@demo008obra.com.br",
+    "licitacoes@demo009obra.com.br"
+  ],
+  "INVALIDATED_REASON": "PROVENANCE_CONTAMINATION",
+  "dispatch_note": "demo contacts blocked; contaminated_sendable_count must be 0"
+}

@@ -357,16 +357,61 @@ def map_lead(
 
     # target_fit: prefer published continuous-refresh materialization.
     # Warmbly must NOT re-score ICP class — only consume published decision + freshness.
+    # EMAIL_SEND_READY recomputed fail-closed including provenance taint.
+    msg_ctx = lead["messaging_context"] if isinstance(lead.get("messaging_context"), dict) else {}
+    intel_msg = intel.get("messaging") if isinstance(intel.get("messaging"), dict) else {}
+    # Prefer structured primary_service / service_candidates from intel (signals+evidence).
+    primary_svc = intel.get("primary_service")
+    if not isinstance(primary_svc, dict):
+        primary_svc = {
+            "service_id": lead["offer"].get("service_code") or lead["offer"].get("extra_cli_service_id"),
+            "service_code": lead["offer"].get("service_code"),
+            "supporting_signal_ids": intel.get("supporting_signal_ids")
+            or intel.get("service_supporting_signal_ids")
+            or [],
+            "evidence_ids": moment.get("evidence_ids") or [],
+        }
+    service_candidates = intel.get("service_candidates")
+    if not isinstance(service_candidates, list):
+        service_candidates = [primary_svc] if primary_svc.get("service_id") or primary_svc.get("service_code") else []
     company_ctx = {
         **universe_row,
-        "service_code": lead["offer"].get("service_code"),
-        "primary_service": lead["offer"].get("service_code"),
-        "factual_hook": lead["messaging_context"].get("fact_to_mention"),
-        "evidence_ids": moment.get("evidence_ids") or [e.get("id") for e in evidence_items],
+        **{k: v for k, v in intel.items() if k not in {"contacts", "candidates", "evidence", "inferences"}},
+        "service_code": lead["offer"].get("service_code")
+        or lead["offer"].get("extra_cli_service_id")
+        or (primary_svc.get("service_id") if isinstance(primary_svc, dict) else None),
+        "primary_service": primary_svc,
+        "service_candidates": service_candidates,
+        "factual_hook": msg_ctx.get("fact_to_mention")
+        or intel.get("factual_hook")
+        or intel.get("observed_fact")
+        or intel_msg.get("fact_to_mention"),
+        "observed_fact": intel.get("observed_fact")
+        or msg_ctx.get("fact_to_mention")
+        or intel_msg.get("fact_to_mention"),
+        "why_this_account": intel.get("why_this_account")
+        or intel_msg.get("why_this_account")
+        or msg_ctx.get("why_this_account"),
+        "why_now": intel.get("why_now")
+        or intel_msg.get("why_now")
+        or msg_ctx.get("why_now")
+        or moment.get("summary"),
+        "micro_offer_code": lead["offer"].get("micro_offer_code")
+        or lead["offer"].get("entry_offer")
+        or intel.get("micro_offer_code"),
+        "cta": msg_ctx.get("cta") or intel_msg.get("cta") or intel.get("cta") or msg_ctx.get("question_to_ask"),
+        "evidence_ids": moment.get("evidence_ids")
+        or intel.get("evidence_ids")
+        or [e.get("id") for e in evidence_items if isinstance(e, dict)],
         "canonical_universe_member": universe_row.get("canonical_universe_member", True),
-        "construction_evidence": universe_row.get("construction_evidence") or intel.get("construction_evidence") or {},
-        "portfolio": universe_row.get("portfolio") if isinstance(universe_row.get("portfolio"), dict) else {},
+        "construction_evidence": universe_row.get("construction_evidence")
+        or intel.get("construction_evidence")
+        or {},
+        "portfolio": universe_row.get("portfolio")
+        if isinstance(universe_row.get("portfolio"), dict)
+        else (intel.get("portfolio") if isinstance(intel.get("portfolio"), dict) else {}),
         "offer": lead["offer"],
+        "messaging": {**intel_msg, **msg_ctx},
     }
     # Propagate published materialization fields when present on universe/intel rows
     for k in (
@@ -398,13 +443,13 @@ def map_lead(
     if published_class:
         # Authoritative published class → map to send tier without re-triangulating
         try:
+            from scripts.confenge_contact_resolution.send_readiness import TargetFitResult
             from scripts.confenge_target_fit.published import (
+                attach_published_fields,
                 evaluate_published_send_gate,
                 map_class_to_send_tier,
                 published_from_row_or_db,
-                attach_published_fields,
             )
-            from scripts.confenge_contact_resolution.send_readiness import TargetFitResult
 
             pub = published_from_row_or_db(company_ctx, conn=None)
             blocks, pub_reasons, fresh = evaluate_published_send_gate(
@@ -457,6 +502,10 @@ def map_lead(
         email = c.get("email") or ""
         if not email:
             continue
+        # Fail-closed recompute: sticky VERIFIED/COMPANY_OWNED never bypass provenance taint.
+        contact_for_prov = dict(c)
+        if universe_row.get("official_domain"):
+            contact_for_prov.setdefault("official_domain", universe_row.get("official_domain"))
         r = evaluate_email_send_ready(
             company=company_ctx,
             email=email,
@@ -469,11 +518,16 @@ def map_lead(
             factual_evidence=bool(lead["messaging_context"].get("fact_to_mention") or evidence_items),
             evidence_ids=[str(x) for x in (moment.get("evidence_ids") or [])],
             target_fit=fit,
+            contact=contact_for_prov,
         )
         c["mailbox_purpose"] = r.mailbox_purpose
         c["email_send_ready"] = r.email_send_ready
         c["recipient_commercial_suitability"] = r.recipient_commercial_suitability
         c["channel_send_eligibility"] = r.channel_send_eligibility
+        c["provenance_chain_valid"] = r.provenance_chain_valid
+        c["provenance_trust"] = r.provenance_trust
+        c["root_source_type"] = r.root_source_type
+        c["derived_from_fixture"] = r.derived_from_fixture
         # EMAIL_ONLY: enrollable for auto send queue means email_send_ready, not phone
         if r.email_send_ready:
             c["enrollable"] = True
@@ -490,6 +544,10 @@ def map_lead(
         elif not r.email_send_ready and email:
             # Keep ownership enrollable flag for review queues but mark not email-send-ready
             c["email_send_ready"] = False
+            # Tainted provenance must never remain enrollable for commercial send queues.
+            if not r.provenance_chain_valid:
+                c["enrollable"] = False
+                c["recommended"] = False
 
     lead["email_send_ready"] = best_ready
     if best_purpose:

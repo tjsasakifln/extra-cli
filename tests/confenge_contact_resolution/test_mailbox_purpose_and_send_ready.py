@@ -143,11 +143,14 @@ def test_generic_contato_can_pass_when_all_gates_ok() -> None:
         service_code="estruturacao_pleito_reajuste",
         factual_evidence=True,
         evidence_ids=["ev-contract-1"],
+        source_type="site",
+        source_url="https://empresa-target.com.br/contato",
     )
     assert r.email_send_ready is True
     assert r.mailbox_purpose == PURPOSE_GENERIC_CONTACT
     assert r.copy_context_ready is True
     assert r.service_fit_supported is True
+    assert r.provenance_chain_valid is True
 
 
 def test_comercial_preferred_over_generic_rank() -> None:
