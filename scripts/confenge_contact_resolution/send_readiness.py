@@ -1,13 +1,19 @@
 """EMAIL_SEND_READY and target_fit_send_tier gates (EMAIL_ONLY commercial autorun).
 
 Semantic EMAIL_SEND_READY requires ALL of:
-  TARGET_FIT_CONFIRMED (TARGET_CONFIRMED / tier A|B with confirmed construction)
-  AND SERVICE_FIT_SUPPORTED
-  AND CONTACT_SEND_READY
-  AND COPY_CONTEXT_READY
+  REAL_TARGET (TARGET_CONFIRMED / tier A|B with confirmed construction)
+  AND REAL_SERVICE_FIT
+  AND REAL_CONTACT
+  AND REAL_COPY_CONTEXT
   AND NOT_BLOCKED
+  AND FRESH
+  AND PROVENANCE_CHAIN_VALID
 
 Missing any dimension → fail closed (never send-ready).
+
+Stored labels alone (VERIFIED, COMPANY_OWNED, HUMAN_CONFIRMED, prior
+EMAIL_SEND_READY) never grant send-ready when provenance roots in
+TEST_FIXTURE / DEMO / SYNTHETIC / UNKNOWN or has transitive taint.
 """
 
 from __future__ import annotations
@@ -23,6 +29,12 @@ from scripts.confenge_contact_resolution.models import (
     ENROLLABLE_OWNERSHIP,
     OwnershipStatus,
     VerificationStatus,
+)
+from scripts.confenge_contact_resolution.provenance_trust import (
+    ProvenanceTrustResult,
+    evaluate_contact_provenance,
+    evaluate_provenance_trust,
+    provenance_blocks_send,
 )
 from scripts.confenge_universe.target_fit import (
     TARGET_CONFIRMED,
@@ -113,6 +125,7 @@ UNSUITABLE_NO_SERVICE = "UNSUITABLE_NO_SERVICE"
 UNSUITABLE_NO_EVIDENCE = "UNSUITABLE_NO_EVIDENCE"
 UNSUITABLE_STALE = "UNSUITABLE_STALE"
 UNSUITABLE_COPY_CONTEXT = "UNSUITABLE_COPY_CONTEXT"
+UNSUITABLE_PROVENANCE = "UNSUITABLE_PROVENANCE"
 
 # Prefixes/phrases that alone (or with only a company name) are hollow copy context.
 _GENERIC_WHY_MARKERS: tuple[str, ...] = (
@@ -191,6 +204,10 @@ class EmailSendReadyResult:
     copy_context_ready: bool = False
     service_fit_supported: bool = False
     contact_send_ready: bool = False
+    provenance_chain_valid: bool = False
+    provenance_trust: str = ""
+    root_source_type: str = ""
+    derived_from_fixture: bool = False
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -207,6 +224,10 @@ class EmailSendReadyResult:
             "copy_context_ready": self.copy_context_ready,
             "service_fit_supported": self.service_fit_supported,
             "contact_send_ready": self.contact_send_ready,
+            "provenance_chain_valid": self.provenance_chain_valid,
+            "provenance_trust": self.provenance_trust,
+            "root_source_type": self.root_source_type,
+            "derived_from_fixture": self.derived_from_fixture,
         }
 
 
@@ -734,8 +755,17 @@ def evaluate_email_send_ready(
     canonical_universe_member: bool | None = None,
     target_fit: TargetFitResult | None = None,
     require_copy_context: bool = True,
+    contact: dict[str, Any] | None = None,
+    provenance: ProvenanceTrustResult | dict[str, Any] | None = None,
+    source_type: str | None = None,
+    source_url: str | None = None,
+    fixtures_dir_used: bool = False,
+    synthetic_flag: bool = False,
+    demo_flag: bool = False,
+    provenance_chain: list[dict[str, Any]] | None = None,
+    parent_provenance: dict[str, Any] | None = None,
 ) -> EmailSendReadyResult:
-    """EMAIL_SEND_READY requires target+service+contact+copy_context+not_blocked."""
+    """EMAIL_SEND_READY requires target+service+contact+copy+not_blocked+fresh+provenance."""
     reasons: list[str] = []
     email_norm = (email or "").strip() or None
     own = (ownership_status or "").strip().upper()
@@ -747,6 +777,80 @@ def evaluate_email_send_ready(
     mp = classify_mailbox_purpose(email_norm)
     suitability = SUITABLE
     channel_ok = True
+
+    # ── PROVENANCE_CHAIN_VALID (recomputed; sticky VERIFIED never washes taint)
+    prov_res: ProvenanceTrustResult
+    if isinstance(provenance, ProvenanceTrustResult):
+        prov_res = provenance
+    elif isinstance(provenance, dict) and provenance.get("provenance_trust"):
+        # Re-evaluate from dict fields so stale embeds cannot override.
+        prov_res = evaluate_provenance_trust(
+            email=email_norm or provenance.get("email"),
+            source_type=source_type or provenance.get("source_type") or provenance.get("root_source_type"),
+            source_url=source_url or provenance.get("source_url") or provenance.get("root_source_url"),
+            observed_at=provenance.get("observed_at"),
+            notes=provenance.get("notes"),
+            official_domain=(company or {}).get("official_domain") if company else None,
+            verification_status=ver or provenance.get("verification_status"),
+            ownership_status=own or provenance.get("ownership_status"),
+            fixtures_dir_used=fixtures_dir_used or bool(provenance.get("derived_from_fixture")),
+            synthetic_flag=synthetic_flag or bool(provenance.get("derived_from_synthetic")),
+            demo_flag=demo_flag or bool(provenance.get("derived_from_demo")),
+            provenance_chain=provenance_chain or provenance.get("provenance_chain"),
+            derived_from_fixture=provenance.get("derived_from_fixture"),
+            parent_provenance=parent_provenance or provenance.get("parent_provenance"),
+            verification_method=provenance.get("verification_method"),
+        )
+    elif contact is not None:
+        c_for_prov = dict(contact)
+        if email_norm and not c_for_prov.get("email"):
+            c_for_prov["email"] = email_norm
+        if own and not c_for_prov.get("ownership_status"):
+            c_for_prov["ownership_status"] = own
+        if ver and not c_for_prov.get("verification_status"):
+            c_for_prov["verification_status"] = ver
+        if company and company.get("official_domain") and not c_for_prov.get("official_domain"):
+            c_for_prov["official_domain"] = company.get("official_domain")
+        if fixtures_dir_used:
+            c_for_prov["fixtures_dir_used"] = True
+        if synthetic_flag:
+            c_for_prov["synthetic"] = True
+        if demo_flag:
+            c_for_prov["demo"] = True
+        if provenance_chain:
+            c_for_prov["provenance_chain"] = provenance_chain
+        if parent_provenance:
+            c_for_prov["parent_provenance"] = parent_provenance
+        if source_type and not (isinstance(c_for_prov.get("source"), dict) and c_for_prov["source"].get("source_type")):
+            c_for_prov.setdefault("source", {})
+            if isinstance(c_for_prov["source"], dict):
+                c_for_prov["source"]["source_type"] = source_type
+                if source_url:
+                    c_for_prov["source"]["source_url"] = source_url
+        prov_res = evaluate_contact_provenance(c_for_prov)
+    else:
+        prov_res = evaluate_provenance_trust(
+            email=email_norm,
+            source_type=source_type,
+            source_url=source_url,
+            official_domain=(company or {}).get("official_domain") if company else None,
+            verification_status=ver,
+            ownership_status=own,
+            fixtures_dir_used=fixtures_dir_used,
+            synthetic_flag=synthetic_flag,
+            demo_flag=demo_flag,
+            provenance_chain=provenance_chain,
+            parent_provenance=parent_provenance,
+        )
+
+    prov_ok = not provenance_blocks_send(prov_res)
+    if not prov_ok:
+        reasons.append("provenance_chain_invalid")
+        reasons.append(f"root_source_type:{prov_res.root_source_type}")
+        for tr in prov_res.taint_reasons[:6]:
+            reasons.append(f"taint:{tr}")
+        suitability = UNSUITABLE_PROVENANCE
+        channel_ok = False
 
     if not email_norm or "@" not in email_norm:
         reasons.append("no_email")
@@ -881,6 +985,7 @@ def evaluate_email_send_ready(
         and not account_blocked
         and contact_fresh
         and not mp.send_blocked
+        and prov_ok
     )
 
     target_ok = (
@@ -895,9 +1000,11 @@ def evaluate_email_send_ready(
         and service_fit_supported
         and has_ev
         and copy_ok
+        and prov_ok
     )
     if email_ready and "all_gates_pass" not in reasons:
         reasons.append("all_gates_pass")
+        reasons.append(f"provenance_trust:{prov_res.provenance_trust}")
 
     return EmailSendReadyResult(
         email_send_ready=email_ready,
@@ -906,13 +1013,17 @@ def evaluate_email_send_ready(
         ownership_status=own,
         verification_status=ver,
         recipient_commercial_suitability=suitability,
-        channel_send_eligibility=channel_ok and not mp.send_blocked and bool(email_norm),
+        channel_send_eligibility=channel_ok and not mp.send_blocked and bool(email_norm) and prov_ok,
         reasons=reasons,
         email=email_norm,
         target_fit_class=fit.target_fit_class,
         copy_context_ready=copy_res.copy_context_ready,
         service_fit_supported=service_fit_supported,
         contact_send_ready=contact_send_ready,
+        provenance_chain_valid=prov_ok,
+        provenance_trust=prov_res.provenance_trust,
+        root_source_type=prov_res.root_source_type,
+        derived_from_fixture=prov_res.derived_from_fixture,
     )
 
 

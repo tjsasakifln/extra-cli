@@ -1,0 +1,10 @@
+{
+  "status": "INVALIDATED",
+  "INVALIDATED_REASON": "PROVENANCE_CONTAMINATION",
+  "prior_claim": {
+    "email_send_ready": 62,
+    "wrong_contact": 0
+  },
+  "invalidated_at": "2026-08-10T03:46:34Z",
+  "note": "Do not reuse prior GO/ESR=62 metrics as readiness evidence."
+}
