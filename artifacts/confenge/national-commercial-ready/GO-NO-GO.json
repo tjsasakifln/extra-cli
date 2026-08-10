@@ -1,6 +1,6 @@
 {
   "schema": "confenge.go_no_go.v1",
-  "as_of": "2026-08-10T11:26:37Z",
+  "as_of": "2026-08-10T11:46:47Z",
   "NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY": false,
   "GO_FOR_REAL_CONFENGE_EMAIL_PILOT": false,
   "terminal_state": "EXTERNAL_BLOCKER_REQUIRES_TIAGO",
@@ -15,7 +15,7 @@
     "provenance_contamination_eq_0": true,
     "copy_audit_all_zero": true,
     "email_send_ready_ge_min_reserve": false,
-    "sha_binding_exact": true,
+    "sha_binding_exact": false,
     "whatsapp_off": true
   },
   "human_review_pending": true,

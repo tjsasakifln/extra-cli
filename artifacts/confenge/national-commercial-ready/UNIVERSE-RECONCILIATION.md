@@ -70,3 +70,17 @@ Supply-only (materiais, frota, medicamentos) → OUT_OF_SCOPE.
 - `default_research` PROBABLE inflation
 - sector POSSIBLE without evidence
 - consortium-only PROBABLE
+
+
+## Post-reclass SHADOW (2026-08-10 host)
+
+| Class | Count |
+|------|------:|
+| TARGET_CONFIRMED | 8348 |
+| TARGET_PROBABLE_RESEARCH | 24984 |
+| TARGET_OUT_OF_SCOPE | 92392 |
+| TARGET_INSUFFICIENT_EVIDENCE | 386626 |
+| **Sum** | **512350** |
+
+`default_research` / consortium-only rows moved out of PROBABLE.
+Coverage ratio vs supplier roots 513650: **0.9975** (≤1). Unexplained missing roots: 1300 (not yet materialized).

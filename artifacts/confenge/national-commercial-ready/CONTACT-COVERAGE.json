@@ -3,5 +3,6 @@
   "contact_discovery_attempted": 75,
   "contact_discovery_not_attempted": 8273,
   "email_send_ready": 60,
-  "note": "Historical network harvest + continuous batch; full ladder still draining"
+  "continuous_checkpoint_completed": 25,
+  "network_enrichment_running": true
 }

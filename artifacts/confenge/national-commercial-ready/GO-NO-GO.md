@@ -18,7 +18,7 @@
   "provenance_contamination_eq_0": true,
   "copy_audit_all_zero": true,
   "email_send_ready_ge_min_reserve": false,
-  "sha_binding_exact": true,
+  "sha_binding_exact": false,
   "whatsapp_off": true
 }
 ```

@@ -14,7 +14,7 @@
     {
       "stage": "TARGET_PROBABLE_RESEARCH",
       "count": 24984,
-      "pct_of_previous": 0.801343,
+      "pct_of_previous": 0.04864,
       "notes": "requires positive ICP evidence"
     },
     {
@@ -25,14 +25,14 @@
     {
       "stage": "TARGET_INSUFFICIENT_EVIDENCE",
       "count": 386626,
-      "pct_of_previous": 0.0,
-      "notes": "not PROBABLE \u2014 no positive ICP evidence"
+      "pct_of_previous": 0.752703,
+      "notes": "not PROBABLE — no positive ICP evidence"
     },
     {
       "stage": "target_fit_class_partition_sum",
       "count": 512350,
       "pct_of_previous": 0.997469,
-      "notes": "CONFIRMED+PROBABLE+OUT+INSUFFICIENT (should \u2248 universe when fully classified)"
+      "notes": "CONFIRMED+PROBABLE+OUT+INSUFFICIENT (should ≈ universe when fully classified)"
     },
     {
       "stage": "CONTACT_READY",
@@ -46,8 +46,8 @@
     },
     {
       "stage": "CONTACT_EXHAUSTED",
-      "count": 0,
-      "pct_of_previous": 0.0
+      "count": 25,
+      "pct_of_previous": 0.002995
     },
     {
       "stage": "CONTACT_RETRY_PENDING",
@@ -66,8 +66,8 @@
     },
     {
       "stage": "contact_terminal_partition_sum",
-      "count": 8348,
-      "pct_of_previous": 1.0,
+      "count": 8373,
+      "pct_of_previous": 1.002995,
       "notes": "must equal TARGET_CONFIRMED"
     },
     {
@@ -108,5 +108,5 @@
       "send_window_end": "18:00"
     }
   },
-  "as_of": "2026-08-10T11:26:37Z"
+  "as_of": "2026-08-10T11:46:47Z"
 }

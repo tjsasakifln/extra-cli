@@ -1,12 +1,10 @@
 {
-  "as_of": "2026-08-10T11:34:00Z",
+  "as_of": "2026-08-10T11:46:47Z",
   "classes": {
     "TARGET_CONFIRMED": 8348,
     "TARGET_PROBABLE_RESEARCH": 24984,
     "TARGET_OUT_OF_SCOPE": 92392,
     "TARGET_INSUFFICIENT_EVIDENCE": 386626
   },
-  "national_universe": 513650,
-  "shadow_materialized": 512350,
-  "note": "Post reclassify-insufficient on host SHADOW"
+  "national_universe": 513650
 }

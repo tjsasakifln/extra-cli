@@ -1,8 +1,7 @@
 {
-  "origin_main": "e39abf790fb0d4f81aeaf1f985fef197de42b953",
-  "host_deployed": "e39abf790fb0d4f81aeaf1f985fef197de42b953",
-  "runtime": "e39abf790fb0d4f81aeaf1f985fef197de42b953",
-  "triple_sha_equal": true,
-  "note": "Pre-merge of this branch; rebind after deploy",
-  "branch_head_pending_merge": true
+  "branch_head": "pending_merge",
+  "origin_main_pre_merge": "e39abf790fb0d4f81aeaf1f985fef197de42b953",
+  "host_partial_modules_deployed": true,
+  "triple_sha_equal": false,
+  "note": "Merge #217 then redeploy for exact triple SHA"
 }

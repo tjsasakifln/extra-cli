@@ -1,6 +1,6 @@
 # CONFENGE National Commercial Reservoir — FUNNEL
 
-Generated: `2026-08-10T11:26:37Z`
+Generated: `2026-08-10T11:46:47Z`
 
 ## Closed funnel
 
@@ -8,17 +8,17 @@ Generated: `2026-08-10T11:26:37Z`
 |-------|------:|--------------:|-------|
 | NATIONAL_COMMERCIAL_UNIVERSE | 513650 | n/a | supplier CNPJ roots (canonical) |
 | TARGET_CONFIRMED | 8348 | 1.63% | — |
-| TARGET_PROBABLE_RESEARCH | 411610 | 80.13% | requires positive ICP evidence |
+| TARGET_PROBABLE_RESEARCH | 24984 | 4.86% | requires positive ICP evidence |
 | TARGET_OUT_OF_SCOPE | 92392 | 17.99% | — |
-| TARGET_INSUFFICIENT_EVIDENCE | 0 | 0.00% | not PROBABLE — no positive ICP evidence |
+| TARGET_INSUFFICIENT_EVIDENCE | 386626 | 75.27% | not PROBABLE — no positive ICP evidence |
 | target_fit_class_partition_sum | 512350 | 99.75% | CONFIRMED+PROBABLE+OUT+INSUFFICIENT (should ≈ universe when fully classified) |
 | CONTACT_READY | 60 | 0.72% | — |
 | CONTACT_FOUND_NOT_SENDABLE | 15 | 0.18% | — |
-| CONTACT_EXHAUSTED | 0 | 0.00% | — |
+| CONTACT_EXHAUSTED | 25 | 0.30% | — |
 | CONTACT_RETRY_PENDING | 0 | 0.00% | — |
 | CONTACT_EXTERNAL_BLOCKER | 0 | 0.00% | — |
 | CONTACT_NEVER_ATTEMPTED | 8273 | 99.10% | — |
-| contact_terminal_partition_sum | 8348 | 100.00% | must equal TARGET_CONFIRMED |
+| contact_terminal_partition_sum | 8373 | 100.30% | must equal TARGET_CONFIRMED |
 | EMAIL_SEND_READY | 60 | 0.72% | — |
 | WARMBLY_RESERVOIR | 60 | 100.00% | — |
 | ACTIVE_HOT_SET | 10 | 16.67% | — |

@@ -12,5 +12,10 @@
   "FULLY_RECONCILED": false,
   "FULL_NATIONAL_READY": false,
   "population_source": "shadow",
-  "note": "Pre-deploy snapshot; refresh after reclassify+reconcile on host"
+  "class_distribution": {
+    "TARGET_CONFIRMED": 8348,
+    "TARGET_PROBABLE_RESEARCH": 24984,
+    "TARGET_OUT_OF_SCOPE": 92392,
+    "TARGET_INSUFFICIENT_EVIDENCE": 386626
+  }
 }

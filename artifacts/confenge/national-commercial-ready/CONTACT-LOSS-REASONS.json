@@ -1,6 +1,5 @@
 {
   "never_attempted": 8273,
-  "mailbox_purpose_rejected": 6,
-  "ownership_identity_domain_mismatch": 8,
-  "no_email_in_public_sources": "TBD after full ladder"
+  "public_site_no_email": "high",
+  "process_path_unpopulated": true
 }
