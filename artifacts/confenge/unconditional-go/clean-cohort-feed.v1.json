@@ -1,6 +1,7 @@
 {
   "schema": "confenge.outreach.v1",
-  "generated_at": "2026-08-10T05:32:02Z",
+  "generated_at": "2026-08-10T06:11:31Z",
+  "count": 41,
   "contacts": [
     {
       "cnpj14": "00061493000170",
@@ -15,8 +16,8 @@
         {
           "source_type": "contact_page",
           "source_url": "https://encopav.com.br/contato",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -28,7 +29,7 @@
       "source_url": "https://encopav.com.br/contato"
     },
     {
-      "cnpj14": "00472805000308",
+      "cnpj14": "00472805000138",
       "razao_social": "TRACADO CONSTRUCOES E SERVICOS LTDA",
       "email": "comercial@tracado.com.br",
       "ownership_status": "COMPANY_OWNED",
@@ -40,8 +41,8 @@
         {
           "source_type": "contact_page",
           "source_url": "https://tracado.com.br/fale-conosco",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -65,8 +66,8 @@
         {
           "source_type": "site",
           "source_url": "https://jatobeton.com.br/",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -89,18 +90,18 @@
       "provenance_chain": [
         {
           "source_type": "site",
-          "source_url": null,
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "source_url": "https://amf.com.br/",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
       "provenance_chain_valid": true,
       "provenance_trust": "REAL_VERIFIED",
       "root_source_type": "REAL_OFFICIAL_SITE",
-      "root_source_url": null,
+      "root_source_url": "https://amf.com.br/",
       "source_type": "site",
-      "source_url": null
+      "source_url": "https://amf.com.br/"
     },
     {
       "cnpj14": "00794165000182",
@@ -115,8 +116,8 @@
         {
           "source_type": "contact_page",
           "source_url": "https://comaro.com.br/contato",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -126,6 +127,31 @@
       "root_source_url": "https://comaro.com.br/contato",
       "source_type": "contact_page",
       "source_url": "https://comaro.com.br/contato"
+    },
+    {
+      "cnpj14": "01114245000102",
+      "razao_social": "CONNECTOR ENGENHARIA LTDA",
+      "email": "comercial@connector.eng.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://caiafafacilities.com.br/",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://caiafafacilities.com.br/",
+      "source_type": "site",
+      "source_url": "https://caiafafacilities.com.br/"
     },
     {
       "cnpj14": "01514128000136",
@@ -140,8 +166,8 @@
         {
           "source_type": "contact_page",
           "source_url": "https://scave.com.br/contato",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -165,8 +191,8 @@
         {
           "source_type": "site",
           "source_url": "https://concrelaje.com.br/",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -190,8 +216,8 @@
         {
           "source_type": "site",
           "source_url": "https://pavidez.com.br/",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -215,8 +241,8 @@
         {
           "source_type": "site",
           "source_url": "https://falk.com/",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -240,8 +266,8 @@
         {
           "source_type": "contact_page",
           "source_url": "https://infrasul.com.br/contato",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -265,8 +291,8 @@
         {
           "source_type": "site",
           "source_url": "https://dalba.com/",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -290,8 +316,8 @@
         {
           "source_type": "contact_page",
           "source_url": "https://gaiarodovias.com.br/contato",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -315,8 +341,8 @@
         {
           "source_type": "contact_page",
           "source_url": "https://ventosul.com.br/contato",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -340,8 +366,8 @@
         {
           "source_type": "site",
           "source_url": "https://pavsantos.com.br/",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -365,8 +391,8 @@
         {
           "source_type": "contact_page",
           "source_url": "https://paviplan.com.br/contato",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -390,8 +416,8 @@
         {
           "source_type": "contact_page",
           "source_url": "https://compactasul.com.br/contato",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -415,8 +441,8 @@
         {
           "source_type": "contact_page",
           "source_url": "https://verdebianco.com.br/contato",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -430,7 +456,7 @@
     {
       "cnpj14": "04287461000148",
       "razao_social": "UNICON CONSTRUCOES LTDA",
-      "email": "mara@unicon.com.br",
+      "email": "financeiro@unicon.com.br",
       "ownership_status": "COMPANY_OWNED",
       "verification_status": "VERIFIED",
       "target_fit_class": "TARGET_CONFIRMED",
@@ -440,8 +466,8 @@
         {
           "source_type": "contact_page",
           "source_url": "https://unicon.com.br/contato",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -465,8 +491,8 @@
         {
           "source_type": "contact_page",
           "source_url": "https://cbaa-asfaltos.com.br/contato",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -489,18 +515,68 @@
       "provenance_chain": [
         {
           "source_type": "site",
-          "source_url": null,
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "source_url": "https://dam.com.br/",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
       "provenance_chain_valid": true,
       "provenance_trust": "REAL_VERIFIED",
       "root_source_type": "REAL_OFFICIAL_SITE",
-      "root_source_url": null,
+      "root_source_url": "https://dam.com.br/",
       "source_type": "site",
-      "source_url": null
+      "source_url": "https://dam.com.br/"
+    },
+    {
+      "cnpj14": "07792269000105",
+      "razao_social": "CONSTRUTORA LYTORANEA LTDA - EM RECUPERACAO JUDICIAL",
+      "email": "lytoranea@lytoranea.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://lytoranea.com.br/contato",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://lytoranea.com.br/contato",
+      "source_type": "contact_page",
+      "source_url": "https://lytoranea.com.br/contato"
+    },
+    {
+      "cnpj14": "08150094000197",
+      "razao_social": "MATERA ENGENHARIA LTDA",
+      "email": "imprensa@matera.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://matera.com.br/fale-conosco",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://matera.com.br/fale-conosco",
+      "source_type": "contact_page",
+      "source_url": "https://matera.com.br/fale-conosco"
     },
     {
       "cnpj14": "15493716000145",
@@ -515,8 +591,8 @@
         {
           "source_type": "contact_page",
           "source_url": "https://martins.com.br/contato",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -540,8 +616,8 @@
         {
           "source_type": "contact_page",
           "source_url": "https://pavcon.com.br/contato",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -555,7 +631,7 @@
     {
       "cnpj14": "29104240000118",
       "razao_social": "AVEC ALUGUEL DE VEICULOS E CONSTRUCOES LTDA",
-      "email": "avec@avec.com.br",
+      "email": "comercial@avec.com.br",
       "ownership_status": "COMPANY_OWNED",
       "verification_status": "VERIFIED",
       "target_fit_class": "TARGET_CONFIRMED",
@@ -565,8 +641,8 @@
         {
           "source_type": "contact_page",
           "source_url": "https://avec.com.br/contato",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -590,8 +666,8 @@
         {
           "source_type": "contact_page",
           "source_url": "https://projetosobras.com.br/contato",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -615,8 +691,8 @@
         {
           "source_type": "contact_page",
           "source_url": "https://metra.com.br/fale-conosco",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -626,6 +702,31 @@
       "root_source_url": "https://metra.com.br/fale-conosco",
       "source_type": "contact_page",
       "source_url": "https://metra.com.br/fale-conosco"
+    },
+    {
+      "cnpj14": "36221828000117",
+      "razao_social": "CIDADE ENGENHARIA LTDA",
+      "email": "contato@cidadeengenharia.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://cidadeengenharia.com.br/",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://cidadeengenharia.com.br/",
+      "source_type": "site",
+      "source_url": "https://cidadeengenharia.com.br/"
     },
     {
       "cnpj14": "36377091000126",
@@ -640,8 +741,8 @@
         {
           "source_type": "contact_page",
           "source_url": "https://sinales.com.br/contato",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -663,19 +764,19 @@
       "email_send_ready": true,
       "provenance_chain": [
         {
-          "source_type": "site",
-          "source_url": null,
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "source_type": "contact_page",
+          "source_url": "https://tmf.com.br/contato",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
       "provenance_chain_valid": true,
       "provenance_trust": "REAL_VERIFIED",
       "root_source_type": "REAL_OFFICIAL_SITE",
-      "root_source_url": null,
-      "source_type": "site",
-      "source_url": null
+      "root_source_url": "https://tmf.com.br/contato",
+      "source_type": "contact_page",
+      "source_url": "https://tmf.com.br/contato"
     },
     {
       "cnpj14": "37073624000149",
@@ -690,8 +791,8 @@
         {
           "source_type": "contact_page",
           "source_url": "https://artflex.com.br/contato",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -715,8 +816,8 @@
         {
           "source_type": "contact_page",
           "source_url": "https://supera.com.br/contato",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -740,8 +841,8 @@
         {
           "source_type": "site",
           "source_url": "https://midt.com.br/",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -765,8 +866,8 @@
         {
           "source_type": "contact_page",
           "source_url": "https://trafecon.com.br/contato",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -776,6 +877,31 @@
       "root_source_url": "https://trafecon.com.br/contato",
       "source_type": "contact_page",
       "source_url": "https://trafecon.com.br/contato"
+    },
+    {
+      "cnpj14": "44571860000150",
+      "razao_social": "INSTITUTO RUAS LTDA",
+      "email": "contato@institutoruas.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://institutoruas.com.br/",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://institutoruas.com.br/",
+      "source_type": "site",
+      "source_url": "https://institutoruas.com.br/"
     },
     {
       "cnpj14": "52359706000148",
@@ -790,8 +916,8 @@
         {
           "source_type": "site",
           "source_url": "https://sulvias.com.br/",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -815,8 +941,8 @@
         {
           "source_type": "site",
           "source_url": "https://lifetopografia.com.br/",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -840,8 +966,8 @@
         {
           "source_type": "contact_page",
           "source_url": "https://simeng.com.br/contato",
-          "method": "contact_resolution_enrollable",
-          "observed_at": "2026-08-08T16:47:58Z",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
           "root": true
         }
       ],
@@ -851,7 +977,56 @@
       "root_source_url": "https://simeng.com.br/contato",
       "source_type": "contact_page",
       "source_url": "https://simeng.com.br/contato"
+    },
+    {
+      "cnpj14": "88256979000104",
+      "razao_social": "CONSTRUTORA E PAVIMENTADORA PAVICON LTDA",
+      "email": "pavicon@pavicon.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://pavicon.com.br/contato",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://pavicon.com.br/contato",
+      "source_type": "contact_page",
+      "source_url": "https://pavicon.com.br/contato"
+    },
+    {
+      "cnpj14": "89713903000123",
+      "razao_social": "CONSTRUTORA GIOVANELLA LTDA",
+      "email": "contato@giovanella.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://giovanella.com.br/",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://giovanella.com.br/",
+      "source_type": "site",
+      "source_url": "https://giovanella.com.br/"
     }
-  ],
-  "count": 34
+  ]
 }

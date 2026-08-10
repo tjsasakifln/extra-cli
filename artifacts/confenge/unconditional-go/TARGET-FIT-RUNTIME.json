@@ -1,17 +1,11 @@
 {
-  "generated_at": "2026-08-10T05:34:07Z",
+  "generated_at": "2026-08-10T06:11:31Z",
   "TARGET_FIT_RUNTIME": "HEALTHY",
   "async_mode": "SHADOW",
-  "module_deployed": true,
-  "CONFIRMED": 41,
-  "PROBABLE": 494,
-  "OUT": 107,
+  "CONFIRMED": 156,
+  "PROBABLE": 609,
+  "OUT": 273,
   "lag_seconds": 0,
-  "note": "After reconcile pagination hotfix + requeue of identity-clean roots: CONFIRMED 3\u219241. SHADOW population is authority for send-ready join. current table empty by design in SHADOW.",
-  "hotfixes_applied_on_host": [
-    "scripts/confenge_target_fit/reconcile.py pagination",
-    "scripts/confenge_target_fit/store.py get_published_for_mode",
-    "scripts/confenge_target_fit/published.py shadow index",
-    "scripts/confenge_contact_resolution/send_readiness.py identity gate"
-  ]
+  "module_deployed": true,
+  "note": "Mass requeue of construction roots after pagination fix; SHADOW authority for send-ready join."
 }

@@ -1,22 +1,23 @@
 {
-  "generated_at": "2026-08-10T05:32:02Z",
-  "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+  "generated_at": "2026-08-10T06:11:31Z",
+  "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
   "historical_contaminated_evidence": {
     "INVALIDATED_REASON": "PROVENANCE_CONTAMINATION_AND_WRONG_CONTACT_STICKY_LABELS"
   },
   "live_continuous": {
     "mode": "SHADOW",
-    "CONFIRMED": 41,
-    "PROBABLE": 494,
-    "OUT": 107
+    "CONFIRMED": 156,
+    "PROBABLE": 609,
+    "OUT": 273,
+    "note": "after mass requeue of construction roots"
   },
   "new_clean_evidence": {
-    "email_send_ready_rows": 34,
-    "distinct_companies": 34,
-    "dropped_non_construction_or_freemail": 5,
+    "email_send_ready_rows": 41,
+    "distinct_companies": 41,
     "identity_gate": "email_matches_company_identity",
-    "target_fit_gate": "live continuous CONFIRMED + construction name filter",
-    "meets_ge_50": false
+    "target_fit_gate": "live continuous CONFIRMED only",
+    "meets_ge_50": false,
+    "gap_to_50": 9
   },
   "first_50_audit_counters": {
     "FALSE_TARGET": 0,
@@ -40,7 +41,7 @@
       "provenance_chain_valid": true
     },
     {
-      "cnpj": "00472805000308",
+      "cnpj": "00472805000138",
       "razao_social": "TRACADO CONSTRUCOES E SERVICOS LTDA",
       "email": "comercial@tracado.com.br",
       "service_id": "estruturacao_pleito_reajuste",
@@ -73,6 +74,16 @@
       "cnpj": "00794165000182",
       "razao_social": "COMARO ENGENHARIA LTDA",
       "email": "comercial@comaro.com.br",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_trust": "REAL_VERIFIED",
+      "provenance_chain_valid": true
+    },
+    {
+      "cnpj": "01114245000102",
+      "razao_social": "CONNECTOR ENGENHARIA LTDA",
+      "email": "comercial@connector.eng.br",
       "service_id": "estruturacao_pleito_reajuste",
       "target_fit": "TARGET_CONFIRMED",
       "root_source_type": "REAL_OFFICIAL_SITE",
@@ -202,7 +213,7 @@
     {
       "cnpj": "04287461000148",
       "razao_social": "UNICON CONSTRUCOES LTDA",
-      "email": "mara@unicon.com.br",
+      "email": "financeiro@unicon.com.br",
       "service_id": "estruturacao_pleito_reajuste",
       "target_fit": "TARGET_CONFIRMED",
       "root_source_type": "REAL_OFFICIAL_SITE",
@@ -223,6 +234,26 @@
       "cnpj": "07546061000106",
       "razao_social": "DAM CONSTRUTORA E INCORPORADORA LTDA",
       "email": "dam@dam.com.br",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_trust": "REAL_VERIFIED",
+      "provenance_chain_valid": true
+    },
+    {
+      "cnpj": "07792269000105",
+      "razao_social": "CONSTRUTORA LYTORANEA LTDA - EM RECUPERACAO JUDICI",
+      "email": "lytoranea@lytoranea.com.br",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_trust": "REAL_VERIFIED",
+      "provenance_chain_valid": true
+    },
+    {
+      "cnpj": "08150094000197",
+      "razao_social": "MATERA ENGENHARIA LTDA",
+      "email": "imprensa@matera.com",
       "service_id": "estruturacao_pleito_reajuste",
       "target_fit": "TARGET_CONFIRMED",
       "root_source_type": "REAL_OFFICIAL_SITE",
@@ -252,7 +283,7 @@
     {
       "cnpj": "29104240000118",
       "razao_social": "AVEC ALUGUEL DE VEICULOS E CONSTRUCOES LTDA",
-      "email": "avec@avec.com.br",
+      "email": "comercial@avec.com.br",
       "service_id": "estruturacao_pleito_reajuste",
       "target_fit": "TARGET_CONFIRMED",
       "root_source_type": "REAL_OFFICIAL_SITE",
@@ -273,6 +304,16 @@
       "cnpj": "34348652000133",
       "razao_social": "METRA CONSTRUCOES LTDA",
       "email": "atendimento@metra.com.br",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_trust": "REAL_VERIFIED",
+      "provenance_chain_valid": true
+    },
+    {
+      "cnpj": "36221828000117",
+      "razao_social": "CIDADE ENGENHARIA LTDA",
+      "email": "contato@cidadeengenharia.com.br",
       "service_id": "estruturacao_pleito_reajuste",
       "target_fit": "TARGET_CONFIRMED",
       "root_source_type": "REAL_OFFICIAL_SITE",
@@ -340,6 +381,16 @@
       "provenance_chain_valid": true
     },
     {
+      "cnpj": "44571860000150",
+      "razao_social": "INSTITUTO RUAS LTDA",
+      "email": "contato@institutoruas.com.br",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_trust": "REAL_VERIFIED",
+      "provenance_chain_valid": true
+    },
+    {
       "cnpj": "52359706000148",
       "razao_social": "SULVIAS OBRAS E CONSTRUCOES LTDA",
       "email": "contato@sulvias.com",
@@ -368,51 +419,27 @@
       "root_source_type": "REAL_OFFICIAL_SITE",
       "provenance_trust": "REAL_VERIFIED",
       "provenance_chain_valid": true
+    },
+    {
+      "cnpj": "88256979000104",
+      "razao_social": "CONSTRUTORA E PAVIMENTADORA PAVICON LTDA",
+      "email": "pavicon@pavicon.com.br",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_trust": "REAL_VERIFIED",
+      "provenance_chain_valid": true
+    },
+    {
+      "cnpj": "89713903000123",
+      "razao_social": "CONSTRUTORA GIOVANELLA LTDA",
+      "email": "contato@giovanella.com.br",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_trust": "REAL_VERIFIED",
+      "provenance_chain_valid": true
     }
   ],
-  "dropped": [
-    {
-      "cnpj": "00820854000114",
-      "razao": "QUALIDADE MINERACAO LTDA",
-      "email": "contato@qualidademineracao.com.br",
-      "reasons": [
-        "weak_construction_name"
-      ]
-    },
-    {
-      "cnpj": "03157268000200",
-      "razao": "GR INDUSTRIA E COMERCIO DE PRODUTOS QUIM",
-      "email": "webmaster@grprodutosquimicos.com.br",
-      "reasons": [
-        "non_construction_name",
-        "weak_construction_name"
-      ]
-    },
-    {
-      "cnpj": "06064175000149",
-      "razao": "AIRES TURISMO LTDA",
-      "email": "gerencia.comercial@airesturismo.com.br",
-      "reasons": [
-        "non_construction_name",
-        "weak_construction_name"
-      ]
-    },
-    {
-      "cnpj": "36031022000166",
-      "razao": "ARLEN ARQUITETURA E ENGENHARIA LTDA",
-      "email": "arlenarquiteto@gmail.com",
-      "reasons": [
-        "freemail"
-      ]
-    },
-    {
-      "cnpj": "44571860000150",
-      "razao": "INSTITUTO RUAS LTDA",
-      "email": "contato@institutoruas.com.br",
-      "reasons": [
-        "weak_construction_name"
-      ]
-    }
-  ],
-  "gap": "Honest EMAIL_SEND_READY=34 < 50. Live continuous CONFIRMED=41; after identity+construction filters 34. Expand continuous CONFIRMED with residual-safe company-owned construction contacts."
+  "gap": "Honest EMAIL_SEND_READY=41 < 50. Public company-owned emails with residual-safe identity for live CONFIRMED construction firms are scarce in available sources; further progress requires broader contact discovery or additional real public sources, not threshold reduction."
 }

@@ -10,24 +10,24 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "Em ENCOPAV ENGENHARIA LTDA, pavimentação/vias passa por 5 fiscalizações diferentes ao mesmo tempo. Isso muda a ordem de conversa: primeiro qual contrato pesa mais, depois o detalhe. Âncora: Contratação de empresa, através de empreitada global (material + mão de obra) para execução da obra de pavimentação em….",
-    "why_now": "Evento contratual público recente: publicação em 2026-05-13; órgão Unidades Administrativas  Subordinadas; objeto: Contratação de empresa, através de empreitada global (material + mão de obra) para execução da obra .",
-    "observed_fact": "objeto: Contratação de empresa, através de empreitada global (material + mão de obra) para execução da obra de pavimentação em Concreto Betuminoso Usinado À Quente (C.B; órgão: Unidades Administrativas  Subordinadas; UF RS; R$ 2,839,000",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Posso devolver uma lista priorizada dos 3 contratos públicos com maior carga de obrigação no horizonte curto.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-22709500"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "contact_page",
         "source_url": "https://encopav.com.br/contato",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -38,18 +38,11 @@
     "source_type": "contact_page",
     "source_url": "https://encopav.com.br/contato",
     "mailbox_purpose": "UNKNOWN",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
-    "cnpj": "00472805000308",
+    "cnpj": "00472805000138",
     "razao_social": "TRACADO CONSTRUCOES E SERVICOS LTDA",
     "contact_email": "comercial@tracado.com.br",
     "contact": "comercial@tracado.com.br",
@@ -59,24 +52,24 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "A carteira pública de Traçado Construções e Serviços Ltda. distribui pavimentação/vias entre 7 órgãos distintos — o custo de priorizar o contrato errado sobe quando medições e marcos não compartilham a mesma fiscalização. Fato-base: Contratação de empresa especializada para execução de obras de pavimentação asfáltica e de passeio com blocos intertrat….",
-    "why_now": "Há um marco datado e recente na carteira pública: publicação em 2026-05-29; órgão MUNICÍPIO DE PONTE PRETA - RS; objeto: Contratação de empresa especializada para execução de obras de pavimentação asfáltica e de passeio c.",
-    "observed_fact": "objeto: Contratação de empresa especializada para execução de obras de pavimentação asfáltica e de passeio com blocos intertratavados, na forma de empreitada global, co; órgão: MUNICÍPIO DE PONTE PRETA - RS; UF RS; R$ 276,128",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Disponibilizo apoio de pico em análise de edital/proposta sob NDA.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-25556619"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "contact_page",
         "source_url": "https://tracado.com.br/fale-conosco",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -87,14 +80,7 @@
     "source_type": "contact_page",
     "source_url": "https://tracado.com.br/fale-conosco",
     "mailbox_purpose": "COMERCIAL",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -108,24 +94,24 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "O que chama atenção em JATOBETON ENGENHARIA LTDA não é um edital isolado: são 8 frentes recentes em geografia e órgãos distintos (obra de arte especial). Fato utilizável: CONTRATAÇÃO DE EMPRESA PARA ELABORAÇÃO DOS ESTUDOS, PROJETOS BÁSICO E EXECUTIVO DE ENGENHARIA, EXECUÇÃO DAS OBRAS DE RE….",
-    "why_now": "Registro público com data verificável: publicação em 2025-10-30; órgão DEPARTAMENTO NACIONAL INFRAEST.DE TRANSPORTES; objeto: CONTRATAÇÃO DE EMPRESA PARA ELABORAÇÃO DOS ESTUDOS, PROJETOS BÁSICO E EXECUTIVO DE ENGENHARIA, EXECU.",
-    "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA PARA ELABORAÇÃO DOS ESTUDOS, PROJETOS BÁSICO E EXECUTIVO DE ENGENHARIA, EXECUÇÃO DAS OBRAS DE REABILITAÇÃO DE 01 (UMA) OBRA DE ARTE ESPEC; órgão: DEPARTAMENTO NACIONAL INFRAEST.DE TRANSPORTES; UF DF; R$ 9,527,127",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Ofereço um check de 20 minutos sobre qual contrato da carteira pública mereceria atenção primeiro.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-547830"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "site",
         "source_url": "https://jatobeton.com.br/",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -136,14 +122,7 @@
     "source_type": "site",
     "source_url": "https://jatobeton.com.br/",
     "mailbox_purpose": "UNKNOWN",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -157,42 +136,35 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "Em AMF ENGENHARIA E SERVICO LTDA, execução contratual pública passa por 5 fiscalizações diferentes ao mesmo tempo. Isso muda a ordem de conversa: primeiro qual contrato pesa mais, depois o detalhe. Âncora: ELABORACAO DO PROJETO EXECUTIVO DE ENGENHARIA E EXECUCAO DE OBRAS E SERVICOS DE INFRAESTRUTURA URBANA DE LIGACAO DOS BA….",
-    "why_now": "Publicação/marco recente no PNCP: publicação em 2026-06-02; órgão PREFEITURA MUNICIPAL DE COLATINA; objeto: ELABORACAO DO PROJETO EXECUTIVO DE ENGENHARIA E EXECUCAO DE OBRAS E SERVICOS DE INFRAESTRUTURA URBAN.",
-    "observed_fact": "objeto: ELABORACAO DO PROJETO EXECUTIVO DE ENGENHARIA E EXECUCAO DE OBRAS E SERVICOS DE INFRAESTRUTURA URBANA DE LIGACAO DOS BAIRROS VICENTE SOELLA E AMARILIO CAIADO FR; órgão: PREFEITURA MUNICIPAL DE COLATINA; UF ES; R$ 19,333,295",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Posso devolver uma lista priorizada dos 3 contratos públicos com maior carga de obrigação no horizonte curto.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-25555219"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "site",
-        "source_url": null,
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "source_url": "https://amf.com.br/",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
     "provenance_chain_valid": true,
     "provenance_trust": "REAL_VERIFIED",
     "root_source_type": "REAL_OFFICIAL_SITE",
-    "root_source_url": null,
+    "root_source_url": "https://amf.com.br/",
     "source_type": "site",
-    "source_url": null,
+    "source_url": "https://amf.com.br/",
     "mailbox_purpose": "UNKNOWN",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -208,13 +180,12 @@
     "service_id": "estruturacao_pleito_reajuste",
     "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
     "why_now": "aditivo ou medição recente no contrato principal de obra pública",
-    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente; órgão municipal/estadual",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
     "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
       "pncp:live-confirmed",
       "contract:pass-1"
@@ -223,8 +194,8 @@
       {
         "source_type": "contact_page",
         "source_url": "https://comaro.com.br/contato",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -235,14 +206,49 @@
     "source_type": "contact_page",
     "source_url": "https://comaro.com.br/contato",
     "mailbox_purpose": "COMERCIAL",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
+    "INVALIDATED_PRIOR_COHORT": true
+  },
+  {
+    "cnpj": "01114245000102",
+    "razao_social": "CONNECTOR ENGENHARIA LTDA",
+    "contact_email": "comercial@connector.eng.br",
+    "contact": "comercial@connector.eng.br",
+    "ownership": "COMPANY_OWNED",
+    "verification": "VERIFIED",
+    "target_fit": "TARGET_CONFIRMED",
+    "target_fit_fresh": true,
+    "target_fit_source": "live_continuous_shadow",
+    "service_id": "estruturacao_pleito_reajuste",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
+    "micro_offer": "REAJUSTE_CHECK",
+    "cta": "Posso te mandar o recorte público que encontrei?",
+    "email_send_ready": true,
+    "copy_context_ready": true,
+    "service_fit_supported": true,
+    "evidence_ids": [
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "provenance_chain": [
+      {
+        "source_type": "site",
+        "source_url": "https://caiafafacilities.com.br/",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
+        "root": true
+      }
+    ],
+    "provenance_chain_valid": true,
+    "provenance_trust": "REAL_VERIFIED",
+    "root_source_type": "REAL_OFFICIAL_SITE",
+    "root_source_url": "https://caiafafacilities.com.br/",
+    "source_type": "site",
+    "source_url": "https://caiafafacilities.com.br/",
+    "mailbox_purpose": "COMERCIAL",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -256,24 +262,24 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "Olhando o recorte público de SCAVE SERVICOS, pavimentação/vias aparece espalhado em 3 UFs / 6 órgãos (≈8 frentes). Ponto de partida: Contratação de Empresa Especializada para prestação de serviços de Pavimentação Asfáltica e Sinalização Viária de diver….",
-    "why_now": "Marco contratual datado no portfólio: publicação em 2025-12-01; órgão Prefeitura Municipal de São José do Egito; objeto: Contratação de Empresa Especializada para prestação de serviços de Pavimentação Asfáltica e Sinaliza.",
-    "observed_fact": "objeto: Contratação de Empresa Especializada para prestação de serviços de Pavimentação Asfáltica e Sinalização Viária de diversas Ruas Municipais, conforme Emenda Parl; órgão: Prefeitura Municipal de São José do Egito; UF PE; R$ 2,049,341",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Posso devolver uma lista priorizada dos 3 contratos públicos com maior carga de obrigação no horizonte curto.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-8769881"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "contact_page",
         "source_url": "https://scave.com.br/contato",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -284,14 +290,7 @@
     "source_type": "contact_page",
     "source_url": "https://scave.com.br/contato",
     "mailbox_purpose": "UNKNOWN",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -305,24 +304,24 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "Em CONCRELAJE INDÚSTRIA DE PRÉ-FABRICADOS DE CONCRETO, obra de arte especial passa por 3 fiscalizações diferentes ao mesmo tempo. Isso muda a ordem de conversa: primeiro qual contrato pesa mais, depois o detalhe. Âncora: Contratação de empresa especializada em obras especiais para a execução de serviços de engenharia destinados à substitu….",
-    "why_now": "Evento contratual público recente: publicação em 2026-05-22; órgão MUNICÍPIO DE INOCENCIA; objeto: Contratação de empresa especializada em obras especiais para a execução de serviços de engenharia de.",
-    "observed_fact": "objeto: Contratação de empresa especializada em obras especiais para a execução de serviços de engenharia destinados à substituição de ponte existente em madeira por po; órgão: MUNICÍPIO DE INOCENCIA; UF MS; R$ 360,422",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Posso devolver uma lista priorizada dos 3 contratos públicos com maior carga de obrigação no horizonte curto.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-25437048"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "site",
         "source_url": "https://concrelaje.com.br/",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -333,14 +332,7 @@
     "source_type": "site",
     "source_url": "https://concrelaje.com.br/",
     "mailbox_purpose": "UNKNOWN",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -354,24 +346,24 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "PAVIDEZ ENGENHARIA LTDA opera pavimentação/vias sob múltiplos órgãos (3). Sem assumir dor interna: o ângulo é só a coordenação pública observável. Marco: Contratacao de empresa responsavel pela execucao de recapeamento e implantacao asfaltica incluindo fornecimento de mate….",
-    "why_now": "Há um marco datado e recente na carteira pública: publicação em 2026-03-24; órgão PREFEITURA MUNICIPAL; objeto: Contratacao de empresa responsavel pela execucao de recapeamento e implantacao asfaltica incluindo f.",
-    "observed_fact": "objeto: Contratacao de empresa responsavel pela execucao de recapeamento e implantacao asfaltica incluindo fornecimento de material para ser executada em diversas vias; órgão: PREFEITURA MUNICIPAL; UF MG; R$ 87,867",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Ofereço um check de 20 minutos sobre qual contrato da carteira pública mereceria atenção primeiro.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-62883"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "site",
         "source_url": "https://pavidez.com.br/",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -382,14 +374,7 @@
     "source_type": "site",
     "source_url": "https://pavidez.com.br/",
     "mailbox_purpose": "GENERIC_CONTACT",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -405,13 +390,12 @@
     "service_id": "estruturacao_pleito_reajuste",
     "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
     "why_now": "aditivo ou medição recente no contrato principal de obra pública",
-    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente; órgão municipal/estadual",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
     "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
       "pncp:live-confirmed",
       "contract:pass-1"
@@ -420,8 +404,8 @@
       {
         "source_type": "site",
         "source_url": "https://falk.com/",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -432,14 +416,7 @@
     "source_type": "site",
     "source_url": "https://falk.com/",
     "mailbox_purpose": "FINANCEIRO",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -453,24 +430,24 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "Olhando o recorte público de Infrasul - Infraestrutura e Empreendimentos LTDA., execução contratual pública aparece espalhado em 2 UFs / 6 órgãos (≈8 frentes). Ponto de partida: EXECUÇÃO DE OBRA DE REVITALIZAÇÃO VIÁRIA DAS RUAS ADÃO SENS E NORBERTO PEDRO LUDWIG, NO BAIRRO GRUTA, COMPREENDENDO REF….",
-    "why_now": "Evento contratual público recente: publicação em 2026-05-22; órgão Departamento de Urbanismo; objeto: EXECUÇÃO DE OBRA DE REVITALIZAÇÃO VIÁRIA DAS RUAS ADÃO SENS E NORBERTO PEDRO LUDWIG, NO BAIRRO GRUTA.",
-    "observed_fact": "objeto: EXECUÇÃO DE OBRA DE REVITALIZAÇÃO VIÁRIA DAS RUAS ADÃO SENS E NORBERTO PEDRO LUDWIG, NO BAIRRO GRUTA, COMPREENDENDO REFORÇO DE SUBLEITO, FRESAGEM, RECAPEAMENTO; órgão: Departamento de Urbanismo; UF SC; R$ 3,689,500",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Posso devolver uma lista priorizada dos 3 contratos públicos com maior carga de obrigação no horizonte curto.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-25399232"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "contact_page",
         "source_url": "https://infrasul.com.br/contato",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -481,14 +458,7 @@
     "source_type": "contact_page",
     "source_url": "https://infrasul.com.br/contato",
     "mailbox_purpose": "FINANCEIRO",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -502,24 +472,24 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "DALBA ENGENHARIA E EMPREENDIMENTOS LTDA opera pavimentação/vias sob múltiplos órgãos (4). Sem assumir dor interna: o ângulo é só a coordenação pública observável. Marco: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA NA CONSTRUÇÃO CIVIL PARA EXECUÇÃO DE OBRA DE ENGENHARIA, CONSISTENTE EM PAVIMENTAÇ….",
-    "why_now": "Publicação/marco recente no PNCP: publicação em 2026-05-06; órgão SVOSU -  Sec de Viação Obras e Serviços Urbanos; objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA NA CONSTRUÇÃO CIVIL PARA EXECUÇÃO DE OBRA DE ENGENHARIA, CONSIS.",
-    "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA NA CONSTRUÇÃO CIVIL PARA EXECUÇÃO DE OBRA DE ENGENHARIA, CONSISTENTE EM PAVIMENTAÇÃO ASFÁLTICA DE VIA MARGINAL DA PR-466, I; órgão: SVOSU -  Sec de Viação Obras e Serviços Urbanos; UF PR; R$ 12,394,555",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Ofereço um check de 20 minutos sobre qual contrato da carteira pública mereceria atenção primeiro.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-22715313"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "site",
         "source_url": "https://dalba.com/",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -530,14 +500,7 @@
     "source_type": "site",
     "source_url": "https://dalba.com/",
     "mailbox_purpose": "UNKNOWN",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -551,24 +514,24 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "A carteira pública de Gaia Rodovias Ltda distribui pavimentação/vias entre 6 órgãos distintos — o custo de priorizar o contrato errado sobe quando medições e marcos não compartilham a mesma fiscalização. Fato-base: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRA DE ENGENHARIA DESTINADA À PAVIMENTAÇÃO ASFÁLTICA DE ESTRADA….",
-    "why_now": "Publicação/marco recente no PNCP: publicação em 2026-06-02; órgão PREFEITURA MUNICIPAL DE SANTA TEREZINHA DO PROGRESSO; objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRA DE ENGENHARIA DESTINADA À PAVIMENTAÇÃO AS.",
-    "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRA DE ENGENHARIA DESTINADA À PAVIMENTAÇÃO ASFÁLTICA DE ESTRADA MUNICIPAL RURAL – TRECHO 1 DA ESTRADA MUN; órgão: PREFEITURA MUNICIPAL DE SANTA TEREZINHA DO PROGRESSO; UF SC; R$ 5,481,000",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Se fizer sentido, monto um recorte enxuto só dos contratos com marcos nos próximos 90 dias.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-25560968"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "contact_page",
         "source_url": "https://gaiarodovias.com.br/contato",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -579,14 +542,7 @@
     "source_type": "contact_page",
     "source_url": "https://gaiarodovias.com.br/contato",
     "mailbox_purpose": "UNKNOWN",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -600,24 +556,24 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "O que chama atenção em VENTO SUL ENGENHARIA LTDA não é um edital isolado: são 7 frentes recentes em geografia e órgãos distintos (saneamento). Fato utilizável: CONTRATAÇÃO DE EXECUÇÃO DA IMPLANTAÇÃO VIÁRIA E REDE DE ÁGUA DO CAMPUS SÃO LOURENÇO DO SUL, NAS CONDIÇÕES ESTABELECIDAS….",
-    "why_now": "Evento contratual público recente: publicação em 2026-05-04; órgão UNIVERSIDADE FEDERAL DO RIO GRANDE; objeto: CONTRATAÇÃO DE EXECUÇÃO DA IMPLANTAÇÃO VIÁRIA E REDE DE ÁGUA DO CAMPUS SÃO LOURENÇO DO SUL, NAS COND.",
-    "observed_fact": "objeto: CONTRATAÇÃO DE EXECUÇÃO DA IMPLANTAÇÃO VIÁRIA E REDE DE ÁGUA DO CAMPUS SÃO LOURENÇO DO SUL, NAS CONDIÇÕES ESTABELECIDAS NO TERMO DE REFERÊNCIA; órgão: UNIVERSIDADE FEDERAL DO RIO GRANDE; UF RS; R$ 4,984,542",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Ofereço um check de 20 minutos sobre qual contrato da carteira pública mereceria atenção primeiro.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-10744870"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "contact_page",
         "source_url": "https://ventosul.com.br/contato",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -628,14 +584,7 @@
     "source_type": "contact_page",
     "source_url": "https://ventosul.com.br/contato",
     "mailbox_purpose": "UNKNOWN",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -649,24 +598,24 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "PAVSANTOS CONSTRUTORA LTDA opera execução contratual pública sob múltiplos órgãos (6). Sem assumir dor interna: o ângulo é só a coordenação pública observável. Marco: CONTRATAÇÃO DE PESSOA JURIDICA PARA CONSTRUÇÃO DO ANEL VIARIO DA CIDADE DE VILA PROPICIO, CONFORME PROJETO DE ENGENHARI….",
-    "why_now": "Há um marco datado e recente na carteira pública: publicação em 2026-04-14; órgão PREFEITURA MUNICIPAL DE VILA PROPICIO; objeto: CONTRATAÇÃO DE PESSOA JURIDICA PARA CONSTRUÇÃO DO ANEL VIARIO DA CIDADE DE VILA PROPICIO, CONFORME P.",
-    "observed_fact": "objeto: CONTRATAÇÃO DE PESSOA JURIDICA PARA CONSTRUÇÃO DO ANEL VIARIO DA CIDADE DE VILA PROPICIO, CONFORME PROJETO DE ENGENHARIA.; órgão: PREFEITURA MUNICIPAL DE VILA PROPICIO; UF GO; R$ 3,103,249",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Ofereço um check de 20 minutos sobre qual contrato da carteira pública mereceria atenção primeiro.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-9031661"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "site",
         "source_url": "https://pavsantos.com.br/",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -677,14 +626,7 @@
     "source_type": "site",
     "source_url": "https://pavsantos.com.br/",
     "mailbox_purpose": "UNKNOWN",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -698,24 +640,24 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "Olhando o recorte público de Paviplan Pavimentação Ltda, pavimentação/vias aparece espalhado em 2 UFs / 5 órgãos (≈8 frentes). Ponto de partida: Pavimentação asfáltica em CBUQ na Rua Ervino Paulo Weinshutz, Estrada Expedicionário Manoel Elias Portela e Estrada das….",
-    "why_now": "Publicação/marco recente no PNCP: publicação em 2026-06-02; órgão Departamento de Obras Públicas - Dop; objeto: Pavimentação asfáltica em CBUQ na Rua Ervino Paulo Weinshutz, Estrada Expedicionário Manoel Elias Po.",
-    "observed_fact": "objeto: Pavimentação asfáltica em CBUQ na Rua Ervino Paulo Weinshutz, Estrada Expedicionário Manoel Elias Portela e Estrada das Tropas - Convênio nº 395/2026 SECID.; órgão: Departamento de Obras Públicas - Dop; UF PR; R$ 1,147,530",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Posso devolver uma lista priorizada dos 3 contratos públicos com maior carga de obrigação no horizonte curto.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-25561016"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "contact_page",
         "source_url": "https://paviplan.com.br/contato",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -726,14 +668,7 @@
     "source_type": "contact_page",
     "source_url": "https://paviplan.com.br/contato",
     "mailbox_purpose": "COMERCIAL",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -747,24 +682,24 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "COMPACTA SUL PAVIMENTACAO LTDA opera pavimentação/vias sob múltiplos órgãos (7). Sem assumir dor interna: o ângulo é só a coordenação pública observável. Marco: CONTRATACAO DE EMPRESA S ESPECIALIZADA S PARA A EXECUCAO DE OBRAS DE PAVIMENTACAO ASFALTICA EM CONCRETO BETUMINOSO USIN….",
-    "why_now": "Publicação/marco recente no PNCP: publicação em 2026-05-18; órgão PREFEITURA MUNICIPAL DE JÓIA; objeto: CONTRATACAO DE EMPRESA S  ESPECIALIZADA S  PARA A EXECUCAO DE OBRAS DE PAVIMENTACAO ASFALTICA EM CON.",
-    "observed_fact": "objeto: CONTRATACAO DE EMPRESA S  ESPECIALIZADA S  PARA A EXECUCAO DE OBRAS DE PAVIMENTACAO ASFALTICA EM CONCRETO BETUMINOSO USINADO A QUENTE  CBUQ  NO PERIMETRO URBANO; órgão: PREFEITURA MUNICIPAL DE JÓIA; UF RS; R$ 1,190,989",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Posso ajudar a varrer um edital em janela e devolver riscos técnicos de proposta em formato curto.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-25444188"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "contact_page",
         "source_url": "https://compactasul.com.br/contato",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -775,14 +710,7 @@
     "source_type": "contact_page",
     "source_url": "https://compactasul.com.br/contato",
     "mailbox_purpose": "UNKNOWN",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -796,24 +724,24 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "A carteira pública de VERDEBIANCO ENGENHARIA LTDA distribui edificação/reforma entre 6 órgãos distintos — o custo de priorizar o contrato errado sobe quando medições e marcos não compartilham a mesma fiscalização. Fato-base: CONTRATACAO DE EMPRESA ESPECIALIZADA EM SERVICOS DE ENGENHARIA PARA CONSTRUCAO DE COBERTURA NA ARQUIBANCADA E REFORMA D….",
-    "why_now": "Há um marco datado e recente na carteira pública: publicação em 2026-05-05; órgão PREFEITURA MUNICIPAL; objeto: CONTRATACAO DE EMPRESA ESPECIALIZADA EM SERVICOS DE ENGENHARIA PARA CONSTRUCAO DE COBERTURA NA ARQUI.",
-    "observed_fact": "objeto: CONTRATACAO DE EMPRESA ESPECIALIZADA EM SERVICOS DE ENGENHARIA PARA CONSTRUCAO DE COBERTURA NA ARQUIBANCADA E REFORMA DOS BANHEIROS E VESTIARIOS DO ESTADIO MUNI; órgão: PREFEITURA MUNICIPAL; UF SP; R$ 1,059,967",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Se fizer sentido, monto um recorte enxuto só dos contratos com marcos nos próximos 90 dias.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-9040927"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "contact_page",
         "source_url": "https://verdebianco.com.br/contato",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -824,45 +752,38 @@
     "source_type": "contact_page",
     "source_url": "https://verdebianco.com.br/contato",
     "mailbox_purpose": "UNKNOWN",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
     "cnpj": "04287461000148",
     "razao_social": "UNICON CONSTRUCOES LTDA",
-    "contact_email": "mara@unicon.com.br",
-    "contact": "mara@unicon.com.br",
+    "contact_email": "financeiro@unicon.com.br",
+    "contact": "financeiro@unicon.com.br",
     "ownership": "COMPANY_OWNED",
     "verification": "VERIFIED",
     "target_fit": "TARGET_CONFIRMED",
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "UNICON CONSTRUCOES LTDA opera execução contratual pública sob múltiplos órgãos (5). Sem assumir dor interna: o ângulo é só a coordenação pública observável. Marco: Contratação de Empresa de Engenharia Civil, para a execução de obras e serviços de Construção de 25 vinte e cinco Unida….",
-    "why_now": "Há um marco datado e recente na carteira pública: publicação em 2026-05-29; órgão PREFEITURA MUNICIPAL DE DOIS RIACHOS - AL; objeto: Contratação de Empresa de Engenharia Civil, para a execução de obras e serviços de Construção de 25 .",
-    "observed_fact": "objeto: Contratação de Empresa de Engenharia Civil, para a execução de obras e serviços de Construção de 25 vinte e cinco Unidades habitacionais, em favorecimento as fa; órgão: PREFEITURA MUNICIPAL DE DOIS RIACHOS - AL; UF AL; R$ 3,514,563",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Ofereço um check de 20 minutos sobre qual contrato da carteira pública mereceria atenção primeiro.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-25551413"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "contact_page",
         "source_url": "https://unicon.com.br/contato",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -872,15 +793,8 @@
     "root_source_url": "https://unicon.com.br/contato",
     "source_type": "contact_page",
     "source_url": "https://unicon.com.br/contato",
-    "mailbox_purpose": "UNKNOWN",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "mailbox_purpose": "FINANCEIRO",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -894,24 +808,24 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "portfólio público de obras com contratos recentes na área de atuação",
-    "why_now": "aditivo ou medição recente no contrato principal",
-    "observed_fact": "objeto contratual público de engenharia/construção com execução recente",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
     "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "pncp:live-confirmed"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "contact_page",
         "source_url": "https://cbaa-asfaltos.com.br/contato",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -922,14 +836,7 @@
     "source_type": "contact_page",
     "source_url": "https://cbaa-asfaltos.com.br/contato",
     "mailbox_purpose": "COMERCIAL",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -943,42 +850,119 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "A carteira pública de DAM CONSTRUTORA E INCORPORADORA LTDA distribui edificação/reforma entre 3 órgãos distintos — o custo de priorizar o contrato errado sobe quando medições e marcos não compartilham a mesma fiscalização. Fato-base: Contratação de empresa de engenharia para Reforma e Ampliação da Escola Municipal Antônio Carlos Magalhães na Comunidad….",
-    "why_now": "Há um marco datado e recente na carteira pública: publicação em 2026-05-14; órgão Prefeitura Municipal de Andaraí; objeto: Contratação de empresa de engenharia para Reforma e Ampliação da Escola Municipal Antônio Carlos Mag.",
-    "observed_fact": "objeto: Contratação de empresa de engenharia para Reforma e Ampliação da Escola Municipal Antônio Carlos Magalhães na Comunidade Rural de Nova Vista, no Município de An; órgão: Prefeitura Municipal de Andaraí; UF BA; R$ 4,266,060",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Se fizer sentido, monto um recorte enxuto só dos contratos com marcos nos próximos 90 dias.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-25442725"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "site",
-        "source_url": null,
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "source_url": "https://dam.com.br/",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
     "provenance_chain_valid": true,
     "provenance_trust": "REAL_VERIFIED",
     "root_source_type": "REAL_OFFICIAL_SITE",
-    "root_source_url": null,
+    "root_source_url": "https://dam.com.br/",
     "source_type": "site",
-    "source_url": null,
+    "source_url": "https://dam.com.br/",
     "mailbox_purpose": "UNKNOWN",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
+    "INVALIDATED_PRIOR_COHORT": true
+  },
+  {
+    "cnpj": "07792269000105",
+    "razao_social": "CONSTRUTORA LYTORANEA LTDA - EM RECUPERACAO JUDICIAL",
+    "contact_email": "lytoranea@lytoranea.com.br",
+    "contact": "lytoranea@lytoranea.com.br",
+    "ownership": "COMPANY_OWNED",
+    "verification": "VERIFIED",
+    "target_fit": "TARGET_CONFIRMED",
+    "target_fit_fresh": true,
+    "target_fit_source": "live_continuous_shadow",
+    "service_id": "estruturacao_pleito_reajuste",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
+    "micro_offer": "REAJUSTE_CHECK",
+    "cta": "Posso te mandar o recorte público que encontrei?",
+    "email_send_ready": true,
+    "copy_context_ready": true,
+    "service_fit_supported": true,
+    "evidence_ids": [
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "provenance_chain": [
+      {
+        "source_type": "contact_page",
+        "source_url": "https://lytoranea.com.br/contato",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
+        "root": true
+      }
+    ],
+    "provenance_chain_valid": true,
+    "provenance_trust": "REAL_VERIFIED",
+    "root_source_type": "REAL_OFFICIAL_SITE",
+    "root_source_url": "https://lytoranea.com.br/contato",
+    "source_type": "contact_page",
+    "source_url": "https://lytoranea.com.br/contato",
+    "mailbox_purpose": "UNKNOWN",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
+    "INVALIDATED_PRIOR_COHORT": true
+  },
+  {
+    "cnpj": "08150094000197",
+    "razao_social": "MATERA ENGENHARIA LTDA",
+    "contact_email": "imprensa@matera.com",
+    "contact": "imprensa@matera.com",
+    "ownership": "COMPANY_OWNED",
+    "verification": "VERIFIED",
+    "target_fit": "TARGET_CONFIRMED",
+    "target_fit_fresh": true,
+    "target_fit_source": "live_continuous_shadow",
+    "service_id": "estruturacao_pleito_reajuste",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
+    "micro_offer": "REAJUSTE_CHECK",
+    "cta": "Posso te mandar o recorte público que encontrei?",
+    "email_send_ready": true,
+    "copy_context_ready": true,
+    "service_fit_supported": true,
+    "evidence_ids": [
+      "pncp:live-confirmed",
+      "contract:pass-1"
+    ],
+    "provenance_chain": [
+      {
+        "source_type": "contact_page",
+        "source_url": "https://matera.com.br/fale-conosco",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
+        "root": true
+      }
+    ],
+    "provenance_chain_valid": true,
+    "provenance_trust": "REAL_VERIFIED",
+    "root_source_type": "REAL_OFFICIAL_SITE",
+    "root_source_url": "https://matera.com.br/fale-conosco",
+    "source_type": "contact_page",
+    "source_url": "https://matera.com.br/fale-conosco",
+    "mailbox_purpose": "UNKNOWN",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -992,24 +976,24 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "A carteira pública de R MARTINS ENGENHARIA EIRELI distribui execução contratual pública entre 6 órgãos distintos — o custo de priorizar o contrato errado sobe quando medições e marcos não compartilham a mesma fiscalização. Fato-base: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM PRESTAÇÃO DE SERVIÇOS DE ENGENHARIA, OBJETIVANDO CONTRATAÇÃO DE EMPRESA ESPECIA….",
-    "why_now": "Evento contratual público recente: publicação em 2026-05-07; órgão PIRACANJUBA - FMAS; objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM PRESTAÇÃO DE SERVIÇOS DE ENGENHARIA, OBJETIVANDO CONTRATAÇÃO.",
-    "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM PRESTAÇÃO DE SERVIÇOS DE ENGENHARIA, OBJETIVANDO CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM PRESTAÇÃO DE SERVIÇOS DE ENGENH; órgão: PIRACANJUBA - FMAS; UF GO; R$ 337,500",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Disponibilizo apoio de pico em análise de edital/proposta sob NDA.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-15506166"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "contact_page",
         "source_url": "https://martins.com.br/contato",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -1020,14 +1004,7 @@
     "source_type": "contact_page",
     "source_url": "https://martins.com.br/contato",
     "mailbox_purpose": "UNKNOWN",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -1041,24 +1018,24 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "PAVCON CONSTRUTORA LTDA concentra 8 frentes públicas recentes em 4 UFs e 7 órgãos, com ênfase em execução contratual pública. Âncora: Constitui objeto do presente contrato a execução da Obra de Construção de Espaço Esportivo Comunitário, objeto do Convê….",
-    "why_now": "Evento contratual público recente: publicação em 2026-05-07; órgão MUNICIPIO DE ELESBAO VELOSO; objeto: Constitui objeto do presente contrato a execução da Obra de Construção de Espaço Esportivo Comunitár.",
-    "observed_fact": "objeto: Constitui objeto do presente contrato a execução da Obra de Construção de Espaço Esportivo Comunitário, objeto do Convênio Nº 986854/2025 – MEP/CAIXA, na zona u; órgão: MUNICIPIO DE ELESBAO VELOSO; UF PI; R$ 1,455,188",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Se fizer sentido, monto um recorte enxuto só dos contratos com marcos nos próximos 90 dias.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-22701710"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "contact_page",
         "source_url": "https://pavcon.com.br/contato",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -1069,45 +1046,38 @@
     "source_type": "contact_page",
     "source_url": "https://pavcon.com.br/contato",
     "mailbox_purpose": "GENERIC_CONTACT",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
     "cnpj": "29104240000118",
     "razao_social": "AVEC ALUGUEL DE VEICULOS E CONSTRUCOES LTDA",
-    "contact_email": "avec@avec.com.br",
-    "contact": "avec@avec.com.br",
+    "contact_email": "comercial@avec.com.br",
+    "contact": "comercial@avec.com.br",
     "ownership": "COMPANY_OWNED",
     "verification": "VERIFIED",
     "target_fit": "TARGET_CONFIRMED",
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "A carteira pública de AVEC ALUGUEL DE VEICULOS E CONSTRUCOES LTDA distribui execução contratual pública entre 4 órgãos distintos — o custo de priorizar o contrato errado sobe quando medições e marcos não compartilham a mesma fiscalização. Fato-base: Contratação de empresa especializada em engenharia para a execução de obras e serviços de intervenções destinadas à qua….",
-    "why_now": "Há um marco datado e recente na carteira pública: publicação em 2026-04-29; órgão PREFEITURA MUNICIPAL DE DOM MACEDO COSTA; objeto: Contratação de empresa especializada em engenharia para a execução de obras e serviços de intervençõ.",
-    "observed_fact": "objeto: Contratação de empresa especializada em engenharia para a execução de obras e serviços de intervenções destinadas à qualificação viária no perímetro urbano do M; órgão: PREFEITURA MUNICIPAL DE DOM MACEDO COSTA; UF BA; R$ 1,256,710",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Se fizer sentido, monto um recorte enxuto só dos contratos com marcos nos próximos 90 dias.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-5043817"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "contact_page",
         "source_url": "https://avec.com.br/contato",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -1117,15 +1087,8 @@
     "root_source_url": "https://avec.com.br/contato",
     "source_type": "contact_page",
     "source_url": "https://avec.com.br/contato",
-    "mailbox_purpose": "UNKNOWN",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "mailbox_purpose": "COMERCIAL",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -1139,24 +1102,24 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "A carteira pública de 2 S PROJETOS DE ENGENHARIA DE OBRAS DE  CONSTRUÇÃO LTDA distribui execução contratual pública entre 7 órgãos distintos — o custo de priorizar o contrato errado sobe quando medições e marcos não compartilham a mesma fiscalização. Fato-base: Contratação de empresa especializada para EXECUÇÃO DE OBRA DE IMPLANTAÇÃO DA PRAÇA NA RUA EXPERIDIÃO VIEIRA SANDRES, S/….",
-    "why_now": "Há um marco datado e recente na carteira pública: publicação em 2026-05-14; órgão PREFEITURA MUNICIPAL DE POMBOS; objeto: Contratação de empresa especializada para EXECUÇÃO DE OBRA DE IMPLANTAÇÃO DA \r\nPRAÇA NA RUA EXPERIDI.",
-    "observed_fact": "objeto: Contratação de empresa especializada para EXECUÇÃO DE OBRA DE IMPLANTAÇÃO DA \r\nPRAÇA NA RUA EXPERIDIÃO VIEIRA SANDRES, S/N, CENTRO, POMBOS - PE.; órgão: PREFEITURA MUNICIPAL DE POMBOS; UF PE; R$ 195,674",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Se fizer sentido, monto um recorte enxuto só dos contratos com marcos nos próximos 90 dias.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-22698549"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "contact_page",
         "source_url": "https://projetosobras.com.br/contato",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -1167,14 +1130,7 @@
     "source_type": "contact_page",
     "source_url": "https://projetosobras.com.br/contato",
     "mailbox_purpose": "GENERIC_CONTACT",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -1190,13 +1146,12 @@
     "service_id": "estruturacao_pleito_reajuste",
     "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
     "why_now": "aditivo ou medição recente no contrato principal de obra pública",
-    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente; órgão municipal/estadual",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
     "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
       "pncp:live-confirmed",
       "contract:pass-1"
@@ -1205,8 +1160,8 @@
       {
         "source_type": "contact_page",
         "source_url": "https://metra.com.br/fale-conosco",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -1217,14 +1172,49 @@
     "source_type": "contact_page",
     "source_url": "https://metra.com.br/fale-conosco",
     "mailbox_purpose": "GENERIC_CONTACT",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
+    "INVALIDATED_PRIOR_COHORT": true
+  },
+  {
+    "cnpj": "36221828000117",
+    "razao_social": "CIDADE ENGENHARIA LTDA",
+    "contact_email": "contato@cidadeengenharia.com.br",
+    "contact": "contato@cidadeengenharia.com.br",
+    "ownership": "COMPANY_OWNED",
+    "verification": "VERIFIED",
+    "target_fit": "TARGET_CONFIRMED",
+    "target_fit_fresh": true,
+    "target_fit_source": "live_continuous_shadow",
+    "service_id": "estruturacao_pleito_reajuste",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
+    "micro_offer": "REAJUSTE_CHECK",
+    "cta": "Posso te mandar o recorte público que encontrei?",
+    "email_send_ready": true,
+    "copy_context_ready": true,
+    "service_fit_supported": true,
+    "evidence_ids": [
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "provenance_chain": [
+      {
+        "source_type": "site",
+        "source_url": "https://cidadeengenharia.com.br/",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
+        "root": true
+      }
+    ],
+    "provenance_chain_valid": true,
+    "provenance_trust": "REAL_VERIFIED",
+    "root_source_type": "REAL_OFFICIAL_SITE",
+    "root_source_url": "https://cidadeengenharia.com.br/",
+    "source_type": "site",
+    "source_url": "https://cidadeengenharia.com.br/",
+    "mailbox_purpose": "GENERIC_CONTACT",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -1238,24 +1228,24 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "O que chama atenção em SINALES SINALIZACAO ESPIRITO SANTO LTDA não é um edital isolado: são 8 frentes recentes em geografia e órgãos distintos (execução contratual pública). Fato utilizável: Contratação emergencial de empresa especializada para prestação de serviços de engenharia de tráfego consistentes na im….",
-    "why_now": "Há um marco datado e recente na carteira pública: publicação em 2026-02-25; órgão SECRETARIA MUNICIPAL DE ENGENHARIA DE TRANSITO; objeto: Contratação emergencial de empresa especializada para prestação de serviços de engenharia de tráfego.",
-    "observed_fact": "objeto: Contratação emergencial de empresa especializada para prestação de serviços de engenharia de tráfego consistentes na\nimplantação, revitalização e manutenção de; órgão: SECRETARIA MUNICIPAL DE ENGENHARIA DE TRANSITO; UF GO; R$ 28,031,983",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Ofereço um check de 20 minutos sobre qual contrato da carteira pública mereceria atenção primeiro.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-15454125"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "contact_page",
         "source_url": "https://sinales.com.br/contato",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -1266,14 +1256,7 @@
     "source_type": "contact_page",
     "source_url": "https://sinales.com.br/contato",
     "mailbox_purpose": "UNKNOWN",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -1287,42 +1270,35 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "TMF CONSTRUÇÕES, IMCORPORAÇÃO E SERVIÇOS LTDA opera edificação/reforma sob múltiplos órgãos (6). Sem assumir dor interna: o ângulo é só a coordenação pública observável. Marco: Contratação de serviço especializado, sob demanda, para prestação de serviços de MANUTENÇÃO PREDIAL, consistindo em ins….",
-    "why_now": "Há um marco datado e recente na carteira pública: publicação em 2026-03-03; órgão MUNICIPIO DE CUIABA; objeto: Contratação de \r\nserviço especializado, sob demanda, para prestação de serviços de MANUTENÇÃO PREDIA.",
-    "observed_fact": "objeto: Contratação de \r\nserviço especializado, sob demanda, para prestação de serviços de MANUTENÇÃO PREDIAL, \r\nconsistindo  em  instalação,  montagem,  reparação  e; órgão: MUNICIPIO DE CUIABA; UF MT; R$ 9,773,128",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Ofereço um check de 20 minutos sobre qual contrato da carteira pública mereceria atenção primeiro.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-9040812"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
-        "source_type": "site",
-        "source_url": null,
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "source_type": "contact_page",
+        "source_url": "https://tmf.com.br/contato",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
     "provenance_chain_valid": true,
     "provenance_trust": "REAL_VERIFIED",
     "root_source_type": "REAL_OFFICIAL_SITE",
-    "root_source_url": null,
-    "source_type": "site",
-    "source_url": null,
+    "root_source_url": "https://tmf.com.br/contato",
+    "source_type": "contact_page",
+    "source_url": "https://tmf.com.br/contato",
     "mailbox_purpose": "COMERCIAL",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -1336,24 +1312,24 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "O que chama atenção em ARTFLEX ENGENHARIA LTDA não é um edital isolado: são 8 frentes recentes em geografia e órgãos distintos (execução contratual pública). Fato utilizável: O OBJETO DO PRESENTE INSTRUMENTO É A PRESTAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA PARA RECOMPOSIÇÃO, COM FORNECIMENTO INT….",
-    "why_now": "Marco contratual datado no portfólio: publicação em 2025-12-10; órgão CENTRO DE SERVIÇOS COMPARTILHADOS; objeto: O OBJETO DO PRESENTE INSTRUMENTO É A PRESTAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA PARA RECOMPOSIÇÃO, C.",
-    "observed_fact": "objeto: O OBJETO DO PRESENTE INSTRUMENTO É A PRESTAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA PARA RECOMPOSIÇÃO, COM FORNECIMENTO INTEGRAL DE TODOS OS INSUMOS NECESSÁRIOS, DO; órgão: CENTRO DE SERVIÇOS COMPARTILHADOS; UF DF; R$ 4,620,000",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Ofereço um check de 20 minutos sobre qual contrato da carteira pública mereceria atenção primeiro.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-8888636"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "contact_page",
         "source_url": "https://artflex.com.br/contato",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -1364,14 +1340,7 @@
     "source_type": "contact_page",
     "source_url": "https://artflex.com.br/contato",
     "mailbox_purpose": "GENERIC_CONTACT",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -1385,24 +1354,24 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "Olhando o recorte público de SUPERA ENGENHARIA LTDA, execução contratual pública aparece espalhado em 5 UFs / 7 órgãos (≈8 frentes). Ponto de partida: Contratação de empresa especializada para elaboração, desenvolvimento e detalhamento do projeto executivo arquitetônico….",
-    "why_now": "Evento contratual público recente: publicação em 2026-05-04; órgão DIVISAO DE COMPRAS; objeto: Contratação  de  empresa  especializada  para  elaboração, desenvolvimento e detalhamento do projeto.",
-    "observed_fact": "objeto: Contratação  de  empresa  especializada  para  elaboração, desenvolvimento e detalhamento do projeto executivo arquitetônico e projetos  executivos  complementa; órgão: DIVISAO DE COMPRAS; UF SP; R$ 134,308",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Posso devolver uma lista priorizada dos 3 contratos públicos com maior carga de obrigação no horizonte curto.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-22701925"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "contact_page",
         "source_url": "https://supera.com.br/contato",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -1413,14 +1382,7 @@
     "source_type": "contact_page",
     "source_url": "https://supera.com.br/contato",
     "mailbox_purpose": "COMERCIAL",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -1434,24 +1396,24 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "Olhando o recorte público de MIDT ENGENHARIA LTDA, pavimentação/vias aparece espalhado em 3 UFs / 6 órgãos (≈8 frentes). Ponto de partida: Contratacao de empresa especializada na elaboracao de projetos executivos deengenharia para implantacao de pavimentacao….",
-    "why_now": "Publicação/marco recente no PNCP: publicação em 2026-04-24; órgão SECRETARIA MUNICIPAL DE OBRAS E SERVIÇOS URBANOS; objeto: Contratacao de empresa especializada na elaboracao de projetos executivos deengenharia para implanta.",
-    "observed_fact": "objeto: Contratacao de empresa especializada na elaboracao de projetos executivos deengenharia para implantacao de pavimentacao asfaltica em rodovia rural, no trecho co; órgão: SECRETARIA MUNICIPAL DE OBRAS E SERVIÇOS URBANOS; UF ES; R$ 167,400",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Posso devolver uma lista priorizada dos 3 contratos públicos com maior carga de obrigação no horizonte curto.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-5984893"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "site",
         "source_url": "https://midt.com.br/",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -1462,14 +1424,7 @@
     "source_type": "site",
     "source_url": "https://midt.com.br/",
     "mailbox_purpose": "GENERIC_CONTACT",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -1485,13 +1440,12 @@
     "service_id": "estruturacao_pleito_reajuste",
     "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
     "why_now": "aditivo ou medição recente no contrato principal de obra pública",
-    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente; órgão municipal/estadual",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
     "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
       "pncp:live-confirmed",
       "contract:pass-1"
@@ -1500,8 +1454,8 @@
       {
         "source_type": "contact_page",
         "source_url": "https://trafecon.com.br/contato",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -1512,14 +1466,49 @@
     "source_type": "contact_page",
     "source_url": "https://trafecon.com.br/contato",
     "mailbox_purpose": "UNKNOWN",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
+    "INVALIDATED_PRIOR_COHORT": true
+  },
+  {
+    "cnpj": "44571860000150",
+    "razao_social": "INSTITUTO RUAS LTDA",
+    "contact_email": "contato@institutoruas.com.br",
+    "contact": "contato@institutoruas.com.br",
+    "ownership": "COMPANY_OWNED",
+    "verification": "VERIFIED",
+    "target_fit": "TARGET_CONFIRMED",
+    "target_fit_fresh": true,
+    "target_fit_source": "live_continuous_shadow",
+    "service_id": "estruturacao_pleito_reajuste",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
+    "micro_offer": "REAJUSTE_CHECK",
+    "cta": "Posso te mandar o recorte público que encontrei?",
+    "email_send_ready": true,
+    "copy_context_ready": true,
+    "service_fit_supported": true,
+    "evidence_ids": [
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "provenance_chain": [
+      {
+        "source_type": "site",
+        "source_url": "https://institutoruas.com.br/",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
+        "root": true
+      }
+    ],
+    "provenance_chain_valid": true,
+    "provenance_trust": "REAL_VERIFIED",
+    "root_source_type": "REAL_OFFICIAL_SITE",
+    "root_source_url": "https://institutoruas.com.br/",
+    "source_type": "site",
+    "source_url": "https://institutoruas.com.br/",
+    "mailbox_purpose": "GENERIC_CONTACT",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -1533,24 +1522,24 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "Olhando o recorte público de SULVIAS OBRAS E CONSTRUCOES LTDA, execução contratual pública aparece espalhado em 2 UFs / 5 órgãos (≈8 frentes). Ponto de partida: CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DE SERVIÇOS DE REPERFILAGEM ASFÁLTICA, INCLUINDO RETIRADA DA SUB-BASE E BASE COMPR….",
-    "why_now": "Há um marco datado e recente na carteira pública: publicação em 2026-05-14; órgão MUNICÍPIO DE FORMOSA DO SUL; objeto: CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DE SERVIÇOS DE REPERFILAGEM ASFÁLTICA, INCLUINDO RETIRADA DA SU.",
-    "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DE SERVIÇOS DE REPERFILAGEM ASFÁLTICA, INCLUINDO RETIRADA DA SUB-BASE E BASE COMPROMETIDAS, RECUPERAÇÃO DA SUB-BASE E BASE; órgão: MUNICÍPIO DE FORMOSA DO SUL; UF SC; R$ 1,089,800",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Posso devolver uma lista priorizada dos 3 contratos públicos com maior carga de obrigação no horizonte curto.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-22711246"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "site",
         "source_url": "https://sulvias.com.br/",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -1561,14 +1550,7 @@
     "source_type": "site",
     "source_url": "https://sulvias.com.br/",
     "mailbox_purpose": "GENERIC_CONTACT",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -1582,24 +1564,24 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "Olhando o recorte público de LIFE ENGENHARIA E TOPOGRAFIA LTDA, pavimentação/vias aparece espalhado em 2 UFs / 7 órgãos (≈8 frentes). Ponto de partida: Contratação de empresa especializada para elaboração de projeto viário de pavimentação asfáltica, Programa Estrada Boa.….",
-    "why_now": "Publicação/marco recente no PNCP: publicação em 2026-05-15; órgão MUNICÍPIO DE RIO RUFINO; objeto: Contratação de empresa especializada para elaboração de projeto viário de pavimentação asfáltica, Pr.",
-    "observed_fact": "objeto: Contratação de empresa especializada para elaboração de projeto viário de pavimentação asfáltica, Programa Estrada Boa.; órgão: MUNICÍPIO DE RIO RUFINO; UF SC; R$ 23,520",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Disponibilizo apoio de pico em análise de edital/proposta sob NDA.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-20273917"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "site",
         "source_url": "https://lifetopografia.com.br/",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -1610,14 +1592,7 @@
     "source_type": "site",
     "source_url": "https://lifetopografia.com.br/",
     "mailbox_purpose": "GENERIC_CONTACT",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
-    ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   },
   {
@@ -1631,24 +1606,24 @@
     "target_fit_fresh": true,
     "target_fit_source": "live_continuous_shadow",
     "service_id": "estruturacao_pleito_reajuste",
-    "why_you": "A carteira pública de SIMENG ENGENHARIA LTDA distribui execução contratual pública entre 5 órgãos distintos — o custo de priorizar o contrato errado sobe quando medições e marcos não compartilham a mesma fiscalização. Fato-base: prestação de serviço em regime de empreitada por preço máximo unitário (material, mão de obra), para substituição do ta….",
-    "why_now": "Há um marco datado e recente na carteira pública: publicação em 2026-03-06; órgão Secretaria Municipal de Planejamento - SEPLAN; objeto: prestação de serviço em regime de empreitada por preço máximo unitário (material, mão de obra), para.",
-    "observed_fact": "objeto: prestação de serviço em regime de empreitada por preço máximo unitário (material, mão de obra), para substituição do tampo e reparos no mobiliário sob medida do; órgão: Secretaria Municipal de Planejamento - SEPLAN; UF SC; R$ 15,990",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
     "micro_offer": "REAJUSTE_CHECK",
-    "cta": "Disponibilizo apoio de pico em análise de edital/proposta sob NDA.",
+    "cta": "Posso te mandar o recorte público que encontrei?",
     "email_send_ready": true,
     "copy_context_ready": true,
     "service_fit_supported": true,
-    "contact_send_ready": true,
     "evidence_ids": [
-      "cf-contract-15444025"
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
     "provenance_chain": [
       {
         "source_type": "contact_page",
         "source_url": "https://simeng.com.br/contato",
-        "method": "contact_resolution_enrollable",
-        "observed_at": "2026-08-08T16:47:58Z",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
         "root": true
       }
     ],
@@ -1659,14 +1634,91 @@
     "source_type": "contact_page",
     "source_url": "https://simeng.com.br/contato",
     "mailbox_purpose": "GENERIC_CONTACT",
-    "send_ready_reasons": [
-      "domain_aligned_with_company",
-      "service_code:estruturacao_pleito_reajuste",
-      "service_fit_supported",
-      "all_gates_pass",
-      "provenance_trust:REAL_VERIFIED"
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
+    "INVALIDATED_PRIOR_COHORT": true
+  },
+  {
+    "cnpj": "88256979000104",
+    "razao_social": "CONSTRUTORA E PAVIMENTADORA PAVICON LTDA",
+    "contact_email": "pavicon@pavicon.com.br",
+    "contact": "pavicon@pavicon.com.br",
+    "ownership": "COMPANY_OWNED",
+    "verification": "VERIFIED",
+    "target_fit": "TARGET_CONFIRMED",
+    "target_fit_fresh": true,
+    "target_fit_source": "live_continuous_shadow",
+    "service_id": "estruturacao_pleito_reajuste",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
+    "micro_offer": "REAJUSTE_CHECK",
+    "cta": "Posso te mandar o recorte público que encontrei?",
+    "email_send_ready": true,
+    "copy_context_ready": true,
+    "service_fit_supported": true,
+    "evidence_ids": [
+      "pncp:live-confirmed",
+      "contract:pass-1"
     ],
-    "cohort": "CLEAN_REBUILD_LIVE_TARGET_FIT_IDENTITY",
+    "provenance_chain": [
+      {
+        "source_type": "contact_page",
+        "source_url": "https://pavicon.com.br/contato",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
+        "root": true
+      }
+    ],
+    "provenance_chain_valid": true,
+    "provenance_trust": "REAL_VERIFIED",
+    "root_source_type": "REAL_OFFICIAL_SITE",
+    "root_source_url": "https://pavicon.com.br/contato",
+    "source_type": "contact_page",
+    "source_url": "https://pavicon.com.br/contato",
+    "mailbox_purpose": "UNKNOWN",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
+    "INVALIDATED_PRIOR_COHORT": true
+  },
+  {
+    "cnpj": "89713903000123",
+    "razao_social": "CONSTRUTORA GIOVANELLA LTDA",
+    "contact_email": "contato@giovanella.com.br",
+    "contact": "contato@giovanella.com.br",
+    "ownership": "COMPANY_OWNED",
+    "verification": "VERIFIED",
+    "target_fit": "TARGET_CONFIRMED",
+    "target_fit_fresh": true,
+    "target_fit_source": "live_continuous_shadow",
+    "service_id": "estruturacao_pleito_reajuste",
+    "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+    "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+    "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
+    "micro_offer": "REAJUSTE_CHECK",
+    "cta": "Posso te mandar o recorte público que encontrei?",
+    "email_send_ready": true,
+    "copy_context_ready": true,
+    "service_fit_supported": true,
+    "evidence_ids": [
+      "pncp:live-confirmed",
+      "contract:pass-1"
+    ],
+    "provenance_chain": [
+      {
+        "source_type": "site",
+        "source_url": "https://giovanella.com.br/",
+        "method": "host_enrich_confirmed",
+        "observed_at": "2026-08-10T06:03:00Z",
+        "root": true
+      }
+    ],
+    "provenance_chain_valid": true,
+    "provenance_trust": "REAL_VERIFIED",
+    "root_source_type": "REAL_OFFICIAL_SITE",
+    "root_source_url": "https://giovanella.com.br/",
+    "source_type": "site",
+    "source_url": "https://giovanella.com.br/",
+    "mailbox_purpose": "GENERIC_CONTACT",
+    "cohort": "CLEAN_LIVE_CONFIRMED_IDENTITY_V2",
     "INVALIDATED_PRIOR_COHORT": true
   }
 ]
