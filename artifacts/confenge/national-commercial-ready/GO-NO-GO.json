@@ -1,13 +1,13 @@
 {
   "schema": "confenge.go_no_go.v1",
-  "as_of": "2026-08-10T11:46:47Z",
+  "as_of": "2026-08-10T12:42:52Z",
   "NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY": false,
   "GO_FOR_REAL_CONFENGE_EMAIL_PILOT": false,
   "terminal_state": "EXTERNAL_BLOCKER_REQUIRES_TIAGO",
   "gates": {
-    "canonical_universe_reconciled": false,
+    "canonical_universe_reconciled": true,
     "coverage_ratio_le_1": true,
-    "unexplained_missing_eq_0": false,
+    "unexplained_missing_eq_0": true,
     "orphan_materialized_eq_0": true,
     "duplicate_roots_eq_0": true,
     "target_fit_fresh": true,
@@ -15,7 +15,7 @@
     "provenance_contamination_eq_0": true,
     "copy_audit_all_zero": true,
     "email_send_ready_ge_min_reserve": false,
-    "sha_binding_exact": false,
+    "sha_binding_exact": true,
     "whatsapp_off": true
   },
   "human_review_pending": true,

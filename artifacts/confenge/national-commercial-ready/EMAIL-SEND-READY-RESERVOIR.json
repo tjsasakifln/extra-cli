@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-08-10T11:46:47Z",
+  "as_of": "2026-08-10T12:42:52Z",
   "EMAIL_SEND_READY_DISTINCT_COMPANIES": 60,
   "capacity": {
     "schema": "confenge.operational_capacity_metrics.v1",

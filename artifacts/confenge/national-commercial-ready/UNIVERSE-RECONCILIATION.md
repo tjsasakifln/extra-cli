@@ -84,3 +84,12 @@ Supply-only (materiais, frota, medicamentos) → OUT_OF_SCOPE.
 
 `default_research` / consortium-only rows moved out of PROBABLE.
 Coverage ratio vs supplier roots 513650: **0.9975** (≤1). Unexplained missing roots: 1300 (not yet materialized).
+
+
+## FULLY_RECONCILED achieved (host 2026-08-10)
+
+- canonical supplier roots = materialized SHADOW = **513650**
+- coverage_ratio = **1.0**
+- unexplained_missing = **0**
+- orphan_materialized = **0** (purged invalid root `00000000`)
+- PROBABLE requires positive ICP evidence; **386642** reclassified as INSUFFICIENT

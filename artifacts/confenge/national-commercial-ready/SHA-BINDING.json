@@ -1,11 +1,8 @@
 {
-  "schema": "confenge.sha_binding.v1",
-  "as_of": "2026-08-10T12:01:25.492489+00:00",
   "origin_main": "b8f9d1c6fe19e4556ef6091f4dd0e026acc3cf1d",
   "host_deployed_sha": "b8f9d1c6fe19e4556ef6091f4dd0e026acc3cf1d",
   "runtime_sha": "b8f9d1c6fe19e4556ef6091f4dd0e026acc3cf1d",
   "triple_sha_equal": true,
-  "pr_merged": 217,
-  "merge_commit": "b8f9d1c6fe19e4556ef6091f4dd0e026acc3cf1d",
-  "warmbly_deployed": "81d83429316aa6241cc81b3ac8e761bfc59c2487"
+  "pr_217_merged": true,
+  "pr_222_process_harvest": "open"
 }

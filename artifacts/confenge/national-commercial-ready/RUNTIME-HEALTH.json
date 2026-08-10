@@ -1,18 +1,7 @@
 {
-  "as_of": "2026-08-10T12:01:25.492489+00:00",
-  "target_fit_async_mode": "SHADOW",
-  "shadow_classes": {
-    "TARGET_CONFIRMED": 8348,
-    "TARGET_PROBABLE_RESEARCH": 24984,
-    "TARGET_OUT_OF_SCOPE": 92392,
-    "TARGET_INSUFFICIENT_EVIDENCE": 386626
-  },
-  "coverage_ratio": 0.997469,
-  "unexplained_missing": 1300,
-  "orphan_materialized": 0,
-  "email_send_ready": 60,
-  "min_operational_reserve": 900,
-  "enrichment_continuous": "running_resumable",
-  "NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY": false,
-  "terminal_state": "EXTERNAL_BLOCKER_REQUIRES_TIAGO"
+  "FULLY_RECONCILED": true,
+  "coverage_ratio": 1.0,
+  "dirty_pending": "draining_v2",
+  "process_harvest": "running_sharded",
+  "enrich_continuous": "running"
 }

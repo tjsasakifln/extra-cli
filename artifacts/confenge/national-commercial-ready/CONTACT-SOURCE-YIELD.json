@@ -1,9 +1,14 @@
 {
-  "historical_network_harvest_attempted": 75,
-  "continuous_smoke_attempted": 25,
-  "email_send_ready": 60,
-  "min_operational_reserve": 900,
-  "gap_to_reserve": 840,
-  "process_admin_attempted": 0,
-  "note": "Process docs table empty; process enrichment package staged on host"
+  "process_administrative_docs": {
+    "companies_attempted": 298,
+    "send_ready_found": 8
+  },
+  "pncp_annexes": {
+    "companies_attempted": 298
+  },
+  "official_site_historical": {
+    "attempted": 75,
+    "send_ready": 60
+  },
+  "min_operational_reserve": 900
 }

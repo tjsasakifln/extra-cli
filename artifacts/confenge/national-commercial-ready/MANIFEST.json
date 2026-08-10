@@ -1,7 +1,7 @@
 {
   "schema": "confenge.national_commercial_ready_pack.v1",
-  "as_of": "2026-08-10T11:46:47Z",
-  "git_sha": "33771827cbf6089340d3c9d9ee96e70152b2eef8",
+  "as_of": "2026-08-10T12:42:52Z",
+  "git_sha": "3057f8c47a67e77dd41950ce72e574c840e0022b",
   "out_dir": "artifacts/confenge/national-commercial-ready",
   "terminal_state": "EXTERNAL_BLOCKER_REQUIRES_TIAGO",
   "NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY": false

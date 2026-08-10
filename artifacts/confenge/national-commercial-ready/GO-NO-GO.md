@@ -8,9 +8,9 @@
 
 ```json
 {
-  "canonical_universe_reconciled": false,
+  "canonical_universe_reconciled": true,
   "coverage_ratio_le_1": true,
-  "unexplained_missing_eq_0": false,
+  "unexplained_missing_eq_0": true,
   "orphan_materialized_eq_0": true,
   "duplicate_roots_eq_0": true,
   "target_fit_fresh": true,
@@ -18,7 +18,7 @@
   "provenance_contamination_eq_0": true,
   "copy_audit_all_zero": true,
   "email_send_ready_ge_min_reserve": false,
-  "sha_binding_exact": false,
+  "sha_binding_exact": true,
   "whatsapp_off": true
 }
 ```
