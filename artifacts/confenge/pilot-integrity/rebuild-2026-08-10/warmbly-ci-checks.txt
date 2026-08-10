@@ -1,0 +1,13 @@
+Admin CI	skipping	0	https://github.com/tjsasakifln/warmbly/actions/runs/31346172354/job/93328452015	
+Elixir CI	skipping	0	https://github.com/tjsasakifln/warmbly/actions/runs/31346172354/job/93328451961	
+Frontend Image (${{ matrix.service }})	skipping	0	https://github.com/tjsasakifln/warmbly/actions/runs/31346172354/job/93328451924	
+Make App CI	skipping	0	https://github.com/tjsasakifln/warmbly/actions/runs/31346172354/job/93328452164	
+Rust CI	skipping	0	https://github.com/tjsasakifln/warmbly/actions/runs/31346172354/job/93328452101	
+Site CI	skipping	0	https://github.com/tjsasakifln/warmbly/actions/runs/31346172354/job/93328452166	
+Web CI	skipping	0	https://github.com/tjsasakifln/warmbly/actions/runs/31346172354/job/93328451998	
+CI Status	pass	2s	https://github.com/tjsasakifln/warmbly/actions/runs/31346172354/job/93329075216	
+Go CI	pass	4m46s	https://github.com/tjsasakifln/warmbly/actions/runs/31346172354/job/93328451557	
+iOS CI	skipping	0	https://github.com/tjsasakifln/warmbly/actions/runs/31346172354/job/93328451944	
+CONFENGE product acceptance	pass	2m25s	https://github.com/tjsasakifln/warmbly/actions/runs/31346172354/job/93328451545	
+Detect Changes	pass	8s	https://github.com/tjsasakifln/warmbly/actions/runs/31346172354/job/93328425932	
+Security Scan	pass	25s	https://github.com/tjsasakifln/warmbly/actions/runs/31346172354/job/93328425980	

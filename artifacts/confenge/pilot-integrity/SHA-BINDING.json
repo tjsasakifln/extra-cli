@@ -1,0 +1,12 @@
+{
+  "timestamp_utc": "2026-08-10T01:15:16Z",
+  "extra_cli_pr": 211,
+  "extra_cli_branch": "fix/confenge-pilot-target-service-integrity",
+  "extra_cli_head": "560b59c9ff9e024981272f302199e22989182d72",
+  "warmbly_pr": 34,
+  "warmbly_branch": "fix/confenge-pilot-service-copy-integrity",
+  "warmbly_head": "be082d329d4c0abdca8a97f49c0324130b53d68f",
+  "vps_extra_worktree_head": "560b59c9ff9e024981272f302199e22989182d72",
+  "vps_main_deploy_head": "0b3fce71 (NOT this PR — production not redeployed this round)",
+  "match_note": "PR heads are bound; VPS production deploy SHA is NOT updated to PR heads — no false MATCH for runtime"
+}

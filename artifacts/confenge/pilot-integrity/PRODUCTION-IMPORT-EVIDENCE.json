@@ -1,0 +1,7 @@
+{
+  "status": "NOT_RUN_ON_NEW_SHA",
+  "reason": "warmbly production not redeployed to PR#34 HEAD this round",
+  "extra_cli_head": "560b59c9ff9e024981272f302199e22989182d72",
+  "warmbly_head": "be082d329d4c0abdca8a97f49c0324130b53d68f",
+  "vps_extra_main": "0b3fce71"
+}

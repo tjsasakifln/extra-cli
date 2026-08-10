@@ -1,0 +1,600 @@
+[
+  {
+    "cnpj": "04945341000190",
+    "razao_social": "COMPANHIA DE SANEAMENTO DO PARA",
+    "uf": "PA",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "COMPANHIA DE SANEAMENTO DO PARA aparece com obrigação pública em curso (TRATA-SE DE CONTRATAÇÃO DE SERVIÇOS FORNECIMENTO DE ÁGUA PELA COMPANHIA DE SANEAMENTO DO PARA, CNPJ 04.945.341/0001-90, PARA ATENDER AS NECESSIDADES DAS DIVERS…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: TRATA-SE DE CONTRATAÇÃO DE SERVIÇOS FORNECIMENTO DE ÁGUA PELA COMPANHIA DE SANEAMENTO DO PARA, CNPJ 04.945.341/0001-90,  PARA ATENDER AS NECESSIDADES DAS DIVERS; órgão: GERÊNCIA REGIONAL EM BRASÍLIA; UF DF; R$ 1,960,342",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "05794246000104",
+    "razao_social": "P4 CONSTRUÇÕES E EMPREENDIMENTOS LTDA",
+    "uf": "BA",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "P4 CONSTRUÇÕES E EMPREENDIMENTOS LTDA aparece com obrigação pública em curso (Aditivo de quantitativo ao Contrato nº 0372/2024, visando ao ajuste das quantidades originalmente previstas para a execução dos serviços de drenagem das Ruas M…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: Aditivo de quantitativo ao Contrato nº 0372/2024, visando ao ajuste das\nquantidades originalmente previstas para a execução dos serviços de\ndrenagem das Ruas Ma; órgão: SEC. MUN. DE INFRAESTRUTURA E HABITAÇÃO- SEINFRA; UF BA; R$ 742,371",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "07487277000130",
+    "razao_social": "ERS COMERCIO & SERVICOS LTDA",
+    "uf": "PR",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "ERS COMERCIO & SERVICOS LTDA aparece com obrigação pública em curso (Registro de preços para contração eventual e futura pelo período de 12 meses com possibilidade prorrogação de empresa especializada na locação serviços de infr…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: Registro de preços para contração eventual e futura pelo período de 12 meses com possibilidade prorrogação de empresa especializada na locação serviços de infra; órgão: PRESP - Paraná Esporte (Antigo IPCE); UF PR; R$ 17,161",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "07792269000105",
+    "razao_social": "CONSTRUTORA LYTORANEA S.A - EM RECUPERAÇÃO JUDICIAL",
+    "uf": "RJ",
+    "service_id": "medicoes_glosas_memoria",
+    "why_you": "CONSTRUTORA LYTORANEA S.A - EM RECUPERAÇÃO JUDICIAL aparece com obrigação pública em curso (OBRAS DE CONSTRUÇÃO DE RESERVATÓRIO DE RETENÇÃO NA CALHA DO RIO PIRAQUARA NA BACIA DO ALTO ACARI E IMPLANTAÇÃO DE MELHORIAS NA REDE DE DRENAGEM DE ÁGUAS PLUVIA…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Sinais de glosa ou medição contestada no material ingerido.",
+    "observed_fact": "objeto: OBRAS DE CONSTRUÇÃO DE RESERVATÓRIO DE RETENÇÃO NA CALHA DO RIO PIRAQUARA NA BACIA DO ALTO ACARI E IMPLANTAÇÃO DE MELHORIAS NA REDE DE DRENAGEM DE ÁGUAS PLUVIAI; órgão: PREFEITURA MUNICIPAL DO RIO DE JANEIRO - RJ; UF RJ; R$ 446,511",
+    "micro_offer": "MEDICAO_CHECK",
+    "signals": [
+      "glosa_medicao"
+    ]
+  },
+  {
+    "cnpj": "08336260000144",
+    "razao_social": "BARROS & ARAUJO ENGENHARIA LTDA",
+    "uf": "PE",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "BARROS & ARAUJO ENGENHARIA LTDA aparece com obrigação pública em curso (Contratação de empresa especializada de engenharia visando a Construção de uma Unidade Básica de Saúde - UBS Pedra Bela, localizada no loteamento Santa Maria d…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: Contratação de empresa especializada de engenharia visando a Construção de uma Unidade Básica de Saúde - UBS Pedra Bela, localizada no loteamento Santa Maria do; órgão: PREFEITURA MUNICIPAL DE ITAMBÉ; UF PE; R$ 1,703,420",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "08871507000122",
+    "razao_social": "W. M. VILHENA PINTO & CIA LTDA",
+    "uf": "PA",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "W. M. VILHENA PINTO & CIA LTDA aparece com obrigação pública em curso (CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRA DE ENGENHARIA VISANDO A CONSTRUÇÃO DE UNIDADES BÁSICAS DE SAÚDE INDÍGENA (UBSI), DOS TIPOS I, II E I…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRA DE ENGENHARIA VISANDO A CONSTRUÇÃO DE UNIDADES BÁSICAS DE SAÚDE INDÍGENA (UBSI), DOS TIPOS I, II E II; órgão: DISTRITO SANIT.ESP.INDÍGENA - CEARA; UF CE; R$ 4,305,052",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "08978001000117",
+    "razao_social": "A J P ENGENHARIA LTDA",
+    "uf": "PE",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "A J P ENGENHARIA LTDA aparece com obrigação pública em curso (PRORROGAÇÃO DO CONTRATO DE EMPRESA ESPECIALIZADA PARA A REQUALIFICAÇÃO, CONSTRUÇÃO E MANUTENÇÃO DE PEQUENAS VIAS, INCLUINDO SERVIÇOS EM CONCRETO, ALVENARIA, DR…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: PRORROGAÇÃO DO CONTRATO DE EMPRESA ESPECIALIZADA PARA A REQUALIFICAÇÃO, CONSTRUÇÃO E MANUTENÇÃO DE PEQUENAS VIAS, INCLUINDO SERVIÇOS EM CONCRETO, ALVENARIA, DRE; órgão: Unidade Única; UF PE; R$ 7,253,510",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "10878259000193",
+    "razao_social": "JK Imóveis Ltda",
+    "uf": "SC",
+    "service_id": "medicoes_glosas_memoria",
+    "why_you": "JK Imóveis Ltda aparece com obrigação pública em curso (CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM ENGENHARIA PARA EXECUÇÃO DE OBRAS DE REVITALIZAÇÃO E MELHORIAS DE INFRAESTRUTURA NA PRAÇA MUNICIPAL CARLOS CULMEY, INCL…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Sinais de glosa ou medição contestada no material ingerido.",
+    "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM ENGENHARIA PARA EXECUÇÃO DE OBRAS DE REVITALIZAÇÃO E MELHORIAS DE INFRAESTRUTURA NA PRAÇA MUNICIPAL CARLOS CULMEY, INCLU; órgão: PREFEITURA MUNICIPAL DE PALMITOS - SC; UF SC; R$ 4,600,000",
+    "micro_offer": "MEDICAO_CHECK",
+    "signals": [
+      "glosa_medicao"
+    ]
+  },
+  {
+    "cnpj": "12754237000147",
+    "razao_social": "ABTEC ENGENHARIA LTDA",
+    "uf": "DF",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "ABTEC ENGENHARIA LTDA aparece com obrigação pública em curso (A CONTRATAÇÃO DE EMPRESA PARA ELABORAÇÃO DOS ESTUDOS, PROJETOS BÁSICO E EXECUTIVO DE ENGENHARIA, EXECUÇÃO DAS OBRAS DE REABILITAÇÃO DE 01 (UMA) OBRA DE ARTE ES…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: A CONTRATAÇÃO DE EMPRESA PARA ELABORAÇÃO DOS ESTUDOS, PROJETOS BÁSICO E EXECUTIVO DE ENGENHARIA, EXECUÇÃO DAS OBRAS DE REABILITAÇÃO DE 01 (UMA) OBRA DE ARTE ESP; órgão: SUP. REGIONAL DO DNIT NO ESTADO DE PERNAMBUCO; UF PE; R$ 4,100,000",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "14278276000140",
+    "razao_social": "SX CORP LTDA",
+    "uf": "MG",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "SX CORP LTDA aparece com obrigação pública em curso (Contratação de empresa especializada na prestação de serviços de reserva e emissão de bilhetes de passagens rodoviárias nacionais, passagens aéreas nacionais e…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: Contratação de empresa especializada na prestação de serviços de reserva e emissão de bilhetes de passagens rodoviárias nacionais, passagens aéreas nacionais e; órgão: CONSELHO REGIONAL DE ENFERMAGEM DE M. GERAIS; UF MG; R$ 375,000",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "15667412000157",
+    "razao_social": "S&F DA ROCHA CONSTRUTORA LTDA",
+    "uf": "MG",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "S&F DA ROCHA CONSTRUTORA LTDA aparece com obrigação pública em curso (CONTRATAÇÃO DE EMPRESA DE ENGENHARIA PARA EXECUÇÃO DA OBRA DE RECONSTRUÇÃO DE PONTE EM CONCRETO ARMADO NO CÓRREGO SANTO ANTÔNIO SOBRE O RIO SANTO ANTÔNIO COMPR…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA DE ENGENHARIA PARA EXECUÇÃO DA OBRA DE RECONSTRUÇÃO DE PONTE EM CONCRETO ARMADO NO CÓRREGO SANTO ANTÔNIO SOBRE O RIO SANTO ANTÔNIO COMPRI; órgão: Unidade Única; UF MG; R$ 416,869",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "18367855000110",
+    "razao_social": "SANIOTO CONSTRUÇÕES LTDA",
+    "uf": "SP",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "SANIOTO CONSTRUÇÕES LTDA aparece com obrigação pública em curso (Contratação de empresa de engenharia para EXECUÇÃO DE OBRAS DE DRENAGEM NA RUA RAFAEL MARINO NETO, EM UBERLÂNDIA/MG, com fornecimento de materiais conforme esp…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: Contratação de empresa de engenharia para EXECUÇÃO DE OBRAS DE DRENAGEM NA RUA RAFAEL MARINO NETO, EM UBERLÂNDIA/MG, com fornecimento de materiais conforme espe; órgão: SECRETARIA M. ADMINISTRAÇÃO/PREF M.UBERLÂNDIA; UF MG; R$ 649,996",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "20010416000106",
+    "razao_social": "MASTER COMERCIOS E SERVICOS LTDA",
+    "uf": "RJ",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "MASTER COMERCIOS E SERVICOS LTDA aparece com obrigação pública em curso (REAJUSTAR EM 4,61% O TERMO DE PRESTAÇÃO DE SERVIÇOS DE EXECUÇÃO DE OBRAS Nº 05-012/2024. junto a PREFEITURA MUNICIPAL DE DUQUE DE CAXIAS -RJ (RJ; valor R$ 9,11…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: REAJUSTAR EM 4,61% O TERMO DE PRESTAÇÃO DE SERVIÇOS DE EXECUÇÃO DE OBRAS Nº 05-012/2024.; órgão: PREFEITURA MUNICIPAL DE DUQUE DE CAXIAS -RJ; UF RJ; R$ 9,112,370",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "21477416000175",
+    "razao_social": "ESSENCIA SOLUCOES EM ENGENHARIA LTDA",
+    "uf": "RS",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "ESSENCIA SOLUCOES EM ENGENHARIA LTDA aparece com obrigação pública em curso (Trata-se da contratação da empresa ESSÊNCIA SOLUÇÕES EM ENGENHARIA LTDA, especializada em serviços de agrimensura e topografia para atender as necessidades da…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: Trata-se da contratação da empresa ESSÊNCIA SOLUÇÕES EM ENGENHARIA LTDA, especializada em serviços de agrimensura\ne topografia para atender as necessidades da P; órgão: MUNICÍPIO DE POUSO REDONDO; UF SC; R$ 334,840",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "21706616000152",
+    "razao_social": "RODRIGO GODOY LTDA",
+    "uf": "SP",
+    "service_id": "medicoes_glosas_memoria",
+    "why_you": "RODRIGO GODOY LTDA aparece com obrigação pública em curso (CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA DEMOLIÇÃO MECANIZADA DE RESERVATORIO DESATIVADO,EM CONCRETO ARMADO,NO MUNICIPIO DE IPAUSSU/SP,CONFORME ESPECIFICAÇÃO…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Sinais de glosa ou medição contestada no material ingerido.",
+    "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA DEMOLIÇÃO MECANIZADA DE RESERVATORIO DESATIVADO,EM \r\nCONCRETO ARMADO,NO MUNICIPIO DE IPAUSSU/SP,CONFORME ESPECIFICAÇÃO; órgão: SECRETARIA DE OBRAS E SANEAMENTO; UF SP; R$ 43,188",
+    "micro_offer": "MEDICAO_CHECK",
+    "signals": [
+      "glosa_medicao"
+    ]
+  },
+  {
+    "cnpj": "22570295000174",
+    "razao_social": "COMERCIAL E SERVICOS LEV LTDA",
+    "uf": "GO",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "COMERCIAL E SERVICOS LEV LTDA aparece com obrigação pública em curso (VALOR QUE SE EMPENHA PARA OCORRER DESPESAS COM 3º TERMO ADITIVO DE CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUTAR A CONSTRUÇÃO DOS SERVIÇOS REMANESCENTES D…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: VALOR QUE SE EMPENHA PARA OCORRER DESPESAS COM 3º TERMO ADITIVO DE CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUTAR A CONSTRUÇÃO DOS SERVIÇOS REMANESCENTES DE; órgão: FUNDO MUNICIPAL DE EDUCACAO - FME; UF GO; R$ 92,352",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "22726139000150",
+    "razao_social": "MORAES E ARANTES CONSTRUTORA E LOCACOES LTDA",
+    "uf": "GO",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "MORAES E ARANTES CONSTRUTORA E LOCACOES LTDA aparece com obrigação pública em curso (IMPORTÂNCIA QUE SE EMPENHA PARA ATENDER DESPESA COM 2º TERMO ADITIVO DE PRESTAÇÃO DE SERVIÇOS DE EXECUÇÃO DE OBRA DE PAVIMENTAÇÃO ASFALTICA EM TSD, NAS VIAS PÚ…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: IMPORTÂNCIA QUE SE EMPENHA PARA ATENDER DESPESA COM 2º TERMO ADITIVO DE PRESTAÇÃO DE SERVIÇOS DE EXECUÇÃO DE OBRA  DE PAVIMENTAÇÃO ASFALTICA EM TSD, NAS VIAS PÚ; órgão: PODER EXECUTIVO BELA VISTA DE GOIAS; UF GO; R$ 315,662",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "23138373000129",
+    "razao_social": "DRESTE CONSTRUTORA LIMITADA",
+    "uf": "MG",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "DRESTE CONSTRUTORA LIMITADA aparece com obrigação pública em curso (Contratação de serviços de engenharia para execução de serviços de usinagem, fornecimento e aplicação de massa asfáltica (CBUQ) Faixa “C”, com altura de capa i…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: Contratação de serviços de engenharia para execução de serviços de usinagem, fornecimento\ne aplicação de massa asfáltica (CBUQ) Faixa “C”, com altura de capa ig; órgão: DEPARTAMENTO MUN.DE ÁGUA ESGOTO DE UBERLÂNDIA; UF MG; R$ 86,912",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "24375203000120",
+    "razao_social": "ECOMETRIA SOLUCOES INTELIGENTES LTDA",
+    "uf": "SP",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "ECOMETRIA SOLUCOES INTELIGENTES LTDA aparece com obrigação pública em curso (Serviço de engenharia para atualização tecnológica em equipamentos com fornecimento de sensores e instalação para telemetria nas estações elevatórias de esgoto…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: Serviço de engenharia para atualização tecnológica em equipamentos com fornecimento de sensores e instalação para telemetria nas estações elevatórias de esgoto; órgão: SERVIÇO AUTÔNOMO DE ÁGUA, ESGOTO E MEIO AMBIENTE DE SERTÃOZINHO - SAEMAS; UF SP; R$ 118,900",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "26751770000160",
+    "razao_social": "GOLDEN SOLUCOES & ENTRETENIMENTO LTDA",
+    "uf": "AL",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "GOLDEN SOLUCOES & ENTRETENIMENTO LTDA aparece com obrigação pública em curso (VIABILIZAÇÃO DE EVENTOS, ENVOLVENDO AS ETAPAS DE PLANEJAMENTO OPERACIONAL, ORGANIZAÇÃO, COORDENAÇÃO E ACOMPANHAMENTO, CONTEMPLANDO TODOS OS SERVIÇOS INDISPENSÁ…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: VIABILIZAÇÃO DE EVENTOS, ENVOLVENDO AS ETAPAS DE PLANEJAMENTO OPERACIONAL, ORGANIZAÇÃO, COORDENAÇÃO E ACOMPANHAMENTO, CONTEMPLANDO TODOS OS SERVIÇOS INDISPENSÁV; órgão: CONSELHO FEDERAL DE MEDICINA; UF DF; R$ 37,490",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "27454811000119",
+    "razao_social": "E R GONÇALVES ENGENHERIA E SERVIÇO",
+    "uf": "GO",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "E R GONÇALVES ENGENHERIA E SERVIÇO aparece com obrigação pública em curso (VALOR QUE SE EMPENHA PARA OCORRER DESPESAS COM 2º TERMO ADITIVO DA EXECUÇÃO DE OBRA PARA REQUALIFICAÇÃO DA FEIRA COBERTA EM QUADRA POLIESPORTIVA ATENDENDO A SE…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: VALOR QUE SE EMPENHA PARA OCORRER DESPESAS COM 2º TERMO ADITIVO DA EXECUÇÃO DE OBRA PARA REQUALIFICAÇÃO DA FEIRA COBERTA EM QUADRA POLIESPORTIVA ATENDENDO A SEC; órgão: FUNDO MUNICIPAL DE EDUCACAO - FME; UF GO; R$ 42,839",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "27486182000109",
+    "razao_social": "VIACAO AGUIA BRANCA S A",
+    "uf": "ES",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "VIACAO AGUIA BRANCA S A aparece com obrigação pública em curso (CONTRATAÇÃO DE EMPRESA ESPECIALIZADA NO FORNECIMENTO DE PASSAGENS RODOVIÁRIAS INTERMUNICIPAL E INTERESTADUAIS DESTINADAS A ATENDER AS DEMANDAS DE DESLOCAMENTO…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA NO FORNECIMENTO DE PASSAGENS RODOVIÁRIAS INTERMUNICIPAL E INTERESTADUAIS DESTINADAS A ATENDER AS DEMANDAS DE DESLOCAMENTO D; órgão: Prefeitura Municipal de Caravelas; UF BA; R$ 350,000",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "28932166000165",
+    "razao_social": "CONSTRUTORA JR LTDA",
+    "uf": "SC",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "CONSTRUTORA JR LTDA aparece com obrigação pública em curso (CONTRATAÇÃO DE EMPRESA, EM REGIME DE EMPREITADA GLOBAL, PARA AMPLIAÇÃO E REFORMA DA CÂMARA DE VEREADORES DE RIO DO CAMPO/SC junto a Coordenadoria de Administra…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA, EM REGIME DE EMPREITADA GLOBAL, PARA AMPLIAÇÃO E REFORMA DA CÂMARA DE VEREADORES DE RIO DO CAMPO/SC; órgão: Coordenadoria de Administração e Finanças; UF SC; R$ 414,900",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "31263330000101",
+    "razao_social": "CONSTRUTORA DO SERTAO LTDA",
+    "uf": "BA",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "CONSTRUTORA DO SERTAO LTDA aparece com obrigação pública em curso (Contratação de empresa especializada para execução de serviços de Pavimentação em piso intertravado em ruas do Município de Irecê/BA. TERCEIRO ADITIVO AO CONTR…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: Contratação de empresa especializada para execução de serviços de Pavimentação em piso intertravado em ruas do Município de Irecê/BA. TERCEIRO ADITIVO AO CONTRA; órgão: Secretaria de Infraestrutura e Serviços Públicos; UF BA; R$ 0",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "31497575000195",
+    "razao_social": "SEAL CONSTRUTORA LTDA",
+    "uf": "BA",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "SEAL CONSTRUTORA LTDA aparece com obrigação pública em curso (Contratação de empresa de engenharia para execução de obras/serviços de pavimentação de vias no perímetro urbano do Município de Amargosa-BA junto a SECRETARIA…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: Contratação de empresa de engenharia para execução de obras/serviços de pavimentação de vias no perímetro urbano do Município de Amargosa-BA; órgão: SECRETARIA MUNICIPAL DE SERV PUBL OBRAS E PLANEJ DA CIDADE; UF BA; R$ 1,502,408",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "31500254000100",
+    "razao_social": "QUEIROZ E MOURA",
+    "uf": "PA",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "QUEIROZ E MOURA aparece com obrigação pública em curso (Contratação de empresa de engenharia para pavimentação de acesso a Orla do Rio Tapajós no Distrito de Barreiras, Município de Itaituba/PA. junto a PREFEITURA M…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: Contratação de empresa de engenharia para pavimentação de acesso a Orla do Rio Tapajós no Distrito de Barreiras, Município de Itaituba/PA.; órgão: PREFEITURA MUNICIPAL DE ITAITUBA; UF PA",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "32487258000150",
+    "razao_social": "Almeida & Filho Terraplenagens Ltda",
+    "uf": "SC",
+    "service_id": "reequilibrio_economico_financeiro",
+    "why_you": "Almeida & Filho Terraplenagens Ltda aparece com obrigação pública em curso (Reabilitação da Rodovia SC-412, Trecho: BR 101 - Gaspar (Rodovia Jorge Lacerda). Pagamento do Reequilibrio Processo SIE 27836/2020 junto a Secretaria de Estado…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Menção a reequilíbrio em material contratual ingerido.",
+    "observed_fact": "objeto: Reabilitação da Rodovia SC-412, Trecho: BR 101 - Gaspar (Rodovia Jorge Lacerda).\nPagamento do Reequilibrio Processo SIE 27836/2020; órgão: Secretaria de Estado da Infraestrutura e Mobilidade; UF SC; R$ 468,882",
+    "micro_offer": "CLAIM_READINESS_CHECK",
+    "signals": [
+      "reequilibrio"
+    ]
+  },
+  {
+    "cnpj": "32534754000118",
+    "razao_social": "TJ CONSTRUCOES E REFORMA EIRELI",
+    "uf": "GO",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "TJ CONSTRUCOES E REFORMA EIRELI aparece com obrigação pública em curso (CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM OBRAS E SERVIÇOS DE ENGENHARIA PARA PRESTAÇÃO DE SERVIÇO DE REFORMA NA MESOESTRUTURA E SUPERESTRUTURA DA PONTE DE MADEI…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM OBRAS E SERVIÇOS DE ENGENHARIA PARA PRESTAÇÃO DE SERVIÇO DE REFORMA NA MESOESTRUTURA E SUPERESTRUTURA DA PONTE DE MADEIR; órgão: PREFEITURA MUNICIPAL DE URUAÇU; UF GO; R$ 53,424",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "32585460000115",
+    "razao_social": "JONNATTAN C S COSTA-ME",
+    "uf": "MT",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "JONNATTAN C S COSTA-ME aparece com obrigação pública em curso (JUA - Contratação de empresa especializada em serviços de engenharia para a atualização de projeto com acréscimo e decréscimo de área edificada e alteração de…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: JUA - Contratação de empresa especializada em serviços de engenharia para a atualização de projeto com acréscimo e decréscimo de área edificada e alteração de l; órgão: FUNDAÇÃO UNIVERSIDADE DO ESTADO DE MATO GROSSO; UF MT; R$ 5,474",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "34702648000121",
+    "razao_social": "T J S MOURA TERRAPLANAGEM E ALUGUEL DE EQUIPAMENTOS LTDA",
+    "uf": "RJ",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "T J S MOURA TERRAPLANAGEM E ALUGUEL DE EQUIPAMENTOS LTDA aparece com obrigação pública em curso (Termo Aditivo tem por objeto o acréscimo quantitativo correspondente a 18,7543% sobre o valor inicial atualizado do Contrato nº 052/2025, referente à execução…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: Termo Aditivo tem por objeto o acréscimo quantitativo correspondente a 18,7543% sobre o valor inicial atualizado do Contrato nº 052/2025, referente à execução d; órgão: SERVICO AUTON DE AGUA E ESG DE VOLTA REDONDA; UF RJ; R$ 110,843",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "35629940000129",
+    "razao_social": "RB EDIFIKA ENGENHARIA E CONSTRUCAO LTDA",
+    "uf": "GO",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "RB EDIFIKA ENGENHARIA E CONSTRUCAO LTDA aparece com obrigação pública em curso (CONTRATO 157/24, PROCESSO 10092/24, DISPENSA 82/24, EXECUÇÃO DE OBRA PARA SUBSTITUIÇÃO DE RESERVATORIO D'AGUA CILINDRICO PARA O PSF -03 NA AVENIDA SARANHÃO. VI…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: CONTRATO 157/24, PROCESSO 10092/24, DISPENSA 82/24, EXECUÇÃO DE OBRA PARA SUBSTITUIÇÃO DE RESERVATORIO D'AGUA CILINDRICO PARA O PSF -03 NA AVENIDA SARANHÃO. VIG; órgão: FUNDO MUNICIPAL DE SAUDE; UF GO; R$ 25,242",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "35873827000194",
+    "razao_social": "G H N CONSTRUTORA E ENGENHARIA LTDA.",
+    "uf": "RJ",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "G H N CONSTRUTORA E ENGENHARIA LTDA. aparece com obrigação pública em curso (Contratação de empresa, através de empreitada por preço unitário (material + mão-de-obra), para execução de reforma interna do setor de aprovação de projetos,…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: Contratação de empresa, através de empreitada por preço unitário (material + mão-de-obra), para execução de reforma interna do setor de aprovação de projetos, f; órgão: MUNICIPIO DE RESENDE; UF RJ; R$ 249,500",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "36758622000120",
+    "razao_social": "THOMPSON E DUARTE ENGENHARIA LTDA",
+    "uf": "ES",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "THOMPSON E DUARTE ENGENHARIA LTDA aparece com obrigação pública em curso (1º TERMO ADITIVO À ATA DE REGISTRO DE PREÇOS Nº 001/2025, QUE ENTRE SI CELEBRAM O ESTADO DO ESPÍRITO SANTO, POR INTERMÉDIO DA SECRETARIA DE ESTADO DE SANEAMENT…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: 1º TERMO ADITIVO À ATA DE REGISTRO DE PREÇOS Nº 001/2025, QUE ENTRE SI CELEBRAM O ESTADO DO ESPÍRITO SANTO, POR INTERMÉDIO DA SECRETARIA DE ESTADO DE SANEAMENTO; órgão: EES-SECRETARIA DE SANEAM.HAB.E DESENV.URBANO; UF ES; R$ 105,998,744",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "37205851000180",
+    "razao_social": "OLIVEIRA ENGENHARIA E CONSTRUCOES LTDA",
+    "uf": "DF",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "OLIVEIRA ENGENHARIA E CONSTRUCOES LTDA aparece com obrigação pública em curso (Oliveira Engenharia e Construções Ltda, valor empenhado para pagamento referente ao acréscimo sobre o valor contratual a fim de sanar serviços remanescentes de…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: Oliveira Engenharia e Construções Ltda, valor empenhado para pagamento referente ao acréscimo sobre o valor contratual a fim de sanar serviços remanescentes de; órgão: CONSELHO FEDERAL DE FARMACIA; UF DF; R$ 279,368",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "37653574000179",
+    "razao_social": "TAVARES ENGENHARIA E PAVIMENTACAO   ENGYPAV LTDA",
+    "uf": "PA",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "TAVARES ENGENHARIA E PAVIMENTACAO   ENGYPAV LTDA aparece com obrigação pública em curso (EXECUCAO DE OBRA DE CONSTRUCAO DO PREDIO DA SECRETARIA MUNICIPAL DE ASSISTENCIA SOCIAL SEMAS CONFORME PROJETO BASICO PLANILHA ORCAMENTARIA SINTETICA E DEMAI ju…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: EXECUCAO DE OBRA DE CONSTRUCAO DO PREDIO DA SECRETARIA MUNICIPAL DE ASSISTENCIA SOCIAL   SEMAS  CONFORME PROJETO BASICO  PLANILHA ORCAMENTARIA SINTETICA E DEMAI; órgão: Fundo Municipal de Assistência Social; UF PA; R$ 6,706,644",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "37914922000114",
+    "razao_social": "LMG ENGENHARIA LTDA",
+    "uf": "DF",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "LMG ENGENHARIA LTDA aparece com obrigação pública em curso (O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DE SERVIÇOS DE ENGENHARIA DE INSTALAÇÃO DE SISTEMA DE PREVENÇÃO E COMBATE CONTRA INCÊ…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DE SERVIÇOS DE ENGENHARIA DE INSTALAÇÃO DE SISTEMA DE PREVENÇÃO E COMBATE CONTRA INCÊN; órgão: INST.FED.DE EDUC.,CIENC.E TEC.FLUMINENSE; UF RJ; R$ 569,900",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "38114215000106",
+    "razao_social": "DOURADO E SOBRAL LTDA",
+    "uf": "BA",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "DOURADO E SOBRAL LTDA aparece com obrigação pública em curso (Contratação de empresa especializada para a execução de obra de engenharia visando à construção de Escola com 9 (nove) salas de aula no distrito de Salobro, no…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: Contratação de empresa especializada para a execução de obra de engenharia visando à construção de Escola com 9 (nove) salas de aula no distrito de Salobro, no; órgão: SECRETARIA DE CULTURA E LAZER; UF BA; R$ 9,459,778",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "38597819000150",
+    "razao_social": "MOSF CONSTRUCOES LTDA",
+    "uf": "BA",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "MOSF CONSTRUCOES LTDA aparece com obrigação pública em curso (Aditivo de quantitativo ao contrato 0395/2024, que tem como objeto a Contratação de empresa de engenharia para execução da obra de pavimentação da 3ª Travessa…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: Aditivo de quantitativo ao contrato 0395/2024, que tem como objeto a\nContratação de empresa de engenharia para execução da obra de\npavimentação da 3ª Travessa d; órgão: PREFEITURA MUNICIPAL DE VERA CRUZ; UF BA; R$ 343,503",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "41240636000198",
+    "razao_social": "Ga Pavimentacoes e Locacoes LTDA",
+    "uf": "MG",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "Ga Pavimentacoes e Locacoes LTDA aparece com obrigação pública em curso (CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRA EM PAVIMENTAÇÃO ASFÁLTICA EM CBUQ E SERVIÇOS COMPLEMENTARES, ESTRADA RURAL DO POVOADO DE BURÁ, EM FR…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRA EM PAVIMENTAÇÃO ASFÁLTICA EM CBUQ E SERVIÇOS COMPLEMENTARES, ESTRADA RURAL DO POVOADO DE BURÁ, EM FRE; órgão: Unidade Única; UF MG",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "41759790000170",
+    "razao_social": "TARUMA - ENGENHARIA E CONSTRUCAO LTDA",
+    "uf": "TO",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "TARUMA - ENGENHARIA E CONSTRUCAO LTDA aparece com obrigação pública em curso (CONTRATAÇÃO DE PESSOA JURÍDICA ESPECIALIZADA EM OBRAS DE ENGENHARIA PARA EXECUÇÃO DOS SERVIÇOS REMANESCENTES DE CONSTRUÇÃO DOS CONSELHOS TUTELARES POLO I E POL…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: CONTRATAÇÃO DE PESSOA JURÍDICA ESPECIALIZADA EM OBRAS DE ENGENHARIA PARA EXECUÇÃO DOS SERVIÇOS REMANESCENTES DE CONSTRUÇÃO DOS CONSELHOS TUTELARES POLO I E POLO; órgão: PREFEITURA MUNICIPAL DE ARAGUAINA - SECRETARIA DE ADMINISTRAÇÃO; UF TO; R$ 477,998",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "42083256000150",
+    "razao_social": "IDEAL CONSTRUCOES E ARQUITETURA SOCIEDADE UNIPESSOAL LTDA",
+    "uf": "CE",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "IDEAL CONSTRUCOES E ARQUITETURA SOCIEDADE UNIPESSOAL LTDA aparece com obrigação pública em curso (2º Termo aditivo ao contrato 32/2025, cujo objeto é a contratação de empresa especializada para a prestação de serviços de engenharia, de natureza comum, inclu…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: 2º Termo aditivo ao contrato 32/2025, cujo objeto é a contratação de empresa especializada para a prestação de serviços de engenharia, de natureza comum, inclui; órgão: CONSELHO REG.DOS REPRESENTANTES COMERCIAIS-CE; UF CE; R$ 301,395",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "42715065000163",
+    "razao_social": "NINA ENGENHARIA LTDA",
+    "uf": "DF",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "NINA ENGENHARIA LTDA aparece com obrigação pública em curso (EXECUÇÃO DE OBRA DE ENGENHARIA DE REFORMA DO PRÉDIO QUE ABRIGA O CARTÓRIO ELEITORAL DE ITUMBIARA, SITUADO NA AV. JOÃO PAULO II, N° 300, ITUMBIARA- GO. junto a…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: EXECUÇÃO DE OBRA DE ENGENHARIA DE REFORMA DO PRÉDIO QUE ABRIGA O CARTÓRIO ELEITORAL DE ITUMBIARA, SITUADO NA AV. JOÃO PAULO II, N° 300, ITUMBIARA- GO.; órgão: TRIBUNAL REGIONAL ELEITORAL DE GOIAS; UF GO; R$ 700,000",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "42864563000178",
+    "razao_social": "MOVING CAPACITACOES LTDA",
+    "uf": "MG",
+    "service_id": "reequilibrio_economico_financeiro",
+    "why_you": "MOVING CAPACITACOES LTDA aparece com obrigação pública em curso (REFERENTE CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA PRESTAÇÃO DE CURSO DE CAPACITAÇÃO EM ORÇAMENTO DE OBRAS PÚBLICAS; ADITIVOS, REEQUILÍBRIO, MEDIÇÕES E PAGAME…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Menção a reequilíbrio em material contratual ingerido.",
+    "observed_fact": "objeto: REFERENTE CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA PRESTAÇÃO DE CURSO DE CAPACITAÇÃO EM ORÇAMENTO DE OBRAS PÚBLICAS; ADITIVOS, REEQUILÍBRIO, MEDIÇÕES E PAGAMEN; órgão: CÂMARA MUNICIPAL DE TANGARÁ DA SERRA; UF MT; R$ 3,588",
+    "micro_offer": "CLAIM_READINESS_CHECK",
+    "signals": [
+      "reequilibrio"
+    ]
+  },
+  {
+    "cnpj": "50435443000183",
+    "razao_social": "FAMONTE CONSTRUCOES LTDA",
+    "uf": "MG",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "FAMONTE CONSTRUCOES LTDA aparece com obrigação pública em curso (Execucao de obra de drenagem e Pavimentacao, com blocos de concreto intertravados, na comunidade Triunfo a Rodovia ES-261, Itarana/ES, conforme especificacoes…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: Execucao de obra de drenagem e Pavimentacao, com blocos de concreto intertravados, na comunidade Triunfo a Rodovia ES-261, Itarana/ES, conforme especificacoes e; órgão: Prefeitura Municipal de Itarana; UF ES; R$ 525,756",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "51250310000103",
+    "razao_social": "FORTALEZA CONSTRUÇÕES",
+    "uf": "PA",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "FORTALEZA CONSTRUÇÕES aparece com obrigação pública em curso (CONTRATAÇÃO DE EMPRESA ESPECIALIZADA NO RAMO DA CONSTRUÇÃO CIVIL PARA A EXECUÇÃO DE OBRA, VISANDO A CONSTRUÇÃO DE UBS TIPO I, CONFORME PROPOSTA No 36000001018/…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA NO RAMO DA CONSTRUÇÃO CIVIL PARA A EXECUÇÃO DE OBRA, VISANDO A CONSTRUÇÃO DE UBS TIPO I, CONFORME PROPOSTA No 36000001018/2; órgão: Prefeitura Municipal de Cachoeira do Arari; UF PA; R$ 1,999,000",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  },
+  {
+    "cnpj": "55561120000150",
+    "razao_social": "PREST' MO ENGENHARIA LTDA - EPP",
+    "uf": "PE",
+    "service_id": "aditivos_extracontratuais",
+    "why_you": "PREST' MO ENGENHARIA LTDA - EPP aparece com obrigação pública em curso (Contratação de empresa de engenharia para a prestação de serviços técnicos de elaboração de projetos arquitetônicos e executivos de Arquitetura, projetos compl…). Quando a execução cruza órgão/UF e valor material, costuma valer olhar o contrato com disciplina de monitoramento antes de escalar dor.",
+    "why_now": "Aditivos/alterações observados em contrato público recente ou ativo.",
+    "observed_fact": "objeto: Contratação de empresa de engenharia para a prestação de serviços técnicos de elaboração de projetos arquitetônicos e executivos de Arquitetura, projetos comple; órgão: SECRETARIA MUNICIPAL DE PLANEJAMENTO; UF RS; R$ 15,882",
+    "micro_offer": "ADITIVO_RISK_CHECK",
+    "signals": [
+      "addendum"
+    ]
+  }
+]
