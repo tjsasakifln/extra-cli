@@ -1,24 +1,37 @@
-# GO-NO-GO — CONFENGE pilot integrity recovery (round 02d)
+# GO-NO-GO — CONFENGE pilot integrity recovery (round 02e)
 
 **Verdict: `NO_GO`**
 
-Timestamp (UTC): 2026-08-10T02:27:45.341370+00:00
+Timestamp (UTC): 2026-08-10T02:51:15.048133+00:00
 
-## Closed this round
+## Closed
 
-- warmbly tip `ca457058` CI GREEN + VPS MATCH
-- production no-send A–E **all_cases_pass=true** on deployed tip
-- hollow approve fail-closed + sticky-flag repair
-- extra-cli commercial gates (ESR 54, audits, blind-template) from prior round
-- safety held (PAUSED / kill switch / WA OFF / GREEN OFF)
+| Gate | Result |
+|------|--------|
+| warmbly tip ca457058 CI + VPS MATCH | PASS |
+| production no-send A–E | PASS |
+| MessageSpine temporal WEAK without dated event | PASS (unit) |
+| hollow language ban includes «sem dor concreta dominante» | PASS |
+| why_this multi-skeleton + why_now phrasing diversity | PASS (code) |
+| near-dup (lexical/semantic) on ESR cohort | PASS blocked=false |
+| blind-template after diversify | **PASS** `NO_SUFFICIENT_VARIATION` |
+| audit50 FP counters | **0/0/0/0/0** |
+| feed atomic publish + Warmbly import (PAUSED) | PASS (49 leads) |
+| safety invariants | PASS |
 
-## Still open → NO_GO
+## Failed / external
 
-1. SMTP self-smoke needs `CONFENGE_SELF_SMOKE_TO` (operator sink)
-2. Continuous IMAP reply-stop re-proof on tip
-3. extra-cli PR #211 not host-of-record MATCH
-4. PRs not merged to main; feed STALE / rebuild lineage partial
+| Gate | Result |
+|------|--------|
+| EMAIL_SEND_READY ≥ 50 natural | **FAIL (49)** — only 50 structural∩COMPANY_OWNED contacts; 1 WEAK why_now |
+| SMTP self-smoke | **FAIL** — `CONFENGE_SELF_SMOKE_TO` not set |
+| continuous IMAP reply-stop on tip | **FAIL** — blocked by self-smoke credential |
+| extra-cli host MATCH | FAIL |
 
 ## Safety
 
-dispatch=PAUSED · kill_switch=ENGAGED · WhatsApp=OFF · GREEN autorun=OFF · no real commercial send
+dispatch=PAUSED · kill_switch=ENGAGED · WhatsApp=OFF · GREEN OFF · no commercial send
+
+## Honest note
+
+ESR 49 is natural. Promoting PROBABLE or inventing contacts would be gaming — refused.

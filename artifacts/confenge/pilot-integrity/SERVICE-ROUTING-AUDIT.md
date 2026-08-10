@@ -1,45 +1,39 @@
 # SERVICE-ROUTING-AUDIT
 
-## Confirmed primary distribution (universe rescore)
+## Structural-ready primary distribution (post MessageSpine + SERVICE_FIT)
 
 ```
 {
-  "gestao_monitoramento_contratual": 3793,
-  "reforco_temporario_backoffice": 825,
-  "apoio_licitacoes_propostas": 681,
-  "auditoria_orcamento_bdi": 86,
-  "aditivos_extracontratuais": 41,
+  "gestao_monitoramento_contratual": 2943,
+  "apoio_licitacoes_propostas": 594,
   "medicoes_glosas_memoria": 3,
-  "reequilibrio_economico_financeiro": 2
+  "aditivos_extracontratuais": 33,
+  "auditoria_orcamento_bdi": 80,
+  "reequilibrio_economico_financeiro": 1,
+  "reforco_temporario_backoffice": 549
 }
 ```
 
-## Gestão adversarial split (required buckets)
+## Gestão among structural-ready (post-filter)
 
 ```
 {
-  "GESTAO_SUPPORTED": 3483,
-  "GESTAO_GENERIC_FALLBACK": 310
+  "GESTAO_SUPPORTED": 2943
 }
 ```
 
-- **GESTAO_SUPPORTED**: multi_contract with diversity (órgãos/UFs) or structure_robust / n≥5
-- **GESTAO_GENERIC_FALLBACK**: multi_contract_thin / fallback signals (NOT SERVICE_FIT_SUPPORTED)
-- **GESTAO_NEEDS_RESEARCH**: residual non-supported (if any)
+Note: `GESTAO_GENERIC_FALLBACK excluded from structural-ready by service_fit gate; structural list is post-filter`
 
-## Family SERVICE_FIT counts (sample)
+GESTAO_GENERIC_FALLBACK is excluded from SERVICE_FIT_SUPPORTED / structural-ready by design.
+Unknown → REAJUSTE remains fail-closed (unit + warmbly).
+
+## ESR service dist (n=49)
 
 ```
 {
-  "gestao_monitoramento_contratual:FIT": 3483,
-  "reforco_temporario_backoffice:FIT": 825,
-  "apoio_licitacoes_propostas:FIT": 681,
-  "gestao_monitoramento_contratual:NO_FIT": 310,
-  "auditoria_orcamento_bdi:FIT": 86,
-  "aditivos_extracontratuais:FIT": 41,
-  "medicoes_glosas_memoria:FIT": 3,
-  "reequilibrio_economico_financeiro:FIT": 2
+  "gestao_monitoramento_contratual": 38,
+  "apoio_licitacoes_propostas": 9,
+  "auditoria_orcamento_bdi": 1,
+  "reforco_temporario_backoffice": 1
 }
 ```
-
-Unknown → REAJUSTE: fail-closed (unit + warmbly playbook).

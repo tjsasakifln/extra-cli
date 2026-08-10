@@ -1,7 +1,16 @@
 {
-  "status": "NOT_RUN_ON_NEW_SHA",
-  "reason": "warmbly production not redeployed to PR#34 HEAD this round",
-  "extra_cli_head": "560b59c9ff9e024981272f302199e22989182d72",
-  "warmbly_head": "be082d329d4c0abdca8a97f49c0324130b53d68f",
-  "vps_extra_main": "0b3fce71"
+  "timestamp_utc": "2026-08-10T02:51:15.048133+00:00",
+  "feed_sha256": "8bcd317b12b0e39352b4668ee6b46726bd321bd1a47f31b6532e794de7a99edb",
+  "feed_leads": 49,
+  "import_http": 200,
+  "import_counts": {
+    "creates": 5,
+    "updates": 44,
+    "leads_processed": 49,
+    "blocked": 0
+  },
+  "vps_warmbly_sha": "ca457058b9657419ee0b45173defb64079c3205d",
+  "dispatch": "PAUSED",
+  "kill_switch": true,
+  "auto_send": false
 }

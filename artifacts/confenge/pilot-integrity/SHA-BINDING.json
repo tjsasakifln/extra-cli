@@ -1,30 +1,31 @@
 {
-  "timestamp_utc": "2026-08-10T02:27:45.341370+00:00",
-  "extra_cli_pr": 211,
-  "extra_cli_branch": "fix/confenge-pilot-target-service-integrity",
+  "timestamp_utc": "2026-08-10T02:51:15.048133+00:00",
   "extra_cli_runtime_head": "a49b439df31adc276615e9fdc2ffd1bb022c8377",
-  "extra_cli_docs_tip": "763811dea86be79e816321ed2f01f0432a65df3e",
-  "extra_cli_ci": "GREEN_on_prior_tip",
-  "warmbly_pr": 34,
-  "warmbly_repo": "tjsasakifln/warmbly",
-  "warmbly_branch": "fix/confenge-pilot-service-copy-integrity",
+  "extra_cli_docs_tip_pending_commit": true,
   "warmbly_head": "ca457058b9657419ee0b45173defb64079c3205d",
   "warmbly_ci": "GREEN",
-  "warmbly_ci_run": "https://github.com/tjsasakifln/warmbly/actions/runs/31349590448",
   "vps_deployed_warmbly": "ca457058b9657419ee0b45173defb64079c3205d",
   "vps_warmbly_match": true,
   "vps_extra_cli_match": false,
-  "production_nosend_all_cases_pass": true,
-  "production_nosend_case_pass": {
-    "A_incomplete_approve": true,
-    "C_valid_approve": true,
-    "C_enroll_while_paused": true,
-    "D_edit_invalidates_approval": true,
-    "E_dnc_block": true,
-    "B_unknown_service_approve": true
+  "EMAIL_SEND_READY": 49,
+  "EMAIL_SEND_READY_meets_gate": false,
+  "blind_template": "NO_SUFFICIENT_VARIATION",
+  "near_dup_blocked": false,
+  "audit50": {
+    "FALSE_TARGET": 0,
+    "WRONG_CONTACT": 0,
+    "UNSUPPORTED_SERVICE": 0,
+    "HOLLOW_COPY": 0,
+    "UNSAFE_CLAIM": 0
   },
-  "production_nosend_deployed_sha": "ca457058b9657419ee0b45173defb64079c3205d",
   "smtp_self_smoke": false,
   "imap_reply_stop_continuous": false,
-  "verdict": "NO_GO"
+  "production_nosend_all_cases_pass": true,
+  "CONFENGE_SELF_SMOKE_TO": "NOT_SET",
+  "verdict": "NO_GO",
+  "blockers": [
+    "EMAIL_SEND_READY=49 natural join (threshold 50) \u2014 contact enrichment coverage, not gaming",
+    "CONFENGE_SELF_SMOKE_TO unset \u2014 cannot re-prove controlled SMTP + continuous IMAP reply-stop",
+    "extra-cli not host-of-record MATCH"
+  ]
 }

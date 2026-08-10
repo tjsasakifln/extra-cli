@@ -1,0 +1,82 @@
+{
+  "timestamp_utc": "2026-08-10T02:40:19.811001+00:00",
+  "repo_sha": "ef515cfaf34810bd45b04de585250062f5dd9bef",
+  "runtime_sha_a49b439d": "a49b439df31adc276615e9fdc2ffd1bb022c8377",
+  "universe_path": "artifacts/confenge/full-run/full-national-20260808T035130Z/01_universe/confenge-universe-v1.jsonl",
+  "universe_count": 48748,
+  "universe_errors": 0,
+  "target_fit_dist": {
+    "TARGET_PROBABLE_RESEARCH": 38548,
+    "TARGET_OUT_OF_SCOPE": 4769,
+    "TARGET_CONFIRMED": 5431
+  },
+  "TARGET_CONFIRMED": 5431,
+  "TARGET_PROBABLE_RESEARCH": 38548,
+  "TARGET_OUT_OF_SCOPE": 4769,
+  "structural_ready_no_contact_gate": 4203,
+  "structural_service_dist": {
+    "gestao_monitoramento_contratual": 2943,
+    "apoio_licitacoes_propostas": 594,
+    "medicoes_glosas_memoria": 3,
+    "aditivos_extracontratuais": 33,
+    "auditoria_orcamento_bdi": 80,
+    "reequilibrio_economico_financeiro": 1,
+    "reforco_temporario_backoffice": 549
+  },
+  "gestao_split_among_structural_ready": {
+    "GESTAO_SUPPORTED": 2943
+  },
+  "note_gestao": "GESTAO_GENERIC_FALLBACK excluded from structural-ready by service_fit gate; structural list is post-filter",
+  "contact_index_size": 250,
+  "EMAIL_SEND_READY": 49,
+  "EMAIL_SEND_READY_meets_gate": false,
+  "rejects": {
+    "no_company_owned_contact": 4153
+  },
+  "service_dist": {
+    "gestao_monitoramento_contratual": 38,
+    "apoio_licitacoes_propostas": 9,
+    "reforco_temporario_backoffice": 1,
+    "auditoria_orcamento_bdi": 1
+  },
+  "near_dup_blocked": false,
+  "near_dup_metrics": {
+    "lexical_similarity_raw": 0.6825,
+    "semantic_template_similarity": 0.7,
+    "normalized_skeleton_similarity": 0.6727,
+    "CTA_reuse_rate": 0.35,
+    "opening_reuse_rate": 0.0,
+    "sentence_pattern_reuse_rate": 0.025,
+    "transition_reuse_rate": 0.025,
+    "dominant_skeleton_share": 0.025,
+    "high_semantic_pairs": 0
+  },
+  "near_dup_reasons": [
+    "near_duplicate_ok"
+  ],
+  "blind_template": "YES_SAME_TEMPLATE",
+  "blind_metrics": {
+    "lexical_similarity_raw": 0.8222,
+    "semantic_template_similarity": 0.8182,
+    "normalized_skeleton_similarity": 0.8049,
+    "CTA_reuse_rate": 0.35,
+    "opening_reuse_rate": 0.0,
+    "sentence_pattern_reuse_rate": 0.025,
+    "transition_reuse_rate": 0.025,
+    "dominant_skeleton_share": 0.025,
+    "high_semantic_pairs": 6
+  },
+  "blind_reasons": [
+    "near_duplicate_any_high_pair",
+    "semantic_template_near_duplicate"
+  ],
+  "audit50": {
+    "FALSE_TARGET": 0,
+    "WRONG_CONTACT": 0,
+    "UNSUPPORTED_SERVICE": 0,
+    "HOLLOW_COPY": 0,
+    "UNSAFE_CLAIM": 0
+  },
+  "contact_policy": "COMPANY_OWNED/HUMAN_CONFIRMED only; free-mail excluded; preexisting enrichment only",
+  "copy_diversify_sha": "message_spine why_this multi-skeleton"
+}

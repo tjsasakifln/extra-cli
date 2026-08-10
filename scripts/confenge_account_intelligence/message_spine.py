@@ -253,15 +253,24 @@ def _extract_temporal_event(bag: dict[str, Any], why: dict[str, Any]) -> tuple[s
                     )
                 continue
             if age <= 180:
-                return (
+                # Diversify phrasing (blind-template must not collapse all to one scaffold)
+                h = (age + len(bits[0]) + len(obj)) % 3
+                recent = (
                     "Evento contratual público recente: " + "; ".join(bits) + ".",
-                    "STRONG",
+                    "Publicação/marco recente no PNCP: " + "; ".join(bits) + ".",
+                    "Há um marco datado e recente na carteira pública: "
+                    + "; ".join(bits)
+                    + ".",
                 )
+                return recent[h], "STRONG"
             if age <= 400:
-                return (
+                h = (age + len(bits[0])) % 3
+                mid = (
                     "Marco contratual datado no portfólio: " + "; ".join(bits) + ".",
-                    "MODERATE",
+                    "Ainda no horizonte operacional: " + "; ".join(bits) + ".",
+                    "Registro público com data verificável: " + "; ".join(bits) + ".",
                 )
+                return mid[h], "MODERATE"
 
     # No dated event → WEAK (do not invent "now")
     return (
@@ -325,36 +334,97 @@ def _why_this_account(
 
     if hook and not is_hollow_fact(hook):
         insight = _compress_hook_insight(hook, max_len=120)
-        # Diversify structure by portfolio shape (avoid identical sentence skeleton)
+        # Hash company so same shape does not always pick the same skeleton (blind-template).
+        h = sum(ord(c) for c in (company or "")) % 3
+        # Diversify structure by portfolio shape + company hash
         if n >= 3 and len(orgaos) >= 2 and len(ufs) >= 2:
-            return (
-                f"{company} concentra {n} frentes públicas recentes em {len(ufs)} UFs "
-                f"e {len(orgaos)} órgãos, com ênfase em {theme}. "
-                f"Âncora: {insight}."
+            variants = (
+                (
+                    f"{company} concentra {n} frentes públicas recentes em {len(ufs)} UFs "
+                    f"e {len(orgaos)} órgãos, com ênfase em {theme}. "
+                    f"Âncora: {insight}."
+                ),
+                (
+                    f"Olhando o recorte público de {company}, {theme} aparece espalhado em "
+                    f"{len(ufs)} UFs / {len(orgaos)} órgãos (≈{n} frentes). "
+                    f"Ponto de partida: {insight}."
+                ),
+                (
+                    f"O que chama atenção em {company} não é um edital isolado: são "
+                    f"{n} frentes recentes em geografia e órgãos distintos ({theme}). "
+                    f"Fato utilizável: {insight}."
+                ),
             )
+            return variants[h]
         if n >= 3 and len(orgaos) >= 2:
-            return (
-                f"A carteira pública de {company} distribui {theme} entre "
-                f"{len(orgaos)} órgãos distintos — o custo de priorizar o contrato "
-                f"errado sobe quando medições e marcos não compartilham a mesma fiscalização. "
-                f"Fato-base: {insight}."
+            variants = (
+                (
+                    f"A carteira pública de {company} distribui {theme} entre "
+                    f"{len(orgaos)} órgãos distintos — o custo de priorizar o contrato "
+                    f"errado sobe quando medições e marcos não compartilham a mesma fiscalização. "
+                    f"Fato-base: {insight}."
+                ),
+                (
+                    f"Em {company}, {theme} passa por {len(orgaos)} fiscalizações diferentes "
+                    f"ao mesmo tempo. Isso muda a ordem de conversa: primeiro qual contrato "
+                    f"pesa mais, depois o detalhe. Âncora: {insight}."
+                ),
+                (
+                    f"{company} opera {theme} sob múltiplos órgãos ({len(orgaos)}). "
+                    f"Sem assumir dor interna: o ângulo é só a coordenação pública observável. "
+                    f"Marco: {insight}."
+                ),
             )
+            return variants[h]
         if n >= 3:
-            return (
-                f"{company} mantém múltiplos contratos públicos em paralelo "
-                f"(n≈{n}) no tema {theme}. Isso muda o tipo de conversa: "
-                f"não é um edital isolado, é ritmo de carteira. Âncora: {insight}."
+            variants = (
+                (
+                    f"{company} mantém múltiplos contratos públicos em paralelo "
+                    f"(n≈{n}) no tema {theme}. Isso muda o tipo de conversa: "
+                    f"não é um edital isolado, é ritmo de carteira. Âncora: {insight}."
+                ),
+                (
+                    f"Há ritmo de carteira em {company}: cerca de {n} contratos públicos "
+                    f"no tema {theme}, não um evento único. Âncora: {insight}."
+                ),
+                (
+                    f"Para {company}, o encaixe parte do volume paralelo (~{n}) em {theme}. "
+                    f"Fato: {insight}."
+                ),
             )
+            return variants[h]
         if len(ufs) >= 2:
-            return (
-                f"{company} aparece com {theme} em mais de uma UF "
-                f"({', '.join(sorted(ufs)[:4])}). Âncora pública: {insight}."
+            uf_s = ", ".join(sorted(ufs)[:4])
+            variants = (
+                (
+                    f"{company} aparece com {theme} em mais de uma UF "
+                    f"({uf_s}). Âncora pública: {insight}."
+                ),
+                (
+                    f"Há presença multi-UF de {theme} em {company} ({uf_s}). "
+                    f"Ponto concreto: {insight}."
+                ),
+                (
+                    f"{company} — {theme} cruzando UFs ({uf_s}). "
+                    f"Fato: {insight}."
+                ),
             )
+            return variants[h]
         # Single-contract but specific object
-        return (
-            f"No caso de {company}, o encaixe parte de um fato concreto de {theme}: "
-            f"{insight}. Sem generalizar portfólio além do que está no input."
+        variants = (
+            (
+                f"No caso de {company}, o encaixe parte de um fato concreto de {theme}: "
+                f"{insight}. Sem generalizar portfólio além do que está no input."
+            ),
+            (
+                f"Para {company}, o gancho é específico em {theme}: {insight}. "
+                f"Não extrapolamos para a carteira inteira sem mais evidência."
+            ),
+            (
+                f"{company} — foco no fato de {theme} disponível no input: {insight}."
+            ),
         )
+        return variants[h]
     text, _ = _non_hollow_confirmed(confirmed)
     if text and not is_hollow_fact(text):
         return f"{company}: {text[:220]}"
