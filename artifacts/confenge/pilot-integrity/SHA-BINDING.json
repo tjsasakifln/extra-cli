@@ -1,19 +1,18 @@
 {
-  "timestamp_utc": "2026-08-10T02:16:59.591694+00:00",
+  "timestamp_utc": "2026-08-10T02:27:45.341370+00:00",
   "extra_cli_pr": 211,
   "extra_cli_branch": "fix/confenge-pilot-target-service-integrity",
-  "extra_cli_head": "a49b439df31adc276615e9fdc2ffd1bb022c8377",
-  "extra_cli_docs_tip": "88c0176b4064253bf2b050dd67423999aab68917",
-  "extra_cli_ci": "GREEN",
-  "extra_cli_ci_run": "https://github.com/tjsasakifln/extra-cli/actions/runs/31347893906",
+  "extra_cli_runtime_head": "a49b439df31adc276615e9fdc2ffd1bb022c8377",
+  "extra_cli_docs_tip": "763811dea86be79e816321ed2f01f0432a65df3e",
+  "extra_cli_ci": "GREEN_on_prior_tip",
   "warmbly_pr": 34,
   "warmbly_repo": "tjsasakifln/warmbly",
   "warmbly_branch": "fix/confenge-pilot-service-copy-integrity",
-  "warmbly_head": "437724490ede4efb0e1b9ea7519a6df265c4b05e",
-  "warmbly_ci": "PENDING_OR_LOCAL_PASS",
-  "vps_deployed_warmbly": "437724490ede4efb0e1b9ea7519a6df265c4b05e",
+  "warmbly_head": "ca457058b9657419ee0b45173defb64079c3205d",
+  "warmbly_ci": "GREEN",
+  "warmbly_ci_run": "https://github.com/tjsasakifln/warmbly/actions/runs/31349590448",
+  "vps_deployed_warmbly": "ca457058b9657419ee0b45173defb64079c3205d",
   "vps_warmbly_match": true,
-  "vps_prod_extra_main": "0b3fce71",
   "vps_extra_cli_match": false,
   "production_nosend_all_cases_pass": true,
   "production_nosend_case_pass": {
@@ -24,5 +23,8 @@
     "E_dnc_block": true,
     "B_unknown_service_approve": true
   },
-  "note": "Warmbly tip MATCH on VPS + no-send A\u2013E PASS. extra-cli PR runtime not on host-of-record main. SMTP self-smoke / continuous IMAP reply-stop not re-proven this round (require CONFENGE_SELF_SMOKE_TO + controlled reply)."
+  "production_nosend_deployed_sha": "ca457058b9657419ee0b45173defb64079c3205d",
+  "smtp_self_smoke": false,
+  "imap_reply_stop_continuous": false,
+  "verdict": "NO_GO"
 }

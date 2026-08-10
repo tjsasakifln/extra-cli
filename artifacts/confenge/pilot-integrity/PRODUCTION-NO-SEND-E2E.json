@@ -1,6 +1,6 @@
 {
-  "ts": "2026-08-10T02:16:10.578672+00:00",
-  "deployed_sha": "437724490ede4efb0e1b9ea7519a6df265c4b05e",
+  "ts": "2026-08-10T02:27:22.824747+00:00",
+  "deployed_sha": "ca457058b9657419ee0b45173defb64079c3205d",
   "ok_acc": "8a3ce7f0-a47a-4c62-a6c8-883186df8c70",
   "unk_acc": "26db6b95-ebdb-492b-8e1e-c9fab18b2d08",
   "cases": {
@@ -44,7 +44,7 @@
   },
   "gen_ok": {
     "http": 200,
-    "id": "0a4bc763-7d43-4c23-a6ec-9b86835c3531",
+    "id": "677006a3-3bd5-448c-bb01-f5c4857d680d",
     "status": "NEEDS_REVIEW",
     "risk": "RED",
     "flags": [
@@ -84,8 +84,8 @@
       "email": "ready",
       "whatsapp": "not_configured",
       "feed_configured": true,
-      "feed_age_seconds": 546,
-      "feed_age": "9m",
+      "feed_age_seconds": 1218,
+      "feed_age": "20m",
       "outcome_loop": "ready",
       "ai": "fallback_template",
       "governor_cap": 10,
@@ -104,7 +104,7 @@
   "kill_switch_file": [
     "paused",
     "reason=operator_ssh_pause",
-    "at=2026-08-10T02:15:56Z"
+    "at=2026-08-10T02:22:50Z"
   ],
   "case_pass": {
     "A_incomplete_approve": true,
