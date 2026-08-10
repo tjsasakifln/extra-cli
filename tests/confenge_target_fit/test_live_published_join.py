@@ -188,23 +188,31 @@ def test_map_lead_joins_live_current_without_embedded_fields(dsn):
             ],
             "messaging": {
                 "fact_to_mention": (
-                    "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. X"
+                    "objeto: pavimentação asfáltica CBUQ em vias urbanas; "
+                    "órgão: Pref. Coxilha; UF RS"
                 ),
                 "why_this_account": (
-                    "executora de pavimentação com contratos públicos recentes — "
-                    "objeto: pavimentação asfáltica CBUQ em vias urbanas"
+                    "LIVEJOIN com execução pública de pavimentação — "
+                    "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. Coxilha"
                 ),
-                "why_now": "aditivo recente no contrato municipal de pavimentação asfáltica CBUQ",
+                "why_now": (
+                    "aditivo recente no contrato de LIVEJOIN de pavimentação asfáltica CBUQ "
+                    "com a Pref. Coxilha"
+                ),
                 "cta": "Posso te mandar o recorte público que encontrei?",
                 "claims_to_avoid": [],
             },
             "why_this_account": (
-                "executora de pavimentação com contratos públicos recentes — "
-                "objeto: pavimentação asfáltica CBUQ em vias urbanas"
+                "LIVEJOIN com execução pública de pavimentação — "
+                "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. Coxilha"
             ),
-            "why_now": "aditivo recente no contrato municipal de pavimentação asfáltica CBUQ",
+            "why_now": (
+                "aditivo recente no contrato de LIVEJOIN de pavimentação asfáltica CBUQ "
+                "com a Pref. Coxilha"
+            ),
             "observed_fact": (
-                "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. X"
+                "objeto: pavimentação asfáltica CBUQ em vias urbanas; "
+                "órgão: Pref. Coxilha; UF RS"
             ),
             "micro_offer_code": "REAJUSTE_CHECK",
             "evidence_ids": ["e1"],
