@@ -130,10 +130,19 @@
       "companies_attempted": 8381
     },
     "transparency_compras": {
-      "companies_attempted": 20,
-      "resolved_or_http_ok": 0,
+      "companies_attempted": 8382,
+      "resolved_or_http_ok": 2100,
+      "pages_fetched": 4927,
+      "http_ok_responses": 2501,
+      "errors": 20219,
+      "auth_hits": 617,
+      "captcha_hits": 300,
       "class": "PUBLIC_NO_AUTH",
-      "probe": "Bounded PUBLIC_NO_AUTH probe of municipal transparency bases (20 companies)"
+      "families": {
+        "transparency_portal": 2492,
+        "municipal_multi24h": 9
+      },
+      "probe": "national_transparency_cascade over process-first accounts"
     }
   },
   "esr_rows_count": 72,

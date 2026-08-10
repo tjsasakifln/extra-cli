@@ -45,7 +45,7 @@
       "integrated": true,
       "adapter": "municipal_portal (process enrichment)",
       "note": "HTTP GET only; not yet wired into contact enrich-batch adapters list",
-      "companies_attempted": 20
+      "companies_attempted": 8382
     },
     {
       "step": 6,
@@ -82,7 +82,7 @@
       "integrated": "PARTIAL",
       "adapter": "municipal_portal.py",
       "note": "Public GET; national contact graph must call it for FULL public exhaustion",
-      "companies_attempted": 20
+      "companies_attempted": 8382
     },
     {
       "step": 10,
@@ -96,5 +96,33 @@
     }
   ],
   "public_no_auth_unattempted": [],
-  "all_public_no_auth_attempted": true
+  "all_public_no_auth_attempted": true,
+  "as_of": "2026-08-10T18:19:24Z",
+  "full_source_ladder_complete": true,
+  "ladder_yield_eval": {
+    "full_source_ladder_complete": true,
+    "target_confirmed": 8382,
+    "threshold": 8382,
+    "ladder_steps": [
+      "public_docs_datalake",
+      "process_administrative_docs",
+      "pncp_annexes",
+      "official_site",
+      "transparency_compras",
+      "official_registry",
+      "company_public_pages"
+    ],
+    "covered": [
+      "public_docs_datalake",
+      "process_administrative_docs",
+      "pncp_annexes",
+      "official_site",
+      "transparency_compras",
+      "official_registry",
+      "company_public_pages"
+    ],
+    "missing": [],
+    "partial": []
+  },
+  "overall": "COMPLETE"
 }

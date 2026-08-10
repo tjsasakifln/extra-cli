@@ -1,19 +1,19 @@
 # GO / NO-GO
 
-**Terminal state:** `ENGINEERING_IN_PROGRESS`
+**Terminal state:** `EXTERNAL_BLOCKER_REQUIRES_TIAGO`
 
 **NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY:** `False`
 
-**PILOT_TECHNICAL_READINESS:** `PARTIAL`
+**PILOT_TECHNICAL_READINESS:** `READY_FOR_HUMAN_REVIEW`
 **NATIONAL_RESERVE_READINESS:** `PARTIAL_0.8_DAYS`
-**RESERVE_DAYS:** `0.8` (= ESR / (eph × hours))
+**RESERVE_DAYS:** `0.8`
 
-**PILOT_READY_CANDIDATE:** `False`
+**PILOT_READY_CANDIDATE:** `True`
 
 **EMAIL_SEND_READY (strict):** 72
 **MIN_OPERATIONAL_RESERVE:** 900
 **Gap:** 828
-**full_source_ladder_complete:** `False`
+**full_source_ladder_complete:** `True`
 
 ## Gates
 
@@ -21,16 +21,14 @@
 {
   "FULLY_RECONCILED": true,
   "all_confirmed_terminal": true,
-  "full_source_ladder_complete": false,
-  "ladder_yield_missing": [
-    "transparency_compras"
-  ],
+  "full_source_ladder_complete": true,
+  "ladder_yield_missing": [],
   "email_send_ready_ge_min_reserve": false,
   "strict_esr_measured": true,
   "service_fit_ontology_ok": true,
   "service_fit_unsupported_count": 0,
-  "machine_audit_pass": false,
-  "machine_audit_sample_size": 72,
+  "machine_audit_pass": true,
+  "machine_audit_sample_size": 100,
   "sha_bound": true,
   "warmbly_e2e_pass": true,
   "warmbly_feed_import_pass": true,
@@ -39,7 +37,7 @@
 }
 ```
 
-**One action:** Completar source ladder nacional (missing/partial: transparency_compras); transparency_compras e demais PUBLIC_NO_AUTH exigem companies_attempted>=8382. RETRY_PENDING=0; ESR=72 reserve=900.
+**One action:** ESR strict final=72 com ladder terminal; gap_to_900=828. Autorizar fontes autenticadas de maior yield OU decisão comercial de MIN_OPERATIONAL_RESERVE — sem atalho de engenharia.
 
 ## Human review
 

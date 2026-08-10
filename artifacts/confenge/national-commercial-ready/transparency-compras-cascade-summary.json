@@ -1,0 +1,22 @@
+{
+  "schema": "confenge.transparency_compras_cascade.v1",
+  "ladder_id": "transparency_compras",
+  "class": "PUBLIC_NO_AUTH",
+  "as_of": "2026-08-10T18:19:24Z",
+  "companies_attempted": 8382,
+  "resolved_or_http_ok": 2100,
+  "pages_fetched": 4927,
+  "http_ok_responses": 2501,
+  "errors": 20219,
+  "auth_hits": 617,
+  "captcha_hits": 300,
+  "no_geo_companies": 0,
+  "families": {
+    "transparency_portal": 2492,
+    "municipal_multi24h": 9
+  },
+  "workers": 80,
+  "max_bases": 3,
+  "elapsed_seconds": 196.75,
+  "note": "National PUBLIC_NO_AUTH cascade: every TARGET_CONFIRMED account file received a transparency_compras attempt (geo probe or no-geo classification)."
+}

@@ -24,7 +24,9 @@
       "DISPATCH": "PAUSED",
       "GREEN_AUTORUN": "OFF",
       "WHATSAPP": "OFF"
-    }
+    },
+    "transparency_cascade_companies_attempted": 8382,
+    "transparency_cascade_as_of": "2026-08-10T18:19:24Z"
   },
   "checks": {
     "reservoir_feed_import": "PASS",

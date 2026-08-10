@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-08-10T18:10:52Z",
+  "as_of": "2026-08-10T18:20:40Z",
   "TARGET_CONFIRMED_total": 8382,
   "terminals": {
     "CONTACT_EXHAUSTED": 8111,
@@ -9,7 +9,7 @@
     "CONTACT_EXTERNAL_BLOCKER": 0,
     "CONTACT_RETRY_PENDING": 0
   },
-  "contact_complete": false,
+  "contact_complete": true,
   "email_roots_upper_bound": 223,
   "EMAIL_SEND_READY": 72
 }

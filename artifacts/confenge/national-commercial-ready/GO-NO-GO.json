@@ -1,19 +1,17 @@
 {
   "schema": "confenge.go_no_go.v1",
-  "as_of": "2026-08-10T18:10:52Z",
+  "as_of": "2026-08-10T18:20:40Z",
   "NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY": false,
-  "PILOT_READY_CANDIDATE": false,
-  "PILOT_TECHNICAL_READINESS": "PARTIAL",
+  "PILOT_READY_CANDIDATE": true,
+  "PILOT_TECHNICAL_READINESS": "READY_FOR_HUMAN_REVIEW",
   "NATIONAL_RESERVE_READINESS": "PARTIAL_0.8_DAYS",
   "RESERVE_DAYS": 0.8,
-  "terminal_state": "ENGINEERING_IN_PROGRESS",
+  "terminal_state": "EXTERNAL_BLOCKER_REQUIRES_TIAGO",
   "gates": {
     "FULLY_RECONCILED": true,
     "all_confirmed_terminal": true,
-    "full_source_ladder_complete": false,
-    "ladder_yield_missing": [
-      "transparency_compras"
-    ],
+    "full_source_ladder_complete": true,
+    "ladder_yield_missing": [],
     "email_send_ready_ge_min_reserve": false,
     "strict_esr_measured": true,
     "service_fit_ontology_ok": true,
@@ -41,6 +39,6 @@
     "COPY_CONTEXT_VALID": 72,
     "EMAIL_SEND_READY_DISTINCT_COMPANIES": 72
   },
-  "one_action": "Completar source ladder nacional (missing/partial: transparency_compras); transparency_compras e demais PUBLIC_NO_AUTH exigem companies_attempted>=8382. RETRY_PENDING=0; ESR=72 reserve=900.",
+  "one_action": "ESR strict final=72 com ladder terminal; gap_to_900=828. Autorizar fontes autenticadas de maior yield OU decisão comercial de MIN_OPERATIONAL_RESERVE — sem atalho de engenharia.",
   "human_review_command": "python -m scripts.confenge.human_review --sample artifacts/confenge/national-commercial-ready/HUMAN-REVIEW-SAMPLE.json --reviewer tiago"
 }

@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-08-10T17:32:18Z",
+  "as_of": "2026-08-10T18:19:24Z",
   "sources": {
     "process_administrative_docs": {
       "companies_attempted": 8382
@@ -20,24 +20,41 @@
       "companies_attempted": 8381
     },
     "transparency_compras": {
-      "companies_attempted": 20,
-      "resolved_or_http_ok": 0,
+      "companies_attempted": 8382,
+      "resolved_or_http_ok": 2100,
+      "pages_fetched": 4927,
+      "http_ok_responses": 2501,
+      "errors": 20219,
+      "auth_hits": 617,
+      "captcha_hits": 300,
       "class": "PUBLIC_NO_AUTH",
-      "probe": "Bounded PUBLIC_NO_AUTH probe of municipal transparency bases (20 companies)"
+      "families": {
+        "transparency_portal": 2492,
+        "municipal_multi24h": 9
+      },
+      "probe": "national_transparency_cascade over process-first accounts"
     }
   },
   "transparency_probe": {
-    "schema": "confenge.transparency_compras_probe.v1",
+    "schema": "confenge.transparency_compras_cascade.v1",
     "ladder_id": "transparency_compras",
     "class": "PUBLIC_NO_AUTH",
-    "companies_attempted": 20,
-    "resolved_or_http_ok": 0,
-    "pages_fetched": 0,
-    "documents_indexed": 0,
-    "errors": 0,
+    "as_of": "2026-08-10T18:19:24Z",
+    "companies_attempted": 8382,
+    "resolved_or_http_ok": 2100,
+    "pages_fetched": 4927,
+    "http_ok_responses": 2501,
+    "errors": 20219,
+    "auth_hits": 617,
+    "captcha_hits": 300,
+    "no_geo_companies": 0,
     "families": {
-      "municipal_html": 20
+      "transparency_portal": 2492,
+      "municipal_multi24h": 9
     },
-    "note": "Bounded PUBLIC_NO_AUTH probe of municipal transparency bases (20 companies)"
+    "workers": 80,
+    "max_bases": 3,
+    "elapsed_seconds": 196.75,
+    "note": "National PUBLIC_NO_AUTH cascade: every TARGET_CONFIRMED account file received a transparency_compras attempt (geo probe or no-geo classification)."
   }
 }

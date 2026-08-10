@@ -9,13 +9,10 @@
   "warmbly_origin_main": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
   "warmbly_host_deployed": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
   "warmbly_runtime": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
-  "pr_222_merged": true,
-  "pr_223_merged": true,
-  "pr_224_merged": true,
-  "pr_226_merged": true,
   "pr_227_merged": true,
-  "pr_228": "open_docs_freeze",
-  "note": "SHA binding uses explicit origin/main + host .deployed_sha (non-self-referential)",
-  "as_of": "2026-08-10T18:10:52Z",
-  "pack_git_sha": "4da4785bdfae0bbd127990582c777f3f0e16f980"
+  "pr_228": "open",
+  "transparency_cascade": "2026-08-10T18:19:24Z",
+  "note": "Post national transparency_compras cascade 8382/8382",
+  "as_of": "2026-08-10T18:20:40Z",
+  "pack_git_sha": "f28dc2fdcd7ac9eb9ae2da95d21c96c9f301a394"
 }
