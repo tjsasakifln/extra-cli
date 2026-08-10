@@ -1,10 +1,10 @@
 # GO / NO-GO
 
-**Terminal state:** `EXTERNAL_BLOCKER_REQUIRES_TIAGO`
+**Terminal state:** `ENGINEERING_IN_PROGRESS`
 
 **NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY:** `False`
 
-**PILOT_TECHNICAL_READINESS:** `READY_FOR_HUMAN_REVIEW`
+**PILOT_TECHNICAL_READINESS:** `PARTIAL`
 **NATIONAL_RESERVE_READINESS:** `PARTIAL_0.8_DAYS`
 **RESERVE_DAYS:** `0.8` (= ESR / (eph × hours))
 
@@ -29,11 +29,14 @@
   "machine_audit_pass": true,
   "machine_audit_sample_size": 100,
   "sha_bound": true,
-  "warmbly_e2e_pass": true
+  "warmbly_e2e_pass": false,
+  "warmbly_feed_import_pass": true,
+  "warmbly_behavioral_complete": false,
+  "warmbly_partial_config_only": false
 }
 ```
 
-**One action:** ESR strict final=72 com ladder terminal; gap_to_900=828. Autorizar fontes autenticadas de maior yield (documentadas por portal) OU decisão comercial de MIN_OPERATIONAL_RESERVE — sem atalho de engenharia.
+**One action:** Completar Warmbly behavioral no-send E2E (SMTP/IMAP/reply-stop live + DNC preserve + rolling hot-set populated); feed import alone is insufficient. ESR=72.
 
 ## Human review
 

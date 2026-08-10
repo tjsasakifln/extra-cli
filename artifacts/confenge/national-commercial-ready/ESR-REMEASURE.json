@@ -1,6 +1,6 @@
 {
   "schema": "confenge.strict_national_esr.v1",
-  "as_of": "2026-08-10T16:31:16Z",
+  "as_of": "2026-08-10T17:32:18Z",
   "harvest_dir": "artifacts/confenge/process-first-national-confirmed",
   "TARGET_CONFIRMED": 8382,
   "process_terminals": 8382,
@@ -9,7 +9,8 @@
     "CONTACT_FOUND_NOT_SENDABLE": 47,
     "CONTACT_READY": 224,
     "CONTACT_NEVER_ATTEMPTED": 0,
-    "CONTACT_EXTERNAL_BLOCKER": 0
+    "CONTACT_EXTERNAL_BLOCKER": 0,
+    "CONTACT_RETRY_PENDING": 0
   },
   "funnel": {
     "TOTAL_CONTACT_CANDIDATES": 315,
@@ -60,10 +61,6 @@
   },
   "not_ready_top": [
     [
-      "service_fit_supported",
-      285
-    ],
-    [
       "ownership_identity_domain_mismatch",
       203
     ],
@@ -74,30 +71,6 @@
     [
       "ownership:LIKELY_COMPANY_OWNED",
       195
-    ],
-    [
-      "service_code:diagnostico_contratual_b2g",
-      137
-    ],
-    [
-      "all_gates_pass",
-      72
-    ],
-    [
-      "provenance_trust:REAL_OBSERVED",
-      72
-    ],
-    [
-      "service_code:apoio_licitacoes_propostas",
-      45
-    ],
-    [
-      "service_code:auditoria_orcamento_bdi",
-      40
-    ],
-    [
-      "service_code:estruturacao_pleito_reajuste",
-      34
     ],
     [
       "copy_context_not_ready",
@@ -116,14 +89,6 @@
       23
     ],
     [
-      "service_code:reforco_temporario_backoffice",
-      18
-    ],
-    [
-      "service_code:gestao_monitoramento_contratual",
-      10
-    ],
-    [
       "ownership:THIRD_PARTY_SERVICE_PROVIDER",
       5
     ],
@@ -136,42 +101,12 @@
       2
     ],
     [
-      "domain_aligned_with_company",
-      1
-    ],
-    [
-      "service_code:aditivos_extracontratuais",
-      1
-    ],
-    [
       "mailbox_purpose_blocked:PRIVACY_DPO",
       1
     ]
   ],
-  "NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY": false,
-  "PILOT_READY_CANDIDATE": true,
-  "note": "Strict ESR via build_dossier + evaluate_email_send_ready; email observed is upper bound only, never ESR proxy.",
-  "yield_by_source": {
-    "process_administrative_docs": {
-      "companies_attempted": 8382
-    },
-    "pncp_annexes": {
-      "companies_attempted": 8382
-    },
-    "official_registry": {
-      "companies_attempted": 8381
-    },
-    "official_site": {
-      "companies_attempted": 8381
-    },
-    "public_docs_datalake": {
-      "companies_attempted": 8381
-    },
-    "company_public_pages": {
-      "companies_attempted": 8381
-    }
-  },
-  "esr_rows_count": 72,
+  "service_fit_unsupported_count": 0,
+  "service_fit_ontology_ok": true,
   "not_ready_sample": [
     {
       "cnpj_raiz": "00028986",
@@ -185,7 +120,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:07:12Z",
+      "last_attempt_at": "2026-08-10T17:32:15Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -210,7 +145,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:07:12Z",
+      "last_attempt_at": "2026-08-10T17:32:15Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -235,7 +170,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:07:12Z",
+      "last_attempt_at": "2026-08-10T17:32:15Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -260,7 +195,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:07:12Z",
+      "last_attempt_at": "2026-08-10T17:32:15Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -285,7 +220,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:07:12Z",
+      "last_attempt_at": "2026-08-10T17:32:15Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -310,7 +245,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:07:12Z",
+      "last_attempt_at": "2026-08-10T17:32:15Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -335,7 +270,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:07:12Z",
+      "last_attempt_at": "2026-08-10T17:32:15Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -360,7 +295,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:07:12Z",
+      "last_attempt_at": "2026-08-10T17:32:15Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -385,7 +320,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:07:12Z",
+      "last_attempt_at": "2026-08-10T17:32:15Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -410,7 +345,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:07:12Z",
+      "last_attempt_at": "2026-08-10T17:32:15Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -424,6 +359,35 @@
       }
     }
   ],
+  "NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY": false,
+  "PILOT_READY_CANDIDATE": true,
+  "note": "Strict ESR via build_dossier + evaluate_email_send_ready; email observed is upper bound only, never ESR proxy. not_ready_top excludes PASS reasons (service_fit_supported, all_gates_pass).",
+  "yield_by_source": {
+    "process_administrative_docs": {
+      "companies_attempted": 8382
+    },
+    "pncp_annexes": {
+      "companies_attempted": 8382
+    },
+    "official_registry": {
+      "companies_attempted": 8381
+    },
+    "official_site": {
+      "companies_attempted": 8381
+    },
+    "public_docs_datalake": {
+      "companies_attempted": 8381
+    },
+    "company_public_pages": {
+      "companies_attempted": 8381
+    },
+    "transparency_compras": {
+      "companies_attempted": 20,
+      "resolved_or_http_ok": 0,
+      "class": "PUBLIC_NO_AUTH",
+      "probe": "Bounded PUBLIC_NO_AUTH probe of municipal transparency bases (20 companies)"
+    }
+  },
   "esr_rows": [
     {
       "cnpj_raiz": "01324865",
@@ -509,5 +473,6 @@
         "budget_bdi"
       ]
     }
-  ]
+  ],
+  "esr_rows_count": 72
 }

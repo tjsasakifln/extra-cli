@@ -60,18 +60,43 @@ def _load_jsonl(path: Path) -> list[dict[str, Any]]:
 
 
 def _sources_from_enrich_row(row: dict[str, Any]) -> list[str]:
+    """Map enrich adapters to ladder steps only when the adapter actually ran.
+
+    resolver.py records:
+      adapters_used = collect() returned observations
+      adapters_skipped = f"{name}:empty" | f"{name}:error:..." after collect() ran
+
+    Bare names without :empty/:error are NOT counted (never prove a run).
+    """
     sources: list[str] = []
-    used = row.get("adapters_used") or []
-    skipped = row.get("adapters_skipped") or []
-    for a in used:
-        name = str(a).split(":")[0]
-        sources.append(ADAPTER_TO_SOURCE.get(name, name))
-    # Attempted but empty still counts as attempted for that adapter family
-    for a in skipped:
+    seen: set[str] = set()
+
+    def _add(adapter_token: str, *, require_status: bool) -> None:
+        raw = str(adapter_token or "").strip()
+        if not raw:
+            return
+        parts = raw.split(":")
+        name = parts[0]
+        status = parts[1] if len(parts) > 1 else ""
+        if require_status and status not in {"empty", "error", "timeout", "blocked"}:
+            # Unqualified skip tokens do not prove the adapter ran.
+            return
+        if require_status and status == "error" and len(parts) < 2:
+            return
+        src = ADAPTER_TO_SOURCE.get(name, name)
+        if src and src not in seen:
+            seen.add(src)
+            sources.append(src)
+
+    for a in row.get("adapters_used") or []:
+        # Used always means collect() returned data — status implicit "hit"
         name = str(a).split(":")[0]
         src = ADAPTER_TO_SOURCE.get(name, name)
-        if src not in sources:
+        if src and src not in seen:
+            seen.add(src)
             sources.append(src)
+    for a in row.get("adapters_skipped") or []:
+        _add(str(a), require_status=True)
     return sources
 
 
