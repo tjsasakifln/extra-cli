@@ -8,51 +8,51 @@
     },
     {
       "stage": "TARGET_CONFIRMED",
-      "count": 8348,
-      "pct_of_previous": 0.016252
+      "count": 8382,
+      "pct_of_previous": 0.016319
     },
     {
       "stage": "TARGET_PROBABLE_RESEARCH",
-      "count": 24984,
-      "pct_of_previous": 0.04864,
+      "count": 26083,
+      "pct_of_previous": 0.05078,
       "notes": "requires positive ICP evidence"
     },
     {
       "stage": "TARGET_OUT_OF_SCOPE",
-      "count": 92392,
-      "pct_of_previous": 0.179873
+      "count": 92543,
+      "pct_of_previous": 0.180167
     },
     {
       "stage": "TARGET_INSUFFICIENT_EVIDENCE",
-      "count": 386626,
-      "pct_of_previous": 0.752703,
+      "count": 386642,
+      "pct_of_previous": 0.752734,
       "notes": "not PROBABLE — no positive ICP evidence"
     },
     {
       "stage": "target_fit_class_partition_sum",
-      "count": 512350,
-      "pct_of_previous": 0.997469,
+      "count": 513650,
+      "pct_of_previous": 1.0,
       "notes": "CONFIRMED+PROBABLE+OUT+INSUFFICIENT (should ≈ universe when fully classified)"
     },
     {
       "stage": "CONTACT_READY",
-      "count": 60,
-      "pct_of_previous": 0.007187
+      "count": 8,
+      "pct_of_previous": 0.000954
     },
     {
       "stage": "CONTACT_FOUND_NOT_SENDABLE",
-      "count": 15,
-      "pct_of_previous": 0.001797
+      "count": 25,
+      "pct_of_previous": 0.002983
     },
     {
       "stage": "CONTACT_EXHAUSTED",
-      "count": 25,
-      "pct_of_previous": 0.002995
+      "count": 233,
+      "pct_of_previous": 0.027798
     },
     {
       "stage": "CONTACT_RETRY_PENDING",
-      "count": 0,
-      "pct_of_previous": 0.0
+      "count": 11,
+      "pct_of_previous": 0.001312
     },
     {
       "stage": "CONTACT_EXTERNAL_BLOCKER",
@@ -61,19 +61,19 @@
     },
     {
       "stage": "CONTACT_NEVER_ATTEMPTED",
-      "count": 8273,
-      "pct_of_previous": 0.991016
+      "count": 8084,
+      "pct_of_previous": 0.964448
     },
     {
       "stage": "contact_terminal_partition_sum",
-      "count": 8373,
-      "pct_of_previous": 1.002995,
+      "count": 8361,
+      "pct_of_previous": 0.997495,
       "notes": "must equal TARGET_CONFIRMED"
     },
     {
       "stage": "EMAIL_SEND_READY",
       "count": 60,
-      "pct_of_previous": 0.007187
+      "pct_of_previous": 0.007158
     },
     {
       "stage": "WARMBLY_RESERVOIR",
@@ -108,5 +108,5 @@
       "send_window_end": "18:00"
     }
   },
-  "as_of": "2026-08-10T11:46:47Z"
+  "as_of": "2026-08-10T12:42:52Z"
 }

@@ -2,6 +2,5 @@
   "email_only": true,
   "whatsapp_enabled": false,
   "emails_per_hour": 10,
-  "auto_send_enabled": false,
-  "imported_reservoir": 60
+  "auto_send_enabled": false
 }

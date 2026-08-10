@@ -1,33 +1,30 @@
-# FINAL-REPORT — CONFENGE National Commercial Reservoir
+# FINAL-REPORT — National commercial reservoir
 
-**As of pack generation (pre/post deploy refresh on host)**
+## Coverage
 
-## Terminal intent
+`FULLY_RECONCILED=true` · ratio=1.0 · unexplained_missing=0
 
-**Terminal state:** `EXTERNAL_BLOCKER_REQUIRES_TIAGO` (public-email yield)
+## Classification (live SHADOW)
 
-`NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY=false` because:
+| Class | N |
+|------|--:|
+| TARGET_CONFIRMED | 8382 |
+| TARGET_PROBABLE_RESEARCH | 26083 |
+| TARGET_OUT_OF_SCOPE | 92543 |
+| TARGET_INSUFFICIENT_EVIDENCE | 386642 |
 
-- `EMAIL_SEND_READY=60` < `MIN_OPERATIONAL_RESERVE=900`
-- Continuous network enrichment running over CONFIRMED (checkpoint resume; no Top-N cap)
-- `process_documents` lake empty — process-admin source ladder not yet producing national yield
-- Human review sample ready but blocked until reservoir healthy
+## Contact enrichment
 
-### One action for Tiago
+- Process-first national harvest: **running** (10 parallel root shards, no Top-N)
+- Continuous site/web enrich-continuous: **running** (resume, no max_companies)
+- Intermediate harvest accounts: ~298+
+- Process EMAIL_SEND_READY proxy: 8
+- Historical harvest ESR: 60
+- MIN_OPERATIONAL_RESERVE: **900** (10/h × 9h × 10d)
 
-Authorize / provision **public process-document harvest** at national scale for TARGET_CONFIRMED
-(PNCP anexos + processos administrativos already supported by `scripts/confenge_process_enrichment`),
-then re-run continuous enrichment until ESR ≥ 900 **or** accept EXTERNAL_BLOCKER with documented yield.
+## Terminal state (honest)
 
-Human review (when healthy):
+Workers draining. Until 100% CONFIRMED have contact terminal states and ESR≥900,
+`NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY` remains false if ESR gap persists after full ladder.
 
-```bash
-python -m scripts.confenge.human_review \
-  --sample artifacts/confenge/national-commercial-ready/HUMAN-REVIEW-SAMPLE.json \
-  --reviewer tiago
-```
-
-## Live post-reclass classes
-
-CONFIRMED=8348, PROBABLE=24984,
-OUT=92392, INSUFFICIENT=386626
+SHA binding: origin/main = host = b8f9d1c6… (PR #217). Process harvest on PR #222.

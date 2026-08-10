@@ -52,6 +52,7 @@ def _from_jsonl_artifacts(
         candidates = [
             Path("artifacts/confenge/document-contacts.jsonl"),
             Path("artifacts/confenge/public-docs-contacts.jsonl"),
+            Path("artifacts/confenge/process-first-national-confirmed/public_docs.jsonl"),
             Path("output/confenge_docs/document-contacts.jsonl"),
             Path(os.environ["CONFENGE_PUBLIC_DOCS_JSONL"])
             if os.environ.get("CONFENGE_PUBLIC_DOCS_JSONL")
@@ -59,18 +60,31 @@ def _from_jsonl_artifacts(
         ]
         paths = [p for p in candidates if p is not None and p.is_file()]
 
+    root8 = cnpj14[:8] if len(cnpj14) >= 8 else cnpj14
     out: list[dict[str, Any]] = []
     for path in paths:
         try:
             for line in path.read_text(encoding="utf-8").splitlines():
-                if cnpj14 not in line:
+                # Match full CNPJ or root (process harvest keys by root)
+                if cnpj14 not in line and root8 not in line:
                     continue
                 try:
                     row = json.loads(line)
                 except json.JSONDecodeError:
                     continue
-                row_c = _digits(str(row.get("cnpj14") or row.get("cnpj") or row.get("supplier_cnpj") or ""))
-                if row_c and row_c != cnpj14:
+                row_c = _digits(
+                    str(
+                        row.get("cnpj14")
+                        or row.get("cnpj")
+                        or row.get("supplier_cnpj")
+                        or ""
+                    )
+                )
+                row_root = _digits(str(row.get("cnpj_raiz") or ""))[:8]
+                if row_c and row_c != cnpj14 and row_c[:8] != root8:
+                    if row_root and row_root != root8:
+                        continue
+                elif row_root and row_root != root8 and (not row_c or row_c != cnpj14):
                     continue
                 docs = _normalize_doc_row(row, cnpj14)
                 out.extend(docs)
