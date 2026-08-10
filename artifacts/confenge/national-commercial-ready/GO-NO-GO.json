@@ -1,6 +1,6 @@
 {
   "schema": "confenge.go_no_go.v1",
-  "as_of": "2026-08-10T16:02:45Z",
+  "as_of": "2026-08-10T16:04:16Z",
   "NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY": false,
   "PILOT_READY_CANDIDATE": true,
   "terminal_state": "ENGINEERING_IN_PROGRESS",
