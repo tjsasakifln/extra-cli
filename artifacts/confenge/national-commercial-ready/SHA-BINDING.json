@@ -1,8 +1,8 @@
 {
-  "origin_main": "238754c071a163daf6747876c65aab025f71b2d3",
-  "host_deployed_sha": "238754c071a163daf6747876c65aab025f71b2d3",
-  "runtime_sha": "238754c071a163daf6747876c65aab025f71b2d3",
-  "expected_origin_tip": "238754c071a163daf6747876c65aab025f71b2d3",
+  "origin_main": "84d3779656b162c85ca72373722f126ef87be638",
+  "host_deployed_sha": "84d3779656b162c85ca72373722f126ef87be638",
+  "runtime_sha": "84d3779656b162c85ca72373722f126ef87be638",
+  "expected_origin_tip": "84d3779656b162c85ca72373722f126ef87be638",
   "triple_sha_equal": true,
   "tip_matches_origin_main": true,
   "sha_bound": true,
@@ -10,9 +10,9 @@
   "warmbly_host_deployed": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
   "warmbly_runtime": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
   "pr_227_merged": true,
-  "pr_228": "open",
-  "transparency_cascade": "2026-08-10T18:19:24Z",
-  "note": "Post national transparency_compras cascade 8382/8382",
-  "as_of": "2026-08-10T18:20:40Z",
-  "pack_git_sha": "f28dc2fdcd7ac9eb9ae2da95d21c96c9f301a394"
+  "pr_228_merged": true,
+  "merged_sha": "84d3779656b162c85ca72373722f126ef87be638",
+  "note": "Post-#228 merge tip rebind",
+  "as_of": "2026-08-10T18:41:47Z",
+  "pack_git_sha": "c3094e6bbe9d447fc4b6f91bee3dfb06c9e65eb6"
 }

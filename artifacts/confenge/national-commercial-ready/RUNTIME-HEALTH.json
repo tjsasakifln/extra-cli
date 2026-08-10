@@ -7,8 +7,8 @@
   "contact_enrichment_initial_full_sweep": "COMPLETE",
   "continuous_workers": "HEALTHY",
   "target_fit": "HEALTHY",
-  "database_watermark": "2026-08-10T18:19:24Z",
-  "as_of": "2026-08-10T18:20:40Z",
+  "database_watermark": "2026-08-10T18:41:47Z",
+  "as_of": "2026-08-10T18:41:47Z",
   "full_source_ladder_complete": true,
   "ladder_yield_eval": {
     "full_source_ladder_complete": true,

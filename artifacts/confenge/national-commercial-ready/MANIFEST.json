@@ -1,9 +1,9 @@
 {
   "schema": "confenge.national_commercial_ready_pack.v1",
-  "generated_at": "2026-08-10T18:20:40Z",
-  "extra_cli_sha": "238754c071a163daf6747876c65aab025f71b2d3",
+  "generated_at": "2026-08-10T18:41:47Z",
+  "extra_cli_sha": "84d3779656b162c85ca72373722f126ef87be638",
   "warmbly_sha": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
-  "database_watermark": "2026-08-10T18:19:24Z",
+  "database_watermark": "2026-08-10T18:41:47Z",
   "target_fit_version": null,
   "service_contract_version": "confenge_account_intelligence.catalog",
   "contact_evaluator_version": "send_readiness.evaluate_email_send_ready",
@@ -40,28 +40,24 @@
     "partial": []
   },
   "artifact_hashes": {
-    "FINAL-REPORT.md": "335751febae074381c9747f69511abb7fd7bb265c09fc477355b5a6622e71ebf",
+    "FINAL-REPORT.md": "7f3dcbb6c3599307d8266521d27ba2ec6d6c088b2e5f7956090595708f84a517",
     "GO-NO-GO.md": "2533679fc37a5e18b61c1ec6432258e48996f2ee06504526d68e75cf0fe41c0a",
-    "GO-NO-GO.json": "5aa0400b5c2b1f9222745c96c05a4f055ba3b2cd3493c3e25783cbdb7791129d",
+    "GO-NO-GO.json": "fd6bbb68981a9a79fff79e3457af51527bc64b96c0518c80daf6d82c4b2bd105",
     "FUNNEL.md": "a2910ce376f70798ff888ec2203b17aab9bde074465ef2b961ff36f8751076bf",
-    "FUNNEL.json": "bc9bea970717ee61a92864a5477c5a545a48e68037b87a2d65e0cebf19667d3b",
-    "TARGET-FIT-COVERAGE.json": "03118478334052f2cd6b1c43453b721de0e875d2c44641d3f292ba407a674095",
-    "TARGET-FIT-CLASS-DISTRIBUTION.json": "e62ecc6b9fe66d74257d873de517b96564862543db90e0bb5e7c41d079e4020d",
-    "CONTACT-COVERAGE.json": "488a38ad5f8661c4a2e83a28114ff0bb438add100a8186c4e00f020bb7722658",
+    "FUNNEL.json": "4fc676f3bdd4043ac3972444e6a2efec83ce0d898bf29cead254756a99a40d81",
+    "TARGET-FIT-COVERAGE.json": "563e5913749e0785d48c3e5b3d859900ef1accf68c851726bab5c312c1401e5d",
+    "TARGET-FIT-CLASS-DISTRIBUTION.json": "2543f0b695acbefc5e938622345cba607240e42cd63de21e682565c7a591d3ce",
+    "CONTACT-COVERAGE.json": "39da57c0a796eac872652e85627ce4e9a48319194ffd3b8e33d4c670e23c3eca",
     "CONTACT-SOURCE-YIELD.json": "13be884d35941abe964fa6b31d3740b14b01b2411544d7cad2a14175039dfb60",
     "CONTACT-LOSS-REASONS.json": "177374c5614baec9476c9e271f2cf53df50aea10becbe5bd3d8724523192ce62",
-    "EMAIL-SEND-READY-RESERVOIR.json": "088e4ee3309132894617730d919dae4b95b9efdd142610e41b390f6a993e5f31",
+    "EMAIL-SEND-READY-RESERVOIR.json": "f921e7bf0adb0a3b35f59d1eb34d43cff6971f15399b878910843cdbc62ecf48",
     "ESR-REMEASURE.json": "fb6a819fb634953381414a60e5f7d3763dd1609933cadbe66ee0ebe6ea601eb7",
-    "SERVICE-DISTRIBUTION.json": "2dcfa603ba5a91129f9201bd6ceabb9f382d80b80bab77756d8a212a9f1e1182",
+    "SERVICE-DISTRIBUTION.json": "974bfd5620cb454b62751936f0cb34296df38531507e7ccbdd1dd29b2a91fe3c",
     "COPY-AUDIT.json": "0185c7c725588efe95a2e068e596c03ea7c3a4e8793aaa7955e26e087099a32e",
-    "COPY-AUDIT-SAMPLE.json": "44710d83cbbb6b7456da2ec9fad9386237205dc3e90dda25fa46b5893447b8d0",
-    "RUNTIME-HEALTH.json": "d091198116c42846dbb6badd562181f4938ba02aacfba15e02b41fe54b357995",
+    "COPY-AUDIT-SAMPLE.json": "0fda6c7a05ec59258a6e732931511437808d9745205ff446fd2a9a328e917c34",
+    "RUNTIME-HEALTH.json": "130349af47604746bb658962db5469d497e38145cdfcfdacc1d61a9f6a581046",
     "WARMBLY-E2E.json": "498b9970c71bd1a2c9f2c78507c9a9094b8a61981decb1953c05c1417a788a1a",
-    "SHA-BINDING.json": "c2a81cb837563cdb953034b32be95c8158d67a2189489eb35ca65472bd399c4d",
-    "HUMAN-REVIEW-SAMPLE.json": "55fec1ab6b67e8db0c5983af164bf4549f6cd3014247dbea4ab1462a6d0c85af"
-  },
-  "transparency_cascade": {
-    "companies_attempted": 8382,
-    "summary": "transparency-compras-cascade-summary.json"
+    "SHA-BINDING.json": "8b67a923eb38e0822f33c6f4f02dbbd7068de0a9d447adb0a4a733b88d8456f5",
+    "HUMAN-REVIEW-SAMPLE.json": "53024feaccc1850f9ff4355bf29c8d205bc9c34ed76aa8fe132647a385fa2e87"
   }
 }
