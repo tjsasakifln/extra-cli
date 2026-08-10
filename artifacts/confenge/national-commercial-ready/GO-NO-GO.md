@@ -1,6 +1,6 @@
 # GO / NO-GO
 
-**Terminal state:** `ENGINEERING_IN_PROGRESS`
+**Terminal state:** `EXTERNAL_BLOCKER_REQUIRES_TIAGO`
 
 **NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY:** `False`
 
@@ -21,11 +21,11 @@
   "service_fit_ontology_ok": true,
   "machine_audit_pass": true,
   "sha_bound": true,
-  "warmbly_e2e_pass": false
+  "warmbly_e2e_pass": true
 }
 ```
 
-**One action:** Completar Warmbly no-send E2E do reservoir (import/idempotency/DNC/governor); ESR strict=72 << reserve=900 — não reduzir reserve prematuramente.
+**One action:** ESR strict final=72 com ladder terminal; gap_to_900=828. Autorizar fontes autenticadas de maior yield (documentadas por portal) OU decisão comercial de MIN_OPERATIONAL_RESERVE — sem atalho de engenharia.
 
 ## Human review
 
