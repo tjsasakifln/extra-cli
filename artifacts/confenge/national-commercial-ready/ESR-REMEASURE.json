@@ -1,14 +1,16 @@
 {
   "schema": "confenge.strict_national_esr.v1",
-  "as_of": "2026-08-10T15:37:53Z",
+  "as_of": "2026-08-10T15:57:51Z",
   "harvest_dir": "artifacts/confenge/process-first-national-confirmed",
   "TARGET_CONFIRMED": 8382,
   "process_terminals": 8382,
   "process_terminal_counts": {
+    "CONTACT_EXHAUSTED": 7685,
     "CONTACT_FOUND_NOT_SENDABLE": 519,
-    "CONTACT_EXHAUSTED": 7462,
     "CONTACT_READY": 178,
-    "CONTACT_RETRY_PENDING": 223
+    "CONTACT_RETRY_PENDING": 0,
+    "CONTACT_EXTERNAL_BLOCKER": 0,
+    "CONTACT_NEVER_ATTEMPTED": 0
   },
   "funnel": {
     "TOTAL_CONTACT_CANDIDATES": 315,
@@ -586,5 +588,6 @@
   "NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY": false,
   "PILOT_READY_CANDIDATE": true,
   "note": "Strict ESR via build_dossier + evaluate_email_send_ready; email observed is upper bound only, never ESR proxy.",
-  "esr_rows_count": 72
+  "contact_enrichment_initial_full_sweep": "COMPLETE",
+  "enrich_ladder_done": 8382
 }

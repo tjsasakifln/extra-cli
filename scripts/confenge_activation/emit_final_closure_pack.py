@@ -205,16 +205,22 @@ def emit_pack(
     )
     healthy = bool(capacity.get("reserve_gate_ok") and esr_n >= reserve and contact_complete)
     pilot_ready = esr_n >= 50 and bool(audit.get("PASS"))
+    warmbly_pass = bool(warmbly_e2e.get("PASS"))
+    sha_ok = bool(sha_binding.get("triple_sha_equal"))
 
-    if healthy and pilot_ready:
+    if healthy and pilot_ready and warmbly_pass and sha_ok:
         terminal = "READY_FOR_TIAGO_HUMAN_REVIEW"
-    elif not healthy and contact_complete and esr_n < reserve:
+    elif (
+        not healthy
+        and contact_complete
+        and esr_n < reserve
+        and warmbly_pass
+        and sha_ok
+        and bool(audit.get("PASS"))
+    ):
+        # EXTERNAL only after full public ladder terminal + Warmbly tech health + SHA
         terminal = "EXTERNAL_BLOCKER_REQUIRES_TIAGO"
     else:
-        terminal = "ENGINEERING_IN_PROGRESS"
-
-    # Only EXTERNAL after technical exhaustion flags
-    if terminal == "EXTERNAL_BLOCKER_REQUIRES_TIAGO" and not contact_complete:
         terminal = "ENGINEERING_IN_PROGRESS"
 
     go = {
@@ -242,8 +248,20 @@ def emit_pack(
             None
             if terminal == "READY_FOR_TIAGO_HUMAN_REVIEW"
             else (
-                "Completar contact ladder full-sweep + ampliar fontes públicas "
-                f"(ESR={esr_n} << reserve={reserve}); não reduzir reserve prematuramente."
+                (
+                    f"Completar Warmbly no-send E2E do reservoir (import/idempotency/DNC/governor); "
+                    f"ESR strict={esr_n} << reserve={reserve} — não reduzir reserve prematuramente."
+                    if contact_complete and not warmbly_pass
+                    else (
+                        "Completar contact ladder full-sweep + service/copy package + strict ESR; "
+                        f"ESR={esr_n} reserve={reserve}."
+                        if not contact_complete
+                        else (
+                            f"Fechar gaps de engenharia restantes (SHA/Warmbly/audit); "
+                            f"ESR={esr_n} reserve={reserve}."
+                        )
+                    )
+                )
                 if terminal == "ENGINEERING_IN_PROGRESS"
                 else (
                     f"ESR strict final={esr_n} com ladder terminal; gap_to_900={max(0, reserve - esr_n)}. "

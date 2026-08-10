@@ -15,17 +15,17 @@
 ```json
 {
   "FULLY_RECONCILED": true,
-  "all_confirmed_terminal": false,
+  "all_confirmed_terminal": true,
   "email_send_ready_ge_min_reserve": false,
   "strict_esr_measured": true,
   "service_fit_ontology_ok": true,
   "machine_audit_pass": true,
-  "sha_bound": false,
+  "sha_bound": true,
   "warmbly_e2e_pass": false
 }
 ```
 
-**One action:** Completar contact ladder full-sweep + ampliar fontes públicas (ESR=72 << reserve=900); não reduzir reserve prematuramente.
+**One action:** Completar Warmbly no-send E2E do reservoir (import/idempotency/DNC/governor); ESR strict=72 << reserve=900 — não reduzir reserve prematuramente.
 
 ## Human review
 

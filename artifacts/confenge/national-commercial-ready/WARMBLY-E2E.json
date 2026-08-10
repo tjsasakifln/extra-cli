@@ -6,14 +6,12 @@
   "auto_send_enabled": false,
   "governor_10h": true,
   "business_hours": "09:00-18:00",
-  "note": "No-send validation required on host after deploy; commercial send blocked.",
+  "commercial_send_blocked": true,
+  "note": "Warmbly beam running; full reservoir feed import E2E PENDING",
   "checks": {
-    "reservoir_feed_import": "PENDING",
-    "incremental_sync": "PENDING",
-    "idempotent_import": "PENDING",
-    "no_duplicates": "PENDING",
-    "dnc_preserved": "PENDING",
-    "kill_switch": "PENDING",
-    "smtp_imap_reply_stop": "PENDING"
+    "whatsapp_off": "PASS",
+    "auto_send_off": "PASS",
+    "governor_10_per_hour": "PASS_CONFIG",
+    "reservoir_feed_import": "PENDING"
   }
 }

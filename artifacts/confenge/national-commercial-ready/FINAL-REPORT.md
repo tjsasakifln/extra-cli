@@ -1,7 +1,7 @@
 # FINAL-REPORT — National commercial reservoir (strict ESR)
 
-- generated_at: `2026-08-10T15:40:17Z`
-- extra_cli_sha: `d5b56be674a26de4e027c19ef7364317c7719864`
+- generated_at: `2026-08-10T16:02:45Z`
+- extra_cli_sha: `f0147aa818517b3058d2acbb6b6127ddce8891a4`
 - TARGET_CONFIRMED: **8382**
 - EMAIL_SEND_READY strict: **72**
 - email roots upper bound: **223**
@@ -9,7 +9,7 @@
 - NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY: **False**
 - PILOT_READY_CANDIDATE: **True**
 - terminal: **ENGINEERING_IN_PROGRESS**
-- machine audit PASS: **True** (n=72)
+- machine audit PASS: **True** (n=5)
 
 ## Funnel (strict)
 
