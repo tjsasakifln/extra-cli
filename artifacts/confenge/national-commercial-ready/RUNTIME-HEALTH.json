@@ -7,8 +7,32 @@
   "contact_enrichment_initial_full_sweep": "COMPLETE",
   "continuous_workers": "HEALTHY",
   "target_fit": "HEALTHY",
+  "database_watermark": "2026-08-10T18:19:24Z",
+  "as_of": "2026-08-10T18:20:40Z",
   "full_source_ladder_complete": true,
-  "CONTACT_RETRY_PENDING": 0,
-  "database_watermark": "2026-08-10T17:32:18Z",
-  "as_of": "2026-08-10T17:34:13Z"
+  "ladder_yield_eval": {
+    "full_source_ladder_complete": true,
+    "target_confirmed": 8382,
+    "threshold": 8382,
+    "ladder_steps": [
+      "public_docs_datalake",
+      "process_administrative_docs",
+      "pncp_annexes",
+      "official_site",
+      "transparency_compras",
+      "official_registry",
+      "company_public_pages"
+    ],
+    "covered": [
+      "public_docs_datalake",
+      "process_administrative_docs",
+      "pncp_annexes",
+      "official_site",
+      "transparency_compras",
+      "official_registry",
+      "company_public_pages"
+    ],
+    "missing": [],
+    "partial": []
+  }
 }

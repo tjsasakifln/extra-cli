@@ -19,6 +19,7 @@ from scripts.confenge_activation.operational_metrics import (
     min_operational_reserve,
     warmbly_ops_config_from_env,
 )
+from scripts.confenge_contact_resolution.discovery_state import DEFAULT_SOURCE_LADDER
 from scripts.confenge_contact_resolution.human_review import HUMAN_REVIEW_PENDING
 
 DEFAULT_OUT = Path("artifacts/confenge/national-commercial-ready")
@@ -44,6 +45,15 @@ ARTIFACT_NAMES = [
     "HUMAN-REVIEW-SAMPLE.json",
     "MANIFEST.json",
 ]
+
+# Critical Warmbly checks that cannot be PASS_CONFIG / PASS_UNIT_TEST / PENDING when PASS=true
+WARMBLY_CRITICAL_CHECKS = (
+    "smtp_imap_reply_stop",
+    "dnc_preserved",
+    "rolling_hot_set",
+    "outcomes_webhook",
+)
+_CONFIG_ONLY_STATUSES = frozenset({"PASS_CONFIG", "PASS_UNIT_TEST", "PENDING"})
 
 
 def _utcnow() -> str:
@@ -85,6 +95,207 @@ def _load_json(path: Path) -> Any:
     if not path.is_file():
         return None
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def build_sha_binding(
+    *,
+    origin_main: str,
+    host_deployed: str,
+    runtime: str,
+    expected_origin_tip: str | None = None,
+    warmbly_origin_main: str | None = None,
+    warmbly_host_deployed: str | None = None,
+    warmbly_runtime: str | None = None,
+    extra: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Build SHA-BINDING without defaulting host/runtime to local HEAD.
+
+    ``triple_sha_equal`` is true only when origin_main == host_deployed == runtime
+    (all non-empty). For terminal gating, ``sha_bound`` is true only when the
+    triple is equal **and** (if provided) origin_main matches ``expected_origin_tip``
+    (typically ``git rev-parse origin/main`` after fetch). A self-consistent but
+    stale triple (≠ tip) is therefore **not** bound.
+    """
+    om = (origin_main or "").strip()
+    hd = (host_deployed or "").strip()
+    rt = (runtime or "").strip()
+    tip = (expected_origin_tip or "").strip() or None
+    triple = bool(om and hd and rt and om == hd == rt)
+    tip_ok = True if tip is None else (om == tip)
+    out: dict[str, Any] = {
+        "origin_main": om or None,
+        "host_deployed_sha": hd or None,
+        "runtime_sha": rt or None,
+        "expected_origin_tip": tip,
+        "triple_sha_equal": triple,
+        "tip_matches_origin_main": tip_ok if tip is not None else None,
+        # Gate flag used by emit_pack terminals
+        "sha_bound": triple and tip_ok,
+        "warmbly_origin_main": warmbly_origin_main,
+        "warmbly_host_deployed": warmbly_host_deployed,
+        "warmbly_runtime": warmbly_runtime,
+    }
+    if extra:
+        out.update(extra)
+    return out
+
+
+def ladder_complete_from_source_yield(
+    source_yield: dict[str, Any] | None,
+    *,
+    target_confirmed: int,
+    ladder_steps: tuple[str, ...] | list[str] = DEFAULT_SOURCE_LADDER,
+    min_ratio: float = 1.0,
+) -> dict[str, Any]:
+    """Derive full_source_ladder_complete from CONTACT-SOURCE-YIELD (not a trusted flag).
+
+    Each ladder step must have companies_attempted >= target_confirmed * min_ratio,
+    OR an explicit classified external remainder (class HUMAN_SESSION_REQUIRED /
+    PUBLIC_AUTH_REQUIRED / CAPTCHA_REQUIRED / PAID_SOURCE / LEGALLY_RESTRICTED)
+    documenting the residual N.
+
+    Partial PUBLIC_NO_AUTH probes (e.g. transparency_compras 20/8382, pages_fetched=0)
+    force complete=false.
+    """
+    tc = max(0, int(target_confirmed))
+    threshold = int(tc * float(min_ratio)) if tc else 0
+    sources = {}
+    if isinstance(source_yield, dict):
+        raw = source_yield.get("sources")
+        if isinstance(raw, dict):
+            sources = raw
+    missing: list[str] = []
+    partial: list[dict[str, Any]] = []
+    covered: list[str] = []
+    for step in ladder_steps:
+        entry = sources.get(step) if isinstance(sources.get(step), dict) else {}
+        attempted = int(entry.get("companies_attempted") or 0) if entry else 0
+        klass = str(entry.get("class") or "").strip().upper()
+        external_ok = klass in {
+            "HUMAN_SESSION_REQUIRED",
+            "PUBLIC_AUTH_REQUIRED",
+            "CAPTCHA_REQUIRED",
+            "PAID_SOURCE",
+            "LEGALLY_RESTRICTED",
+            "UNAVAILABLE",
+        } and int(entry.get("external_remainder_n") or entry.get("companies_blocked") or 0) >= 0 and (
+            # classified external must document remaining companies OR attempted==tc
+            attempted >= threshold
+            or int(entry.get("external_remainder_n") or 0) > 0
+            or entry.get("portal")
+        )
+        # Near-full national coverage (≥99.9%) counts as ladder-complete for that step
+        # (allows off-by-one bookkeeping without accepting 20/8382 probes).
+        ratio = (attempted / tc) if tc > 0 else 0.0
+        if attempted >= threshold or ratio >= 0.999:
+            covered.append(step)
+            continue
+        if external_ok and attempted < threshold:
+            # Residual explicitly classified as external — step not engineering-complete
+            # but does not by itself force ENGINEERING if all other steps full.
+            # For national closure we still require engineering-complete public steps.
+            partial.append(
+                {
+                    "step": step,
+                    "companies_attempted": attempted,
+                    "threshold": threshold,
+                    "reason": "classified_external_partial",
+                    "class": klass,
+                }
+            )
+            missing.append(step)
+            continue
+        missing.append(step)
+        partial.append(
+            {
+                "step": step,
+                "companies_attempted": attempted,
+                "threshold": threshold,
+                "reason": "below_target_confirmed",
+                "class": klass or None,
+            }
+        )
+    complete = len(missing) == 0 and tc > 0
+    return {
+        "full_source_ladder_complete": complete,
+        "target_confirmed": tc,
+        "threshold": threshold,
+        "ladder_steps": list(ladder_steps),
+        "covered": covered,
+        "missing": missing,
+        "partial": partial,
+    }
+
+
+def warmbly_behavioral_pass(warmbly_e2e: dict[str, Any]) -> tuple[bool, bool, bool]:
+    """Return (warmbly_pass, feed_real, config_only_critical)."""
+    checks = warmbly_e2e.get("checks") if isinstance(warmbly_e2e.get("checks"), dict) else {}
+    feed_real = str(checks.get("reservoir_feed_import") or "").upper() == "PASS"
+    config_only = any(
+        str(checks.get(k) or "").upper() in _CONFIG_ONLY_STATUSES for k in WARMBLY_CRITICAL_CHECKS
+    )
+    # PASS=true is invalid if critical checks are config-only / pending
+    declared = bool(warmbly_e2e.get("PASS"))
+    if declared and config_only:
+        declared = False
+    warmbly_pass = declared and feed_real and not config_only
+    return warmbly_pass, feed_real, config_only
+
+
+def assert_pack_postconditions(
+    out_dir: Path,
+    *,
+    expected_origin_tip: str | None = None,
+) -> list[str]:
+    """Return list of post-condition violations (empty = OK)."""
+    errors: list[str] = []
+    go = _load_json(out_dir / "GO-NO-GO.json") or {}
+    man = _load_json(out_dir / "MANIFEST.json") or {}
+    sha = _load_json(out_dir / "SHA-BINDING.json") or {}
+    esr = _load_json(out_dir / "ESR-REMEASURE.json") or {}
+    warmbly = _load_json(out_dir / "WARMBLY-E2E.json") or {}
+    if go.get("terminal_state") != man.get("terminal_state"):
+        errors.append(
+            f"GO.terminal_state={go.get('terminal_state')!r} != "
+            f"MANIFEST.terminal_state={man.get('terminal_state')!r}"
+        )
+    if go.get("PILOT_READY_CANDIDATE") != man.get("PILOT_READY_CANDIDATE"):
+        errors.append("PILOT_READY_CANDIDATE mismatch GO vs MANIFEST")
+    tip = (expected_origin_tip or "").strip()
+    terminal = str(go.get("terminal_state") or "")
+    claims_bound = bool((go.get("gates") or {}).get("sha_bound"))
+    leaves_engineering = terminal in {
+        "READY_FOR_TIAGO_HUMAN_REVIEW",
+        "GO_FOR_REAL_CONFENGE_EMAIL_PILOT",
+        "EXTERNAL_BLOCKER_REQUIRES_TIAGO",
+    }
+    if tip and str(sha.get("origin_main") or "") != tip and (claims_bound or leaves_engineering):
+        errors.append(f"SHA origin_main={sha.get('origin_main')!r} != tip={tip!r}")
+    if tip and claims_bound and str(man.get("extra_cli_sha") or "") != tip:
+        errors.append(f"MANIFEST.extra_cli_sha={man.get('extra_cli_sha')!r} not tip-bound")
+    esr_n = int(go.get("EMAIL_SEND_READY_DISTINCT_COMPANIES") or esr.get("EMAIL_SEND_READY_DISTINCT_COMPANIES") or 0)
+    rows = esr.get("esr_rows") if isinstance(esr.get("esr_rows"), list) else []
+    rows_file = out_dir / "EMAIL-SEND-READY-ROWS.jsonl"
+    rows_file_n = 0
+    if rows_file.is_file():
+        rows_file_n = sum(1 for line in rows_file.read_text(encoding="utf-8").splitlines() if line.strip())
+    if esr_n > 0 and len(rows) == 0 and rows_file_n == 0:
+        errors.append(f"ESR={esr_n} but esr_rows empty and no EMAIL-SEND-READY-ROWS.jsonl")
+    if bool(warmbly.get("PASS")):
+        checks = warmbly.get("checks") if isinstance(warmbly.get("checks"), dict) else {}
+        for k in WARMBLY_CRITICAL_CHECKS:
+            st = str(checks.get(k) or "").upper()
+            if st in _CONFIG_ONLY_STATUSES:
+                errors.append(f"WARMBLY PASS=true but {k}={st}")
+    if terminal == "EXTERNAL_BLOCKER_REQUIRES_TIAGO":
+        gates = go.get("gates") if isinstance(go.get("gates"), dict) else {}
+        if not gates.get("full_source_ladder_complete"):
+            errors.append("EXTERNAL forbidden when full_source_ladder_complete=false")
+        if not gates.get("sha_bound"):
+            errors.append("EXTERNAL forbidden when sha_bound=false")
+        if not gates.get("warmbly_e2e_pass"):
+            errors.append("EXTERNAL forbidden when warmbly_e2e_pass=false")
+    return errors
 
 
 def build_adversarial_audit(
@@ -245,9 +456,12 @@ def emit_pack(
     loss_reasons: dict[str, Any] | None = None,
     terminal_rows: list[dict[str, Any]] | None = None,
     full_ladder_complete: bool | None = None,
+    expected_origin_tip: str | None = None,
+    enforce_postconditions: bool = True,
 ) -> dict[str, Any]:
     as_of = _utcnow()
-    sha = _git_sha()
+    # pack_git_sha is local worktree HEAD for provenance only — never used as origin_main
+    pack_git_sha = _git_sha()
     esr_n = int(esr_report.get("EMAIL_SEND_READY_DISTINCT_COMPANIES") or 0)
     funnel = esr_report.get("funnel") or {}
     ops = warmbly_ops_config_from_env()
@@ -268,6 +482,15 @@ def emit_pack(
     tc = int(target_classes.get("TARGET_CONFIRMED") or esr_report.get("TARGET_CONFIRMED") or 0)
 
     esr_rows = list(esr_report.get("esr_rows") or [])
+    # Durable rows file is authority when ESR>0 and esr_rows omitted
+    rows_path = out_dir / "EMAIL-SEND-READY-ROWS.jsonl"
+    if not esr_rows and rows_path.is_file() and esr_n > 0:
+        esr_rows = [
+            json.loads(line)
+            for line in rows_path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
+        esr_report = {**esr_report, "esr_rows": esr_rows}
     not_ready_rows = list(esr_report.get("not_ready_sample") or esr_report.get("not_ready_rows") or [])
     audit = build_adversarial_audit(
         esr_rows,
@@ -279,10 +502,18 @@ def emit_pack(
     retry_n = int(contact_terminals.get("CONTACT_RETRY_PENDING") or 0)
     never_n = int(contact_terminals.get("CONTACT_NEVER_ATTEMPTED") or 0)
     terminal_sum = sum(int(v) for v in contact_terminals.values())
-    # Full ladder: every CONFIRMED has a terminal AND no process-only exhaustion
-    # (CONTACT_RETRY_PENDING must be 0 only when full ladder was actually run).
+
+    # Derive ladder completeness from measured yield — never trust a free-standing flag alone.
+    yield_eval = ladder_complete_from_source_yield(
+        source_yield if isinstance(source_yield, dict) else None,
+        target_confirmed=tc,
+    )
+    derived_ladder = bool(yield_eval["full_source_ladder_complete"])
     if full_ladder_complete is None:
-        full_ladder_complete = bool(runtime_health.get("full_source_ladder_complete"))
+        full_ladder_complete = derived_ladder
+    else:
+        # Explicit override cannot claim complete if yield measurement says incomplete.
+        full_ladder_complete = bool(full_ladder_complete) and derived_ladder
     contact_partition_complete = terminal_sum >= tc and never_n == 0
     contact_complete = contact_partition_complete and retry_n == 0 and bool(full_ladder_complete)
 
@@ -304,23 +535,15 @@ def emit_pack(
 
     healthy = bool(capacity.get("reserve_gate_ok") and esr_n >= reserve and contact_complete)
     pilot_ready = esr_n >= 50 and bool(audit.get("PASS")) and int(audit.get("sample_size") or 0) >= 100
-    sha_ok = bool(sha_binding.get("triple_sha_equal"))
-    # Warmbly: PASS only if behavioral feed import is real AND no check is
-    # PASS_CONFIG / PASS_UNIT_TEST only for critical paths (SMTP/DNC/hot-set).
-    warmbly_checks = warmbly_e2e.get("checks") if isinstance(warmbly_e2e.get("checks"), dict) else {}
-    warmbly_feed_real = str(warmbly_checks.get("reservoir_feed_import") or "").upper() == "PASS"
-    config_only_critical = any(
-        str(warmbly_checks.get(k) or "").upper() in {"PASS_CONFIG", "PASS_UNIT_TEST", "PENDING"}
-        for k in (
-            "smtp_imap_reply_stop",
-            "dnc_preserved",
-            "rolling_hot_set",
-            "outcomes_webhook",
-        )
-    )
-    # Honest PASS: feed import real + commercial send blocked + no critical pending.
-    # Config-only SMTP/DNC does not grant warmbly_e2e_pass for EXTERNAL terminal.
-    warmbly_pass = bool(warmbly_e2e.get("PASS")) and warmbly_feed_real and not config_only_critical
+    # Prefer explicit sha_bound (tip-aware); fall back to triple only if tip not set.
+    if "sha_bound" in sha_binding:
+        sha_ok = bool(sha_binding.get("sha_bound"))
+    else:
+        sha_ok = bool(sha_binding.get("triple_sha_equal"))
+        tip = (expected_origin_tip or sha_binding.get("expected_origin_tip") or "").strip()
+        if tip and str(sha_binding.get("origin_main") or "") != tip:
+            sha_ok = False
+    warmbly_pass, warmbly_feed_real, config_only_critical = warmbly_behavioral_pass(warmbly_e2e)
     warmbly_partial = warmbly_feed_real and bool(warmbly_e2e.get("PASS")) and config_only_critical
 
     reserve_days = round(esr_n / (eph * bhd), 2) if eph * bhd > 0 else 0.0
@@ -339,7 +562,7 @@ def emit_pack(
         else "EMPTY"
     )
 
-    if healthy and pilot_ready and warmbly_pass and sha_ok and service_fit_ok:
+    if healthy and pilot_ready and warmbly_pass and sha_ok and service_fit_ok and full_ladder_complete:
         terminal = "READY_FOR_TIAGO_HUMAN_REVIEW"
     elif (
         not healthy
@@ -350,7 +573,7 @@ def emit_pack(
         and bool(audit.get("PASS"))
         and int(audit.get("sample_size") or 0) >= 100
         and service_fit_ok
-        and full_ladder_complete
+        and full_ladder_complete  # yield-derived; forbids EXTERNAL on partial transparency
     ):
         terminal = "EXTERNAL_BLOCKER_REQUIRES_TIAGO"
     else:
@@ -358,21 +581,30 @@ def emit_pack(
 
     if terminal == "ENGINEERING_IN_PROGRESS":
         if not full_ladder_complete or retry_n > 0:
+            miss = ",".join(yield_eval.get("missing") or []) or "ladder"
             one_action = (
-                f"Executar source ladder completa (official_site/registry/company_pages) "
-                f"sobre RETRY_PENDING={retry_n}; process-only NÃO conta como CONTACT_EXHAUSTED. "
-                f"ESR={esr_n} reserve={reserve}."
+                f"Completar source ladder nacional (missing/partial: {miss}); "
+                f"transparency_compras e demais PUBLIC_NO_AUTH exigem companies_attempted>={tc}. "
+                f"RETRY_PENDING={retry_n}; ESR={esr_n} reserve={reserve}."
             )
         elif not sha_ok:
-            one_action = f"Rebind SHA host/runtime ao origin/main tip; ESR={esr_n}."
+            tip = expected_origin_tip or sha_binding.get("expected_origin_tip") or "origin/main"
+            one_action = (
+                f"Rebind SHA: origin_main=host=runtime={tip} "
+                f"(atual origin={sha_binding.get('origin_main')}, host={sha_binding.get('host_deployed_sha')}); "
+                f"ESR={esr_n}."
+            )
         elif warmbly_partial or not warmbly_pass:
             one_action = (
                 f"Completar Warmbly behavioral no-send E2E "
                 f"(SMTP/IMAP/reply-stop live + DNC preserve + rolling hot-set populated); "
                 f"feed import alone is insufficient. ESR={esr_n}."
             )
-        elif int(audit.get("sample_size") or 0) < 100:
-            one_action = f"Auditoria adversarial estratificada ≥100 (agora {audit.get('sample_size')})."
+        elif int(audit.get("sample_size") or 0) < 100 or not audit.get("PASS"):
+            one_action = (
+                f"Auditoria adversarial estratificada ≥100 PASS "
+                f"(agora n={audit.get('sample_size')} PASS={audit.get('PASS')})."
+            )
         elif not service_fit_ok:
             one_action = (
                 f"Zerar service_fit_unsupported residual ({service_fit_unsupported}) "
@@ -402,6 +634,7 @@ def emit_pack(
             "FULLY_RECONCILED": bool(runtime_health.get("FULLY_RECONCILED")),
             "all_confirmed_terminal": contact_partition_complete,
             "full_source_ladder_complete": bool(full_ladder_complete),
+            "ladder_yield_missing": list(yield_eval.get("missing") or []),
             "email_send_ready_ge_min_reserve": esr_n >= reserve,
             "strict_esr_measured": True,
             "service_fit_ontology_ok": service_fit_ok,
@@ -530,8 +763,19 @@ def emit_pack(
             "CONTACT_RETRY_PENDING": retry_n,
         },
     )
-    _write(out_dir / "RUNTIME-HEALTH.json", {**runtime_health, "as_of": as_of})
-    _write(out_dir / "SHA-BINDING.json", {**sha_binding, "as_of": as_of, "pack_git_sha": sha})
+    _write(
+        out_dir / "RUNTIME-HEALTH.json",
+        {
+            **runtime_health,
+            "as_of": as_of,
+            "full_source_ladder_complete": bool(full_ladder_complete),
+            "ladder_yield_eval": yield_eval,
+        },
+    )
+    _write(
+        out_dir / "SHA-BINDING.json",
+        {**sha_binding, "as_of": as_of, "pack_git_sha": pack_git_sha},
+    )
     _write(out_dir / "WARMBLY-E2E.json", warmbly_e2e)
     _write(out_dir / "FUNNEL.json", {"as_of": as_of, "rows": funnel_rows, "capacity": capacity})
     _write(
@@ -599,7 +843,7 @@ def emit_pack(
                 "# FINAL-REPORT — National commercial reservoir (strict ESR)",
                 "",
                 f"- generated_at: `{as_of}`",
-                f"- extra_cli_sha: `{sha}`",
+                f"- extra_cli_sha: `{sha_binding.get('origin_main') or pack_git_sha}`",
                 f"- TARGET_CONFIRMED: **{tc}**",
                 f"- EMAIL_SEND_READY strict: **{esr_n}**",
                 f"- email roots upper bound: **{esr_report.get('email_roots_upper_bound')}**",
@@ -635,10 +879,16 @@ def emit_pack(
         p = out_dir / name
         if p.is_file():
             hashes[name] = _sha256_file(p)
+    # Prefer measured origin_main tip for MANIFEST.extra_cli_sha (not local HEAD).
+    extra_cli_sha = (
+        str(sha_binding.get("origin_main") or "").strip()
+        or str(expected_origin_tip or "").strip()
+        or pack_git_sha
+    )
     manifest = {
         "schema": "confenge.national_commercial_ready_pack.v1",
         "generated_at": as_of,
-        "extra_cli_sha": sha,
+        "extra_cli_sha": extra_cli_sha,
         "warmbly_sha": sha_binding.get("warmbly_origin_main") or sha_binding.get("warmbly_sha"),
         "database_watermark": runtime_health.get("database_watermark"),
         "target_fit_version": runtime_health.get("target_fit_version"),
@@ -650,9 +900,19 @@ def emit_pack(
         "PILOT_READY_CANDIDATE": pilot_ready,
         "EMAIL_SEND_READY_DISTINCT_COMPANIES": esr_n,
         "MIN_OPERATIONAL_RESERVE": reserve,
+        "full_source_ladder_complete": bool(full_ladder_complete),
+        "ladder_yield_eval": yield_eval,
         "artifact_hashes": hashes,
     }
     _write(out_dir / "MANIFEST.json", manifest)
+    if enforce_postconditions:
+        violations = assert_pack_postconditions(
+            out_dir, expected_origin_tip=expected_origin_tip or sha_binding.get("expected_origin_tip")
+        )
+        if violations:
+            raise RuntimeError(
+                "atomic pack post-conditions failed:\n- " + "\n- ".join(violations)
+            )
     return manifest
 
 
@@ -660,27 +920,56 @@ def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--out-dir", type=Path, default=DEFAULT_OUT)
     p.add_argument("--esr-report", type=Path, default=DEFAULT_OUT / "ESR-REMEASURE.json")
-    p.add_argument("--host-deployed-sha", type=str, default=None)
+    p.add_argument(
+        "--origin-main-sha",
+        type=str,
+        required=True,
+        help="git rev-parse origin/main after fetch (never defaulted to local HEAD)",
+    )
+    p.add_argument(
+        "--host-deployed-sha",
+        type=str,
+        required=True,
+        help="Host .deployed_sha (never defaulted to local HEAD)",
+    )
+    p.add_argument(
+        "--runtime-sha",
+        type=str,
+        default=None,
+        help="Runtime code identity (defaults to host-deployed-sha)",
+    )
+    p.add_argument(
+        "--expected-origin-tip",
+        type=str,
+        default=None,
+        help="Optional tip pin; defaults to --origin-main-sha",
+    )
     p.add_argument("--warmbly-sha", type=str, default=None)
+    p.add_argument("--source-yield", type=Path, default=None)
+    p.add_argument("--warmbly-e2e", type=Path, default=None)
+    p.add_argument("--skip-postconditions", action="store_true")
     return p
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     esr = _load_json(args.esr_report) or {}
-    sha = _git_sha()
-    host = args.host_deployed_sha or sha
-    sha_binding = {
-        "origin_main": sha,
-        "host_deployed_sha": host,
-        "runtime_sha": host,
-        "triple_sha_equal": sha == host,
-        "warmbly_origin_main": args.warmbly_sha,
-        "warmbly_host_deployed": args.warmbly_sha,
-        "warmbly_runtime": args.warmbly_sha,
-        "pr_222_merged": True,
-        "pr_223": "open",
-    }
+    origin = (args.origin_main_sha or "").strip()
+    host = (args.host_deployed_sha or "").strip()
+    runtime = (args.runtime_sha or host).strip()
+    tip = (args.expected_origin_tip or origin).strip()
+    if not origin or not host:
+        raise SystemExit("origin-main-sha and host-deployed-sha are required")
+    sha_binding = build_sha_binding(
+        origin_main=origin,
+        host_deployed=host,
+        runtime=runtime,
+        expected_origin_tip=tip,
+        warmbly_origin_main=args.warmbly_sha,
+        warmbly_host_deployed=args.warmbly_sha,
+        warmbly_runtime=args.warmbly_sha,
+        extra={"pr_222_merged": True, "pr_223_merged": True, "pr_226_merged": True, "pr_227_merged": True},
+    )
     # Default class distribution if not provided on disk
     classes = {
         "TARGET_CONFIRMED": int(esr.get("TARGET_CONFIRMED") or 8382),
@@ -689,7 +978,7 @@ def main(argv: list[str] | None = None) -> int:
         "TARGET_INSUFFICIENT_EVIDENCE": 386662,
     }
     terms = esr.get("process_terminal_counts") or {}
-    runtime = {
+    runtime_health = {
         "FULLY_RECONCILED": True,
         "coverage_ratio": 1.0,
         "dirty_pending": 0,
@@ -704,33 +993,45 @@ def main(argv: list[str] | None = None) -> int:
         "target_fit": "HEALTHY",
         "database_watermark": esr.get("as_of"),
     }
-    warmbly = {
-        "schema": "confenge.warmbly_e2e.v1",
-        "PASS": False,
-        "email_only": True,
-        "whatsapp_enabled": False,
-        "auto_send_enabled": False,
-        "governor_10h": True,
-        "business_hours": "09:00-18:00",
-        "note": "No-send validation required on host after deploy; commercial send blocked.",
-        "checks": {
-            "reservoir_feed_import": "PENDING",
-            "incremental_sync": "PENDING",
-            "idempotent_import": "PENDING",
-            "no_duplicates": "PENDING",
-            "dnc_preserved": "PENDING",
-            "kill_switch": "PENDING",
-            "smtp_imap_reply_stop": "PENDING",
-        },
-    }
+    yield_doc = _load_json(args.source_yield) if args.source_yield else _load_json(
+        args.out_dir / "CONTACT-SOURCE-YIELD.json"
+    )
+    warmbly = _load_json(args.warmbly_e2e) if args.warmbly_e2e else _load_json(
+        args.out_dir / "WARMBLY-E2E.json"
+    )
+    if not isinstance(warmbly, dict):
+        warmbly = {
+            "schema": "confenge.warmbly_e2e.v1",
+            "PASS": False,
+            "email_only": True,
+            "whatsapp_enabled": False,
+            "auto_send_enabled": False,
+            "governor_10h": True,
+            "business_hours": "09:00-18:00",
+            "note": "No-send validation required on host after deploy; commercial send blocked.",
+            "checks": {
+                "reservoir_feed_import": "PENDING",
+                "incremental_sync": "PENDING",
+                "idempotent_import": "PENDING",
+                "no_duplicates": "PENDING",
+                "dnc_preserved": "PENDING",
+                "kill_switch": "PENDING",
+                "smtp_imap_reply_stop": "PENDING",
+                "rolling_hot_set": "PENDING",
+                "outcomes_webhook": "PENDING",
+            },
+        }
     manifest = emit_pack(
         out_dir=args.out_dir,
         esr_report=esr,
         target_classes=classes,
         contact_terminals=terms,
-        runtime_health=runtime,
+        runtime_health=runtime_health,
         sha_binding=sha_binding,
         warmbly_e2e=warmbly,
+        source_yield=yield_doc if isinstance(yield_doc, dict) else None,
+        expected_origin_tip=tip,
+        enforce_postconditions=not args.skip_postconditions,
     )
     print(json.dumps(manifest, indent=2, ensure_ascii=False))
     return 0
