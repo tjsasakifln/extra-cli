@@ -1,0 +1,35 @@
+{
+  "timestamp_utc": "2026-08-10T03:16:33.539049+00:00",
+  "deployed_sha": "ca457058b9657419ee0b45173defb64079c3205d",
+  "smtp_smoke": {
+    "destination": "tiago.sasaki@gmail.com",
+    "mailbox_from": "tiago.sasaki@confenge.com.br",
+    "subject": "CONFENGE SELF_SMOKE 20260810T031437Z",
+    "task_id": "1d37168e-364e-40b2-a4cc-b55de86ba4d9",
+    "account_id": "daf35de9-d335-43c9-a938-5f42809541c0",
+    "provider_msg_id": "<979e8cc4-71a3-4c44-a004-009b2d6b2888@confenge.com.br>",
+    "task_status": "completed",
+    "worker": "Email sent successfully",
+    "pass": true
+  },
+  "smtp_smoke_self_loop": {
+    "destination": "tiago.sasaki@confenge.com.br",
+    "task_id": "35b7d32b-a710-47c1-9e45-29368a2f4e3a",
+    "provider_msg_id": "<d96a76e0-9aca-4820-b8d6-5ba6f75a84c4@confenge.com.br>",
+    "unibox_ingested": true,
+    "unibox_uid": 219,
+    "pass": true
+  },
+  "continuous_imap": {
+    "status_check": "HOSTINGER IMAP PASS",
+    "unibox_ingested_self_smoke": true,
+    "note": "Outbound self-loop appeared in unibox via continuous IMAP without restart",
+    "pass": true
+  },
+  "safety": {
+    "dispatch": "PAUSED",
+    "kill_switch": "ENGAGED",
+    "whatsapp": "OFF",
+    "green_autorun": "OFF"
+  }
+}

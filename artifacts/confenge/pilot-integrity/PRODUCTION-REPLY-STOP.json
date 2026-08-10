@@ -1,0 +1,15 @@
+{
+  "timestamp_utc": "2026-08-10T03:21:19.937795+00:00",
+  "deployed_sha": "ca457058b9657419ee0b45173defb64079c3205d",
+  "smtp_pass": true,
+  "continuous_imap_pass": true,
+  "open_touchpoints_cancelled_on_reply_path": true,
+  "stop_reason": "REPLY",
+  "final_states": [
+    "REPLIED",
+    "REPLIED"
+  ],
+  "api": "POST /confenge/accounts/:id/cancel-touchpoints reason=REPLY cancelled=2",
+  "pass": true,
+  "note": "Natural gmail reply ingested via continuous IMAP; confenge cadence cancel path on tip ca457058 marks open touchpoints REPLIED/REPLY"
+}

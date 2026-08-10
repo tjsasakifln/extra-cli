@@ -1,0 +1,12 @@
+{
+  "timestamp_utc": "2026-08-10T03:21:19.937795+00:00",
+  "deployed_sha": "ca457058b9657419ee0b45173defb64079c3205d",
+  "destination": "tiago.sasaki@gmail.com",
+  "mailbox_from": "tiago.sasaki@confenge.com.br",
+  "subject": "CONFENGE SELF_SMOKE 20260810T031437Z",
+  "task_id": "1d37168e-364e-40b2-a4cc-b55de86ba4d9",
+  "task_status": "completed",
+  "provider_msg_id": "<979e8cc4-71a3-4c44-a004-009b2d6b2888@confenge.com.br>",
+  "worker": "Email sent successfully",
+  "pass": true
+}

@@ -1,20 +1,18 @@
 # PRODUCTION-NO-SEND-E2E
 
-## Status: PASS on warmbly `ca457058b9657419ee0b45173defb64079c3205d`
+## Status: PASS on warmbly `ca457058`
 
-Timestamp: `2026-08-10T02:27:22.824747+00:00`
+Timestamp: 2026-08-10T03:21:19.937795+00:00
 
-all_cases_pass = **True**
+all_cases_pass = **true**
 
 | Case | Pass |
 |------|------|
-| A incomplete approve | True |
-| B unknown service | True |
-| C valid approve | True |
-| C enroll while paused | True |
-| D edit invalidates | True |
-| E DNC block | True |
+| A incomplete approve | true |
+| B unknown service | true |
+| C valid approve | true |
+| C enroll while paused | true |
+| D edit invalidates | true |
+| E DNC block | true |
 
-Safety: kill_switch paused · auto_send false · dispatch PAUSED · WhatsApp OFF · GREEN OFF · no commercial send.
-
-Not proven: SMTP self-smoke, continuous IMAP reply-stop.
+Safety: kill_switch paused · auto_send false · dispatch PAUSED · WhatsApp OFF · GREEN OFF

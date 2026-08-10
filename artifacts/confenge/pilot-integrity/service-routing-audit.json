@@ -1,77 +1,48 @@
 {
-  "generated_at": "2026-08-09T23:48:11Z",
-  "universe_n": 48748,
-  "universe_rescore": {
-    "n": 48748,
-    "tf_dist": {
-      "TARGET_PROBABLE_RESEARCH": 38548,
-      "TARGET_OUT_OF_SCOPE": 4769,
-      "TARGET_CONFIRMED": 5431
-    },
-    "confirmed": 5431
+  "timestamp_utc": "2026-08-10T03:06:34.314899+00:00",
+  "universe_count": 48748,
+  "TARGET_CONFIRMED": 5431,
+  "errors": 0,
+  "target_fit_dist": {
+    "TARGET_PROBABLE_RESEARCH": 38548,
+    "TARGET_OUT_OF_SCOPE": 4769,
+    "TARGET_CONFIRMED": 5431
   },
-  "contacts_nonblocked": 169,
-  "confirmed_with_nonblocked_contact": 49,
-  "process_pool_n": 849,
-  "service_distribution_extra_cli_process": {
-    "gestao_monitoramento_contratual": 607,
-    "apoio_licitacoes_propostas": 100,
-    "reforco_temporario_backoffice": 118,
-    "medicoes_glosas_memoria": 6,
-    "auditoria_orcamento_bdi": 13,
-    "aditivos_extracontratuais": 5
+  "confirmed_primary_service_dist": {
+    "gestao_monitoramento_contratual": 3793,
+    "apoio_licitacoes_propostas": 681,
+    "reforco_temporario_backoffice": 825,
+    "auditoria_orcamento_bdi": 86,
+    "aditivos_extracontratuais": 41,
+    "medicoes_glosas_memoria": 3,
+    "reequilibrio_economico_financeiro": 2
   },
-  "service_distribution_sample30": {
-    "gestao_monitoramento_contratual": 23,
-    "apoio_licitacoes_propostas": 6,
-    "medicoes_glosas_memoria": 1
+  "gestao_split": {
+    "GESTAO_SUPPORTED": 3483,
+    "GESTAO_GENERIC_FALLBACK": 310
   },
-  "concentration": {
-    "sampling": "organic_national_v5_rank_aware_email",
-    "national_tf_dist": {
-      "TARGET_PROBABLE_RESEARCH": 38548,
-      "TARGET_OUT_OF_SCOPE": 4769,
-      "TARGET_CONFIRMED": 5431
-    },
-    "process_svc_dist": {
-      "gestao_monitoramento_contratual": 607,
-      "apoio_licitacoes_propostas": 100,
-      "reforco_temporario_backoffice": 118,
-      "medicoes_glosas_memoria": 6,
-      "auditoria_orcamento_bdi": 13,
-      "aditivos_extracontratuais": 5
-    },
-    "process_top_fraction": 0.715,
-    "process_concentration_flag": "ROUTING_CONCENTRATION_REVIEW_REQUIRED",
-    "sample30_svc_dist": {
-      "gestao_monitoramento_contratual": 23,
-      "apoio_licitacoes_propostas": 6,
-      "medicoes_glosas_memoria": 1
-    },
-    "sample30_top_fraction": 0.7667,
-    "reajuste_share_process": 0.0,
-    "explanation": "Rank-aware commercial email selection; multi-service organic; REAJUSTE~0; gestão heavy with REVIEW concentration when specialty keywords scarce."
+  "gestao_total": 3793,
+  "service_fit_family_counts": {
+    "gestao_monitoramento_contratual:FIT": 3483,
+    "apoio_licitacoes_propostas:FIT": 681,
+    "gestao_monitoramento_contratual:NO_FIT": 310,
+    "reforco_temporario_backoffice:FIT": 825,
+    "auditoria_orcamento_bdi:FIT": 86,
+    "aditivos_extracontratuais:FIT": 41,
+    "medicoes_glosas_memoria:FIT": 3,
+    "reequilibrio_economico_financeiro:FIT": 2
   },
-  "gates_sample30": {
-    "n": 30,
-    "hollow_why_you": 0,
-    "hollow_why_now": 0,
-    "hollow_observed_fact": 0,
-    "near_duplicate": {
-      "total_drafts": 30,
-      "compared_pairs": 435,
-      "high_similarity_pairs": 0,
-      "max_similarity": 0.551,
-      "pair_fraction_high": 0.0,
-      "threshold": 0.82,
-      "blocked": false,
-      "reason_codes": [
-        "near_duplicate_ok"
-      ],
-      "sample_pairs": []
-    },
-    "struct_ok": true
+  "ten_family_coverage": {
+    "estruturacao_pleito_reajuste": 0,
+    "reequilibrio_economico_financeiro": 2,
+    "aditivos_extracontratuais": 41,
+    "medicoes_glosas_memoria": 3,
+    "auditoria_orcamento_bdi": 86,
+    "gestao_monitoramento_contratual": 3793,
+    "apoio_licitacoes_propostas": 681,
+    "inteligencia_pncp_mercado": 0,
+    "diagnostico_contratual_b2g": 0,
+    "reforco_temporario_backoffice": 825
   },
-  "email_send_ready_cohort_n": 49,
-  "reajuste_share_process": 0.0
+  "note": "GESTAO_GENERIC_FALLBACK must not enter SERVICE_FIT_SUPPORTED / EMAIL_SEND_READY"
 }
