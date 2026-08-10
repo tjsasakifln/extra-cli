@@ -1,74 +1,122 @@
 [
   {
-    "company_key": "cnpj_root:00309893",
-    "cnpj_raiz": "00309893",
-    "class": "TARGET_PROBABLE_RESEARCH",
-    "fingerprint": "sha256:28d1df65950bc90a587b73c847c4ec3b84ee3d7e9a0944994bda3ba8969c9abe"
+    "company_key": "cnpj_root:82997446",
+    "cnpj_raiz": "82997446",
+    "status": "skipped_same_fingerprint",
+    "input_fingerprint": "sha256:cb4e8ba0bd750f19c5105d1c9818f2cadeb5bf492f11a73803696d0b957c10a5",
+    "reason": "contract_changed",
+    "processed_at": "2026-08-09T22:49:57.576947-03:00"
   },
   {
-    "company_key": "cnpj_root:00327149",
-    "cnpj_raiz": "00327149",
-    "class": "TARGET_PROBABLE_RESEARCH",
-    "fingerprint": "sha256:aac480e5b7670464edf22a15ced9763c1ece515f07035ce8a8390e422a3da24e"
+    "company_key": "cnpj_root:67729178",
+    "cnpj_raiz": "67729178",
+    "status": "skipped_same_fingerprint",
+    "input_fingerprint": "sha256:28248dba108b3f07adc56052b50782b5b791618479ad97eafe734b354a7c8167",
+    "reason": "contract_changed",
+    "processed_at": "2026-08-09T22:49:57.548266-03:00"
   },
   {
-    "company_key": "cnpj_root:00328717",
-    "cnpj_raiz": "00328717",
-    "class": "TARGET_OUT_OF_SCOPE",
-    "fingerprint": "sha256:d6bd9505f245c09a1b2b68134b41704d55cba2d09500439197efde4112feb984"
+    "company_key": "cnpj_root:62917826",
+    "cnpj_raiz": "62917826",
+    "status": "skipped_same_fingerprint",
+    "input_fingerprint": "sha256:0d3197d1f1c7b9d0753fa0c9d08c71a8e749be726e37fd65c6a8dafef26713f5",
+    "reason": "contract_changed",
+    "processed_at": "2026-08-09T22:49:57.515375-03:00"
   },
   {
-    "company_key": "cnpj_root:00329696",
-    "cnpj_raiz": "00329696",
-    "class": "TARGET_OUT_OF_SCOPE",
-    "fingerprint": "sha256:a37d0d8e48d7555383796d059ee5b6a54667faae250710dca11a96bff811a1e1"
+    "company_key": "cnpj_root:53499240",
+    "cnpj_raiz": "53499240",
+    "status": "skipped_same_fingerprint",
+    "input_fingerprint": "sha256:3fbaaafc2cedd7d78823901e834089f09a1ad9fdcbe0ed30abef31b70e1ed8cb",
+    "reason": "contract_changed",
+    "processed_at": "2026-08-09T22:49:57.489482-03:00"
   },
   {
-    "company_key": "cnpj_root:00331788",
-    "cnpj_raiz": "00331788",
-    "class": "TARGET_PROBABLE_RESEARCH",
-    "fingerprint": "sha256:4ed3acc8a4a0b7b4a2fc5d0d9eca6b99087bccdf862672d4de02525efc710474"
+    "company_key": "cnpj_root:44734671",
+    "cnpj_raiz": "44734671",
+    "status": "skipped_same_fingerprint",
+    "input_fingerprint": "sha256:eadb846472b15e879d1d4442903d08b1ec161344712bb0bc3c8b8f3e8b972864",
+    "reason": "contract_changed",
+    "processed_at": "2026-08-09T22:49:57.458776-03:00"
   },
   {
-    "company_key": "cnpj_root:00360305",
-    "cnpj_raiz": "00360305",
-    "class": "TARGET_PROBABLE_RESEARCH",
-    "fingerprint": "sha256:ce96cb214f630b1d0b994d289a84aea6e73b8b029fb61fd0a4c51a1f2a24c857"
+    "company_key": "cnpj_root:39649812",
+    "cnpj_raiz": "39649812",
+    "status": "skipped_same_fingerprint",
+    "input_fingerprint": "sha256:362f54b9bc865a6385c3f9a8c91aae7d72f7e16b9ed895cb3c0e204594280729",
+    "reason": "contract_changed",
+    "processed_at": "2026-08-09T22:49:57.435907-03:00"
   },
   {
-    "company_key": "cnpj_root:00373758",
-    "cnpj_raiz": "00373758",
-    "class": "TARGET_PROBABLE_RESEARCH",
-    "fingerprint": "sha256:ae0863064ddca00896b4bf827bffed0d8fcad1b17d169f94984016b06d5066b7"
+    "company_key": "cnpj_root:38613730",
+    "cnpj_raiz": "38613730",
+    "status": "skipped_same_fingerprint",
+    "input_fingerprint": "sha256:c2c8d8e4e5a27373f75939700281b3012b53120a03837d153899165900196cad",
+    "reason": "contract_changed",
+    "processed_at": "2026-08-09T22:49:57.352753-03:00"
   },
   {
-    "company_key": "cnpj_root:00384799",
-    "cnpj_raiz": "00384799",
-    "class": "TARGET_OUT_OF_SCOPE",
-    "fingerprint": "sha256:cf927a46ab9a8a777001b90bbb857dea62618091d2fe2aef537ae2ea2510b623"
+    "company_key": "cnpj_root:19555146",
+    "cnpj_raiz": "19555146",
+    "status": "skipped_same_fingerprint",
+    "input_fingerprint": "sha256:a4b902f75b6d1cf43db1fbfc51a4a5b2be4721c1fdf8da57d538a542885061c8",
+    "reason": "contract_changed",
+    "processed_at": "2026-08-09T22:49:57.328172-03:00"
   },
   {
-    "company_key": "cnpj_root:00393793",
-    "cnpj_raiz": "00393793",
-    "class": "TARGET_PROBABLE_RESEARCH",
-    "fingerprint": "sha256:add21f69a027deb766b0fcd5475c16e6a5c68e133382f5914c755d65334f2085"
+    "company_key": "cnpj_root:13965228",
+    "cnpj_raiz": "13965228",
+    "status": "skipped_same_fingerprint",
+    "input_fingerprint": "sha256:b223d2a9ca128d936b8dc57e504121d2f6f3693729976b6f2cd93b46af7a63ab",
+    "reason": "contract_changed",
+    "processed_at": "2026-08-09T22:49:57.304352-03:00"
   },
   {
-    "company_key": "cnpj_root:00394772",
-    "cnpj_raiz": "00394772",
-    "class": "TARGET_PROBABLE_RESEARCH",
-    "fingerprint": "sha256:7fe44816fb4bb8614fec45c66d22dafe7db3ed3d2110ee5cbf273f209d8e468a"
+    "company_key": "cnpj_root:11145401",
+    "cnpj_raiz": "11145401",
+    "status": "skipped_same_fingerprint",
+    "input_fingerprint": "sha256:358abec659b746dd7dcbfaa9dc2a3d0c670cf26676d403c8b630c5e7e2fdcde0",
+    "reason": "contract_changed",
+    "processed_at": "2026-08-09T22:49:57.284611-03:00"
   },
   {
-    "company_key": "cnpj_root:00398099",
-    "cnpj_raiz": "00398099",
-    "class": "TARGET_PROBABLE_RESEARCH",
-    "fingerprint": "sha256:0a54cae2e736ebffb96ffbac5c22941d84dfb084e743aeff6ce0f72dde2af4a4"
+    "company_key": "cnpj_root:11118645",
+    "cnpj_raiz": "11118645",
+    "status": "skipped_same_fingerprint",
+    "input_fingerprint": "sha256:a7322a46eec34cd35065cc7655e8f89478a876b323c8e9480b752dbcc0a48f3a",
+    "reason": "contract_changed",
+    "processed_at": "2026-08-09T22:49:57.261882-03:00"
   },
   {
-    "company_key": "cnpj_root:00411441",
-    "cnpj_raiz": "00411441",
-    "class": "TARGET_OUT_OF_SCOPE",
-    "fingerprint": "sha256:49016af8904039139e83d2d95f29b55943af2e25224ff5ca52b9a1401ddd47e6"
+    "company_key": "cnpj_root:07752236",
+    "cnpj_raiz": "07752236",
+    "status": "skipped_same_fingerprint",
+    "input_fingerprint": "sha256:27cf5c1dd2ff5a9d4a5e4d9e132057cca6373f6b85cff9990ed829e15e92a498",
+    "reason": "contract_changed",
+    "processed_at": "2026-08-09T22:49:57.234876-03:00"
+  },
+  {
+    "company_key": "cnpj_root:03652030",
+    "cnpj_raiz": "03652030",
+    "status": "skipped_same_fingerprint",
+    "input_fingerprint": "sha256:90223ae37d180f0b5dfcb2d1a9048cc338098084ece98844e988740bb4156ae8",
+    "reason": "contract_changed",
+    "processed_at": "2026-08-09T22:49:57.208449-03:00"
+  },
+  {
+    "company_key": "cnpj_root:02520829",
+    "cnpj_raiz": "02520829",
+    "status": "skipped_same_fingerprint",
+    "input_fingerprint": "sha256:1dbead91698b4292fb871321a363a5f3c8c04ef3d2303a816694e9b019fd5375",
+    "reason": "contract_changed",
+    "processed_at": "2026-08-09T22:49:57.190852-03:00"
+  },
+  {
+    "company_key": "cnpj_root:00802002",
+    "cnpj_raiz": "00802002",
+    "status": "skipped_same_fingerprint",
+    "input_fingerprint": "sha256:c4e725f20b9250f0ae93e5dbaa755f267e19ac517d1fbb845a9db8ef44ea9341",
+    "reason": "contract_changed",
+    "processed_at": "2026-08-09T22:49:57.148769-03:00"
   }
 ]

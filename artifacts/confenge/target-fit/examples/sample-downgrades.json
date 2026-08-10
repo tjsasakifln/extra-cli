@@ -1,122 +1,204 @@
 [
   {
-    "company_key": "cnpj_root:00000000",
-    "cnpj_raiz": "00000000",
-    "old": "TARGET_CONFIRMED",
-    "new": "TARGET_PROBABLE_RESEARCH",
-    "transition": "CONFIRMED→PROBABLE",
-    "reasons": [
-      "default_research"
-    ]
+    "company_key": "cnpj_root:53499240",
+    "cnpj_raiz": "53499240",
+    "previous_class": "TARGET_CONFIRMED",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "transition_event": "TARGET_FIT_LOST",
+    "target_fit_reason_codes": [
+      "sector_fit_out_without_execution"
+    ],
+    "computed_at": "2026-08-09T22:49:56.765714-03:00",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "materialization_mode": "ACTIVE"
   },
   {
-    "company_key": "cnpj_root:00000909",
-    "cnpj_raiz": "00000909",
-    "old": "TARGET_CONFIRMED",
-    "new": "TARGET_PROBABLE_RESEARCH",
-    "transition": "CONFIRMED→PROBABLE",
-    "reasons": [
-      "default_research"
-    ]
+    "company_key": "cnpj_root:67729178",
+    "cnpj_raiz": "67729178",
+    "previous_class": "TARGET_CONFIRMED",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "transition_event": "TARGET_FIT_LOST",
+    "target_fit_reason_codes": [
+      "possible_or_single_execution_needs_research",
+      "supply_adjacency_only"
+    ],
+    "computed_at": "2026-08-09T22:49:56.726790-03:00",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "materialization_mode": "ACTIVE"
   },
   {
-    "company_key": "cnpj_root:00013225",
-    "cnpj_raiz": "00013225",
-    "old": "TARGET_CONFIRMED",
-    "new": "TARGET_PROBABLE_RESEARCH",
-    "transition": "CONFIRMED→PROBABLE",
-    "reasons": [
-      "default_research"
-    ]
+    "company_key": "cnpj_root:38613730",
+    "cnpj_raiz": "38613730",
+    "previous_class": "TARGET_CONFIRMED",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "transition_event": "TARGET_FIT_LOST",
+    "target_fit_reason_codes": [
+      "sector_fit_out_without_execution"
+    ],
+    "computed_at": "2026-08-09T22:49:56.689739-03:00",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "materialization_mode": "ACTIVE"
   },
   {
-    "company_key": "cnpj_root:00029372",
-    "cnpj_raiz": "00029372",
-    "old": "TARGET_CONFIRMED",
-    "new": "TARGET_PROBABLE_RESEARCH",
-    "transition": "CONFIRMED→PROBABLE",
-    "reasons": [
-      "default_research"
-    ]
+    "company_key": "cnpj_root:19555146",
+    "cnpj_raiz": "19555146",
+    "previous_class": "TARGET_CONFIRMED",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "transition_event": "TARGET_FIT_LOST",
+    "target_fit_reason_codes": [
+      "sector_fit_out_without_execution"
+    ],
+    "computed_at": "2026-08-09T22:49:56.659683-03:00",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "materialization_mode": "ACTIVE"
   },
   {
-    "company_key": "cnpj_root:00064332",
-    "cnpj_raiz": "00064332",
-    "old": "TARGET_CONFIRMED",
-    "new": "TARGET_PROBABLE_RESEARCH",
-    "transition": "CONFIRMED→PROBABLE",
-    "reasons": [
-      "default_research"
-    ]
+    "company_key": "cnpj_root:02520829",
+    "cnpj_raiz": "02520829",
+    "previous_class": "TARGET_CONFIRMED",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "transition_event": "TARGET_FIT_LOST",
+    "target_fit_reason_codes": [
+      "sector_fit_out_without_execution",
+      "CONSORTIUM_EVIDENCE",
+      "consortium_contracts_present_conservative"
+    ],
+    "computed_at": "2026-08-09T22:49:56.631691-03:00",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "materialization_mode": "ACTIVE"
   },
   {
-    "company_key": "cnpj_root:00072182",
-    "cnpj_raiz": "00072182",
-    "old": "TARGET_CONFIRMED",
-    "new": "TARGET_PROBABLE_RESEARCH",
-    "transition": "CONFIRMED→PROBABLE",
-    "reasons": [
-      "default_research"
-    ]
+    "company_key": "cnpj_root:11145401",
+    "cnpj_raiz": "11145401",
+    "previous_class": "TARGET_CONFIRMED",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "transition_event": "TARGET_FIT_LOST",
+    "target_fit_reason_codes": [
+      "sector_fit_out_without_execution"
+    ],
+    "computed_at": "2026-08-09T22:49:56.594032-03:00",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "materialization_mode": "ACTIVE"
   },
   {
-    "company_key": "cnpj_root:00085822",
-    "cnpj_raiz": "00085822",
-    "old": "TARGET_CONFIRMED",
-    "new": "TARGET_PROBABLE_RESEARCH",
-    "transition": "CONFIRMED→PROBABLE",
-    "reasons": [
-      "default_research"
-    ]
+    "company_key": "cnpj_root:82997446",
+    "cnpj_raiz": "82997446",
+    "previous_class": "TARGET_CONFIRMED",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "transition_event": "TARGET_FIT_LOST",
+    "target_fit_reason_codes": [
+      "sector_fit_out_without_execution"
+    ],
+    "computed_at": "2026-08-09T22:49:56.566371-03:00",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "materialization_mode": "ACTIVE"
   },
   {
-    "company_key": "cnpj_root:00096572",
-    "cnpj_raiz": "00096572",
-    "old": "TARGET_CONFIRMED",
-    "new": "TARGET_PROBABLE_RESEARCH",
-    "transition": "CONFIRMED→PROBABLE",
-    "reasons": [
-      "default_research"
-    ]
+    "company_key": "cnpj_root:62917826",
+    "cnpj_raiz": "62917826",
+    "previous_class": "TARGET_CONFIRMED",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "transition_event": "TARGET_FIT_LOST",
+    "target_fit_reason_codes": [
+      "sector_fit_out_without_execution"
+    ],
+    "computed_at": "2026-08-09T22:49:56.524983-03:00",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "materialization_mode": "ACTIVE"
   },
   {
-    "company_key": "cnpj_root:00131299",
-    "cnpj_raiz": "00131299",
-    "old": "TARGET_CONFIRMED",
-    "new": "TARGET_PROBABLE_RESEARCH",
-    "transition": "CONFIRMED→PROBABLE",
-    "reasons": [
-      "default_research"
-    ]
+    "company_key": "cnpj_root:11118645",
+    "cnpj_raiz": "11118645",
+    "previous_class": "TARGET_CONFIRMED",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "transition_event": "TARGET_FIT_LOST",
+    "target_fit_reason_codes": [
+      "sector_fit_out_without_execution"
+    ],
+    "computed_at": "2026-08-09T22:49:56.486536-03:00",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "materialization_mode": "ACTIVE"
   },
   {
-    "company_key": "cnpj_root:00133240",
-    "cnpj_raiz": "00133240",
-    "old": "TARGET_CONFIRMED",
-    "new": "TARGET_PROBABLE_RESEARCH",
-    "transition": "CONFIRMED→PROBABLE",
-    "reasons": [
-      "default_research"
-    ]
+    "company_key": "cnpj_root:39649812",
+    "cnpj_raiz": "39649812",
+    "previous_class": "TARGET_CONFIRMED",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "transition_event": "TARGET_FIT_LOST",
+    "target_fit_reason_codes": [
+      "sector_fit_out_without_execution"
+    ],
+    "computed_at": "2026-08-09T22:49:56.438716-03:00",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "materialization_mode": "ACTIVE"
   },
   {
-    "company_key": "cnpj_root:00139736",
-    "cnpj_raiz": "00139736",
-    "old": "TARGET_CONFIRMED",
-    "new": "TARGET_PROBABLE_RESEARCH",
-    "transition": "CONFIRMED→PROBABLE",
-    "reasons": [
-      "default_research"
-    ]
+    "company_key": "cnpj_root:44734671",
+    "cnpj_raiz": "44734671",
+    "previous_class": "TARGET_CONFIRMED",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "transition_event": "TARGET_FIT_LOST",
+    "target_fit_reason_codes": [
+      "name_hard_out_without_execution",
+      "name_markers:farmaceutic",
+      "CONSORTIUM_EVIDENCE",
+      "consortium_contracts_present_conservative"
+    ],
+    "computed_at": "2026-08-09T22:49:56.394663-03:00",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "materialization_mode": "ACTIVE"
   },
   {
-    "company_key": "cnpj_root:00149209",
-    "cnpj_raiz": "00149209",
-    "old": "TARGET_CONFIRMED",
-    "new": "TARGET_PROBABLE_RESEARCH",
-    "transition": "CONFIRMED→PROBABLE",
-    "reasons": [
-      "default_research"
-    ]
+    "company_key": "cnpj_root:13965228",
+    "cnpj_raiz": "13965228",
+    "previous_class": "TARGET_CONFIRMED",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "transition_event": "TARGET_FIT_LOST",
+    "target_fit_reason_codes": [
+      "sector_fit_out_without_execution"
+    ],
+    "computed_at": "2026-08-09T22:49:56.349795-03:00",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "materialization_mode": "ACTIVE"
+  },
+  {
+    "company_key": "cnpj_root:07752236",
+    "cnpj_raiz": "07752236",
+    "previous_class": "TARGET_CONFIRMED",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "transition_event": "TARGET_FIT_LOST",
+    "target_fit_reason_codes": [
+      "name_hard_out_without_execution",
+      "name_markers:medico"
+    ],
+    "computed_at": "2026-08-09T22:49:56.238339-03:00",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "materialization_mode": "ACTIVE"
+  },
+  {
+    "company_key": "cnpj_root:03652030",
+    "cnpj_raiz": "03652030",
+    "previous_class": "TARGET_CONFIRMED",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "transition_event": "TARGET_FIT_LOST",
+    "target_fit_reason_codes": [
+      "sector_fit_out_without_execution"
+    ],
+    "computed_at": "2026-08-09T22:49:56.199025-03:00",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "materialization_mode": "ACTIVE"
+  },
+  {
+    "company_key": "cnpj_root:00802002",
+    "cnpj_raiz": "00802002",
+    "previous_class": "TARGET_CONFIRMED",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "transition_event": "TARGET_FIT_LOST",
+    "target_fit_reason_codes": [
+      "sector_fit_out_without_execution"
+    ],
+    "computed_at": "2026-08-09T22:49:56.082591-03:00",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "materialization_mode": "ACTIVE"
   }
 ]
