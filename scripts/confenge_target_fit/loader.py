@@ -18,6 +18,25 @@ from scripts.confenge_target_fit.company_key import (
 from scripts.confenge_target_fit.models import CompanyInput
 from scripts.confenge_universe.construction import assess_construction
 
+# Process-local schema cache — never re-query information_schema per company.
+_COLS_CACHE: set[str] | None = None
+_REGISTRY_TABLES_CACHE: set[str] | None = None
+
+
+def _supplier_contract_columns(conn: Any) -> set[str]:
+    global _COLS_CACHE
+    if _COLS_CACHE is not None:
+        return _COLS_CACHE
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT column_name FROM information_schema.columns
+            WHERE table_schema='public' AND table_name='pncp_supplier_contracts'
+            """
+        )
+        _COLS_CACHE = {r["column_name"] for r in (cur.fetchall() or [])}
+    return _COLS_CACHE
+
 
 def load_company_input(
     conn: Any,
@@ -77,13 +96,7 @@ def _load_contracts(
     limit: int,
 ) -> tuple[list[dict[str, Any]], set[str], datetime | None, str | None, bool]:
     with conn.cursor() as cur:
-        cur.execute(
-            """
-            SELECT column_name FROM information_schema.columns
-            WHERE table_schema='public' AND table_name='pncp_supplier_contracts'
-            """
-        )
-        cols = {r["column_name"] for r in (cur.fetchall() or [])}
+        cols = _supplier_contract_columns(conn)
         cnpj_col = (
             "fornecedor_cnpj"
             if "fornecedor_cnpj" in cols
@@ -120,14 +133,21 @@ def _load_contracts(
         order = "data_publicacao" if "data_publicacao" in cols else (
             "ingested_at" if "ingested_at" in cols else select_cols[0]
         )
+        # Prefer indexed root column (national scale) over per-row regexp.
+        if "fornecedor_cnpj_8" in cols:
+            where_sql = "fornecedor_cnpj_8 = %s"
+            where_arg: str = raiz
+        else:
+            where_sql = f"left(regexp_replace({cnpj_col}, '\\D', '', 'g'), 8) = %s"
+            where_arg = raiz
         sql = f"""
             SELECT {", ".join(select_cols)}
             FROM pncp_supplier_contracts
-            WHERE left(regexp_replace({cnpj_col}, '\\D', '', 'g'), 8) = %s
+            WHERE {where_sql}
             ORDER BY {order} DESC NULLS LAST
             LIMIT %s
         """
-        cur.execute(sql, (raiz, limit))
+        cur.execute(sql, (where_arg, limit))
         rows = [dict(r) for r in (cur.fetchall() or [])]
 
     contracts: list[dict[str, Any]] = []
@@ -180,16 +200,19 @@ def _load_registry(
     conn: Any, *, raiz: str
 ) -> tuple[str | None, list[str], str | None]:
     """Optional registry enrichment (CNAE). Fail-soft if tables absent."""
+    global _REGISTRY_TABLES_CACHE
     with conn.cursor() as cur:
-        cur.execute(
-            """
-            SELECT table_name FROM information_schema.tables
-            WHERE table_schema='public'
-              AND table_name = ANY(%s)
-            """,
-            (["supplier_registry", "enriched_entities", "company_registry"],),
-        )
-        tables = {r["table_name"] for r in (cur.fetchall() or [])}
+        if _REGISTRY_TABLES_CACHE is None:
+            cur.execute(
+                """
+                SELECT table_name FROM information_schema.tables
+                WHERE table_schema='public'
+                  AND table_name = ANY(%s)
+                """,
+                (["supplier_registry", "enriched_entities", "company_registry"],),
+            )
+            _REGISTRY_TABLES_CACHE = {r["table_name"] for r in (cur.fetchall() or [])}
+        tables = _REGISTRY_TABLES_CACHE
 
     if "enriched_entities" in tables:
         with conn.cursor() as cur:

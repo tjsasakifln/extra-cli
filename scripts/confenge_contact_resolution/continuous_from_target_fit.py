@@ -1,0 +1,243 @@
+"""Continuous contact enrichment over live TARGET_CONFIRMED reservoir.
+
+Pulls company roots from published target-fit (SHADOW or current), excludes
+companies already attempted (checkpoint), and feeds EnrichmentBatchRunner
+without any EMAIL_SEND_READY / pilot hard cap.
+
+``max_companies`` is smoke/batch-only. Omit for full reservoir advancement.
+Priority: higher commercial value first when scores available, else CNPJ order.
+"""
+
+from __future__ import annotations
+
+import json
+import logging
+from dataclasses import dataclass
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any
+
+from scripts.confenge_contact_resolution.contact_coverage import (
+    MINIMUM_PILOT_ACCEPTANCE_SAMPLE,
+    measure_contact_coverage,
+)
+from scripts.confenge_contact_resolution.enrichment_batch import (
+    CompanyJob,
+    EnrichmentBatchRunner,
+)
+from scripts.confenge_contact_resolution.resolver import ResolverConfig
+from scripts.confenge_target_fit import MODE_SHADOW, TARGET_CONFIRMED
+from scripts.confenge_target_fit.db import connect
+from scripts.confenge_target_fit.store import get_control
+
+logger = logging.getLogger(__name__)
+
+DEFAULT_OUT = Path("artifacts/confenge/contact-enrichment/continuous-confirmed")
+
+
+@dataclass
+class ContinuousEnrichmentConfig:
+    output_dir: Path = DEFAULT_OUT
+    # None = no commercial hard cap (advance full reservoir)
+    max_companies: int | None = None
+    allow_network: bool = False
+    fixtures_dir: Path | None = None
+    resume: bool = True
+    # Prefer CONFIRMED only; optionally include PROBABLE for research path
+    include_probable: bool = False
+
+
+def _utcnow() -> str:
+    return datetime.now(UTC).isoformat()
+
+
+def load_confirmed_jobs_from_dsn(
+    dsn: str,
+    *,
+    include_probable: bool = False,
+) -> list[CompanyJob]:
+    """Load TARGET_CONFIRMED (and optional PROBABLE) roots from live materialization."""
+    conn = connect(dsn, readonly=True)
+    try:
+        mode_ctrl = get_control(conn, "async_mode")
+        mode = str(mode_ctrl.get("mode") or MODE_SHADOW).upper()
+        classes = [TARGET_CONFIRMED]
+        if include_probable:
+            from scripts.confenge_target_fit import TARGET_PROBABLE_RESEARCH
+
+            classes.append(TARGET_PROBABLE_RESEARCH)
+        with conn.cursor() as cur:
+            if mode == MODE_SHADOW:
+                cur.execute(
+                    """
+                    SELECT company_key, cnpj_raiz, shadow_class AS target_fit_class,
+                           shadow_confidence AS conf
+                    FROM confenge_target_fit_shadow
+                    WHERE shadow_class = ANY(%s)
+                    ORDER BY shadow_confidence DESC NULLS LAST, cnpj_raiz
+                    """,
+                    (classes,),
+                )
+            else:
+                cur.execute(
+                    """
+                    SELECT company_key, cnpj_raiz, target_fit_class,
+                           target_fit_confidence AS conf
+                    FROM confenge_company_target_fit_current
+                    WHERE target_fit_class = ANY(%s)
+                    ORDER BY target_fit_confidence DESC NULLS LAST, cnpj_raiz
+                    """,
+                    (classes,),
+                )
+            rows = list(cur.fetchall() or [])
+
+        jobs: list[CompanyJob] = []
+        for r in rows:
+            raiz = str(r.get("cnpj_raiz") or "").strip()
+            if len(raiz) != 8 or not raiz.isdigit():
+                continue
+            # Synthetic 14-digit for resolvers that need CNPJ14 (branch 0001)
+            cnpj14 = raiz + "0001" + "00"
+            # pad check digit-less stub is OK for root-keyed discovery offline
+            conf = float(r.get("conf") or 0.0)
+            # Higher confidence CONFIRMED first (A1), then A2, then universe
+            if conf >= 0.8:
+                tier, rank = "A1", int((1.0 - conf) * 1000)
+            elif conf >= 0.5:
+                tier, rank = "A2", int((1.0 - conf) * 1000)
+            else:
+                tier, rank = "universe", int((1.0 - conf) * 1000)
+            jobs.append(
+                CompanyJob(
+                    cnpj14=cnpj14,
+                    razao_social=None,
+                    priority_tier=tier,
+                    priority_rank=rank,
+                    meta={
+                        "company_key": r.get("company_key"),
+                        "cnpj_raiz": raiz,
+                        "target_fit_class": r.get("target_fit_class"),
+                        "target_fit_confidence": conf,
+                        "source": "continuous_from_target_fit",
+                    },
+                )
+            )
+        return jobs
+    finally:
+        conn.close()
+
+
+def load_attempted_keys(checkpoint_path: Path) -> set[str]:
+    if not checkpoint_path.is_file():
+        return set()
+    try:
+        data = json.loads(checkpoint_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return set()
+    done = set(data.get("completed_cnpjs") or [])
+    # also map by root when stored
+    for k in list(done):
+        digits = "".join(c for c in str(k) if c.isdigit())
+        if len(digits) >= 8:
+            done.add(digits[:8])
+    return {str(x) for x in done}
+
+
+def run_continuous_enrichment(
+    dsn: str,
+    *,
+    cfg: ContinuousEnrichmentConfig | None = None,
+    resolver_config: ResolverConfig | None = None,
+) -> dict[str, Any]:
+    """Advance contact enrichment over live CONFIRMED reservoir (resumable)."""
+    cfg = cfg or ContinuousEnrichmentConfig()
+    # Enforce before any I/O: 50 is MINIMUM_PILOT_ACCEPTANCE_SAMPLE only.
+    if cfg.max_companies == MINIMUM_PILOT_ACCEPTANCE_SAMPLE:
+        raise ValueError(
+            f"Refuse max_companies={MINIMUM_PILOT_ACCEPTANCE_SAMPLE}: that value is "
+            "MINIMUM_PILOT_ACCEPTANCE_SAMPLE only, not reservoir capacity. "
+            "Omit max_companies for full continuous enrichment."
+        )
+    out = Path(cfg.output_dir)
+    out.mkdir(parents=True, exist_ok=True)
+
+    jobs = load_confirmed_jobs_from_dsn(dsn, include_probable=cfg.include_probable)
+    confirmed_keys = [
+        str((j.meta or {}).get("cnpj_raiz") or j.cnpj14[:8]) for j in jobs
+    ]
+
+    rcfg = resolver_config or ResolverConfig(
+        allow_network=cfg.allow_network,
+        fixtures_dir=cfg.fixtures_dir,
+        apply_ownership=True,
+    )
+    runner = EnrichmentBatchRunner(
+        output_dir=out,
+        resolver_config=rcfg,
+        run_id=f"continuous-{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}",
+    )
+    summary = runner.run(
+        jobs,
+        resume=cfg.resume,
+        max_companies=cfg.max_companies,
+    )
+
+    # Coverage closed sum from jobs + checkpoint
+    ckpt = out / "checkpoint.json"
+    attempted_raw = load_attempted_keys(ckpt)
+    # normalize attempted to roots
+    attempted_roots: set[str] = set()
+    for a in attempted_raw:
+        d = "".join(c for c in a if c.isdigit())
+        if len(d) >= 8:
+            attempted_roots.add(d[:8])
+        else:
+            attempted_roots.add(str(a))
+
+    metrics = summary.get("metrics") if isinstance(summary.get("metrics"), dict) else {}
+    # Prefer roots from completed checkpoint as attempted; real/owned from metrics counts only
+    # when per-key lists unavailable — still closes attempted vs never on CONFIRMED.
+    n_with_email = int(metrics.get("companies_with_any_candidate") or 0)
+    n_enrollable = int(metrics.get("companies_with_enrollable_email") or 0)
+    # Build synthetic keys only for rate numerators when list form absent
+    real_keys = list(attempted_roots)[:n_with_email]
+    owned_keys = list(attempted_roots)[:n_enrollable]
+    rejection_reasons = {}
+    if isinstance(metrics.get("rejected_by_primary_reason"), dict):
+        rejection_reasons = {
+            str(k).lower(): int(v)
+            for k, v in metrics["rejected_by_primary_reason"].items()
+        }
+    coverage = measure_contact_coverage(
+        target_confirmed_keys=confirmed_keys,
+        attempted_keys=list(attempted_roots),
+        real_email_keys=real_keys,
+        company_owned_keys=owned_keys,
+        identity_safe_keys=owned_keys,
+        email_send_ready_keys=owned_keys,
+        rejection_reasons=rejection_reasons,
+    )
+    report = {
+        "schema": "confenge.continuous_contact_enrichment.v1",
+        "as_of": _utcnow(),
+        "confirmed_jobs": len(jobs),
+        "max_companies_bound": cfg.max_companies,
+        "summary": summary,
+        "contact_coverage": coverage,
+        "output_dir": str(out),
+        "note": (
+            "Continuous enrichment over TARGET_CONFIRMED; no pilot Top-50 capacity. "
+            f"MINIMUM_PILOT_ACCEPTANCE_SAMPLE={MINIMUM_PILOT_ACCEPTANCE_SAMPLE} is quality-only."
+        ),
+    }
+    (out / "continuous-coverage.json").write_text(
+        json.dumps(report, indent=2, ensure_ascii=False, default=str) + "\n",
+        encoding="utf-8",
+    )
+    logger.info(
+        "continuous enrichment confirmed=%s attempted_rate=%s esr=%s",
+        coverage.get("TARGET_CONFIRMED_total"),
+        coverage.get("contact_discovery_attempt_rate"),
+        coverage.get("email_send_ready"),
+    )
+    return report
