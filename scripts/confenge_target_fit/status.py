@@ -27,6 +27,7 @@ from scripts.confenge_target_fit.store import (
     max_current_watermark,
     oldest_dirty_age_seconds,
     queue_counts,
+    shadow_class_distribution,
 )
 
 
@@ -49,14 +50,21 @@ def build_health(
 
         dl_ts = datalake_max_ingested_at(conn)
         dl_wm = watermark_str(dl_ts) or str(cdc.get("watermark") or "")
-        tf_wm = max_current_watermark(conn) or str(cdc.get("watermark") or "")
+        tf_ctrl = get_control(conn, "target_fit_watermark")
+        tf_wm = (
+            str(tf_ctrl.get("watermark") or "")
+            or max_current_watermark(conn)
+            or str(cdc.get("watermark") or "")
+        )
 
         lag: float | None = None
         try:
             if dl_wm and tf_wm:
                 d1 = datetime.fromisoformat(dl_wm.replace("Z", "+00:00"))
                 d2 = datetime.fromisoformat(tf_wm.replace("Z", "+00:00"))
-                lag = (d1 - d2).total_seconds()
+                # Watermark lag = how far target-fit trails the datalake.
+                # If TF watermark is ahead (clock/sample artifacts), report 0 not negative.
+                lag = max(0.0, (d1 - d2).total_seconds())
         except ValueError:
             lag = None
 
@@ -66,6 +74,19 @@ def build_health(
         dead = int(q.get("dead", 0))
         oldest = oldest_dirty_age_seconds(conn)
         last_ok = last_success_at(conn)
+        shadow_dist = shadow_class_distribution(conn)
+
+        # In SHADOW, live population is shadow table; current may be empty/stale.
+        if mode == "SHADOW" and sum(shadow_dist.values()) > 0:
+            confirmed = int(shadow_dist.get(TARGET_CONFIRMED, 0))
+            probable = int(shadow_dist.get(TARGET_PROBABLE_RESEARCH, 0))
+            out = int(shadow_dist.get(TARGET_OUT_OF_SCOPE, 0))
+            pop_source = "shadow"
+        else:
+            confirmed = int(dist.get(TARGET_CONFIRMED, 0))
+            probable = int(dist.get(TARGET_PROBABLE_RESEARCH, 0))
+            out = int(dist.get(TARGET_OUT_OF_SCOPE, 0))
+            pop_source = "current"
 
         status = HEALTH_HEALTHY
         if auto.get("paused") or mode == "AUTO_PAUSE":
@@ -78,7 +99,7 @@ def build_health(
             status = HEALTH_DEGRADED
         elif dirty > cfg.cdc_max_companies_per_cycle:
             status = HEALTH_DEGRADED
-        elif last_ok is None and sum(dist.values()) == 0:
+        elif last_ok is None and confirmed + probable + out == 0:
             status = HEALTH_DEGRADED
 
         return HealthReport(
@@ -91,15 +112,17 @@ def build_health(
             retry=retry,
             dead=dead,
             current_version=TARGET_FIT_VERSION,
-            confirmed=int(dist.get(TARGET_CONFIRMED, 0)),
-            probable=int(dist.get(TARGET_PROBABLE_RESEARCH, 0)),
-            out=int(dist.get(TARGET_OUT_OF_SCOPE, 0)),
+            confirmed=confirmed,
+            probable=probable,
+            out=out,
             last_success=last_ok,
             async_mode=mode,
             auto_paused=bool(auto.get("paused")),
             details={
                 "queue": q,
-                "distribution": dist,
+                "distribution_current": dist,
+                "distribution_shadow": shadow_dist,
+                "population_source": pop_source,
                 "oldest_dirty_age_seconds": oldest,
                 "slo_minutes": cfg.reclass_slo_minutes,
                 "as_of": datetime.now(UTC).isoformat(),

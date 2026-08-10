@@ -40,6 +40,7 @@ from scripts.confenge_target_fit.store import (
     publish_materialization,
     record_downstream_invalidation_soft,
     set_control,
+    set_target_fit_watermark,
     start_cycle,
 )
 
@@ -377,6 +378,12 @@ def run_worker_cycle(
 
         after = class_distribution(conn)
         paused = maybe_auto_pause(conn, cfg=cfg, before=before, after=after)
+        # Advance target-fit watermark to CDC watermark when cycle drains work
+        cdc = get_control(conn, "cdc_watermark")
+        cdc_wm = str(cdc.get("watermark") or "")
+        if cdc_wm and stats.processed > 0:
+            set_target_fit_watermark(conn, cdc_wm)
+            stats.source_watermark = cdc_wm
         finish_cycle(
             conn,
             cycle_id=cycle_id,

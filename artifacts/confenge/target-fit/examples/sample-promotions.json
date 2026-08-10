@@ -1,0 +1,194 @@
+[
+  {
+    "company_key": "cnpj_root:00000000",
+    "cnpj_raiz": "00000000",
+    "old": "TARGET_OUT_OF_SCOPE",
+    "new": "TARGET_CONFIRMED",
+    "transition": "OUT→CONFIRMED",
+    "confidence": 0.8,
+    "reasons": [
+      "multi_execution_contracts_triangulation"
+    ],
+    "evidence_ids": [
+      "ex-00000000-1",
+      "ex-00000000-2",
+      "ex-00000000-3"
+    ]
+  },
+  {
+    "company_key": "cnpj_root:00000909",
+    "cnpj_raiz": "00000909",
+    "old": "TARGET_OUT_OF_SCOPE",
+    "new": "TARGET_CONFIRMED",
+    "transition": "OUT→CONFIRMED",
+    "confidence": 0.8,
+    "reasons": [
+      "multi_execution_contracts_triangulation"
+    ],
+    "evidence_ids": [
+      "ex-00000909-1",
+      "ex-00000909-2",
+      "ex-00000909-3"
+    ]
+  },
+  {
+    "company_key": "cnpj_root:00013225",
+    "cnpj_raiz": "00013225",
+    "old": "TARGET_OUT_OF_SCOPE",
+    "new": "TARGET_CONFIRMED",
+    "transition": "OUT→CONFIRMED",
+    "confidence": 0.8,
+    "reasons": [
+      "multi_execution_contracts_triangulation"
+    ],
+    "evidence_ids": [
+      "ex-00013225-1",
+      "ex-00013225-2",
+      "ex-00013225-3"
+    ]
+  },
+  {
+    "company_key": "cnpj_root:00029372",
+    "cnpj_raiz": "00029372",
+    "old": "TARGET_OUT_OF_SCOPE",
+    "new": "TARGET_CONFIRMED",
+    "transition": "OUT→CONFIRMED",
+    "confidence": 0.8,
+    "reasons": [
+      "multi_execution_contracts_triangulation"
+    ],
+    "evidence_ids": [
+      "ex-00029372-1",
+      "ex-00029372-2",
+      "ex-00029372-3"
+    ]
+  },
+  {
+    "company_key": "cnpj_root:00064332",
+    "cnpj_raiz": "00064332",
+    "old": "TARGET_OUT_OF_SCOPE",
+    "new": "TARGET_CONFIRMED",
+    "transition": "OUT→CONFIRMED",
+    "confidence": 0.8,
+    "reasons": [
+      "multi_execution_contracts_triangulation"
+    ],
+    "evidence_ids": [
+      "ex-00064332-1",
+      "ex-00064332-2",
+      "ex-00064332-3"
+    ]
+  },
+  {
+    "company_key": "cnpj_root:00072182",
+    "cnpj_raiz": "00072182",
+    "old": "TARGET_OUT_OF_SCOPE",
+    "new": "TARGET_CONFIRMED",
+    "transition": "OUT→CONFIRMED",
+    "confidence": 0.8,
+    "reasons": [
+      "multi_execution_contracts_triangulation"
+    ],
+    "evidence_ids": [
+      "ex-00072182-1",
+      "ex-00072182-2",
+      "ex-00072182-3"
+    ]
+  },
+  {
+    "company_key": "cnpj_root:00085822",
+    "cnpj_raiz": "00085822",
+    "old": "TARGET_OUT_OF_SCOPE",
+    "new": "TARGET_CONFIRMED",
+    "transition": "OUT→CONFIRMED",
+    "confidence": 0.8,
+    "reasons": [
+      "multi_execution_contracts_triangulation"
+    ],
+    "evidence_ids": [
+      "ex-00085822-1",
+      "ex-00085822-2",
+      "ex-00085822-3"
+    ]
+  },
+  {
+    "company_key": "cnpj_root:00096572",
+    "cnpj_raiz": "00096572",
+    "old": "TARGET_OUT_OF_SCOPE",
+    "new": "TARGET_CONFIRMED",
+    "transition": "OUT→CONFIRMED",
+    "confidence": 0.8,
+    "reasons": [
+      "multi_execution_contracts_triangulation"
+    ],
+    "evidence_ids": [
+      "ex-00096572-1",
+      "ex-00096572-2",
+      "ex-00096572-3"
+    ]
+  },
+  {
+    "company_key": "cnpj_root:00131299",
+    "cnpj_raiz": "00131299",
+    "old": "TARGET_OUT_OF_SCOPE",
+    "new": "TARGET_CONFIRMED",
+    "transition": "OUT→CONFIRMED",
+    "confidence": 0.8,
+    "reasons": [
+      "multi_execution_contracts_triangulation"
+    ],
+    "evidence_ids": [
+      "ex-00131299-1",
+      "ex-00131299-2",
+      "ex-00131299-3"
+    ]
+  },
+  {
+    "company_key": "cnpj_root:00133240",
+    "cnpj_raiz": "00133240",
+    "old": "TARGET_OUT_OF_SCOPE",
+    "new": "TARGET_CONFIRMED",
+    "transition": "OUT→CONFIRMED",
+    "confidence": 0.8,
+    "reasons": [
+      "multi_execution_contracts_triangulation"
+    ],
+    "evidence_ids": [
+      "ex-00133240-1",
+      "ex-00133240-2",
+      "ex-00133240-3"
+    ]
+  },
+  {
+    "company_key": "cnpj_root:00139736",
+    "cnpj_raiz": "00139736",
+    "old": "TARGET_OUT_OF_SCOPE",
+    "new": "TARGET_CONFIRMED",
+    "transition": "OUT→CONFIRMED",
+    "confidence": 0.8,
+    "reasons": [
+      "multi_execution_contracts_triangulation"
+    ],
+    "evidence_ids": [
+      "ex-00139736-1",
+      "ex-00139736-2",
+      "ex-00139736-3"
+    ]
+  },
+  {
+    "company_key": "cnpj_root:00149209",
+    "cnpj_raiz": "00149209",
+    "old": "TARGET_OUT_OF_SCOPE",
+    "new": "TARGET_CONFIRMED",
+    "transition": "OUT→CONFIRMED",
+    "confidence": 0.8,
+    "reasons": [
+      "multi_execution_contracts_triangulation"
+    ],
+    "evidence_ids": [
+      "ex-00149209-1",
+      "ex-00149209-2",
+      "ex-00149209-3"
+    ]
+  }
+]

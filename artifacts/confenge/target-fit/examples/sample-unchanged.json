@@ -1,0 +1,74 @@
+[
+  {
+    "company_key": "cnpj_root:00309893",
+    "cnpj_raiz": "00309893",
+    "class": "TARGET_PROBABLE_RESEARCH",
+    "fingerprint": "sha256:28d1df65950bc90a587b73c847c4ec3b84ee3d7e9a0944994bda3ba8969c9abe"
+  },
+  {
+    "company_key": "cnpj_root:00327149",
+    "cnpj_raiz": "00327149",
+    "class": "TARGET_PROBABLE_RESEARCH",
+    "fingerprint": "sha256:aac480e5b7670464edf22a15ced9763c1ece515f07035ce8a8390e422a3da24e"
+  },
+  {
+    "company_key": "cnpj_root:00328717",
+    "cnpj_raiz": "00328717",
+    "class": "TARGET_OUT_OF_SCOPE",
+    "fingerprint": "sha256:d6bd9505f245c09a1b2b68134b41704d55cba2d09500439197efde4112feb984"
+  },
+  {
+    "company_key": "cnpj_root:00329696",
+    "cnpj_raiz": "00329696",
+    "class": "TARGET_OUT_OF_SCOPE",
+    "fingerprint": "sha256:a37d0d8e48d7555383796d059ee5b6a54667faae250710dca11a96bff811a1e1"
+  },
+  {
+    "company_key": "cnpj_root:00331788",
+    "cnpj_raiz": "00331788",
+    "class": "TARGET_PROBABLE_RESEARCH",
+    "fingerprint": "sha256:4ed3acc8a4a0b7b4a2fc5d0d9eca6b99087bccdf862672d4de02525efc710474"
+  },
+  {
+    "company_key": "cnpj_root:00360305",
+    "cnpj_raiz": "00360305",
+    "class": "TARGET_PROBABLE_RESEARCH",
+    "fingerprint": "sha256:ce96cb214f630b1d0b994d289a84aea6e73b8b029fb61fd0a4c51a1f2a24c857"
+  },
+  {
+    "company_key": "cnpj_root:00373758",
+    "cnpj_raiz": "00373758",
+    "class": "TARGET_PROBABLE_RESEARCH",
+    "fingerprint": "sha256:ae0863064ddca00896b4bf827bffed0d8fcad1b17d169f94984016b06d5066b7"
+  },
+  {
+    "company_key": "cnpj_root:00384799",
+    "cnpj_raiz": "00384799",
+    "class": "TARGET_OUT_OF_SCOPE",
+    "fingerprint": "sha256:cf927a46ab9a8a777001b90bbb857dea62618091d2fe2aef537ae2ea2510b623"
+  },
+  {
+    "company_key": "cnpj_root:00393793",
+    "cnpj_raiz": "00393793",
+    "class": "TARGET_PROBABLE_RESEARCH",
+    "fingerprint": "sha256:add21f69a027deb766b0fcd5475c16e6a5c68e133382f5914c755d65334f2085"
+  },
+  {
+    "company_key": "cnpj_root:00394772",
+    "cnpj_raiz": "00394772",
+    "class": "TARGET_PROBABLE_RESEARCH",
+    "fingerprint": "sha256:7fe44816fb4bb8614fec45c66d22dafe7db3ed3d2110ee5cbf273f209d8e468a"
+  },
+  {
+    "company_key": "cnpj_root:00398099",
+    "cnpj_raiz": "00398099",
+    "class": "TARGET_PROBABLE_RESEARCH",
+    "fingerprint": "sha256:0a54cae2e736ebffb96ffbac5c22941d84dfb084e743aeff6ce0f72dde2af4a4"
+  },
+  {
+    "company_key": "cnpj_root:00411441",
+    "cnpj_raiz": "00411441",
+    "class": "TARGET_OUT_OF_SCOPE",
+    "fingerprint": "sha256:49016af8904039139e83d2d95f29b55943af2e25224ff5ca52b9a1401ddd47e6"
+  }
+]

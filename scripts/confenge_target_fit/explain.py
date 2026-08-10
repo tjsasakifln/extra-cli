@@ -7,24 +7,17 @@ from typing import Any
 
 from scripts.confenge_target_fit.cdc import company_from_any_cnpj
 from scripts.confenge_target_fit.db import connect
-from scripts.confenge_target_fit.freshness import freshness_for_company
-from scripts.confenge_target_fit.store import get_current, history_for_company
+from scripts.confenge_target_fit.freshness import evaluate_freshness, freshness_for_company
+from scripts.confenge_target_fit.store import get_control, get_current, history_for_company
 
 
 def explain_cnpj(dsn: str, cnpj: str) -> dict[str, Any]:
     company_key, raiz = company_from_any_cnpj(cnpj)
-    conn = connect(dsn, readonly=True)
+    conn = connect(dsn, readonly=False)
     try:
         current = get_current(conn, company_key)
         history = history_for_company(conn, company_key, limit=10)
-        # reopen rw-less path for freshness (uses readonly ok if control exists)
-    finally:
-        conn.close()
-
-    conn2 = connect(dsn, readonly=False)
-    try:
-        fresh = freshness_for_company(conn2, company_key)
-        with conn2.cursor() as cur:
+        with conn.cursor() as cur:
             cur.execute(
                 """
                 SELECT event_type, old_class, new_class, created_at, reason_codes
@@ -48,25 +41,45 @@ def explain_cnpj(dsn: str, cnpj: str) -> dict[str, Any]:
                 (company_key,),
             )
             dirty = [dict(r) for r in (cur.fetchall() or [])]
-    finally:
-        conn2.close()
-
-    # Shadow row when async mode has not promoted to current yet
-    conn3 = connect(dsn, readonly=True)
-    try:
-        with conn3.cursor() as cur:
             cur.execute(
                 "SELECT * FROM confenge_target_fit_shadow WHERE company_key = %s",
                 (company_key,),
             )
-            shadow = cur.fetchone()
-            shadow = dict(shadow) if shadow else None
+            shadow_row = cur.fetchone()
+            shadow = dict(shadow_row) if shadow_row else None
+
+        mode = str(get_control(conn, "async_mode").get("mode") or "SHADOW").upper()
+        cdc = get_control(conn, "cdc_watermark")
+        tf_ctrl = get_control(conn, "target_fit_watermark")
+        dl_wm = str(cdc.get("watermark") or tf_ctrl.get("watermark") or "")
+
+        # ACTIVE freshness against current; SHADOW uses shadow as operator-visible state.
+        fresh = freshness_for_company(conn, company_key)
+        if shadow and (not current or mode == "SHADOW"):
+            shadow_as_current = {
+                "company_key": company_key,
+                "target_fit_class": shadow.get("shadow_class"),
+                "target_fit_confidence": shadow.get("shadow_confidence"),
+                "target_fit_version": shadow.get("target_fit_version"),
+                "target_fit_evidence": shadow.get("evidence") or [],
+                "source_watermark": shadow.get("source_watermark"),
+                "computed_at": shadow.get("computed_at"),
+                "operational_status": "shadow_only",
+                "input_fingerprint": shadow.get("input_fingerprint"),
+            }
+            fresh = evaluate_freshness(
+                company_key=company_key,
+                current=shadow_as_current,
+                datalake_watermark=dl_wm or str(shadow.get("source_watermark") or ""),
+                suppressed=False,
+            )
     finally:
-        conn3.close()
+        conn.close()
 
     return {
         "company_key": company_key,
         "cnpj_raiz": raiz,
+        "async_mode": mode,
         "current": _serialize(current),
         "shadow": _serialize(shadow),
         "freshness": fresh.as_dict(),
@@ -80,12 +93,13 @@ def format_explain(data: dict[str, Any]) -> str:
     lines = [
         f"company_key: {data['company_key']}",
         f"cnpj_raiz:   {data['cnpj_raiz']}",
+        f"async_mode:  {data.get('async_mode') or '?'}",
         "",
-        "== CURRENT ==",
+        "== CURRENT (ACTIVE) ==",
     ]
     cur = data.get("current") or {}
     if not cur:
-        lines.append("(no ACTIVE materialization)")
+        lines.append("(no ACTIVE materialization — expected in SHADOW mode)")
     else:
         lines.extend(
             [
@@ -107,10 +121,14 @@ def format_explain(data: dict[str, Any]) -> str:
                 "",
                 "== SHADOW ==",
                 f"shadow_class: {sh.get('shadow_class')}",
+                f"confidence:   {sh.get('shadow_confidence')}",
                 f"vs_current:   {sh.get('current_class')}",
                 f"transition:   {sh.get('transition')}",
                 f"version:      {sh.get('target_fit_version')}",
                 f"fingerprint:  {sh.get('input_fingerprint')}",
+                f"watermark:    {sh.get('source_watermark')}",
+                f"computed_at:  {sh.get('computed_at')}",
+                f"reasons:      {sh.get('reason_codes')}",
             ]
         )
     fr = data.get("freshness") or {}
@@ -121,6 +139,8 @@ def format_explain(data: dict[str, Any]) -> str:
             f"fresh:  {fr.get('target_fit_fresh')}",
             f"reason: {fr.get('reason')}",
             f"blocks_send: {fr.get('blocks_send')}",
+            f"tf_watermark: {fr.get('target_fit_source_watermark')}",
+            f"dl_watermark: {fr.get('datalake_watermark')}",
             "",
             "== RECENT HISTORY ==",
         ]

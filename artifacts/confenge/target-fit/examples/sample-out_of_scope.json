@@ -1,0 +1,129 @@
+[
+  {
+    "company_key": "cnpj_root:00029372",
+    "cnpj_raiz": "00029372",
+    "class": "TARGET_OUT_OF_SCOPE",
+    "reasons": [
+      "sector_fit_out_without_execution"
+    ],
+    "n_contracts": 2,
+    "razao": "GE HEALTHCARE DO BRASIL COMERCIO E SERVICOS PARA EQUIPAMENTOS MEDICO-HOSPITALARE"
+  },
+  {
+    "company_key": "cnpj_root:00131299",
+    "cnpj_raiz": "00131299",
+    "class": "TARGET_OUT_OF_SCOPE",
+    "reasons": [
+      "sector_fit_out_without_execution"
+    ],
+    "n_contracts": 1,
+    "razao": "HIMALAIA COMERCIO DE PRODUTOS ALIMENTARE"
+  },
+  {
+    "company_key": "cnpj_root:00149209",
+    "cnpj_raiz": "00149209",
+    "class": "TARGET_OUT_OF_SCOPE",
+    "reasons": [
+      "sector_fit_out_without_execution"
+    ],
+    "n_contracts": 1,
+    "razao": "Concretos do Sul Tubos e Pre Moldados Ltda"
+  },
+  {
+    "company_key": "cnpj_root:00172255",
+    "cnpj_raiz": "00172255",
+    "class": "TARGET_OUT_OF_SCOPE",
+    "reasons": [
+      "name_hard_out_without_execution",
+      "name_markers:imoveis,moveis"
+    ],
+    "n_contracts": 1,
+    "razao": "ROSA IMOVEIS LTDA."
+  },
+  {
+    "company_key": "cnpj_root:00267908",
+    "cnpj_raiz": "00267908",
+    "class": "TARGET_OUT_OF_SCOPE",
+    "reasons": [
+      "name_hard_out_without_execution",
+      "name_markers:medico"
+    ],
+    "n_contracts": 1,
+    "razao": "HAND SHOP SUPRIMENTOS MEDICOS E TERAPEUTICOS LTDA"
+  },
+  {
+    "company_key": "cnpj_root:00300400",
+    "cnpj_raiz": "00300400",
+    "class": "TARGET_OUT_OF_SCOPE",
+    "reasons": [
+      "name_hard_out_without_execution",
+      "name_markers:moveis"
+    ],
+    "n_contracts": 1,
+    "razao": "MILAN MOVEIS INDUSTRIA E COMERCIO LTDA"
+  },
+  {
+    "company_key": "cnpj_root:00328717",
+    "cnpj_raiz": "00328717",
+    "class": "TARGET_OUT_OF_SCOPE",
+    "reasons": [
+      "name_hard_out_without_execution",
+      "name_markers:frotas,manutencao de frotas"
+    ],
+    "n_contracts": 1,
+    "razao": "MS COMERCIO, SERVICOS E MANUTENCAO DE FROTAS LTDA,"
+  },
+  {
+    "company_key": "cnpj_root:00329696",
+    "cnpj_raiz": "00329696",
+    "class": "TARGET_OUT_OF_SCOPE",
+    "reasons": [
+      "sector_fit_out_without_execution"
+    ],
+    "n_contracts": 1,
+    "razao": "LOCADORA DE VEICULOS CAXANGA LTDA"
+  },
+  {
+    "company_key": "cnpj_root:00384799",
+    "cnpj_raiz": "00384799",
+    "class": "TARGET_OUT_OF_SCOPE",
+    "reasons": [
+      "name_hard_out_without_execution",
+      "name_markers:importacao exportacao,comercio importacao"
+    ],
+    "n_contracts": 1,
+    "razao": "PEIXOTO COMERCIO IMPORTACAO EXPORTACAO LTDA."
+  },
+  {
+    "company_key": "cnpj_root:00411441",
+    "cnpj_raiz": "00411441",
+    "class": "TARGET_OUT_OF_SCOPE",
+    "reasons": [
+      "name_hard_out_without_execution",
+      "name_markers:medico"
+    ],
+    "n_contracts": 5,
+    "razao": "MK PRODUTOS MEDICO HOSPITALARES LTDA"
+  },
+  {
+    "company_key": "cnpj_root:00528262",
+    "cnpj_raiz": "00528262",
+    "class": "TARGET_OUT_OF_SCOPE",
+    "reasons": [
+      "sector_fit_out_without_execution"
+    ],
+    "n_contracts": 18,
+    "razao": "FERRALLY - COMERCIO DE EMBALAGENS LTDA"
+  },
+  {
+    "company_key": "cnpj_root:00567892",
+    "cnpj_raiz": "00567892",
+    "class": "TARGET_OUT_OF_SCOPE",
+    "reasons": [
+      "name_hard_out_without_execution",
+      "name_markers:metrologica"
+    ],
+    "n_contracts": 1,
+    "razao": "VISOMES COMERCIAL METROLOGICA LTDA"
+  }
+]

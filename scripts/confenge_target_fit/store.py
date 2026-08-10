@@ -650,18 +650,122 @@ def oldest_dirty_age_seconds(conn: Any) -> float | None:
         return float(row["age"])
 
 
+def _is_iso_watermark(value: str) -> bool:
+    if not value or value.startswith("wm-"):
+        return False
+    try:
+        datetime.fromisoformat(value.replace("Z", "+00:00"))
+        return True
+    except ValueError:
+        return False
+
+
 def max_current_watermark(conn: Any) -> str:
+    """Best parseable watermark from materialization tables + control plane.
+
+    Ignores synthetic test watermarks (e.g. ``wm-b``) so status lag stays meaningful.
+    """
+    candidates: list[tuple[datetime, str]] = []
     with conn.cursor() as cur:
+        for table, col in (
+            ("confenge_company_target_fit_current", "source_watermark"),
+            ("confenge_target_fit_shadow", "source_watermark"),
+        ):
+            try:
+                cur.execute(
+                    f"""
+                    SELECT {col} AS wm, computed_at
+                    FROM {table}
+                    WHERE {col} IS NOT NULL AND {col} <> ''
+                    ORDER BY computed_at DESC NULLS LAST
+                    LIMIT 50
+                    """
+                )
+                for row in cur.fetchall() or []:
+                    wm = str(row["wm"] or "")
+                    if not _is_iso_watermark(wm):
+                        continue
+                    try:
+                        ts = datetime.fromisoformat(wm.replace("Z", "+00:00"))
+                    except ValueError:
+                        continue
+                    candidates.append((ts, wm))
+            except Exception:  # noqa: BLE001 — table may not exist mid-migration
+                pass
+        # Control plane CDC watermark
         cur.execute(
-            """
-            SELECT source_watermark FROM confenge_company_target_fit_current
-            WHERE source_watermark IS NOT NULL AND source_watermark <> ''
-            ORDER BY computed_at DESC NULLS LAST
-            LIMIT 1
-            """
+            "SELECT value FROM confenge_target_fit_control WHERE key = 'cdc_watermark'"
         )
         row = cur.fetchone()
-        return str(row["source_watermark"]) if row else ""
+        if row:
+            val = row["value"]
+            if isinstance(val, str):
+                import json as _json
+
+                try:
+                    val = _json.loads(val)
+                except Exception:  # noqa: BLE001
+                    val = {}
+            wm = str((val or {}).get("watermark") or "")
+            if _is_iso_watermark(wm):
+                try:
+                    ts = datetime.fromisoformat(wm.replace("Z", "+00:00"))
+                    candidates.append((ts, wm))
+                except ValueError:
+                    pass
+        # Explicit target-fit progress watermark (written by worker)
+        cur.execute(
+            "SELECT value FROM confenge_target_fit_control WHERE key = 'target_fit_watermark'"
+        )
+        row = cur.fetchone()
+        if row:
+            val = row["value"]
+            if isinstance(val, str):
+                import json as _json
+
+                try:
+                    val = _json.loads(val)
+                except Exception:  # noqa: BLE001
+                    val = {}
+            wm = str((val or {}).get("watermark") or "")
+            if _is_iso_watermark(wm):
+                try:
+                    ts = datetime.fromisoformat(wm.replace("Z", "+00:00"))
+                    candidates.append((ts, wm))
+                except ValueError:
+                    pass
+    if not candidates:
+        return ""
+    candidates.sort(key=lambda x: x[0], reverse=True)
+    return candidates[0][1]
+
+
+def shadow_class_distribution(conn: Any) -> dict[str, int]:
+    with conn.cursor() as cur:
+        try:
+            cur.execute(
+                """
+                SELECT shadow_class, COUNT(*)::int AS n
+                FROM confenge_target_fit_shadow
+                GROUP BY shadow_class
+                """
+            )
+            return {r["shadow_class"]: int(r["n"]) for r in (cur.fetchall() or [])}
+        except Exception:  # noqa: BLE001
+            return {}
+
+
+def set_target_fit_watermark(conn: Any, watermark: str) -> None:
+    if not watermark:
+        return
+    set_control(
+        conn,
+        "target_fit_watermark",
+        {
+            "watermark": watermark,
+            "updated_at": _utcnow().isoformat(),
+        },
+    )
 
 
 def last_success_at(conn: Any) -> str | None:
