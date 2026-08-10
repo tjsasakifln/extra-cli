@@ -740,6 +740,9 @@ def evaluate_copy_context_ready(company: dict[str, Any] | None, *, service_code:
 
 def _published_target_fit_from_company(
     company: dict[str, Any] | None,
+    *,
+    conn: Any | None = None,
+    published_index: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, Any] | None:
     """Extract published materialization fields when present on the company row.
 
@@ -750,7 +753,9 @@ def _published_target_fit_from_company(
     try:
         from scripts.confenge_target_fit.published import published_from_row_or_db
 
-        return published_from_row_or_db(company, conn=None)
+        return published_from_row_or_db(
+            company, conn=conn, published_index=published_index
+        )
     except Exception:  # noqa: BLE001 — soft import for envs without continuous-refresh
         if company.get("target_fit_class"):
             return {
@@ -772,6 +777,8 @@ def _gate_from_published(
     *,
     target_fit: TargetFitResult | None,
     canonical_universe_member: bool | None,
+    conn: Any | None = None,
+    published_index: dict[str, dict[str, Any]] | None = None,
 ) -> tuple[TargetFitResult, list[str], bool]:
     """Return (fit, extra_block_reasons, published_blocks_send).
 
@@ -779,7 +786,9 @@ def _gate_from_published(
     non-CONFIRMED / stale / REFRESH_FAILED / TARGET_FIT_DOWNGRADE block send.
     """
     extra: list[str] = []
-    published = _published_target_fit_from_company(company)
+    published = _published_target_fit_from_company(
+        company, conn=conn, published_index=published_index
+    )
     suppressed = False
     if company:
         suppressed = bool(
@@ -868,6 +877,8 @@ def evaluate_email_send_ready(
     demo_flag: bool = False,
     provenance_chain: list[dict[str, Any]] | None = None,
     parent_provenance: dict[str, Any] | None = None,
+    conn: Any | None = None,
+    published_index: dict[str, dict[str, Any]] | None = None,
 ) -> EmailSendReadyResult:
     """EMAIL_SEND_READY requires target+service+contact+copy+not_blocked+fresh+provenance.
 
@@ -886,6 +897,8 @@ def evaluate_email_send_ready(
         company,
         target_fit=target_fit,
         canonical_universe_member=canonical_universe_member,
+        conn=conn,
+        published_index=published_index,
     )
     reasons.extend(published_blocks)
     mp = classify_mailbox_purpose(email_norm)

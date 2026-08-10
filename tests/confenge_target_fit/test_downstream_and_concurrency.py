@@ -412,19 +412,52 @@ def test_confirmed_fresh_published_allows_tier_a():
         "target_fit_source_watermark": "2026-08-09T12:00:00Z",
         "target_fit_computed_at": "2026-08-09T12:00:00Z",
         "datalake_watermark": "2026-08-09T12:00:00Z",
-        "service_code": "REAJUSTE",
-        "factual_hook": "obra",
+        "service_code": "estruturacao_pleito_reajuste",
+        "factual_hook": (
+            "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. X; UF RS"
+        ),
+        "observed_fact": (
+            "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. X; UF RS"
+        ),
+        "why_this_account": (
+            "executora de pavimentação com contratos públicos recentes — "
+            "objeto: pavimentação asfáltica CBUQ em vias urbanas"
+        ),
+        "why_now": "aditivo recente no contrato municipal de pavimentação asfáltica CBUQ",
+        "micro_offer_code": "REAJUSTE_CHECK",
+        "cta": "Posso te mandar o recorte público que encontrei?",
         "evidence_ids": ["c1"],
         "canonical_universe_member": True,
+        "service_candidates": [
+            {
+                "service_id": "estruturacao_pleito_reajuste",
+                "supporting_signal_ids": ["mature_no_reajuste"],
+                "evidence_ids": ["c1"],
+            }
+        ],
+        "primary_service": {
+            "service_id": "estruturacao_pleito_reajuste",
+            "supporting_signal_ids": ["mature_no_reajuste"],
+            "evidence_ids": ["c1"],
+        },
+        "construction_evidence": {
+            "sector_fit": "CONFIRMED_ENGINEERING",
+            "target_fit_class": TARGET_CONFIRMED,
+            "relevant_contract_count": 3,
+        },
+        "portfolio": {"pass_contract_count": 3},
     }
     ready = evaluate_email_send_ready(
         company=company,
         email="engenharia@construtora.com.br",
         ownership_status="COMPANY_OWNED",
         verification_status="OBSERVED",
-        service_code="REAJUSTE",
+        service_code="estruturacao_pleito_reajuste",
         factual_evidence=True,
         evidence_ids=["c1"],
+        source_type="site",
+        source_url="https://construtora.com.br/contato",
     )
     assert ready.target_fit_send_tier == "A_AUTOMATIC"
+    assert ready.provenance_chain_valid is True
     assert ready.email_send_ready is True

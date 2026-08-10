@@ -235,6 +235,9 @@ def map_lead(
     *,
     intel: dict[str, Any] | None,
     contacts_row: dict[str, Any] | None,
+    conn: Any | None = None,
+    published_index: dict[str, dict[str, Any]] | None = None,
+    datalake_watermark: str = "",
 ) -> dict[str, Any] | None:
     """Map one universe row + optional intel/contacts into a feed lead.
 
@@ -451,7 +454,7 @@ def map_lead(
                 published_from_row_or_db,
             )
 
-            pub = published_from_row_or_db(company_ctx, conn=None)
+            pub = published_from_row_or_db(company_ctx, conn=conn, published_index=published_index)
             blocks, pub_reasons, fresh = evaluate_published_send_gate(
                 published=pub,
                 datalake_watermark=str(company_ctx.get("datalake_watermark") or ""),
@@ -610,8 +613,17 @@ def build_leads(
     universe_rows: list[dict[str, Any]],
     intel_rows: list[dict[str, Any]],
     contact_rows: list[dict[str, Any]],
+    *,
+    conn: Any | None = None,
+    published_index: dict[str, dict[str, Any]] | None = None,
+    datalake_watermark: str = "",
 ) -> list[dict[str, Any]]:
-    """Join inputs by cnpj14 and return stably sorted leads."""
+    """Join inputs by cnpj14 and return stably sorted leads.
+
+    When ``conn`` is provided (or a prebuilt ``published_index``), each lead is
+    joined to ``confenge_company_target_fit_current`` so Warmbly consumes the
+    live published decision instead of re-scoring.
+    """
     intel_by = index_by_cnpj(intel_rows, label="account-intelligence") if intel_rows else {}
     contacts_by = index_by_cnpj(contact_rows, label="contacts") if contact_rows else {}
     leads: list[dict[str, Any]] = []
@@ -619,7 +631,14 @@ def build_leads(
         cnpj = normalize_cnpj14(str(row.get("cnpj14") or row.get("cnpj") or ""))
         if not cnpj:
             continue
-        lead = map_lead(row, intel=intel_by.get(cnpj), contacts_row=contacts_by.get(cnpj))
+        lead = map_lead(
+            row,
+            intel=intel_by.get(cnpj),
+            contacts_row=contacts_by.get(cnpj),
+            conn=conn,
+            published_index=published_index,
+            datalake_watermark=datalake_watermark,
+        )
         if lead is not None:
             leads.append(lead)
     leads.sort(key=lambda lead: (lead["company"]["cnpj14"], lead["source_lead_id"]))
