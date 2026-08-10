@@ -215,16 +215,39 @@ def normalize_record(raw: dict[str, Any], *, as_of: str | None = None) -> dict[s
 
     signals_raw = raw.get("signals")
     signals_in: dict[str, Any] = signals_raw if isinstance(signals_raw, dict) else {}
+    # Derive cheap portfolio signals from public contract dates/objects so the
+    # multi-service router is not starved into mature→reajuste monoculture when
+    # only thin maturity evidence is present without specialty tokens.
+    recent_pubs = 0
+    recent_starts = 0
+    for c in contracts:
+        age = c.get("age_days")
+        if age is not None and age <= 180:
+            if c.get("publication_date"):
+                recent_pubs += 1
+            if c.get("start_date"):
+                recent_starts += 1
+    auto_recent_tender = recent_pubs >= 1 or any(
+        bool(c.get("tender_or_proposal_signal")) for c in contracts
+    )
+    auto_rapid_growth = len(contracts) >= 2 and recent_starts >= 1 and len(contracts) <= 8
+    auto_high_recurrence = len(contracts) >= 5
     signals = {
         "national_operation": _boolish(signals_in.get("national_operation")),
         "consortium_participation": _boolish(signals_in.get("consortium_participation")),
         "legal_claims_compliance_unit": _boolish(signals_in.get("legal_claims_compliance_unit")),
         "large_team_public_signal": _boolish(signals_in.get("large_team_public_signal")),
-        "high_recurrence": _boolish(signals_in.get("high_recurrence")),
-        "rapid_growth": _boolish(signals_in.get("rapid_growth")),
+        "high_recurrence": _boolish(signals_in.get("high_recurrence")) or auto_high_recurrence,
+        "rapid_growth": _boolish(signals_in.get("rapid_growth")) or auto_rapid_growth,
         "low_public_formalization": _boolish(signals_in.get("low_public_formalization")),
         "regional_only": _boolish(signals_in.get("regional_only")),
         "concentrated_functions": _boolish(signals_in.get("concentrated_functions")),
+        # Explicit router inputs (preserve caller override)
+        "recent_tender_activity": _boolish(signals_in.get("recent_tender_activity"))
+        or auto_recent_tender,
+        "proposal_window": _boolish(signals_in.get("proposal_window")),
+        "budget_audit_need": _boolish(signals_in.get("budget_audit_need")),
+        "bdi_signal": _boolish(signals_in.get("bdi_signal")),
     }
 
     facts_raw = raw.get("facts")

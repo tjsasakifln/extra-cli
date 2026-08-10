@@ -17,6 +17,11 @@ from scripts.confenge_target_fit import (
 )
 from scripts.confenge_target_fit.cdc import datalake_max_ingested_at, watermark_str
 from scripts.confenge_target_fit.config import TargetFitRefreshConfig
+from scripts.confenge_target_fit.coverage import (
+    classify_coverage_mode,
+    coverage_ratio,
+    load_coverage_control,
+)
 from scripts.confenge_target_fit.db import connect
 from scripts.confenge_target_fit.models import HealthReport
 from scripts.confenge_target_fit.store import (
@@ -102,6 +107,51 @@ def build_health(
         elif last_ok is None and confirmed + probable + out == 0:
             status = HEALTH_DEGRADED
 
+        materialized = confirmed + probable + out
+        cov_ctrl = load_coverage_control(conn)
+        canonical = int(cov_ctrl.get("canonical_company_count") or 0)
+        # Prefer live population as numerator; fall back to stored snapshot
+        mat_count = materialized or int(cov_ctrl.get("materialized_company_count") or 0)
+        if canonical <= 0:
+            canonical = int(cov_ctrl.get("expected_company_roots") or 0) or mat_count
+        ratio = coverage_ratio(
+            materialized_company_count=mat_count,
+            canonical_company_count=canonical,
+        )
+        last_full = cov_ctrl.get("last_full_reconcile_completed_at")
+        unexplained = int(
+            cov_ctrl.get("last_full_reconcile_unexplained_missing")
+            if cov_ctrl.get("last_full_reconcile_unexplained_missing") is not None
+            else cov_ctrl.get("unexplained_missing")
+            or 0
+        )
+        pagination_ok = bool(cov_ctrl.get("pagination_exhausted_normally", False))
+        coverage_mode = classify_coverage_mode(
+            coverage=ratio,
+            last_full_reconcile_completed_at=str(last_full) if last_full else None,
+            unexplained_missing=unexplained,
+            pagination_exhausted_normally=pagination_ok,
+            auto_paused=bool(auto.get("paused")),
+            dead=dead,
+            lag_seconds=lag,
+            max_lag_seconds=float(cfg.max_watermark_lag_seconds),
+        )
+        # Worker can be HEALTHY while only 2% of the national reservoir is populated.
+        # Surface that honestly — never equate HEALTHY with FULL_NATIONAL_READY.
+        coverage_payload = {
+            "canonical_company_count": canonical,
+            "materialized_company_count": mat_count,
+            "coverage_ratio": ratio,
+            "last_full_reconcile_completed_at": last_full,
+            "last_full_reconcile_unexplained_missing": unexplained,
+            "pagination_exhausted_normally": pagination_ok,
+            "coverage_mode": coverage_mode,
+            "FULL_NATIONAL_READY": coverage_mode == "FULLY_RECONCILED"
+            and unexplained == 0
+            and pagination_ok,
+            "population_source": pop_source,
+        }
+
         return HealthReport(
             status=status,
             datalake_watermark=dl_wm,
@@ -126,6 +176,7 @@ def build_health(
                 "oldest_dirty_age_seconds": oldest,
                 "slo_minutes": cfg.reclass_slo_minutes,
                 "as_of": datetime.now(UTC).isoformat(),
+                "coverage": coverage_payload,
             },
         )
     finally:
@@ -142,6 +193,7 @@ def exit_code_for(report: HealthReport) -> int:
 
 def metrics_snapshot(dsn: str) -> dict[str, Any]:
     report = build_health(dsn)
+    cov = (report.details or {}).get("coverage") or {}
     return {
         "dirty_queue_depth": report.dirty,
         "dirty_oldest_age": report.details.get("oldest_dirty_age_seconds"),
@@ -157,4 +209,13 @@ def metrics_snapshot(dsn: str) -> dict[str, Any]:
         "dead_letter_total": report.dead,
         "retry_total": report.retry,
         "processing": report.processing,
+        "coverage_ratio": cov.get("coverage_ratio"),
+        "coverage_mode": cov.get("coverage_mode"),
+        "canonical_company_count": cov.get("canonical_company_count"),
+        "materialized_company_count": cov.get("materialized_company_count"),
+        "last_full_reconcile_completed_at": cov.get("last_full_reconcile_completed_at"),
+        "last_full_reconcile_unexplained_missing": cov.get(
+            "last_full_reconcile_unexplained_missing"
+        ),
+        "FULL_NATIONAL_READY": cov.get("FULL_NATIONAL_READY"),
     }

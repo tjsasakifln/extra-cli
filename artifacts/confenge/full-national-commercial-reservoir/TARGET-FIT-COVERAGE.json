@@ -1,0 +1,22 @@
+{
+  "schema": "confenge.target_fit_coverage.v1",
+  "canonical_company_count": 48748,
+  "materialized_company_count": 1038,
+  "coverage_ratio": 0.021293181258718305,
+  "coverage_threshold": 0.995,
+  "expected_company_roots": 511645,
+  "visited_company_roots": 1038,
+  "explicit_exclusions": 0,
+  "unexplained_missing": 47710,
+  "pagination_exhausted_normally": false,
+  "last_full_reconcile_completed_at": null,
+  "last_full_reconcile_unexplained_missing": 47710,
+  "gap_breakdown": {
+    "RETRY_PENDING": 47710
+  },
+  "population_source": "shadow",
+  "async_mode": "SHADOW",
+  "coverage_mode": "BOOTSTRAPPING",
+  "FULL_NATIONAL_READY": false,
+  "as_of": "2026-08-10T07:23:47.966658+00:00"
+}

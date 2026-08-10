@@ -1,0 +1,23 @@
+{
+  "target_fit_materialized": {
+    "HISTORICAL_KEYSET_EARLY_EXIT": 499,
+    "NO_CONTINUOUS_WORKER_DRAIN": 1,
+    "SHADOW_VS_CURRENT_AUTHORITY_GAP": 1,
+    "PARTIAL_CONSTRUCTION_REQUEUE": 1038,
+    "NOT_YET_FULL_RECONCILED": 47710
+  },
+  "contact_attempted": {
+    "never_attempted_of_confirmed": 115,
+    "mailbox_purpose_rejected": 2,
+    "note": "attempted count = proven ESR cohort only (lower bound); continuous enrichment not yet national"
+  },
+  "email_send_ready": {
+    "PRESS_mailbox": 1,
+    "SOCIAL_PROGRAM_mailbox": 1,
+    "awaiting_discovery_on_confirmed": 115
+  },
+  "service_fit": {
+    "SERVICE_MONOCULTURE_reajuste_pct": 100.0,
+    "causal_diagnosis_required": true
+  }
+}
