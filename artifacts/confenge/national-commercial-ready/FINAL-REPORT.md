@@ -1,7 +1,7 @@
 # FINAL-REPORT — National commercial reservoir (strict ESR)
 
-- generated_at: `2026-08-10T16:32:34Z`
-- extra_cli_sha: `7d7d7c36965f06ef39acc1981ef10f18934a0a5a`
+- generated_at: `2026-08-10T17:04:34Z`
+- extra_cli_sha: `12dcd9dfcccb9a8431ddf905d018fe2d350f2b75`
 - TARGET_CONFIRMED: **8382**
 - EMAIL_SEND_READY strict: **72**
 - email roots upper bound: **223**

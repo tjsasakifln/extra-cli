@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-08-10T16:32:34Z",
+  "as_of": "2026-08-10T17:04:34Z",
   "rows": [
     {
       "cnpj_raiz": "01324865",
@@ -66,7 +66,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "00242092",
+      "cnpj_raiz": "00028986",
       "terminal_state": "CONTACT_EXHAUSTED",
       "sources_attempted": [
         "process_administrative_docs",
@@ -77,7 +77,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -96,7 +96,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "19800452",
+      "cnpj_raiz": "05810013",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
@@ -107,7 +107,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
       "email_count": 2,
@@ -189,7 +189,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "00252409",
+      "cnpj_raiz": "00029372",
       "terminal_state": "CONTACT_EXHAUSTED",
       "sources_attempted": [
         "process_administrative_docs",
@@ -200,7 +200,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -219,28 +219,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "20419850",
+      "cnpj_raiz": "05993595",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes"
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "public_docs_datalake",
+        "company_public_pages"
       ],
-      "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 1,
+      "email_count": 2,
       "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": false,
+      "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": false,
-        "enrich_state": "CONTACT_REVIEW_REQUIRED"
+        "full_ladder": true,
+        "enrich_state": "NO_CONTACT_YET"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes",
+      "source_type": "process_administrative_docs,pncp_annexes,official_registry,official_site,public_docs_datalake,company_public_pages",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -309,7 +313,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "00271624",
+      "cnpj_raiz": "00061493",
       "terminal_state": "CONTACT_EXHAUSTED",
       "sources_attempted": [
         "process_administrative_docs",
@@ -320,7 +324,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -339,28 +343,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "20488184",
+      "cnpj_raiz": "07386649",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes"
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "public_docs_datalake",
+        "company_public_pages"
       ],
-      "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 2,
+      "email_count": 1,
       "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": false,
+      "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": false,
-        "enrich_state": "CONTACT_REVIEW_REQUIRED"
+        "full_ladder": true,
+        "enrich_state": "NO_CONTACT_YET"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes",
+      "source_type": "process_administrative_docs,pncp_annexes,official_registry,official_site,public_docs_datalake,company_public_pages",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -428,7 +436,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "00278912",
+      "cnpj_raiz": "00079526",
       "terminal_state": "CONTACT_EXHAUSTED",
       "sources_attempted": [
         "process_administrative_docs",
@@ -439,7 +447,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -458,28 +466,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "24144040",
+      "cnpj_raiz": "07667763",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes"
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "public_docs_datalake",
+        "company_public_pages"
       ],
-      "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 2,
+      "email_count": 1,
       "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": false,
+      "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": false,
-        "enrich_state": "CONTACT_REVIEW_REQUIRED"
+        "full_ladder": true,
+        "enrich_state": "NO_CONTACT_YET"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes",
+      "source_type": "process_administrative_docs,pncp_annexes,official_registry,official_site,public_docs_datalake,company_public_pages",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -547,7 +559,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "00280757",
+      "cnpj_raiz": "00081428",
       "terminal_state": "CONTACT_EXHAUSTED",
       "sources_attempted": [
         "process_administrative_docs",
@@ -558,7 +570,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -577,17 +589,17 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "27846603",
+      "cnpj_raiz": "07947791",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
         "pncp_annexes"
       ],
       "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 4,
+      "email_count": 1,
       "email_send_ready_count": 0,
       "network_discovery": true,
       "ladder_complete": false,
@@ -666,7 +678,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "00282611",
+      "cnpj_raiz": "00082024",
       "terminal_state": "CONTACT_EXHAUSTED",
       "sources_attempted": [
         "process_administrative_docs",
@@ -677,7 +689,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -696,28 +708,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "29305003",
+      "cnpj_raiz": "10785639",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes"
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "public_docs_datalake",
+        "company_public_pages"
       ],
-      "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 2,
+      "email_count": 1,
       "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": false,
+      "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": false,
-        "enrich_state": "CONTACT_REVIEW_REQUIRED"
+        "full_ladder": true,
+        "enrich_state": "NO_CONTACT_YET"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes",
+      "source_type": "process_administrative_docs,pncp_annexes,official_registry,official_site,public_docs_datalake,company_public_pages",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -785,7 +801,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "00292081",
+      "cnpj_raiz": "00086165",
       "terminal_state": "CONTACT_EXHAUSTED",
       "sources_attempted": [
         "process_administrative_docs",
@@ -796,7 +812,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -815,28 +831,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "29386657",
+      "cnpj_raiz": "11349160",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes"
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "public_docs_datalake",
+        "company_public_pages"
       ],
-      "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 2,
+      "email_count": 1,
       "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": false,
+      "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": false,
-        "enrich_state": "CONTACT_REVIEW_REQUIRED"
+        "full_ladder": true,
+        "enrich_state": "NO_CONTACT_YET"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes",
+      "source_type": "process_administrative_docs,pncp_annexes,official_registry,official_site,public_docs_datalake,company_public_pages",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -904,7 +924,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "00300339",
+      "cnpj_raiz": "00093197",
       "terminal_state": "CONTACT_EXHAUSTED",
       "sources_attempted": [
         "process_administrative_docs",
@@ -915,7 +935,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -934,28 +954,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "30216559",
+      "cnpj_raiz": "11520665",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes"
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "public_docs_datalake",
+        "company_public_pages"
       ],
-      "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 2,
+      "email_count": 1,
       "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": false,
+      "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": false,
-        "enrich_state": "CONTACT_REVIEW_REQUIRED"
+        "full_ladder": true,
+        "enrich_state": "NO_CONTACT_YET"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes",
+      "source_type": "process_administrative_docs,pncp_annexes,official_registry,official_site,public_docs_datalake,company_public_pages",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -1023,7 +1047,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "00304725",
+      "cnpj_raiz": "00103498",
       "terminal_state": "CONTACT_EXHAUSTED",
       "sources_attempted": [
         "process_administrative_docs",
@@ -1034,7 +1058,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -1053,28 +1077,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "30428306",
+      "cnpj_raiz": "12628444",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes"
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "public_docs_datalake",
+        "company_public_pages"
       ],
-      "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 1,
+      "email_count": 2,
       "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": false,
+      "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": false,
-        "enrich_state": "CONTACT_REVIEW_REQUIRED"
+        "full_ladder": true,
+        "enrich_state": "NO_CONTACT_YET"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes",
+      "source_type": "process_administrative_docs,pncp_annexes,official_registry,official_site,public_docs_datalake,company_public_pages",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -1142,7 +1170,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "00336053",
+      "cnpj_raiz": "00103582",
       "terminal_state": "CONTACT_EXHAUSTED",
       "sources_attempted": [
         "process_administrative_docs",
@@ -1153,7 +1181,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -1172,28 +1200,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "33224167",
+      "cnpj_raiz": "13991890",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes"
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "public_docs_datalake",
+        "company_public_pages"
       ],
-      "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 2,
+      "email_count": 1,
       "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": false,
+      "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": false,
-        "enrich_state": "CONTACT_REVIEW_REQUIRED"
+        "full_ladder": true,
+        "enrich_state": "NO_CONTACT_YET"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes",
+      "source_type": "process_administrative_docs,pncp_annexes,official_registry,official_site,public_docs_datalake,company_public_pages",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -1262,7 +1294,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "00336234",
+      "cnpj_raiz": "00108814",
       "terminal_state": "CONTACT_EXHAUSTED",
       "sources_attempted": [
         "process_administrative_docs",
@@ -1273,7 +1305,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -1292,28 +1324,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "40443176",
+      "cnpj_raiz": "14711839",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes"
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "public_docs_datalake",
+        "company_public_pages"
       ],
-      "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 2,
+      "email_count": 1,
       "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": false,
+      "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": false,
-        "enrich_state": "CONTACT_REVIEW_REQUIRED"
+        "full_ladder": true,
+        "enrich_state": "NO_CONTACT_YET"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes",
+      "source_type": "process_administrative_docs,pncp_annexes,official_registry,official_site,public_docs_datalake,company_public_pages",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -1381,7 +1417,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "00338885",
+      "cnpj_raiz": "00128463",
       "terminal_state": "CONTACT_EXHAUSTED",
       "sources_attempted": [
         "process_administrative_docs",
@@ -1392,7 +1428,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -1411,28 +1447,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "43894609",
+      "cnpj_raiz": "16791765",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes"
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "public_docs_datalake",
+        "company_public_pages"
       ],
-      "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
       "email_count": 2,
       "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": false,
+      "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": false,
-        "enrich_state": "CONTACT_REVIEW_REQUIRED"
+        "full_ladder": true,
+        "enrich_state": "NO_CONTACT_YET"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes",
+      "source_type": "process_administrative_docs,pncp_annexes,official_registry,official_site,public_docs_datalake,company_public_pages",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -1500,7 +1540,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "00346071",
+      "cnpj_raiz": "00134748",
       "terminal_state": "CONTACT_EXHAUSTED",
       "sources_attempted": [
         "process_administrative_docs",
@@ -1511,7 +1551,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -1530,28 +1570,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "44956741",
+      "cnpj_raiz": "19800452",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes"
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "public_docs_datalake",
+        "company_public_pages"
       ],
-      "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
       "email_count": 2,
       "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": false,
+      "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": false,
-        "enrich_state": "CONTACT_REVIEW_REQUIRED"
+        "full_ladder": true,
+        "enrich_state": "NO_CONTACT_YET"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes",
+      "source_type": "process_administrative_docs,pncp_annexes,official_registry,official_site,public_docs_datalake,company_public_pages",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -1619,7 +1663,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "00346953",
+      "cnpj_raiz": "00142402",
       "terminal_state": "CONTACT_EXHAUSTED",
       "sources_attempted": [
         "process_administrative_docs",
@@ -1630,7 +1674,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -1649,17 +1693,17 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "45408078",
+      "cnpj_raiz": "20419850",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
         "pncp_annexes"
       ],
       "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 2,
+      "email_count": 1,
       "email_send_ready_count": 0,
       "network_discovery": true,
       "ladder_complete": false,
@@ -1739,7 +1783,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "00353783",
+      "cnpj_raiz": "00150952",
       "terminal_state": "CONTACT_EXHAUSTED",
       "sources_attempted": [
         "process_administrative_docs",
@@ -1750,7 +1794,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -1769,14 +1813,14 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "46531708",
+      "cnpj_raiz": "20488184",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
         "pncp_annexes"
       ],
       "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
       "email_count": 2,
@@ -1826,39 +1870,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "05480466",
-      "razao_social": "CONSTRUTORA ARQUIMARX LTDA",
-      "email": "financeiro@sigemec.com.br",
-      "ownership_status": "LIKELY_COMPANY_OWNED",
-      "verification_status": "OBSERVED",
-      "mailbox_purpose": "FINANCEIRO",
-      "mailbox_send_blocked": false,
-      "service_code": "diagnostico_contratual_b2g",
-      "why_this_account": "No caso de CONSTRUTORA ARQUIMARX LTDA, o encaixe parte de um fato concreto de execução contratual pública: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRA DE ENGENHARIA, COMPREENDENDO A CONSTRUÇÃO DE ESTRUTURA METÁL…. Sem generalizar portfólio além do que está no input.",
-      "why_now": "Evento contratual público recente: publicação em 2026-06-03; órgão PREFEITURA MUNICIPAL DE FORTALEZA DOS VALOS; objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRA DE ENGENHARIA, COMPREENDENDO A CONSTRUÇÃO.",
-      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRA DE ENGENHARIA, COMPREENDENDO A CONSTRUÇÃO DE ESTRUTURA METÁLICA COBERTA COM CHAPAS EM LAMINADO PLÁSTICO REFORÇADO COM FIB; órgão: PREFEITURA MUNICIPAL DE FORTALEZA DOS VALOS; UF RS; R$ 474,500",
-      "micro_offer": "DIAGNOSTIC_CHECKLIST",
-      "cta": "Se preferir, começamos por uma conversa de 15 minutos só para validar se há encaixe real.",
-      "source_type": "public_process_document",
-      "source_url": "https://pncp.gov.br/pncp-api/v1/orgaos/89708051000186/compras/2026/35/arquivos/3",
-      "n_contracts": 2,
-      "email_send_ready": false,
-      "reasons": [
-        "ownership:LIKELY_COMPANY_OWNED",
-        "ownership_identity_domain_mismatch",
-        "sticky_ownership_insufficient_for_identity",
-        "service_code:diagnostico_contratual_b2g",
-        "service_fit_supported"
-      ],
-      "supporting_signal_ids": [
-        "fallback"
-      ],
-      "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
-      "cnpj_raiz": "00355785",
+      "cnpj_raiz": "00159291",
       "terminal_state": "CONTACT_EXHAUSTED",
       "sources_attempted": [
         "process_administrative_docs",
@@ -1869,7 +1881,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -1888,14 +1900,14 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "46694964",
+      "cnpj_raiz": "24144040",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
         "pncp_annexes"
       ],
       "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
       "email_count": 2,
@@ -1945,39 +1957,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "05810013",
-      "razao_social": "VERBASCO ENGENHARIA E COMERCIO LTDA",
-      "email": "office@br.medel.com",
-      "ownership_status": "LIKELY_COMPANY_OWNED",
-      "verification_status": "OBSERVED",
-      "mailbox_purpose": "GENERIC_CONTACT",
-      "mailbox_send_blocked": false,
-      "service_code": "estruturacao_pleito_reajuste",
-      "why_this_account": "VERBASCO ENGENHARIA E COMERCIO LTDA — foco no fato de obra de arte especial disponível no input: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM SERVIÇOS DE ENGENHARIA PARA CONSTRUÇÃO DE PONTE MISTA SOBRE A TRAVESSIA ZUNGU,….",
-      "why_now": "Registro público com data verificável: publicação em 2025-11-05; órgão PREFEITURA MUNICIPAL DE ANGRA DOS REIS - RJ; objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM SERVIÇOS DE ENGENHARIA PARA CONSTRUÇÃO DE PONTE MISTA SOBRE .",
-      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM SERVIÇOS DE ENGENHARIA PARA CONSTRUÇÃO DE PONTE MISTA SOBRE A TRAVESSIA ZUNGU, ANGRA DOS REIS/RJ; órgão: PREFEITURA MUNICIPAL DE ANGRA DOS REIS - RJ; UF RJ; R$ 2,500,000",
-      "micro_offer": "REAJUSTE_CHECK",
-      "cta": "Posso enviar um roteiro objetivo de checagem de reajuste (cláusula → índice → memória) para um contrato-piloto.",
-      "source_type": "public_process_document",
-      "source_url": "https://pncp.gov.br/pncp-api/v1/orgaos/42498733000148/compras/2024/1916/arquivos/1",
-      "n_contracts": 2,
-      "email_send_ready": false,
-      "reasons": [
-        "ownership:LIKELY_COMPANY_OWNED",
-        "ownership_identity_domain_mismatch",
-        "sticky_ownership_insufficient_for_identity",
-        "service_code:estruturacao_pleito_reajuste",
-        "service_fit_supported"
-      ],
-      "supporting_signal_ids": [
-        "mature_no_reajuste"
-      ],
-      "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
-      "cnpj_raiz": "00359234",
+      "cnpj_raiz": "00159506",
       "terminal_state": "CONTACT_EXHAUSTED",
       "sources_attempted": [
         "process_administrative_docs",
@@ -1988,7 +1968,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -2007,17 +1987,17 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "49216985",
+      "cnpj_raiz": "27846603",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
         "pncp_annexes"
       ],
       "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 2,
+      "email_count": 4,
       "email_send_ready_count": 0,
       "network_discovery": true,
       "ladder_complete": false,
@@ -2064,39 +2044,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "05946179",
-      "razao_social": "CONSTRUTORA MOLLINARI LTDA.",
-      "email": "producao@antonionobrega.com.br",
-      "ownership_status": "LIKELY_COMPANY_OWNED",
-      "verification_status": "OBSERVED",
-      "mailbox_purpose": "UNKNOWN",
-      "mailbox_send_blocked": false,
-      "service_code": "diagnostico_contratual_b2g",
-      "why_this_account": "CONSTRUTORA MOLLINARI LTDA. aparece com execução contratual pública em mais de uma UF (DF, SP). Âncora pública: SERVIÇO DE IMPERMEABILIZAÇÃO DA COBERTURA DO EDIFÍCIO VILANOVA ARTIGAS junto a ESP-FACULDADE DE ARQUITETURA E URBANISMO….",
-      "why_now": "Publicação/marco recente no PNCP: publicação em 2026-03-19; órgão ESP-FACULDADE DE ARQUITETURA E URBANISMO-USP; objeto: SERVIÇO DE IMPERMEABILIZAÇÃO DA COBERTURA DO EDIFÍCIO VILANOVA ARTIGAS.",
-      "observed_fact": "objeto: SERVIÇO DE IMPERMEABILIZAÇÃO DA COBERTURA DO EDIFÍCIO VILANOVA ARTIGAS; órgão: ESP-FACULDADE DE ARQUITETURA E URBANISMO-USP; UF SP; R$ 2,500,000",
-      "micro_offer": "DIAGNOSTIC_CHECKLIST",
-      "cta": "Sugiro um diagnóstico contratual B2G curto para mapear riscos e priorizar encaixes.",
-      "source_type": "public_process_document",
-      "source_url": null,
-      "n_contracts": 2,
-      "email_send_ready": false,
-      "reasons": [
-        "ownership:LIKELY_COMPANY_OWNED",
-        "ownership_identity_domain_mismatch",
-        "sticky_ownership_insufficient_for_identity",
-        "service_code:diagnostico_contratual_b2g",
-        "service_fit_supported"
-      ],
-      "supporting_signal_ids": [
-        "fallback"
-      ],
-      "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
-      "cnpj_raiz": "00384114",
+      "cnpj_raiz": "00167424",
       "terminal_state": "CONTACT_EXHAUSTED",
       "sources_attempted": [
         "process_administrative_docs",
@@ -2107,7 +2055,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -2126,14 +2074,14 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "49681778",
+      "cnpj_raiz": "29305003",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
         "pncp_annexes"
       ],
       "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
       "email_count": 2,
@@ -2184,43 +2132,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "05993595",
-      "razao_social": "CVT CONSTRUTORA LTDA",
-      "email": "contato@idemp-edu.com.br",
-      "ownership_status": "LIKELY_COMPANY_OWNED",
-      "verification_status": "OBSERVED",
-      "mailbox_purpose": "GENERIC_CONTACT",
-      "mailbox_send_blocked": false,
-      "service_code": "estruturacao_pleito_reajuste",
-      "why_this_account": "Para CVT CONSTRUTORA LTDA, o gancho é específico em execução contratual pública: CONTRATAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA DE EMPRESA RESPONSÁVEL PELA PRESTAÇÃO DE SERVIÇOS TÉCNICOS PARA EXECUÇÃO D…. Não extrapolamos para a carteira inteira sem mais evidência.",
-      "why_now": "",
-      "observed_fact": "objeto: CONTRATAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA DE EMPRESA RESPONSÁVEL PELA PRESTAÇÃO DE SERVIÇOS TÉCNICOS PARA EXECUÇÃO DE REPAROS EM TRECHOS DA LAJE DE COBERTURA DA ALA 2, ED. ANEXO; órgão: MF-SRF-SECRETARIA DA RECEITA FEDERAL/DF; UF DF; R$ 70,164",
-      "micro_offer": "REAJUSTE_CHECK",
-      "cta": "Posso enviar um roteiro objetivo de checagem de reajuste (cláusula → índice → memória) para um contrato-piloto.",
-      "source_type": "public_process_document",
-      "source_url": "https://pncp.gov.br/pncp-api/v1/orgaos/03277610000125/compras/2025/512/arquivos/4",
-      "n_contracts": 2,
-      "email_send_ready": false,
-      "reasons": [
-        "ownership:LIKELY_COMPANY_OWNED",
-        "ownership_identity_domain_mismatch",
-        "sticky_ownership_insufficient_for_identity",
-        "service_code:estruturacao_pleito_reajuste",
-        "service_fit_supported",
-        "copy_context_not_ready",
-        "copy_context_incomplete",
-        "missing:why_now",
-        "missing:message_spine_incomplete"
-      ],
-      "supporting_signal_ids": [
-        "mature_no_reajuste"
-      ],
-      "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
-      "cnpj_raiz": "00390052",
+      "cnpj_raiz": "00187919",
       "terminal_state": "CONTACT_EXHAUSTED",
       "sources_attempted": [
         "process_administrative_docs",
@@ -2231,7 +2143,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -2250,14 +2162,14 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "49784187",
+      "cnpj_raiz": "29386657",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
         "pncp_annexes"
       ],
       "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
       "email_count": 2,
@@ -2307,39 +2219,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "06325178",
-      "razao_social": "RECANTO CONSTRUÇÕES LTDA",
-      "email": "pap@imojel.com.br",
-      "ownership_status": "LIKELY_COMPANY_OWNED",
-      "verification_status": "OBSERVED",
-      "mailbox_purpose": "UNKNOWN",
-      "mailbox_send_blocked": false,
-      "service_code": "diagnostico_contratual_b2g",
-      "why_this_account": "RECANTO CONSTRUÇÕES LTDA — foco no fato de pavimentação/vias disponível no input: Contratação de empresa para a pavimentação das calçadas de passeio da Av. Dr. Ito João Snel no trecho compreendido entr….",
-      "why_now": "Evento contratual público recente: publicação em 2026-02-18; órgão P.M. De Imigrante; objeto: Contratação de empresa para a pavimentação das calçadas de passeio da Av. Dr. Ito João Snel no trech.",
-      "observed_fact": "objeto: Contratação de empresa para a pavimentação das calçadas de passeio da Av. Dr. Ito João Snel no trecho compreendido entre a Rua 10 de Abril e a Praça da Igreja da Paz, Bairro Centro; órgão: P.M. De Imigrante; UF RS; R$ 776,499",
-      "micro_offer": "DIAGNOSTIC_CHECKLIST",
-      "cta": "Se preferir, começamos por uma conversa de 15 minutos só para validar se há encaixe real.",
-      "source_type": "public_process_document",
-      "source_url": null,
-      "n_contracts": 2,
-      "email_send_ready": false,
-      "reasons": [
-        "ownership:LIKELY_COMPANY_OWNED",
-        "ownership_identity_domain_mismatch",
-        "sticky_ownership_insufficient_for_identity",
-        "service_code:diagnostico_contratual_b2g",
-        "service_fit_supported"
-      ],
-      "supporting_signal_ids": [
-        "fallback"
-      ],
-      "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
-      "cnpj_raiz": "00405527",
+      "cnpj_raiz": "00192819",
       "terminal_state": "CONTACT_EXHAUSTED",
       "sources_attempted": [
         "process_administrative_docs",
@@ -2350,7 +2230,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -2369,14 +2249,14 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "50212723",
+      "cnpj_raiz": "30216559",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
         "pncp_annexes"
       ],
       "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
       "email_count": 2,
@@ -2426,39 +2306,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "07095509",
-      "razao_social": "AGRIMAT ENGENHARIA E EMPREENDIMENTOS LTDA.",
-      "email": "engenharia.engpav@gmail.com.br",
-      "ownership_status": "LIKELY_COMPANY_OWNED",
-      "verification_status": "OBSERVED",
-      "mailbox_purpose": "ENGENHARIA",
-      "mailbox_send_blocked": false,
-      "service_code": "diagnostico_contratual_b2g",
-      "why_this_account": "AGRIMAT ENGENHARIA E EMPREENDIMENTOS LTDA. aparece com execução contratual pública em mais de uma UF (MS, MT). Âncora pública: Contratação de empresa de engenharia para a execução da obra de Adequação Viária dos Acessos na Travessia Urbana e Dupl….",
-      "why_now": "Contrato com término previsto em 2027-01-21; órgão SECRETARIA DE ESTADO DE INFRA-ESTRUTURA; objeto: Contratação de empresa de engenharia para a execução da obra de Adequação Viária dos Acessos na Trav (horizonte ~164 dias) — janela temporal verificável.",
-      "observed_fact": "objeto: Contratação de empresa de engenharia para a execução da obra de Adequação Viária dos Acessos na Travessia Urbana e Duplicação da Rodovia: MT-206 Trecho: Entrº. MT-206 (Alta Florest; órgão: SECRETARIA DE ESTADO DE INFRA-ESTRUTURA; UF MT; R$ 7,935,049",
-      "micro_offer": "DIAGNOSTIC_CHECKLIST",
-      "cta": "Sugiro um diagnóstico contratual B2G curto para mapear riscos e priorizar encaixes.",
-      "source_type": "public_process_document",
-      "source_url": null,
-      "n_contracts": 2,
-      "email_send_ready": false,
-      "reasons": [
-        "ownership:LIKELY_COMPANY_OWNED",
-        "ownership_identity_domain_mismatch",
-        "sticky_ownership_insufficient_for_identity",
-        "service_code:diagnostico_contratual_b2g",
-        "service_fit_supported"
-      ],
-      "supporting_signal_ids": [
-        "fallback"
-      ],
-      "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
-      "cnpj_raiz": "00415411",
+      "cnpj_raiz": "00196198",
       "terminal_state": "CONTACT_EXHAUSTED",
       "sources_attempted": [
         "process_administrative_docs",
@@ -2469,7 +2317,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -2488,17 +2336,17 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "51344470",
+      "cnpj_raiz": "30428306",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
         "pncp_annexes"
       ],
       "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 2,
+      "email_count": 1,
       "email_send_ready_count": 0,
       "network_discovery": true,
       "ladder_complete": false,
@@ -2545,39 +2393,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "07386649",
-      "razao_social": "A M DE S LIMA CONSTRUÇÕES E SERVIÇOS",
-      "email": "licitacao@okchef.com.br",
-      "ownership_status": "LIKELY_COMPANY_OWNED",
-      "verification_status": "OBSERVED",
-      "mailbox_purpose": "LICITACOES",
-      "mailbox_send_blocked": false,
-      "service_code": "diagnostico_contratual_b2g",
-      "why_this_account": "A M DE S LIMA CONSTRUÇÕES E SERVIÇOS — foco no fato de execução contratual pública disponível no input: CONSTRUÇÃO DE ESTRADA VICINAL QUE LIGA A LOCALIDADE DE ROZÍLIO A SEDE DE MORAÚJO - CE junto a Secretaria de Infraestrut….",
-      "why_now": "Evento contratual público recente: publicação em 2026-06-09; órgão Secretaria de Infraestrutura; objeto: CONSTRUÇÃO DE ESTRADA VICINAL QUE LIGA A LOCALIDADE DE ROZÍLIO A SEDE DE MORAÚJO - CE.",
-      "observed_fact": "objeto: CONSTRUÇÃO DE ESTRADA VICINAL QUE LIGA A LOCALIDADE DE ROZÍLIO A SEDE DE MORAÚJO - CE; órgão: Secretaria de Infraestrutura; UF CE; R$ 974,132",
-      "micro_offer": "DIAGNOSTIC_CHECKLIST",
-      "cta": "Sugiro um diagnóstico contratual B2G curto para mapear riscos e priorizar encaixes.",
-      "source_type": "public_process_document",
-      "source_url": "https://pncp.gov.br/pncp-api/v1/orgaos/07598675000123/compras/2026/3/arquivos/9",
-      "n_contracts": 2,
-      "email_send_ready": false,
-      "reasons": [
-        "ownership:LIKELY_COMPANY_OWNED",
-        "ownership_identity_domain_mismatch",
-        "sticky_ownership_insufficient_for_identity",
-        "service_code:diagnostico_contratual_b2g",
-        "service_fit_supported"
-      ],
-      "supporting_signal_ids": [
-        "fallback"
-      ],
-      "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
-      "cnpj_raiz": "00434177",
+      "cnpj_raiz": "00201966",
       "terminal_state": "CONTACT_EXHAUSTED",
       "sources_attempted": [
         "process_administrative_docs",
@@ -2588,7 +2404,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -2607,14 +2423,14 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "80464753",
+      "cnpj_raiz": "33224167",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
         "pncp_annexes"
       ],
       "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
       "email_count": 2,
@@ -2664,39 +2480,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "07464433",
-      "razao_social": "Hidroart Poços Artesianos Ltda - Me",
-      "email": "comercial@objetivas.com.br",
-      "ownership_status": "LIKELY_COMPANY_OWNED",
-      "verification_status": "OBSERVED",
-      "mailbox_purpose": "COMERCIAL",
-      "mailbox_send_blocked": false,
-      "service_code": "apoio_licitacoes_propostas",
-      "why_this_account": "Para Hidroart Poços Artesianos Ltda - Me, o gancho é específico em saneamento: Contratação de Empresa que forneça materiais e serviços de mão de obra para instalação e construção de rede de abasteci…. Não extrapolamos para a carteira inteira sem mais evidência.",
-      "why_now": "Contrato com término previsto em 2026-08-29; órgão PM Jacutinga; objeto: Contratação de Empresa que forneça materiais e serviços de mão de obra para instalação e construção  (horizonte ~19 dias) — janela temporal verificável.",
-      "observed_fact": "objeto: Contratação de Empresa que forneça materiais e serviços de mão de obra para instalação e construção de rede de abastecimento de reservatório de água  rede de adução, que partirá de; órgão: PM Jacutinga; UF RS; R$ 53,726",
-      "micro_offer": "PROCUREMENT_RISK_SNAPSHOT",
-      "cta": "Disponibilizo apoio de pico em análise de edital/proposta sob NDA.",
-      "source_type": "public_process_document",
-      "source_url": "https://pncp.gov.br/pncp-api/v1/orgaos/87613394000131/compras/2026/53/arquivos/3",
-      "n_contracts": 2,
-      "email_send_ready": false,
-      "reasons": [
-        "ownership:LIKELY_COMPANY_OWNED",
-        "ownership_identity_domain_mismatch",
-        "sticky_ownership_insufficient_for_identity",
-        "service_code:apoio_licitacoes_propostas",
-        "service_fit_supported"
-      ],
-      "supporting_signal_ids": [
-        "tender_proposal"
-      ],
-      "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
-      "cnpj_raiz": "00437218",
+      "cnpj_raiz": "00203543",
       "terminal_state": "CONTACT_EXHAUSTED",
       "sources_attempted": [
         "process_administrative_docs",
@@ -2707,7 +2491,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -2726,32 +2510,28 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "07410299",
-      "terminal_state": "CONTACT_READY",
+      "cnpj_raiz": "40443176",
+      "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes",
-        "official_registry",
-        "official_site",
-        "company_public_pages",
-        "public_docs_datalake"
+        "pncp_annexes"
       ],
-      "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "attempt_count": 2,
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
-      "terminal_reason": "email_send_ready",
-      "email_count": 1,
-      "email_send_ready_count": 1,
+      "terminal_reason": "contacts_found_not_sendable",
+      "email_count": 2,
+      "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": true,
+      "ladder_complete": false,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": true,
-        "enrich_state": "CONTACT_READY"
+        "full_ladder": false,
+        "enrich_state": "CONTACT_REVIEW_REQUIRED"
       },
-      "audit_stratum": "CONTACT_READY",
+      "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes,official_registry,official_site,company_public_pages,public_docs_datalake",
+      "source_type": "process_administrative_docs,pncp_annexes",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -2787,39 +2567,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "07667763",
-      "razao_social": "BELLACON CONSTRUTORA E INCORPORADORA LTDA",
-      "email": "licitacao@coreservice.com.br",
-      "ownership_status": "LIKELY_COMPANY_OWNED",
-      "verification_status": "OBSERVED",
-      "mailbox_purpose": "LICITACOES",
-      "mailbox_send_blocked": false,
-      "service_code": "diagnostico_contratual_b2g",
-      "why_this_account": "No caso de BELLACON CONSTRUTORA E INCORPORADORA LTDA, o encaixe parte de um fato concreto de edificação/reforma: REFORMA DOS BANHEIROS DO EDIFÍCIO SEDE DA FMUSP junto a ESP-FACULDADE DE MEDICINA - USP (SP; valor R$ 2,260,000. Sem generalizar portfólio além do que está no input.",
-      "why_now": "Contrato com término previsto em 2027-01-16; órgão ESP-FACULDADE DE MEDICINA - USP; objeto: REFORMA DOS BANHEIROS DO EDIFÍCIO SEDE DA FMUSP (horizonte ~159 dias) — janela temporal verificável.",
-      "observed_fact": "objeto: REFORMA DOS BANHEIROS DO EDIFÍCIO SEDE DA FMUSP; órgão: ESP-FACULDADE DE MEDICINA - USP; UF SP; R$ 2,260,000",
-      "micro_offer": "DIAGNOSTIC_CHECKLIST",
-      "cta": "Se preferir, começamos por uma conversa de 15 minutos só para validar se há encaixe real.",
-      "source_type": "public_process_document",
-      "source_url": "https://pncp.gov.br/pncp-api/v1/orgaos/00394502000144/compras/2026/381/arquivos/3",
-      "n_contracts": 2,
-      "email_send_ready": false,
-      "reasons": [
-        "ownership:LIKELY_COMPANY_OWNED",
-        "ownership_identity_domain_mismatch",
-        "sticky_ownership_insufficient_for_identity",
-        "service_code:diagnostico_contratual_b2g",
-        "service_fit_supported"
-      ],
-      "supporting_signal_ids": [
-        "fallback"
-      ],
-      "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
-      "cnpj_raiz": "00440605",
+      "cnpj_raiz": "00212337",
       "terminal_state": "CONTACT_EXHAUSTED",
       "sources_attempted": [
         "process_administrative_docs",
@@ -2830,7 +2578,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -2849,32 +2597,28 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "07437642",
-      "terminal_state": "CONTACT_READY",
+      "cnpj_raiz": "43894609",
+      "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes",
-        "official_registry",
-        "official_site",
-        "company_public_pages",
-        "public_docs_datalake"
+        "pncp_annexes"
       ],
-      "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "attempt_count": 2,
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
-      "terminal_reason": "email_send_ready",
-      "email_count": 1,
-      "email_send_ready_count": 1,
+      "terminal_reason": "contacts_found_not_sendable",
+      "email_count": 2,
+      "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": true,
+      "ladder_complete": false,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": true,
-        "enrich_state": "CONTACT_READY"
+        "full_ladder": false,
+        "enrich_state": "CONTACT_REVIEW_REQUIRED"
       },
-      "audit_stratum": "CONTACT_READY",
+      "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes,official_registry,official_site,company_public_pages,public_docs_datalake",
+      "source_type": "process_administrative_docs,pncp_annexes",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -2910,39 +2654,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "07742263",
-      "razao_social": "CAUIPE CONSTRUÇÕES E EMPRRENDIMENTOS LTDA",
-      "email": "rcao@irair.iuga.ce.gor",
-      "ownership_status": "LIKELY_COMPANY_OWNED",
-      "verification_status": "OBSERVED",
-      "mailbox_purpose": "UNKNOWN",
-      "mailbox_send_blocked": false,
-      "service_code": "diagnostico_contratual_b2g",
-      "why_this_account": "Há presença multi-UF de edificação/reforma em CAUIPE CONSTRUÇÕES E EMPRRENDIMENTOS LTDA (CE, TO). Ponto concreto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA REFORMA COM AMPLIAÇÃO DE UM GALPÃO PARA CONSTRUÇÃO DO NOVO CENTRO ADMINISTRAT….",
-      "why_now": "Evento contratual público recente: publicação em 2026-07-21; órgão Itaitinga; objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA REFORMA COM AMPLIAÇÃO DE UM GALPÃO PARA CONSTRUÇÃO DO NOVO.",
-      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA REFORMA COM AMPLIAÇÃO DE UM GALPÃO PARA CONSTRUÇÃO DO NOVO CENTRO ADMINISTRATIVO DE ITAITINGA/CE; órgão: Itaitinga; UF CE; R$ 9,618,974",
-      "micro_offer": "DIAGNOSTIC_CHECKLIST",
-      "cta": "Se preferir, começamos por uma conversa de 15 minutos só para validar se há encaixe real.",
-      "source_type": "public_process_document",
-      "source_url": null,
-      "n_contracts": 2,
-      "email_send_ready": false,
-      "reasons": [
-        "ownership:LIKELY_COMPANY_OWNED",
-        "ownership_identity_domain_mismatch",
-        "sticky_ownership_insufficient_for_identity",
-        "service_code:diagnostico_contratual_b2g",
-        "service_fit_supported"
-      ],
-      "supporting_signal_ids": [
-        "fallback"
-      ],
-      "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
-      "cnpj_raiz": "00443138",
+      "cnpj_raiz": "00217152",
       "terminal_state": "CONTACT_EXHAUSTED",
       "sources_attempted": [
         "process_administrative_docs",
@@ -2953,7 +2665,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -2972,8 +2684,65 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "07911640",
-      "terminal_state": "CONTACT_READY",
+      "cnpj_raiz": "44956741",
+      "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
+      "sources_attempted": [
+        "process_administrative_docs",
+        "pncp_annexes"
+      ],
+      "attempt_count": 2,
+      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "next_retry_at": null,
+      "terminal_reason": "contacts_found_not_sendable",
+      "email_count": 2,
+      "email_send_ready_count": 0,
+      "network_discovery": true,
+      "ladder_complete": false,
+      "meta": {
+        "rebuild": "honest_merge_process_enrich",
+        "full_ladder": false,
+        "enrich_state": "CONTACT_REVIEW_REQUIRED"
+      },
+      "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
+      "ownership_status": "N/A_NO_CONTACT",
+      "source_type": "process_administrative_docs,pncp_annexes",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "22615610",
+      "razao_social": "M2 ENGENHARIA E CONSTRUTORA LTDA",
+      "email": "assistenciatcpma@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "apoio_licitacoes_propostas",
+      "why_this_account": "M2 ENGENHARIA E CONSTRUTORA LTDA opera execução contratual pública sob múltiplos órgãos (3). Sem assumir dor interna: o ângulo é só a coordenação pública observável. Marco: [Publicenter] - CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM ENGENHARIA CIVIL, INCLUINDO O FORNECIMENTO DE MATERIAL E MÃO DE….",
+      "why_now": "Contrato com término previsto em 2027-01-16; órgão FUNDO MUNIC.DIR.DA CRIANÇA E ADOLESCENTE; objeto: [Publicenter] - CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM ENGENHARIA CIVIL, INCLUINDO O FORNECIMENTO D (horizonte ~159 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: [Publicenter] - CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM ENGENHARIA CIVIL, INCLUINDO O FORNECIMENTO DE MATERIAL E MÃO DE OBRA, PARA EXECUÇÃO (CONSTRUÇÃO) DE MUROS E ELEMENTOS DE PRO; órgão: FUNDO MUNIC.DIR.DA CRIANÇA E ADOLESCENTE; UF MG; R$ 141,000",
+      "micro_offer": "PROCUREMENT_RISK_SNAPSHOT",
+      "cta": "Posso ajudar a varrer um edital em janela e devolver riscos técnicos de proposta em formato curto.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 3,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:apoio_licitacoes_propostas",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "tender_proposal"
+      ],
+      "audit_stratum": "EMAIL_SEND_READY",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "00217413",
+      "terminal_state": "CONTACT_EXHAUSTED",
       "sources_attempted": [
         "process_administrative_docs",
         "pncp_annexes",
@@ -2983,21 +2752,252 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T16:31:13Z",
+      "last_attempt_at": "2026-08-10T17:03:32Z",
       "next_retry_at": null,
-      "terminal_reason": "email_send_ready",
-      "email_count": 1,
-      "email_send_ready_count": 1,
+      "terminal_reason": "source_ladder_exhausted_no_contact",
+      "email_count": 0,
+      "email_send_ready_count": 0,
       "network_discovery": true,
       "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
         "full_ladder": true,
-        "enrich_state": "CONTACT_READY"
+        "enrich_state": "NO_CONTACT_YET"
       },
-      "audit_stratum": "CONTACT_READY",
+      "audit_stratum": "CONTACT_EXHAUSTED",
       "ownership_status": "N/A_NO_CONTACT",
       "source_type": "process_administrative_docs,pncp_annexes,official_registry,official_site,public_docs_datalake,company_public_pages",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "45408078",
+      "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
+      "sources_attempted": [
+        "process_administrative_docs",
+        "pncp_annexes"
+      ],
+      "attempt_count": 2,
+      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "next_retry_at": null,
+      "terminal_reason": "contacts_found_not_sendable",
+      "email_count": 2,
+      "email_send_ready_count": 0,
+      "network_discovery": true,
+      "ladder_complete": false,
+      "meta": {
+        "rebuild": "honest_merge_process_enrich",
+        "full_ladder": false,
+        "enrich_state": "CONTACT_REVIEW_REQUIRED"
+      },
+      "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
+      "ownership_status": "N/A_NO_CONTACT",
+      "source_type": "process_administrative_docs,pncp_annexes",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "22753588",
+      "razao_social": "RODRIGUES E CAIRES LTDA",
+      "email": "ruthbarbosaeng@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "diagnostico_contratual_b2g",
+      "why_this_account": "RODRIGUES E CAIRES LTDA — foco no fato de pavimentação/vias disponível no input: REFERE-SE A CONTRATAÇÃO DE EMPRESA PARA PRESTAÇAO DE SERVIÇO EM EXECUÇÃO DE PAVIMENTO COM PISO INTERTRAVADO TIPO SEXTAV….",
+      "why_now": "Contrato com término previsto em 2026-11-19; órgão PREFEITURA MUNICIPAL DE NANUQUE; objeto: CONTRATACAO DE EMPRESA ESPECIALIZADA PARA PRESTACAO DE SERVICO EM PAVIMENTACAO DE RUAS EM BLOCO SEXT (horizonte ~101 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: REFERE-SE A CONTRATAÇÃO DE EMPRESA PARA PRESTAÇAO DE SERVIÇO EM EXECUÇÃO DE PAVIMENTO COM PISO INTERTRAVADO TIPO SEXTAVADO EM TRECHO DA RUA DOS CACTOS, TRECHO DA TRAVESSA T, TRECHO; órgão: Unidade Única; UF MG",
+      "micro_offer": "DIAGNOSTIC_CHECKLIST",
+      "cta": "Se preferir, começamos por uma conversa de 15 minutos só para validar se há encaixe real.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "fallback"
+      ],
+      "audit_stratum": "EMAIL_SEND_READY",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "00218105",
+      "terminal_state": "CONTACT_EXHAUSTED",
+      "sources_attempted": [
+        "process_administrative_docs",
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "public_docs_datalake",
+        "company_public_pages"
+      ],
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "next_retry_at": null,
+      "terminal_reason": "source_ladder_exhausted_no_contact",
+      "email_count": 0,
+      "email_send_ready_count": 0,
+      "network_discovery": true,
+      "ladder_complete": true,
+      "meta": {
+        "rebuild": "honest_merge_process_enrich",
+        "full_ladder": true,
+        "enrich_state": "NO_CONTACT_YET"
+      },
+      "audit_stratum": "CONTACT_EXHAUSTED",
+      "ownership_status": "N/A_NO_CONTACT",
+      "source_type": "process_administrative_docs,pncp_annexes,official_registry,official_site,public_docs_datalake,company_public_pages",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "46531708",
+      "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
+      "sources_attempted": [
+        "process_administrative_docs",
+        "pncp_annexes"
+      ],
+      "attempt_count": 2,
+      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "next_retry_at": null,
+      "terminal_reason": "contacts_found_not_sendable",
+      "email_count": 2,
+      "email_send_ready_count": 0,
+      "network_discovery": true,
+      "ladder_complete": false,
+      "meta": {
+        "rebuild": "honest_merge_process_enrich",
+        "full_ladder": false,
+        "enrich_state": "CONTACT_REVIEW_REQUIRED"
+      },
+      "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
+      "ownership_status": "N/A_NO_CONTACT",
+      "source_type": "process_administrative_docs,pncp_annexes",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "24139356",
+      "razao_social": "LUCIDI LEONICE STEFFEN FUHR EPP",
+      "email": "contatokonstruart@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "GENERIC_CONTACT",
+      "mailbox_send_blocked": false,
+      "service_code": "apoio_licitacoes_propostas",
+      "why_this_account": "No caso de LUCIDI LEONICE STEFFEN FUHR EPP, o encaixe parte de um fato concreto de execução contratual pública: Contratação de obras e serviços de engenharia com fornecimento de materiais para execução de ginásio poliesportivo mult…. Sem generalizar portfólio além do que está no input.",
+      "why_now": "Publicação/marco recente no PNCP: publicação em 2026-06-23; órgão Município de São Sebastião do Cai; objeto: Contratação de obras e serviços de engenharia com fornecimento de materiais para execução de ginásio.",
+      "observed_fact": "objeto: Contratação de obras e serviços de engenharia com fornecimento de materiais para execução de ginásio poliesportivo multiuso para o Município de São Sebastião do Caí, conforme memor; órgão: Município de São Sebastião do Cai; UF RS; R$ 2,495,000",
+      "micro_offer": "PROCUREMENT_RISK_SNAPSHOT",
+      "cta": "Disponibilizo apoio de pico em análise de edital/proposta sob NDA.",
+      "source_type": "public_process_document",
+      "source_url": "https://pncp.gov.br/pncp-api/v1/orgaos/88370879000104/compras/2026/107/arquivos/3",
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:apoio_licitacoes_propostas",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "tender_proposal"
+      ],
+      "audit_stratum": "EMAIL_SEND_READY",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "00222582",
+      "terminal_state": "CONTACT_EXHAUSTED",
+      "sources_attempted": [
+        "process_administrative_docs",
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "public_docs_datalake",
+        "company_public_pages"
+      ],
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "next_retry_at": null,
+      "terminal_reason": "source_ladder_exhausted_no_contact",
+      "email_count": 0,
+      "email_send_ready_count": 0,
+      "network_discovery": true,
+      "ladder_complete": true,
+      "meta": {
+        "rebuild": "honest_merge_process_enrich",
+        "full_ladder": true,
+        "enrich_state": "NO_CONTACT_YET"
+      },
+      "audit_stratum": "CONTACT_EXHAUSTED",
+      "ownership_status": "N/A_NO_CONTACT",
+      "source_type": "process_administrative_docs,pncp_annexes,official_registry,official_site,public_docs_datalake,company_public_pages",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "46694964",
+      "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
+      "sources_attempted": [
+        "process_administrative_docs",
+        "pncp_annexes"
+      ],
+      "attempt_count": 2,
+      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "next_retry_at": null,
+      "terminal_reason": "contacts_found_not_sendable",
+      "email_count": 2,
+      "email_send_ready_count": 0,
+      "network_discovery": true,
+      "ladder_complete": false,
+      "meta": {
+        "rebuild": "honest_merge_process_enrich",
+        "full_ladder": false,
+        "enrich_state": "CONTACT_REVIEW_REQUIRED"
+      },
+      "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
+      "ownership_status": "N/A_NO_CONTACT",
+      "source_type": "process_administrative_docs,pncp_annexes",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "24165795",
+      "razao_social": "J QUEIROZ CONSTRUÇÕES E COMÉRCIO EIRELI",
+      "email": "comercialrosa2020@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "COMERCIAL",
+      "mailbox_send_blocked": false,
+      "service_code": "auditoria_orcamento_bdi",
+      "why_this_account": "Para J QUEIROZ CONSTRUÇÕES E COMÉRCIO EIRELI, o gancho é específico em pavimentação/vias: O presente Contrato tem como objeto a Contratação de empresa de engenharia para execução de obras/serviços de pavimenta…. Não extrapolamos para a carteira inteira sem mais evidência.",
+      "why_now": "Registro público com data verificável: publicação em 2026-01-19; órgão Prefeitura Municipal de Jiquiriçá; objeto: O presente Contrato tem como objeto a Contratação de empresa de engenharia para execução de obras/se.",
+      "observed_fact": "objeto: O presente Contrato tem como objeto a Contratação de empresa de engenharia para execução de obras/serviços de pavimentação asfáltica para diversas ruas do município de Jiquiriçá – ; órgão: Prefeitura Municipal de Jiquiriçá; UF BA; R$ 1,550,744",
+      "micro_offer": "DOCUMENT_CHECKLIST",
+      "cta": "Se fizer sentido, faço uma segunda opinião só sobre um pacote de planilha/BDI — sem substituir a equipe.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:auditoria_orcamento_bdi",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "budget_bdi"
+      ],
+      "audit_stratum": "EMAIL_SEND_READY",
       "audit_flags": [],
       "audit_pass": true
     }

@@ -10,7 +10,6 @@
   "pr_223_merged": true,
   "pr_224_merged": true,
   "merged_sha": "47d6bf32dafb76cdafc654885a306d7a0fe6f374",
-  "note": "Rebound after #224 docs merge; host .deployed_sha updated to origin/main tip",
-  "as_of": "2026-08-10T16:32:34Z",
-  "pack_git_sha": "7d7d7c36965f06ef39acc1981ef10f18934a0a5a"
+  "as_of": "2026-08-10T17:04:34Z",
+  "pack_git_sha": "12dcd9dfcccb9a8431ddf905d018fe2d350f2b75"
 }

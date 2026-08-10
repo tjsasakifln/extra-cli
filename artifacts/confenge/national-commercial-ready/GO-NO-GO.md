@@ -33,7 +33,7 @@
 }
 ```
 
-**One action:** Executar source ladder completa (official_site/registry/company_pages) sobre RETRY_PENDING=169; process-only NÃO conta como CONTACT_EXHAUSTED. ESR=72 reserve=900.
+**One action:** Executar source ladder completa (official_site/registry/company_pages) sobre RETRY_PENDING=137; process-only NÃO conta como CONTACT_EXHAUSTED. ESR=72 reserve=900.
 
 ## Human review
 

@@ -5,10 +5,10 @@
   "TARGET_CONFIRMED": 8382,
   "process_terminals": 8382,
   "process_terminal_counts": {
-    "CONTACT_RETRY_PENDING": 169,
-    "CONTACT_READY": 216,
-    "CONTACT_EXHAUSTED": 7959,
-    "CONTACT_FOUND_NOT_SENDABLE": 38,
+    "CONTACT_EXHAUSTED": 7987,
+    "CONTACT_FOUND_NOT_SENDABLE": 40,
+    "CONTACT_READY": 218,
+    "CONTACT_RETRY_PENDING": 137,
     "CONTACT_NEVER_ATTEMPTED": 0,
     "CONTACT_EXTERNAL_BLOCKER": 0
   },
@@ -160,18 +160,19 @@
       "companies_attempted": 8382
     },
     "official_registry": {
-      "companies_attempted": 8087
+      "companies_attempted": 8115
     },
     "official_site": {
-      "companies_attempted": 8087
+      "companies_attempted": 8115
     },
     "public_docs_datalake": {
-      "companies_attempted": 8087
+      "companies_attempted": 8115
     },
     "company_public_pages": {
-      "companies_attempted": 8087
+      "companies_attempted": 8115
     }
   },
+  "esr_rows_count": 72,
   "esr_rows": [
     {
       "cnpj_raiz": "01324865",
@@ -258,7 +259,6 @@
       ]
     }
   ],
-  "esr_rows_count": 72,
   "not_ready_sample": [
     {
       "cnpj_raiz": "00220982",
