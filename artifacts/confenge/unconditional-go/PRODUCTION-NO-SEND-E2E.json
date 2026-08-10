@@ -1,28 +1,54 @@
 {
-  "generated_at": "2026-08-10T07:13:28Z",
+  "generated_at": "2026-08-10T07:21:12Z",
+  "session": "2026-08-10T07:18Z re-import verification",
   "clean_cohort_imported_to_production": true,
+  "import_status": "completed",
+  "import_dry_run": false,
   "import": {
+    "id": "283abf49-0085-4a33-a357-fe90fbc169a9",
     "schema_version": "confenge.outreach.v1",
+    "source_run_id": "CLEAN_LIVE_CONFIRMED_IDENTITY_V8",
+    "repo_sha": "313266f1275c40371e49afb3be00239d4d9afa03",
+    "payload_hash": "3699e9b139aef85c758ca2dac26b532fbbe5b36c5f68bbd9f2c1b967063062f8",
+    "status": "completed",
+    "dry_run": false,
     "leads_processed": 50,
-    "creates": 17,
-    "updates": 33,
+    "creates": 0,
+    "updates": 0,
+    "unchanged": 50,
     "invalid": 0,
     "blocked": 0,
-    "dry_run": false,
-    "payload": "/tmp/clean-cohort-feed.v1.json"
+    "leads_skipped_error": 0,
+    "idempotency_key": "clean-v8-reimport-20260810T071813Z",
+    "feed_path": "/tmp/clean-cohort-feed.v1.json",
+    "cohort_id": "CLEAN_LIVE_CONFIRMED_IDENTITY_V8"
+  },
+  "taint_check_production_db": {
+    "demo_fixture_example_demo00_contacts": 0,
+    "skeptic_wrong_ownership_domains_contacts": 0,
+    "query_note": "contacts WHERE email ~ demo|fixture|example.com|demo00|qualidademineracao|emkoelektronik|barranova|lcmprojetos \u2192 0"
   },
   "no_send_controls": {
     "CONFENGE_AUTO_SEND_ENABLED": false,
     "CONFENGE_SENDING_PAUSED": true,
     "CONFENGE_DISPATCH_PAUSED": true,
     "CONFENGE_GREEN_AUTORUN_ENABLED": false,
+    "CONFENGE_WHATSAPP_ENABLED": false,
     "kill_switch_file": "/data/confenge-ops/kill-switch",
-    "kill_switch_content": "paused reason=operator_ssh_pause",
-    "api_sending_allowed": false,
+    "kill_switch_content": "paused\\nreason=operator_ssh_pause",
     "api_kill_switch": true,
+    "api_sending_allowed": false,
+    "api_auto_send_enabled": false,
+    "dispatch_status_paused": true,
     "status_sh_dispatch": "PAUSED",
-    "status_sh_green_autorun": "OFF"
+    "status_sh_green_autorun": "OFF",
+    "status_sh_whatsapp": "OFF"
   },
   "commercial_leads_not_sent": true,
-  "note": "Import of CLEAN V8 completed under kill-switch + paused dispatch. Self-smoke only to operator mailbox."
+  "email_only": true,
+  "contradictions_resolved": [
+    "clean_cohort_imported_to_production=true with import.status=completed and dry_run=false",
+    "counts.leads_processed=50 matches feed leads=50 and send-ready rows=50",
+    "no residual clean_cohort_imported=false or ENGAGED_EXPECTED ambiguity"
+  ]
 }

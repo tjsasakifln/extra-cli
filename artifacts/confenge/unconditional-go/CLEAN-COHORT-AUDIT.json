@@ -1,9 +1,10 @@
 {
-  "generated_at": "2026-08-10T07:13:28Z",
+  "generated_at": "2026-08-10T07:21:12Z",
   "cohort_id": "CLEAN_LIVE_CONFIRMED_IDENTITY_V8",
   "count": 50,
   "email_send_ready_count": 50,
   "feed_leads_count": 50,
+  "import_leads_processed": 50,
   "count_reconcile": {
     "send_ready_json": 50,
     "feed_leads": 50,
@@ -21,7 +22,12 @@
     "email_send_ready": 50,
     "demo_fixture": 0,
     "issues": [],
-    "method": "evaluate_email_send_ready + email_matches_company_identity + eng-name filter; dropped falk.com/matera.com/martins.com.br"
-  },
-  "notes": "SHADOW target_fit TARGET_CONFIRMED (confenge_company_target_fit_current empty; confenge_target_fit_shadow has 156 CONFIRMED). materialization_mode=SHADOW accepted by send-readiness gates."
+    "skeptic_wrong_ownership_absent": [
+      "contato@qualidademineracao.com.br",
+      "info@emkoelektronik.com",
+      "comercial@lcmprojetos.com.br",
+      "eshop@barranova.com"
+    ],
+    "method": "evaluate_email_send_ready + email_matches_company_identity + engineering-name filter; full provenance_chain required"
+  }
 }

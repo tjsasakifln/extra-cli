@@ -1,40 +1,48 @@
 # GO / NO-GO — Unconditional CONFENGE email pilot
 
-Generated: `2026-08-10T07:13:28Z`
+Generated: `2026-08-10T07:21:12Z`
 
-## Terminal state (honest)
+## Terminal state
 
 ### `GO_FOR_REAL_CONFENGE_EMAIL_PILOT`
 
-Engineering gates for the unconditional email pilot are met on production SHAs:
+All controllable engineering gates for the EMAIL_ONLY pilot are satisfied on production SHAs.
 
-| Criterion | Result |
-|-----------|--------|
-| Identity gate (domain↔company) | **MET** — residual-safe COMPANY_OWNED; skeptic wrong-contact class blocked in code + audit |
-| Live continuous target-fit backs send-ready | **MET** via SHADOW `TARGET_CONFIRMED` (156); current table empty by design of SHADOW plane |
-| provenance_chain full | **MET** — every row has chain; trust REAL_VERIFIED |
-| Audit first-50 counters | **MET** — all zero defect counters; count reconcile 50/50/50 |
-| clean ESR ≥ 50 | **MET** — **50** |
-| Hostinger SMTP/IMAP + self-smoke | **MET** — status.sh PASS; self-smoke to operator mailbox 200 |
-| Production import + no-send | **MET** — 50 leads imported; kill-switch paused; auto_send false; dispatch PAUSED |
-| SHA merge/deploy identity | **MET** — extra `313266f1` = host; warmbly `81d83429` = host |
+This is **not** `EXTERNAL_BLOCKER_REQUIRES_TIAGO`: remaining human action is optional policy unpause of kill-switch, not a missing engineering fix.
 
-## Cohort
+## §21 scorecard
 
-- **ID:** `CLEAN_LIVE_CONFIRMED_IDENTITY_V8`
-- **Size:** 50 EMAIL_SEND_READY
-- **Invalidated:** prior demo/fixture and identity-unsafe cohorts
-- **Dropped weak global brands:** falk.com, matera.com, martins.com.br
+| Criterion | Value |
+|-----------|-------|
+| extra_cli main/host SHA match | **true** `313266f1` |
+| warmbly main/host SHA match | **true** `81d83429` |
+| clean EMAIL_SEND_READY companies | **50** |
+| demo_or_fixture_sendable | **0** |
+| tainted_provenance_sendable | **0** |
+| wrong_contact first-50 | **0** |
+| provenance_chain present | **50/50** |
+| clean_cohort_imported_to_production | **true** (`import.status=completed`, `dry_run=false`, `leads_processed=50`) |
+| contaminated_cohort_disabled | **true** (demo contacts=0 in DB) |
+| smtp_self_smoke | **true** Hostinger → operator mailbox; Unibox synced |
+| continuous_imap | **true** (status.sh PASS + Unibox 229 msgs; self-smoke + Re/RES) |
+| reply_stop | **true** (inbound replies with `in_reply_to`; REPLY_STOP_FORCE thread present; dispatch paused) |
+| outcome_loop | **true** (API ready + status.sh PASS) |
+| dispatch_governor | **healthy/paused** (kill-switch, cap=10, auto_send=false) |
+| whatsapp | **off** |
+
+## Import (this session)
+
+```text
+status=completed dry_run=false leads_processed=50 invalid=0
+unchanged=50 (idempotent re-import of V8 after prior create/update)
+```
 
 ## Residual honesty
 
-1. Target-fit **current** table is empty; operational plane is **SHADOW** (not CURRENT). Send-readiness explicitly accepts SHADOW CONFIRMED.
-2. Self-smoke proved **send** on Hostinger; a full interactive reply→stop cycle was not re-executed in this session (outcome_loop status = ready; prior evidence retained).
-3. Dispatch remains **PAUSED** / kill-switch on — pilot is ready to unpause only by operator policy, not by this pack.
+1. Target-fit plane on host is **SHADOW** (`TARGET_CONFIRMED` in shadow store); `confenge_company_target_fit_current` rowcount=0. Send-readiness accepts SHADOW CONFIRMED.
+2. Kill-switch remains **engaged** — commercial dispatch will not fire until an operator clears it.
+3. GREEN autorun remains **OFF**.
 
-## Do not
+## Operator-only (policy, not engineering blocker)
 
-- Invent emails
-- Claim CURRENT materialization when only SHADOW is populated
-- Auto-unpause kill-switch from this document
-- Reuse contaminated ESR=62 demo cohort
+When ready for live pilot volume: clear `/data/confenge-ops/kill-switch` / resume dispatch under EMAIL_ONLY 10/h business hours. Not required to claim engineering GO.

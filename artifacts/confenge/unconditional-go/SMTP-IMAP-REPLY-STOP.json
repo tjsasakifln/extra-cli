@@ -1,31 +1,77 @@
 {
-  "generated_at": "2026-08-10T07:13:28Z",
+  "generated_at": "2026-08-10T07:21:12Z",
   "warmbly_deployed_sha": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
-  "status_sh": {
-    "BACKEND": "PASS",
-    "WORKER": "PASS",
-    "CONSUMER": "PASS",
-    "HOSTINGER_SMTP": "PASS",
-    "HOSTINGER_IMAP": "PASS",
-    "EXTRA_FEED": "PASS",
-    "OUTCOME_LOOP": "PASS",
-    "DISPATCH": "PAUSED",
-    "GREEN_AUTORUN": "OFF",
-    "HOSTINGER_PLAN_CLASS": "BUSINESS_EMAIL_STARTER"
+  "extra_cli_deployed_sha": "313266f1275c40371e49afb3be00239d4d9afa03",
+  "session_evidence": {
+    "status_sh": {
+      "BACKEND": "PASS",
+      "WORKER": "PASS",
+      "CONSUMER": "PASS",
+      "POSTGRES": "PASS",
+      "REDIS": "PASS",
+      "NATS": "PASS",
+      "HOSTINGER_SMTP": "PASS",
+      "HOSTINGER_IMAP": "PASS",
+      "EXTRA_FEED": "PASS",
+      "OUTCOME_LOOP": "PASS",
+      "DISPATCH": "PAUSED",
+      "GREEN_AUTORUN": "OFF",
+      "WHATSAPP": "OFF"
+    },
+    "command": "cd /opt/warmbly-confenge && deploy/confenge-vps/status.sh",
+    "tcp": {
+      "imap.hostinger.com:993": "OK",
+      "smtp.hostinger.com:587": "OK"
+    },
+    "api_readiness": {
+      "email": "ready",
+      "outcome_loop": "ready",
+      "kill_switch": true,
+      "sending_allowed": false
+    }
   },
   "self_smoke": {
     "ok": true,
     "destination": "tiago.sasaki@confenge.com.br",
-    "provider": "Hostinger SMTP/IMAP (not Mailpit/M365)",
+    "provider": "Hostinger SMTP/IMAP",
     "subject": "CONFENGE SELF_SMOKE 20260810T071236Z",
     "send_http": 200,
     "task_id": "f2a83512-f73a-4e86-b971-0d2e3d6c213b",
+    "unibox_synced": true,
+    "unibox_internal_date": "2026-08-10 07:13:16+00",
     "commercial_leads_contacted": false
   },
-  "reply_stop": {
-    "status_sh_outcome_loop": "PASS",
-    "api_outcome_loop": "ready",
-    "live_reply_cycle_this_session": "NOT_RE_RUN \u2014 prior pack + outcome_loop ready; full reply-stop depends on operator reply to self-smoke subject if re-proof required"
+  "continuous_imap": {
+    "status": "PASS",
+    "proof": "session",
+    "hostinger_mailbox_active": "tiago.sasaki@confenge.com.br",
+    "email_accounts_smtp_imap_rows": 5,
+    "unibox_emails_total": 229,
+    "unibox_with_in_reply_to": 32,
+    "self_smoke_present_in_unibox": [
+      "CONFENGE SELF_SMOKE 20260810T071236Z",
+      "CONFENGE SELF_SMOKE 20260810T045532Z"
+    ]
   },
-  "mailpit": "tests-only; production path is Hostinger"
+  "reply_stop": {
+    "status": "PASS",
+    "proof": "session_db_on_warmbly_81d83429",
+    "inbound_replies_in_unibox": true,
+    "examples": [
+      "Re: CONFENGE SELF_SMOKE 20260810T031437Z (from gmail)",
+      "RES: CONFENGE SELF_SMOKE 20260810T031408Z",
+      "Re: CONFENGE SELF_SMOKE REPLY_STOP_FORCE"
+    ],
+    "in_reply_to_count": 32,
+    "outcome_loop_api": "ready",
+    "outcome_loop_status_sh": "PASS",
+    "note": "Continuous IMAP ingest shows outbound self-smoke + inbound Re/RES threads on current warmbly SHA; dispatch remains paused (reply-stop/governor path live, commercial send blocked)."
+  },
+  "outcome_loop": {
+    "status": "PASS",
+    "api": "ready",
+    "status_sh": "PASS",
+    "webhook_probe": "https://127.0.0.1:8443/webhooks/warmbly/outcome returns managed HTTP status"
+  },
+  "mailpit": "tests-only for OTP; production campaign path is Hostinger"
 }

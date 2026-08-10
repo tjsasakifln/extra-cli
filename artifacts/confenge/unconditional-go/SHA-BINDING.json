@@ -1,10 +1,11 @@
 {
-  "generated_at": "2026-08-10T07:13:28Z",
+  "generated_at": "2026-08-10T07:21:12Z",
   "extra_cli_origin_main": "313266f1275c40371e49afb3be00239d4d9afa03",
-  "extra_cli_pr_215": "MERGED",
-  "extra_consultoria_host_deployed_sha": "313266f1275c40371e49afb3be00239d4d9afa03",
+  "extra_cli_host_deployed": "313266f1275c40371e49afb3be00239d4d9afa03",
+  "extra_cli_match": true,
   "warmbly_origin_main": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
-  "warmbly_deployed_sha": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
-  "identity_match": true,
-  "notes": "extra-cli main=prod; warmbly main=deployed. Backend recreated with deploy/confenge-vps override so CONFENGE_OUTREACH_ENABLED=true."
+  "warmbly_host_deployed": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
+  "warmbly_match": true,
+  "pr_215": "MERGED",
+  "pack_branch": "docs/confenge-unconditional-go-v8"
 }
