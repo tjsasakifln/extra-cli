@@ -1,11 +1,11 @@
 {
   "schema": "confenge.go_no_go.v1",
-  "as_of": "2026-08-10T18:41:47Z",
+  "as_of": "2026-08-10T18:46:55Z",
   "NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY": false,
   "PILOT_READY_CANDIDATE": true,
   "PILOT_TECHNICAL_READINESS": "READY_FOR_HUMAN_REVIEW",
-  "NATIONAL_RESERVE_READINESS": "PARTIAL_0.8_DAYS",
-  "RESERVE_DAYS": 0.8,
+  "NATIONAL_RESERVE_READINESS": "PARTIAL_0.79_DAYS",
+  "RESERVE_DAYS": 0.79,
   "terminal_state": "EXTERNAL_BLOCKER_REQUIRES_TIAGO",
   "gates": {
     "FULLY_RECONCILED": true,
@@ -24,21 +24,21 @@
     "warmbly_behavioral_complete": true,
     "warmbly_partial_config_only": false
   },
-  "EMAIL_SEND_READY_DISTINCT_COMPANIES": 72,
+  "EMAIL_SEND_READY_DISTINCT_COMPANIES": 71,
   "MIN_OPERATIONAL_RESERVE": 900,
-  "gap_vs_reserve": 828,
+  "gap_vs_reserve": 829,
   "email_roots_upper_bound": 223,
   "funnel": {
     "TOTAL_CONTACT_CANDIDATES": 315,
     "DISTINCT_COMPANIES_WITH_EMAIL": 223,
-    "COMPANY_OWNED": 83,
-    "IDENTITY_SAFE": 83,
+    "COMPANY_OWNED": 80,
+    "IDENTITY_SAFE": 80,
     "MAILBOX_ALLOWED": 220,
-    "PROVENANCE_VALID": 72,
+    "PROVENANCE_VALID": 71,
     "SERVICE_FIT_VALID": 223,
-    "COPY_CONTEXT_VALID": 72,
-    "EMAIL_SEND_READY_DISTINCT_COMPANIES": 72
+    "COPY_CONTEXT_VALID": 71,
+    "EMAIL_SEND_READY_DISTINCT_COMPANIES": 71
   },
-  "one_action": "ESR strict final=72 com ladder terminal; gap_to_900=828. Autorizar fontes autenticadas de maior yield OU decisão comercial de MIN_OPERATIONAL_RESERVE — sem atalho de engenharia.",
+  "one_action": "ESR strict final=71 com ladder terminal; gap_to_900=829. Autorizar fontes autenticadas de maior yield (documentadas por portal) OU decisão comercial de MIN_OPERATIONAL_RESERVE — sem atalho de engenharia.",
   "human_review_command": "python -m scripts.confenge.human_review --sample artifacts/confenge/national-commercial-ready/HUMAN-REVIEW-SAMPLE.json --reviewer tiago"
 }
