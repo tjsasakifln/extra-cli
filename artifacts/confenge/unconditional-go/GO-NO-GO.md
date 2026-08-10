@@ -1,71 +1,48 @@
 # GO / NO-GO — Unconditional CONFENGE email pilot
 
-Generated: `2026-08-10T07:29:37Z`
+Generated: `2026-08-10T10:30:00Z`
 
 ## Terminal state
 
 ### `EXTERNAL_BLOCKER_REQUIRES_TIAGO`
 
-All **controllable engineering** §21 booleans are machine-evidenced TRUE on production SHAs
-(`artifacts/confenge/unconditional-go/SECTION-21-BOOLEANS.json`).
+All **controllable engineering** §21 booleans are machine-evidenced TRUE after systemic fixes for:
+
+1. **HOLLOW_COPY / near-dup** — copy gate requires company brand + specific contract hook; cohort **V9** has **50 unique** why_you/why_now from PNCP objeto+órgão (not identical templates).
+2. **Foreign provenance host** — `provenance_host_aligned_with_email` fail-closed (`comercial@connector.eng.br` + `caiafafacilities.com.br` blocked) + permanent regression.
 
 The **sole remaining non-automatable gate** is real human review of the stratified 15-sample
 (`HUMAN_REVIEW_PENDING`). Machine processes must not mint `HUMAN_REVIEW_APPROVED`.
 
-This is **not** a merge/deploy/CI/target-fit/cohort engineering blocker.
+## §21 engineering vector
 
-## §21 machine vector (engineering)
+See `SECTION-21-BOOLEANS.json` (all engineering booleans true; `human_review_blocks_go=true`).
 
-| Boolean | Value | Evidence |
-|---------|-------|----------|
-| extra_cli_ci_green | **true** | [CI run](https://github.com/tjsasakifln/extra-cli/actions/runs/31362953870) @ `313266f1` |
-| warmbly_ci_green | **true** | [CI run](https://github.com/tjsasakifln/warmbly/actions/runs/31354614986) @ `81d83429` |
-| extra_cli_main_deployed_sha_match | **true** | origin=host=runtime `313266f1` |
-| warmbly_main_deployed_sha_match | **true** | origin=host=runtime `81d83429` |
-| target_fit_runtime_healthy | **true** | `python -m scripts.confenge_target_fit status` → HEALTHY, lag=0s |
-| target_fit_fresh | **true** | watermarks equal; all 50 roots in live SHADOW TARGET_CONFIRMED |
-| clean_email_send_ready_companies | **50** | CLEAN_LIVE_CONFIRMED_IDENTITY_V8 |
-| demo_or_fixture_sendable | **0** | DB + audit |
-| tainted_provenance_sendable | **0** | recalc |
-| wrong_contact_audit | **0** | first-50 recalc |
-| false_target_audit | **0** | live CONFIRMED membership |
-| unsupported_service_audit | **0** | |
-| hollow_copy_audit | **0** | |
-| unsafe_claim_audit | **0** | |
-| clean_cohort_imported_to_production | **true** | import completed dry_run=false n=50 |
-| contaminated_cohort_disabled | **true** | contaminated_sendable_count=0 |
-| smtp_self_smoke | **true** | Hostinger → operator mailbox |
-| continuous_imap | **true** | Unibox + status.sh PASS |
-| reply_stop | **true** | inbound Re/RES + REPLY_STOP_FORCE on warmbly SHA |
-| outcome_loop | **true** | API ready + status.sh PASS |
-| dispatch_governor | **healthy/paused** | kill-switch engaged |
-| whatsapp | **off** | |
+| Pack file | Role |
+|-----------|------|
+| `CLEAN-COHORT-AUDIT.json` | first-50 all_zero with adversarial method (hollow + foreign host + unique copy) |
+| `SHA-BINDING.json` | triple match both repos CI-green |
+| `TARGET-FIT-RUNTIME.json` | HEALTHY lag=0 |
+| `PRODUCTION-NO-SEND-E2E.json` | import under kill-switch |
+| `SMTP-IMAP-REPLY-STOP.json` | Hostinger IMAP/reply-stop session evidence |
+
+Cohort: **CLEAN_LIVE_CONFIRMED_IDENTITY_V9** · ESR companies = **50** · why_you unique = **50** · why_now unique = **50**
 
 ## Human review (blocker)
 
 - Sample MD: `artifacts/confenge/unconditional-go/HUMAN-REVIEW-SAMPLE.md`
-- Sample JSON: `artifacts/confenge/unconditional-go/human-review-sample.json` (n=15, status=`HUMAN_REVIEW_PENDING`)
+- JSON: `artifacts/confenge/unconditional-go/human-review-sample.json` (n=15, V9)
 
-### 1) Ação exata
+### Ação exata
 
-Editar `artifacts/confenge/unconditional-go/human-review-sample.json` e, **para cada um dos 15** itens em `samples`, preencher:
+Edit `human-review-sample.json`. For each of 15 samples set:
 
-- `review_status`: `HUMAN_REVIEW_APPROVED` ou `HUMAN_REVIEW_REJECTED`
-- `reviewer`: identificador humano real
-- `reviewed_at`: ISO-8601
-- `decision` e `evidence_inspected`
+- `review_status`: `HUMAN_REVIEW_APPROVED` or `HUMAN_REVIEW_REJECTED`
+- `reviewer`, `reviewed_at`, `decision`, `evidence_inspected`
 
-Quando todos estiverem decididos, setar no top-level:
+When all decided, set top-level `"status": "HUMAN_REVIEW_COMPLETE"`.
 
-```json
-"status": "HUMAN_REVIEW_COMPLETE"
-```
-
-### 2) Onde
-
-Arquivo no repo `extra-cli` (ou host `/opt/extra-consultoria` se preferir editar lá e copiar).
-
-### 3) Critério observável de conclusão
+### Critério observável
 
 ```bash
 python3 - <<'PY'
@@ -78,13 +55,11 @@ samples = d["samples"]
 assert len(samples) == 15
 assert all(s.get("review_status") in ("HUMAN_REVIEW_APPROVED", "HUMAN_REVIEW_REJECTED") for s in samples)
 assert all(s.get("reviewer") and s.get("reviewed_at") for s in samples)
-print("OK approved", sum(1 for s in samples if s["review_status"] == "HUMAN_REVIEW_APPROVED"))
+print("OK")
 PY
 ```
 
-### 4) Comando de retomada
-
-Após o assert passar:
+### Comando de retomada
 
 ```text
 Resume CONFENGE-OUTREACH-UNCONDITIONAL-GO-01 after HUMAN_REVIEW_COMPLETE on human-review-sample.json; re-evaluate §21 and emit GO_FOR_REAL_CONFENGE_EMAIL_PILOT if still green.
@@ -92,6 +67,6 @@ Resume CONFENGE-OUTREACH-UNCONDITIONAL-GO-01 after HUMAN_REVIEW_COMPLETE on huma
 
 ## Residual honesty
 
-1. Target-fit `FULL_NATIONAL_READY=false` (BOOTSTRAPPING 1038 roots @ 100% coverage); status CLI still **HEALTHY** with lag 0.
-2. Kill-switch remains engaged — commercial dispatch is policy, separate from sample review.
-3. Historical ESR=62 demo cohort remains **INVALIDATED** — never re-use as proof.
+1. Target-fit `FULL_NATIONAL_READY=false` (BOOTSTRAPPING 1038 roots); status CLI **HEALTHY**.
+2. Kill-switch remains engaged.
+3. Prior demo ESR=62 and V8 hollow/foreign packs **INVALIDATED**.

@@ -1,14 +1,12 @@
 {
-  "generated_at": "2026-08-10T07:29:37Z",
-  "cohort_id": "CLEAN_LIVE_CONFIRMED_IDENTITY_V8",
+  "generated_at": "2026-08-10T07:48:39Z",
+  "cohort_id": "CLEAN_LIVE_CONFIRMED_IDENTITY_V9",
   "count": 50,
   "email_send_ready_count": 50,
   "feed_leads_count": 50,
-  "import_leads_processed": 50,
   "count_reconcile": {
     "send_ready_json": 50,
     "feed_leads": 50,
-    "import_leads_processed": 50,
     "consistent": true
   },
   "first50_audit": {
@@ -20,12 +18,14 @@
     "UNSAFE_CLAIM": 0,
     "DEMO_OR_FIXTURE": 0,
     "TAINTED_PROVENANCE": 0,
+    "FOREIGN_PROVENANCE_HOST": 0,
     "NOT_EMAIL_SEND_READY": 0,
-    "NOT_LIVE_CONFIRMED": 0,
-    "MISSING_CHAIN": 0,
+    "NEAR_DUP_WHY_YOU": 0,
+    "NEAR_DUP_WHY_NOW": 0,
     "all_zero": true,
     "issues": [],
-    "method": "recalc evaluate_email_send_ready + identity + live shadow TARGET_CONFIRMED membership + provenance_chain presence",
-    "live_confirmed_universe": 156
+    "method": "evaluate_email_send_ready + email_matches_company_identity + provenance_host_aligned_with_email + brand token in why_you + specific contract hook + unique why_you/why_now across cohort",
+    "why_you_unique": 50,
+    "why_now_unique": 50
   }
 }

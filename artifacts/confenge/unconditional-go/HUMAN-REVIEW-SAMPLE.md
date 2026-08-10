@@ -1,8 +1,7 @@
 # Human review sample — CONFENGE pilot (15)
 
 Status: **HUMAN_REVIEW_PENDING**
-
-Cada caso requer decisão humana real. Não preencher como MACHINE.
+Cohort: CLEAN_LIVE_CONFIRMED_IDENTITY_V9
 
 | ID | Empresa | Email | Decisão |
 |----|---------|-------|---------|
@@ -22,7 +21,5 @@ Cada caso requer decisão humana real. Não preencher como MACHINE.
 | HR-14 | ARTFLEX ENGENHARIA LTDA | `contato@artflex.com.br` | PENDING |
 | HR-15 | TRAFECON ENGENHARIA LTDA | `trafecon@trafecon.com.br` | PENDING |
 
-## Instruções
-
-Para cada ID, marque APPROVED ou REJECTED com evidência inspecionada.
-Após todos APPROVED/REJECTED, rode o comando de retomada no host.
+## Por que agora
+Cada why_you/why_now é específico da empresa (objeto+órgão PNCP).

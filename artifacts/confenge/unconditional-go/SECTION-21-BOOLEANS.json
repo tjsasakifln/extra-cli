@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-10T07:29:37Z",
+  "generated_at": "2026-08-10T07:49:35Z",
   "extra_cli_ci_green": true,
   "extra_cli_ci_run": "https://github.com/tjsasakifln/extra-cli/actions/runs/31362953870",
   "extra_cli_ci_head": "313266f1275c40371e49afb3be00239d4d9afa03",
@@ -39,5 +39,9 @@
   "human_review_sample_n": 15,
   "all_engineering_booleans_true": true,
   "human_review_blocks_go": true,
-  "terminal": "EXTERNAL_BLOCKER_REQUIRES_TIAGO"
+  "terminal": "EXTERNAL_BLOCKER_REQUIRES_TIAGO",
+  "cohort_id": "CLEAN_LIVE_CONFIRMED_IDENTITY_V9",
+  "foreign_provenance_host_audit": 0,
+  "why_you_unique": 50,
+  "why_now_unique": 50
 }
