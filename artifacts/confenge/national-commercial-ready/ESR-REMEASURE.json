@@ -1,16 +1,15 @@
 {
   "schema": "confenge.strict_national_esr.v1",
-  "as_of": "2026-08-10T15:57:51Z",
+  "as_of": "2026-08-10T16:31:16Z",
   "harvest_dir": "artifacts/confenge/process-first-national-confirmed",
   "TARGET_CONFIRMED": 8382,
   "process_terminals": 8382,
   "process_terminal_counts": {
-    "CONTACT_EXHAUSTED": 7685,
-    "CONTACT_FOUND_NOT_SENDABLE": 519,
-    "CONTACT_READY": 178,
-    "CONTACT_RETRY_PENDING": 0,
-    "CONTACT_EXTERNAL_BLOCKER": 0,
-    "CONTACT_NEVER_ATTEMPTED": 0
+    "CONTACT_EXHAUSTED": 8111,
+    "CONTACT_FOUND_NOT_SENDABLE": 47,
+    "CONTACT_READY": 224,
+    "CONTACT_NEVER_ATTEMPTED": 0,
+    "CONTACT_EXTERNAL_BLOCKER": 0
   },
   "funnel": {
     "TOTAL_CONTACT_CANDIDATES": 315,
@@ -152,8 +151,279 @@
   "NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY": false,
   "PILOT_READY_CANDIDATE": true,
   "note": "Strict ESR via build_dossier + evaluate_email_send_ready; email observed is upper bound only, never ESR proxy.",
-  "contact_enrichment_initial_full_sweep": "COMPLETE",
-  "enrich_ladder_done": 8382,
+  "yield_by_source": {
+    "process_administrative_docs": {
+      "companies_attempted": 8382
+    },
+    "pncp_annexes": {
+      "companies_attempted": 8382
+    },
+    "official_registry": {
+      "companies_attempted": 8381
+    },
+    "official_site": {
+      "companies_attempted": 8381
+    },
+    "public_docs_datalake": {
+      "companies_attempted": 8381
+    },
+    "company_public_pages": {
+      "companies_attempted": 8381
+    }
+  },
+  "esr_rows_count": 72,
+  "not_ready_sample": [
+    {
+      "cnpj_raiz": "00028986",
+      "terminal_state": "CONTACT_EXHAUSTED",
+      "sources_attempted": [
+        "process_administrative_docs",
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "public_docs_datalake",
+        "company_public_pages"
+      ],
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:07:12Z",
+      "next_retry_at": null,
+      "terminal_reason": "source_ladder_exhausted_no_contact",
+      "email_count": 0,
+      "email_send_ready_count": 0,
+      "network_discovery": true,
+      "ladder_complete": true,
+      "meta": {
+        "rebuild": "honest_merge_process_enrich",
+        "full_ladder": true,
+        "enrich_state": "NO_CONTACT_YET"
+      }
+    },
+    {
+      "cnpj_raiz": "00029372",
+      "terminal_state": "CONTACT_EXHAUSTED",
+      "sources_attempted": [
+        "process_administrative_docs",
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "public_docs_datalake",
+        "company_public_pages"
+      ],
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:07:12Z",
+      "next_retry_at": null,
+      "terminal_reason": "source_ladder_exhausted_no_contact",
+      "email_count": 0,
+      "email_send_ready_count": 0,
+      "network_discovery": true,
+      "ladder_complete": true,
+      "meta": {
+        "rebuild": "honest_merge_process_enrich",
+        "full_ladder": true,
+        "enrich_state": "NO_CONTACT_YET"
+      }
+    },
+    {
+      "cnpj_raiz": "00061493",
+      "terminal_state": "CONTACT_EXHAUSTED",
+      "sources_attempted": [
+        "process_administrative_docs",
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "public_docs_datalake",
+        "company_public_pages"
+      ],
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:07:12Z",
+      "next_retry_at": null,
+      "terminal_reason": "source_ladder_exhausted_no_contact",
+      "email_count": 0,
+      "email_send_ready_count": 0,
+      "network_discovery": true,
+      "ladder_complete": true,
+      "meta": {
+        "rebuild": "honest_merge_process_enrich",
+        "full_ladder": true,
+        "enrich_state": "NO_CONTACT_YET"
+      }
+    },
+    {
+      "cnpj_raiz": "00079526",
+      "terminal_state": "CONTACT_EXHAUSTED",
+      "sources_attempted": [
+        "process_administrative_docs",
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "public_docs_datalake",
+        "company_public_pages"
+      ],
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:07:12Z",
+      "next_retry_at": null,
+      "terminal_reason": "source_ladder_exhausted_no_contact",
+      "email_count": 0,
+      "email_send_ready_count": 0,
+      "network_discovery": true,
+      "ladder_complete": true,
+      "meta": {
+        "rebuild": "honest_merge_process_enrich",
+        "full_ladder": true,
+        "enrich_state": "NO_CONTACT_YET"
+      }
+    },
+    {
+      "cnpj_raiz": "00081428",
+      "terminal_state": "CONTACT_EXHAUSTED",
+      "sources_attempted": [
+        "process_administrative_docs",
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "public_docs_datalake",
+        "company_public_pages"
+      ],
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:07:12Z",
+      "next_retry_at": null,
+      "terminal_reason": "source_ladder_exhausted_no_contact",
+      "email_count": 0,
+      "email_send_ready_count": 0,
+      "network_discovery": true,
+      "ladder_complete": true,
+      "meta": {
+        "rebuild": "honest_merge_process_enrich",
+        "full_ladder": true,
+        "enrich_state": "NO_CONTACT_YET"
+      }
+    },
+    {
+      "cnpj_raiz": "00082024",
+      "terminal_state": "CONTACT_EXHAUSTED",
+      "sources_attempted": [
+        "process_administrative_docs",
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "public_docs_datalake",
+        "company_public_pages"
+      ],
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:07:12Z",
+      "next_retry_at": null,
+      "terminal_reason": "source_ladder_exhausted_no_contact",
+      "email_count": 0,
+      "email_send_ready_count": 0,
+      "network_discovery": true,
+      "ladder_complete": true,
+      "meta": {
+        "rebuild": "honest_merge_process_enrich",
+        "full_ladder": true,
+        "enrich_state": "NO_CONTACT_YET"
+      }
+    },
+    {
+      "cnpj_raiz": "00086165",
+      "terminal_state": "CONTACT_EXHAUSTED",
+      "sources_attempted": [
+        "process_administrative_docs",
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "public_docs_datalake",
+        "company_public_pages"
+      ],
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:07:12Z",
+      "next_retry_at": null,
+      "terminal_reason": "source_ladder_exhausted_no_contact",
+      "email_count": 0,
+      "email_send_ready_count": 0,
+      "network_discovery": true,
+      "ladder_complete": true,
+      "meta": {
+        "rebuild": "honest_merge_process_enrich",
+        "full_ladder": true,
+        "enrich_state": "NO_CONTACT_YET"
+      }
+    },
+    {
+      "cnpj_raiz": "00093197",
+      "terminal_state": "CONTACT_EXHAUSTED",
+      "sources_attempted": [
+        "process_administrative_docs",
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "public_docs_datalake",
+        "company_public_pages"
+      ],
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:07:12Z",
+      "next_retry_at": null,
+      "terminal_reason": "source_ladder_exhausted_no_contact",
+      "email_count": 0,
+      "email_send_ready_count": 0,
+      "network_discovery": true,
+      "ladder_complete": true,
+      "meta": {
+        "rebuild": "honest_merge_process_enrich",
+        "full_ladder": true,
+        "enrich_state": "NO_CONTACT_YET"
+      }
+    },
+    {
+      "cnpj_raiz": "00103498",
+      "terminal_state": "CONTACT_EXHAUSTED",
+      "sources_attempted": [
+        "process_administrative_docs",
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "public_docs_datalake",
+        "company_public_pages"
+      ],
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:07:12Z",
+      "next_retry_at": null,
+      "terminal_reason": "source_ladder_exhausted_no_contact",
+      "email_count": 0,
+      "email_send_ready_count": 0,
+      "network_discovery": true,
+      "ladder_complete": true,
+      "meta": {
+        "rebuild": "honest_merge_process_enrich",
+        "full_ladder": true,
+        "enrich_state": "NO_CONTACT_YET"
+      }
+    },
+    {
+      "cnpj_raiz": "00103582",
+      "terminal_state": "CONTACT_EXHAUSTED",
+      "sources_attempted": [
+        "process_administrative_docs",
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "public_docs_datalake",
+        "company_public_pages"
+      ],
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:07:12Z",
+      "next_retry_at": null,
+      "terminal_reason": "source_ladder_exhausted_no_contact",
+      "email_count": 0,
+      "email_send_ready_count": 0,
+      "network_discovery": true,
+      "ladder_complete": true,
+      "meta": {
+        "rebuild": "honest_merge_process_enrich",
+        "full_ladder": true,
+        "enrich_state": "NO_CONTACT_YET"
+      }
+    }
+  ],
   "esr_rows": [
     {
       "cnpj_raiz": "01324865",
@@ -239,7 +509,5 @@
         "budget_bdi"
       ]
     }
-  ],
-  "esr_rows_count": 72,
-  "not_ready_sample": []
+  ]
 }

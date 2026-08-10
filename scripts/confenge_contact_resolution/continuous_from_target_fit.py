@@ -27,7 +27,6 @@ from scripts.confenge_contact_resolution.contact_coverage import (
     measure_contact_coverage,
 )
 from scripts.confenge_contact_resolution.discovery_state import (
-    DEFAULT_SOURCE_LADDER,
     classify_contact_terminal,
     measure_terminal_coverage,
 )
@@ -253,20 +252,22 @@ def run_continuous_enrichment(
     # under network discovery. Unattempted roots remain outside the partition
     # (never_attempted in measure_terminal_coverage).
     terminal_states = []
-    sources_default = list(DEFAULT_SOURCE_LADDER) if network_discovery else []
+    # Do NOT stamp DEFAULT_SOURCE_LADDER without proof — only record adapters
+    # actually used by the enrich batch (from summary / per-company files when present).
     for root in confirmed_keys:
         did_attempt = root in attempted_roots and network_discovery
         if not did_attempt:
             continue
-        # Ladder treated complete when company finished in checkpoint under network.
-        # Per-company email/ESR attribution is refined by rebuild_national_funnel.
+        # Checkpoint completion alone ≠ full source ladder. Sources are unknown
+        # here; mark retry until merge with process harvest + real adapters.
         st = classify_contact_terminal(
             cnpj_raiz=root,
-            sources_attempted=sources_default,
+            sources_attempted=["network_enrich_checkpoint"],
             network_discovery=True,
-            ladder_complete=True,
+            ladder_complete=False,
             email_candidates=0,
             email_send_ready=0,
+            meta={"from": "continuous_from_target_fit", "honest": "no_fake_full_ladder"},
         )
         terminal_states.append(st)
     terminal_cov = measure_terminal_coverage(

@@ -1,16 +1,22 @@
 {
   "schema": "confenge.go_no_go.v1",
-  "as_of": "2026-08-10T16:09:39Z",
+  "as_of": "2026-08-10T17:07:41Z",
   "NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY": false,
   "PILOT_READY_CANDIDATE": true,
+  "PILOT_TECHNICAL_READINESS": "READY_FOR_HUMAN_REVIEW",
+  "NATIONAL_RESERVE_READINESS": "PARTIAL_0.8_DAYS",
+  "RESERVE_DAYS": 0.8,
   "terminal_state": "EXTERNAL_BLOCKER_REQUIRES_TIAGO",
   "gates": {
     "FULLY_RECONCILED": true,
     "all_confirmed_terminal": true,
+    "full_source_ladder_complete": true,
     "email_send_ready_ge_min_reserve": false,
     "strict_esr_measured": true,
     "service_fit_ontology_ok": true,
+    "service_fit_unsupported_count": 0,
     "machine_audit_pass": true,
+    "machine_audit_sample_size": 100,
     "sha_bound": true,
     "warmbly_e2e_pass": true
   },
