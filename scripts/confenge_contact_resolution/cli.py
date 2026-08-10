@@ -187,6 +187,10 @@ def build_parser() -> argparse.ArgumentParser:
     cont.add_argument("--allow-network", action="store_true")
     cont.add_argument("--fixtures-dir", type=Path, default=None)
     cont.add_argument("--no-resume", action="store_true")
+    cont.add_argument("--max-search-queries", type=int, default=3)
+    cont.add_argument("--max-pages", type=int, default=5)
+    cont.add_argument("--max-seconds-per-company", type=float, default=20.0)
+    cont.add_argument("--max-workers", type=int, default=4)
 
     enrich.add_argument(
         "--baseline-metrics",
@@ -393,7 +397,7 @@ def cmd_enrich_continuous(args: argparse.Namespace) -> int:
         ContinuousEnrichmentConfig,
         run_continuous_enrichment,
     )
-    from scripts.confenge_contact_resolution.resolver import ResolverConfig
+    from scripts.confenge_contact_resolution.resolver import ResolverConfig, default_adapters
 
     dsn = args.dsn or os.environ.get("LOCAL_DATALAKE_DSN") or os.environ.get("DATABASE_URL")
     if not dsn:
@@ -407,10 +411,40 @@ def cmd_enrich_continuous(args: argparse.Namespace) -> int:
         resume=not bool(args.no_resume),
         include_probable=bool(args.include_probable),
     )
+    # Wire the same discovery cascade as enrich-batch so --allow-network actually
+    # runs cheap web search + official site crawl (not an offline no-op).
+    web_provider = None
+    discovery_cascade = None
+    if cfg.allow_network and not cfg.fixtures_dir:
+        from scripts.confenge_contact_resolution.discovery import (
+            DiscoveryBudget,
+            DiscoveryCascade,
+            build_web_search_provider,
+        )
+
+        web_provider = build_web_search_provider()
+        budget = DiscoveryBudget.from_env_or_defaults(
+            max_search_queries=int(getattr(args, "max_search_queries", 3) or 3),
+            max_pages=int(getattr(args, "max_pages", 5) or 5),
+            max_seconds=float(getattr(args, "max_seconds_per_company", 20.0) or 20.0),
+        )
+        discovery_cascade = DiscoveryCascade(
+            budget=budget,
+            web_provider=web_provider,
+            allow_network=True,
+        )
+    adapters = default_adapters(
+        web_search_enabled=bool(cfg.allow_network),
+        web_search_provider=web_provider,
+        registry_prefer_network=bool(cfg.allow_network),
+    )
     rcfg = ResolverConfig(
         allow_network=cfg.allow_network,
         fixtures_dir=cfg.fixtures_dir,
         apply_ownership=True,
+        adapters=adapters,
+        discovery_cascade=discovery_cascade,
+        max_workers=max(1, int(getattr(args, "max_workers", 4) or 4)),
     )
     report = run_continuous_enrichment(dsn, cfg=cfg, resolver_config=rcfg)
     print(json.dumps(report, ensure_ascii=False, indent=2, default=str))
