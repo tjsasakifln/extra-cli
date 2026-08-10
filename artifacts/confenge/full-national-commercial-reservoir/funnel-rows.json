@@ -1,6 +1,6 @@
 [
   {
-    "stage": "canonical national B2G construction companies",
+    "stage": "national supplier roots (pncp_supplier_contracts)",
     "key": "national_universe",
     "count": 511645,
     "pct_of_previous": null,
@@ -8,7 +8,15 @@
     "rejection_loss_reasons": {}
   },
   {
-    "stage": "target-fit eligible roots",
+    "stage": "construction-relevant (CONFIRMED+PROBABLE)",
+    "key": "construction_relevant",
+    "count": 419362,
+    "pct_of_previous": 81.96347076586305,
+    "pct_of_national": 81.96347076586305,
+    "rejection_loss_reasons": {}
+  },
+  {
+    "stage": "target-fit eligible roots (supplier materialize set)",
     "key": "target_fit_eligible",
     "count": 511645,
     "pct_of_previous": 100.0,
@@ -18,17 +26,17 @@
   {
     "stage": "target-fit dirty/enqueued",
     "key": "target_fit_dirty_enqueued",
-    "count": 511645,
-    "pct_of_previous": 100.0,
-    "pct_of_national": 100.0,
+    "count": 511802,
+    "pct_of_previous": 100.03068533846711,
+    "pct_of_national": 100.03068533846711,
     "rejection_loss_reasons": {}
   },
   {
     "stage": "target-fit processed",
     "key": "target_fit_processed",
-    "count": 511645,
+    "count": 511802,
     "pct_of_previous": 100.0,
-    "pct_of_national": 100.0,
+    "pct_of_national": 100.03068533846711,
     "rejection_loss_reasons": {}
   },
   {
@@ -37,7 +45,12 @@
     "count": 511646,
     "pct_of_previous": 100.0001954480157,
     "pct_of_national": 100.0001954480157,
-    "rejection_loss_reasons": {}
+    "rejection_loss_reasons": {
+      "materialized": 511646,
+      "supplier_roots": 511645,
+      "RETRY_PENDING": 0,
+      "OUT_includes_non_construction": 92284
+    }
   },
   {
     "stage": "TARGET_CONFIRMED",
@@ -66,61 +79,62 @@
   {
     "stage": "activation WATCH",
     "key": "activation_watch",
-    "count": null,
-    "pct_of_previous": null,
-    "pct_of_national": null,
-    "rejection_loss_reasons": {}
-  },
-  {
-    "stage": "activation RESEARCH_REQUIRED",
-    "key": "activation_research",
-    "count": null,
-    "pct_of_previous": null,
-    "pct_of_national": null,
-    "rejection_loss_reasons": {}
-  },
-  {
-    "stage": "activation ACTIONABLE_NOW",
-    "key": "activation_actionable",
-    "count": null,
-    "pct_of_previous": null,
-    "pct_of_national": null,
-    "rejection_loss_reasons": {}
-  },
-  {
-    "stage": "activation SUPPRESSED",
-    "key": "activation_suppressed",
-    "count": null,
-    "pct_of_previous": null,
-    "pct_of_national": null,
-    "rejection_loss_reasons": {}
-  },
-  {
-    "stage": "companies contact-discovery attempted",
-    "key": "contact_attempted",
-    "count": 8337,
-    "pct_of_previous": 100.0,
-    "pct_of_national": 1.6294501070077887,
-    "rejection_loss_reasons": {
-      "never_attempted": 0,
-      "no_email_found": 8262,
-      "mailbox_purpose_rejected": 8,
-      "note": "attempted includes continuous offline pass + historical network enrichment harvest"
-    }
-  },
-  {
-    "stage": "companies contact-discovery never attempted",
-    "key": "contact_never_attempted",
     "count": 0,
     "pct_of_previous": 0.0,
     "pct_of_national": 0.0,
     "rejection_loss_reasons": {}
   },
   {
+    "stage": "activation RESEARCH_REQUIRED",
+    "key": "activation_research",
+    "count": 0,
+    "pct_of_previous": 0.0,
+    "pct_of_national": 0.0,
+    "rejection_loss_reasons": {}
+  },
+  {
+    "stage": "activation ACTIONABLE_NOW",
+    "key": "activation_actionable",
+    "count": 0,
+    "pct_of_previous": 0.0,
+    "pct_of_national": 0.0,
+    "rejection_loss_reasons": {}
+  },
+  {
+    "stage": "activation SUPPRESSED",
+    "key": "activation_suppressed",
+    "count": 0,
+    "pct_of_previous": 0.0,
+    "pct_of_national": 0.0,
+    "rejection_loss_reasons": {}
+  },
+  {
+    "stage": "companies contact-discovery attempted",
+    "key": "contact_attempted",
+    "count": 75,
+    "pct_of_previous": 0.8996041741633681,
+    "pct_of_national": 0.014658601178551533,
+    "rejection_loss_reasons": {
+      "never_attempted_of_confirmed": 8262,
+      "network_harvest_attempted": 75,
+      "no_email_in_harvest": 0,
+      "mailbox_purpose_rejected": 8,
+      "offline_continuous_not_counted_as_discovery": true
+    }
+  },
+  {
+    "stage": "companies contact-discovery never attempted",
+    "key": "contact_never_attempted",
+    "count": 8262,
+    "pct_of_previous": 99.10039582583663,
+    "pct_of_national": 1.614791505829237,
+    "rejection_loss_reasons": {}
+  },
+  {
     "stage": "companies with any email candidate",
     "key": "email_candidate",
     "count": 75,
-    "pct_of_previous": 0.8996041741633681,
+    "pct_of_previous": 100.0,
     "pct_of_national": 0.014658601178551533,
     "rejection_loss_reasons": {}
   },
@@ -128,84 +142,98 @@
     "stage": "companies with real public email",
     "key": "real_email",
     "count": 75,
-    "pct_of_previous": 0.8996041741633681,
+    "pct_of_previous": 100.0,
     "pct_of_national": 0.014658601178551533,
     "rejection_loss_reasons": {}
   },
   {
     "stage": "COMPANY_OWNED",
     "key": "company_owned",
-    "count": 67,
-    "pct_of_previous": 89.33333333333333,
-    "pct_of_national": 0.013095017052839372,
+    "count": 66,
+    "pct_of_previous": 88.0,
+    "pct_of_national": 0.012899569037125351,
     "rejection_loss_reasons": {}
   },
   {
     "stage": "identity-safe",
     "key": "identity_safe",
-    "count": 67,
+    "count": 66,
     "pct_of_previous": 100.0,
-    "pct_of_national": 0.013095017052839372,
+    "pct_of_national": 0.012899569037125351,
     "rejection_loss_reasons": {}
   },
   {
     "stage": "provenance-valid",
     "key": "provenance_valid",
-    "count": 67,
-    "pct_of_previous": 100.0,
-    "pct_of_national": 0.013095017052839372,
-    "rejection_loss_reasons": {}
-  },
-  {
-    "stage": "service-fit valid",
-    "key": "service_fit",
-    "count": 67,
-    "pct_of_previous": 100.0,
-    "pct_of_national": 0.013095017052839372,
-    "rejection_loss_reasons": {}
-  },
-  {
-    "stage": "copy-context valid",
-    "key": "copy_context",
-    "count": 67,
-    "pct_of_previous": 100.0,
-    "pct_of_national": 0.013095017052839372,
-    "rejection_loss_reasons": {}
-  },
-  {
-    "stage": "EMAIL_SEND_READY",
-    "key": "email_send_ready",
-    "count": 67,
-    "pct_of_previous": 0.8036463955859422,
-    "pct_of_national": 0.013095017052839372,
-    "rejection_loss_reasons": {
-      "offline_continuous_found_zero_new": true,
-      "historical_network_harvest": 75,
-      "mailbox_purpose_blocked": 8
-    }
-  },
-  {
-    "stage": "Warmbly imported",
-    "key": "warmbly_imported",
-    "count": 41,
-    "pct_of_previous": 61.19402985074627,
-    "pct_of_national": 0.008013368644274838,
-    "rejection_loss_reasons": {}
-  },
-  {
-    "stage": "Warmbly currently eligible",
-    "key": "warmbly_eligible",
     "count": 0,
     "pct_of_previous": 0.0,
     "pct_of_national": 0.0,
     "rejection_loss_reasons": {}
   },
   {
+    "stage": "service-fit valid",
+    "key": "service_fit",
+    "count": 0,
+    "pct_of_previous": 0.0,
+    "pct_of_national": 0.0,
+    "rejection_loss_reasons": {}
+  },
+  {
+    "stage": "copy-context valid",
+    "key": "copy_context",
+    "count": 0,
+    "pct_of_previous": null,
+    "pct_of_national": 0.0,
+    "rejection_loss_reasons": {}
+  },
+  {
+    "stage": "EMAIL_SEND_READY",
+    "key": "email_send_ready",
+    "count": 0,
+    "pct_of_previous": 0.0,
+    "pct_of_national": 0.0,
+    "rejection_loss_reasons": {
+      "domain_aligned_with_company": 55,
+      "service_fit_unsupported": 67,
+      "service_code:estruturacao_pleito_reajuste": 50,
+      "ownership:UNRESOLVED": 1,
+      "service_code:diagnostico_contratual_b2g": 17,
+      "mailbox_purpose_rejected": 8,
+      "provenance_chain_invalid": 5,
+      "root_source_type:DERIVED_UNTRUSTED": 5,
+      "taint:provenance_host_mismatch:caiafafacilities.com.br!=connector.eng.br": 1,
+      "taint:sticky_verification_ignored:VERIFIED": 5,
+      "taint:sticky_ownership_ignored:COMPANY_OWNED": 5,
+      "taint:provenance_host_mismatch:emko.com!=emkoelektronik.com": 1,
+      "ownership_identity_domain_mismatch": 8,
+      "sticky_ownership_insufficient_for_identity": 8,
+      "taint:provenance_host_no_email_domain:rf.com.br": 1,
+      "taint:provenance_host_no_email_domain:wh.com": 1,
+      "taint:provenance_host_mismatch:arlenarquitetura.com.br!=gmail.com": 1
+    }
+  },
+  {
+    "stage": "Warmbly imported",
+    "key": "warmbly_imported",
+    "count": 0,
+    "pct_of_previous": null,
+    "pct_of_national": 0.0,
+    "rejection_loss_reasons": {}
+  },
+  {
+    "stage": "Warmbly currently eligible",
+    "key": "warmbly_eligible",
+    "count": 0,
+    "pct_of_previous": null,
+    "pct_of_national": 0.0,
+    "rejection_loss_reasons": {}
+  },
+  {
     "stage": "Active hot-set",
     "key": "active_hot_set",
-    "count": 10,
-    "pct_of_previous": 14.925373134328357,
-    "pct_of_national": 0.0019544801571402047,
+    "count": 0,
+    "pct_of_previous": null,
+    "pct_of_national": 0.0,
     "rejection_loss_reasons": {}
   }
 ]

@@ -195,27 +195,47 @@ def run_continuous_enrichment(
             attempted_roots.add(str(a))
 
     metrics = summary.get("metrics") if isinstance(summary.get("metrics"), dict) else {}
-    # Prefer roots from completed checkpoint as attempted; real/owned from metrics counts only
-    # when per-key lists unavailable — still closes attempted vs never on CONFIRMED.
-    n_with_email = int(metrics.get("companies_with_any_candidate") or 0)
-    n_enrollable = int(metrics.get("companies_with_enrollable_email") or 0)
-    # Build synthetic keys only for rate numerators when list form absent
-    real_keys = list(attempted_roots)[:n_with_email]
-    owned_keys = list(attempted_roots)[:n_enrollable]
-    rejection_reasons = {}
+    # Honest discovery: offline/no-network runs with zero web queries are NOT
+    # contact discovery — they are structure/checkpoint passes only.
+    web_queries = int(metrics.get("web_queries_total") or 0)
+    pages = int(metrics.get("pages_fetched_total") or 0)
+    network_discovery = bool(cfg.allow_network) and (web_queries > 0 or pages > 0)
+    # Without network discovery, attempted_keys stay empty for coverage rates
+    # (never_attempted = all CONFIRMED). Checkpoint still tracks resume state.
+    discovery_attempted = list(attempted_roots) if network_discovery else []
+    rejection_reasons = {
+        "no_email_found": int(metrics.get("companies_without_contact") or 0)
+        if network_discovery
+        else 0,
+        "identity_rejected": 0,
+        "third_party_rejected": int(metrics.get("third_party_rejected") or 0),
+        "mailbox_purpose_rejected": 0,
+        "provenance_rejected": 0,
+        "network_failure": int(metrics.get("timeouts") or 0)
+        + int(metrics.get("http_429") or 0),
+        "crawl_failure": 0,
+        "no_official_domain": 0,
+    }
     if isinstance(metrics.get("rejected_by_primary_reason"), dict):
-        rejection_reasons = {
-            str(k).lower(): int(v)
-            for k, v in metrics["rejected_by_primary_reason"].items()
-        }
+        for k, v in metrics["rejected_by_primary_reason"].items():
+            rejection_reasons[str(k).lower()] = int(v)
+    # Do NOT invent per-key real/owned/ESR from count slices — those require
+    # evaluate_email_send_ready on real contact rows (see rebuild_national_funnel).
     coverage = measure_contact_coverage(
         target_confirmed_keys=confirmed_keys,
-        attempted_keys=list(attempted_roots),
-        real_email_keys=real_keys,
-        company_owned_keys=owned_keys,
-        identity_safe_keys=owned_keys,
-        email_send_ready_keys=owned_keys,
+        attempted_keys=discovery_attempted,
+        real_email_keys=[],
+        company_owned_keys=[],
+        identity_safe_keys=[],
+        email_send_ready_keys=[],
         rejection_reasons=rejection_reasons,
+    )
+    coverage["network_discovery"] = network_discovery
+    coverage["offline_structure_pass"] = not network_discovery
+    coverage["checkpoint_completed_cnpjs"] = len(attempted_roots)
+    coverage["note_honest"] = (
+        "EMAIL_SEND_READY / identity-safe not inferred from batch counters. "
+        "Use rebuild_national_funnel harvest+evaluate_email_send_ready for ESR."
     )
     report = {
         "schema": "confenge.continuous_contact_enrichment.v1",

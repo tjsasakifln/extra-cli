@@ -50,6 +50,12 @@ def test_info_not_misclassified_as_financeiro_nf() -> None:
     assert r.send_blocked is False
 
 
+def test_contabilidade_is_financeiro_not_unknown() -> None:
+    r = classify_mailbox_purpose("contabilidade@empresa.com.br")
+    assert r.purpose == "FINANCEIRO"
+    assert r.send_blocked is False
+
+
 def test_contact_coverage_closed_sum() -> None:
     confirmed = [f"c{i}" for i in range(100)]
     attempted = [f"c{i}" for i in range(40)]

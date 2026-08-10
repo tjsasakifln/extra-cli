@@ -199,8 +199,12 @@ def count_canonical_eligible_roots(conn: Any) -> int | None:
                 try:
                     cur.execute(f"ROLLBACK TO SAVEPOINT {sp}")
                     cur.execute(f"RELEASE SAVEPOINT {sp}")
-                except Exception:  # noqa: BLE001
-                    pass
+                except Exception as release_exc:  # noqa: BLE001
+                    logger.debug(
+                        "savepoint cleanup failed for %s: %s",
+                        sp,
+                        release_exc,
+                    )
     return None
 
 def run_reconcile(

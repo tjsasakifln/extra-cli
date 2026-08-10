@@ -1,24 +1,35 @@
-# SERVICE_MONOCULTURE causal diagnosis (cohort 41)
+# SERVICE_MONOCULTURE causal diagnosis (post national materialization)
 
-## Observation
-100% of the clean EMAIL_SEND_READY cohort (41) had
-`service_id = estruturacao_pleito_reajuste`.
+## Cohort-41 historical (stale for national claim)
 
-## Not accepted as explanation alone
-"These companies have reajustable contracts" is insufficient.
+The clean EMAIL_SEND_READY pilot cohort (41) was **100%**
+`estruturacao_pleito_reajuste`. That cohort is a thin mature-book harvest path,
+not proof of national multi-service routing.
 
-## Causal factors
-1. **Thin mature books**: single-contract / <3 contracts with real `start_date` and
-   age≥365 without reajuste proof → router correctly scores reajuste verification at 60.
-2. **Missing multi-contract bags in pilot path**: if only one contract is loaded into
-   the intelligence bag, gestão (requires ≥3) never competes.
-3. **Specialty signals not present in object text** of this cohort (no glosa/aditivo/edital tokens).
-4. **Not a silent default**: empty bag → diagnóstico, not reajuste. Tests prove cases A–E.
+## Live national sample (n=200 CONFIRMED with contracts)
 
-## Fixes shipped
-- `normalize_record` derives `recent_tender_activity` / rapid_growth / high_recurrence from public dates.
-- Adversarial A–E tests + SERVICE_MONOCULTURE flag blocks outreach release at ≥95% without diagnosis.
-- Full national rebuild of dossiers required after continuous target-fit + multi-contract load.
+After full target-fit materialization, routing via `normalize_record` +
+`select_services` on live PNCP contracts (sample of 200 CONFIRMED roots):
+
+| service_id | count | % |
+|------------|------:|--:|
+| apoio_licitacoes_propostas | 148 | 74% |
+| auditoria_orcamento_bdi | 28 | 14% |
+| gestao_monitoramento_contratual | 20 | 10% |
+| aditivos_extracontratuais | 4 | 2% |
+
+**SERVICE_MONOCULTURE flagged = false** (dominant share 74% < 95% threshold).
+Reajuste is **not** the national default when multi-contract/tender/BDI signals
+are present in object text and portfolio shape.
+
+## Causal factors for historical reajuste monoculture
+
+1. Thin single-contract mature books in the pilot contact harvest.
+2. Incomplete multi-contract bags in early export path.
+3. Contact-enriched cohort selection bias toward reajuste micro-offer copy.
 
 ## Outreach
-`blocks_outreach_release = true` while monoculture persists without full multi-contract rebuild.
+
+National multi-service sample does not block outreach on monoculture grounds.
+Pilot harvest ESR still subject to evaluate_email_send_ready fail-closed gates
+(identity/provenance/mailbox) — do not claim GO from cohort-41 alone.

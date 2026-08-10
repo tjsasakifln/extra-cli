@@ -255,12 +255,16 @@ _FINANCEIRO = frozenset(
         "finance",
         "fiscal",
         "contas",
+        "contabilidade",
+        "contabil",
+        "contábil",
         "billing",
         "cobranca",
         "cobrança",
-        "nf",
         "nfe",
+        "notafiscal",
         "faturamento",
+        # bare "nf" removed: substring matched info@ (skeptic/false FINANCEIRO)
     }
 )
 _GENERIC = frozenset(

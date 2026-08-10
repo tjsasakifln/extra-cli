@@ -1,13 +1,41 @@
 {
+  "target_fit_materialized": {
+    "materialized": 511646,
+    "supplier_roots": 511645,
+    "RETRY_PENDING": 0,
+    "OUT_includes_non_construction": 92284
+  },
   "contact_attempted": {
-    "never_attempted": 0,
-    "no_email_found": 8262,
+    "never_attempted_of_confirmed": 8262,
+    "network_harvest_attempted": 75,
+    "no_email_in_harvest": 0,
     "mailbox_purpose_rejected": 8,
-    "note": "attempted includes continuous offline pass + historical network enrichment harvest"
+    "offline_continuous_not_counted_as_discovery": true
   },
   "email_send_ready": {
-    "offline_continuous_found_zero_new": true,
-    "historical_network_harvest": 75,
-    "mailbox_purpose_blocked": 8
+    "domain_aligned_with_company": 55,
+    "service_fit_unsupported": 67,
+    "service_code:estruturacao_pleito_reajuste": 50,
+    "ownership:UNRESOLVED": 1,
+    "service_code:diagnostico_contratual_b2g": 17,
+    "mailbox_purpose_rejected": 8,
+    "provenance_chain_invalid": 5,
+    "root_source_type:DERIVED_UNTRUSTED": 5,
+    "taint:provenance_host_mismatch:caiafafacilities.com.br!=connector.eng.br": 1,
+    "taint:sticky_verification_ignored:VERIFIED": 5,
+    "taint:sticky_ownership_ignored:COMPANY_OWNED": 5,
+    "taint:provenance_host_mismatch:emko.com!=emkoelektronik.com": 1,
+    "ownership_identity_domain_mismatch": 8,
+    "sticky_ownership_insufficient_for_identity": 8,
+    "taint:provenance_host_no_email_domain:rf.com.br": 1,
+    "taint:provenance_host_no_email_domain:wh.com": 1,
+    "taint:provenance_host_mismatch:arlenarquitetura.com.br!=gmail.com": 1
+  },
+  "activation": {
+    "note": "counts from confenge_activation_projections if present else 0",
+    "WATCH": 0,
+    "RESEARCH_REQUIRED": 0,
+    "ACTIONABLE_NOW": 0,
+    "SUPPRESSED": 0
   }
 }

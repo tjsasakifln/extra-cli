@@ -37,8 +37,17 @@ def build_funnel_rows(metrics: dict[str, Any]) -> list[dict[str, Any]]:
     """Stage table with COUNT, % of previous, % of national, loss reasons."""
     national = int(metrics.get("national_universe") or 0)
     stages = [
-        ("canonical national B2G construction companies", "national_universe", None),
-        ("target-fit eligible roots", "target_fit_eligible", "national_universe"),
+        (
+            "national supplier roots (pncp_supplier_contracts)",
+            "national_universe",
+            None,
+        ),
+        (
+            "construction-relevant (CONFIRMED+PROBABLE)",
+            "construction_relevant",
+            "national_universe",
+        ),
+        ("target-fit eligible roots (supplier materialize set)", "target_fit_eligible", "national_universe"),
         ("target-fit dirty/enqueued", "target_fit_dirty_enqueued", "target_fit_eligible"),
         ("target-fit processed", "target_fit_processed", "target_fit_dirty_enqueued"),
         ("target-fit current materialized", "target_fit_materialized", "target_fit_eligible"),

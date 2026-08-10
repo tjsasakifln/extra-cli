@@ -4,17 +4,18 @@
   "FULL_NATIONAL_READY": true,
   "async_mode": "SHADOW",
   "dirty_pending": 0,
-  "coverage_ratio": 1.0,
-  "materialized_company_count": 511646,
-  "canonical_company_count": 511645,
+  "processing": 0,
+  "coverage_ratio": 1.000001954480157,
+  "supplier_roots": 511645,
+  "construction_relevant_confirmed_plus_probable": 419362,
   "TARGET_CONFIRMED": 8337,
-  "email_send_ready_reservoir": 67,
+  "email_send_ready_reservoir": 0,
   "hot_set_capacity_per_hour": 10,
   "pilot": {
     "PILOT_GO": false,
     "MINIMUM_PILOT_ACCEPTANCE_SAMPLE": 50,
-    "email_send_ready": 67,
-    "pilot_sample_met": true,
+    "email_send_ready": 0,
+    "pilot_sample_met": false,
     "zero_false_target": true,
     "zero_wrong_contact": false,
     "zero_tainted_provenance": true,
@@ -35,7 +36,7 @@
       "service multi-service not monoculture without causal diagnosis"
     ]
   },
-  "as_of": "2026-08-10T07:58:27.146437+00:00",
+  "as_of": "2026-08-10T08:10:54.635518+00:00",
   "warmbly_capacity_per_hour": 10,
   "warmbly_channel": "EMAIL_ONLY",
   "whatsapp": "OFF"
