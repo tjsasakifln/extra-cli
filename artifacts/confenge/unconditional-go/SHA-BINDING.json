@@ -1,24 +1,10 @@
 {
-  "generated_at": "2026-08-10T04:18:13Z",
-  "extra_cli": {
-    "origin_main": "5724da805796e75df01604f56c71c89af1d34caa",
-    "origin_main_note": "includes provenance taint #213",
-    "target_fit_branch_tip": "9e02cb9e",
-    "target_fit_pr": "https://github.com/tjsasakifln/extra-cli/pull/212",
-    "host_opt_extra_consultoria": {
-      "files_from": "origin/feat/confenge-target-fit-continuous-refresh + origin/main provenance",
-      "target_fit_runtime": "HEALTHY",
-      "module_import": "scripts.confenge_target_fit + provenance_trust OK"
-    },
-    "main_sha_match_after_212_merge": "PENDING_PR_212"
-  },
-  "warmbly": {
-    "origin_main": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
-    "origin_main_note": "includes provenance taint #35",
-    "host_opt_warmbly_confenge_git": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
-    "git_sha_match": true,
-    "container_image_rebuild": "DEFERRED_compose_service_context",
-    "contaminated_sendable_count": 0
-  },
-  "identity_rule": "origin/main SHA == host deployed SHA == runtime code SHA"
+  "generated_at": "2026-08-10T05:34:07Z",
+  "extra_cli_branch": "fix/ownership-identity-send-ready-gate",
+  "extra_cli_head": "0aee7d40f28ea51f6a5053b89a858529e1e03b0d",
+  "extra_cli_pr": "https://github.com/tjsasakifln/extra-cli/pull/215",
+  "extra_cli_origin_main": "c7fadc192131d4c39dd4d5d6a9664512c7908f9f",
+  "extra_consultoria_host_deployed_sha_before_hotfix": "c7fadc192131d4c39dd4d5d6a9664512c7908f9f",
+  "host_hotfixed_files_not_yet_merged_main": true,
+  "warmbly_deployed_sha": "81d83429316aa6241cc81b3ac8e761bfc59c2487"
 }

@@ -1,18 +1,11 @@
 {
-  "generated_at": "2026-08-10T04:10:11Z",
+  "generated_at": "2026-08-10T06:11:31Z",
   "TARGET_FIT_RUNTIME": "HEALTHY",
   "async_mode": "SHADOW",
-  "module_deployed": true,
-  "migration_071_applied": true,
-  "datalake_watermark": "2026-08-05T11:18:41.438381+02:00",
-  "target_fit_watermark": "2026-08-05T11:18:41.438381+02:00",
+  "CONFIRMED": 156,
+  "PROBABLE": 609,
+  "OUT": 273,
   "lag_seconds": 0,
-  "last_successful_run": "2026-08-10T06:05:35.384859+02:00",
-  "reconcile_enqueued": 499,
-  "worker_processed_sample": 50,
-  "timers": [
-    "extra-confenge-target-fit-refresh.timer",
-    "extra-confenge-target-fit-reconcile.timer"
-  ],
-  "note": "SHADOW mode on host-of-record; module no longer missing; watermarks equal after reconcile+worker"
+  "module_deployed": true,
+  "note": "Mass requeue of construction roots after pagination fix; SHADOW authority for send-ready join."
 }

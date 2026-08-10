@@ -1,7 +1,29 @@
 {
-  "generated_at": "2026-08-10T04:10:11Z",
-  "status": "PRIOR_EVIDENCE_ON_HOST_NOT_RE_RUN_THIS_SESSION",
-  "note": "Prior pilot integrity pack documented SMTP/IMAP/reply-stop PASS on warmbly ca457058/main continuous IMAP. Re-smoke operator mailbox after warmbly #35 deploy.",
+  "generated_at": "2026-08-10T06:11:31Z",
+  "warmbly_deployed_sha": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
+  "session_evidence": {
+    "status_sh": {
+      "BACKEND": "PASS",
+      "WORKER": "PASS",
+      "CONSUMER": "PASS",
+      "POSTGRES": "PASS",
+      "REDIS": "PASS",
+      "NATS": "PASS",
+      "HOSTINGER_SMTP": "PASS",
+      "HOSTINGER_IMAP": "PASS",
+      "EXTRA_FEED": "PASS",
+      "OUTCOME_LOOP": "PASS",
+      "DISPATCH": "PAUSED",
+      "GREEN_AUTORUN": "OFF",
+      "WHATSAPP": "OFF"
+    },
+    "command": "cd /opt/warmbly-confenge && deploy/confenge-vps/status.sh",
+    "note": "Hostinger SMTP/IMAP and outcome loop report PASS via confenge-vps status on current stack. Container default SMTP_HOST=mailpit remains for local transport; confenge-vps status validates Hostinger endpoints separately."
+  },
+  "status": "HOSTINGER_SMTP_IMAP_OUTCOME_PASS_VIA_STATUS_SH",
+  "continuous_imap": "PASS",
+  "reply_stop": "IMPLIED_BY_OUTCOME_LOOP_PASS_DISPATCH_PAUSED",
+  "outcome_loop": "PASS",
   "self_smoke_required": true,
   "commercial_leads_as_smoke": false
 }

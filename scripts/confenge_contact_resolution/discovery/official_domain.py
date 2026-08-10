@@ -94,6 +94,8 @@ _ASSOCIATION_HINTS = (
 )
 
 # Industry generics: alone they never prove company identity in a host SLD.
+# terraplenagem.com / mineracao.com style industry-only hosts are never COMPANY_OWNED
+# even when the razao_social contains the same industry token.
 _GENERIC_BRAND_TOKENS = frozenset(
     {
         "construtora",
@@ -111,6 +113,8 @@ _GENERIC_BRAND_TOKENS = frozenset(
         "transportes",
         "mineracao",
         "pavimentacao",
+        "terraplenagem",
+        "topografia",
         "instalacoes",
         "locacao",
         "obras",
@@ -130,6 +134,10 @@ _GENERIC_BRAND_TOKENS = frozenset(
         "beta",
         "delta",
         "omega",
+        "master",  # construtora master @ master.com.br — generic global host
+        "shop",
+        "store",
+        "eshop",
     }
 )
 
@@ -464,14 +472,16 @@ def is_credible_company_domain(domain: str | None, company_label: str | None) ->
         return False
     if sld in _GENERIC_BRAND_TOKENS:
         return False
-    # Short SLDs (wh, fts, bar) are classic live-host FPs — never company-owned
-    # eligible, even when nome_fantasia injects the same 3-letter acronym.
-    if len(sld) < 4:
-        return False
     label_tokens_all = _company_label_tokens(company_label)
     words = _company_brand_words(company_label)
     if not label_tokens_all:
         return False
+    # Short SLDs (wh, fts, bar) are classic live-host FPs — never company-owned
+    # when the host is not an exact legal-name token. Exact 3-letter brand tokens
+    # that appear in razao_social (AMF, LMA, DAM, TMF) remain residual-safe.
+    if len(sld) < 4:
+        if not (len(sld) == 3 and sld in label_tokens_all and sld not in _GENERIC_BRAND_TOKENS):
+            return False
 
     # Exact multi-token compact (keeps alphaengenharia / construtoraalpha legit)
     if _sld_matches_label_compact(sld, label_tokens_all):

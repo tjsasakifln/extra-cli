@@ -14,6 +14,10 @@ Missing any dimension → fail closed (never send-ready).
 Stored labels alone (VERIFIED, COMPANY_OWNED, HUMAN_CONFIRMED, prior
 EMAIL_SEND_READY) never grant send-ready when provenance roots in
 TEST_FIXTURE / DEMO / SYNTHETIC / UNKNOWN or has transitive taint.
+
+Sticky COMPANY_OWNED / VERIFIED also never grant REAL_CONTACT when the email
+domain fails residual-safe alignment with razao_social (wrong-company domains
+such as qualidademineracao / emkoelektronik / lcmprojetos for unrelated CNPJs).
 """
 
 from __future__ import annotations
@@ -21,6 +25,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from scripts.confenge_contact_resolution.email_policy import domain_of, is_freemail
 from scripts.confenge_contact_resolution.mailbox_purpose import (
     BLOCKED_PURPOSES,
     classify_mailbox_purpose,
@@ -126,6 +131,78 @@ UNSUITABLE_NO_EVIDENCE = "UNSUITABLE_NO_EVIDENCE"
 UNSUITABLE_STALE = "UNSUITABLE_STALE"
 UNSUITABLE_COPY_CONTEXT = "UNSUITABLE_COPY_CONTEXT"
 UNSUITABLE_PROVENANCE = "UNSUITABLE_PROVENANCE"
+
+def company_identity_label(company: dict[str, Any] | None) -> str:
+    """Best available legal/trade name for domain↔company identity checks."""
+    if not company:
+        return ""
+    for key in (
+        "razao_social",
+        "legal_name",
+        "company_name",
+        "company_legal_name",
+        "name",
+    ):
+        v = company.get(key)
+        if v and str(v).strip():
+            return str(v).strip()
+    for key in ("nome_fantasia", "trade_name", "fantasia"):
+        v = company.get(key)
+        if v and str(v).strip():
+            return str(v).strip()
+    return ""
+
+
+def email_matches_company_identity(
+    email: str | None,
+    company: dict[str, Any] | None,
+    *,
+    ownership_status: str | None = None,
+) -> tuple[bool, str]:
+    """Re-validate domain↔company identity; sticky COMPANY_OWNED cannot wash mismatch.
+
+    Returns (ok, reason_code). Fail-closed when a non-freemail domain does not
+    residual-safely align with the company label. HUMAN_CONFIRMED may pass without
+    domain alignment (explicit human gate). Missing company label skips the check
+    (caller still needs ownership/provenance).
+    """
+    email_norm = (email or "").strip() or None
+    if not email_norm or "@" not in email_norm:
+        return True, "no_email_for_identity"
+    own = (ownership_status or "").strip().upper()
+    if own == OwnershipStatus.HUMAN_CONFIRMED.value:
+        return True, "human_confirmed_identity_exempt"
+    if is_freemail(email_norm):
+        return True, "freemail_identity_via_ownership_only"
+    label = company_identity_label(company)
+    if not label:
+        return True, "company_label_absent"
+    domain = domain_of(email_norm)
+    if not domain:
+        return False, "ownership_identity_domain_missing"
+    official = None
+    if company:
+        official = (
+            company.get("official_domain")
+            or company.get("company_domain")
+            or company.get("website_domain")
+        )
+        if official:
+            official = str(official).strip() or None
+    # Lazy import keeps send_readiness free of circular import at module load
+    # when discovery.official_domain pulls ownership helpers.
+    from scripts.confenge_contact_resolution.discovery.official_domain import (
+        email_domain_aligned_with_company,
+    )
+
+    if email_domain_aligned_with_company(
+        domain,
+        label,
+        official_domain=official,
+    ):
+        return True, "domain_aligned_with_company"
+    return False, "ownership_identity_domain_mismatch"
+
 
 # Prefixes/phrases that alone (or with only a company name) are hollow copy context.
 _GENERIC_WHY_MARKERS: tuple[str, ...] = (
@@ -1031,6 +1108,23 @@ def evaluate_email_send_ready(
         reasons.append("ownership_missing")
         suitability = UNSUITABLE_OWNERSHIP
         channel_ok = False
+
+    # REAL_CONTACT identity: domain must match company — sticky COMPANY_OWNED insufficient.
+    # Skeptic cases: contato@qualidademineracao for QUALIDADE CONSTRUÇÕES, info@emkoelektronik
+    # for EMKO CONSTRUTORA, comercial@lcmprojetos for LS ENGENHARIA must never be send-ready.
+    identity_ok, identity_reason = email_matches_company_identity(
+        email_norm,
+        company,
+        ownership_status=own,
+    )
+    if not identity_ok:
+        reasons.append(identity_reason)
+        reasons.append("sticky_ownership_insufficient_for_identity")
+        suitability = UNSUITABLE_OWNERSHIP
+        channel_ok = False
+    elif identity_reason == "domain_aligned_with_company":
+        reasons.append("domain_aligned_with_company")
+
     if ver in _BAD_VERIFICATION or (ver and ver not in _OK_VERIFICATION and ver not in {"", "OBSERVED", "VERIFIED"}):
         if ver in _BAD_VERIFICATION or ver in {
             VerificationStatus.PATTERN_GUESS.value,

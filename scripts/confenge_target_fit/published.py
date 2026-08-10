@@ -19,7 +19,13 @@ from scripts.confenge_target_fit.company_key import (
 )
 from scripts.confenge_target_fit.freshness import evaluate_freshness
 from scripts.confenge_target_fit.models import FreshnessDecision
-from scripts.confenge_target_fit.store import get_control, get_current, is_send_suppressed
+from scripts.confenge_target_fit.store import (
+    get_control,
+    get_current,
+    get_published_for_mode,
+    get_shadow,
+    is_send_suppressed,
+)
 
 
 def company_key_from_row(row: dict[str, Any] | None) -> str | None:
@@ -56,7 +62,10 @@ def load_published_target_fit(
             company_key = company_key_from_raiz(raiz)
     if not company_key:
         return None
-    return get_current(conn, company_key)
+    # SHADOW continuous population lives in confenge_target_fit_shadow; current
+    # may be empty. Prefer mode-aware published row so EMAIL_SEND_READY sees the
+    # same CONFIRMED set as `target_fit status`.
+    return get_published_for_mode(conn, company_key)
 
 
 def load_published_index(
@@ -65,7 +74,10 @@ def load_published_index(
     cnpj14s: list[str] | None = None,
     company_keys: list[str] | None = None,
 ) -> dict[str, dict[str, Any]]:
-    """Batch-load confenge_company_target_fit_current keyed by company_key and cnpj_raiz.
+    """Batch-load published target-fit keyed by company_key and cnpj_raiz.
+
+    In SHADOW mode the continuous population is ``confenge_target_fit_shadow``
+    (canonical ``current`` may be empty). ACTIVE/CANARY read ``current``.
 
     Returns a dict with both ``cnpj_root:XXXXXXXX`` and bare 8-digit raiz keys
     pointing at the same published row, so joiners can use either form.
@@ -82,33 +94,135 @@ def load_published_index(
                 pass
     if not keys and not raizes:
         return {}
-    with conn.cursor() as cur:
-        if keys and raizes:
-            cur.execute(
-                """
-                SELECT * FROM confenge_company_target_fit_current
-                WHERE company_key = ANY(%s) OR cnpj_raiz = ANY(%s)
-                """,
-                (list(keys), list(raizes)),
-            )
-        elif keys:
-            cur.execute(
-                """
-                SELECT * FROM confenge_company_target_fit_current
-                WHERE company_key = ANY(%s)
-                """,
-                (list(keys),),
-            )
-        else:
-            cur.execute(
-                """
-                SELECT * FROM confenge_company_target_fit_current
-                WHERE cnpj_raiz = ANY(%s)
-                """,
-                (list(raizes),),
-            )
-        rows = cur.fetchall() or []
+
+    mode = "SHADOW"
+    try:
+        ctrl = get_control(conn, "async_mode")
+        mode = str((ctrl or {}).get("mode") or "SHADOW").upper()
+    except Exception:  # noqa: BLE001
+        mode = "SHADOW"
+
+    use_shadow = mode == "SHADOW"
     out: dict[str, dict[str, Any]] = {}
+    with conn.cursor() as cur:
+        try:
+            # Table names are allowlisted literals only (no user input) — avoids S608.
+            if use_shadow:
+                if keys and raizes:
+                    cur.execute(
+                        """
+                        SELECT * FROM confenge_target_fit_shadow
+                        WHERE company_key = ANY(%s) OR cnpj_raiz = ANY(%s)
+                        """,
+                        (list(keys), list(raizes)),
+                    )
+                elif keys:
+                    cur.execute(
+                        """
+                        SELECT * FROM confenge_target_fit_shadow
+                        WHERE company_key = ANY(%s)
+                        """,
+                        (list(keys),),
+                    )
+                else:
+                    cur.execute(
+                        """
+                        SELECT * FROM confenge_target_fit_shadow
+                        WHERE cnpj_raiz = ANY(%s)
+                        """,
+                        (list(raizes),),
+                    )
+            else:
+                if keys and raizes:
+                    cur.execute(
+                        """
+                        SELECT * FROM confenge_company_target_fit_current
+                        WHERE company_key = ANY(%s) OR cnpj_raiz = ANY(%s)
+                        """,
+                        (list(keys), list(raizes)),
+                    )
+                elif keys:
+                    cur.execute(
+                        """
+                        SELECT * FROM confenge_company_target_fit_current
+                        WHERE company_key = ANY(%s)
+                        """,
+                        (list(keys),),
+                    )
+                else:
+                    cur.execute(
+                        """
+                        SELECT * FROM confenge_company_target_fit_current
+                        WHERE cnpj_raiz = ANY(%s)
+                        """,
+                        (list(raizes),),
+                    )
+            rows = cur.fetchall() or []
+        except Exception:  # noqa: BLE001
+            rows = []
+            if use_shadow:
+                # Shadow table missing — fall back to current.
+                return _load_current_index(conn, keys=keys, raizes=raizes)
+
+    for row in rows:
+        d = dict(row) if not isinstance(row, dict) else dict(row)
+        if use_shadow:
+            from scripts.confenge_target_fit.store import _normalize_shadow_row
+
+            norm = _normalize_shadow_row(d)
+            if not norm:
+                continue
+            d = norm
+        ck = str(d.get("company_key") or "")
+        raiz = digits_only(d.get("cnpj_raiz"))[:8]
+        if ck:
+            out[ck] = d
+        if raiz and len(raiz) == 8:
+            out[raiz] = d
+            out[f"cnpj_root:{raiz}"] = d
+
+    # Hybrid: if shadow index empty for requested keys, merge current hits.
+    if use_shadow and not out:
+        out = _load_current_index(conn, keys=keys, raizes=raizes)
+    return out
+
+
+def _load_current_index(
+    conn: Any,
+    *,
+    keys: set[str],
+    raizes: set[str],
+) -> dict[str, dict[str, Any]]:
+    out: dict[str, dict[str, Any]] = {}
+    with conn.cursor() as cur:
+        try:
+            if keys and raizes:
+                cur.execute(
+                    """
+                    SELECT * FROM confenge_company_target_fit_current
+                    WHERE company_key = ANY(%s) OR cnpj_raiz = ANY(%s)
+                    """,
+                    (list(keys), list(raizes)),
+                )
+            elif keys:
+                cur.execute(
+                    """
+                    SELECT * FROM confenge_company_target_fit_current
+                    WHERE company_key = ANY(%s)
+                    """,
+                    (list(keys),),
+                )
+            else:
+                cur.execute(
+                    """
+                    SELECT * FROM confenge_company_target_fit_current
+                    WHERE cnpj_raiz = ANY(%s)
+                    """,
+                    (list(raizes),),
+                )
+            rows = cur.fetchall() or []
+        except Exception:  # noqa: BLE001
+            return {}
     for row in rows:
         d = dict(row) if not isinstance(row, dict) else dict(row)
         ck = str(d.get("company_key") or "")
@@ -180,7 +294,11 @@ def _lookup_live(
                 return dict(published_index[alt])
 
     if conn is not None and ck:
-        live = get_current(conn, ck)
+        live = get_published_for_mode(conn, ck)
+        if live:
+            return dict(live)
+        # Explicit current/shadow probes for hybrid envs
+        live = get_current(conn, ck) or get_shadow(conn, ck)
         if live:
             return dict(live)
     return None
