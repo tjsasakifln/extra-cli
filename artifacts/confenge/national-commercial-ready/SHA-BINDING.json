@@ -1,19 +1,17 @@
 {
-  "origin_main": "84d3779656b162c85ca72373722f126ef87be638",
-  "host_deployed_sha": "84d3779656b162c85ca72373722f126ef87be638",
-  "runtime_sha": "84d3779656b162c85ca72373722f126ef87be638",
-  "expected_origin_tip": "84d3779656b162c85ca72373722f126ef87be638",
+  "origin_main": "d97837c92d15b3fc16ade47f46ffd22b621d07a2",
+  "host_deployed_sha": "d97837c92d15b3fc16ade47f46ffd22b621d07a2",
+  "runtime_sha": "d97837c92d15b3fc16ade47f46ffd22b621d07a2",
+  "expected_origin_tip": "d97837c92d15b3fc16ade47f46ffd22b621d07a2",
   "triple_sha_equal": true,
   "tip_matches_origin_main": true,
   "sha_bound": true,
   "warmbly_origin_main": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
   "warmbly_host_deployed": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
   "warmbly_runtime": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
-  "pr_227_merged": true,
   "pr_228_merged": true,
-  "pr_229": "tip_rebind",
-  "strict_esr_as_of": "2026-08-10T18:45:25Z",
-  "note": "Post-#228 tip + fresh strict ESR remeasure",
-  "as_of": "2026-08-10T18:46:55Z",
-  "pack_git_sha": "d521f1284a82c7b713ac1cb81a866f9645dccf6e"
+  "pr_229_merged": true,
+  "note": "Final tip rebind after #229 squash",
+  "as_of": "2026-08-10T18:58:04Z",
+  "pack_git_sha": "d97837c92d15b3fc16ade47f46ffd22b621d07a2"
 }

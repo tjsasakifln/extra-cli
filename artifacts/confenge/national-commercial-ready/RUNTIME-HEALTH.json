@@ -8,7 +8,7 @@
   "continuous_workers": "HEALTHY",
   "target_fit": "HEALTHY",
   "database_watermark": "2026-08-10T18:45:25Z",
-  "as_of": "2026-08-10T18:46:55Z",
+  "as_of": "2026-08-10T18:58:04Z",
   "full_source_ladder_complete": true,
   "ladder_yield_eval": {
     "full_source_ladder_complete": true,

@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-08-10T18:46:55Z",
+  "as_of": "2026-08-10T18:58:04Z",
   "rows": [
     {
       "cnpj_raiz": "01324865",
@@ -64,16 +64,6 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "90000000",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
       "cnpj_raiz": "01608331",
       "razao_social": null,
       "email": "licitacao.rotocycle@gmail.com",
@@ -131,16 +121,6 @@
         "tender_proposal"
       ],
       "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
-      "cnpj_raiz": "90000001",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
       "audit_flags": [],
       "audit_pass": true
     },
@@ -207,16 +187,6 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "90000002",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
       "cnpj_raiz": "08594071",
       "razao_social": null,
       "email": "topografiadooeste@gmail.com",
@@ -274,16 +244,6 @@
         "tender_proposal"
       ],
       "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
-      "cnpj_raiz": "90000003",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
       "audit_flags": [],
       "audit_pass": true
     },
@@ -349,16 +309,6 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "90000004",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
       "cnpj_raiz": "08818983",
       "razao_social": null,
       "email": "gilsonfreo@gmail.com",
@@ -416,16 +366,6 @@
         "fallback"
       ],
       "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
-      "cnpj_raiz": "90000005",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
       "audit_flags": [],
       "audit_pass": true
     },
@@ -491,16 +431,6 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "90000006",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
       "cnpj_raiz": "09258103",
       "razao_social": null,
       "email": "wddistribuidorawd@gmail.com",
@@ -558,16 +488,6 @@
         "fallback"
       ],
       "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
-      "cnpj_raiz": "90000007",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
       "audit_flags": [],
       "audit_pass": true
     },
@@ -633,16 +553,6 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "90000008",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
       "cnpj_raiz": "10814673",
       "razao_social": null,
       "email": "pmi25@gmail.com",
@@ -700,16 +610,6 @@
         "fallback"
       ],
       "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
-      "cnpj_raiz": "90000009",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
       "audit_flags": [],
       "audit_pass": true
     },
@@ -776,16 +676,6 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "90000010",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
       "cnpj_raiz": "12301260",
       "razao_social": null,
       "email": "gabinete.chp@hotmail.com",
@@ -843,16 +733,6 @@
         "budget_bdi"
       ],
       "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
-      "cnpj_raiz": "90000011",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
       "audit_flags": [],
       "audit_pass": true
     },
@@ -918,16 +798,6 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "90000012",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
       "cnpj_raiz": "13731196",
       "razao_social": null,
       "email": "adm.pmestacao@gmail.com",
@@ -985,16 +855,6 @@
         "fallback"
       ],
       "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
-      "cnpj_raiz": "90000013",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
       "audit_flags": [],
       "audit_pass": true
     },
@@ -1061,16 +921,6 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "90000014",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
       "cnpj_raiz": "14020350",
       "razao_social": null,
       "email": "obraspmmachado@hotmail.com",
@@ -1128,16 +978,6 @@
         "fallback"
       ],
       "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
-      "cnpj_raiz": "90000015",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
       "audit_flags": [],
       "audit_pass": true
     },
@@ -1203,16 +1043,6 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "90000016",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
       "cnpj_raiz": "15558187",
       "razao_social": null,
       "email": "licitasupridental1@hotmail.com",
@@ -1270,16 +1100,6 @@
         "fallback"
       ],
       "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
-      "cnpj_raiz": "90000017",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
       "audit_flags": [],
       "audit_pass": true
     },
@@ -1348,16 +1168,6 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "90000018",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
       "cnpj_raiz": "16741477",
       "razao_social": null,
       "email": "zaazmoveis@gmail.com",
@@ -1415,16 +1225,6 @@
         "fallback"
       ],
       "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
-      "cnpj_raiz": "90000019",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
       "audit_flags": [],
       "audit_pass": true
     },
@@ -1490,16 +1290,6 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "90000020",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
       "cnpj_raiz": "19519414",
       "razao_social": null,
       "email": "culturasenadorfirmino@gmail.com",
@@ -1557,16 +1347,6 @@
         "fallback"
       ],
       "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
-      "cnpj_raiz": "90000021",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
       "audit_flags": [],
       "audit_pass": true
     },
@@ -1632,16 +1412,6 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "90000022",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
       "cnpj_raiz": "22562250",
       "razao_social": null,
       "email": "anaflores.ed@gmail.com",
@@ -1699,16 +1469,6 @@
         "fallback"
       ],
       "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
-      "cnpj_raiz": "90000023",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
       "audit_flags": [],
       "audit_pass": true
     },
@@ -1774,16 +1534,6 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "90000024",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
       "cnpj_raiz": "22753588",
       "razao_social": null,
       "email": "ruthbarbosaeng@gmail.com",
@@ -1841,16 +1591,6 @@
         "tender_proposal"
       ],
       "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
-      "cnpj_raiz": "90000025",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
       "audit_flags": [],
       "audit_pass": true
     },
@@ -1916,16 +1656,6 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "90000026",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
       "cnpj_raiz": "24165795",
       "razao_social": null,
       "email": "comercialrosa2020@gmail.com",
@@ -1983,16 +1713,6 @@
         "fallback"
       ],
       "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
-      "cnpj_raiz": "90000027",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
       "audit_flags": [],
       "audit_pass": true
     },
@@ -2058,16 +1778,6 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "90000028",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
       "cnpj_raiz": "24996771",
       "razao_social": null,
       "email": "cslseinfra23@gmail.com",
@@ -2127,16 +1837,6 @@
         "mature_no_reajuste"
       ],
       "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
-      "audit_flags": [],
-      "audit_pass": true
-    },
-    {
-      "cnpj_raiz": "90000029",
-      "terminal_state": "CONTACT_EXHAUSTED",
-      "email_send_ready": false,
-      "audit_stratum": "CONTACT_EXHAUSTED",
-      "ownership_status": "N/A_NO_CONTACT",
-      "source_type": null,
       "audit_flags": [],
       "audit_pass": true
     },
@@ -2442,6 +2142,929 @@
       ],
       "supporting_signal_ids": [
         "fallback"
+      ],
+      "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "27923240",
+      "razao_social": null,
+      "email": "sandraoliveira1344@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "auditoria_orcamento_bdi",
+      "why_this_account": "a empresa — foco no fato de execução contratual pública disponível no input: Contratação de obra de construção de barracão, depósito e cisternas para a ASCAMAR, conforme Termo de Convênio nº 45000….",
+      "why_now": "Contrato com término previsto em 2026-11-27; órgão PE - Secretaria Municipal de Agricultura, Pecuária e Desenvolvimento Sustentável; objeto: Contratação de obra de construção de barracão, depósito e cisternas para a ASCAMAR, conforme Termo d (horizonte ~109 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: Contratação de obra de construção de barracão, depósito e cisternas para a ASCAMAR, conforme Termo de Convênio nº 4500079458 - Itaipu; órgão: PE - Secretaria Municipal de Agricultura, Pecuária e Desenvolvimento Sustentável; UF PR; R$ 1,899,000",
+      "micro_offer": "DOCUMENT_CHECKLIST",
+      "cta": "Envio escopo de auditoria focal (composições + BDI) para um contrato-alvo.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:auditoria_orcamento_bdi",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "budget_bdi"
+      ],
+      "audit_stratum": "EMAIL_SEND_READY",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "11349160",
+      "razao_social": null,
+      "email": "contratos@datavirtus.com.br",
+      "ownership_status": "LIKELY_COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "CONTRATOS",
+      "mailbox_send_blocked": false,
+      "service_code": "diagnostico_contratual_b2g",
+      "why_this_account": "a empresa — foco no fato de execução contratual pública disponível no input: CONTRATAÇÃO DE SERVIÇOS CONTÍNUOS DE VIGILÂNCIA ARMADA E DESARMADA, DIURNA E NOTURNA, A SEREM EXECUTADOS COM REGIME DE….",
+      "why_now": "Evento contratual público recente: publicação em 2026-04-07; órgão MCT-COORD. GERAL DE RECURSOS LOGÍSTICOS/DF; objeto: CONTRATAÇÃO DE SERVIÇOS CONTÍNUOS DE VIGILÂNCIA ARMADA E DESARMADA, DIURNA E NOTURNA, A SEREM EXECUT.",
+      "observed_fact": "objeto: CONTRATAÇÃO DE SERVIÇOS CONTÍNUOS DE VIGILÂNCIA ARMADA E DESARMADA, DIURNA E NOTURNA, A SEREM EXECUTADOS COM REGIME DE DEDICAÇÃO EXCLUSIVA DE MÃO DE OBRA, COM FORNECIMENTO DE EQUIP; órgão: MCT-COORD. GERAL DE RECURSOS LOGÍSTICOS/DF; UF DF; R$ 16,684,105",
+      "micro_offer": "DIAGNOSTIC_CHECKLIST",
+      "cta": "Sugiro um diagnóstico contratual B2G curto para mapear riscos e priorizar encaixes.",
+      "source_type": "public_process_document",
+      "source_url": "https://pncp.gov.br/pncp-api/v1/orgaos/26664015000148/compras/2026/1/arquivos/1",
+      "n_contracts": 2,
+      "email_send_ready": false,
+      "reasons": [
+        "ownership:LIKELY_COMPANY_OWNED",
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported"
+      ],
+      "supporting_signal_ids": [
+        "fallback"
+      ],
+      "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "28042139",
+      "razao_social": null,
+      "email": "carolsenador@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "apoio_licitacoes_propostas",
+      "why_this_account": "a empresa — foco no fato de execução contratual pública disponível no input: Contratação de serviços de execução de calçamento emblocos de concreto sextavados (piso intertravado), incluindo serviç….",
+      "why_now": "Contrato com término previsto em 2026-12-24; órgão MUNICIPIO DE SENADOR FIRMINO; objeto: Contratação de serviços de execução de calçamento emblocos de concreto sextavados (piso intertravado (horizonte ~136 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: Contratação de serviços de execução de calçamento emblocos de concreto sextavados (piso intertravado), incluindo serviços preliminares, mobilização e desmobilização de obra, serviç; órgão: MUNICIPIO DE SENADOR FIRMINO; UF MG; R$ 321,915",
+      "micro_offer": "PROCUREMENT_RISK_SNAPSHOT",
+      "cta": "Disponibilizo apoio de pico em análise de edital/proposta sob NDA.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:apoio_licitacoes_propostas",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "tender_proposal"
+      ],
+      "audit_stratum": "EMAIL_SEND_READY",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "11520665",
+      "razao_social": null,
+      "email": "adm@showtime19.net",
+      "ownership_status": "LIKELY_COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "GENERIC_CONTACT",
+      "mailbox_send_blocked": false,
+      "service_code": "diagnostico_contratual_b2g",
+      "why_this_account": "a empresa — foco no fato de edificação/reforma disponível no input: Contratação de empresa especializada para execução de obras de reforma da avenida Agamenon Magalhães, Maurício de Nassa….",
+      "why_now": "Contrato com término previsto em 2027-02-01; órgão Unidade Única; objeto: RENOVAÇÃO DO CONTRATO  DE EMPRESA PARA SERVIÇOS DE LIMPEZA E MANUTENÇÃO DE CANAIS, GALERIAS, CANALET (horizonte ~175 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: Contratação de empresa especializada para execução de obras de reforma da avenida Agamenon Magalhães, Maurício de Nassau, Caruaru/PE.; órgão: PREFEITURA MUNICIPAL DE CARUARU - PE; UF PE; R$ 9,070,048",
+      "micro_offer": "DIAGNOSTIC_CHECKLIST",
+      "cta": "Sugiro um diagnóstico contratual B2G curto para mapear riscos e priorizar encaixes.",
+      "source_type": "public_process_document",
+      "source_url": "https://pncp.gov.br/pncp-api/v1/orgaos/10091536000113/compras/2026/123/arquivos/5",
+      "n_contracts": 2,
+      "email_send_ready": false,
+      "reasons": [
+        "ownership:LIKELY_COMPANY_OWNED",
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported"
+      ],
+      "supporting_signal_ids": [
+        "fallback"
+      ],
+      "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "28446502",
+      "razao_social": null,
+      "email": "escolaestreladamanha@yahoo.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "estruturacao_pleito_reajuste",
+      "why_this_account": "a empresa — drenagem cruzando UFs (RS, SC). Fato: Contratação de Empresa Especializada a Realização de Serviços de Vídeo Inspeção em Rede de Drenagem Pluvial, no mapeame….",
+      "why_now": "Evento contratual público recente: publicação em 2026-02-18; órgão Prefeitura Municipal de Joinville - PMJ; objeto: Contratação de Empresa Especializada a Realização de Serviços de Vídeo Inspeção em Rede de Drenagem .",
+      "observed_fact": "objeto: Contratação de Empresa Especializada a Realização de Serviços de Vídeo Inspeção em Rede de Drenagem Pluvial, no mapeamento e cadastro do Município de Joinville, por registro de pre; órgão: Prefeitura Municipal de Joinville - PMJ; UF SC; R$ 842,563",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso enviar um roteiro objetivo de checagem de reajuste (cláusula → índice → memória) para um contrato-piloto.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "mature_no_reajuste"
+      ],
+      "audit_stratum": "EMAIL_SEND_READY",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "12461395",
+      "razao_social": null,
+      "email": "e-mailevento@zenite.com.br",
+      "ownership_status": "LIKELY_COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "GENERIC_CONTACT",
+      "mailbox_send_blocked": false,
+      "service_code": "diagnostico_contratual_b2g",
+      "why_this_account": "a empresa — foco no fato de saneamento disponível no input: Contratação empresa especializada para implantação de subadutora e rede de distribuição de água, com fornecimento parci….",
+      "why_now": "Contrato com término previsto em 2027-01-03; órgão SERVIÇO AUTONOMO MUNICIPAL DE AGUA E ESGOTO; objeto: Contratação de empresa especializada para implantação de uma subadutora em tubos de PVC DN 150, com  (horizonte ~146 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: Contratação empresa especializada para implantação de subadutora e rede de distribuição de água, com fornecimento parcial de materiais, totalizando aproximadamente 4.320 m de tubul; órgão: SERVIÇO AUTONOMO MUNICIPAL DE AGUA E ESGOTO; UF RS; R$ 1,226,715",
+      "micro_offer": "DIAGNOSTIC_CHECKLIST",
+      "cta": "Sugiro um diagnóstico contratual B2G curto para mapear riscos e priorizar encaixes.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": false,
+      "reasons": [
+        "ownership:LIKELY_COMPANY_OWNED",
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported"
+      ],
+      "supporting_signal_ids": [
+        "fallback"
+      ],
+      "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "28585882",
+      "razao_social": null,
+      "email": "mendes.eng.construcoes@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "auditoria_orcamento_bdi",
+      "why_this_account": "a empresa — foco no fato de pavimentação/vias disponível no input: Contratação de empresa especializada em engenharia, em regime de empreitada por preço global, para execução de obra de….",
+      "why_now": "Há um marco datado e recente na carteira pública: publicação em 2026-07-01; órgão MUNICIPIO DE EUGENOPOLIS; objeto: Contratação de empresa especializada em engenharia, em regime de empreitada por preço global, para e.",
+      "observed_fact": "objeto: Contratação de empresa especializada em engenharia, em regime de empreitada por preço global, para execução de obra de engenharia destinada à pavimentação em bloquete sextavado em ; órgão: MUNICIPIO DE EUGENOPOLIS; UF MG; R$ 350,000",
+      "micro_offer": "DOCUMENT_CHECKLIST",
+      "cta": "Envio escopo de auditoria focal (composições + BDI) para um contrato-alvo.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:auditoria_orcamento_bdi",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "budget_bdi"
+      ],
+      "audit_stratum": "EMAIL_SEND_READY",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "12556578",
+      "razao_social": null,
+      "email": "nfers@motormac.com.br",
+      "ownership_status": "LIKELY_COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "estruturacao_pleito_reajuste",
+      "why_this_account": "a empresa — foco no fato de pavimentação/vias disponível no input: Contratação de empresa para realizar a continuidade da implantação da acessibilidade, pavimento do pátio e outras inter….",
+      "why_now": "",
+      "observed_fact": "objeto: Contratação de empresa para realizar a continuidade da implantação da acessibilidade, pavimento do pátio e outras intervenções na E.M.E.F. Prefeito Jorge Dariva.\nP.A. 1386/2025; órgão: Secretaria de Gestão, Inovação e Planejamento; UF RS; R$ 194,116",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso enviar um roteiro objetivo de checagem de reajuste (cláusula → índice → memória) para um contrato-piloto.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": false,
+      "reasons": [
+        "ownership:LIKELY_COMPANY_OWNED",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "copy_context_not_ready",
+        "copy_context_incomplete",
+        "missing:message_spine_incomplete"
+      ],
+      "supporting_signal_ids": [
+        "mature_no_reajuste"
+      ],
+      "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "28585944",
+      "razao_social": null,
+      "email": "cotacao.encanto@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "diagnostico_contratual_b2g",
+      "why_this_account": "a empresa — foco no fato de execução contratual pública disponível no input: Contratação de empresa para prestação de serviço com locação de ônibus com capacidade mínima de quarenta lugares para a….",
+      "why_now": "Há um marco datado e recente na carteira pública: publicação em 2026-06-22; órgão FUNDO MUNICIPAL DE EDUCAÇÃO; objeto: Contratação de empresa para prestação de serviço com locação de ônibus com capacidade mínima de quar.",
+      "observed_fact": "objeto: Contratação de empresa para prestação de serviço com locação de ônibus com capacidade mínima de quarenta lugares para atender as necessidades do município de Encanto/RN; órgão: FUNDO MUNICIPAL DE EDUCAÇÃO; UF RN; R$ 459,000",
+      "micro_offer": "DIAGNOSTIC_CHECKLIST",
+      "cta": "Sugiro um diagnóstico contratual B2G curto para mapear riscos e priorizar encaixes.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "fallback"
+      ],
+      "audit_stratum": "EMAIL_SEND_READY",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "12628444",
+      "razao_social": null,
+      "email": "contato@lepidus.com.br",
+      "ownership_status": "LIKELY_COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "GENERIC_CONTACT",
+      "mailbox_send_blocked": false,
+      "service_code": "estruturacao_pleito_reajuste",
+      "why_this_account": "a empresa — execução contratual pública cruzando UFs (ES, GO). Fato: CONTRATAÇÃO INTEGRADA DE PROJETOS BÁSICOS, EXECUTIVOS E EXECUÇÃO DE OBRA DE CONSTRUÇÃO DO PRÉDIO DO BÁSICO 3, NO CENTRO….",
+      "why_now": "Contrato com término previsto em 2026-07-20; órgão UNIVERSIDADE FEDERAL DE JATAI; objeto: CONTRATAÇÃO SEMI-INTEGRADA DE EMPRESA PARA ELABORAÇÃO DE PROJETOS EXECUTIVOS DE ENGENHARIA E EXECUÇÃ (horizonte ~-21 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: CONTRATAÇÃO INTEGRADA DE PROJETOS BÁSICOS, EXECUTIVOS E EXECUÇÃO DE OBRA DE CONSTRUÇÃO DO PRÉDIO DO BÁSICO 3, NO CENTRO DE CIÊNCIAS DA SAÚDE; órgão: UNIVERSIDADE FEDERAL DO ESPIRITO SANTO/ES; UF ES; R$ 11,889,000",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso enviar um roteiro objetivo de checagem de reajuste (cláusula → índice → memória) para um contrato-piloto.",
+      "source_type": "public_process_document",
+      "source_url": "https://pncp.gov.br/pncp-api/v1/orgaos/35840659000130/compras/2025/2/arquivos/3",
+      "n_contracts": 2,
+      "email_send_ready": false,
+      "reasons": [
+        "ownership:LIKELY_COMPANY_OWNED",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported"
+      ],
+      "supporting_signal_ids": [
+        "mature_no_reajuste"
+      ],
+      "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "28942338",
+      "razao_social": null,
+      "email": "lsproducoesdeeventos@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "estruturacao_pleito_reajuste",
+      "why_this_account": "a empresa — foco no fato de pavimentação/vias disponível no input: EMPREITADA GLOBAL PARA IMPLEMENTAÇÃO DE OBRA DE INFRAESTRUTURA VIÁRIA HUMANA E DE VEÍCULOS EM LOTEMAENTO SOCIAL PAVIMEN….",
+      "why_now": "Contrato com término previsto em 2026-12-15; órgão PREFEITURA MUNICIPAL DE EREBANGO; objeto: EMPREITADA GLOBAL PARA IMPLEMENTAÇÃO DE OBRA DE INFRAESTRUTURA VIÁRIA HUMANA E DE VEÍCULOS EM LOTEMA (horizonte ~127 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: EMPREITADA GLOBAL PARA IMPLEMENTAÇÃO DE OBRA DE INFRAESTRUTURA VIÁRIA HUMANA E DE VEÍCULOS EM LOTEMAENTO SOCIAL  PAVIMENTAÇÃO POLIDRÍCA IRREGULAR E PASSEIO EM PAVER (BLOCOS INTERCA; órgão: PREFEITURA MUNICIPAL DE EREBANGO; UF RS; R$ 265,351",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso enviar um roteiro objetivo de checagem de reajuste (cláusula → índice → memória) para um contrato-piloto.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "mature_no_reajuste"
+      ],
+      "audit_stratum": "EMAIL_SEND_READY",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "13991890",
+      "razao_social": null,
+      "email": "licitacoes@querodiesel.com.br",
+      "ownership_status": "LIKELY_COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "LICITACOES",
+      "mailbox_send_blocked": false,
+      "service_code": "diagnostico_contratual_b2g",
+      "why_this_account": "a empresa — foco no fato de pavimentação/vias disponível no input: Contratação de empresa para fornecimento de material e assistência técnica para manutenção corretiva da Usina de Asfalt….",
+      "why_now": "Evento contratual público recente: publicação em 2026-05-22; órgão PREFEITURA MUNICIPAL DE ERECHIM; objeto: Contratação de empresa para fornecimento de material  e assistência técnica para manutenção corretiv.",
+      "observed_fact": "objeto: Contratação de empresa para fornecimento de material  e assistência técnica para manutenção corretiva da Usina de Asfalto e Solos 40/60 - 150 toneladas por hora da marca Margui, po; órgão: PREFEITURA MUNICIPAL DE ERECHIM; UF RS; R$ 39,769",
+      "micro_offer": "DIAGNOSTIC_CHECKLIST",
+      "cta": "Sugiro um diagnóstico contratual B2G curto para mapear riscos e priorizar encaixes.",
+      "source_type": "public_process_document",
+      "source_url": "https://pncp.gov.br/pncp-api/v1/orgaos/87613477000120/compras/2026/238/arquivos/4",
+      "n_contracts": 2,
+      "email_send_ready": false,
+      "reasons": [
+        "ownership:LIKELY_COMPANY_OWNED",
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported"
+      ],
+      "supporting_signal_ids": [
+        "fallback"
+      ],
+      "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "30668644",
+      "razao_social": null,
+      "email": "licitalapa@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "reforco_temporario_backoffice",
+      "why_this_account": "Para a empresa, o encaixe parte do volume paralelo (~3) em pavimentação/vias. Fato: Contratação de serviços de topografia e ensaios tecnológicos no âmbito da engenharia, através do Sistema de Registro de….",
+      "why_now": "Evento contratual público recente: publicação em 2026-05-19; órgão DEPARTAMENTO DE PAVIMENTAÇÃO; objeto: Contratação de serviços de topografia e ensaios tecnológicos no âmbito da engenharia, através do Sis.",
+      "observed_fact": "objeto: Contratação de serviços de topografia e ensaios tecnológicos no âmbito da engenharia, através do Sistema de Registro de Preços; órgão: DEPARTAMENTO DE PAVIMENTAÇÃO; UF PR; R$ 3,248",
+      "micro_offer": "BACKOFFICE_SCOPE_CHECK",
+      "cta": "Posso dimensionar um reforço temporário de backoffice técnico/contratual por sprint.",
+      "source_type": "public_process_document",
+      "source_url": "https://pncp.gov.br/pncp-api/v1/orgaos/76020452000105/compras/2026/119/arquivos/1",
+      "n_contracts": 3,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:reforco_temporario_backoffice",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "structure_lean",
+        "multi_contract"
+      ],
+      "audit_stratum": "EMAIL_SEND_READY",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "14711839",
+      "razao_social": null,
+      "email": "financeiro@cialudicars.com.br",
+      "ownership_status": "LIKELY_COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "FINANCEIRO",
+      "mailbox_send_blocked": false,
+      "service_code": "diagnostico_contratual_b2g",
+      "why_this_account": "a empresa — foco no fato de pavimentação/vias disponível no input: Aquisição de bloquetes de concreto (pavimento intertravado – PAV), para atendimento das demandas recorrentes de pavimen….",
+      "why_now": "Contrato com término previsto em 2026-11-14; órgão Secretaria de Gestão, Inovação e Planejamento; objeto: Aquisição de bloquetes de concreto (pavimento intertravado – PAV), para atendimento das demandas rec (horizonte ~96 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: Aquisição de bloquetes de concreto (pavimento intertravado – PAV), para atendimento das demandas recorrentes de pavimentação, recomposição e requalificação viária do Município. SOS; órgão: Secretaria de Gestão, Inovação e Planejamento; UF RS; R$ 253,000",
+      "micro_offer": "DIAGNOSTIC_CHECKLIST",
+      "cta": "Sugiro um diagnóstico contratual B2G curto para mapear riscos e priorizar encaixes.",
+      "source_type": "public_process_document",
+      "source_url": "https://pncp.gov.br/pncp-api/v1/orgaos/90836693000140/compras/2026/453/arquivos/1",
+      "n_contracts": 2,
+      "email_send_ready": false,
+      "reasons": [
+        "ownership:LIKELY_COMPANY_OWNED",
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported"
+      ],
+      "supporting_signal_ids": [
+        "fallback"
+      ],
+      "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "31085446",
+      "razao_social": null,
+      "email": "britagemcereser@hotmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "auditoria_orcamento_bdi",
+      "why_this_account": "a empresa opera execução contratual pública sob múltiplos órgãos (2). Sem assumir dor interna: o ângulo é só a coordenação pública observável. Marco: CONSTRUÇÃO DE REDE PLUVIAL E BOCA DE LOBO, MELHORIAS DO SISTEMA PLUVIAL NA AVENIDA SENADOR ALBERTO PASQUALINI E ENTORNO….",
+      "why_now": "Contrato com término previsto em 2026-11-23; órgão MUNICIPIO DE TRES DE MAIO/RS; objeto: CONSTRUÇÃO DE REDE PLUVIAL E BOCA DE LOBO, MELHORIAS DO SISTEMA PLUVIAL NA AVENIDA SENADOR ALBERTO P (horizonte ~105 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: CONSTRUÇÃO DE REDE PLUVIAL E BOCA DE LOBO, MELHORIAS DO SISTEMA PLUVIAL NA AVENIDA SENADOR ALBERTO PASQUALINI E ENTORNO, COM FECHAMENTO DA BOCA DE LOBO EXISTENTE E DESVIO DO ESCOAM; órgão: MUNICIPIO DE TRES DE MAIO/RS; UF RS; R$ 280,496",
+      "micro_offer": "DOCUMENT_CHECKLIST",
+      "cta": "Envio escopo de auditoria focal (composições + BDI) para um contrato-alvo.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 3,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:auditoria_orcamento_bdi",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "budget_bdi"
+      ],
+      "audit_stratum": "EMAIL_SEND_READY",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "15049409",
+      "razao_social": null,
+      "email": "dib@totalinfo.com.br",
+      "ownership_status": "LIKELY_COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "diagnostico_contratual_b2g",
+      "why_this_account": "a empresa — foco no fato de execução contratual pública disponível no input: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA, COM FORNECIMENTO DE MATERIAIS, EQUIPAMENTOS E MÃO DE OBRA, PARA EXECUÇÃO DE OBRAS….",
+      "why_now": "Há um marco datado e recente na carteira pública: publicação em 2026-06-19; órgão Prefeitura Municipal de Itapira; objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA, COM FORNECIMENTO DE MATERIAIS, EQUIPAMENTOS E MÃO DE OBRA, PAR.",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA, COM FORNECIMENTO DE MATERIAIS, EQUIPAMENTOS E MÃO DE OBRA, PARA EXECUÇÃO DE OBRAS E SERVIÇOS DE CAPTAÇÃO, ESTAÇÃO ELEVATÓRIA E ADUTORA DE ÁGUA; órgão: Prefeitura Municipal de Itapira; UF SP; R$ 33,000,000",
+      "micro_offer": "DIAGNOSTIC_CHECKLIST",
+      "cta": "Sugiro um diagnóstico contratual B2G curto para mapear riscos e priorizar encaixes.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": false,
+      "reasons": [
+        "ownership:LIKELY_COMPANY_OWNED",
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported"
+      ],
+      "supporting_signal_ids": [
+        "fallback"
+      ],
+      "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "31500831",
+      "razao_social": null,
+      "email": "aldasbm.mg@yahoo.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "reforco_temporario_backoffice",
+      "why_this_account": "a empresa opera pavimentação/vias sob múltiplos órgãos (3). Sem assumir dor interna: o ângulo é só a coordenação pública observável. Marco: [LICITANET] - CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM ENGENHARIA CIVIL, INCLUINDO MATERIAL E MÃO DE OBRA, PARA EXECUÇÃO….",
+      "why_now": "Contrato com término previsto em 2027-02-05; órgão MUNICÍPIO DE ARAXA/MG; objeto: [LICITANET] - CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM ENGENHARIA CIVIL, INCLUINDO MATERIAL E MÃO DE  (horizonte ~179 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: [LICITANET] - CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM ENGENHARIA CIVIL, INCLUINDO MATERIAL E MÃO DE OBRA, PARA EXECUÇÃO DE PAVIMENTAÇÃO ASFÁLTICA EM CONCRETO BETUMINOSOS USINADO A ; órgão: MUNICÍPIO DE ARAXA/MG; UF MG; R$ 1,170,000",
+      "micro_offer": "BACKOFFICE_SCOPE_CHECK",
+      "cta": "Posso dimensionar um reforço temporário de backoffice técnico/contratual por sprint.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 3,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:reforco_temporario_backoffice",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "structure_lean",
+        "multi_contract"
+      ],
+      "audit_stratum": "EMAIL_SEND_READY",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "15182539",
+      "razao_social": null,
+      "email": "legallzacao@apiceassessoria.com.br",
+      "ownership_status": "LIKELY_COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "diagnostico_contratual_b2g",
+      "why_this_account": "a empresa — foco no fato de execução contratual pública disponível no input: AQUISIÇÃO DE MATERIAL ELÉTRICO PARA MANUTENÇÃO DE CENTRO COMUNITÁRIO junto a Prefeitura Municipal da Estância de Atibai….",
+      "why_now": "Publicação/marco recente no PNCP: publicação em 2026-04-22; órgão Prefeitura Municipal da Estância de Atibaia; objeto: AQUISIÇÃO DE MATERIAL ELÉTRICO PARA MANUTENÇÃO DE CENTRO COMUNITÁRIO.",
+      "observed_fact": "objeto: AQUISIÇÃO DE MATERIAL ELÉTRICO PARA MANUTENÇÃO DE CENTRO COMUNITÁRIO; órgão: Prefeitura Municipal da Estância de Atibaia; UF SP; R$ 275",
+      "micro_offer": "DIAGNOSTIC_CHECKLIST",
+      "cta": "Sugiro um diagnóstico contratual B2G curto para mapear riscos e priorizar encaixes.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": false,
+      "reasons": [
+        "ownership:LIKELY_COMPANY_OWNED",
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported"
+      ],
+      "supporting_signal_ids": [
+        "fallback"
+      ],
+      "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "32410406",
+      "razao_social": null,
+      "email": "javeyireengenharia@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "ENGENHARIA",
+      "mailbox_send_blocked": false,
+      "service_code": "diagnostico_contratual_b2g",
+      "why_this_account": "a empresa — foco no fato de execução contratual pública disponível no input: LOTE ÚNICO - CONSTRUÇÃO DE UNIDADE BÁSICA DE SAÚDE – UBS PORTE II, localizada na Avenida Ananias Alexandre, s/n, entre….",
+      "why_now": "Publicação/marco recente no PNCP: publicação em 2026-05-27; órgão Secretaria de Saúde; objeto: LOTE ÚNICO - CONSTRUÇÃO DE UNIDADE BÁSICA DE SAÚDE – UBS PORTE II, localizada na Avenida Ananias Ale.",
+      "observed_fact": "objeto: LOTE ÚNICO - CONSTRUÇÃO DE UNIDADE BÁSICA DE SAÚDE – UBS PORTE II, localizada na Avenida Ananias Alexandre, s/n, entre as ruas 13 e 14, Bairro Curicaca; órgão: Secretaria de Saúde; UF CE; R$ 2,150,650",
+      "micro_offer": "DIAGNOSTIC_CHECKLIST",
+      "cta": "Sugiro um diagnóstico contratual B2G curto para mapear riscos e priorizar encaixes.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "fallback"
+      ],
+      "audit_stratum": "EMAIL_SEND_READY",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "16383848",
+      "razao_social": null,
+      "email": "contabilidade@mobitbrasil.com.br",
+      "ownership_status": "LIKELY_COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "FINANCEIRO",
+      "mailbox_send_blocked": false,
+      "service_code": "apoio_licitacoes_propostas",
+      "why_this_account": "a empresa — execução contratual pública cruzando UFs (CE, GO). Fato: CONTRATACAO DE EMPRESA PARA A PRESTACAO DE SERVICOS DE MONITORAMENTO ELETRONICO, APOIO A SEGURANCA PUBLICA E GESTAO DA….",
+      "why_now": "Evento contratual público recente: publicação em 2026-04-16; órgão SUPERINTENDENCIA MUNICIPAL DE TRANSITO - LUZIANIA; objeto: CONTRATACAO DE EMPRESA PARA A PRESTACAO DE SERVICOS DE MONITORAMENTO ELETRONICO, APOIO A SEGURANCA P.",
+      "observed_fact": "objeto: CONTRATACAO DE EMPRESA PARA A PRESTACAO DE SERVICOS DE MONITORAMENTO ELETRONICO, APOIO A SEGURANCA PUBLICA E GESTAO DA MOBILIDADE URBANA PARA ATENDER AS NECESSIDADES DA SUPERINTEND; órgão: SUPERINTENDENCIA MUNICIPAL DE TRANSITO - LUZIANIA; UF GO; R$ 3,316,352",
+      "micro_offer": "PROCUREMENT_RISK_SNAPSHOT",
+      "cta": "Disponibilizo apoio de pico em análise de edital/proposta sob NDA.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": false,
+      "reasons": [
+        "ownership:LIKELY_COMPANY_OWNED",
+        "service_code:apoio_licitacoes_propostas",
+        "service_fit_supported"
+      ],
+      "supporting_signal_ids": [
+        "tender_proposal"
+      ],
+      "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "32706898",
+      "razao_social": null,
+      "email": "mawi.contato@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "GENERIC_CONTACT",
+      "mailbox_send_blocked": false,
+      "service_code": "diagnostico_contratual_b2g",
+      "why_this_account": "a empresa — foco no fato de execução contratual pública disponível no input: Contratação de empresa, na forma de empreitada por preços unitários, compreendendo material e serviços, para a execução….",
+      "why_now": "Contrato com término previsto em 2026-10-15; órgão MUNICIPIO DE FLORES DA CUNHA; objeto: Contratação de empresa, na forma de empreitada por preços unitários, compreendendo material e serviç (horizonte ~66 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: Contratação de empresa, na forma de empreitada por preços unitários, compreendendo material e serviços, para a execução de manutenção e melhorias em praças públicas, neste Municípi; órgão: MUNICIPIO DE FLORES DA CUNHA; UF RS; R$ 332,181",
+      "micro_offer": "DIAGNOSTIC_CHECKLIST",
+      "cta": "Sugiro um diagnóstico contratual B2G curto para mapear riscos e priorizar encaixes.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "fallback"
+      ],
+      "audit_stratum": "EMAIL_SEND_READY",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "16791765",
+      "razao_social": null,
+      "email": "comercial@tripeventos.net",
+      "ownership_status": "LIKELY_COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "COMERCIAL",
+      "mailbox_send_blocked": false,
+      "service_code": "diagnostico_contratual_b2g",
+      "why_this_account": "a empresa — foco no fato de execução contratual pública disponível no input: DISPONIBILIZAÇÃO DE MÁQUINAS E EQUIPAMENTOS PESADOS, ACOMPANHADOS DO FORNECIMENTO DE OPERADORES, MOTORISTAS, MANUTENÇÃO….",
+      "why_now": "Há um marco datado e recente na carteira pública: publicação em 2026-06-10; órgão AGENCIA GOIANA DE INFRAEST.E TRANSPORTES/GO; objeto: DISPONIBILIZAÇÃO DE MÁQUINAS E EQUIPAMENTOS PESADOS, ACOMPANHADOS DO FORNECIMENTO DE OPERADORES, MOT.",
+      "observed_fact": "objeto: DISPONIBILIZAÇÃO DE MÁQUINAS E EQUIPAMENTOS PESADOS, ACOMPANHADOS DO FORNECIMENTO DE OPERADORES, MOTORISTAS, MANUTENÇÃO PREVENTIVA E CORRETIVA, BEM COMO O FORNECIMENTO DE COMBUSTÍV; órgão: AGENCIA GOIANA DE INFRAEST.E TRANSPORTES/GO; UF GO; R$ 45,845,054",
+      "micro_offer": "DIAGNOSTIC_CHECKLIST",
+      "cta": "Sugiro um diagnóstico contratual B2G curto para mapear riscos e priorizar encaixes.",
+      "source_type": "public_process_document",
+      "source_url": "https://pncp.gov.br/pncp-api/v1/orgaos/01409580000138/compras/2026/788/arquivos/10",
+      "n_contracts": 2,
+      "email_send_ready": false,
+      "reasons": [
+        "ownership:LIKELY_COMPANY_OWNED",
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported"
+      ],
+      "supporting_signal_ids": [
+        "fallback"
+      ],
+      "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "33148127",
+      "razao_social": null,
+      "email": "pmo.oliveira@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "apoio_licitacoes_propostas",
+      "why_this_account": "a empresa — pavimentação/vias cruzando UFs (GO, MG). Fato: CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DE RECAPEAMENTO ASFÁLTICO EM CBUQ PARA MANUTENÇÃO RODOVIÁRIA DA CAMADA DE ASFALTO….",
+      "why_now": "Contrato com término previsto em 2026-10-10; órgão PREFEITURA MUNICIPAL DE SANTO ANTONIO DO DESCOBERTO; objeto: CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DE RECAPEAMENTO ASFÁLTICO EM CBUQ PARA MANUTENÇÃO RODOVIÁRIA DA (horizonte ~61 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DE RECAPEAMENTO ASFÁLTICO EM CBUQ PARA MANUTENÇÃO RODOVIÁRIA DA CAMADA DE ASFALTO EXISTENTE EM DIVERSAS RUAS DOS BAIRROS, JARDIM DE ALÁ LOTE 02; órgão: PREFEITURA MUNICIPAL DE SANTO ANTONIO DO DESCOBERTO; UF GO; R$ 1,118,000",
+      "micro_offer": "PROCUREMENT_RISK_SNAPSHOT",
+      "cta": "Disponibilizo apoio de pico em análise de edital/proposta sob NDA.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:apoio_licitacoes_propostas",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "tender_proposal"
+      ],
+      "audit_stratum": "EMAIL_SEND_READY",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "17397582",
+      "razao_social": null,
+      "email": "leticia.lima@zenite.com.br",
+      "ownership_status": "LIKELY_COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "estruturacao_pleito_reajuste",
+      "why_this_account": "a empresa — foco no fato de edificação/reforma disponível no input: Reforma do Gabinete da Desembargadora Márcia Andrea Farias da Silva, localizado no Edifício-Sede do Tribunal Regional d….",
+      "why_now": "",
+      "observed_fact": "objeto: Reforma do Gabinete da Desembargadora Márcia Andrea Farias da Silva, localizado no Edifício-Sede do Tribunal Regional do Trabalho da 16ª Região, compreendendo além de mão de obra, ; órgão: TRIBUNAL REGIONAL DO TRABALHO DA 16. REGIAO; UF MA; R$ 254,206",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso enviar um roteiro objetivo de checagem de reajuste (cláusula → índice → memória) para um contrato-piloto.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": false,
+      "reasons": [
+        "ownership:LIKELY_COMPANY_OWNED",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "copy_context_not_ready",
+        "copy_context_incomplete",
+        "missing:message_spine_incomplete"
+      ],
+      "supporting_signal_ids": [
+        "mature_no_reajuste"
+      ],
+      "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "36692129",
+      "razao_social": null,
+      "email": "licitandocomsucesso@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "diagnostico_contratual_b2g",
+      "why_this_account": "a empresa — execução contratual pública cruzando UFs (PE, PR). Fato: prestação de serviços técnicos especializados de elaboração de projetos básicos e executivos visando atender as necessi….",
+      "why_now": "Publicação/marco recente no PNCP: publicação em 2026-06-23; órgão SECRETARIA DE EDUCACAO, CIENCIA E TECNOLOGIA DE TORITAMA; objeto: prestação de serviços técnicos especializados de elaboração de projetos básicos e executivos visando.",
+      "observed_fact": "objeto: prestação de serviços técnicos especializados de elaboração de projetos básicos e executivos visando atender as necessidades da Secretaria de Educação, Ciência e Tecnologia.; órgão: SECRETARIA DE EDUCACAO, CIENCIA E TECNOLOGIA DE TORITAMA; UF PE; R$ 142,558",
+      "micro_offer": "DIAGNOSTIC_CHECKLIST",
+      "cta": "Sugiro um diagnóstico contratual B2G curto para mapear riscos e priorizar encaixes.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "fallback"
+      ],
+      "audit_stratum": "EMAIL_SEND_READY",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "17398784",
+      "razao_social": null,
+      "email": "haggltda@haggltda.com.br",
+      "ownership_status": "LIKELY_COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "diagnostico_contratual_b2g",
+      "why_this_account": "a empresa — foco no fato de edificação/reforma disponível no input: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA REFORMA E AMPLIAÇÃO DE DRENAGEM PLUVIAL NO BAIRRO SAGRADO CORAÇÃO DE JESUS –….",
+      "why_now": "Contrato com término previsto em 2026-10-31; órgão PREFEITURA DE VERANOPOLIS; objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA REFORMA E AMPLIAÇÃO DE DRENAGEM PLUVIAL NO BAIRRO SAGRADO  (horizonte ~82 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA REFORMA E AMPLIAÇÃO DE DRENAGEM PLUVIAL NO BAIRRO SAGRADO CORAÇÃO DE JESUS – ETAPA 02; órgão: PREFEITURA DE VERANOPOLIS; UF RS; R$ 690,000",
+      "micro_offer": "DIAGNOSTIC_CHECKLIST",
+      "cta": "Sugiro um diagnóstico contratual B2G curto para mapear riscos e priorizar encaixes.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": false,
+      "reasons": [
+        "ownership:LIKELY_COMPANY_OWNED",
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported"
+      ],
+      "supporting_signal_ids": [
+        "fallback"
+      ],
+      "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "38119072",
+      "razao_social": null,
+      "email": "pocosagualimpa.2020@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "auditoria_orcamento_bdi",
+      "why_this_account": "a empresa — foco no fato de execução contratual pública disponível no input: Contratação de empresa especializada para perfuração e instalação de poço tubular profundo na Linha São Valentim, inter….",
+      "why_now": "Contrato com término previsto em 2026-11-05; órgão Municipio de Victor Graeff; objeto: Perfuracao construcao de um poco tubular profundo  a fim de atender a localidade de Posse Muller  in (horizonte ~87 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: Contratação de empresa especializada para perfuração e instalação de poço tubular profundo na Linha São Valentim, interior do Município de Carlos Gomes/RS, em cumprimento ao Convên; órgão: Município de Carlos Gomes; UF RS; R$ 26,950",
+      "micro_offer": "DOCUMENT_CHECKLIST",
+      "cta": "Envio escopo de auditoria focal (composições + BDI) para um contrato-alvo.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:auditoria_orcamento_bdi",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "budget_bdi"
+      ],
+      "audit_stratum": "EMAIL_SEND_READY",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "17422221",
+      "razao_social": null,
+      "email": "procuradorgeral@boaesperanca.mg.go",
+      "ownership_status": "LIKELY_COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "GENERIC_CONTACT",
+      "mailbox_send_blocked": false,
+      "service_code": "diagnostico_contratual_b2g",
+      "why_this_account": "a empresa — foco no fato de pavimentação/vias disponível no input: A presente contratação faz-se necessária em razão do comprometimento identificado em trecho de pavimentação asfáltica e….",
+      "why_now": "Contrato com término previsto em 2026-08-22; órgão Unidade Única; objeto: A presente contratação faz-se necessária em razão do comprometimento identificado em trecho de pavim (horizonte ~12 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: A presente contratação faz-se necessária em razão do comprometimento identificado em trecho de pavimentação asfáltica executada em CBUQ, o qual apresenta patologias e deteriorações; órgão: Unidade Única; UF MG; R$ 128,919",
+      "micro_offer": "DIAGNOSTIC_CHECKLIST",
+      "cta": "Sugiro um diagnóstico contratual B2G curto para mapear riscos e priorizar encaixes.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": false,
+      "reasons": [
+        "ownership:LIKELY_COMPANY_OWNED",
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported"
+      ],
+      "supporting_signal_ids": [
+        "fallback"
+      ],
+      "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "38131155",
+      "razao_social": null,
+      "email": "pmscpe@hotmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "apoio_licitacoes_propostas",
+      "why_this_account": "a empresa — edificação/reforma cruzando UFs (BA, PE). Fato: Contratação de empresa especializada em obras e serviços de engenharia para reforma da Praça do Santuário da Venerada S….",
+      "why_now": "Contrato com término previsto em 2026-07-20; órgão PREFEITURA MUNICIPAL DE SANTA CRUZ; objeto: Contratação de empresa especializada em obras e serviços de engenharia para reforma da Praça do Sant (horizonte ~-21 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: Contratação de empresa especializada em obras e serviços de engenharia para reforma da Praça do Santuário da Venerada Santa Cruz, localizada na Avenida Três de Maio, Centro, zona u; órgão: PREFEITURA MUNICIPAL DE SANTA CRUZ; UF PE; R$ 872,900",
+      "micro_offer": "PROCUREMENT_RISK_SNAPSHOT",
+      "cta": "Disponibilizo apoio de pico em análise de edital/proposta sob NDA.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:apoio_licitacoes_propostas",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "tender_proposal"
+      ],
+      "audit_stratum": "EMAIL_SEND_READY",
+      "audit_flags": [],
+      "audit_pass": true
+    },
+    {
+      "cnpj_raiz": "17877204",
+      "razao_social": null,
+      "email": "licitacoes@autopremier.com.br",
+      "ownership_status": "LIKELY_COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "LICITACOES",
+      "mailbox_send_blocked": false,
+      "service_code": "auditoria_orcamento_bdi",
+      "why_this_account": "a empresa — foco no fato de execução contratual pública disponível no input: Contratação de empresa especializada para execução de obra de construção de 20 (vinte) unidades habitacionais unifamili….",
+      "why_now": "Publicação/marco recente no PNCP: publicação em 2026-07-17; órgão Unidade administrativa; objeto: Contratação de empresa especializada para execução de obra de construção de 20 (vinte) unidades habi.",
+      "observed_fact": "objeto: Contratação de empresa especializada para execução de obra de construção de 20 (vinte) unidades habitacionais unifamiliares térreas em área urbana, com área construída individual d; órgão: Unidade administrativa; UF PR; R$ 2,799,800",
+      "micro_offer": "DOCUMENT_CHECKLIST",
+      "cta": "Envio escopo de auditoria focal (composições + BDI) para um contrato-alvo.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": false,
+      "reasons": [
+        "ownership:LIKELY_COMPANY_OWNED",
+        "service_code:auditoria_orcamento_bdi",
+        "service_fit_supported"
+      ],
+      "supporting_signal_ids": [
+        "budget_bdi"
       ],
       "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE",
       "audit_flags": [],
