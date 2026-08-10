@@ -136,5 +136,6 @@
       "probe": "Bounded PUBLIC_NO_AUTH probe of municipal transparency bases (20 companies)"
     }
   },
-  "esr_rows_count": 72
+  "esr_rows_count": 72,
+  "esr_rows_ref": "EMAIL-SEND-READY-ROWS.jsonl"
 }

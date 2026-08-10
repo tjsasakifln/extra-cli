@@ -1,7 +1,7 @@
 {
   "schema": "confenge.national_commercial_ready_pack.v1",
-  "generated_at": "2026-08-10T17:52:48Z",
-  "extra_cli_sha": "d2e7f8ca6ec1692749f2deff846e96e1fb947a9f",
+  "generated_at": "2026-08-10T18:10:52Z",
+  "extra_cli_sha": "238754c071a163daf6747876c65aab025f71b2d3",
   "warmbly_sha": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
   "database_watermark": "2026-08-10T17:32:18Z",
   "target_fit_version": null,
@@ -13,25 +13,60 @@
   "PILOT_READY_CANDIDATE": false,
   "EMAIL_SEND_READY_DISTINCT_COMPANIES": 72,
   "MIN_OPERATIONAL_RESERVE": 900,
+  "full_source_ladder_complete": false,
+  "ladder_yield_eval": {
+    "full_source_ladder_complete": false,
+    "target_confirmed": 8382,
+    "threshold": 8382,
+    "ladder_steps": [
+      "public_docs_datalake",
+      "process_administrative_docs",
+      "pncp_annexes",
+      "official_site",
+      "transparency_compras",
+      "official_registry",
+      "company_public_pages"
+    ],
+    "covered": [
+      "public_docs_datalake",
+      "process_administrative_docs",
+      "pncp_annexes",
+      "official_site",
+      "official_registry",
+      "company_public_pages"
+    ],
+    "missing": [
+      "transparency_compras"
+    ],
+    "partial": [
+      {
+        "step": "transparency_compras",
+        "companies_attempted": 20,
+        "threshold": 8382,
+        "reason": "below_target_confirmed",
+        "class": "PUBLIC_NO_AUTH"
+      }
+    ]
+  },
   "artifact_hashes": {
-    "FINAL-REPORT.md": "62068968837ad987d28ff03ad533f556d028f34f236a606d2882c579e74dd42a",
-    "GO-NO-GO.md": "8c7f6ebec49a6b5e52b1e37d56cd3027d99cdea9066ed27a6938a17ef86f0f8a",
-    "GO-NO-GO.json": "c2364e92dfeaed6138791c655b2d7c9b1f2f91bd95bc9aa1db01fb9c66f9064b",
+    "FINAL-REPORT.md": "684add76ddb4661b4701991adad7a04a93f4dd9136ba9aa400136ba23bee6086",
+    "GO-NO-GO.md": "4367229f2da36e0e859d46ea49fe6689717ea4db4d159e1cb1fb8cfb6f9404ae",
+    "GO-NO-GO.json": "1410680d987b36940b96e6c09525bae972c2d56e10cb1066f71e47e3b46efb3a",
     "FUNNEL.md": "a2910ce376f70798ff888ec2203b17aab9bde074465ef2b961ff36f8751076bf",
-    "FUNNEL.json": "200af30cf5fbc6c0edf71fd3cf75e9c67d52406c8297c24b4e1fabbb95418f9a",
-    "TARGET-FIT-COVERAGE.json": "9254cfb740414d4b8b1f65e7191895b5e36aa3da0490cbf61c52072fac6a7f04",
-    "TARGET-FIT-CLASS-DISTRIBUTION.json": "d7c84094c21b4a87225584e7b00caaff0413eb7a87cf9b72ba2d725a4fb5f5e5",
-    "CONTACT-COVERAGE.json": "cd0f82b34d199abf5bea0b7c22bfffda4f0ff9e43675bf71636f051d3eccc27f",
+    "FUNNEL.json": "49d58e06723f5d536fd76c4764087fe06746782bb7b73e155362e0e1f6c1a152",
+    "TARGET-FIT-COVERAGE.json": "e72f32e1b5a2473ed3b32b5ac68a1ade1e7841013b5e9ac2099ef64408213629",
+    "TARGET-FIT-CLASS-DISTRIBUTION.json": "85148f61d56a11f5ad845322f56e71ef6b7c113fd9f0990ecf5587fbc20bbfd6",
+    "CONTACT-COVERAGE.json": "c3978f2b7c54892c61704f7899acbff8536161cd4253df957f18326428797a97",
     "CONTACT-SOURCE-YIELD.json": "e373bb3d17d4f3e4136b9f4de95a4ed02a18d1674ec6abbd24709ce3907e6c1c",
     "CONTACT-LOSS-REASONS.json": "177374c5614baec9476c9e271f2cf53df50aea10becbe5bd3d8724523192ce62",
-    "EMAIL-SEND-READY-RESERVOIR.json": "12aadb9326180b429555be2e78d48f765d729955289858bb7c65c907cc8bbd63",
-    "ESR-REMEASURE.json": "4349dae8b0082e0412dc7f3758762791cb1a0754b2445c0163c38bd66c06d03f",
-    "SERVICE-DISTRIBUTION.json": "4bba51890abb960499de5b10029fcd3642c989a273349dc78cac07575f17575b",
-    "COPY-AUDIT.json": "f16f3b5ae77eb899aacf09bf199e5e1a185f6ca384167a119a7903baeb5bb222",
-    "COPY-AUDIT-SAMPLE.json": "a7f6e6a9bc055ef5204e4afd2cbd575ef792a0e9c2f006be1ee1e1029af04f81",
-    "RUNTIME-HEALTH.json": "34686dda554ca22ae14fe7346623b408029e2b158b2a9409280209fd766540ed",
-    "WARMBLY-E2E.json": "7f9aafdcc6310f48abb109a43f02ef72e0983b3c95b9d44c3941c03f54d31d74",
-    "SHA-BINDING.json": "ff9f2080ed831d4cf4ed19fdc16be3e26bd75d8c134c27e053c627cea3aeee20",
-    "HUMAN-REVIEW-SAMPLE.json": "240584128b8d2c7a4c10c744730698ec26f970829ccecca1da60dd453b279db8"
+    "EMAIL-SEND-READY-RESERVOIR.json": "3ae103568e5c008704128620abea6a90ec7c7b5194f4864d302aad41296d7d30",
+    "ESR-REMEASURE.json": "cd6a271ad9e8c8435e9868867eafa0dcfda5c7c07030aa0075ba884021ca97ab",
+    "SERVICE-DISTRIBUTION.json": "7d800c60710f28d419f848076d965f2ab7af7c2fe96bd88823f4493bf467f283",
+    "COPY-AUDIT.json": "0185c7c725588efe95a2e068e596c03ea7c3a4e8793aaa7955e26e087099a32e",
+    "COPY-AUDIT-SAMPLE.json": "44710d83cbbb6b7456da2ec9fad9386237205dc3e90dda25fa46b5893447b8d0",
+    "RUNTIME-HEALTH.json": "8f4383b3ff91fc87e905dbd1aa01128e0033e7edf311bb4ce2124856e83622c9",
+    "WARMBLY-E2E.json": "c6dc2d2868c7641f2142b9a577d21a5f607aaffb6659eb90aaebebeaa8dc9774",
+    "SHA-BINDING.json": "549c153ed6d3f34886ec52b8c3ddf5ab36a64c455378aa053b697c008d228011",
+    "HUMAN-REVIEW-SAMPLE.json": "d31f2885ec5bfc9429a13840787a1cd8a2b3f7a2909cd4ef5b100e6ab4427d7c"
   }
 }

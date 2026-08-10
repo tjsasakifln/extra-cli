@@ -2,7 +2,10 @@
   "origin_main": "238754c071a163daf6747876c65aab025f71b2d3",
   "host_deployed_sha": "238754c071a163daf6747876c65aab025f71b2d3",
   "runtime_sha": "238754c071a163daf6747876c65aab025f71b2d3",
+  "expected_origin_tip": "238754c071a163daf6747876c65aab025f71b2d3",
   "triple_sha_equal": true,
+  "tip_matches_origin_main": true,
+  "sha_bound": true,
   "warmbly_origin_main": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
   "warmbly_host_deployed": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
   "warmbly_runtime": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
@@ -11,8 +14,8 @@
   "pr_224_merged": true,
   "pr_226_merged": true,
   "pr_227_merged": true,
-  "merged_sha": "238754c071a163daf6747876c65aab025f71b2d3",
-  "note": "Rebound to post-#227 tip 238754c0 = host .deployed_sha",
-  "as_of": "2026-08-10T17:52:48Z",
-  "pack_git_sha": "d2e7f8ca6ec1692749f2deff846e96e1fb947a9f"
+  "pr_228": "open_docs_freeze",
+  "note": "SHA binding uses explicit origin/main + host .deployed_sha (non-self-referential)",
+  "as_of": "2026-08-10T18:10:52Z",
+  "pack_git_sha": "4da4785bdfae0bbd127990582c777f3f0e16f980"
 }

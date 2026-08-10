@@ -10,26 +10,17 @@
   "commercial_send_blocked": true,
   "evidence": {
     "feed_run_id": "run-c48007591e089881",
-    "snapshot_hash": "fa990dc5dd658492dc5726d3831f295174565b615fc88e89fe796d2a71956530",
-    "chunks_imported": 2,
     "leads_processed": 72,
-    "creates": 72,
     "self_smoke_task_id": "7a0465f3-301e-4e17-9ca5-a1f489556164",
-    "self_smoke_message_id": "<12f60934-377f-42b4-b79d-e79622bef7e8@confenge.com.br>",
-    "self_smoke_subject": "CONFENGE SELF_SMOKE 20260810T174127Z",
     "self_smoke_status": "completed",
-    "self_smoke_worker": "Email sent successfully via Hostinger SMTP",
+    "self_smoke_message_id": "<12f60934-377f-42b4-b79d-e79622bef7e8@confenge.com.br>",
     "dnc_sticky_account_id": "e470eb5a-ae5c-4af1-9bcd-902431055951",
-    "dnc_sticky_razao": "NOSEND PROOF f8f2ef92 CONSTRUTORA LTDA",
-    "dnc_updated_at": "2026-08-10T03:47:18Z",
-    "last_import_run_at": "2026-08-10T16:08:47Z",
-    "hot_set_active": 10,
-    "hot_set_eligible": 72,
+    "last_import_after_dnc": "2026-08-10T16:08:47Z",
+    "host_probe_transcript": "/tmp/grok-goal-74a9c568a320/implementer/warmbly/host-probe-transcript.txt",
     "status_sh": {
       "HOSTINGER_SMTP": "PASS",
       "HOSTINGER_IMAP": "PASS",
       "OUTCOME_LOOP": "PASS",
-      "EXTRA_FEED": "PASS",
       "DISPATCH": "PAUSED",
       "GREEN_AUTORUN": "OFF",
       "WHATSAPP": "OFF"
@@ -52,9 +43,8 @@
     "decision_memory_replied": "PASS_STICKY_REPLY_REASON"
   },
   "limitations": [
-    "IMAP mailbox last_synced_at may lag; status TCP IMAP PASS + outcome loop PASS; reply path sticky via NOSEND account queue_state=REPLIED / block_reason=REPLY after reimport",
-    "Self-smoke operator-to-operator only; zero commercial leads contacted",
-    "Hot-set size=10 throughput window over 72 ESR; national reserve still 900"
+    "transparency_compras national cascade incomplete (20/8382) → full_source_ladder_complete=false",
+    "Self-smoke operator-owned only; zero commercial leads"
   ],
-  "note": "Behavioral E2E: Hostinger self-smoke completed; DNC sticky after reimport; hot-set populated; dispatch PAUSED. PASS=true."
+  "note": "Behavioral host probe recorded under implementer scratch; EXTERNAL forbidden while ladder partial."
 }
