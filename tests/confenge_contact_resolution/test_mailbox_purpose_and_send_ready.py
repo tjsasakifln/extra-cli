@@ -160,6 +160,143 @@ def test_comercial_preferred_over_generic_rank() -> None:
     assert c.rank < g.rank
 
 
+def _send_ready_company(
+    *,
+    razao_social: str,
+    official_domain: str | None = None,
+) -> dict:
+    """Minimal company that would pass target/service/copy gates if contact is valid."""
+    row = {
+        "razao_social": razao_social,
+        "outreach_eligibility": "ELIGIBLE",
+        "construction_evidence": {
+            "sector_fit": "CONFIRMED_ENGINEERING",
+            "target_fit_class": "TARGET_CONFIRMED",
+            "relevant_contract_count": 4,
+        },
+        "target_fit_class": "TARGET_CONFIRMED",
+        "service_code": "estruturacao_pleito_reajuste",
+        "portfolio": {"pass_contract_count": 4},
+        "factual_hook": "Contrato de engenharia PASS recente no órgão X.",
+        "observed_fact": (
+            "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. X; UF RS"
+        ),
+        "why_this_account": (
+            "executora de pavimentação com contratos públicos recentes no RS — "
+            "objeto: pavimentação asfáltica CBUQ em vias urbanas"
+        ),
+        "why_now": "aditivo recente no contrato municipal de pavimentação asfáltica CBUQ",
+        "micro_offer_code": "REAJUSTE_CHECK",
+        "evidence_ids": ["ev-contract-1"],
+        "cta": "Posso te mandar o recorte público que encontrei?",
+        "canonical_universe_member": True,
+        "service_candidates": [
+            {
+                "service_id": "estruturacao_pleito_reajuste",
+                "supporting_signal_ids": ["mature_no_reajuste"],
+                "evidence_ids": ["ev-contract-1"],
+            }
+        ],
+        "primary_service": {
+            "service_id": "estruturacao_pleito_reajuste",
+            "supporting_signal_ids": ["mature_no_reajuste"],
+            "evidence_ids": ["ev-contract-1"],
+        },
+    }
+    if official_domain:
+        row["official_domain"] = official_domain
+    return row
+
+
+def test_sticky_company_owned_wrong_domain_never_email_send_ready() -> None:
+    """Sticky COMPANY_OWNED+VERIFIED cannot wash domain↔company identity mismatch.
+
+    Skeptic clean-cohort false WRONG_CONTACT=0 cases must fail at send-ready even
+    when feed labels claim COMPANY_OWNED / REAL_OFFICIAL_SITE.
+    """
+    cases = (
+        (
+            "contato@qualidademineracao.com.br",
+            "QUALIDADE CONSTRUÇÕES E PAVIMENTAÇÕES LTDA",
+        ),
+        (
+            "info@emkoelektronik.com",
+            "EMKO CONSTRUTORA LTDA",
+        ),
+        (
+            "comercial@lcmprojetos.com.br",
+            "LS ENGENHARIA LTDA",
+        ),
+        (
+            "arantes@terraplenagem.com",
+            "JR CONSTRUÇÕES E TERRAPLENAGEM LTDA EPP",
+        ),
+    )
+    for email, razao in cases:
+        domain = email.split("@", 1)[1]
+        company = _send_ready_company(razao_social=razao, official_domain=domain)
+        r = evaluate_email_send_ready(
+            company=company,
+            email=email,
+            ownership_status="COMPANY_OWNED",
+            verification_status="VERIFIED",
+            service_code="estruturacao_pleito_reajuste",
+            factual_evidence=True,
+            evidence_ids=["ev-contract-1"],
+            source_type="site",
+            source_url=f"https://{domain}/contato",
+        )
+        assert r.email_send_ready is False, (email, r.reasons)
+        assert r.contact_send_ready is False, (email, r.reasons)
+        assert any("ownership_identity_domain_mismatch" in x for x in r.reasons), r.reasons
+        assert any("sticky_ownership_insufficient_for_identity" in x for x in r.reasons)
+
+
+def test_aligned_company_domain_still_email_send_ready() -> None:
+    """Positive control: residual-safe brand domain + sticky COMPANY_OWNED still passes."""
+    company = _send_ready_company(
+        razao_social="ENCOPAV ENGENHARIA LTDA",
+        official_domain="encopav.com.br",
+    )
+    r = evaluate_email_send_ready(
+        company=company,
+        email="encopav@encopav.com.br",
+        ownership_status="COMPANY_OWNED",
+        verification_status="VERIFIED",
+        service_code="estruturacao_pleito_reajuste",
+        factual_evidence=True,
+        evidence_ids=["ev-contract-1"],
+        source_type="site",
+        source_url="https://encopav.com.br/contato",
+    )
+    assert r.email_send_ready is True, r.reasons
+    assert r.contact_send_ready is True
+    assert "domain_aligned_with_company" in r.reasons
+
+
+def test_eshop_mailbox_blocked_even_if_domain_matches() -> None:
+    """Retail eshop@ is never commercial autorun (BARRA NOVA / eshop@barranova)."""
+    mp = classify_mailbox_purpose("eshop@barranova.com")
+    assert mp.send_blocked is True
+    company = _send_ready_company(
+        razao_social="BARRA NOVA ENGENHARIA LTDA",
+        official_domain="barranova.com",
+    )
+    r = evaluate_email_send_ready(
+        company=company,
+        email="eshop@barranova.com",
+        ownership_status="COMPANY_OWNED",
+        verification_status="VERIFIED",
+        service_code="estruturacao_pleito_reajuste",
+        factual_evidence=True,
+        evidence_ids=["ev-contract-1"],
+        source_type="site",
+        source_url="https://barranova.com/contato",
+    )
+    assert r.email_send_ready is False
+    assert r.contact_send_ready is False
+
+
 def test_shared_phone_not_company_owned_autorun() -> None:
     """Ownership gate: shared external must not be EMAIL_SEND_READY."""
     company = {

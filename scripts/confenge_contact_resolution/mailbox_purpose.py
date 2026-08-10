@@ -83,6 +83,17 @@ _BLOCKED_SUPPORT = frozenset(
         "reclamação",
         "reclamacoes",
         "reclamações",
+        # Retail / e-commerce inboxes are not commercial B2G outreach targets
+        # (skeptic: eshop@barranova.com for BARRA NOVA ENGENHARIA).
+        "eshop",
+        "e-shop",
+        "webshop",
+        "loja",
+        "lojaonline",
+        "ecommerce",
+        "e-commerce",
+        "store",
+        "shop",
     }
 )
 _BLOCKED_PRIVACY = frozenset(

@@ -186,6 +186,62 @@ def test_aligned_official_domain_still_enrollable() -> None:
     assert r.domain_matches_company is True
 
 
+def test_skeptic_wrong_company_domains_never_company_owned() -> None:
+    """Permanent regressions for clean-cohort WRONG_CONTACT false zeros.
+
+    Sticky labels must not enroll these; resolve_ownership itself must refuse.
+    """
+    cases = (
+        (
+            "contato@qualidademineracao.com.br",
+            "QUALIDADE CONSTRUÇÕES E PAVIMENTAÇÕES LTDA",
+            "00820854000114",
+            "qualidademineracao.com.br",
+        ),
+        (
+            "info@emkoelektronik.com",
+            "EMKO CONSTRUTORA LTDA",
+            "24233779000153",
+            "emkoelektronik.com",
+        ),
+        (
+            "comercial@lcmprojetos.com.br",
+            "LS ENGENHARIA LTDA",
+            "43418048000127",
+            "lcmprojetos.com.br",
+        ),
+        (
+            "arantes@terraplenagem.com",
+            "JR CONSTRUÇÕES E TERRAPLENAGEM LTDA EPP",
+            "05895635000118",
+            "terraplenagem.com",
+        ),
+    )
+    for email, razao, cnpj, domain in cases:
+        for official in (None, domain):
+            c = _cand(
+                email=email,
+                source_type="site",
+                source_url=f"https://{domain}/contato",
+                site=f"https://{domain}",
+                cnpj14=cnpj,
+            )
+            ctx = OwnershipContext(
+                cnpj14=cnpj,
+                razao_social=razao,
+                official_domain=official,
+            )
+            r = resolve_ownership(c, ctx=ctx)
+            apply_ownership_to_candidate(c, r)
+            assert c.enrollable is False, (email, official, r.ownership_status, r.score_parts)
+            assert r.ownership_status != OwnershipStatus.COMPANY_OWNED.value, (
+                email,
+                official,
+                r.score_parts,
+            )
+            assert r.domain_matches_company is not True
+
+
 def test_short_generic_official_host_never_enrollable() -> None:
     """wh.com / fts.com must not COMPANY_OWN even when official_domain is poisoned."""
     for email, razao, domain in (
