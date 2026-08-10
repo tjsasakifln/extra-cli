@@ -25,6 +25,8 @@ PURPOSE_HR_RECRUITING = "HR_RECRUITING"
 PURPOSE_SUPPORT_SAC = "SUPPORT_SAC"
 PURPOSE_PRIVACY_DPO = "PRIVACY_DPO"
 PURPOSE_NOREPLY = "NOREPLY"
+PURPOSE_PRESS = "PRESS"
+PURPOSE_SOCIAL_PROGRAM = "SOCIAL_PROGRAM"
 PURPOSE_UNKNOWN = "UNKNOWN"
 
 ALL_PURPOSES = frozenset(
@@ -41,6 +43,8 @@ ALL_PURPOSES = frozenset(
         PURPOSE_SUPPORT_SAC,
         PURPOSE_PRIVACY_DPO,
         PURPOSE_NOREPLY,
+        PURPOSE_PRESS,
+        PURPOSE_SOCIAL_PROGRAM,
         PURPOSE_UNKNOWN,
     }
 )
@@ -121,6 +125,48 @@ _BLOCKED_NOREPLY = frozenset(
         "bounces",
         "postmaster",
         "daemon",
+    }
+)
+# Press / media inboxes are not cold B2B commercial targets
+# (cohort audit: imprensa@matera.com for MATERA ENGENHARIA).
+_BLOCKED_PRESS = frozenset(
+    {
+        "imprensa",
+        "press",
+        "prensa",
+        "media",
+        "midia",
+        "mídia",
+        "comunicacao",
+        "comunicação",
+        "comms",
+        "assessoria",
+        "ascom",
+        "jornalismo",
+        "newsroom",
+        "redacao",
+        "redação",
+    }
+)
+# Social / CSR / benefit-program mailboxes are not commercial procurement contacts
+# (cohort audit: programabem@martins.com.br for R MARTINS ENGENHARIA).
+_BLOCKED_SOCIAL_PROGRAM = frozenset(
+    {
+        "programabem",
+        "programa-bem",
+        "programabemestar",
+        "responsabilidadesocial",
+        "responsabilidade-social",
+        "sustentabilidade",
+        "esg",
+        "ong",
+        "instituto",
+        "fundacao",
+        "fundação",
+        "doacao",
+        "doação",
+        "doe",
+        "voluntariado",
     }
 )
 
@@ -209,12 +255,16 @@ _FINANCEIRO = frozenset(
         "finance",
         "fiscal",
         "contas",
+        "contabilidade",
+        "contabil",
+        "contábil",
         "billing",
         "cobranca",
         "cobrança",
-        "nf",
         "nfe",
+        "notafiscal",
         "faturamento",
+        # bare "nf" removed: substring matched info@ (skeptic/false FINANCEIRO)
     }
 )
 _GENERIC = frozenset(
@@ -259,6 +309,8 @@ PURPOSE_RANK: dict[str, int] = {
     PURPOSE_SUPPORT_SAC: 910,
     PURPOSE_PRIVACY_DPO: 920,
     PURPOSE_NOREPLY: 930,
+    PURPOSE_PRESS: 940,
+    PURPOSE_SOCIAL_PROGRAM: 950,
 }
 
 BLOCKED_PURPOSES = frozenset(
@@ -267,6 +319,8 @@ BLOCKED_PURPOSES = frozenset(
         PURPOSE_SUPPORT_SAC,
         PURPOSE_PRIVACY_DPO,
         PURPOSE_NOREPLY,
+        PURPOSE_PRESS,
+        PURPOSE_SOCIAL_PROGRAM,
     }
 )
 
@@ -344,9 +398,16 @@ def classify_mailbox_purpose(email: str | None) -> MailboxPurposeResult:
         if local in bucket or head in bucket:
             return True
         # Compact forms: trabalheconosco, noreply, etc.
+        # Avoid short-token substring traps (nf ⊂ info, rh ⊂ ...).
         for alias in bucket:
             a = normalize_local_token(alias)
-            if a and (token == a or token.startswith(a) or a in token):
+            if not a:
+                continue
+            if token == a or head == a:
+                return True
+            # Only allow startswith / containment for aliases long enough to be
+            # discriminative (len>=4): e.g. trabalheconosco, noreply, imprensa.
+            if len(a) >= 4 and (token.startswith(a) or a in token):
                 return True
         return False
 
@@ -356,6 +417,10 @@ def classify_mailbox_purpose(email: str | None) -> MailboxPurposeResult:
         purpose = PURPOSE_HR_RECRUITING
     elif _match(_BLOCKED_PRIVACY):
         purpose = PURPOSE_PRIVACY_DPO
+    elif _match(_BLOCKED_PRESS):
+        purpose = PURPOSE_PRESS
+    elif _match(_BLOCKED_SOCIAL_PROGRAM):
+        purpose = PURPOSE_SOCIAL_PROGRAM
     elif _match(_BLOCKED_SUPPORT):
         purpose = PURPOSE_SUPPORT_SAC
     elif _match(_CONTRATOS):

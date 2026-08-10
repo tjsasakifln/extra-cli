@@ -1,0 +1,26 @@
+{
+  "schema": "confenge.target_fit_coverage.v1",
+  "canonical_company_count": 511645,
+  "materialized_company_count": 511646,
+  "coverage_ratio": 1.000001954480157,
+  "coverage_threshold": 0.995,
+  "expected_company_roots": 511645,
+  "visited_company_roots": 511645,
+  "explicit_exclusions": 0,
+  "unexplained_missing": 0,
+  "pagination_exhausted_normally": true,
+  "last_full_reconcile_completed_at": "2026-08-10T07:37:44.773878+00:00",
+  "last_full_reconcile_unexplained_missing": 0,
+  "gap_breakdown": {
+    "RETRY_PENDING": 501163,
+    "NO_CONSTRUCTION_EVIDENCE": 92284
+  },
+  "population_source": "shadow",
+  "async_mode": "SHADOW",
+  "coverage_mode": "FULLY_RECONCILED",
+  "FULL_NATIONAL_READY": true,
+  "as_of": "2026-08-10T08:44:08.261490+00:00",
+  "construction_relevant_confirmed_plus_probable": 419362,
+  "supplier_roots_national": 511645,
+  "label_note": "canonical_company_count = DISTINCT supplier CNPJ roots in pncp_supplier_contracts (full lake materialization denominator). Construction-relevant commercial ICP ≈ CONFIRMED+PROBABLE from target-fit classifier (not the older ~48k universe JSON snapshot)."
+}

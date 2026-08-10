@@ -164,6 +164,7 @@ class HealthReport:
     last_success: str | None
     async_mode: str
     auto_paused: bool
+    insufficient: int = 0
     details: dict[str, Any] = field(default_factory=dict)
 
     def as_dict(self) -> dict[str, Any]:
@@ -171,6 +172,9 @@ class HealthReport:
 
     def format_human(self) -> str:
         lag = "n/a" if self.lag_seconds is None else f"{self.lag_seconds:.0f}s"
+        cov = (self.details or {}).get("coverage") or {}
+        ratio = cov.get("coverage_ratio")
+        ratio_s = "n/a" if ratio is None else f"{float(ratio) * 100:.2f}%"
         lines = [
             f"STATUS: {self.status}",
             f"DATALAKE WATERMARK: {self.datalake_watermark or '(none)'}",
@@ -184,6 +188,14 @@ class HealthReport:
             f"CONFIRMED: {self.confirmed}",
             f"PROBABLE: {self.probable}",
             f"OUT: {self.out}",
+            f"INSUFFICIENT_EVIDENCE: {self.insufficient}",
+            f"MATERIALIZED: {self.confirmed + self.probable + self.out + self.insufficient}",
+            f"COVERAGE_MODE: {cov.get('coverage_mode') or 'BOOTSTRAPPING'}",
+            f"COVERAGE_RATIO: {ratio_s}",
+            f"CANONICAL_ROOTS: {cov.get('canonical_company_count') or 0}",
+            f"FULL_NATIONAL_READY: {cov.get('FULL_NATIONAL_READY', False)}",
+            f"LAST_FULL_RECONCILE: {cov.get('last_full_reconcile_completed_at') or '(never)'}",
+            f"UNEXPLAINED_MISSING: {cov.get('last_full_reconcile_unexplained_missing', 'n/a')}",
             f"LAST SUCCESS: {self.last_success or '(never)'}",
             f"ASYNC MODE: {self.async_mode}",
             f"AUTO PAUSED: {self.auto_paused}",

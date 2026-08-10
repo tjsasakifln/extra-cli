@@ -1,0 +1,43 @@
+{
+  "runtime_status": "DEGRADED",
+  "coverage_mode": "FULLY_RECONCILED",
+  "FULL_NATIONAL_READY": true,
+  "async_mode": "SHADOW",
+  "dirty_pending": 500796,
+  "processing": 367,
+  "coverage_ratio": 1.000001954480157,
+  "supplier_roots": 511645,
+  "construction_relevant_confirmed_plus_probable": 419362,
+  "TARGET_CONFIRMED": 8337,
+  "email_send_ready_reservoir": 60,
+  "hot_set_capacity_per_hour": 10,
+  "pilot": {
+    "PILOT_GO": false,
+    "MINIMUM_PILOT_ACCEPTANCE_SAMPLE": 50,
+    "email_send_ready": 60,
+    "pilot_sample_met": true,
+    "zero_false_target": true,
+    "zero_wrong_contact": false,
+    "zero_tainted_provenance": true,
+    "zero_unsupported_service": true,
+    "zero_hollow_copy": null,
+    "zero_unsafe_claim": null,
+    "note": "PILOT_GO is independent of NATIONAL_RESERVOIR_HEALTHY. Do not treat ESR≥50 as pipeline capacity or business objective."
+  },
+  "national": {
+    "NATIONAL_RESERVOIR_HEALTHY": false,
+    "FULL_NATIONAL_READY": true,
+    "coverage_mode": "FULLY_RECONCILED",
+    "requirements": [
+      "full target-fit coverage >= 99.5% or fully explained gaps",
+      "continuous enrichment over reservoir (no artificial truncation)",
+      "observable backlog / dirty queue",
+      "no EMAIL_SEND_READY hard cap",
+      "service multi-service not monoculture without causal diagnosis"
+    ]
+  },
+  "as_of": "2026-08-10T08:44:08.264809+00:00",
+  "warmbly_capacity_per_hour": 10,
+  "warmbly_channel": "EMAIL_ONLY",
+  "whatsapp": "OFF"
+}

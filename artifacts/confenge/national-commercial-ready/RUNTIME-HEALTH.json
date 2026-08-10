@@ -1,0 +1,11 @@
+{
+  "target_fit_shadow_classes": {
+    "TARGET_CONFIRMED": 8348,
+    "TARGET_PROBABLE_RESEARCH": 24984,
+    "TARGET_OUT_OF_SCOPE": 92392,
+    "TARGET_INSUFFICIENT_EVIDENCE": 386626
+  },
+  "coverage_ratio": 0.9974690937408741,
+  "enrichment_continuous": "running_resumable",
+  "async_mode": "SHADOW"
+}

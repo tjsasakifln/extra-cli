@@ -163,6 +163,35 @@ def build_parser() -> argparse.ArgumentParser:
     enrich.add_argument("--run-id", default=None)
     enrich.add_argument("--max-companies", type=int, default=None)
     enrich.add_argument("--no-resume", action="store_true", help="Ignore checkpoint")
+    cont = sub.add_parser(
+        "enrich-continuous",
+        help=(
+            "Continuous contact enrichment over live TARGET_CONFIRMED reservoir "
+            "(no pilot Top-50 capacity; omit --max-companies for full advance)"
+        ),
+    )
+    cont.add_argument("--dsn", default=None, help="Postgres DSN (or LOCAL_DATALAKE_DSN)")
+    cont.add_argument(
+        "--output-dir",
+        "-o",
+        type=Path,
+        default=Path("artifacts/confenge/contact-enrichment/continuous-confirmed"),
+    )
+    cont.add_argument(
+        "--max-companies",
+        type=int,
+        default=None,
+        help="Smoke/batch bound only — never set to 50 (MINIMUM_PILOT_ACCEPTANCE_SAMPLE)",
+    )
+    cont.add_argument("--include-probable", action="store_true")
+    cont.add_argument("--allow-network", action="store_true")
+    cont.add_argument("--fixtures-dir", type=Path, default=None)
+    cont.add_argument("--no-resume", action="store_true")
+    cont.add_argument("--max-search-queries", type=int, default=3)
+    cont.add_argument("--max-pages", type=int, default=5)
+    cont.add_argument("--max-seconds-per-company", type=float, default=20.0)
+    cont.add_argument("--max-workers", type=int, default=4)
+
     enrich.add_argument(
         "--baseline-metrics",
         type=Path,
@@ -361,6 +390,70 @@ def cmd_enrich_batch(args: argparse.Namespace) -> int:
     return 0 if summary.get("ok") else 1
 
 
+def cmd_enrich_continuous(args: argparse.Namespace) -> int:
+    import os
+
+    from scripts.confenge_contact_resolution.continuous_from_target_fit import (
+        ContinuousEnrichmentConfig,
+        run_continuous_enrichment,
+    )
+    from scripts.confenge_contact_resolution.resolver import ResolverConfig, default_adapters
+
+    dsn = args.dsn or os.environ.get("LOCAL_DATALAKE_DSN") or os.environ.get("DATABASE_URL")
+    if not dsn:
+        print("FAIL: set --dsn or LOCAL_DATALAKE_DSN", file=sys.stderr)
+        return 2
+    cfg = ContinuousEnrichmentConfig(
+        output_dir=args.output_dir,
+        max_companies=args.max_companies,
+        allow_network=bool(args.allow_network),
+        fixtures_dir=args.fixtures_dir,
+        resume=not bool(args.no_resume),
+        include_probable=bool(args.include_probable),
+    )
+    # Wire the same discovery cascade as enrich-batch so --allow-network actually
+    # runs cheap web search + official site crawl (not an offline no-op).
+    web_provider = None
+    discovery_cascade = None
+    if cfg.allow_network and not cfg.fixtures_dir:
+        from scripts.confenge_contact_resolution.discovery import (
+            DiscoveryBudget,
+            DiscoveryCascade,
+            build_web_search_provider,
+        )
+
+        web_provider = build_web_search_provider()
+        budget = DiscoveryBudget.from_env_or_defaults(
+            max_search_queries=int(getattr(args, "max_search_queries", 3) or 3),
+            max_pages=int(getattr(args, "max_pages", 5) or 5),
+            max_seconds=float(getattr(args, "max_seconds_per_company", 20.0) or 20.0),
+        )
+        discovery_cascade = DiscoveryCascade(
+            budget=budget,
+            web_provider=web_provider,
+            allow_network=True,
+        )
+    adapters = default_adapters(
+        web_search_enabled=bool(cfg.allow_network),
+        web_search_provider=web_provider,
+        registry_prefer_network=bool(cfg.allow_network),
+    )
+    rcfg = ResolverConfig(
+        allow_network=cfg.allow_network,
+        fixtures_dir=cfg.fixtures_dir,
+        apply_ownership=True,
+        adapters=adapters,
+        discovery_cascade=discovery_cascade,
+        max_workers=max(1, int(getattr(args, "max_workers", 4) or 4)),
+    )
+    report = run_continuous_enrichment(dsn, cfg=cfg, resolver_config=rcfg)
+    print(json.dumps(report, ensure_ascii=False, indent=2, default=str))
+    cov = report.get("contact_coverage") or {}
+    # Non-zero exit only on closed-sum failure
+    closed = (cov.get("closed_sum_check") or {}).get("confirmed_eq_attempted_plus_never")
+    return 0 if closed is not False else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -370,6 +463,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_batch(args)
     if args.command == "enrich-batch":
         return cmd_enrich_batch(args)
+    if args.command == "enrich-continuous":
+        return cmd_enrich_continuous(args)
     parser.error(f"unknown command {args.command}")
     return 2
 

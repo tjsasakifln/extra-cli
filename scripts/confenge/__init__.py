@@ -1,1 +1,1 @@
-"""CONFENGE operational scripts (extra-cli)."""
+"""CONFENGE operator-facing scripts (human review, national pack)."""

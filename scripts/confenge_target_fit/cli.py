@@ -56,7 +56,26 @@ def build_parser() -> argparse.ArgumentParser:
     w.add_argument("--idle-sleep", type=float, default=15.0)
 
     rec = sub.add_parser("reconcile", help="National consistency sweep")
-    rec.add_argument("--max-enqueue", type=int, default=None)
+    rec.add_argument(
+        "--max-enqueue",
+        type=int,
+        default=None,
+        help=(
+            "Diagnostic/smoke bound only — never commercial capacity. "
+            "Omit for full national enqueue of all missing roots."
+        ),
+    )
+    rec.add_argument(
+        "--drain-worker",
+        action="store_true",
+        help="After enqueue, run worker batches (use with --max-worker-batches).",
+    )
+    rec.add_argument(
+        "--max-worker-batches",
+        type=int,
+        default=0,
+        help="Worker batches to drain after reconcile when --drain-worker is set.",
+    )
 
     sub.add_parser("status", help="Healthcheck (nonzero exit if alert)")
     sub.add_parser("metrics", help="JSON metrics snapshot")
@@ -83,6 +102,16 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     sub.add_parser("version", help="Print module / classifier versions")
+
+    rc = sub.add_parser(
+        "reclassify-insufficient",
+        help=(
+            "Downgrade SHADOW PROBABLE without positive ICP evidence to "
+            "TARGET_INSUFFICIENT_EVIDENCE (idempotent)"
+        ),
+    )
+    rc.add_argument("--dry-run", action="store_true")
+    rc.add_argument("--limit", type=int, default=None, help="Optional candidate cap")
     return p
 
 
@@ -128,9 +157,32 @@ def main(argv: list[str] | None = None) -> int:
         return 1 if stats.error else 0
 
     if args.cmd == "reconcile":
-        stats = run_reconcile(dsn, cfg=cfg, max_enqueue=args.max_enqueue)
+        stats = run_reconcile(
+            dsn,
+            cfg=cfg,
+            max_enqueue=args.max_enqueue,
+            drain_worker=bool(getattr(args, "drain_worker", False)),
+            max_worker_batches=int(getattr(args, "max_worker_batches", 0) or 0),
+        )
         print(json.dumps(stats.as_dict(), indent=2, default=str))
         return 1 if stats.error else 0
+
+    if args.cmd == "reclassify-insufficient":
+        from scripts.confenge_target_fit.reclassify_insufficient import (
+            reclassify_shadow_probable_without_evidence,
+        )
+
+        conn = connect(dsn, readonly=False)
+        try:
+            result = reclassify_shadow_probable_without_evidence(
+                conn,
+                dry_run=bool(args.dry_run),
+                limit=args.limit,
+            )
+        finally:
+            conn.close()
+        print(json.dumps(result, indent=2, default=str))
+        return 0
 
     if args.cmd == "status":
         report = build_health(dsn, cfg=cfg)
