@@ -4,9 +4,15 @@
   "distinct_services": 4,
   "distribution": [
     {
+      "service_id": "gestao_monitoramento_contratual",
+      "company_count": 101,
+      "pct": 50.5,
+      "median_confidence": 0.6
+    },
+    {
       "service_id": "apoio_licitacoes_propostas",
-      "company_count": 148,
-      "pct": 74.0,
+      "company_count": 67,
+      "pct": 33.5,
       "median_confidence": 0.65
     },
     {
@@ -14,12 +20,6 @@
       "company_count": 28,
       "pct": 14.000000000000002,
       "median_confidence": 0.7
-    },
-    {
-      "service_id": "gestao_monitoramento_contratual",
-      "company_count": 20,
-      "pct": 10.0,
-      "median_confidence": 0.6
     },
     {
       "service_id": "aditivos_extracontratuais",
@@ -31,7 +31,7 @@
   "SERVICE_MONOCULTURE": {
     "flagged": false,
     "dominant_service_id": null,
-    "dominant_share": 0.74,
+    "dominant_share": 0.505,
     "threshold": 0.95,
     "blocks_outreach_release": false,
     "causal_diagnosis_required": false,

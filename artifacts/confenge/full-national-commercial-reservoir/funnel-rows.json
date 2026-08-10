@@ -26,17 +26,17 @@
   {
     "stage": "target-fit dirty/enqueued",
     "key": "target_fit_dirty_enqueued",
-    "count": 511802,
-    "pct_of_previous": 100.03068533846711,
-    "pct_of_national": 100.03068533846711,
+    "count": 1022948,
+    "pct_of_previous": 199.9331567786258,
+    "pct_of_national": 199.9331567786258,
     "rejection_loss_reasons": {}
   },
   {
     "stage": "target-fit processed",
     "key": "target_fit_processed",
-    "count": 511802,
-    "pct_of_previous": 100.0,
-    "pct_of_national": 100.03068533846711,
+    "count": 521785,
+    "pct_of_previous": 51.007969124530284,
+    "pct_of_national": 101.98184287934015,
     "rejection_loss_reasons": {}
   },
   {
@@ -48,7 +48,7 @@
     "rejection_loss_reasons": {
       "materialized": 511646,
       "supplier_roots": 511645,
-      "RETRY_PENDING": 0,
+      "RETRY_PENDING": 500796,
       "OUT_includes_non_construction": 92284
     }
   },
@@ -118,7 +118,7 @@
       "never_attempted_of_confirmed": 8262,
       "network_harvest_attempted": 75,
       "no_email_in_harvest": 0,
-      "mailbox_purpose_rejected": 8,
+      "mailbox_purpose_rejected": 6,
       "offline_continuous_not_counted_as_discovery": true
     }
   },
@@ -149,91 +149,80 @@
   {
     "stage": "COMPANY_OWNED",
     "key": "company_owned",
-    "count": 66,
-    "pct_of_previous": 88.0,
-    "pct_of_national": 0.012899569037125351,
+    "count": 68,
+    "pct_of_previous": 90.66666666666666,
+    "pct_of_national": 0.013290465068553392,
     "rejection_loss_reasons": {}
   },
   {
     "stage": "identity-safe",
     "key": "identity_safe",
-    "count": 66,
+    "count": 68,
     "pct_of_previous": 100.0,
-    "pct_of_national": 0.012899569037125351,
+    "pct_of_national": 0.013290465068553392,
     "rejection_loss_reasons": {}
   },
   {
     "stage": "provenance-valid",
     "key": "provenance_valid",
-    "count": 0,
-    "pct_of_previous": 0.0,
-    "pct_of_national": 0.0,
+    "count": 60,
+    "pct_of_previous": 88.23529411764706,
+    "pct_of_national": 0.011726880942841227,
     "rejection_loss_reasons": {}
   },
   {
     "stage": "service-fit valid",
     "key": "service_fit",
-    "count": 0,
-    "pct_of_previous": 0.0,
-    "pct_of_national": 0.0,
+    "count": 60,
+    "pct_of_previous": 88.23529411764706,
+    "pct_of_national": 0.011726880942841227,
     "rejection_loss_reasons": {}
   },
   {
     "stage": "copy-context valid",
     "key": "copy_context",
-    "count": 0,
-    "pct_of_previous": null,
-    "pct_of_national": 0.0,
+    "count": 60,
+    "pct_of_previous": 100.0,
+    "pct_of_national": 0.011726880942841227,
     "rejection_loss_reasons": {}
   },
   {
     "stage": "EMAIL_SEND_READY",
     "key": "email_send_ready",
-    "count": 0,
-    "pct_of_previous": 0.0,
-    "pct_of_national": 0.0,
+    "count": 60,
+    "pct_of_previous": 0.7196833393306945,
+    "pct_of_national": 0.011726880942841227,
     "rejection_loss_reasons": {
-      "domain_aligned_with_company": 55,
-      "service_fit_unsupported": 67,
-      "service_code:estruturacao_pleito_reajuste": 50,
       "ownership:UNRESOLVED": 1,
-      "service_code:diagnostico_contratual_b2g": 17,
-      "mailbox_purpose_rejected": 8,
-      "provenance_chain_invalid": 5,
-      "root_source_type:DERIVED_UNTRUSTED": 5,
-      "taint:provenance_host_mismatch:caiafafacilities.com.br!=connector.eng.br": 1,
-      "taint:sticky_verification_ignored:VERIFIED": 5,
-      "taint:sticky_ownership_ignored:COMPANY_OWNED": 5,
-      "taint:provenance_host_mismatch:emko.com!=emkoelektronik.com": 1,
+      "service_code:diagnostico_contratual_b2g": 9,
+      "service_fit_supported": 9,
+      "mailbox_purpose_rejected": 6,
       "ownership_identity_domain_mismatch": 8,
-      "sticky_ownership_insufficient_for_identity": 8,
-      "taint:provenance_host_no_email_domain:rf.com.br": 1,
-      "taint:provenance_host_no_email_domain:wh.com": 1,
-      "taint:provenance_host_mismatch:arlenarquitetura.com.br!=gmail.com": 1
+      "sticky_ownership_insufficient_for_identity": 8
     }
   },
   {
     "stage": "Warmbly imported",
     "key": "warmbly_imported",
-    "count": 0,
-    "pct_of_previous": null,
-    "pct_of_national": 0.0,
+    "count": 60,
+    "pct_of_previous": 100.0,
+    "pct_of_national": 0.011726880942841227,
     "rejection_loss_reasons": {}
   },
   {
     "stage": "Warmbly currently eligible",
     "key": "warmbly_eligible",
     "count": 0,
-    "pct_of_previous": null,
+    "pct_of_previous": 0.0,
     "pct_of_national": 0.0,
     "rejection_loss_reasons": {}
   },
   {
     "stage": "Active hot-set",
     "key": "active_hot_set",
-    "count": 0,
-    "pct_of_previous": null,
-    "pct_of_national": 0.0,
+    "count": 10,
+    "pct_of_previous": 16.666666666666664,
+    "pct_of_national": 0.0019544801571402047,
     "rejection_loss_reasons": {}
   }
 ]

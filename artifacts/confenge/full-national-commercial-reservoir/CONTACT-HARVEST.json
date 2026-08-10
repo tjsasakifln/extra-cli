@@ -1,5 +1,1802 @@
 {
-  "email_send_ready_count": 0,
-  "sample": [],
+  "email_send_ready_count": 60,
+  "sample": [
+    {
+      "cnpj_raiz": "16099194",
+      "cnpj14": "16099194000164",
+      "email": "eletrodata@eletrodataengenharia.com.br",
+      "razao_social": "ELETRODATA ENGENHARIA LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://eletrodataengenharia.com.br",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://eletrodataengenharia.com.br",
+          "method": "brand_domain_probe",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "ELETRODATA com execução pública de engenharia — objeto: Prestação de serviços de manutenção preventiva e corretiva, na área da construção civil, incluindo readequação predial, nos imóveis e terrenos pertencentes ou cedidos ao Poder Judi; órgão: TRIBUNAL DE JUSTICA DO ESTADO DO RJ (RJ)",
+      "why_now": "aditivo/medição recente no contrato de ELETRODATA junto a TRIBUNAL DE JUSTICA DO ESTADO DO RJ/RJ — objeto: Prestação de serviços de manutenção preventiva e corretiva, na área da construção civil, incluindo r",
+      "observed_fact": "objeto: Prestação de serviços de manutenção preventiva e corretiva, na área da construção civil, incluindo readequação predial, nos imóveis e terrenos pertencentes ou cedidos ao Poder Judi; órgão: TRIBUNAL DE JUSTICA DO ESTADO DO RJ; UF RJ",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:16099194:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "UNKNOWN",
+        "local_part": "eletrodata",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 90
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "03575041",
+      "cnpj14": "03575041000102",
+      "email": "pavsantos@pavsantos.com.br",
+      "razao_social": "PAVSANTOS CONSTRUTORA LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://pavsantos.com.br/",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://pavsantos.com.br/",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "PAVSANTOS com execução pública de engenharia — objeto: A contratação de empresa do ramo de engenharia/infraestrutura urbana, para execução de serviços de restauração de diversas vias públicas do Município, por meio de recapeamento asfá; órgão: Prefeitura Municipal de Jataí (GO)",
+      "why_now": "aditivo/medição recente no contrato de PAVSANTOS junto a Prefeitura Municipal de Jataí/GO — objeto: A contratação de empresa do ramo de engenharia/infraestrutura urbana, para execução de serviços de r",
+      "observed_fact": "objeto: A contratação de empresa do ramo de engenharia/infraestrutura urbana, para execução de serviços de restauração de diversas vias públicas do Município, por meio de recapeamento asfá; órgão: Prefeitura Municipal de Jataí; UF GO",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:03575041:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "UNKNOWN",
+        "local_part": "pavsantos",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 90
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "00638562",
+      "cnpj14": "00638562000165",
+      "email": "amf@amf.com.br",
+      "razao_social": "AMF ENGENHARIA E SERVICOS LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://amf.com.br/",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://amf.com.br/",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "AMF com execução pública de engenharia — objeto: ELABORACAO DO PROJETO EXECUTIVO DE ENGENHARIA E EXECUCAO DE OBRAS E SERVICOS DE INFRAESTRUTURA URBANA DE LIGACAO DOS BAIRROS VICENTE SOELLA E AMARILIO CAIADO FRAGA A ROD. ES-080, C; órgão: PREFEITURA MUNICIPAL DE COLATINA (ES)",
+      "why_now": "aditivo/medição recente no contrato de AMF junto a PREFEITURA MUNICIPAL DE COLATINA/ES — objeto: ELABORACAO DO PROJETO EXECUTIVO DE ENGENHARIA E EXECUCAO DE OBRAS E SERVICOS DE INFRAESTRUTURA URBAN",
+      "observed_fact": "objeto: ELABORACAO DO PROJETO EXECUTIVO DE ENGENHARIA E EXECUCAO DE OBRAS E SERVICOS DE INFRAESTRUTURA URBANA DE LIGACAO DOS BAIRROS VICENTE SOELLA E AMARILIO CAIADO FRAGA A ROD. ES-080, C; órgão: PREFEITURA MUNICIPAL DE COLATINA; UF ES",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:00638562:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "UNKNOWN",
+        "local_part": "amf",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 90
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "01514128",
+      "cnpj14": "01514128000136",
+      "email": "scave@scave.com.br",
+      "razao_social": "SCAVE SERVICOS DE ENGENHARIA E LOCACAO LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://scave.com.br/contato",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://scave.com.br/contato",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "SCAVE com execução pública de engenharia — objeto: CONTRATAÇÃO DE EMPRESA DE ENGENHARIA PARA EXECUÇÃO DA OBRA DE REVESTIMENTO DO CANAL DA MAURICÉIA, PAVIMENTAÇÃO, DRENAGEM E URBANIZAÇÃO - IPSEP/IMBIRIBEIRA, RECIFE-PE.; órgão: URB - AUTARQUIA DE URBANIZACAO DO RECIFE (PE)",
+      "why_now": "aditivo/medição recente no contrato de SCAVE junto a URB - AUTARQUIA DE URBANIZACAO DO RECIFE/PE — objeto: CONTRATAÇÃO DE EMPRESA DE ENGENHARIA PARA EXECUÇÃO DA OBRA DE REVESTIMENTO DO CANAL DA MAURICÉIA, PA",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA DE ENGENHARIA PARA EXECUÇÃO DA OBRA DE REVESTIMENTO DO CANAL DA MAURICÉIA, PAVIMENTAÇÃO, DRENAGEM E URBANIZAÇÃO - IPSEP/IMBIRIBEIRA, RECIFE-PE.; órgão: URB - AUTARQUIA DE URBANIZACAO DO RECIFE; UF PE",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:01514128:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "UNKNOWN",
+        "local_part": "scave",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 90
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "00061493",
+      "cnpj14": "00061493000170",
+      "email": "encopav@encopav.com.br",
+      "razao_social": "ENCOPAV ENGENHARIA LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://encopav.com.br/contato",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://encopav.com.br/contato",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "ENCOPAV com execução pública de engenharia — objeto: CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DOS SERVIÇOS DE ELABORAÇÃO DEPROJETOS BÁSICO E EXECUTIVO DE ENGENHARIA E EXECUÇÃO DE OBRAS EMERGENCIAIS DE REQUALIFICAÇÃO EREABILITAÇÃO FUNCION; órgão: DEPARTAMENTO AUTÔNOMO DE ESTRADAS DE RODAGEM (RS)",
+      "why_now": "aditivo/medição recente no contrato de ENCOPAV junto a DEPARTAMENTO AUTÔNOMO DE ESTRADAS DE RODAGEM/RS — objeto: CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DOS SERVIÇOS DE ELABORAÇÃO DEPROJETOS BÁSICO E EXECUTIVO DE ENG",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DOS SERVIÇOS DE ELABORAÇÃO DEPROJETOS BÁSICO E EXECUTIVO DE ENGENHARIA E EXECUÇÃO DE OBRAS EMERGENCIAIS DE REQUALIFICAÇÃO EREABILITAÇÃO FUNCION; órgão: DEPARTAMENTO AUTÔNOMO DE ESTRADAS DE RODAGEM; UF RS",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:00061493:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "UNKNOWN",
+        "local_part": "encopav",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 90
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "34348652",
+      "cnpj14": "34348652000133",
+      "email": "atendimento@metra.com.br",
+      "razao_social": "METRA CONSTRUCOES LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://metra.com.br/fale-conosco",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://metra.com.br/fale-conosco",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "METRA com execução pública de engenharia — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA CONSTRUÇÃO DE 25 HABITAÇÃO DE INTERESSE SOCIAL - HIS - PADRÃO POPULAR - (CASA TÉRREA ACESSÍVEL, 2 QUARTOS, AUTIL=47,46M², CONFORME PORTARI; órgão: PREFEITURA MUNICIPAL DE BELEM (AL)",
+      "why_now": "aditivo/medição recente no contrato de METRA junto a PREFEITURA MUNICIPAL DE BELEM/AL — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA CONSTRUÇÃO DE 25 HABITAÇÃO DE INTERESSE SOCIAL - HIS - PAD",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA CONSTRUÇÃO DE 25 HABITAÇÃO DE INTERESSE SOCIAL - HIS - PADRÃO POPULAR - (CASA TÉRREA ACESSÍVEL, 2 QUARTOS, AUTIL=47,46M², CONFORME PORTARI; órgão: PREFEITURA MUNICIPAL DE BELEM; UF AL",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:34348652:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "GENERIC_CONTACT",
+        "local_part": "atendimento",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 80
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "03509843",
+      "cnpj14": "03509843000106",
+      "email": "ventosul@ventosul.com.br",
+      "razao_social": "VENTO SUL ENGENHARIA LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://ventosul.com.br/contato",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://ventosul.com.br/contato",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "VENTO com execução pública de engenharia — objeto: Contratação de empresa especializada em serviços de engenharia para execução dos serviços de Construção do Novo Mercado Elias Mansour, localizado no município de Rio Branco/AC; órgão: CAC-PREFEITURA MUNICIPAL DE RIO BRANCO (AC)",
+      "why_now": "aditivo/medição recente no contrato de VENTO junto a CAC-PREFEITURA MUNICIPAL DE RIO BRANCO/AC — objeto: Contratação de empresa especializada em serviços de engenharia para execução dos serviços de Constru",
+      "observed_fact": "objeto: Contratação de empresa especializada em serviços de engenharia para execução dos serviços de Construção do Novo Mercado Elias Mansour, localizado no município de Rio Branco/AC; órgão: CAC-PREFEITURA MUNICIPAL DE RIO BRANCO; UF AC",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:03509843:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "UNKNOWN",
+        "local_part": "ventosul",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 90
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "00472805",
+      "cnpj14": "00472805000138",
+      "email": "comercial@tracado.com.br",
+      "razao_social": "TRACADO CONSTRUCOES E SERVICOS LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://tracado.com.br/fale-conosco",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://tracado.com.br/fale-conosco",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "TRACADO com execução pública de engenharia — objeto: Contração de empresa para execução dos serviços de elaboração de projetos básico e executivo de engenharia e execução de obras emergenciais de requalificação e reabilitação funcion; órgão: DEPARTAMENTO AUTÔNOMO DE ESTRADAS DE RODAGEM (RS)",
+      "why_now": "aditivo/medição recente no contrato de TRACADO junto a DEPARTAMENTO AUTÔNOMO DE ESTRADAS DE RODAGEM/RS — objeto: Contração de empresa para execução dos serviços de elaboração de projetos básico e executivo de enge",
+      "observed_fact": "objeto: Contração de empresa para execução dos serviços de elaboração de projetos básico e executivo de engenharia e execução de obras emergenciais de requalificação e reabilitação funcion; órgão: DEPARTAMENTO AUTÔNOMO DE ESTRADAS DE RODAGEM; UF RS",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:00472805:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "COMERCIAL",
+        "local_part": "comercial",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 50
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "15747692",
+      "cnpj14": "15747692000103",
+      "email": "contato@pavcon.com.br",
+      "razao_social": "PAVCON CONSTRUTORA LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://pavcon.com.br/contato",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://pavcon.com.br/contato",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "PAVCON com execução pública de engenharia — objeto: Constitui objeto deste ajuste a contratação parcelada de empresa de engenharia especializada, sob demanda, para a prestação dos serviços comuns de manutenção preventiva e corretiva; órgão: SECRETARIA DE ESTADO DE GOVERNO (MA)",
+      "why_now": "aditivo/medição recente no contrato de PAVCON junto a SECRETARIA DE ESTADO DE GOVERNO/MA — objeto: Constitui objeto deste ajuste a contratação parcelada de empresa de engenharia especializada, sob de",
+      "observed_fact": "objeto: Constitui objeto deste ajuste a contratação parcelada de empresa de engenharia especializada, sob demanda, para a prestação dos serviços comuns de manutenção preventiva e corretiva; órgão: SECRETARIA DE ESTADO DE GOVERNO; UF MA",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:15747692:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "GENERIC_CONTACT",
+        "local_part": "contato",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 80
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "00820854",
+      "cnpj14": "00820854000114",
+      "email": "contato@qualidademineracao.com.br",
+      "razao_social": null,
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": null,
+      "source_url": "https://qualidademineracao.com.br/contato",
+      "source_type": "contact_page",
+      "root_source_type": "contact_page",
+      "provenance_chain": null,
+      "why_you": null,
+      "why_now": null,
+      "observed_fact": null,
+      "micro_offer": null,
+      "cta": null,
+      "evidence_ids": null,
+      "service_fit_supported": null,
+      "mailbox_purpose": {
+        "mailbox_purpose": "GENERIC_CONTACT",
+        "local_part": "contato",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 80
+      },
+      "harvest_path": "artifacts/confenge/contact-enrichment/real-1000-20260808T164758Z/human-review/accepted.jsonl",
+      "_score": 15,
+      "send_ready": true,
+      "reasons": [
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "36909349",
+      "cnpj14": "36909349000198",
+      "email": "vendas@tmf.com.br",
+      "razao_social": "TMF CONSTRUCOES, INCORPORACAO E SERVICOS LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://tmf.com.br/contato",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://tmf.com.br/contato",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "TMF com execução pública de engenharia — objeto: CONTRATAÇÃO DE SERVIÇO ESPECIALIZADO, SOB DEMANDA, PARA PRESTAÇÃO DE SERVIÇOS DE MANUTENÇÃO PREDIAL, CONSISTINDO EM INSTALAÇÃO, MONTAGEM, REPARAÇÃO E ADAPTAÇÃO, COM FORNECIMENTO DE; órgão: MUNICIPIO DE CUIABA (MT)",
+      "why_now": "aditivo/medição recente no contrato de TMF junto a MUNICIPIO DE CUIABA/MT — objeto: CONTRATAÇÃO DE SERVIÇO ESPECIALIZADO, SOB DEMANDA, PARA PRESTAÇÃO DE SERVIÇOS DE MANUTENÇÃO PREDIAL,",
+      "observed_fact": "objeto: CONTRATAÇÃO DE SERVIÇO ESPECIALIZADO, SOB DEMANDA, PARA PRESTAÇÃO DE SERVIÇOS DE MANUTENÇÃO PREDIAL, CONSISTINDO EM INSTALAÇÃO, MONTAGEM, REPARAÇÃO E ADAPTAÇÃO, COM FORNECIMENTO DE; órgão: MUNICIPIO DE CUIABA; UF MT",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:36909349:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "COMERCIAL",
+        "local_part": "vendas",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 50
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "01114245",
+      "cnpj14": "01114245000102",
+      "email": "comercial@connector.eng.br",
+      "razao_social": "CONNECTOR ENGENHARIA LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://connector.eng.br/",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://connector.eng.br/",
+          "method": "domain_aligned_rebuild",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "CONNECTOR com execução pública de engenharia — objeto: SERVIÇOS DE APOIO ADMINISTRATIVO, ASSISTENTE ADMINISTRATIVO, ASSISTENTE JURÍDICO, CERIMONIALISTA, ENCARREGADO-GERAL, RECEPCIONISTA E TÉCNICO EM SECRETARIADO; órgão: SUPERINTEND. DO DESENVOL. DO CENTRO-OESTE (DF)",
+      "why_now": "aditivo/medição recente no contrato de CONNECTOR junto a SUPERINTEND. DO DESENVOL. DO CENTRO-OESTE/DF — objeto: SERVIÇOS DE APOIO ADMINISTRATIVO, ASSISTENTE ADMINISTRATIVO, ASSISTENTE JURÍDICO, CERIMONIALISTA, EN",
+      "observed_fact": "objeto: SERVIÇOS DE APOIO ADMINISTRATIVO, ASSISTENTE ADMINISTRATIVO, ASSISTENTE JURÍDICO, CERIMONIALISTA, ENCARREGADO-GERAL, RECEPCIONISTA E TÉCNICO EM SECRETARIADO; órgão: SUPERINTEND. DO DESENVOL. DO CENTRO-OESTE; UF DF",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:01114245:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "COMERCIAL",
+        "local_part": "comercial",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 50
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "00794165",
+      "cnpj14": "00794165000182",
+      "email": "comercial@comaro.com.br",
+      "razao_social": "COMARO ENGENHARIA LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://comaro.com.br/contato",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://comaro.com.br/contato",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "COMARO com execução pública de engenharia — objeto: Execução de pavimentação urbana em vias públicas, com área total de 96.207,60 m², sendo 89.127,01 m² em Concreto de Cimento Portland e 7.080,59 m² em blocos de concreto. Os serviço; órgão: Prefeitura Municipal de União da Vitória (PR)",
+      "why_now": "aditivo/medição recente no contrato de COMARO junto a Prefeitura Municipal de União da Vitória/PR — objeto: Execução de pavimentação urbana em vias públicas, com área total de 96.207,60 m², sendo 89.127,01 m²",
+      "observed_fact": "objeto: Execução de pavimentação urbana em vias públicas, com área total de 96.207,60 m², sendo 89.127,01 m² em Concreto de Cimento Portland e 7.080,59 m² em blocos de concreto. Os serviço; órgão: Prefeitura Municipal de União da Vitória; UF PR",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:00794165:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "COMERCIAL",
+        "local_part": "comercial",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 50
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "60025322",
+      "cnpj14": "60025322000117",
+      "email": "contato@simeng.com.br",
+      "razao_social": "SIMENG ENGENHARIA LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://simeng.com.br/contato",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://simeng.com.br/contato",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "SIMENG com execução pública de engenharia — objeto: CONTRATAÇÃO DE PESSOA JURÍDICA PARA A CONSTRUÇÃO DE SANITÁRIOS NO ECOPARQUE E NA PRAÇA DA FAMÍLIA; órgão: Prefeitura Municipal de Chapecó (SC)",
+      "why_now": "aditivo/medição recente no contrato de SIMENG junto a Prefeitura Municipal de Chapecó/SC — objeto: CONTRATAÇÃO DE PESSOA JURÍDICA PARA A CONSTRUÇÃO DE SANITÁRIOS NO ECOPARQUE E NA PRAÇA DA FAMÍLIA",
+      "observed_fact": "objeto: CONTRATAÇÃO DE PESSOA JURÍDICA PARA A CONSTRUÇÃO DE SANITÁRIOS NO ECOPARQUE E NA PRAÇA DA FAMÍLIA; órgão: Prefeitura Municipal de Chapecó; UF SC",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:60025322:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "GENERIC_CONTACT",
+        "local_part": "contato",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 80
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "40301626",
+      "cnpj14": "40301626000152",
+      "email": "contato@midt.com.br",
+      "razao_social": "MIDT ENGENHARIA LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://midt.com.br/",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://midt.com.br/",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "MIDT com execução pública de engenharia — objeto: Contratacao de empresa especializada, no Regime de Contratacao Integrada, para elaboracao do Projeto Basico, Projeto Executivo de Engenharia, e execucao das obras e servicos de uma; órgão: PREFEITURA MUNICIPAL DE BARRA DE SÃO FRANCISCO (ES)",
+      "why_now": "aditivo/medição recente no contrato de MIDT junto a PREFEITURA MUNICIPAL DE BARRA DE SÃO FRANCISCO/ES — objeto: Contratacao de empresa especializada, no Regime de Contratacao Integrada, para elaboracao do Projeto",
+      "observed_fact": "objeto: Contratacao de empresa especializada, no Regime de Contratacao Integrada, para elaboracao do Projeto Basico, Projeto Executivo de Engenharia, e execucao das obras e servicos de uma; órgão: PREFEITURA MUNICIPAL DE BARRA DE SÃO FRANCISCO; UF ES",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:40301626:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "GENERIC_CONTACT",
+        "local_part": "contato",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 80
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "01744153",
+      "cnpj14": "01744153000106",
+      "email": "contato@pavidez.com.br",
+      "razao_social": "PAVIDEZ ENGENHARIA LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://pavidez.com.br/",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://pavidez.com.br/",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "PAVIDEZ com execução pública de engenharia — objeto: DM-9471832/2025 LOTE 4: Execução dos serviços de manutenção rodoviária, conservação rotineira e periódica, serviços de urgência e pequenos melhoramentos, bem como reparações do cor; órgão: DER/DM/GMR (MG)",
+      "why_now": "aditivo/medição recente no contrato de PAVIDEZ junto a DER/DM/GMR/MG — objeto: DM-9471832/2025 LOTE 4: Execução dos serviços de manutenção rodoviária, conservação rotineira e peri",
+      "observed_fact": "objeto: DM-9471832/2025 LOTE 4: Execução dos serviços de manutenção rodoviária, conservação rotineira e periódica, serviços de urgência e pequenos melhoramentos, bem como reparações do cor; órgão: DER/DM/GMR; UF MG",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:01744153:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "GENERIC_CONTACT",
+        "local_part": "contato",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 80
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "07546061",
+      "cnpj14": "07546061000106",
+      "email": "dam@dam.com.br",
+      "razao_social": "DAM CONSTRUTORA E INCORPORADORA LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://dam.com.br/",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://dam.com.br/",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "DAM com execução pública de engenharia — objeto: Contratação de empresa de engenharia para Reforma e Ampliação da Escola Municipal Antônio Carlos Magalhães na Comunidade Rural de Nova Vista, no Município de Andaraí/BA, meta do Co; órgão: Prefeitura Municipal de Andaraí (BA)",
+      "why_now": "aditivo/medição recente no contrato de DAM junto a Prefeitura Municipal de Andaraí/BA — objeto: Contratação de empresa de engenharia para Reforma e Ampliação da Escola Municipal Antônio Carlos Mag",
+      "observed_fact": "objeto: Contratação de empresa de engenharia para Reforma e Ampliação da Escola Municipal Antônio Carlos Magalhães na Comunidade Rural de Nova Vista, no Município de Andaraí/BA, meta do Co; órgão: Prefeitura Municipal de Andaraí; UF BA",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:07546061:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "UNKNOWN",
+        "local_part": "dam",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 90
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "52359706",
+      "cnpj14": "52359706000148",
+      "email": "contato@sulvias.com",
+      "razao_social": "SULVIAS OBRAS E CONSTRUCOES LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://sulvias.com.br/",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://sulvias.com.br/",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "SULVIAS com execução pública de engenharia — objeto: CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DE SERVIÇOS DE REPERFILAGEM ASFÁLTICA, INCLUINDO RETIRADA DA SUB-BASE E BASE COMPROMETIDAS, RECUPERAÇÃO DA SUB-BASE E BASE COM PEDRA RACHÃO, FR; órgão: MUNICÍPIO DE FORMOSA DO SUL (SC)",
+      "why_now": "aditivo/medição recente no contrato de SULVIAS junto a MUNICÍPIO DE FORMOSA DO SUL/SC — objeto: CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DE SERVIÇOS DE REPERFILAGEM ASFÁLTICA, INCLUINDO RETIRADA DA SU",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DE SERVIÇOS DE REPERFILAGEM ASFÁLTICA, INCLUINDO RETIRADA DA SUB-BASE E BASE COMPROMETIDAS, RECUPERAÇÃO DA SUB-BASE E BASE COM PEDRA RACHÃO, FR; órgão: MUNICÍPIO DE FORMOSA DO SUL; UF SC",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:52359706:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "GENERIC_CONTACT",
+        "local_part": "contato",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 80
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "01901632",
+      "cnpj14": "01901632000199",
+      "email": "info@falk.com",
+      "razao_social": "FALK CONSTRUTORA LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": null,
+      "source_url": "https://falk.com/",
+      "source_type": "site",
+      "root_source_type": "site",
+      "provenance_chain": null,
+      "why_you": null,
+      "why_now": null,
+      "observed_fact": null,
+      "micro_offer": null,
+      "cta": null,
+      "evidence_ids": null,
+      "service_fit_supported": null,
+      "mailbox_purpose": {
+        "mailbox_purpose": "FINANCEIRO",
+        "local_part": "info",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 70
+      },
+      "harvest_path": "artifacts/confenge/contact-enrichment/real-1000-20260808T164758Z/warmbly_feed/contacts_enrollable.filtered.jsonl",
+      "_score": 15,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "55014274",
+      "cnpj14": "55014274000121",
+      "email": "contato@lifetopografia.com.br",
+      "razao_social": "LIFE ENGENHARIA E TOPOGRAFIA LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://lifetopografia.com.br/",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://lifetopografia.com.br/",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "LIFE com execução pública de engenharia — objeto: Elaboração de projetos civis e estruturais das cabeceiras de pontes; órgão: DEFESA CÍVIL (SC)",
+      "why_now": "aditivo/medição recente no contrato de LIFE junto a DEFESA CÍVIL/SC — objeto: Elaboração de projetos civis e estruturais das cabeceiras de pontes",
+      "observed_fact": "objeto: Elaboração de projetos civis e estruturais das cabeceiras de pontes; órgão: DEFESA CÍVIL; UF SC",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:55014274:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "GENERIC_CONTACT",
+        "local_part": "contato",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 80
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "36377091",
+      "cnpj14": "36377091000126",
+      "email": "sinales@sinales.com.br",
+      "razao_social": "SINALES SINALIZACAO ESPIRITO SANTO LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://www.sinales.com.br",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://www.sinales.com.br",
+          "method": "site_scrape_expand_v8",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "SINALES com execução pública de engenharia — objeto: Contratação emergencial de empresa especializada para prestação de serviços de engenharia de tráfego consistentes na implantação, revitalização e manutenção de sinalização viária h; órgão: SECRETARIA MUNICIPAL DE ENGENHARIA DE TRANSITO (GO)",
+      "why_now": "aditivo/medição recente no contrato de SINALES junto a SECRETARIA MUNICIPAL DE ENGENHARIA DE TRANSITO/GO — objeto: Contratação emergencial de empresa especializada para prestação de serviços de engenharia de tráfego",
+      "observed_fact": "objeto: Contratação emergencial de empresa especializada para prestação de serviços de engenharia de tráfego consistentes na implantação, revitalização e manutenção de sinalização viária h; órgão: SECRETARIA MUNICIPAL DE ENGENHARIA DE TRANSITO; UF GO",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:36377091:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "UNKNOWN",
+        "local_part": "sinales",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 90
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "42267203",
+      "cnpj14": "42267203000199",
+      "email": "trafecon@trafecon.com.br",
+      "razao_social": "TRAFECON ENGENHARIA LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://trafecon.com.br/contato",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://trafecon.com.br/contato",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "TRAFECON com execução pública de engenharia — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA PRESTAÇÃO DE SERVIÇOS DE ATUALIZAÇÃO DE PROJETOS BÁSICO E EXECUTIVO E SUPERVISÃO DAS OBRAS REMANESCENTES DE IMPLANTAÇÃO E PAVIMENTAÇÃO DA ; órgão: SUPERINTENDÊNCIA REGIONAL DO DNIT - PA (PA)",
+      "why_now": "aditivo/medição recente no contrato de TRAFECON junto a SUPERINTENDÊNCIA REGIONAL DO DNIT - PA/PA — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA PRESTAÇÃO DE SERVIÇOS DE ATUALIZAÇÃO DE PROJETOS BÁSICO E ",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA PRESTAÇÃO DE SERVIÇOS DE ATUALIZAÇÃO DE PROJETOS BÁSICO E EXECUTIVO E SUPERVISÃO DAS OBRAS REMANESCENTES DE IMPLANTAÇÃO E PAVIMENTAÇÃO DA ; órgão: SUPERINTENDÊNCIA REGIONAL DO DNIT - PA; UF PA",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:42267203:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "UNKNOWN",
+        "local_part": "trafecon",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 90
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "38756140",
+      "cnpj14": "38756140000167",
+      "email": "comercial@supera.com.br",
+      "razao_social": "SUPERA ENGENHARIA LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://supera.com.br/contato",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://supera.com.br/contato",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "SUPERA com execução pública de engenharia — objeto: Execução de projeto AVCB para o Hospital Veterinário da Faculdade de Ciências Agrárias e Veterinárias FCAV/UNESP Campus de Jaboticaba; órgão: ESP-UNESP-FAC CIENCIAS AGR E VETER.-C.JABOTIC (SP)",
+      "why_now": "aditivo/medição recente no contrato de SUPERA junto a ESP-UNESP-FAC CIENCIAS AGR E VETER.-C.JABOTIC/SP — objeto: Execução de projeto AVCB para o Hospital Veterinário da Faculdade de Ciências Agrárias e Veterinária",
+      "observed_fact": "objeto: Execução de projeto AVCB para o Hospital Veterinário da Faculdade de Ciências Agrárias e Veterinárias FCAV/UNESP Campus de Jaboticaba; órgão: ESP-UNESP-FAC CIENCIAS AGR E VETER.-C.JABOTIC; UF SP",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:38756140:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "COMERCIAL",
+        "local_part": "comercial",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 50
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "44571860",
+      "cnpj14": "44571860000150",
+      "email": "contato@institutoruas.com.br",
+      "razao_social": "INSTITUTO RUAS LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": null,
+      "source_url": "https://institutoruas.com.br/",
+      "source_type": "site",
+      "root_source_type": "site",
+      "provenance_chain": null,
+      "why_you": null,
+      "why_now": null,
+      "observed_fact": null,
+      "micro_offer": null,
+      "cta": null,
+      "evidence_ids": null,
+      "service_fit_supported": null,
+      "mailbox_purpose": {
+        "mailbox_purpose": "GENERIC_CONTACT",
+        "local_part": "contato",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 80
+      },
+      "harvest_path": "artifacts/confenge/contact-enrichment/real-1000-20260808T164758Z/warmbly_feed/contacts_enrollable.filtered.jsonl",
+      "_score": 15,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "31988427",
+      "cnpj14": "31988427000173",
+      "email": "contato@projetosobras.com.br",
+      "razao_social": "2 S PROJETOS DE ENGENHARIA DE OBRAS DE CONSTRUCAO LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://projetosobras.com.br/contato",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://projetosobras.com.br/contato",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "PROJETOS com execução pública de engenharia — objeto: CONTRATAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA PARA MANUTENÇÃO DAS COBERTAS DO BLOCO F, DO CAMPUS RECIFE, DO INSTITUTO FEDERAL DE EDUCAÇÃO, CIÊNCIA E TECNOLOGIA DE PERNAMBUCO, NAS CO; órgão: INST FED.DE PERNAMBUCO/CAMPUS RECIFE (PE)",
+      "why_now": "aditivo/medição recente no contrato de PROJETOS junto a INST FED.DE PERNAMBUCO/CAMPUS RECIFE/PE — objeto: CONTRATAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA PARA MANUTENÇÃO DAS COBERTAS DO BLOCO F, DO CAMPUS RECI",
+      "observed_fact": "objeto: CONTRATAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA PARA MANUTENÇÃO DAS COBERTAS DO BLOCO F, DO CAMPUS RECIFE, DO INSTITUTO FEDERAL DE EDUCAÇÃO, CIÊNCIA E TECNOLOGIA DE PERNAMBUCO, NAS CO; órgão: INST FED.DE PERNAMBUCO/CAMPUS RECIFE; UF PE",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:31988427:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "GENERIC_CONTACT",
+        "local_part": "contato",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 80
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "03094645",
+      "cnpj14": "03094645000129",
+      "email": "infraestrutura@infrasul.com.br",
+      "razao_social": "INFRASUL - INFRAESTRUTURA E EMPREENDIMENTOS LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://infrasul.com.br/contato",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://infrasul.com.br/contato",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "INFRASUL com execução pública de engenharia — objeto: Contratação de empresa especializada para a execução de obras de pavimentação e drenagem urbana em Concreto Betuminoso Usinado a Quente (CBUQ) no perímetro urbano e pavimento inter; órgão: Unidade administrativa (PR)",
+      "why_now": "aditivo/medição recente no contrato de INFRASUL junto a Unidade administrativa/PR — objeto: Contratação de empresa especializada para a execução de obras de pavimentação e drenagem urbana em C",
+      "observed_fact": "objeto: Contratação de empresa especializada para a execução de obras de pavimentação e drenagem urbana em Concreto Betuminoso Usinado a Quente (CBUQ) no perímetro urbano e pavimento inter; órgão: Unidade administrativa; UF PR",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:03094645:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "FINANCEIRO",
+        "local_part": "infraestrutura",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 70
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "36031022",
+      "cnpj14": "36031022000166",
+      "email": "arlenarquiteto@gmail.com",
+      "razao_social": "ARLEN ARQUITETURA E ENGENHARIA LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": null,
+      "source_url": "https://arlenarquitetura.com.br/contato",
+      "source_type": "contact_page",
+      "root_source_type": "contact_page",
+      "provenance_chain": null,
+      "why_you": null,
+      "why_now": null,
+      "observed_fact": null,
+      "micro_offer": null,
+      "cta": null,
+      "evidence_ids": null,
+      "service_fit_supported": null,
+      "mailbox_purpose": {
+        "mailbox_purpose": "UNKNOWN",
+        "local_part": "arlenarquiteto",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 90
+      },
+      "harvest_path": "artifacts/confenge/contact-enrichment/real-200-v3-20260808T161351Z/warmbly_feed/contacts_enrollable.jsonl",
+      "_score": 15,
+      "send_ready": true,
+      "reasons": [
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "03222465",
+      "cnpj14": "03222465000185",
+      "email": "dalbapiedmont@dalba.com",
+      "razao_social": "DALBA ENGENHARIA E EMPREENDIMENTOS LTDA - EM RECUPERACAO JUDICIAL",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://dalba.com/",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://dalba.com/",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "DALBA com execução pública de engenharia — objeto: Execução de serviços de manutenção e conservação rotineira e periódica do pavimento das rodovias da Área 07 da SR Oeste, numa extensão de 355,23 km.; órgão: DER - Departamento de Estradas de Rodagem do Estado do Paraná (PR)",
+      "why_now": "aditivo/medição recente no contrato de DALBA junto a DER - Departamento de Estradas de Rodagem do Estado do Paraná/PR — objeto: Execução de serviços de manutenção e conservação rotineira e periódica do pavimento das rodovias da ",
+      "observed_fact": "objeto: Execução de serviços de manutenção e conservação rotineira e periódica do pavimento das rodovias da Área 07 da SR Oeste, numa extensão de 355,23 km.; órgão: DER - Departamento de Estradas de Rodagem do Estado do Paraná; UF PR",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:03222465:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "UNKNOWN",
+        "local_part": "dalbapiedmont",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 90
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "03257777",
+      "cnpj14": "03257777000124",
+      "email": "gaiarodovias@gaiarodovias.com.br",
+      "razao_social": "GAIA RODOVIAS LTDA.",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://www.gaiarodovias.com.br",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://www.gaiarodovias.com.br",
+          "method": "site_scrape_expand_v8",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "GAIA com execução pública de engenharia — objeto: EXECUÇÃO DOS SERVIÇOS DE MANUTENÇÃO (CONSERVAÇÃO/RECUPERAÇÃO) DE RODOVIAS PAVIMENTADAS E ESTRADAS NÃO PAVIMENTADAS SOB A JURISDIÇÃO DA COORDENADORIA REGIONAL EXTREMO OESTE – SIE/CR; órgão: Secretaria de Estado da Infraestrutura e Mobilidade (SC)",
+      "why_now": "aditivo/medição recente no contrato de GAIA junto a Secretaria de Estado da Infraestrutura e Mobilidade/SC — objeto: EXECUÇÃO DOS SERVIÇOS DE MANUTENÇÃO (CONSERVAÇÃO/RECUPERAÇÃO) DE RODOVIAS PAVIMENTADAS E ESTRADAS NÃ",
+      "observed_fact": "objeto: EXECUÇÃO DOS SERVIÇOS DE MANUTENÇÃO (CONSERVAÇÃO/RECUPERAÇÃO) DE RODOVIAS PAVIMENTADAS E ESTRADAS NÃO PAVIMENTADAS SOB A JURISDIÇÃO DA COORDENADORIA REGIONAL EXTREMO OESTE – SIE/CR; órgão: Secretaria de Estado da Infraestrutura e Mobilidade; UF SC",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:03257777:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "UNKNOWN",
+        "local_part": "gaiarodovias",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 90
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "15493716",
+      "cnpj14": "15493716000145",
+      "email": "programabem@martins.com.br",
+      "razao_social": "R MARTINS ENGENHARIA LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": null,
+      "source_url": "https://martins.com.br/contato",
+      "source_type": "contact_page",
+      "root_source_type": "contact_page",
+      "provenance_chain": null,
+      "why_you": null,
+      "why_now": null,
+      "observed_fact": null,
+      "micro_offer": null,
+      "cta": null,
+      "evidence_ids": null,
+      "service_fit_supported": null,
+      "mailbox_purpose": {
+        "mailbox_purpose": "UNKNOWN",
+        "local_part": "programabem",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 90
+      },
+      "harvest_path": "artifacts/confenge/contact-enrichment/real-1000-20260808T164758Z/warmbly_feed/contacts_enrollable.filtered.jsonl",
+      "_score": 15,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "00507949",
+      "cnpj14": "00507949000182",
+      "email": "jatobeton@jatobeton.com.br",
+      "razao_social": "JATOBETON ENGENHARIA LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://jatobeton.com.br/",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://jatobeton.com.br/",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "JATOBETON com execução pública de engenharia — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA DE ENGENHARIA PARA EXECUÇÃO DE SERVIÇOS DE RECUPERAÇÃO ESTRUTURAL DA PONTE/VIADUTO JOSÉ DE BARROS LIMA (PONTE JOANA BEZERRA) QUE LIGA OS BAIRRO; órgão: EMLURB - AUTARQUIA DE MANUTENÇÃO E LIMPEZA URBANA (PE)",
+      "why_now": "aditivo/medição recente no contrato de JATOBETON junto a EMLURB - AUTARQUIA DE MANUTENÇÃO E LIMPEZA URBANA/PE — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA DE ENGENHARIA PARA EXECUÇÃO DE SERVIÇOS DE RECUPERAÇÃO ESTRUTUR",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA DE ENGENHARIA PARA EXECUÇÃO DE SERVIÇOS DE RECUPERAÇÃO ESTRUTURAL DA PONTE/VIADUTO JOSÉ DE BARROS LIMA (PONTE JOANA BEZERRA) QUE LIGA OS BAIRRO; órgão: EMLURB - AUTARQUIA DE MANUTENÇÃO E LIMPEZA URBANA; UF PE",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:00507949:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "UNKNOWN",
+        "local_part": "jatobeton",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 90
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "29104240",
+      "cnpj14": "29104240000118",
+      "email": "comercial@avec.com.br",
+      "razao_social": "AVEC ALUGUEL DE VEICULOS E CONSTRUCOES LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://avec.com.br/contato",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://avec.com.br/contato",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "AVEC com execução pública de engenharia — objeto: CONTRATAÇÃO DE EMPRESA DE ENGENHARIA ESPECIALIZADA EM SERVIÇOS DE MANUTENÇÃO PREVENTIVA E CORRETIVA DE PAVIMENTAÇÃO ASFÁLTICA E DRENAGEM DE VIAS URBANAS NO MUNICÍPIO DE CANDEIAS NO; órgão: Prefeitura Municipal de Candeias (BA)",
+      "why_now": "aditivo/medição recente no contrato de AVEC junto a Prefeitura Municipal de Candeias/BA — objeto: CONTRATAÇÃO DE EMPRESA DE ENGENHARIA ESPECIALIZADA EM SERVIÇOS DE MANUTENÇÃO PREVENTIVA E CORRETIVA ",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA DE ENGENHARIA ESPECIALIZADA EM SERVIÇOS DE MANUTENÇÃO PREVENTIVA E CORRETIVA DE PAVIMENTAÇÃO ASFÁLTICA E DRENAGEM DE VIAS URBANAS NO MUNICÍPIO DE CANDEIAS NO; órgão: Prefeitura Municipal de Candeias; UF BA",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:29104240:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "COMERCIAL",
+        "local_part": "comercial",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 50
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "03620927",
+      "cnpj14": "03620927000112",
+      "email": "comercial@paviplan.com.br",
+      "razao_social": "PAVIPLAN PAVIMENTAÇÃO LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://www.paviplan.com.br",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://www.paviplan.com.br",
+          "method": "site_scrape_expand_v8",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "PAVIPLAN com execução pública de engenharia — objeto: Contratação de empresa especializada para execução por demanda de serviços comuns de engenharia para manutenção, conservação, reparação, melhorias e intervenções corretivas e preve; órgão: CONSÓRCIO INTERFEDERATIVO SANTA CATARINA - CINCATARINA (SC)",
+      "why_now": "aditivo/medição recente no contrato de PAVIPLAN junto a CONSÓRCIO INTERFEDERATIVO SANTA CATARINA - CINCATARINA/SC — objeto: Contratação de empresa especializada para execução por demanda de serviços comuns de engenharia para",
+      "observed_fact": "objeto: Contratação de empresa especializada para execução por demanda de serviços comuns de engenharia para manutenção, conservação, reparação, melhorias e intervenções corretivas e preve; órgão: CONSÓRCIO INTERFEDERATIVO SANTA CATARINA - CINCATARINA; UF SC",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:03620927:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "COMERCIAL",
+        "local_part": "comercial",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 50
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "03667661",
+      "cnpj14": "03667661000163",
+      "email": "compactasul@compactasul.com.br",
+      "razao_social": "COMPACTA SUL PAVIMENTACAO LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": null,
+      "source_url": "https://compactasul.com.br/contato",
+      "source_type": "contact_page",
+      "root_source_type": "contact_page",
+      "provenance_chain": null,
+      "why_you": null,
+      "why_now": null,
+      "observed_fact": null,
+      "micro_offer": null,
+      "cta": null,
+      "evidence_ids": null,
+      "service_fit_supported": null,
+      "mailbox_purpose": {
+        "mailbox_purpose": "UNKNOWN",
+        "local_part": "compactasul",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 90
+      },
+      "harvest_path": "artifacts/confenge/contact-enrichment/real-1000-20260808T164758Z/warmbly_feed/contacts_enrollable.filtered.jsonl",
+      "_score": 15,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "03992945",
+      "cnpj14": "03992945000125",
+      "email": "verdebianco@verdebianco.com.br",
+      "razao_social": "VERDEBIANCO ENGENHARIA LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://verdebianco.com.br/contato",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://verdebianco.com.br/contato",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "VERDEBIANCO com execução pública de engenharia — objeto: Contratação de empresa especializada em engenharia compreendendo o desenvolvimento do projeto executivo e a execução de obras para implantação do Corredor de Transporte Coletivo – ; órgão: PREFEITURA MUNICIPAL DE SANTO ANDRÉ (SP)",
+      "why_now": "aditivo/medição recente no contrato de VERDEBIANCO junto a PREFEITURA MUNICIPAL DE SANTO ANDRÉ/SP — objeto: Contratação de empresa especializada em engenharia compreendendo o desenvolvimento do projeto execut",
+      "observed_fact": "objeto: Contratação de empresa especializada em engenharia compreendendo o desenvolvimento do projeto executivo e a execução de obras para implantação do Corredor de Transporte Coletivo – ; órgão: PREFEITURA MUNICIPAL DE SANTO ANDRÉ; UF SP",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:03992945:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "UNKNOWN",
+        "local_part": "verdebianco",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 90
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "37073624",
+      "cnpj14": "37073624000149",
+      "email": "contato@artflex.com.br",
+      "razao_social": "ARTFLEX ENGENHARIA LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://artflex.com.br/contato",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://artflex.com.br/contato",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "ARTFLEX com execução pública de engenharia — objeto: PRESTAÇÃO DE SERVIÇOS DE PROTEÇÃO E REVITALIZAÇÃO DO CONCRETO APARENTE DAS FACHADAS E PÓRTICOS DO BLOCO \"F\" (ADMINISTRAÇÃO), ESTRUTURA EXTERNA DO BLOCO \"H\" (RESTAURANTE), PORTARIAS; órgão: STJ _ SUPERIOR TRIBUNAL DE JUSTICA/DF (DF)",
+      "why_now": "aditivo/medição recente no contrato de ARTFLEX junto a STJ _ SUPERIOR TRIBUNAL DE JUSTICA/DF/DF — objeto: PRESTAÇÃO DE SERVIÇOS DE PROTEÇÃO E REVITALIZAÇÃO DO CONCRETO APARENTE DAS FACHADAS E PÓRTICOS DO BL",
+      "observed_fact": "objeto: PRESTAÇÃO DE SERVIÇOS DE PROTEÇÃO E REVITALIZAÇÃO DO CONCRETO APARENTE DAS FACHADAS E PÓRTICOS DO BLOCO \"F\" (ADMINISTRAÇÃO), ESTRUTURA EXTERNA DO BLOCO \"H\" (RESTAURANTE), PORTARIAS; órgão: STJ _ SUPERIOR TRIBUNAL DE JUSTICA/DF; UF DF",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:37073624:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "GENERIC_CONTACT",
+        "local_part": "contato",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 80
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "04287461",
+      "cnpj14": "04287461000148",
+      "email": "financeiro@unicon.com.br",
+      "razao_social": "UNICON CONSTRUCOES LTDA",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://unicon.com.br/contato",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://unicon.com.br/contato",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "UNICON com execução pública de engenharia — objeto: O objeto do presente instrumento é a contratação de serviços de engenharia referentes a manutenção e adequação predial, preventiva, corretiva e de modernização das edificações e pr; órgão: PREFEITURA MUNICIPAL DE PÃO DE AÇÚCAR (AL)",
+      "why_now": "aditivo/medição recente no contrato de UNICON junto a PREFEITURA MUNICIPAL DE PÃO DE AÇÚCAR/AL — objeto: O objeto do presente instrumento é a contratação de serviços de engenharia referentes a manutenção e",
+      "observed_fact": "objeto: O objeto do presente instrumento é a contratação de serviços de engenharia referentes a manutenção e adequação predial, preventiva, corretiva e de modernização das edificações e pr; órgão: PREFEITURA MUNICIPAL DE PÃO DE AÇÚCAR; UF AL",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:04287461:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "FINANCEIRO",
+        "local_part": "financeiro",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 70
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "07351538",
+      "cnpj14": "07351538000190",
+      "email": "contato@garden.com.br",
+      "razao_social": null,
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": null,
+      "source_url": "https://garden.com.br/contato",
+      "source_type": "contact_page",
+      "root_source_type": "contact_page",
+      "provenance_chain": null,
+      "why_you": null,
+      "why_now": null,
+      "observed_fact": null,
+      "micro_offer": null,
+      "cta": null,
+      "evidence_ids": null,
+      "service_fit_supported": null,
+      "mailbox_purpose": {
+        "mailbox_purpose": "GENERIC_CONTACT",
+        "local_part": "contato",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 80
+      },
+      "harvest_path": "artifacts/confenge/contact-enrichment/expand-esr-20260810/human-review/accepted.jsonl",
+      "_score": 15,
+      "send_ready": true,
+      "reasons": [
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "07792269",
+      "cnpj14": "07792269000105",
+      "email": "lytoranea@lytoranea.com.br",
+      "razao_social": "CONSTRUTORA LYTORANEA LTDA - EM RECUPERACAO JUDICIAL",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": "estruturacao_pleito_reajuste",
+      "source_url": "https://lytoranea.com.br/contato",
+      "source_type": "REAL_OFFICIAL_SITE",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://lytoranea.com.br/contato",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "LYTORANEA com execução pública de engenharia — objeto: EXECUÇÃO DOS SERVIÇOS DE REGULARIZAÇÃO DE SUBLEITO, CONSTRUÇÃO DE BASE, SUB-BASE, MEIO-FIO E CALÇADA NO MUNICÍPIO DE MARICÁ/RJ, sob o regime de Empreitada por Preço Unitário, confo; órgão: MRJ-AUTARQUIA DE SERVIÇOS DE OBRAS DE MARICÁ (RJ)",
+      "why_now": "aditivo/medição recente no contrato de LYTORANEA junto a MRJ-AUTARQUIA DE SERVIÇOS DE OBRAS DE MARICÁ/RJ — objeto: EXECUÇÃO DOS SERVIÇOS DE REGULARIZAÇÃO DE SUBLEITO, CONSTRUÇÃO DE BASE, SUB-BASE, MEIO-FIO E CALÇADA",
+      "observed_fact": "objeto: EXECUÇÃO DOS SERVIÇOS DE REGULARIZAÇÃO DE SUBLEITO, CONSTRUÇÃO DE BASE, SUB-BASE, MEIO-FIO E CALÇADA NO MUNICÍPIO DE MARICÁ/RJ, sob o regime de Empreitada por Preço Unitário, confo; órgão: MRJ-AUTARQUIA DE SERVIÇOS DE OBRAS DE MARICÁ; UF RJ",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso te mandar o recorte público que encontrei?",
+      "evidence_ids": [
+        "pncp:07792269:1"
+      ],
+      "service_fit_supported": true,
+      "mailbox_purpose": {
+        "mailbox_purpose": "UNKNOWN",
+        "local_part": "lytoranea",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 90
+      },
+      "harvest_path": "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json",
+      "_score": 22,
+      "send_ready": true,
+      "reasons": [
+        "domain_aligned_with_company",
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    },
+    {
+      "cnpj_raiz": "08150094",
+      "cnpj14": "08150094000197",
+      "email": "imprensa@matera.com",
+      "razao_social": null,
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "service_id": null,
+      "source_url": "https://matera.com.br/fale-conosco",
+      "source_type": "contact_page",
+      "root_source_type": "contact_page",
+      "provenance_chain": null,
+      "why_you": null,
+      "why_now": null,
+      "observed_fact": null,
+      "micro_offer": null,
+      "cta": null,
+      "evidence_ids": null,
+      "service_fit_supported": null,
+      "mailbox_purpose": {
+        "mailbox_purpose": "UNKNOWN",
+        "local_part": "imprensa",
+        "send_blocked": false,
+        "block_reason": null,
+        "rank": 90
+      },
+      "harvest_path": "artifacts/confenge/contact-enrichment/expand-esr-20260810/human-review/accepted.jsonl",
+      "_score": 15,
+      "send_ready": true,
+      "reasons": [
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_VERIFIED"
+      ]
+    }
+  ],
   "note": "ESR via evaluate_email_send_ready on harvest; not synthetic keys"
 }
