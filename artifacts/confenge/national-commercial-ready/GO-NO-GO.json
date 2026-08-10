@@ -1,18 +1,18 @@
 {
   "schema": "confenge.go_no_go.v1",
-  "as_of": "2026-08-10T15:40:17Z",
+  "as_of": "2026-08-10T16:09:39Z",
   "NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY": false,
   "PILOT_READY_CANDIDATE": true,
-  "terminal_state": "ENGINEERING_IN_PROGRESS",
+  "terminal_state": "EXTERNAL_BLOCKER_REQUIRES_TIAGO",
   "gates": {
     "FULLY_RECONCILED": true,
-    "all_confirmed_terminal": false,
+    "all_confirmed_terminal": true,
     "email_send_ready_ge_min_reserve": false,
     "strict_esr_measured": true,
     "service_fit_ontology_ok": true,
     "machine_audit_pass": true,
-    "sha_bound": false,
-    "warmbly_e2e_pass": false
+    "sha_bound": true,
+    "warmbly_e2e_pass": true
   },
   "EMAIL_SEND_READY_DISTINCT_COMPANIES": 72,
   "MIN_OPERATIONAL_RESERVE": 900,
@@ -29,6 +29,6 @@
     "COPY_CONTEXT_VALID": 72,
     "EMAIL_SEND_READY_DISTINCT_COMPANIES": 72
   },
-  "one_action": "Completar contact ladder full-sweep + ampliar fontes públicas (ESR=72 << reserve=900); não reduzir reserve prematuramente.",
+  "one_action": "ESR strict final=72 com ladder terminal; gap_to_900=828. Autorizar fontes autenticadas de maior yield (documentadas por portal) OU decisão comercial de MIN_OPERATIONAL_RESERVE — sem atalho de engenharia.",
   "human_review_command": "python -m scripts.confenge.human_review --sample artifacts/confenge/national-commercial-ready/HUMAN-REVIEW-SAMPLE.json --reviewer tiago"
 }

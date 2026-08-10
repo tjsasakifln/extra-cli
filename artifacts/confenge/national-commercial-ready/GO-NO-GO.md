@@ -1,6 +1,6 @@
 # GO / NO-GO
 
-**Terminal state:** `ENGINEERING_IN_PROGRESS`
+**Terminal state:** `EXTERNAL_BLOCKER_REQUIRES_TIAGO`
 
 **NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY:** `False`
 
@@ -15,17 +15,17 @@
 ```json
 {
   "FULLY_RECONCILED": true,
-  "all_confirmed_terminal": false,
+  "all_confirmed_terminal": true,
   "email_send_ready_ge_min_reserve": false,
   "strict_esr_measured": true,
   "service_fit_ontology_ok": true,
   "machine_audit_pass": true,
-  "sha_bound": false,
-  "warmbly_e2e_pass": false
+  "sha_bound": true,
+  "warmbly_e2e_pass": true
 }
 ```
 
-**One action:** Completar contact ladder full-sweep + ampliar fontes públicas (ESR=72 << reserve=900); não reduzir reserve prematuramente.
+**One action:** ESR strict final=72 com ladder terminal; gap_to_900=828. Autorizar fontes autenticadas de maior yield (documentadas por portal) OU decisão comercial de MIN_OPERATIONAL_RESERVE — sem atalho de engenharia.
 
 ## Human review
 
