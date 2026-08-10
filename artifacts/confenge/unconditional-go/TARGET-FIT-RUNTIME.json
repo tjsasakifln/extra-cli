@@ -1,18 +1,17 @@
 {
-  "generated_at": "2026-08-10T04:10:11Z",
+  "generated_at": "2026-08-10T05:34:07Z",
   "TARGET_FIT_RUNTIME": "HEALTHY",
   "async_mode": "SHADOW",
   "module_deployed": true,
-  "migration_071_applied": true,
-  "datalake_watermark": "2026-08-05T11:18:41.438381+02:00",
-  "target_fit_watermark": "2026-08-05T11:18:41.438381+02:00",
+  "CONFIRMED": 41,
+  "PROBABLE": 494,
+  "OUT": 107,
   "lag_seconds": 0,
-  "last_successful_run": "2026-08-10T06:05:35.384859+02:00",
-  "reconcile_enqueued": 499,
-  "worker_processed_sample": 50,
-  "timers": [
-    "extra-confenge-target-fit-refresh.timer",
-    "extra-confenge-target-fit-reconcile.timer"
-  ],
-  "note": "SHADOW mode on host-of-record; module no longer missing; watermarks equal after reconcile+worker"
+  "note": "After reconcile pagination hotfix + requeue of identity-clean roots: CONFIRMED 3\u219241. SHADOW population is authority for send-ready join. current table empty by design in SHADOW.",
+  "hotfixes_applied_on_host": [
+    "scripts/confenge_target_fit/reconcile.py pagination",
+    "scripts/confenge_target_fit/store.py get_published_for_mode",
+    "scripts/confenge_target_fit/published.py shadow index",
+    "scripts/confenge_contact_resolution/send_readiness.py identity gate"
+  ]
 }

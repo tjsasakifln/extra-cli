@@ -1,0 +1,857 @@
+{
+  "schema": "confenge.outreach.v1",
+  "generated_at": "2026-08-10T05:32:02Z",
+  "contacts": [
+    {
+      "cnpj14": "00061493000170",
+      "razao_social": "ENCOPAV ENGENHARIA LTDA",
+      "email": "encopav@encopav.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://encopav.com.br/contato",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://encopav.com.br/contato",
+      "source_type": "contact_page",
+      "source_url": "https://encopav.com.br/contato"
+    },
+    {
+      "cnpj14": "00472805000308",
+      "razao_social": "TRACADO CONSTRUCOES E SERVICOS LTDA",
+      "email": "comercial@tracado.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://tracado.com.br/fale-conosco",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://tracado.com.br/fale-conosco",
+      "source_type": "contact_page",
+      "source_url": "https://tracado.com.br/fale-conosco"
+    },
+    {
+      "cnpj14": "00507949000182",
+      "razao_social": "JATOBETON ENGENHARIA LTDA",
+      "email": "jatobeton@jatobeton.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://jatobeton.com.br/",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://jatobeton.com.br/",
+      "source_type": "site",
+      "source_url": "https://jatobeton.com.br/"
+    },
+    {
+      "cnpj14": "00638562000165",
+      "razao_social": "AMF ENGENHARIA E SERVICOS LTDA",
+      "email": "amf@amf.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": null,
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": null,
+      "source_type": "site",
+      "source_url": null
+    },
+    {
+      "cnpj14": "00794165000182",
+      "razao_social": "COMARO ENGENHARIA LTDA",
+      "email": "comercial@comaro.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://comaro.com.br/contato",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://comaro.com.br/contato",
+      "source_type": "contact_page",
+      "source_url": "https://comaro.com.br/contato"
+    },
+    {
+      "cnpj14": "01514128000136",
+      "razao_social": "SCAVE SERVICOS DE ENGENHARIA E LOCACAO LTDA",
+      "email": "scave@scave.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://scave.com.br/contato",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://scave.com.br/contato",
+      "source_type": "contact_page",
+      "source_url": "https://scave.com.br/contato"
+    },
+    {
+      "cnpj14": "01557107000106",
+      "razao_social": "CONCRELAJE INDUSTRIA DE PRE-FABRICADOS DE CONCRETO LTDA",
+      "email": "concrelaje@concrelaje.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://concrelaje.com.br/",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://concrelaje.com.br/",
+      "source_type": "site",
+      "source_url": "https://concrelaje.com.br/"
+    },
+    {
+      "cnpj14": "01744153000106",
+      "razao_social": "PAVIDEZ ENGENHARIA LTDA",
+      "email": "contato@pavidez.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://pavidez.com.br/",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://pavidez.com.br/",
+      "source_type": "site",
+      "source_url": "https://pavidez.com.br/"
+    },
+    {
+      "cnpj14": "01901632000199",
+      "razao_social": "FALK CONSTRUTORA LTDA",
+      "email": "info@falk.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://falk.com/",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://falk.com/",
+      "source_type": "site",
+      "source_url": "https://falk.com/"
+    },
+    {
+      "cnpj14": "03094645000129",
+      "razao_social": "INFRASUL - INFRAESTRUTURA E EMPREENDIMENTOS LTDA",
+      "email": "infraestrutura@infrasul.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://infrasul.com.br/contato",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://infrasul.com.br/contato",
+      "source_type": "contact_page",
+      "source_url": "https://infrasul.com.br/contato"
+    },
+    {
+      "cnpj14": "03222465000185",
+      "razao_social": "DALBA ENGENHARIA E EMPREENDIMENTOS LTDA - EM RECUPERACAO JUDICIAL",
+      "email": "dalbapiedmont@dalba.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://dalba.com/",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://dalba.com/",
+      "source_type": "site",
+      "source_url": "https://dalba.com/"
+    },
+    {
+      "cnpj14": "03257777000124",
+      "razao_social": "GAIA RODOVIAS LTDA.",
+      "email": "gaiarodovias@gaiarodovias.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://gaiarodovias.com.br/contato",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://gaiarodovias.com.br/contato",
+      "source_type": "contact_page",
+      "source_url": "https://gaiarodovias.com.br/contato"
+    },
+    {
+      "cnpj14": "03509843000106",
+      "razao_social": "VENTO SUL ENGENHARIA LTDA",
+      "email": "ventosul@ventosul.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://ventosul.com.br/contato",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://ventosul.com.br/contato",
+      "source_type": "contact_page",
+      "source_url": "https://ventosul.com.br/contato"
+    },
+    {
+      "cnpj14": "03575041000102",
+      "razao_social": "PAVSANTOS CONSTRUTORA LTDA",
+      "email": "pavsantos@pavsantos.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://pavsantos.com.br/",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://pavsantos.com.br/",
+      "source_type": "site",
+      "source_url": "https://pavsantos.com.br/"
+    },
+    {
+      "cnpj14": "03620927000112",
+      "razao_social": "PAVIPLAN PAVIMENTACAO LTDA",
+      "email": "comercial@paviplan.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://paviplan.com.br/contato",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://paviplan.com.br/contato",
+      "source_type": "contact_page",
+      "source_url": "https://paviplan.com.br/contato"
+    },
+    {
+      "cnpj14": "03667661000163",
+      "razao_social": "COMPACTA SUL PAVIMENTACAO LTDA",
+      "email": "compactasul@compactasul.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://compactasul.com.br/contato",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://compactasul.com.br/contato",
+      "source_type": "contact_page",
+      "source_url": "https://compactasul.com.br/contato"
+    },
+    {
+      "cnpj14": "03992945000125",
+      "razao_social": "VERDEBIANCO ENGENHARIA LTDA",
+      "email": "verdebianco@verdebianco.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://verdebianco.com.br/contato",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://verdebianco.com.br/contato",
+      "source_type": "contact_page",
+      "source_url": "https://verdebianco.com.br/contato"
+    },
+    {
+      "cnpj14": "04287461000148",
+      "razao_social": "UNICON CONSTRUCOES LTDA",
+      "email": "mara@unicon.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://unicon.com.br/contato",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://unicon.com.br/contato",
+      "source_type": "contact_page",
+      "source_url": "https://unicon.com.br/contato"
+    },
+    {
+      "cnpj14": "05099585001215",
+      "razao_social": "CBAA- ASFALTOS LTDA",
+      "email": "vilma.comercial-ce@cbaa-asfaltos.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://cbaa-asfaltos.com.br/contato",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://cbaa-asfaltos.com.br/contato",
+      "source_type": "contact_page",
+      "source_url": "https://cbaa-asfaltos.com.br/contato"
+    },
+    {
+      "cnpj14": "07546061000106",
+      "razao_social": "DAM CONSTRUTORA E INCORPORADORA LTDA",
+      "email": "dam@dam.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": null,
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": null,
+      "source_type": "site",
+      "source_url": null
+    },
+    {
+      "cnpj14": "15493716000145",
+      "razao_social": "R MARTINS ENGENHARIA LTDA",
+      "email": "programabem@martins.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://martins.com.br/contato",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://martins.com.br/contato",
+      "source_type": "contact_page",
+      "source_url": "https://martins.com.br/contato"
+    },
+    {
+      "cnpj14": "15747692000103",
+      "razao_social": "PAVCON CONSTRUTORA LTDA",
+      "email": "contato@pavcon.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://pavcon.com.br/contato",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://pavcon.com.br/contato",
+      "source_type": "contact_page",
+      "source_url": "https://pavcon.com.br/contato"
+    },
+    {
+      "cnpj14": "29104240000118",
+      "razao_social": "AVEC ALUGUEL DE VEICULOS E CONSTRUCOES LTDA",
+      "email": "avec@avec.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://avec.com.br/contato",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://avec.com.br/contato",
+      "source_type": "contact_page",
+      "source_url": "https://avec.com.br/contato"
+    },
+    {
+      "cnpj14": "31988427000173",
+      "razao_social": "2 S PROJETOS DE ENGENHARIA DE OBRAS DE CONSTRUCAO LTDA",
+      "email": "contato@projetosobras.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://projetosobras.com.br/contato",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://projetosobras.com.br/contato",
+      "source_type": "contact_page",
+      "source_url": "https://projetosobras.com.br/contato"
+    },
+    {
+      "cnpj14": "34348652000133",
+      "razao_social": "METRA CONSTRUCOES LTDA",
+      "email": "atendimento@metra.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://metra.com.br/fale-conosco",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://metra.com.br/fale-conosco",
+      "source_type": "contact_page",
+      "source_url": "https://metra.com.br/fale-conosco"
+    },
+    {
+      "cnpj14": "36377091000126",
+      "razao_social": "SINALES SINALIZACAO ESPIRITO SANTO LTDA",
+      "email": "sinales@sinales.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://sinales.com.br/contato",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://sinales.com.br/contato",
+      "source_type": "contact_page",
+      "source_url": "https://sinales.com.br/contato"
+    },
+    {
+      "cnpj14": "36909349000198",
+      "razao_social": "TMF CONSTRUCOES, INCORPORACAO E SERVICOS LTDA",
+      "email": "vendas@tmf.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": null,
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": null,
+      "source_type": "site",
+      "source_url": null
+    },
+    {
+      "cnpj14": "37073624000149",
+      "razao_social": "ARTFLEX ENGENHARIA LTDA",
+      "email": "contato@artflex.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://artflex.com.br/contato",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://artflex.com.br/contato",
+      "source_type": "contact_page",
+      "source_url": "https://artflex.com.br/contato"
+    },
+    {
+      "cnpj14": "38756140000167",
+      "razao_social": "SUPERA ENGENHARIA LTDA",
+      "email": "comercial@supera.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://supera.com.br/contato",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://supera.com.br/contato",
+      "source_type": "contact_page",
+      "source_url": "https://supera.com.br/contato"
+    },
+    {
+      "cnpj14": "40301626000152",
+      "razao_social": "MIDT ENGENHARIA LTDA",
+      "email": "contato@midt.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://midt.com.br/",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://midt.com.br/",
+      "source_type": "site",
+      "source_url": "https://midt.com.br/"
+    },
+    {
+      "cnpj14": "42267203000199",
+      "razao_social": "TRAFECON ENGENHARIA LTDA",
+      "email": "trafecon@trafecon.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://trafecon.com.br/contato",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://trafecon.com.br/contato",
+      "source_type": "contact_page",
+      "source_url": "https://trafecon.com.br/contato"
+    },
+    {
+      "cnpj14": "52359706000148",
+      "razao_social": "SULVIAS OBRAS E CONSTRUCOES LTDA",
+      "email": "contato@sulvias.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://sulvias.com.br/",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://sulvias.com.br/",
+      "source_type": "site",
+      "source_url": "https://sulvias.com.br/"
+    },
+    {
+      "cnpj14": "55014274000121",
+      "razao_social": "LIFE ENGENHARIA E TOPOGRAFIA LTDA",
+      "email": "contato@lifetopografia.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://lifetopografia.com.br/",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://lifetopografia.com.br/",
+      "source_type": "site",
+      "source_url": "https://lifetopografia.com.br/"
+    },
+    {
+      "cnpj14": "60025322000117",
+      "razao_social": "SIMENG ENGENHARIA LTDA",
+      "email": "contato@simeng.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "VERIFIED",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "email_send_ready": true,
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://simeng.com.br/contato",
+          "method": "contact_resolution_enrollable",
+          "observed_at": "2026-08-08T16:47:58Z",
+          "root": true
+        }
+      ],
+      "provenance_chain_valid": true,
+      "provenance_trust": "REAL_VERIFIED",
+      "root_source_type": "REAL_OFFICIAL_SITE",
+      "root_source_url": "https://simeng.com.br/contato",
+      "source_type": "contact_page",
+      "source_url": "https://simeng.com.br/contato"
+    }
+  ],
+  "count": 34
+}

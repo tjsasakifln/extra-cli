@@ -1,7 +1,22 @@
 {
-  "generated_at": "2026-08-10T04:10:11Z",
-  "status": "PRIOR_EVIDENCE_ON_HOST_NOT_RE_RUN_THIS_SESSION",
-  "note": "Prior pilot integrity pack documented SMTP/IMAP/reply-stop PASS on warmbly ca457058/main continuous IMAP. Re-smoke operator mailbox after warmbly #35 deploy.",
+  "generated_at": "2026-08-10T05:34:07Z",
+  "warmbly_deployed_sha": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
+  "warmbly_origin_main": "c22cfb9ef6e7e2fc1397aeb73356e85fd01eb9af",
+  "session_evidence": {
+    "worker_up": true,
+    "backend_health": "200 /health",
+    "smtp_effective": "mailpit:1025 (container env SMTP_HOST=mailpit)",
+    "imap_hostinger_in_confenge_vps_env": true,
+    "imap_hostinger_wired_in_running_worker_env": false,
+    "continuous_imap_poll_logs_this_session": false,
+    "reply_stop_runtime_logs_this_session": false,
+    "outcome_loop_runtime_logs_this_session": false,
+    "note": "Running warmbly-confenge stack on SHA 81d83429 uses Mailpit SMTP, not Hostinger continuous IMAP. Worker only emits jobs.worker-events heartbeats; no IMAP poll/reply-stop/outcome loop lines in this session."
+  },
+  "status": "NOT_PROVEN_ON_CURRENT_DEPLOY_SESSION",
+  "continuous_imap": "NOT_PROVEN_mailpit_smtp_effective",
+  "reply_stop": "NOT_PROVEN_this_session",
+  "outcome_loop": "NOT_PROVEN_this_session",
   "self_smoke_required": true,
   "commercial_leads_as_smoke": false
 }
