@@ -406,6 +406,8 @@ def test_enrich_and_warmbly_mapping_use_published_fields():
 
 def test_confirmed_fresh_published_allows_tier_a():
     company = {
+        "razao_social": "PAVIPLAN ENGENHARIA LTDA",
+        "official_domain": "paviplan.com.br",
         "target_fit_class": TARGET_CONFIRMED,
         "target_fit_confidence": 0.9,
         "target_fit_version": TARGET_FIT_VERSION,
@@ -414,16 +416,21 @@ def test_confirmed_fresh_published_allows_tier_a():
         "datalake_watermark": "2026-08-09T12:00:00Z",
         "service_code": "estruturacao_pleito_reajuste",
         "factual_hook": (
-            "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. X; UF RS"
+            "objeto: pavimentação asfáltica CBUQ em vias urbanas; "
+            "órgão: Pref. Coxilha; UF RS"
         ),
         "observed_fact": (
-            "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. X; UF RS"
+            "objeto: pavimentação asfáltica CBUQ em vias urbanas; "
+            "órgão: Pref. Coxilha; UF RS"
         ),
         "why_this_account": (
-            "executora de pavimentação com contratos públicos recentes — "
-            "objeto: pavimentação asfáltica CBUQ em vias urbanas"
+            "PAVIPLAN com execução pública de pavimentação — "
+            "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. Coxilha"
         ),
-        "why_now": "aditivo recente no contrato municipal de pavimentação asfáltica CBUQ",
+        "why_now": (
+            "aditivo recente no contrato de PAVIPLAN de pavimentação asfáltica CBUQ "
+            "com a Pref. Coxilha"
+        ),
         "micro_offer_code": "REAJUSTE_CHECK",
         "cta": "Posso te mandar o recorte público que encontrei?",
         "evidence_ids": ["c1"],
@@ -449,15 +456,15 @@ def test_confirmed_fresh_published_allows_tier_a():
     }
     ready = evaluate_email_send_ready(
         company=company,
-        email="engenharia@construtora.com.br",
+        email="engenharia@paviplan.com.br",
         ownership_status="COMPANY_OWNED",
         verification_status="OBSERVED",
         service_code="estruturacao_pleito_reajuste",
         factual_evidence=True,
         evidence_ids=["c1"],
         source_type="site",
-        source_url="https://construtora.com.br/contato",
+        source_url="https://paviplan.com.br/contato",
     )
     assert ready.target_fit_send_tier == "A_AUTOMATIC"
     assert ready.provenance_chain_valid is True
-    assert ready.email_send_ready is True
+    assert ready.email_send_ready is True, ready.reasons

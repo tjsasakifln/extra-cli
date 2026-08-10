@@ -40,6 +40,7 @@ from scripts.warmbly_bridge.mapping import build_leads
 
 def _good_company(**overrides: object) -> dict:
     base = {
+        "razao_social": "EMPRESA TARGET PAVIMENTACAO LTDA",
         "outreach_eligibility": "ELIGIBLE",
         "construction_evidence": {
             "sector_fit": "CONFIRMED_ENGINEERING",
@@ -51,13 +52,16 @@ def _good_company(**overrides: object) -> dict:
         "portfolio": {"pass_contract_count": 4},
         "factual_hook": "Contrato de engenharia PASS recente no órgão X.",
         "observed_fact": (
-            "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. X; UF RS"
+            "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. Coxilha; UF RS"
         ),
         "why_this_account": (
-            "executora de pavimentação com contratos públicos recentes no RS — "
-            "objeto: pavimentação asfáltica CBUQ em vias urbanas"
+            "EMPRESA TARGET com execução pública de pavimentação — "
+            "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. Coxilha"
         ),
-        "why_now": "aditivo recente no contrato municipal de pavimentação asfáltica CBUQ",
+        "why_now": (
+            "aditivo recente no contrato municipal de EMPRESA TARGET de "
+            "pavimentação asfáltica CBUQ com a Pref. Coxilha"
+        ),
         "micro_offer_code": "REAJUSTE_CHECK",
         "evidence_ids": ["ev-contract-1"],
         "cta": "Posso te mandar o recorte público que encontrei?",
@@ -266,6 +270,104 @@ def test_unknown_provenance_blocks_send() -> None:
 # ── real provenance can send ────────────────────────────────────────────────
 
 
+def test_foreign_provenance_host_blocks_send_ready() -> None:
+    """comercial@connector.eng.br with root URL caiafafacilities.com.br must never send.
+
+    Skeptic gap: provenance_chain_valid was true when site host ≠ email domain.
+    """
+    company = _good_company(
+        razao_social="CONNECTOR ENGENHARIA LTDA",
+        official_domain="connector.eng.br",
+        why_this_account=(
+            "CONNECTOR com execução pública de engenharia — objeto: obras de "
+            "infraestrutura viária; órgão: Pref. de Florianópolis"
+        ),
+        why_now=(
+            "aditivo recente no contrato de CONNECTOR de infraestrutura viária "
+            "com a Pref. de Florianópolis"
+        ),
+        observed_fact=(
+            "objeto: obras de infraestrutura viária; órgão: Pref. de Florianópolis; UF SC"
+        ),
+    )
+    r = evaluate_email_send_ready(
+        company=company,
+        email="comercial@connector.eng.br",
+        ownership_status="COMPANY_OWNED",
+        verification_status="VERIFIED",
+        service_code="estruturacao_pleito_reajuste",
+        factual_evidence=True,
+        evidence_ids=["ev-contract-1"],
+        source_type="site",
+        source_url="https://caiafafacilities.com.br/",
+        provenance_chain=[
+            {
+                "source_type": "site",
+                "source_url": "https://caiafafacilities.com.br/",
+                "method": "host_enrich_confirmed",
+                "observed_at": "2026-08-10T06:03:00Z",
+                "root": True,
+            }
+        ],
+        contact={
+            "email": "comercial@connector.eng.br",
+            "ownership_status": "COMPANY_OWNED",
+            "verification_status": "VERIFIED",
+            "source_type": "site",
+            "source_url": "https://caiafafacilities.com.br/",
+            "provenance_chain": [
+                {
+                    "source_type": "site",
+                    "source_url": "https://caiafafacilities.com.br/",
+                    "method": "host_enrich_confirmed",
+                    "root": True,
+                }
+            ],
+        },
+    )
+    assert r.email_send_ready is False
+    assert r.provenance_chain_valid is False
+    assert any("provenance_host_mismatch" in x or "taint" in x or "provenance" in x for x in r.reasons), (
+        r.reasons
+    )
+
+
+def test_hollow_identical_template_copy_blocks_send_ready() -> None:
+    """Cohort-level identical why_you/why_now templates must fail COPY_CONTEXT."""
+    company = _good_company(
+        razao_social="ENCOPAV ENGENHARIA LTDA",
+        official_domain="encopav.com.br",
+        why_this_account=(
+            "executora com contratos públicos recentes de engenharia e momento "
+            "de reajuste/aditivo observável"
+        ),
+        why_now="aditivo ou medição recente no contrato principal de obra pública",
+        observed_fact="objeto: obra de engenharia/pavimentação com execução pública recente",
+    )
+    r = evaluate_email_send_ready(
+        company=company,
+        email="encopav@encopav.com.br",
+        ownership_status="COMPANY_OWNED",
+        verification_status="VERIFIED",
+        service_code="estruturacao_pleito_reajuste",
+        factual_evidence=True,
+        evidence_ids=["ev-1"],
+        source_type="site",
+        source_url="https://encopav.com.br/contato",
+        provenance_chain=[
+            {
+                "source_type": "site",
+                "source_url": "https://encopav.com.br/contato",
+                "method": "site",
+                "root": True,
+            }
+        ],
+    )
+    assert r.email_send_ready is False
+    assert r.copy_context_ready is False
+    assert any("copy_context" in x or "why_this_account" in x for x in r.reasons), r.reasons
+
+
 def test_official_company_email_with_real_provenance_can_send() -> None:
     r = _eval(
         "contato@empresa-target.com.br",
@@ -281,14 +383,33 @@ def test_official_company_email_with_real_provenance_can_send() -> None:
 
 
 def test_registry_provenance_can_send() -> None:
-    r = _eval(
-        "comercial@engenharia-beta.com.br",
-        ownership="COMPANY_OWNED",
-        verification="VERIFIED",
+    company = _good_company(
+        razao_social="ENGENHARIA BETA OBRAS LTDA",
+        official_domain="engenharia-beta.com.br",
+        why_this_account=(
+            "BETA com execução pública de engenharia — objeto: pavimentação asfáltica "
+            "CBUQ; órgão: Pref. de Caxias do Sul"
+        ),
+        why_now=(
+            "aditivo recente no contrato de BETA de pavimentação asfáltica CBUQ "
+            "com a Pref. de Caxias do Sul"
+        ),
+        observed_fact=(
+            "objeto: pavimentação asfáltica CBUQ; órgão: Pref. de Caxias do Sul; UF RS"
+        ),
+    )
+    r = evaluate_email_send_ready(
+        company=company,
+        email="comercial@engenharia-beta.com.br",
+        ownership_status="COMPANY_OWNED",
+        verification_status="VERIFIED",
+        service_code="estruturacao_pleito_reajuste",
+        factual_evidence=True,
+        evidence_ids=["ev-contract-1"],
         source_type="registry",
         source_url="official_company_registry",
     )
-    assert r.email_send_ready is True
+    assert r.email_send_ready is True, r.reasons
     assert r.root_source_type == RootSourceType.REAL_REGISTRY.value
 
 
@@ -401,14 +522,24 @@ def test_export_mapping_allows_real_provenance(tmp_path: Path) -> None:
             },
             "portfolio": {"pass_contract_count": 4},
             "canonical_universe_member": True,
+            "razao_social": "EMPRESA TARGET PAVIMENTACAO LTDA",
+            "company_name": "EMPRESA TARGET PAVIMENTACAO LTDA",
+            "official_domain": "empresa-target.com.br",
         }
     ]
     intel = [
         {
             "cnpj14": "12345678000199",
+            "razao_social": "EMPRESA TARGET PAVIMENTACAO LTDA",
             "why_now": {
-                "summary": "aditivo recente no contrato municipal de pavimentação asfáltica CBUQ",
-                "temporal_fact": "aditivo recente no contrato municipal de pavimentação asfáltica CBUQ",
+                "summary": (
+                    "aditivo recente no contrato de EMPRESA TARGET de pavimentação "
+                    "asfáltica CBUQ com a Pref. Coxilha"
+                ),
+                "temporal_fact": (
+                    "aditivo recente no contrato de EMPRESA TARGET de pavimentação "
+                    "asfáltica CBUQ com a Pref. Coxilha"
+                ),
                 "evidence_ids": ["ev-1"],
             },
             "offer": {
@@ -417,11 +548,12 @@ def test_export_mapping_allows_real_provenance(tmp_path: Path) -> None:
             },
             "messaging": {
                 "why_this_account": (
-                    "executora de pavimentação com contratos públicos recentes — "
-                    "objeto: pavimentação asfáltica CBUQ"
+                    "EMPRESA TARGET com execução pública de pavimentação — "
+                    "objeto: pavimentação asfáltica CBUQ; órgão: Pref. Coxilha"
                 ),
                 "fact_to_mention": (
-                    "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. X"
+                    "objeto: pavimentação asfáltica CBUQ em vias urbanas; "
+                    "órgão: Pref. Coxilha; UF RS"
                 ),
                 "cta": "Posso te mandar o recorte público?",
             },

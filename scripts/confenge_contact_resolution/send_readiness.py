@@ -22,6 +22,7 @@ such as qualidademineracao / emkoelektronik / lcmprojetos for unrelated CNPJs).
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -225,12 +226,64 @@ _GENERIC_WHY_MARKERS: tuple[str, ...] = (
     "execução pública observável",
     "empresa com execução pública observável",
     "portfólio multi-contrato ativo",
+    # Cohort-level template phrases (skeptic: identical why_you/why_now across all ESR)
+    "executora com contratos públicos recentes de engenharia e momento de reajuste",
+    "executora com contratos públicos recentes de engenharia",
+    "executora com contratos públicos recentes",
+    "aditivo ou medição recente no contrato principal de obra pública",
+    "aditivo ou medição recente no contrato principal",
+    "momento de reajuste/aditivo observável",
+    "contrato público de engenharia com execução observável no pncp",
+    "contrato público de engenharia observável",
     "why_now_strength=weak",
     "why_now_strength=moderate",
     "target_fit",
     "email_send_ready",
     "copy_context_ready",
     "service_fit_supported",
+)
+
+# Legal form / sector words that never count as company brand in copy.
+_COPY_STOPWORDS = frozenset(
+    {
+        "ltda",
+        "eireli",
+        "sa",
+        "s/a",
+        "me",
+        "epp",
+        "engenharia",
+        "construtora",
+        "construcoes",
+        "construções",
+        "construcao",
+        "construção",
+        "servicos",
+        "serviços",
+        "obras",
+        "pavimentacao",
+        "pavimentação",
+        "infraestrutura",
+        "empreendimentos",
+        "incorporadora",
+        "industria",
+        "indústria",
+        "comercio",
+        "comércio",
+        "recuperacao",
+        "recuperação",
+        "judicial",
+        "de",
+        "da",
+        "do",
+        "dos",
+        "das",
+        "e",
+        "em",
+        "para",
+        "com",
+        "ltda.",
+    }
 )
 
 
@@ -538,7 +591,84 @@ def _field_nonempty(value: Any) -> str:
     return str(value).strip()
 
 
-def _is_generic_why(text: str) -> bool:
+def _company_brand_tokens(company: dict[str, Any] | None) -> set[str]:
+    """Distinctive brand tokens from razao_social / fantasia / official domain SLD."""
+    if not company:
+        return set()
+    labels: list[str] = []
+    for key in ("razao_social", "company_name", "nome_fantasia", "name"):
+        v = company.get(key)
+        if v:
+            labels.append(str(v))
+    text = " ".join(labels).lower()
+    raw = re.findall(r"[a-z0-9]{3,}", text)
+    brands = {t for t in raw if t not in _COPY_STOPWORDS and not t.isdigit()}
+    # Domain SLD (empresa-target.com.br → empresatarget / empresa-target tokens)
+    for dkey in ("official_domain", "company_domain", "website_domain"):
+        dom = str(company.get(dkey) or "").lower().removeprefix("www.")
+        if not dom:
+            continue
+        for suf in (".com.br", ".eng.br", ".net.br", ".org.br", ".com", ".net", ".org", ".br"):
+            if dom.endswith(suf):
+                dom = dom[: -len(suf)]
+                break
+        sld = dom.split(".")[-1] if dom else ""
+        if sld and len(sld) >= 3 and sld not in _COPY_STOPWORDS:
+            brands.add(sld.replace("-", ""))
+            if "-" in sld:
+                brands.update(p for p in sld.split("-") if len(p) >= 3)
+    return brands
+
+
+def _has_specific_contract_hook(text: str) -> bool:
+    """True when text names a concrete objeto/órgão (not generic obra/contrato)."""
+    t = text.strip().lower()
+    if len(t) < 50:
+        return False
+    # Must include objeto: or a specific works type + a named organ/municipality marker
+    specific_work = (
+        "paviment",
+        "cbuq",
+        "terraplan",
+        "saneamento",
+        "drenagem",
+        "ponte",
+        "viaduto",
+        "edific",
+        "reforma",
+        "recuperação",
+        "recuperacao",
+        "sinaliz",
+        "ilumina",
+    )
+    organ = (
+        "prefeitura",
+        "secretaria",
+        "departamento",
+        "dnit",
+        "dersa",
+        "der-",
+        "órgão:",
+        "orgao:",
+        "município",
+        "municipio",
+        "pref.",
+        "objeto:",
+    )
+    if "objeto:" in t and any(o in t for o in organ):
+        return True
+    if any(w in t for w in specific_work) and any(o in t for o in organ):
+        return True
+    return False
+
+
+def _is_generic_why(text: str, company: dict[str, Any] | None = None) -> bool:
+    """Hollow/generic why_you|why_now — templates without company-specific fact fail.
+
+    Skeptic: identical why_you/why_now across 50 ESR rows must never pass as copy-ready.
+    Rescue requires either company brand token in the text OR a specific contract hook.
+    Generic words (contrato/obra/engenharia/aditivo) alone no longer rescue long templates.
+    """
     t = text.strip().lower()
     if not t:
         return True
@@ -551,48 +681,61 @@ def _is_generic_why(text: str) -> bool:
     except ImportError:
         hollow = False
     if hollow:
-        # Hollow portfolio-count is never rescued by a keyword.
         if "portfólio público observado com" in t or "contrato(s) no input" in t:
             return True
         if "ufs observadas" in t:
             return True
-    if any(m in t for m in _GENERIC_WHY_MARKERS):
-        # Allow if the string also carries a concrete contractual hook.
-        concrete = (
-            "objeto",
-            "contrato",
-            "paviment",
-            "obra",
-            "engenharia",
-            "aditivo",
-            "medição",
-            "medicao",
-            "orgão",
-            "orgao",
-            "prefeitura",
-            "dnit",
-            "pncp",
-        )
-        # Portfolio-count lines mention "contrato" but remain hollow.
-        if "portfólio público observado com" in t or "contrato(s) no input" in t:
-            return True
-        if any(c in t for c in concrete) and len(t) > 80:
+    # Exact / substring template markers always hollow unless brand + specific hook.
+    marked = any(m in t for m in _GENERIC_WHY_MARKERS)
+    if "portfólio público observado com" in t or "contrato(s) no input" in t:
+        return True
+    brands = _company_brand_tokens(company)
+    has_brand = bool(brands) and any(b in t.replace("-", "") or b in t for b in brands)
+    # also allow hyphenated brand match
+    if brands and not has_brand:
+        t_norm = t.replace("-", "").replace(" ", "")
+        has_brand = any(b.replace("-", "") in t_norm for b in brands)
+    specific = _has_specific_contract_hook(t)
+
+    if marked:
+        # Template only rescued by brand AND specific contractual hook together.
+        if has_brand and specific and len(t) > 80:
             return False
         return True
-    # Hollow: company name only, or shorter than a real hook.
+    # Hollow: shorter than a real hook.
     if len(t) < 40:
         return True
+    # Without company brand (when company known) and without specific hook → generic.
+    if company is not None and brands and not has_brand and not specific:
+        return True
+    if company is not None and brands and not has_brand and specific:
+        # Specific hook without brand is weak but allowed if clearly contrato-specific
+        return False
+    if not specific and not has_brand and len(t) < 100:
+        # Short generic engineering boilerplate
+        boilerplate = (
+            "contratos públicos recentes",
+            "execução pública",
+            "obra pública",
+            "momento de reajuste",
+        )
+        if any(b in t for b in boilerplate):
+            return True
     return False
 
 
-def _is_hollow_observed_fact(text: str) -> bool:
+def _is_hollow_observed_fact(text: str, company: dict[str, Any] | None = None) -> bool:
     """observed_fact / fact_to_mention must be a concrete contractual hook."""
     try:
         from scripts.confenge_account_intelligence.message_spine import is_hollow_fact
 
-        return is_hollow_fact(text)
+        if is_hollow_fact(text):
+            return True
+    except ImportError:
+        return _is_generic_why(text, company=company)
     except Exception:
-        return _is_generic_why(text)
+        return _is_generic_why(text, company=company)
+    return _is_generic_why(text, company=company)
 
 
 def _gestao_signals_sufficient(signals: list[Any], evidence: list[Any], company: dict[str, Any]) -> bool:
@@ -784,16 +927,16 @@ def evaluate_copy_context_ready(company: dict[str, Any] | None, *, service_code:
         or company.get("question_to_ask")
     )
 
-    if not why_you or _is_generic_why(why_you):
+    if not why_you or _is_generic_why(why_you, company=company):
         missing.append("why_this_account")
-    if not why_now or _is_generic_why(why_now) or _is_hollow_observed_fact(why_now):
+    if not why_now or _is_generic_why(why_now, company=company) or _is_hollow_observed_fact(why_now, company=company):
         missing.append("why_now")
     # Explicit weak temporal strength cannot be COPY_CONTEXT_READY.
     why_now_strength = str(company.get("why_now_strength") or "").upper()
     if "why_now_strength=weak" in (why_now or "").lower() or why_now_strength == "WEAK":
         missing.append("why_now")
         reasons.append("why_now_strength_weak")
-    if not observed or _is_hollow_observed_fact(observed):
+    if not observed or _is_hollow_observed_fact(observed, company=company):
         missing.append("observed_fact")
     if not svc:
         missing.append("service_code")
@@ -1120,7 +1263,9 @@ def evaluate_email_send_ready(
     if not identity_ok:
         reasons.append(identity_reason)
         reasons.append("sticky_ownership_insufficient_for_identity")
-        suitability = UNSUITABLE_OWNERSHIP
+        # Do not overwrite a more specific prior unsuited state (e.g. provenance taint).
+        if suitability == SUITABLE:
+            suitability = UNSUITABLE_OWNERSHIP
         channel_ok = False
     elif identity_reason == "domain_aligned_with_company":
         reasons.append("domain_aligned_with_company")

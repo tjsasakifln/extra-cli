@@ -1,0 +1,428 @@
+{
+  "schema": "confenge.human_review_sample.v1",
+  "n": 15,
+  "status": "HUMAN_REVIEW_PENDING",
+  "cohort_id": "CLEAN_LIVE_CONFIRMED_IDENTITY_V9",
+  "samples": [
+    {
+      "sample_id": "HR-01",
+      "cnpj14": "00061493000170",
+      "root": "00061493",
+      "razao_social": "ENCOPAV ENGENHARIA LTDA",
+      "email": "encopav@encopav.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://encopav.com.br/contato",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://encopav.com.br/contato",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "ENCOPAV com execução pública de engenharia — objeto: CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DOS SERVIÇOS DE ELABORAÇÃO DEPROJETOS BÁSICO E EXECUTIVO DE ENGENHARIA E EXECUÇÃO DE OBRAS EMERGENCIAIS DE REQUALIFICAÇÃO EREABILITAÇÃO FUNCION; órgão: DEPARTAMENTO AUTÔNOMO DE ESTRADAS DE RODAGEM (RS)",
+      "why_now": "aditivo/medição recente no contrato de ENCOPAV junto a DEPARTAMENTO AUTÔNOMO DE ESTRADAS DE RODAGEM/RS — objeto: CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DOS SERVIÇOS DE ELABORAÇÃO DEPROJETOS BÁSICO E EXECUTIVO DE ENG",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DOS SERVIÇOS DE ELABORAÇÃO DEPROJETOS BÁSICO E EXECUTIVO DE ENGENHARIA E EXECUÇÃO DE OBRAS EMERGENCIAIS DE REQUALIFICAÇÃO EREABILITAÇÃO FUNCION; órgão: DEPARTAMENTO AUTÔNOMO DE ESTRADAS DE RODAGEM; UF RS",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-02",
+      "cnpj14": "00507949000182",
+      "root": "00507949",
+      "razao_social": "JATOBETON ENGENHARIA LTDA",
+      "email": "jatobeton@jatobeton.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://jatobeton.com.br/",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://jatobeton.com.br/",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "JATOBETON com execução pública de engenharia — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA DE ENGENHARIA PARA EXECUÇÃO DE SERVIÇOS DE RECUPERAÇÃO ESTRUTURAL DA PONTE/VIADUTO JOSÉ DE BARROS LIMA (PONTE JOANA BEZERRA) QUE LIGA OS BAIRRO; órgão: EMLURB - AUTARQUIA DE MANUTENÇÃO E LIMPEZA URBANA (PE)",
+      "why_now": "aditivo/medição recente no contrato de JATOBETON junto a EMLURB - AUTARQUIA DE MANUTENÇÃO E LIMPEZA URBANA/PE — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA DE ENGENHARIA PARA EXECUÇÃO DE SERVIÇOS DE RECUPERAÇÃO ESTRUTUR",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA DE ENGENHARIA PARA EXECUÇÃO DE SERVIÇOS DE RECUPERAÇÃO ESTRUTURAL DA PONTE/VIADUTO JOSÉ DE BARROS LIMA (PONTE JOANA BEZERRA) QUE LIGA OS BAIRRO; órgão: EMLURB - AUTARQUIA DE MANUTENÇÃO E LIMPEZA URBANA; UF PE",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-03",
+      "cnpj14": "01114245000102",
+      "root": "01114245",
+      "razao_social": "CONNECTOR ENGENHARIA LTDA",
+      "email": "comercial@connector.eng.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://connector.eng.br/",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://connector.eng.br/",
+          "method": "domain_aligned_rebuild",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "CONNECTOR com execução pública de engenharia — objeto: SERVIÇOS DE APOIO ADMINISTRATIVO, ASSISTENTE ADMINISTRATIVO, ASSISTENTE JURÍDICO, CERIMONIALISTA, ENCARREGADO-GERAL, RECEPCIONISTA E TÉCNICO EM SECRETARIADO; órgão: SUPERINTEND. DO DESENVOL. DO CENTRO-OESTE (DF)",
+      "why_now": "aditivo/medição recente no contrato de CONNECTOR junto a SUPERINTEND. DO DESENVOL. DO CENTRO-OESTE/DF — objeto: SERVIÇOS DE APOIO ADMINISTRATIVO, ASSISTENTE ADMINISTRATIVO, ASSISTENTE JURÍDICO, CERIMONIALISTA, EN",
+      "observed_fact": "objeto: SERVIÇOS DE APOIO ADMINISTRATIVO, ASSISTENTE ADMINISTRATIVO, ASSISTENTE JURÍDICO, CERIMONIALISTA, ENCARREGADO-GERAL, RECEPCIONISTA E TÉCNICO EM SECRETARIADO; órgão: SUPERINTEND. DO DESENVOL. DO CENTRO-OESTE; UF DF",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-04",
+      "cnpj14": "01744153000106",
+      "root": "01744153",
+      "razao_social": "PAVIDEZ ENGENHARIA LTDA",
+      "email": "contato@pavidez.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://pavidez.com.br/",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://pavidez.com.br/",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "PAVIDEZ com execução pública de engenharia — objeto: DM-9471832/2025 LOTE 4: Execução dos serviços de manutenção rodoviária, conservação rotineira e periódica, serviços de urgência e pequenos melhoramentos, bem como reparações do cor; órgão: DER/DM/GMR (MG)",
+      "why_now": "aditivo/medição recente no contrato de PAVIDEZ junto a DER/DM/GMR/MG — objeto: DM-9471832/2025 LOTE 4: Execução dos serviços de manutenção rodoviária, conservação rotineira e peri",
+      "observed_fact": "objeto: DM-9471832/2025 LOTE 4: Execução dos serviços de manutenção rodoviária, conservação rotineira e periódica, serviços de urgência e pequenos melhoramentos, bem como reparações do cor; órgão: DER/DM/GMR; UF MG",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-05",
+      "cnpj14": "03257777000124",
+      "root": "03257777",
+      "razao_social": "GAIA RODOVIAS LTDA.",
+      "email": "gaiarodovias@gaiarodovias.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://www.gaiarodovias.com.br",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://www.gaiarodovias.com.br",
+          "method": "site_scrape_expand_v8",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "GAIA com execução pública de engenharia — objeto: EXECUÇÃO DOS SERVIÇOS DE MANUTENÇÃO (CONSERVAÇÃO/RECUPERAÇÃO) DE RODOVIAS PAVIMENTADAS E ESTRADAS NÃO PAVIMENTADAS SOB A JURISDIÇÃO DA COORDENADORIA REGIONAL EXTREMO OESTE – SIE/CR; órgão: Secretaria de Estado da Infraestrutura e Mobilidade (SC)",
+      "why_now": "aditivo/medição recente no contrato de GAIA junto a Secretaria de Estado da Infraestrutura e Mobilidade/SC — objeto: EXECUÇÃO DOS SERVIÇOS DE MANUTENÇÃO (CONSERVAÇÃO/RECUPERAÇÃO) DE RODOVIAS PAVIMENTADAS E ESTRADAS NÃ",
+      "observed_fact": "objeto: EXECUÇÃO DOS SERVIÇOS DE MANUTENÇÃO (CONSERVAÇÃO/RECUPERAÇÃO) DE RODOVIAS PAVIMENTADAS E ESTRADAS NÃO PAVIMENTADAS SOB A JURISDIÇÃO DA COORDENADORIA REGIONAL EXTREMO OESTE – SIE/CR; órgão: Secretaria de Estado da Infraestrutura e Mobilidade; UF SC",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-06",
+      "cnpj14": "03620927000112",
+      "root": "03620927",
+      "razao_social": "PAVIPLAN PAVIMENTAÇÃO LTDA",
+      "email": "comercial@paviplan.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://www.paviplan.com.br",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://www.paviplan.com.br",
+          "method": "site_scrape_expand_v8",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "PAVIPLAN com execução pública de engenharia — objeto: Contratação de empresa especializada para execução por demanda de serviços comuns de engenharia para manutenção, conservação, reparação, melhorias e intervenções corretivas e preve; órgão: CONSÓRCIO INTERFEDERATIVO SANTA CATARINA - CINCATARINA (SC)",
+      "why_now": "aditivo/medição recente no contrato de PAVIPLAN junto a CONSÓRCIO INTERFEDERATIVO SANTA CATARINA - CINCATARINA/SC — objeto: Contratação de empresa especializada para execução por demanda de serviços comuns de engenharia para",
+      "observed_fact": "objeto: Contratação de empresa especializada para execução por demanda de serviços comuns de engenharia para manutenção, conservação, reparação, melhorias e intervenções corretivas e preve; órgão: CONSÓRCIO INTERFEDERATIVO SANTA CATARINA - CINCATARINA; UF SC",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-07",
+      "cnpj14": "05099585000162",
+      "root": "05099585",
+      "razao_social": "CBAA ASFALTOS LTDA",
+      "email": "contato@cbaa-asfaltos.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://www.cbaa-asfaltos.com.br",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://www.cbaa-asfaltos.com.br",
+          "method": "site_scrape_expand_v8",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "CBAA com execução pública de engenharia — objeto: AQUISIÇÃO DE PRODUTOS BETUMINOSOS (CAP 50/70, RR-2C E CM-30) UTILIZADOS NOS SERVIÇOS DE PAVIMENTAÇÃO ASFÁLTICA, VISANDO ATENDER AS NECESSIDADES DO DEPARTAMENTO DE ENGENHARIA E PROD; órgão: SECRETARIA DE ESTADO DO TRANSPORTE  (AP)",
+      "why_now": "aditivo/medição recente no contrato de CBAA junto a SECRETARIA DE ESTADO DO TRANSPORTE /AP — objeto: AQUISIÇÃO DE PRODUTOS BETUMINOSOS (CAP 50/70, RR-2C E CM-30) UTILIZADOS NOS SERVIÇOS DE PAVIMENTAÇÃO",
+      "observed_fact": "objeto: AQUISIÇÃO DE PRODUTOS BETUMINOSOS (CAP 50/70, RR-2C E CM-30) UTILIZADOS NOS SERVIÇOS DE PAVIMENTAÇÃO ASFÁLTICA, VISANDO ATENDER AS NECESSIDADES DO DEPARTAMENTO DE ENGENHARIA E PROD; órgão: SECRETARIA DE ESTADO DO TRANSPORTE ; UF AP",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-08",
+      "cnpj14": "07792269000105",
+      "root": "07792269",
+      "razao_social": "CONSTRUTORA LYTORANEA LTDA - EM RECUPERACAO JUDICIAL",
+      "email": "lytoranea@lytoranea.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://lytoranea.com.br/contato",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://lytoranea.com.br/contato",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "LYTORANEA com execução pública de engenharia — objeto: EXECUÇÃO DOS SERVIÇOS DE REGULARIZAÇÃO DE SUBLEITO, CONSTRUÇÃO DE BASE, SUB-BASE, MEIO-FIO E CALÇADA NO MUNICÍPIO DE MARICÁ/RJ, sob o regime de Empreitada por Preço Unitário, confo; órgão: MRJ-AUTARQUIA DE SERVIÇOS DE OBRAS DE MARICÁ (RJ)",
+      "why_now": "aditivo/medição recente no contrato de LYTORANEA junto a MRJ-AUTARQUIA DE SERVIÇOS DE OBRAS DE MARICÁ/RJ — objeto: EXECUÇÃO DOS SERVIÇOS DE REGULARIZAÇÃO DE SUBLEITO, CONSTRUÇÃO DE BASE, SUB-BASE, MEIO-FIO E CALÇADA",
+      "observed_fact": "objeto: EXECUÇÃO DOS SERVIÇOS DE REGULARIZAÇÃO DE SUBLEITO, CONSTRUÇÃO DE BASE, SUB-BASE, MEIO-FIO E CALÇADA NO MUNICÍPIO DE MARICÁ/RJ, sob o regime de Empreitada por Preço Unitário, confo; órgão: MRJ-AUTARQUIA DE SERVIÇOS DE OBRAS DE MARICÁ; UF RJ",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-09",
+      "cnpj14": "11504898000151",
+      "root": "11504898",
+      "razao_social": "OESTE LOCAÇÃO DE MAQUINAS E EQUIPAMENTOS",
+      "email": "contato@oeste.eng.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://www.oeste.eng.br",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://www.oeste.eng.br",
+          "method": "site_scrape_expand_v8",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "OESTE com execução pública de engenharia — objeto: Credenciamento de pessoa Jurídica, devidamente registrada no CREA e CAU, para fornecimento de serviços técnicos profissionais, no desenvolvimento de projetos de arquitetura e engen; órgão: Div. de Serv. Gerais e Recursos Humanos (PR)",
+      "why_now": "aditivo/medição recente no contrato de OESTE junto a Div. de Serv. Gerais e Recursos Humanos/PR — objeto: Credenciamento de pessoa Jurídica, devidamente registrada no CREA e CAU, para fornecimento de serviç",
+      "observed_fact": "objeto: Credenciamento de pessoa Jurídica, devidamente registrada no CREA e CAU, para fornecimento de serviços técnicos profissionais, no desenvolvimento de projetos de arquitetura e engen; órgão: Div. de Serv. Gerais e Recursos Humanos; UF PR",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-10",
+      "cnpj14": "16099194000164",
+      "root": "16099194",
+      "razao_social": "ELETRODATA ENGENHARIA LTDA",
+      "email": "eletrodata@eletrodataengenharia.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://eletrodataengenharia.com.br",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://eletrodataengenharia.com.br",
+          "method": "brand_domain_probe",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "ELETRODATA com execução pública de engenharia — objeto: Prestação de serviços de manutenção preventiva e corretiva, na área da construção civil, incluindo readequação predial, nos imóveis e terrenos pertencentes ou cedidos ao Poder Judi; órgão: TRIBUNAL DE JUSTICA DO ESTADO DO RJ (RJ)",
+      "why_now": "aditivo/medição recente no contrato de ELETRODATA junto a TRIBUNAL DE JUSTICA DO ESTADO DO RJ/RJ — objeto: Prestação de serviços de manutenção preventiva e corretiva, na área da construção civil, incluindo r",
+      "observed_fact": "objeto: Prestação de serviços de manutenção preventiva e corretiva, na área da construção civil, incluindo readequação predial, nos imóveis e terrenos pertencentes ou cedidos ao Poder Judi; órgão: TRIBUNAL DE JUSTICA DO ESTADO DO RJ; UF RJ",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-11",
+      "cnpj14": "26277170000101",
+      "root": "26277170",
+      "razao_social": "CONCRESUL ENGENHARIA LTDA",
+      "email": "contabilidade@concresul.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://concresul.com.br/",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://concresul.com.br/",
+          "method": "public_cnpj_directory",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "CONCRESUL com execução pública de engenharia — objeto: REGISTRO DE PREÇOS de Serviços de Execução de Pavimentação Asfáltica contemplando a Imprimação com asfalto diluído CM-30, Pintura de Ligação com emulsão asfáltica RR-1C e Concreto ; órgão: MUNICIPIO DE FLORES DA CUNHA (RS)",
+      "why_now": "aditivo/medição recente no contrato de CONCRESUL junto a MUNICIPIO DE FLORES DA CUNHA/RS — objeto: REGISTRO DE PREÇOS de Serviços de Execução de Pavimentação Asfáltica contemplando a Imprimação com a",
+      "observed_fact": "objeto: REGISTRO DE PREÇOS de Serviços de Execução de Pavimentação Asfáltica contemplando a Imprimação com asfalto diluído CM-30, Pintura de Ligação com emulsão asfáltica RR-1C e Concreto ; órgão: MUNICIPIO DE FLORES DA CUNHA; UF RS",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-12",
+      "cnpj14": "32598168000137",
+      "root": "32598168",
+      "razao_social": "ATLÂNTICA HIDROSOLUÇÕES",
+      "email": "comercial@atl.eng.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://www.atl.eng.br",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://www.atl.eng.br",
+          "method": "site_scrape_expand_v8",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "ATL com execução pública de engenharia — objeto: Contratação de empresa especializada para a realização de serviços de diagnóstico e de manutenção de poços tubulares que estão sob responsabilidade e/ou são explotados pelo SAMAE, ; órgão: SERVIÇO AUTONOMO MUNICIPAL DE AGUA E ESGOTO (RS)",
+      "why_now": "aditivo/medição recente no contrato de ATL junto a SERVIÇO AUTONOMO MUNICIPAL DE AGUA E ESGOTO/RS — objeto: Contratação de empresa especializada para a realização de serviços de diagnóstico e de manutenção de",
+      "observed_fact": "objeto: Contratação de empresa especializada para a realização de serviços de diagnóstico e de manutenção de poços tubulares que estão sob responsabilidade e/ou são explotados pelo SAMAE, ; órgão: SERVIÇO AUTONOMO MUNICIPAL DE AGUA E ESGOTO; UF RS",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-13",
+      "cnpj14": "36377091000126",
+      "root": "36377091",
+      "razao_social": "SINALES SINALIZACAO ESPIRITO SANTO LTDA",
+      "email": "sinales@sinales.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://www.sinales.com.br",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://www.sinales.com.br",
+          "method": "site_scrape_expand_v8",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "SINALES com execução pública de engenharia — objeto: Contratação emergencial de empresa especializada para prestação de serviços de engenharia de tráfego consistentes na implantação, revitalização e manutenção de sinalização viária h; órgão: SECRETARIA MUNICIPAL DE ENGENHARIA DE TRANSITO (GO)",
+      "why_now": "aditivo/medição recente no contrato de SINALES junto a SECRETARIA MUNICIPAL DE ENGENHARIA DE TRANSITO/GO — objeto: Contratação emergencial de empresa especializada para prestação de serviços de engenharia de tráfego",
+      "observed_fact": "objeto: Contratação emergencial de empresa especializada para prestação de serviços de engenharia de tráfego consistentes na implantação, revitalização e manutenção de sinalização viária h; órgão: SECRETARIA MUNICIPAL DE ENGENHARIA DE TRANSITO; UF GO",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-14",
+      "cnpj14": "37073624000149",
+      "root": "37073624",
+      "razao_social": "ARTFLEX ENGENHARIA LTDA",
+      "email": "contato@artflex.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://artflex.com.br/contato",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://artflex.com.br/contato",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "ARTFLEX com execução pública de engenharia — objeto: PRESTAÇÃO DE SERVIÇOS DE PROTEÇÃO E REVITALIZAÇÃO DO CONCRETO APARENTE DAS FACHADAS E PÓRTICOS DO BLOCO \"F\" (ADMINISTRAÇÃO), ESTRUTURA EXTERNA DO BLOCO \"H\" (RESTAURANTE), PORTARIAS; órgão: STJ _ SUPERIOR TRIBUNAL DE JUSTICA/DF (DF)",
+      "why_now": "aditivo/medição recente no contrato de ARTFLEX junto a STJ _ SUPERIOR TRIBUNAL DE JUSTICA/DF/DF — objeto: PRESTAÇÃO DE SERVIÇOS DE PROTEÇÃO E REVITALIZAÇÃO DO CONCRETO APARENTE DAS FACHADAS E PÓRTICOS DO BL",
+      "observed_fact": "objeto: PRESTAÇÃO DE SERVIÇOS DE PROTEÇÃO E REVITALIZAÇÃO DO CONCRETO APARENTE DAS FACHADAS E PÓRTICOS DO BLOCO \"F\" (ADMINISTRAÇÃO), ESTRUTURA EXTERNA DO BLOCO \"H\" (RESTAURANTE), PORTARIAS; órgão: STJ _ SUPERIOR TRIBUNAL DE JUSTICA/DF; UF DF",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-15",
+      "cnpj14": "42267203000199",
+      "root": "42267203",
+      "razao_social": "TRAFECON ENGENHARIA LTDA",
+      "email": "trafecon@trafecon.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://trafecon.com.br/contato",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://trafecon.com.br/contato",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T10:00:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "TRAFECON com execução pública de engenharia — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA PRESTAÇÃO DE SERVIÇOS DE ATUALIZAÇÃO DE PROJETOS BÁSICO E EXECUTIVO E SUPERVISÃO DAS OBRAS REMANESCENTES DE IMPLANTAÇÃO E PAVIMENTAÇÃO DA ; órgão: SUPERINTENDÊNCIA REGIONAL DO DNIT - PA (PA)",
+      "why_now": "aditivo/medição recente no contrato de TRAFECON junto a SUPERINTENDÊNCIA REGIONAL DO DNIT - PA/PA — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA PRESTAÇÃO DE SERVIÇOS DE ATUALIZAÇÃO DE PROJETOS BÁSICO E ",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA PRESTAÇÃO DE SERVIÇOS DE ATUALIZAÇÃO DE PROJETOS BÁSICO E EXECUTIVO E SUPERVISÃO DAS OBRAS REMANESCENTES DE IMPLANTAÇÃO E PAVIMENTAÇÃO DA ; órgão: SUPERINTENDÊNCIA REGIONAL DO DNIT - PA; UF PA",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    }
+  ]
+}

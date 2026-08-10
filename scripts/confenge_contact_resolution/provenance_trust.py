@@ -170,6 +170,178 @@ _TAINT_NOTE_MARKERS = (
     "generated for test",
 )
 
+# Public/registry hosts that may host company emails without matching the email domain.
+_PUBLIC_PROVENANCE_HOST_SUFFIXES: tuple[str, ...] = (
+    "gov.br",
+    "jus.br",
+    "leg.br",
+    "mil.br",
+    "pncp.gov.br",
+    "brasilapi.com.br",
+    "receitaws.com.br",
+    "cnpj.biz",
+    "casadosdados.com.br",
+    "opencnpj.com",
+    "consultacnpj.com",
+)
+
+# source_type values whose root URL must align with the email/company domain.
+_SITE_BOUND_SOURCE_TYPES = frozenset(
+    {
+        "site",
+        "contact_page",
+        "official_site",
+        "company_site",
+        "website",
+        "site_scrape",
+        "site_scrape_expand",
+        "site_scrape_expand_v7",
+        "site_scrape_expand_v8",
+        "site_scrape_expand_v8b",
+        "host_enrich_confirmed",
+        "manual_site_expand",
+        "public_directories_and_live_domain",
+    }
+)
+
+
+def _registrable_labels(host: str) -> set[str]:
+    """Token-ish labels from a hostname (drop www/com/br/net/org)."""
+    h = (host or "").lower().removeprefix("www.")
+    if not h:
+        return set()
+    parts = [p for p in h.replace("-", "").split(".") if p and p not in {"com", "br", "net", "org", "eng", "www", "co"}]
+    # also keep joined brand before public suffix
+    sld = h.removeprefix("www.")
+    for suf in (".com.br", ".eng.br", ".net.br", ".org.br", ".com", ".net", ".org", ".br"):
+        if sld.endswith(suf):
+            sld = sld[: -len(suf)]
+            break
+    sld = sld.split(".")[-1] if sld else ""
+    out = set(parts)
+    if sld and len(sld) >= 3:
+        out.add(sld.replace("-", ""))
+    return {t for t in out if len(t) >= 3}
+
+
+def _is_public_provenance_host(host: str) -> bool:
+    h = (host or "").lower().removeprefix("www.")
+    if not h:
+        return False
+    return any(h == s or h.endswith("." + s) for s in _PUBLIC_PROVENANCE_HOST_SUFFIXES)
+
+
+def provenance_host_aligned_with_email(
+    email: str | None,
+    *,
+    source_url: str | None = None,
+    source_type: str | None = None,
+    provenance_chain: list[dict[str, Any]] | None = None,
+    official_domain: str | None = None,
+) -> tuple[bool, str]:
+    """Fail-closed when site-bound provenance host is foreign to the email domain.
+
+    Skeptic case: comercial@connector.eng.br with root URL caiafafacilities.com.br
+    must never be provenance_chain_valid / EMAIL_SEND_READY.
+
+    Registry/gov public document hosts are allowed without domain match.
+    Missing URL for site-bound sources fails closed.
+    """
+    email_dom = domain_of_email(email)
+    st = (source_type or "").strip().lower()
+    # Collect root URLs: explicit source_url + chain entries marked root or first hop
+    urls: list[str] = []
+    types: list[str] = []
+    if source_url:
+        urls.append(str(source_url))
+        types.append(st)
+    for link in provenance_chain or []:
+        if not isinstance(link, dict):
+            continue
+        u = link.get("source_url") or link.get("root_source_url") or link.get("url")
+        if not u:
+            continue
+        lst = str(link.get("source_type") or link.get("method") or st).lower()
+        if link.get("root") is True or not urls:
+            urls.append(str(u))
+            types.append(lst)
+        elif lst in _SITE_BOUND_SOURCE_TYPES or str(link.get("method") or "").lower() in _SITE_BOUND_SOURCE_TYPES:
+            urls.append(str(u))
+            types.append(lst)
+
+    if not urls:
+        # No URL: site-bound types fail; registry/unknown handled elsewhere
+        if st in _SITE_BOUND_SOURCE_TYPES or any(
+            str(m).lower() in _SITE_BOUND_SOURCE_TYPES
+            for m in ((c or {}).get("method") for c in (provenance_chain or []) if isinstance(c, dict))
+        ):
+            return False, "provenance_host_missing_for_site_source"
+        return True, "no_url_non_site_bound"
+
+    email_labels = _registrable_labels(email_dom or "")
+    official_labels = _registrable_labels((official_domain or "").lower().removeprefix("www."))
+    allowed_labels = email_labels | official_labels
+
+    for u, ut in zip(urls, types, strict=False):
+        raw = str(u).strip()
+        # Non-URL placeholders (e.g. "official_company_registry") are not hosts.
+        if "://" not in raw and "/" not in raw and "." not in raw:
+            if ut in {"registry", "rfb", "cnpj_registry", "public_docs", "public_document", "pncp"} or st in {
+                "registry",
+                "rfb",
+                "cnpj_registry",
+                "public_docs",
+                "public_document",
+                "pncp",
+            }:
+                continue
+            # bare token with site-bound type → fail
+            if ut in _SITE_BOUND_SOURCE_TYPES or st in _SITE_BOUND_SOURCE_TYPES:
+                return False, f"provenance_host_unparseable:{raw}"
+            continue
+        host = domain_of_url(raw if "://" in raw else f"https://{raw}")
+        if not host:
+            if ut in _SITE_BOUND_SOURCE_TYPES or st in _SITE_BOUND_SOURCE_TYPES:
+                return False, f"provenance_host_unparseable:{raw}"
+            continue
+        # host without a TLD (no dot) is not a website — skip alignment
+        if "." not in host:
+            if ut in {"registry", "rfb", "cnpj_registry"} or st in {"registry", "rfb", "cnpj_registry"}:
+                continue
+            if ut in _SITE_BOUND_SOURCE_TYPES or st in _SITE_BOUND_SOURCE_TYPES:
+                return False, f"provenance_host_unparseable:{host}"
+            continue
+        if _is_public_provenance_host(host):
+            continue
+        # site-bound or default: require label overlap with email/official domain
+        host_labels = _registrable_labels(host)
+        if not allowed_labels:
+            return False, f"provenance_host_no_email_domain:{host}"
+        if host_labels & allowed_labels:
+            continue
+        # direct suffix: email domain appears in host or vice-versa
+        ed = (email_dom or "").lower().removeprefix("www.")
+        hd = host.lower().removeprefix("www.")
+        if ed and (ed in hd or hd in ed):
+            continue
+        od = (official_domain or "").lower().removeprefix("www.")
+        if od and (od in hd or hd in od):
+            continue
+        # registry/public_docs on non-public third-party host still must align or be public
+        if ut in {"registry", "rfb", "cnpj_registry", "public_docs", "public_document", "pncp"} or st in {
+            "registry",
+            "rfb",
+            "cnpj_registry",
+            "public_docs",
+            "public_document",
+            "pncp",
+        }:
+            # allow if not site-bound scrape of wrong company site
+            continue
+        return False, f"provenance_host_mismatch:{host}!={ed or od or 'unknown'}"
+
+    return True, "provenance_host_aligned"
+
 
 @dataclass
 class ProvenanceChainLink:
@@ -426,6 +598,21 @@ def evaluate_provenance_trust(
         epistemic_class=epistemic_class,
         prior_links=chain_in,
     )
+
+    # Site-bound provenance host must match email/company domain (fail-closed).
+    # Foreign root (e.g. caiafafacilities.com.br for connector.eng.br) cannot validate.
+    # Only applied when not already tainted (preserve DEMO/FIXTURE root type for diagnostics).
+    if root not in TAINTED_ROOTS:
+        host_ok, host_reason = provenance_host_aligned_with_email(
+            email,
+            source_url=source_url or source_document,
+            source_type=source_type,
+            provenance_chain=chain_in,
+            official_domain=official_domain,
+        )
+        if not host_ok:
+            reasons.append(host_reason)
+            root = RootSourceType.DERIVED_UNTRUSTED.value
 
     derived_fixture = root == RootSourceType.TEST_FIXTURE.value or any(
         "fixture" in r for r in reasons

@@ -96,6 +96,8 @@ def test_out_of_scope_verified_email_not_send_ready() -> None:
 
 def test_generic_contato_can_pass_when_all_gates_ok() -> None:
     company = {
+        "razao_social": "EMPRESA TARGET PAVIMENTACAO LTDA",
+        "official_domain": "empresa-target.com.br",
         "outreach_eligibility": "ELIGIBLE",
         "construction_evidence": {
             "sector_fit": "CONFIRMED_ENGINEERING",
@@ -107,13 +109,17 @@ def test_generic_contato_can_pass_when_all_gates_ok() -> None:
         "portfolio": {"pass_contract_count": 4},
         "factual_hook": "Contrato de engenharia PASS recente no órgão X.",
         "observed_fact": (
-            "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. X; UF RS"
+            "objeto: pavimentação asfáltica CBUQ em vias urbanas; "
+            "órgão: Pref. Coxilha; UF RS"
         ),
         "why_this_account": (
-            "executora de pavimentação com contratos públicos recentes no RS — "
-            "objeto: pavimentação asfáltica CBUQ em vias urbanas"
+            "EMPRESA TARGET com execução pública de pavimentação — "
+            "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. Coxilha"
         ),
-        "why_now": "aditivo recente no contrato municipal de pavimentação asfáltica CBUQ",
+        "why_now": (
+            "aditivo recente no contrato de EMPRESA TARGET de pavimentação asfáltica CBUQ "
+            "com a Pref. Coxilha"
+        ),
         "micro_offer_code": "REAJUSTE_CHECK",
         "evidence_ids": ["ev-contract-1"],
         "cta": "Posso te mandar o recorte público que encontrei?",
@@ -166,6 +172,26 @@ def _send_ready_company(
     official_domain: str | None = None,
 ) -> dict:
     """Minimal company that would pass target/service/copy gates if contact is valid."""
+    # Brand token from razao for non-hollow copy (must appear in why_you/why_now).
+    brand = next(
+        (
+            t
+            for t in razao_social.replace(",", " ").split()
+            if len(t) >= 4
+            and t.upper()
+            not in {
+                "LTDA",
+                "EIRELI",
+                "ENGENHARIA",
+                "CONSTRUTORA",
+                "CONSTRUÇÕES",
+                "CONSTRUCOES",
+                "SERVICOS",
+                "OBRAS",
+            }
+        ),
+        razao_social.split()[0],
+    )
     row = {
         "razao_social": razao_social,
         "outreach_eligibility": "ELIGIBLE",
@@ -179,13 +205,17 @@ def _send_ready_company(
         "portfolio": {"pass_contract_count": 4},
         "factual_hook": "Contrato de engenharia PASS recente no órgão X.",
         "observed_fact": (
-            "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. X; UF RS"
+            f"objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. Coxilha; "
+            f"empresa: {brand}; UF RS"
         ),
         "why_this_account": (
-            "executora de pavimentação com contratos públicos recentes no RS — "
-            "objeto: pavimentação asfáltica CBUQ em vias urbanas"
+            f"{brand} com execução pública de pavimentação — "
+            "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. Coxilha"
         ),
-        "why_now": "aditivo recente no contrato municipal de pavimentação asfáltica CBUQ",
+        "why_now": (
+            f"aditivo recente no contrato de {brand} de pavimentação asfáltica CBUQ "
+            "com a Pref. Coxilha"
+        ),
         "micro_offer_code": "REAJUSTE_CHECK",
         "evidence_ids": ["ev-contract-1"],
         "cta": "Posso te mandar o recorte público que encontrei?",

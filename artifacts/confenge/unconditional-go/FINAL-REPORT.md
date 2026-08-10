@@ -1,20 +1,35 @@
-# FINAL REPORT — post-skeptic expansion
+# FINAL REPORT — CONFENGE-OUTREACH-UNCONDITIONAL-GO-01
 
-Generated: `2026-08-10T06:11:31Z`
+Generated: `2026-08-10T10:30:00Z`
 
-## Terminal: NOT_READY_ENGINEERING
+## Terminal verdict
 
-### Fixed
-- Ownership identity gate + tests
-- Reconcile pagination + SHADOW published join
-- Live CONFIRMED 3→156
-- Honest rebuild with chains; counters zero
-- Hostinger SMTP/IMAP/outcome PASS (status.sh)
+**`EXTERNAL_BLOCKER_REQUIRES_TIAGO`**
 
-### Unmet for GO
-- EMAIL_SEND_READY companies = 41 (need ≥50)
-- Main merge/deploy SHA pin for PR #215
+Sole remaining gate: real human review of 15 stratified **V9** sample contacts.
 
-### Next engineering
-1. Broader contact discovery for live-CONFIRMED construction roots still lacking residual-safe public email
-2. Merge PR #215, deploy host to merged SHA, re-import clean feed, self-smoke Hostinger
+## Skeptic gaps fixed this round
+
+| Gap | Fix |
+|-----|-----|
+| Identical hollow why_you/why_now | Systemic copy gate (brand + contract hook); V9 rebuild with unique PNCP-based copy (50/50 unique) |
+| Foreign provenance host (connector/caiafa) | `provenance_host_aligned_with_email` fail-closed + permanent test |
+| Weak first-50 audit method | Adversarial audit includes HOLLOW_COPY, FOREIGN_PROVENANCE_HOST, near-dup uniqueness |
+
+## Tests
+
+```text
+tests/confenge_contact_resolution/test_provenance_contamination.py
+tests/confenge_contact_resolution/test_mailbox_purpose_and_send_ready.py
+→ 36 passed
+```
+
+## Engineering evidence
+
+- 50 ESR, 50 unique why_you, 50 unique why_now
+- TARGET_FIT HEALTHY; SHA identity both repos
+- Import/no-send and Hostinger IMAP path previously proven
+
+## After human review
+
+Resume path in `GO-NO-GO.md` → expected `GO_FOR_REAL_CONFENGE_EMAIL_PILOT`.
