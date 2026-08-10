@@ -2,7 +2,7 @@
 
 **Goal:** `CONFENGE-TARGET-FIT-CONTINUOUS-REFRESH-01`  
 **Principle:** `TARGET_FIT = derived state of the datalake`  
-**Classifier contract:** `TARGET_CONFIRMED` / `TARGET_PROBABLE_RESEARCH` / `TARGET_OUT_OF_SCOPE`  
+**Classifier contract:** `TARGET_CONFIRMED` / `TARGET_PROBABLE_RESEARCH` / `TARGET_OUT_OF_SCOPE` / `TARGET_INSUFFICIENT_EVIDENCE`
 (`target_fit_evidence`, `target_fit_reason_codes`, `target_fit_confidence`, `target_fit_version`)
 
 This subsystem is a **consumer** of the datalake. ETL success never depends on target-fit.
@@ -213,6 +213,8 @@ Lag above `TARGET_FIT_MAX_WATERMARK_LAG_SECONDS` → `STALE` health.
 - Do **not** promote to `EMAIL_SEND_READY` from target-fit alone
 - Do **not** enable `ACTIVE` before shadow replay looks clean
 - Do **not** claim `GO_FOR_CONTROLLED_PILOT` from this workstream
+- Do **not** omit `TARGET_INSUFFICIENT_EVIDENCE` from materialized-universe accounting
+- Do **not** use Top-N, human samples, hot sets, or the 900-contact reserve as a universe cap
 
 ## Verdict of this workstream
 

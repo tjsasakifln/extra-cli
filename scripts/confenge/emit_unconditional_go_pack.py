@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Atomic closeout emitter for CONFENGE-OUTREACH-UNCONDITIONAL-GO-01.
+"""Deprecated closeout emitter for CONFENGE-OUTREACH-UNCONDITIONAL-GO-01.
 
 Sole writer of:
   SHA-BINDING.json, SECTION-21-BOOLEANS.json, CONTACT-PROVENANCE-AUDIT.json,
   CLEAN-COHORT-AUDIT.json (refresh), GO-NO-GO.md, FINAL-REPORT.md
 
-Fail-closed: exit non-zero if any live probe fails. Never hand-edit after run.
+Fail-closed: this legacy writer exits before any deploy/probe.  The only
+terminal authority is scripts.confenge_activation.emit_final_closure_pack with
+a valid confenge.universe_manifest.v2 and append-only human decisions.
 """
 
 from __future__ import annotations
@@ -116,10 +118,7 @@ def require_ci_green(repo_slug: str, sha: str) -> dict[str, Any]:
         for x in runs
         if x.get("status") == "completed"
         and x.get("conclusion") == "success"
-        and any(
-            tok in (x.get("name") or "")
-            for tok in ("CI Status", "Go CI", "CI", "Test All", "Lint", "CONFENGE")
-        )
+        and any(tok in (x.get("name") or "") for tok in ("CI Status", "Go CI", "CI", "Test All", "Lint", "CONFENGE"))
     ]
     wf_success = [x for x in workflow_runs if x.get("conclusion") == "success" and x.get("headSha") == sha]
     wf_failed = [
@@ -142,7 +141,7 @@ def require_ci_green(repo_slug: str, sha: str) -> dict[str, Any]:
         if rid and not url:
             url = f"https://github.com/{repo_slug}/actions/runs/{rid}"
     elif success_ci:
-        url = (success_ci[0].get("html_url") or success_ci[0].get("url") or "")
+        url = success_ci[0].get("html_url") or success_ci[0].get("url") or ""
 
     return {
         "ci_green": True,
@@ -240,9 +239,7 @@ def host_of(url: str) -> str:
     if not url:
         return ""
     try:
-        return (urlparse(url if "://" in url else f"https://{url}").hostname or "").lower().removeprefix(
-            "www."
-        )
+        return (urlparse(url if "://" in url else f"https://{url}").hostname or "").lower().removeprefix("www.")
     except Exception:
         return ""
 
@@ -447,6 +444,17 @@ def write_json(name: str, obj: Any) -> None:
 
 
 def main() -> int:
+    print(
+        "EMIT_FAIL: SUPERSEDED_NON_TERMINAL; use "
+        "python -m scripts.confenge_activation.emit_final_closure_pack "
+        "--universe-manifest <atomic-full-lake-manifest>",
+        file=sys.stderr,
+    )
+    return 2
+
+
+def _legacy_main_disabled() -> int:
+    """Preserved implementation for audit only; never a terminal entrypoint."""
     PACK.mkdir(parents=True, exist_ok=True)
     now = _now()
     print(f"EMIT start {now}")
@@ -475,14 +483,10 @@ def main() -> int:
     warmbly_host = probe_warmbly()
     print(f"warmbly host = {warmbly_host}")
     if warmbly_host["runtime"] != warmbly_main:
-        _die(
-            f"warmbly runtime {warmbly_host['runtime']} != origin/main {warmbly_main}"
-        )
+        _die(f"warmbly runtime {warmbly_host['runtime']} != origin/main {warmbly_main}")
     # if deployed marker differs but runtime matches main, rewrite marker for honesty
     if warmbly_host["host_deployed"] != warmbly_main:
-        host_cmd(
-            f"cd /opt/warmbly-confenge && echo '{warmbly_main}' > .deployed_sha && cat .deployed_sha"
-        )
+        host_cmd(f"cd /opt/warmbly-confenge && echo '{warmbly_main}' > .deployed_sha && cat .deployed_sha")
         warmbly_host["host_deployed"] = warmbly_main
 
     # 4) Triple equality
@@ -586,10 +590,9 @@ docker exec warmbly-confenge-postgres-1 psql -U warmbly -d warmbly_dev -t -A -c 
         _die(f"engineering §21 not fully true: {json.dumps(eng, indent=2)}")
 
     hr_blocks = hr_status != "HUMAN_REVIEW_COMPLETE"
-    if hr_blocks:
-        terminal = "EXTERNAL_BLOCKER_REQUIRES_TIAGO"
-    else:
-        terminal = "GO_FOR_REAL_CONFENGE_EMAIL_PILOT"
+    # Historical implementation is retained for audit but is no longer allowed
+    # to mint a terminal decision, even if called directly by an old integration.
+    terminal = "SUPERSEDED_NON_TERMINAL"
 
     # 6) Emit pack (sole writer)
     sha_binding = {

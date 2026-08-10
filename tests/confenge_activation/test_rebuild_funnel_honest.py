@@ -44,3 +44,13 @@ def test_national_universe_label_not_fake_construction_only() -> None:
     src = inspect.getsource(rnf.gather_live_metrics)
     assert "pncp_supplier" in src or "supplier" in src.lower()
     assert "construction_relevant" in src
+
+
+def test_all_target_classes_count_toward_materialized_universe() -> None:
+    src = inspect.getsource(rnf.gather_live_metrics)
+    assert "TARGET_INSUFFICIENT_EVIDENCE" in src
+    assert "materialized = sum(target_classes.values())" in src
+    assert "universe_manifest" in src
+    assert 'isolation_level="REPEATABLE READ"' in src
+    assert "txid_current_snapshot()" in src
+    assert 'construction_commercial_derivation="TARGET_CONFIRMED+TARGET_PROBABLE_RESEARCH"' in src

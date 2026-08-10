@@ -27,6 +27,7 @@ from scripts.confenge_account_intelligence.service_distribution import (
     build_service_distribution,
 )
 from scripts.confenge_activation.national_reservoir_report import write_artifact_pack
+from scripts.confenge_activation.pilot_go_policy import build_universe_manifest
 from scripts.confenge_contact_resolution.contact_coverage import (
     MINIMUM_PILOT_ACCEPTANCE_SAMPLE,
     measure_contact_coverage,
@@ -38,6 +39,8 @@ from scripts.confenge_contact_resolution.mailbox_purpose import (
 from scripts.confenge_contact_resolution.send_readiness import evaluate_email_send_ready
 from scripts.confenge_target_fit import (
     TARGET_CONFIRMED,
+    TARGET_FIT_VERSION,
+    TARGET_INSUFFICIENT_EVIDENCE,
     TARGET_OUT_OF_SCOPE,
     TARGET_PROBABLE_RESEARCH,
 )
@@ -69,30 +72,28 @@ def _load_activation_counts(conn: Any) -> dict[str, int]:
         "ACTIONABLE_NOW": 0,
         "SUPPRESSED": 0,
     }
-    try:
-        rows = _q(
-            conn,
-            """
-            SELECT activation_state, COUNT(*)::int AS n
-            FROM confenge_activation_projections
-            GROUP BY activation_state
-            """,
-        )
-        for r in rows:
-            st = str(r.get("activation_state") or "").upper()
-            if st in out:
-                out[st] = int(r["n"])
-    except Exception:  # noqa: BLE001
-        conn.rollback()
+    relation = _q(conn, "SELECT to_regclass('confenge_activation_projections')::text AS name")
+    if not relation or not relation[0].get("name"):
+        return out
+    rows = _q(
+        conn,
+        """
+        SELECT activation_state, COUNT(*)::int AS n
+        FROM confenge_activation_projections
+        GROUP BY activation_state
+        """,
+    )
+    for r in rows:
+        st = str(r.get("activation_state") or "").upper()
+        if st in out:
+            out[st] = int(r["n"])
     return out
 
 
 def _harvest_contacts(artifact_root: Path) -> dict[str, dict[str, Any]]:
     """Map cnpj_root → best observed contact record from on-disk network harvests."""
     by_root: dict[str, dict[str, Any]] = {}
-    paths = list(artifact_root.rglob("*.jsonl")) + list(
-        artifact_root.rglob("*send-ready*.json")
-    )
+    paths = list(artifact_root.rglob("*.jsonl")) + list(artifact_root.rglob("*send-ready*.json"))
 
     def observe(obj: dict[str, Any], path: Path) -> None:
         r = _root8(obj.get("cnpj") or obj.get("cnpj14") or obj.get("cnpj_raiz"))
@@ -124,11 +125,8 @@ def _harvest_contacts(artifact_root: Path) -> dict[str, dict[str, Any]]:
             "email": email,
             "razao_social": obj.get("razao_social") or obj.get("company_name"),
             "ownership_status": own or "UNKNOWN",
-            "verification_status": str(
-                obj.get("verification_status") or obj.get("verification") or ""
-            ).upper(),
-            "service_id": obj.get("service_id")
-            or (obj.get("primary_service") or {}).get("service_id"),
+            "verification_status": str(obj.get("verification_status") or obj.get("verification") or "").upper(),
+            "service_id": obj.get("service_id") or (obj.get("primary_service") or {}).get("service_id"),
             "source_url": obj.get("root_source_url") or obj.get("source_url"),
             "source_type": root_st,
             "root_source_type": root_st,
@@ -234,9 +232,7 @@ def _evaluate_harvest_esr(
             "service_id": rec.get("service_id"),
             # Pass through copy fields when present (clean cohort has them)
             "copy_context": {
-                "present": bool(
-                    rec.get("why_you") or rec.get("why_now") or rec.get("observed_fact")
-                ),
+                "present": bool(rec.get("why_you") or rec.get("why_now") or rec.get("observed_fact")),
                 "hollow": False,
                 "why_you": rec.get("why_you"),
                 "why_this_account": rec.get("why_you"),
@@ -255,16 +251,10 @@ def _evaluate_harvest_esr(
         ck = f"cnpj_root:{root}"
         if published_index and ck in published_index:
             pub = published_index[ck]
-            company["target_fit_class"] = pub.get("target_fit_class") or pub.get(
-                "shadow_class"
-            ) or TARGET_CONFIRMED
+            company["target_fit_class"] = pub.get("target_fit_class") or pub.get("shadow_class") or TARGET_CONFIRMED
             company["published_target_fit"] = pub
 
-        src_type = (
-            rec.get("root_source_type")
-            or rec.get("source_type")
-            or "REAL_OFFICIAL_SITE"
-        )
+        src_type = rec.get("root_source_type") or rec.get("source_type") or "REAL_OFFICIAL_SITE"
         result = evaluate_email_send_ready(
             company=company,
             email=str(email),
@@ -275,9 +265,7 @@ def _evaluate_harvest_esr(
             service_code=rec.get("service_id"),
             factual_evidence=True,
             evidence_ids=list(rec.get("evidence_ids") or ["harvest-ev"]),
-            require_copy_context=bool(
-                rec.get("why_you") or rec.get("why_now") or rec.get("observed_fact")
-            ),
+            require_copy_context=bool(rec.get("why_you") or rec.get("why_now") or rec.get("observed_fact")),
             source_type=str(src_type),
             source_url=rec.get("source_url"),
             provenance_chain=rec.get("provenance_chain"),
@@ -384,12 +372,34 @@ def gather_live_metrics(
 ) -> dict[str, Any]:
     conn = connect(dsn, readonly=False)
     try:
+        # Every denominator and class count below must come from the same
+        # repeatable-read snapshot; a concurrent ingest cannot create a false
+        # reconciliation gap (or conceal one).
+        conn.set_session(readonly=True, isolation_level="REPEATABLE READ")
+        snapshot_row = _q(
+            conn,
+            """
+            SELECT txid_current_snapshot()::text AS snapshot,
+                   transaction_timestamp()::text AS captured_at
+            """,
+        )[0]
+        database_snapshot = str(snapshot_row.get("snapshot") or "")
+        database_watermark = str(snapshot_row.get("captured_at") or "")
         mode = str(get_control(conn, "async_mode").get("mode") or "SHADOW").upper()
         shadow = shadow_class_distribution(conn)
         confirmed_n = int(shadow.get(TARGET_CONFIRMED, 0))
         probable_n = int(shadow.get(TARGET_PROBABLE_RESEARCH, 0))
         out_n = int(shadow.get(TARGET_OUT_OF_SCOPE, 0))
-        materialized = confirmed_n + probable_n + out_n
+        insufficient_n = int(shadow.get(TARGET_INSUFFICIENT_EVIDENCE, 0))
+        target_classes = {
+            TARGET_CONFIRMED: confirmed_n,
+            TARGET_PROBABLE_RESEARCH: probable_n,
+            TARGET_OUT_OF_SCOPE: out_n,
+            TARGET_INSUFFICIENT_EVIDENCE: insufficient_n,
+        }
+        # Every classified root is materialized.  Omitting INSUFFICIENT here used
+        # to make a fully classified 500k-root universe look only ~25% complete.
+        materialized = sum(target_classes.values())
         q = queue_counts(conn)
         pending = int(q.get("pending", 0)) + int(q.get("retry", 0))
         processing = int(q.get("processing", 0))
@@ -406,6 +416,14 @@ def gather_live_metrics(
             """,
         )
         supplier_roots = int((roots_row[0] or {}).get("n") or 0)
+        contract_rows_result = _q(
+            conn,
+            """
+            SELECT COUNT(*)::bigint AS n
+            FROM pncp_supplier_contracts
+            """,
+        )
+        source_contract_rows = int((contract_rows_result[0] or {}).get("n") or 0)
 
         # CONFIRMED roots (real)
         conf_rows = _q(
@@ -416,9 +434,7 @@ def gather_live_metrics(
             """,
             (TARGET_CONFIRMED,),
         )
-        confirmed_roots = {
-            _root8(r.get("cnpj_raiz")) for r in conf_rows if _root8(r.get("cnpj_raiz"))
-        }
+        confirmed_roots = {_root8(r.get("cnpj_raiz")) for r in conf_rows if _root8(r.get("cnpj_raiz"))}
         published_index = {
             str(r["company_key"]): {
                 "target_fit_class": TARGET_CONFIRMED,
@@ -434,11 +450,11 @@ def gather_live_metrics(
         last_full = cov_ctrl.get("last_full_reconcile_completed_at")
         unexplained = int(cov_ctrl.get("last_full_reconcile_unexplained_missing") or 0)
         pagination_ok = bool(cov_ctrl.get("pagination_exhausted_normally", False))
+        cdc_control = get_control(conn, "cdc_watermark")
+        source_cdc_watermark = str(cdc_control.get("watermark") or "")
 
         harvest = _harvest_contacts(artifact_root)
-        evald = _evaluate_harvest_esr(
-            confirmed_roots, harvest, published_index=published_index
-        )
+        evald = _evaluate_harvest_esr(confirmed_roots, harvest, published_index=published_index)
 
         # Continuous offline checkpoint does NOT count as network discovery.
         # Only roots with real harvested email/source count as discovery attempted.
@@ -455,12 +471,8 @@ def gather_live_metrics(
             rejection_reasons={
                 "mailbox_purpose_rejected": len(evald["mailbox_blocked"]),
                 "no_email_found": max(0, len(attempted) - len(evald["real_email"])),
-                "identity_rejected": int(
-                    evald["send_ready_false_reasons"].get("ownership_not_company_owned", 0)
-                ),
-                "third_party_rejected": int(
-                    evald["send_ready_false_reasons"].get("third_party", 0)
-                ),
+                "identity_rejected": int(evald["send_ready_false_reasons"].get("ownership_not_company_owned", 0)),
+                "third_party_rejected": int(evald["send_ready_false_reasons"].get("third_party", 0)),
                 "provenance_rejected": sum(
                     v
                     for k, v in evald["send_ready_false_reasons"].items()
@@ -469,10 +481,7 @@ def gather_live_metrics(
                 "network_failure": 0,
                 "crawl_failure": 0,
                 "no_official_domain": 0,
-                **{
-                    f"send_ready:{k}": v
-                    for k, v in list(evald["send_ready_false_reasons"].items())[:12]
-                },
+                **{f"send_ready:{k}": v for k, v in list(evald["send_ready_false_reasons"].items())[:12]},
             },
         )
         # Annotate honesty
@@ -518,6 +527,26 @@ def gather_live_metrics(
             "target-fit classifier (not the older ~48k universe JSON snapshot)."
         )
 
+        universe_manifest = build_universe_manifest(
+            observed_supplier_roots=supplier_roots,
+            materialized_roots=materialized,
+            target_classes=target_classes,
+            source_contract_rows=source_contract_rows,
+            datalake_watermark=database_watermark,
+            target_fit_version=TARGET_FIT_VERSION,
+            database_snapshot=database_snapshot,
+            source_cdc_watermark=source_cdc_watermark,
+            construction_commercial_roots=construction_relevant,
+            construction_commercial_derivation="TARGET_CONFIRMED+TARGET_PROBABLE_RESEARCH",
+            full_scale=True,
+            truncated=False,
+            pagination_exhausted_normally=pagination_ok,
+            unexplained_missing=unexplained,
+            orphan_materialized_roots=int(cov.get("orphan_materialized_roots") or 0),
+            duplicate_cnpj_root=int(cov.get("duplicate_cnpj_root") or 0),
+            invalid_cnpj_root=int(cov.get("invalid_cnpj_root") or 0),
+        )
+
         esr_n = len(evald["email_send_ready"])
         metrics = {
             "national_universe": supplier_roots,
@@ -530,6 +559,13 @@ def gather_live_metrics(
             "target_confirmed": confirmed_n,
             "target_probable": probable_n,
             "target_out": out_n,
+            "target_insufficient": insufficient_n,
+            "source_contract_rows": source_contract_rows,
+            "database_watermark": database_watermark,
+            "database_snapshot": database_snapshot,
+            "source_cdc_watermark": source_cdc_watermark,
+            "target_fit_version": TARGET_FIT_VERSION,
+            "universe_manifest": universe_manifest,
             "activation_watch": activation["WATCH"],
             "activation_research": activation["RESEARCH_REQUIRED"],
             "activation_actionable": activation["ACTIONABLE_NOW"],
@@ -556,6 +592,7 @@ def gather_live_metrics(
                     "supplier_roots": supplier_roots,
                     "RETRY_PENDING": pending,
                     "OUT_includes_non_construction": out_n,
+                    "INSUFFICIENT_remains_reconsiderable": insufficient_n,
                 },
                 "contact_attempted": {
                     "never_attempted_of_confirmed": len(never),
@@ -584,6 +621,7 @@ def gather_live_metrics(
                 "supplier_roots": supplier_roots,
                 "construction_relevant_confirmed_plus_probable": construction_relevant,
                 "TARGET_CONFIRMED": confirmed_n,
+                "TARGET_INSUFFICIENT_EVIDENCE": insufficient_n,
                 "email_send_ready_reservoir": esr_n,
                 "hot_set_capacity_per_hour": 10,
             },
@@ -592,9 +630,7 @@ def gather_live_metrics(
             "zero_false_target": True,
             "zero_wrong_contact": len(evald["mailbox_blocked"]) == 0,
             "zero_tainted_provenance": True,
-            "zero_unsupported_service": not bool(
-                (service.get("SERVICE_MONOCULTURE") or {}).get("flagged")
-            ),
+            "zero_unsupported_service": not bool((service.get("SERVICE_MONOCULTURE") or {}).get("flagged")),
             "truncation_root_cause": (
                 "Historical ~1038 resolved: full materialization "
                 f"{materialized}/{supplier_roots}, unexplained_missing=0."
@@ -659,14 +695,9 @@ def main(argv: list[str] | None = None) -> int:
                         "ACTIONABLE_NOW": metrics["activation_actionable"],
                         "SUPPRESSED": metrics["activation_suppressed"],
                     },
-                    "coverage_mode": (metrics.get("target_fit_coverage") or {}).get(
-                        "coverage_mode"
-                    ),
+                    "coverage_mode": (metrics.get("target_fit_coverage") or {}).get("coverage_mode"),
                     "service_monoculture": (
-                        (metrics.get("service_distribution") or {}).get(
-                            "SERVICE_MONOCULTURE"
-                        )
-                        or {}
+                        (metrics.get("service_distribution") or {}).get("SERVICE_MONOCULTURE") or {}
                     ).get("flagged"),
                 },
             },
