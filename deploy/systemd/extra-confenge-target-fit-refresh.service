@@ -1,27 +1,31 @@
 [Unit]
 Description=Extra Consultoria — CONFENGE target-fit CDC refresh (fast path)
-Documentation=file:/opt/extra-cli/docs/confenge/TARGET-FIT-CONTINUOUS-REFRESH.md
+Documentation=file:/opt/extra-consultoria/docs/confenge/TARGET-FIT-CONTINUOUS-REFRESH.md
 After=network-online.target postgresql.service
 Wants=network-online.target
-# Intentionally NOT After= ETL success dependency hard-fail: target-fit is async consumer.
-# Prefer OnSuccess of datalake units when available; timer is safety net.
+# Async consumer of datalake: never hard-fail ETL on target-fit.
 
 [Service]
 Type=oneshot
-User=extra
-WorkingDirectory=/opt/extra-cli
-EnvironmentFile=-/etc/extra-cli/extra-collector.env
+User=extra-consultoria
+Group=extra-consultoria
+WorkingDirectory=/opt/extra-consultoria
+Environment=PYTHONPATH=/opt/extra-consultoria
 Environment=TARGET_FIT_ASYNC_MODE=SHADOW
+Environment=TARGET_FIT_EXPORT_DB=1
 Environment=TARGET_FIT_BATCH_SIZE=50
 Environment=TARGET_FIT_WORKERS=1
-# Refresh enqueues dirty companies then drains a few worker batches.
-ExecStart=/usr/bin/python3 -m scripts.confenge_target_fit refresh --max-batches 5
+EnvironmentFile=-/opt/extra-consultoria/.env
+EnvironmentFile=-/etc/extra-cli/extra-collector.env
+ExecStart=/usr/bin/flock --nonblock /run/lock/extra-confenge-target-fit-refresh.lock \
+  /opt/extra-consultoria/.venv/bin/python -m scripts.confenge_target_fit refresh --max-batches 5
 Nice=15
-# Keep IO pressure below PNCP crawl / Postgres primary workload
 IOSchedulingClass=best-effort
 IOSchedulingPriority=6
 TimeoutStartSec=45m
-# Lock is DB-side (SKIP LOCKED + TTL); no sticky lockfile.
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=extra-confenge-target-fit-refresh
 
 [Install]
 WantedBy=multi-user.target
