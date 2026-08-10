@@ -65,13 +65,21 @@ def iter_universe_roots(conn: Any, *, page_size: int = 500) -> list[str]:
                 """,
                 (last, page_size),
             )
-            batch = [digits_only(r["raiz"])[:8] for r in (cur.fetchall() or [])]
-            batch = [b for b in batch if len(b) == 8 and b != "00000000"]
-            if not batch:
+            raw = list(cur.fetchall() or [])
+            if not raw:
                 break
+            # Keyset must advance on the *raw* page cursor, not the filtered batch.
+            # Filtering invalid roots (e.g. 00000000) before the page-size check used to
+            # stop after the first page whenever any row was dropped (499 < 500 → break),
+            # leaving continuous target-fit stuck at ~500 roots instead of the full lake.
+            raw_raizes = [digits_only(r["raiz"])[:8] for r in raw]
+            raw_raizes = [b for b in raw_raizes if len(b) == 8]
+            if not raw_raizes:
+                break
+            last = raw_raizes[-1]
+            batch = [b for b in raw_raizes if b != "00000000"]
             roots.extend(batch)
-            last = batch[-1]
-            if len(batch) < page_size:
+            if len(raw) < page_size:
                 break
     return roots
 
