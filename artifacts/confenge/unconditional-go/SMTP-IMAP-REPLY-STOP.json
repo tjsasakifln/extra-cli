@@ -1,7 +1,24 @@
 {
-  "generated_at": "2026-08-10T04:10:11Z",
-  "status": "PRIOR_EVIDENCE_ON_HOST_NOT_RE_RUN_THIS_SESSION",
-  "note": "Prior pilot integrity pack documented SMTP/IMAP/reply-stop PASS on warmbly ca457058/main continuous IMAP. Re-smoke operator mailbox after warmbly #35 deploy.",
-  "self_smoke_required": true,
-  "commercial_leads_as_smoke": false
+  "generated_at": "2026-08-10T04:59:40Z",
+  "smtp_self_smoke": true,
+  "self_smoke_task": {
+    "task_id": "9ce3f304-c424-4a14-96b8-dc617f820847",
+    "subject": "CONFENGE SELF_SMOKE 20260810T045532Z",
+    "to_addrs": [
+      "tiago.sasaki@confenge.com.br"
+    ],
+    "status": "completed",
+    "created_at": "2026-08-10T04:55:33.697668+00:00",
+    "completed_at": "2026-08-10T04:56:04.301875+00:00"
+  },
+  "destination": "tiago.sasaki@confenge.com.br",
+  "mailbox": "tiago.sasaki@confenge.com.br",
+  "status": "completed",
+  "commercial_leads": "none",
+  "continuous_imap": "ACTIVE_MAILBOX_HOSTINGER_prior_continuous_proof_retained",
+  "reply_stop": "ACTIVE_PRIOR_PROOF_PLUS_KILL_SWITCH",
+  "outcome_loop": "WIRED_prior_evidence",
+  "kill_switch": "ENGAGED",
+  "provider": "Hostinger SMTP/IMAP",
+  "note": "Session self-smoke task 9ce3f304 completed at 2026-08-10T04:56:04Z to operator mailbox only."
 }

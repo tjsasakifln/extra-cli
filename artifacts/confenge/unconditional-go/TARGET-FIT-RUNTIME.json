@@ -1,18 +1,15 @@
 {
-  "generated_at": "2026-08-10T04:10:11Z",
+  "generated_at": "2026-08-10T04:59:40Z",
   "TARGET_FIT_RUNTIME": "HEALTHY",
+  "raw_status": "STATUS: HEALTHY\nDATALAKE WATERMARK: 2026-08-05T11:18:41.438381+02:00\nTARGET-FIT WATERMARK: 2026-08-05T11:18:41.438381+02:00\nLAG: 0s\nDIRTY: 0\nPROCESSING: 0\nRETRY: 0\nDEAD: 0\nCURRENT VERSION: confenge-target-fit-v1\nCONFIRMED: 3\nPROBABLE: 447\nOUT: 49\nLAST SUCCESS: 2026-08-10T06:30:06.607941+02:00\nASYNC MODE: SHADOW\nAUTO PAUSED: False\n",
   "async_mode": "SHADOW",
-  "module_deployed": true,
-  "migration_071_applied": true,
   "datalake_watermark": "2026-08-05T11:18:41.438381+02:00",
   "target_fit_watermark": "2026-08-05T11:18:41.438381+02:00",
   "lag_seconds": 0,
-  "last_successful_run": "2026-08-10T06:05:35.384859+02:00",
-  "reconcile_enqueued": 499,
-  "worker_processed_sample": 50,
-  "timers": [
-    "extra-confenge-target-fit-refresh.timer",
-    "extra-confenge-target-fit-reconcile.timer"
-  ],
-  "note": "SHADOW mode on host-of-record; module no longer missing; watermarks equal after reconcile+worker"
+  "dirty": 0,
+  "last_successful_run": "2026-08-10T06:30:06.607941+02:00",
+  "timers_enabled": true,
+  "module_present": true,
+  "migration_071": true,
+  "extra_cli_main_sha": "c7fadc192131d4c39dd4d5d6a9664512c7908f9f"
 }

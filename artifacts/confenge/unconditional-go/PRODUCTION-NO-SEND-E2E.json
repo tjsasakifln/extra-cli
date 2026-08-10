@@ -1,12 +1,42 @@
 {
-  "generated_at": "2026-08-10T04:10:11Z",
-  "kill_switch": "ENGAGED_EXPECTED",
+  "generated_at": "2026-08-10T04:59:40Z",
+  "kill_switch": "ENGAGED",
+  "kill_switch_detail": "paused\nreason=operator_ssh_pause\nat=2026-08-10T03:32:23Z",
+  "whatsapp": "OFF",
+  "email_only": true,
   "contaminated_cohort_disabled": true,
   "contaminated_sendable_count": 0,
+  "demo_total": 9,
   "demo_blocked": 9,
-  "clean_cohort_companies": 53,
-  "clean_cohort_imported_to_production": false,
-  "note": "Contaminated demos blocked in production DB. Clean cohort export+import pending post-merge deploy of exact main SHA.",
-  "whatsapp": "OFF",
-  "email_only": true
+  "clean_cohort_imported_to_production": true,
+  "latest_import": {
+    "id": "53e12361-3fc8-486c-affb-28291219365b",
+    "status": "completed",
+    "created_at": "2026-08-10T04:54:33.996145+00:00",
+    "counts": {
+      "blocked": 0,
+      "creates": 0,
+      "invalid": 0,
+      "updates": 53,
+      "warnings": 0,
+      "conflicts": 0,
+      "unchanged": 0,
+      "evidence_added": 1,
+      "leads_processed": 53,
+      "missing_contact": 0,
+      "contacts_promoted": 0,
+      "leads_skipped_error": 0
+    }
+  },
+  "email_send_ready_rows_after_import": 54,
+  "clean_companies": 53,
+  "feed": "artifacts/confenge/unconditional-go/clean-cohort-feed.v1.json",
+  "no_send_e2e": "PASS",
+  "checks": {
+    "import_integro": true,
+    "zero_demo_sendable": true,
+    "provenance_fields_on_feed": true,
+    "service_identity_present": true,
+    "copy_context_present": true
+  }
 }
