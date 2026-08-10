@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import time
 import uuid
 from dataclasses import dataclass, field
@@ -30,6 +31,8 @@ from scripts.confenge_contact_resolution.rate_limit import (
 from scripts.confenge_contact_resolution.resolver import ContactResolver, ResolverConfig
 from scripts.confenge_contact_resolution.reuse_graph import ContactReuseGraph
 from scripts.confenge_contact_resolution.third_party_registry import ThirdPartyRegistry
+
+logger = logging.getLogger(__name__)
 
 CHECKPOINT_FILENAME = "checkpoint.json"
 METRICS_FILENAME = "metrics.json"
@@ -720,9 +723,62 @@ class EnrichmentBatchRunner:
 
             warmbly_rows.append(wb)
             self._checkpoint.setdefault("completed_cnpjs", []).append(job.cnpj14)
+            # Incremental artifact flush so national drains expose ESR mid-run
+            # (full rewrite still happens at end of run).
+            if enrollable_contacts:
+                feed_dir = self.output_dir / WARMBLY_FEED_DIR
+                feed_dir.mkdir(parents=True, exist_ok=True)
+                with (feed_dir / "contacts_enrollable.jsonl").open("a", encoding="utf-8") as fh:
+                    for c in enrollable_contacts:
+                        fh.write(
+                            json.dumps(
+                                {
+                                    "cnpj14": res.cnpj14,
+                                    "company_name": res.razao_social,
+                                    "email": c.email,
+                                    "phone": c.phone_e164 or c.phone_raw,
+                                    "role_class": c.role_class,
+                                    "ownership_status": c.ownership_status,
+                                    "verification_status": c.verification_status,
+                                    "confidence": c.confidence,
+                                    "source_url": c.source.source_url if c.source else None,
+                                    "source_type": c.source.source_type if c.source else None,
+                                    "enrollable": True,
+                                },
+                                ensure_ascii=False,
+                            )
+                            + "\n"
+                        )
+            if not res.candidates and not res.rejected_contacts:
+                with (self.output_dir / NO_CONTACT).open("a", encoding="utf-8") as fh:
+                    fh.write(
+                        json.dumps(
+                            {
+                                "cnpj14": res.cnpj14,
+                                "company_name": res.razao_social,
+                                "commercial_contact_state": res.commercial_contact_state,
+                                "absence_reason": res.absence_reason,
+                            },
+                            ensure_ascii=False,
+                        )
+                        + "\n"
+                    )
             # periodic checkpoint every 10 (national drain needs frequent resume points)
             if len(resolutions) % 10 == 0:
                 self._save_checkpoint()
+                # mid-run metrics snapshot (overwrite)
+                try:
+                    snap = self.metrics.as_dict()
+                    snap["mid_run"] = True
+                    snap["resolutions_so_far"] = len(resolutions)
+                    snap["checkpoint_completed"] = len(self._checkpoint.get("completed_cnpjs") or [])
+                    (self.output_dir / METRICS_FILENAME).write_text(
+                        json.dumps(snap, indent=2, ensure_ascii=False) + "\n",
+                        encoding="utf-8",
+                    )
+                except Exception as exc:  # noqa: BLE001
+                    # Mid-run metrics are best-effort observability only.
+                    logger.debug("mid-run metrics snapshot failed: %s", exc)
 
         if cached is not None:
             self.resolver.config.cache = cached

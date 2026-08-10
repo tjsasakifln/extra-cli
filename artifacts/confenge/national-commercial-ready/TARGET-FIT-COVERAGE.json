@@ -1,21 +1,11 @@
 {
-  "schema": "confenge.target_fit_coverage.v1",
-  "canonical_company_count": 513650,
-  "materialized_company_count": 513650,
-  "materialized_valid_roots": 513650,
-  "orphan_materialized_roots": 0,
-  "duplicate_cnpj_root": 0,
-  "invalid_cnpj_root": 0,
-  "coverage_ratio": 1.0,
-  "unexplained_missing": 0,
-  "coverage_mode": "FULLY_RECONCILED",
+  "as_of": "2026-08-10T15:40:17Z",
   "FULLY_RECONCILED": true,
-  "FULL_NATIONAL_READY": true,
-  "population_source": "shadow",
-  "class_distribution": {
+  "coverage_ratio": 1.0,
+  "classes": {
     "TARGET_CONFIRMED": 8382,
-    "TARGET_PROBABLE_RESEARCH": 26083,
-    "TARGET_OUT_OF_SCOPE": 92543,
-    "TARGET_INSUFFICIENT_EVIDENCE": 386642
+    "TARGET_PROBABLE_RESEARCH": 26059,
+    "TARGET_OUT_OF_SCOPE": 92547,
+    "TARGET_INSUFFICIENT_EVIDENCE": 386662
   }
 }

@@ -142,8 +142,38 @@ _STOP_TOKENS = frozenset(
     }
 )
 
-_OFFICIAL_SOURCES = frozenset({"site", "contact_page", "registry", "public_docs", "human_outcome"})
-_DOC_SOURCES = frozenset({"public_docs", "human_outcome"})
+_OFFICIAL_SOURCES = frozenset(
+    {
+        "site",
+        "contact_page",
+        "registry",
+        "public_docs",
+        "human_outcome",
+        # Process-first national harvest (PNCP annex / administrative docs)
+        "public_process_document",
+        "public_document",
+        "pncp_annex",
+        "pncp_annexes",
+        "process_administrative_docs",
+        "REAL_PUBLIC_DOCUMENT",
+        "real_public_document",
+    }
+)
+_DOC_SOURCES = frozenset(
+    {
+        "public_docs",
+        "human_outcome",
+        # Company-authored / process harvest document ladder
+        "public_process_document",
+        "public_document",
+        "pncp_annex",
+        "pncp_annexes",
+        "process_administrative_docs",
+        "edital",
+        "REAL_PUBLIC_DOCUMENT",
+        "real_public_document",
+    }
+)
 _STRONG_PAGE_SOURCES = frozenset({"site", "contact_page"})
 
 
@@ -342,8 +372,10 @@ def resolve_ownership(
     # or explicit fixture source_type. URL heuristics like example.com remain a
     # send-readiness concern (evaluate_email_send_ready), not ownership identity.
     src_type_early = ((candidate.source.source_type if candidate.source else "") or "").strip().lower()
-    if is_demo_or_fixture_email(email) or is_demo_or_fixture_domain(domain) or is_demo_or_fixture_domain(
-        ctx.official_domain
+    if (
+        is_demo_or_fixture_email(email)
+        or is_demo_or_fixture_domain(domain)
+        or is_demo_or_fixture_domain(ctx.official_domain)
     ):
         return OwnershipResult(
             ownership_status=OwnershipStatus.INVALID.value,
@@ -411,8 +443,11 @@ def resolve_ownership(
     official_src = src_type in _OFFICIAL_SOURCES
     doc_src = src_type in _DOC_SOURCES
     strong_page = src_type in _STRONG_PAGE_SOURCES
-    found_official = official_src
-    found_doc = doc_src
+    found_official = official_src or bool(candidate.found_on_official_source)
+    # Process harvest sets found_on_company_document when email is extracted from
+    # company-authored proposal/habilitação PDFs — treat as document proof even if
+    # source_type string was not yet in the legacy _DOC_SOURCES set.
+    found_doc = doc_src or bool(candidate.found_on_company_document)
 
     # Third-party signals on domain/context FIRST (always, never gated on domain_match).
     # Prevents circular false positives: email@contabilidade.com on site contabilidade.com

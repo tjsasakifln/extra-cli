@@ -109,6 +109,10 @@ _REAL_SOURCE_TYPES = {
     "cnpj_registry": RootSourceType.REAL_REGISTRY.value,
     "public_docs": RootSourceType.REAL_PUBLIC_DOCUMENT.value,
     "public_document": RootSourceType.REAL_PUBLIC_DOCUMENT.value,
+    "public_process_document": RootSourceType.REAL_PUBLIC_DOCUMENT.value,
+    "process_administrative_docs": RootSourceType.REAL_PUBLIC_DOCUMENT.value,
+    "pncp_annex": RootSourceType.REAL_PUBLIC_DOCUMENT.value,
+    "pncp_annexes": RootSourceType.REAL_PUBLIC_DOCUMENT.value,
     "edital": RootSourceType.REAL_PUBLIC_DOCUMENT.value,
     "pncp": RootSourceType.REAL_PUBLIC_SOURCE.value,
     "web_search": RootSourceType.REAL_PUBLIC_SOURCE.value,  # still needs real URL

@@ -1,8 +1,13 @@
 {
-  "origin_main": "b8f9d1c6fe19e4556ef6091f4dd0e026acc3cf1d",
+  "origin_main": "d5b56be674a26de4e027c19ef7364317c7719864",
   "host_deployed_sha": "b8f9d1c6fe19e4556ef6091f4dd0e026acc3cf1d",
   "runtime_sha": "b8f9d1c6fe19e4556ef6091f4dd0e026acc3cf1d",
-  "triple_sha_equal": true,
-  "pr_217_merged": true,
-  "pr_222_process_harvest": "open"
+  "triple_sha_equal": false,
+  "warmbly_origin_main": "c22cfb9ef6e7e2fc1397aeb73356e85fd01eb9af",
+  "warmbly_host_deployed": "c22cfb9ef6e7e2fc1397aeb73356e85fd01eb9af",
+  "warmbly_runtime": "c22cfb9ef6e7e2fc1397aeb73356e85fd01eb9af",
+  "pr_222_merged": true,
+  "pr_223": "open",
+  "as_of": "2026-08-10T15:40:17Z",
+  "pack_git_sha": "d5b56be674a26de4e027c19ef7364317c7719864"
 }

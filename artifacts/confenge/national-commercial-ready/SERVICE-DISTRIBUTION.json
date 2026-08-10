@@ -1,42 +1,35 @@
 {
   "schema": "confenge.service_distribution.v1",
-  "total_companies": 200,
-  "distinct_services": 4,
+  "as_of": "2026-08-10T15:40:17Z",
   "distribution": [
     {
-      "service_id": "gestao_monitoramento_contratual",
-      "company_count": 101,
-      "pct": 50.5,
-      "median_confidence": 0.6
-    },
-    {
-      "service_id": "apoio_licitacoes_propostas",
-      "company_count": 67,
-      "pct": 33.5,
-      "median_confidence": 0.65
+      "service_id": "diagnostico_contratual_b2g",
+      "company_count": 108
     },
     {
       "service_id": "auditoria_orcamento_bdi",
-      "company_count": 28,
-      "pct": 14.000000000000002,
-      "median_confidence": 0.7
+      "company_count": 33
+    },
+    {
+      "service_id": "apoio_licitacoes_propostas",
+      "company_count": 32
+    },
+    {
+      "service_id": "estruturacao_pleito_reajuste",
+      "company_count": 25
+    },
+    {
+      "service_id": "reforco_temporario_backoffice",
+      "company_count": 16
+    },
+    {
+      "service_id": "gestao_monitoramento_contratual",
+      "company_count": 8
     },
     {
       "service_id": "aditivos_extracontratuais",
-      "company_count": 4,
-      "pct": 2.0,
-      "median_confidence": 0.85
+      "company_count": 1
     }
   ],
-  "SERVICE_MONOCULTURE": {
-    "flagged": false,
-    "dominant_service_id": null,
-    "dominant_share": 0.505,
-    "threshold": 0.95,
-    "blocks_outreach_release": false,
-    "causal_diagnosis_required": false,
-    "causal_diagnosis": null
-  },
-  "sample_size": 200,
-  "sample_note": "Live multi-service routing over 200 CONFIRMED roots with contracts (not harvest-only). Not a full national dossier rebuild."
+  "source": "strict_national_esr_best_per_root"
 }

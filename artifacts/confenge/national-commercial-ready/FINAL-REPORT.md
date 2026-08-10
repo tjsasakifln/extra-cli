@@ -1,30 +1,35 @@
-# FINAL-REPORT — National commercial reservoir
+# FINAL-REPORT — National commercial reservoir (strict ESR)
 
-## Coverage
-
-`FULLY_RECONCILED=true` · ratio=1.0 · unexplained_missing=0
-
-## Classification (live SHADOW)
-
-| Class | N |
-|------|--:|
-| TARGET_CONFIRMED | 8382 |
-| TARGET_PROBABLE_RESEARCH | 26083 |
-| TARGET_OUT_OF_SCOPE | 92543 |
-| TARGET_INSUFFICIENT_EVIDENCE | 386642 |
-
-## Contact enrichment
-
-- Process-first national harvest: **running** (10 parallel root shards, no Top-N)
-- Continuous site/web enrich-continuous: **running** (resume, no max_companies)
-- Intermediate harvest accounts: ~298+
-- Process EMAIL_SEND_READY proxy: 8
-- Historical harvest ESR: 60
+- generated_at: `2026-08-10T15:40:17Z`
+- extra_cli_sha: `d5b56be674a26de4e027c19ef7364317c7719864`
+- TARGET_CONFIRMED: **8382**
+- EMAIL_SEND_READY strict: **72**
+- email roots upper bound: **223**
 - MIN_OPERATIONAL_RESERVE: **900** (10/h × 9h × 10d)
+- NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY: **False**
+- PILOT_READY_CANDIDATE: **True**
+- terminal: **ENGINEERING_IN_PROGRESS**
+- machine audit PASS: **True** (n=72)
 
-## Terminal state (honest)
+## Funnel (strict)
 
-Workers draining. Until 100% CONFIRMED have contact terminal states and ESR≥900,
-`NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY` remains false if ESR gap persists after full ladder.
+```json
+{
+  "TOTAL_CONTACT_CANDIDATES": 315,
+  "DISTINCT_COMPANIES_WITH_EMAIL": 223,
+  "COMPANY_OWNED": 83,
+  "IDENTITY_SAFE": 83,
+  "MAILBOX_ALLOWED": 220,
+  "PROVENANCE_VALID": 72,
+  "SERVICE_FIT_VALID": 223,
+  "COPY_CONTEXT_VALID": 72,
+  "EMAIL_SEND_READY_DISTINCT_COMPANIES": 72
+}
+```
 
-SHA binding: origin/main = host = b8f9d1c6… (PR #217). Process harvest on PR #222.
+## Notes
+
+- email observed ≠ EMAIL_SEND_READY
+- gestao_monitoramento_contratual is a valid CONFENGE service; service_fit requires portfolio signals (not bare label)
+- HUMAN_REVIEW_PENDING until Tiago executes human_review CLI
+- NO REAL COMMERCIAL SEND during this goal
