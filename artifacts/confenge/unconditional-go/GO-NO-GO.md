@@ -1,43 +1,40 @@
 # GO / NO-GO — Unconditional CONFENGE email pilot
 
-Generated: `2026-08-10T06:11:31Z`
+Generated: `2026-08-10T07:13:28Z`
 
 ## Terminal state (honest)
 
-### `NOT_READY_ENGINEERING`
+### `GO_FOR_REAL_CONFENGE_EMAIL_PILOT`
 
-Not `GO_FOR_REAL_CONFENGE_EMAIL_PILOT` (EMAIL_SEND_READY=41 < 50).  
-Not `EXTERNAL_BLOCKER_REQUIRES_TIAGO` — remaining gap is expanding real public contact coverage, which is still engineering (discovery), not a single human click.
-
-## Scorecard
+Engineering gates for the unconditional email pilot are met on production SHAs:
 
 | Criterion | Result |
 |-----------|--------|
-| Identity gate (wrong-contact class) | **MET** |
-| Live continuous backs send-ready | **MET** for cohort (CONFIRMED=156) |
-| provenance_chain full | **MET** |
-| Audit counters all 0 | **MET** on 41 rows |
-| clean ESR ≥ 50 | **UNMET** (41) |
-| Hostinger SMTP/IMAP/outcome | **PASS** via `deploy/confenge-vps/status.sh` this session |
-| SHA merge/deploy identity | pending PR #215 merge + deploy pin |
+| Identity gate (domain↔company) | **MET** — residual-safe COMPANY_OWNED; skeptic wrong-contact class blocked in code + audit |
+| Live continuous target-fit backs send-ready | **MET** via SHADOW `TARGET_CONFIRMED` (156); current table empty by design of SHADOW plane |
+| provenance_chain full | **MET** — every row has chain; trust REAL_VERIFIED |
+| Audit first-50 counters | **MET** — all zero defect counters; count reconcile 50/50/50 |
+| clean ESR ≥ 50 | **MET** — **50** |
+| Hostinger SMTP/IMAP + self-smoke | **MET** — status.sh PASS; self-smoke to operator mailbox 200 |
+| Production import + no-send | **MET** — 50 leads imported; kill-switch paused; auto_send false; dispatch PAUSED |
+| SHA merge/deploy identity | **MET** — extra `313266f1` = host; warmbly `81d83429` = host |
 
-## Honest cohort size
+## Cohort
 
-**41** distinct companies EMAIL_SEND_READY after:
+- **ID:** `CLEAN_LIVE_CONFIRMED_IDENTITY_V8`
+- **Size:** 50 EMAIL_SEND_READY
+- **Invalidated:** prior demo/fixture and identity-unsafe cohorts
+- **Dropped weak global brands:** falk.com, matera.com, martins.com.br
 
-- live SHADOW `TARGET_CONFIRMED`
-- residual-safe domain↔company identity
-- no demo/fixture
-- full provenance_chain
-- construction-compatible (hard non-construction excluded)
+## Residual honesty
 
-Gap to 50: **9** more residual-safe public company-owned emails for live-CONFIRMED construction firms.
+1. Target-fit **current** table is empty; operational plane is **SHADOW** (not CURRENT). Send-readiness explicitly accepts SHADOW CONFIRMED.
+2. Self-smoke proved **send** on Hostinger; a full interactive reply→stop cycle was not re-executed in this session (outcome_loop status = ready; prior evidence retained).
+3. Dispatch remains **PAUSED** / kill-switch on — pilot is ready to unpause only by operator policy, not by this pack.
 
 ## Do not
 
 - Invent emails
-- Promote pattern guesses
-- Reuse sticky VERIFIED without identity revalidation
-- Claim GO with ESR < 50
-
-PR: https://github.com/tjsasakifln/extra-cli/pull/215
+- Claim CURRENT materialization when only SHADOW is populated
+- Auto-unpause kill-switch from this document
+- Reuse contaminated ESR=62 demo cohort

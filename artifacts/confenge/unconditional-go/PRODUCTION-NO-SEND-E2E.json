@@ -1,12 +1,28 @@
 {
-  "generated_at": "2026-08-10T04:10:11Z",
-  "kill_switch": "ENGAGED_EXPECTED",
-  "contaminated_cohort_disabled": true,
-  "contaminated_sendable_count": 0,
-  "demo_blocked": 9,
-  "clean_cohort_companies": 53,
-  "clean_cohort_imported_to_production": false,
-  "note": "Contaminated demos blocked in production DB. Clean cohort export+import pending post-merge deploy of exact main SHA.",
-  "whatsapp": "OFF",
-  "email_only": true
+  "generated_at": "2026-08-10T07:13:28Z",
+  "clean_cohort_imported_to_production": true,
+  "import": {
+    "schema_version": "confenge.outreach.v1",
+    "leads_processed": 50,
+    "creates": 17,
+    "updates": 33,
+    "invalid": 0,
+    "blocked": 0,
+    "dry_run": false,
+    "payload": "/tmp/clean-cohort-feed.v1.json"
+  },
+  "no_send_controls": {
+    "CONFENGE_AUTO_SEND_ENABLED": false,
+    "CONFENGE_SENDING_PAUSED": true,
+    "CONFENGE_DISPATCH_PAUSED": true,
+    "CONFENGE_GREEN_AUTORUN_ENABLED": false,
+    "kill_switch_file": "/data/confenge-ops/kill-switch",
+    "kill_switch_content": "paused reason=operator_ssh_pause",
+    "api_sending_allowed": false,
+    "api_kill_switch": true,
+    "status_sh_dispatch": "PAUSED",
+    "status_sh_green_autorun": "OFF"
+  },
+  "commercial_leads_not_sent": true,
+  "note": "Import of CLEAN V8 completed under kill-switch + paused dispatch. Self-smoke only to operator mailbox."
 }

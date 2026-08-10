@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-10T06:11:31Z",
-  "TARGET_FIT_RUNTIME": "HEALTHY",
-  "async_mode": "SHADOW",
-  "CONFIRMED": 156,
-  "PROBABLE": 609,
-  "OUT": 273,
-  "lag_seconds": 0,
-  "module_deployed": true,
-  "note": "Mass requeue of construction roots after pagination fix; SHADOW authority for send-ready join."
+  "generated_at": "2026-08-10T07:13:28Z",
+  "mode": "SHADOW",
+  "current_table_rows": 0,
+  "shadow_confirmed": 156,
+  "shadow_total": 1038,
+  "source_watermark": "2026-08-05T11:18:41.438381+02:00",
+  "send_readiness_accepts_shadow": true,
+  "cohort_all_target_confirmed": true,
+  "note": "confenge_company_target_fit_current is empty; continuous SHADOW materialization is the live published plane for this host."
 }

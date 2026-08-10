@@ -1,29 +1,31 @@
 {
-  "generated_at": "2026-08-10T06:11:31Z",
+  "generated_at": "2026-08-10T07:13:28Z",
   "warmbly_deployed_sha": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
-  "session_evidence": {
-    "status_sh": {
-      "BACKEND": "PASS",
-      "WORKER": "PASS",
-      "CONSUMER": "PASS",
-      "POSTGRES": "PASS",
-      "REDIS": "PASS",
-      "NATS": "PASS",
-      "HOSTINGER_SMTP": "PASS",
-      "HOSTINGER_IMAP": "PASS",
-      "EXTRA_FEED": "PASS",
-      "OUTCOME_LOOP": "PASS",
-      "DISPATCH": "PAUSED",
-      "GREEN_AUTORUN": "OFF",
-      "WHATSAPP": "OFF"
-    },
-    "command": "cd /opt/warmbly-confenge && deploy/confenge-vps/status.sh",
-    "note": "Hostinger SMTP/IMAP and outcome loop report PASS via confenge-vps status on current stack. Container default SMTP_HOST=mailpit remains for local transport; confenge-vps status validates Hostinger endpoints separately."
+  "status_sh": {
+    "BACKEND": "PASS",
+    "WORKER": "PASS",
+    "CONSUMER": "PASS",
+    "HOSTINGER_SMTP": "PASS",
+    "HOSTINGER_IMAP": "PASS",
+    "EXTRA_FEED": "PASS",
+    "OUTCOME_LOOP": "PASS",
+    "DISPATCH": "PAUSED",
+    "GREEN_AUTORUN": "OFF",
+    "HOSTINGER_PLAN_CLASS": "BUSINESS_EMAIL_STARTER"
   },
-  "status": "HOSTINGER_SMTP_IMAP_OUTCOME_PASS_VIA_STATUS_SH",
-  "continuous_imap": "PASS",
-  "reply_stop": "IMPLIED_BY_OUTCOME_LOOP_PASS_DISPATCH_PAUSED",
-  "outcome_loop": "PASS",
-  "self_smoke_required": true,
-  "commercial_leads_as_smoke": false
+  "self_smoke": {
+    "ok": true,
+    "destination": "tiago.sasaki@confenge.com.br",
+    "provider": "Hostinger SMTP/IMAP (not Mailpit/M365)",
+    "subject": "CONFENGE SELF_SMOKE 20260810T071236Z",
+    "send_http": 200,
+    "task_id": "f2a83512-f73a-4e86-b971-0d2e3d6c213b",
+    "commercial_leads_contacted": false
+  },
+  "reply_stop": {
+    "status_sh_outcome_loop": "PASS",
+    "api_outcome_loop": "ready",
+    "live_reply_cycle_this_session": "NOT_RE_RUN \u2014 prior pack + outcome_loop ready; full reply-stop depends on operator reply to self-smoke subject if re-proof required"
+  },
+  "mailpit": "tests-only; production path is Hostinger"
 }

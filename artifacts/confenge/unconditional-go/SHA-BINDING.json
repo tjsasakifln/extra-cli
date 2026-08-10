@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-08-10T05:34:07Z",
-  "extra_cli_branch": "fix/ownership-identity-send-ready-gate",
-  "extra_cli_head": "0aee7d40f28ea51f6a5053b89a858529e1e03b0d",
-  "extra_cli_pr": "https://github.com/tjsasakifln/extra-cli/pull/215",
-  "extra_cli_origin_main": "c7fadc192131d4c39dd4d5d6a9664512c7908f9f",
-  "extra_consultoria_host_deployed_sha_before_hotfix": "c7fadc192131d4c39dd4d5d6a9664512c7908f9f",
-  "host_hotfixed_files_not_yet_merged_main": true,
-  "warmbly_deployed_sha": "81d83429316aa6241cc81b3ac8e761bfc59c2487"
+  "generated_at": "2026-08-10T07:13:28Z",
+  "extra_cli_origin_main": "313266f1275c40371e49afb3be00239d4d9afa03",
+  "extra_cli_pr_215": "MERGED",
+  "extra_consultoria_host_deployed_sha": "313266f1275c40371e49afb3be00239d4d9afa03",
+  "warmbly_origin_main": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
+  "warmbly_deployed_sha": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
+  "identity_match": true,
+  "notes": "extra-cli main=prod; warmbly main=deployed. Backend recreated with deploy/confenge-vps override so CONFENGE_OUTREACH_ENABLED=true."
 }
