@@ -34,6 +34,13 @@ _HOLLOW_FACT_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"momento\s+comercial\s+indicado\s+pelo\s+extra-cli", re.I),
     re.compile(r"observamos\s+contratos\s+p[uú]blicos", re.I),
     re.compile(r"empresa\s+com\s+portf[oó]lio\s+p[uú]blico", re.I),
+    re.compile(r"fato\s+contratual\s+p[uú]blico\s+utiliz[aá]vel", re.I),
+    re.compile(r"sem\s+dor\s+especializada\s+dominante", re.I),
+    re.compile(r"momento\s+comercial\s+p[uú]blico", re.I),
+    re.compile(r"execu[cç][aã]o\s+p[uú]blica\s+observ[aá]vel", re.I),
+    re.compile(r"empresa\s+com\s+execu[cç][aã]o\s+p[uú]blica", re.I),
+    re.compile(r"target_fit|email_send_ready|copy_context_ready|service_fit_supported", re.I),
+    re.compile(r"primary_service|micro_offer_code|why_this_account\s*=", re.I),
 )
 
 
@@ -108,35 +115,88 @@ def _non_hollow_confirmed(confirmed: list[dict[str, Any]]) -> tuple[str, list[st
     return "", []
 
 
+def _compress_hook_insight(hook: str, *, max_len: int = 140) -> str:
+    """Turn raw PNCP object dump into a short human insight fragment."""
+    t = (hook or "").strip()
+    # Drop "objeto:" prefix noise
+    t = re.sub(r"(?i)^objeto:\s*", "", t)
+    t = re.sub(r"(?i);\s*órg[aã]o:\s*", " junto a ", t)
+    t = re.sub(r"(?i);\s*UF\s+", " (", t)
+    if "R$" in t and "(" in t and not t.rstrip().endswith(")"):
+        t = t.replace("; R$", "; valor R$")
+    t = re.sub(r"\s+", " ", t).strip()
+    if len(t) > max_len:
+        t = t[: max_len - 1].rstrip() + "…"
+    return t
+
+
 def _why_now_text(why: dict[str, Any], hook: str, service_id: str) -> str:
-    """Build why_now that passes COPY_CONTEXT (never generic portfolio_review template)."""
+    """Build temporal why_now that passes COPY_CONTEXT (never hollow meta templates)."""
     trigger = ""
+    temporal = ""
     if isinstance(why, dict):
         trigger = str(why.get("trigger") or "").strip()
         for key in ("temporal_fact", "summary"):
             val = str(why.get(key) or "").strip()
             if not val or is_hollow_fact(val):
                 continue
-            # Even non-hollow must not be pure meta without contract hook when we have one.
-            if hook and not is_hollow_fact(hook) and "objeto" not in val.lower():
-                # Prefer anchoring to concrete hook over abstract summary.
-                break
-            return val
+            temporal = val
+            break
+    # Prefer explicit temporal event when non-hollow.
+    if temporal and not is_hollow_fact(temporal):
+        # If temporal is still abstract, anchor to contract hook.
+        if hook and not is_hollow_fact(hook) and "objeto" not in temporal.lower():
+            insight = _compress_hook_insight(hook)
+            return f"{temporal.rstrip('.')}: {insight}"
+        return temporal
     if hook and not is_hollow_fact(hook):
+        insight = _compress_hook_insight(hook)
+        if trigger in {"aditivo", "additive", "CONTRACT_EXTENSION", "prorrogacao", "prorrogação"}:
+            return f"Evento de prorrogação/aditivo recente ligado a: {insight}"
+        if trigger in {"anualidade", "ANUALIDADE", "mature_no_reajuste"}:
+            return f"Janela de aniversário/madurez contratual observável em: {insight}"
+        if trigger in {"medicao", "medição", "glosa"}:
+            return f"Sinal documental de medição/glosa associado a: {insight}"
         if trigger and trigger not in {"", "insufficient_facts", "portfolio_review"}:
-            return f"Momento {trigger} ancorado no fato público: {hook[:160]}"
-        # portfolio_review / empty trigger: still require concrete hook, not hollow template
-        return f"Fato contratual público utilizável agora: {hook[:160]}"
+            return f"Gatilho {trigger} ancorado no contrato público: {insight}"
+        # portfolio_review without a dated event: WEAK temporal — do not invent "now".
+        # Still provide a non-hollow line only when multi-signal portfolio exists in hook.
+        if "órgão" in hook.lower() or "orgao" in hook.lower() or "UF" in hook:
+            return (
+                f"Carteira pública ativa com obrigação em execução — âncora: {insight}. "
+                "Sem evento datado adicional no input (why_now_strength=MODERATE)."
+            )
+        # Single thin hook without temporal event → weak (caller may mark COPY false)
+        return (
+            f"Sem evento temporal específico no input; âncora contratual disponível: {insight} "
+            "(why_now_strength=WEAK)."
+        )
     if trigger == "insufficient_facts":
         return "Material público insuficiente para especialidade — discovery honesto."
     return f"Sem fato contratual concreto para {service_id}; não inventar dor."
 
 
 def _why_this_account(company: str, hook: str, confirmed: list[dict[str, Any]], service_id: str) -> str:
+    """Explain why THIS company warrants the approach (not a PNCP dump)."""
     if hook and not is_hollow_fact(hook):
-        return f"{company} com execução pública observável — {hook}"
+        insight = _compress_hook_insight(hook, max_len=160)
+        # Multi-organ / multi-UF signals → portfolio complexity (real why_you)
+        multi = False
+        low = hook.lower()
+        if "órgão" in low or "orgao" in low:
+            multi = True
+        return (
+            f"{company} aparece com obrigação pública em curso ({insight}). "
+            + (
+                "Quando a execução cruza órgão/UF e valor material, costuma valer "
+                "olhar o contrato com disciplina de monitoramento antes de escalar dor."
+                if multi
+                else "O objeto e o valor material tornam útil uma leitura objetiva do contrato "
+                "antes de assumir que a equipe interna já fechou o tema."
+            )
+        )
     text, _ = _non_hollow_confirmed(confirmed)
-    if text:
+    if text and not is_hollow_fact(text):
         return f"{company}: {text[:220]}"
     return (
         f"{company}: sem objeto contratual específico no input; "

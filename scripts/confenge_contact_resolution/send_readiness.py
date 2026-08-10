@@ -126,6 +126,15 @@ _GENERIC_WHY_MARKERS: tuple[str, ...] = (
     "portfólio público observado com",
     "contrato(s) no input",
     "ufs observadas nos contratos",
+    "fato contratual público utilizável",
+    "sem dor especializada dominante",
+    "momento comercial público",
+    "execução pública observável",
+    "empresa com execução pública observável",
+    "target_fit",
+    "email_send_ready",
+    "copy_context_ready",
+    "service_fit_supported",
 )
 
 
@@ -430,17 +439,19 @@ def _is_generic_why(text: str) -> bool:
     if not t:
         return True
     # Prefer shared hollow detector (portfolio-count, UFs-only, meta).
+    hollow = False
     try:
         from scripts.confenge_account_intelligence.message_spine import is_hollow_fact
 
-        if is_hollow_fact(text):
-            # Hollow portfolio-count is never rescued by a keyword.
-            if "portfólio público observado com" in t or "contrato(s) no input" in t:
-                return True
-            if "ufs observadas" in t:
-                return True
-    except Exception:
-        pass
+        hollow = bool(is_hollow_fact(text))
+    except ImportError:
+        hollow = False
+    if hollow:
+        # Hollow portfolio-count is never rescued by a keyword.
+        if "portfólio público observado com" in t or "contrato(s) no input" in t:
+            return True
+        if "ufs observadas" in t:
+            return True
     if any(m in t for m in _GENERIC_WHY_MARKERS):
         # Allow if the string also carries a concrete contractual hook.
         concrete = (
@@ -480,13 +491,61 @@ def _is_hollow_observed_fact(text: str) -> bool:
         return _is_generic_why(text)
 
 
+def _gestao_signals_sufficient(signals: list[Any], evidence: list[Any], company: dict[str, Any]) -> bool:
+    """Gestão/monitoramento is not a generic fallback for 'has a public contract'.
+
+    Requires multi-contract / multi-organ / robust structure or diverse events —
+    bare multi_contract alone with <3 contracts is GESTAO_GENERIC_FALLBACK.
+    """
+    sigs = {str(s).lower() for s in (signals or []) if s}
+    # Explicit generic fallback markers never support gestão.
+    if "fallback" in sigs or "generic_fallback" in sigs:
+        return False
+    n_contracts = 0
+    for key in ("contracts", "contract_count", "n_contracts"):
+        val = company.get(key)
+        if isinstance(val, list):
+            n_contracts = max(n_contracts, len(val))
+        elif isinstance(val, int):
+            n_contracts = max(n_contracts, val)
+    strong = {
+        "structure_robust",
+        "multi_orgao",
+        "multi_uf",
+        "diverse_events",
+        "complex_contract",
+        "recurring_portfolio",
+    }
+    if sigs & strong:
+        return True
+    if "multi_contract" in sigs and n_contracts >= 3:
+        return True
+    if evidence and n_contracts >= 3:
+        return True
+    return False
+
+
 def _service_fit_supported(company: dict[str, Any] | None, svc: str) -> bool:
     """SERVICE_FIT_SUPPORTED requires service code PLUS candidate evidence/signals.
 
     A bare non-empty service_code is not enough (prevents silent monoculture labels).
+    Gestão/monitoramento additionally requires defendable portfolio evidence.
     """
     if not svc or not company:
         return False
+    svc_l = svc.lower()
+    is_gestao = "gestao_monitoramento" in svc_l or "monitoramento_contratual" in svc_l
+
+    def _ok(signals: list[Any], evidence: list[Any]) -> bool:
+        if not ((isinstance(signals, list) and len(signals) > 0) or (isinstance(evidence, list) and len(evidence) > 0)):
+            return False
+        if is_gestao:
+            return _gestao_signals_sufficient(list(signals or []), list(evidence or []), company)
+        # Fallback-only discovery is not specialty fit.
+        if signals == ["fallback"] or set(str(s) for s in (signals or [])) == {"fallback"}:
+            return False
+        return True
+
     # Explicit router candidates with supporting signals or evidence ids.
     for c in company.get("service_candidates") or []:
         if not isinstance(c, dict):
@@ -495,27 +554,22 @@ def _service_fit_supported(company: dict[str, Any] | None, svc: str) -> bool:
         if not sid:
             continue
         if sid != svc and svc not in sid and sid not in svc:
-            # also allow canonical / warmbly aliases loosely
             if sid.upper() != svc.upper():
                 continue
         signals = c.get("supporting_signal_ids") or c.get("supporting_signals") or []
         evidence = c.get("evidence_ids") or []
-        if (isinstance(signals, list) and len(signals) > 0) or (
-            isinstance(evidence, list) and len(evidence) > 0
-        ):
+        if _ok(list(signals or []), list(evidence or [])):
             return True
     ps = company.get("primary_service")
     if isinstance(ps, dict):
         signals = ps.get("supporting_signal_ids") or ps.get("supporting_signals") or []
         evidence = ps.get("evidence_ids") or []
-        if (isinstance(signals, list) and len(signals) > 0) or (
-            isinstance(evidence, list) and len(evidence) > 0
-        ):
+        if _ok(list(signals or []), list(evidence or [])):
             return True
     # Bridge/feed may flatten signals at company root
     root_signals = company.get("supporting_signal_ids") or company.get("service_supporting_signal_ids")
     root_ev = company.get("service_evidence_ids") or company.get("fact_evidence_ids")
-    if (isinstance(root_signals, list) and root_signals) or (isinstance(root_ev, list) and root_ev):
+    if _ok(list(root_signals or []), list(root_ev or [])):
         return True
     return False
 
@@ -537,7 +591,7 @@ def evaluate_copy_context_ready(company: dict[str, Any] | None, *, service_code:
     why_now = _field_nonempty(
         company.get("why_now")
         or (
-            (company.get("why_now") if isinstance(company.get("why_now"), str) else None)
+            company.get("why_now") if isinstance(company.get("why_now"), str) else None
         )
         or (
             (company.get("moment") or {}) if isinstance(company.get("moment"), dict) else {}
@@ -618,6 +672,11 @@ def evaluate_copy_context_ready(company: dict[str, Any] | None, *, service_code:
         missing.append("why_this_account")
     if not why_now or _is_generic_why(why_now) or _is_hollow_observed_fact(why_now):
         missing.append("why_now")
+    # Explicit weak temporal strength cannot be COPY_CONTEXT_READY.
+    why_now_strength = str(company.get("why_now_strength") or "").upper()
+    if "why_now_strength=weak" in (why_now or "").lower() or why_now_strength == "WEAK":
+        missing.append("why_now")
+        reasons.append("why_now_strength_weak")
     if not observed or _is_hollow_observed_fact(observed):
         missing.append("observed_fact")
     if not svc:

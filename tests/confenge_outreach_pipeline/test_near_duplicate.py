@@ -92,3 +92,66 @@ def test_distinct_facts_not_blocked() -> None:
 def test_generic_contrato_subject() -> None:
     assert subject_is_generic_contrato("Contrato ROSA IMOVEIS") is True
     assert subject_is_generic_contrato("Aditivo pavimentação Coxilha") is False
+
+
+def test_semantic_template_same_arc_blocked() -> None:
+    """Different contract objects into same commercial arc must still block."""
+    drafts = [
+        {
+            "cnpj": "1",
+            "razao_social": "Alpha Construtora LTDA",
+            "body": (
+                "Pelo que está público sobre Alpha Construtora LTDA, objeto: pavimentação "
+                "asfáltica de vias urbanas em CBUQ no município de Coxilha/RS. Em 2026-07-15, "
+                "fato contratual público utilizável sem dor especializada dominante. "
+                "Posso montar um painel mínimo de acompanhamento?"
+            ),
+        },
+        {
+            "cnpj": "2",
+            "razao_social": "Beta Engenharia SA",
+            "body": (
+                "Pelo que está público sobre Beta Engenharia SA, objeto: recuperação de "
+                "obra de arte especial no DNIT trecho 12. Em 2026-06-01, fato contratual "
+                "público utilizável sem dor especializada dominante. "
+                "Posso montar um painel mínimo de acompanhamento?"
+            ),
+        },
+        {
+            "cnpj": "3",
+            "razao_social": "Gama Obras",
+            "body": (
+                "Pelo que está público sobre Gama Obras, objeto: saneamento e redes de "
+                "água em três municípios catarinenses. Em 2026-05-20, fato contratual "
+                "público utilizável sem dor especializada dominante. "
+                "Posso montar um painel mínimo de acompanhamento?"
+            ),
+        },
+    ]
+    audit = audit_near_duplicates(drafts)
+    assert audit.blocked is True
+    assert audit.semantic_template_similarity_max >= 0.70 or audit.high_semantic_pairs >= 1
+    assert any(
+        c in audit.reason_codes
+        for c in ("semantic_template_near_duplicate", "near_duplicate_any_high_pair", "near_duplicate_extreme_pair")
+    )
+
+
+def test_blind_template_audit_flags_interpolated_objects() -> None:
+    from scripts.confenge_outreach_pipeline.near_duplicate import blind_template_audit
+
+    drafts = [
+        {
+            "cnpj": str(i),
+            "razao_social": f"Empresa {i} LTDA",
+            "body": (
+                f"Pelo que está público sobre Empresa {i} LTDA, objeto: obra distinta {i} "
+                f"com extensão municipal. Em 2026-0{i % 9 + 1}-10, fato contratual público "
+                "utilizável sem dor especializada dominante. Posso montar um painel mínimo?"
+            ),
+        }
+        for i in range(1, 8)
+    ]
+    res = blind_template_audit(drafts)
+    assert res["blocked"] is True
+    assert res["answer"] == "YES_SAME_TEMPLATE"

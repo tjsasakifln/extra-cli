@@ -40,7 +40,6 @@ def build_approach_fields(
         "não afirmar portfólio de engenharia sem evidência."
     )
     micro_offer_code = spine.micro_offer_code
-    confirmed = layers.get("confirmed_facts") or []
 
     # Per-service question / CTA / objection
     templates: dict[str, dict[str, str]] = {

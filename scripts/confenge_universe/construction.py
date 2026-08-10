@@ -28,12 +28,12 @@ from scripts.commercial_leads.sector_fit import (
 from scripts.commercial_leads.sector_fit import (
     RULE_VERSION as SECTOR_FIT_VERSION,
 )
-from scripts.coverage.sector_engineering import classify_sector
 from scripts.confenge_universe.target_fit import (
     TARGET_OUT_OF_SCOPE,
     TARGET_PROBABLE_RESEARCH,
     classify_target_fit,
 )
+from scripts.coverage.sector_engineering import classify_sector
 
 # Activity classes that belong in the construction/engineering B2G universe
 UNIVERSE_ACTIVITY_CLASSES = frozenset(

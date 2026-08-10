@@ -30,8 +30,8 @@ def test_is_hollow_portfolio_count() -> None:
 
 def test_portfolio_review_why_now_not_generic_when_contract_hook() -> None:
     """MessageSpine why_now must pass evaluate_copy_context_ready (not hollow template)."""
-    from scripts.confenge_contact_resolution.send_readiness import evaluate_copy_context_ready
     from scripts.confenge_account_intelligence.pipeline import build_dossier
+    from scripts.confenge_contact_resolution.send_readiness import evaluate_copy_context_ready
 
     bag = {
         "razao_social": "SAMP CONSTRUTORA DE OBRAS LTDA",

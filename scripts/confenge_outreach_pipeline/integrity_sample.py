@@ -9,8 +9,8 @@ from __future__ import annotations
 from collections import Counter
 from typing import Any
 
-from scripts.confenge_account_intelligence.pipeline import build_dossier
 from scripts.confenge_account_intelligence.message_spine import is_hollow_fact
+from scripts.confenge_account_intelligence.pipeline import build_dossier
 from scripts.confenge_outreach_pipeline.near_duplicate import (
     audit_near_duplicates,
     subject_is_generic_contrato,
@@ -132,9 +132,19 @@ def build_integrity_sample(
                 # allow empty and re-compute later via bag only if marked confirmed
                 if tfc not in {"TARGET_CONFIRMED"}:
                     continue
+        d = None
+        build_err: Exception | None = None
         try:
             d = build_dossier(bag)
-        except Exception:
+        except Exception as exc:  # dossier build is best-effort per bag
+            build_err = exc
+        if d is None:
+            cnpj = bag.get("cnpj14") or bag.get("cnpj") or "?"
+            if build_err is not None:
+                print(
+                    f"integrity_sample: skip bag cnpj={cnpj}: "
+                    f"{type(build_err).__name__}: {build_err}"
+                )
             continue
         d["_source_bag"] = bag
         dossiers.append(d)
@@ -187,7 +197,7 @@ def build_integrity_sample(
                 "body": body,
                 "message_spine_complete": bool(d.get("message_spine_complete")),
                 "supporting_signal_ids": list(
-                    ((d.get("primary_service") or {}).get("supporting_signal_ids") or [])
+                    (d.get("primary_service") or {}).get("supporting_signal_ids") or []
                 ),
                 "generic_contrato_subject": subject_is_generic_contrato(
                     subject, str(snap.get("razao_social") or "")
