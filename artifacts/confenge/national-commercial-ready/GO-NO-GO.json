@@ -1,24 +1,45 @@
 {
   "schema": "confenge.go_no_go.v1",
-  "as_of": "2026-08-10T12:42:52Z",
+  "as_of": "2026-08-10T13:00:05.432108+00:00",
   "NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY": false,
-  "GO_FOR_REAL_CONFENGE_EMAIL_PILOT": false,
   "terminal_state": "EXTERNAL_BLOCKER_REQUIRES_TIAGO",
   "gates": {
-    "canonical_universe_reconciled": true,
+    "FULLY_RECONCILED": true,
     "coverage_ratio_le_1": true,
     "unexplained_missing_eq_0": true,
-    "orphan_materialized_eq_0": true,
-    "duplicate_roots_eq_0": true,
-    "target_fit_fresh": true,
-    "contact_terminals_complete": false,
-    "provenance_contamination_eq_0": true,
-    "copy_audit_all_zero": true,
-    "email_send_ready_ge_min_reserve": false,
-    "sha_binding_exact": true,
-    "whatsapp_off": true
+    "orphan_eq_0": true,
+    "PROBABLE_semantics_valid": true,
+    "process_harvest_running_no_topn": true,
+    "enrich_batch_running_no_topn": true,
+    "all_confirmed_terminal": false,
+    "email_send_ready_ge_min_reserve": false
   },
-  "human_review_pending": true,
-  "human_review_accepted": false,
+  "yield_proof": {
+    "accounts_done": 1102,
+    "confirmed_total": 8382,
+    "pct": 13.15,
+    "process_terms": {
+      "DOCUMENTS_PARSED_NO_CONTACT": 794,
+      "PROCESS_NOT_FOUND": 149,
+      "CONTACT_FOUND_UNVERIFIED": 98,
+      "EMAIL_SEND_READY": 24,
+      "DOCUMENTS_FETCHED_NOT_PARSED": 31,
+      "REFERRAL_ROUTE_AVAILABLE": 6
+    },
+    "contact_terms": {
+      "CONTACT_EXHAUSTED": 943,
+      "CONTACT_FOUND_NOT_SENDABLE": 104,
+      "CONTACT_READY": 24,
+      "CONTACT_RETRY_PENDING": 31
+    },
+    "distinct_company_emails": 37,
+    "EMAIL_SEND_READY_proxy": 24,
+    "yield_esr_of_attempted": 0.0218,
+    "projected_esr_if_yield_holds": 182.5,
+    "MIN_OPERATIONAL_RESERVE": 900,
+    "projected_gap_to_reserve": 717.5
+  },
+  "MIN_OPERATIONAL_RESERVE": 900,
+  "one_action": "Autorizar fontes p\u00fablicas adicionais de maior yield (SEI com sess\u00e3o humana por \u00f3rg\u00e3o, portais estaduais/municipais priorit\u00e1rios) e/ou aceitar MIN_OPERATIONAL_RESERVE menor por decis\u00e3o comercial \u2014 proje\u00e7\u00e3o de yield processo ~2.2% \u21d2 ~183 ESR sobre 8382 CONFIRMED, abaixo de 900.",
   "human_review_command": "python -m scripts.confenge.human_review --sample artifacts/confenge/national-commercial-ready/HUMAN-REVIEW-SAMPLE.json --reviewer tiago"
 }
