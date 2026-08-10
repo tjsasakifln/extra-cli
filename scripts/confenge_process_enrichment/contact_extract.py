@@ -4,11 +4,10 @@ from __future__ import annotations
 
 import hashlib
 import re
-from typing import Any
 
 from scripts.confenge_process_enrichment.attribution import classify_observation
 from scripts.confenge_process_enrichment.identifiers import normalize_cnpj
-from scripts.confenge_process_enrichment.models import ContactObservation, EpistemicClass, _now_iso
+from scripts.confenge_process_enrichment.models import ContactObservation, _now_iso
 from scripts.confenge_process_enrichment.signature_blocks import extract_signature_intelligence
 
 _EMAIL_RE = re.compile(

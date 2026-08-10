@@ -10,7 +10,7 @@ import json
 import re
 import time
 from collections import Counter, defaultdict
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -19,10 +19,10 @@ import requests
 
 from scripts.confenge_process_enrichment.contact_extract import extract_contacts_from_text
 from scripts.confenge_process_enrichment.doc_priority import rank_documents
-from scripts.confenge_process_enrichment.identifiers import normalize_cnpj, normalize_process_number
+from scripts.confenge_process_enrichment.identifiers import normalize_cnpj
 from scripts.confenge_process_enrichment.models import EpistemicClass
 from scripts.confenge_process_enrichment.pncp_supplier_harvest import PncpSupplierHarvester
-from scripts.confenge_process_enrichment.process_graph import build_process_graph, contract_node_from_row
+from scripts.confenge_process_enrichment.process_graph import build_process_graph
 from scripts.confenge_process_enrichment.process_resolve import resolve_process_for_contract
 from scripts.confenge_process_enrichment.source_registry import ProcessSourceRegistry
 from scripts.confenge_process_enrichment.states import TerminalState, derive_terminal, funnel_snapshot
@@ -736,7 +736,7 @@ def run_live_benchmark(
         )
         # refine listed-only
         if listed_only and not enrollable and not referral and not docs_parsed:
-            from scripts.confenge_process_enrichment.states import TerminalState as TS
+            from scripts.confenge_process_enrichment.states import TerminalState as TS  # noqa: N817
 
             if terminal in {TS.DOCUMENTS_PARSED_NO_CONTACT, TS.NO_CONTACT_FOUND}:
                 terminal = TS.DOCUMENTS_NOT_FETCHED if not docs_dl else terminal

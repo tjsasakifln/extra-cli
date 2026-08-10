@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable
+from typing import Any
 
 from scripts.confenge_process_enrichment.contact_extract import (
     extract_contacts_from_text,
-    is_functional_mailbox,
-    pattern_guess_email,
 )
 from scripts.confenge_process_enrichment.contact_graph import (
     build_account_contact_graph,
@@ -19,7 +18,6 @@ from scripts.confenge_process_enrichment.models import (
     ContactObservation,
     EpistemicClass,
     InvestigationState,
-    PublicProcessGraph,
     TerminalState,
 )
 from scripts.confenge_process_enrichment.outreach_export import graph_to_outreach_contacts
@@ -393,7 +391,7 @@ class ProcessFirstEnricher:
         if self.registry and self.config.registry_path:
             try:
                 self.registry.save()
-            except Exception:
+            except Exception:  # noqa: S110
                 pass
 
         return AccountEnrichmentResult(

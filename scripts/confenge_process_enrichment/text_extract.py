@@ -72,8 +72,9 @@ def extract_from_pdf_bytes(
     embedded = ""
     pages = 0
     try:
-        from pypdf import PdfReader  # type: ignore
         import io
+
+        from pypdf import PdfReader  # type: ignore
 
         reader = PdfReader(io.BytesIO(data))
         pages = len(reader.pages)
@@ -117,10 +118,11 @@ def extract_from_pdf_bytes(
     # Bounded OCR via pytesseract + pymupdf render
     ocr_text = ""
     try:
+        import io
+
         import fitz
         import pytesseract
         from PIL import Image
-        import io
 
         doc = fitz.open(stream=data, filetype="pdf")
         pages = doc.page_count
@@ -154,9 +156,9 @@ def extract_from_docx_bytes(data: bytes, *, max_chars: int = 300_000) -> TextExt
     h = _sha256_bytes(data)
     text = ""
     try:
-        import zipfile
         import io
-        from xml.etree import ElementTree as ET
+        import zipfile
+        from xml.etree import ElementTree as ET  # noqa: S314
 
         with zipfile.ZipFile(io.BytesIO(data)) as zf:
             # word/document.xml is the main body
@@ -168,7 +170,7 @@ def extract_from_docx_bytes(data: bytes, *, max_chars: int = 300_000) -> TextExt
                 target = cands[0] if cands else ""
             if target:
                 xml = zf.read(target)
-                root = ET.fromstring(xml)
+                root = ET.fromstring(xml)  # noqa: S314 — public doc text extract only
                 # WordprocessingML text nodes
                 parts: list[str] = []
                 for el in root.iter():
@@ -207,8 +209,8 @@ def extract_from_zip_container(
     """
     h = _sha256_bytes(data)
     try:
-        import zipfile
         import io
+        import zipfile
     except Exception:
         return TextExtractResult(text="", origin="none", content_hash=h)
 
@@ -222,7 +224,7 @@ def extract_from_zip_container(
                 lower = name.lower()
                 try:
                     member = zf.read(name)
-                except Exception:
+                except Exception:  # noqa: S112
                     continue
                 if not member:
                     continue
@@ -314,7 +316,7 @@ def extract_text(
         if "html" in mime_l or name_l.endswith((".html", ".htm")):
             try:
                 return extract_from_html(raw_bytes.decode("utf-8", errors="replace"))
-            except Exception:
+            except Exception:  # noqa: S110
                 pass
         # plain text fallback
         try:
@@ -325,6 +327,6 @@ def extract_text(
                     origin="office" if "off" in mime_l or name_l.endswith((".docx", ".odt")) else "html",
                     content_hash=_sha256_bytes(raw_bytes),
                 )
-        except Exception:
+        except Exception:  # noqa: S110
             pass
     return TextExtractResult(text="", origin="none")

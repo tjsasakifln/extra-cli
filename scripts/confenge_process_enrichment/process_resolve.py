@@ -6,24 +6,23 @@ Lazy discovery + registry cache. Web search only as identifier discovery tool.
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable
+from typing import Any
 from urllib.parse import quote_plus, urljoin
 
+from scripts.confenge_process_enrichment.adapters.municipal_portal import MunicipalPortalAdapter
+from scripts.confenge_process_enrichment.adapters.sei_public import (
+    SeiPublicAdapter,
+    is_sei_url,
+    research_url,
+)
 from scripts.confenge_process_enrichment.identifiers import (
-    normalize_cnpj,
+    digits_only,
     normalize_process_number,
     process_number_variants,
 )
 from scripts.confenge_process_enrichment.models import ContractNode, ProvenanceEdge, _now_iso
-from scripts.confenge_process_enrichment.adapters.municipal_portal import MunicipalPortalAdapter
-from scripts.confenge_process_enrichment.adapters.sei_public import (
-    SeiPublicAdapter,
-    format_sei_protocol,
-    is_sei_url,
-    research_url,
-)
-from scripts.confenge_process_enrichment.identifiers import digits_only
 from scripts.confenge_process_enrichment.source_registry import (
     ProcessSourceEntry,
     ProcessSourceRegistry,

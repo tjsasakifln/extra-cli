@@ -8,15 +8,14 @@ from __future__ import annotations
 from typing import Any
 
 from scripts.confenge_process_enrichment.attribution import is_exportable_to_warmbly
-from scripts.confenge_process_enrichment.contact_graph import select_best_for_service
 from scripts.confenge_process_enrichment.contact_extract import is_functional_mailbox
+from scripts.confenge_process_enrichment.contact_graph import select_best_for_service
 from scripts.confenge_process_enrichment.models import (
     AccountContactGraph,
     AccountEnrichmentResult,
     ContactObservation,
     EpistemicClass,
 )
-
 
 FORBIDDEN_EXPORT_KEYS = frozenset(
     {

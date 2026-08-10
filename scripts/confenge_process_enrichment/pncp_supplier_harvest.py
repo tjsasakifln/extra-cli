@@ -17,7 +17,6 @@ from scripts.confenge_process_enrichment.doc_priority import rank_documents
 from scripts.confenge_process_enrichment.identifiers import (
     digits_only,
     normalize_cnpj,
-    normalize_pncp_control,
     parse_pncp_control_parts,
 )
 from scripts.confenge_process_enrichment.models import ContractNode, ProcessDocumentRef, ProvenanceEdge, _now_iso

@@ -6,7 +6,6 @@ import os
 from typing import Any
 
 from scripts.confenge_process_enrichment.identifiers import (
-    digits_only,
     normalize_cnpj,
     normalize_pncp_control,
     normalize_process_number,
@@ -308,13 +307,13 @@ def load_contracts_for_supplier(
                 except Exception:  # noqa: BLE001
                     try:
                         conn.rollback()
-                    except Exception:  # noqa: BLE001
+                    except Exception:  # noqa: BLE001,S110
                         pass
                     continue
     finally:
         try:
             conn.close()
-        except Exception:  # noqa: BLE001
+        except Exception:  # noqa: BLE001,S110
             pass
     return []
 

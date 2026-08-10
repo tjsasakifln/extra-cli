@@ -6,7 +6,6 @@ Finding an email in a process PDF does NOT mean it belongs to the lead.
 from __future__ import annotations
 
 import re
-from typing import Any
 
 from scripts.confenge_process_enrichment.identifiers import (
     digits_only,

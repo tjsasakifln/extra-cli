@@ -6,7 +6,7 @@ import hashlib
 import json
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from scripts.confenge_process_enrichment.states import InvestigationState, TerminalState
@@ -22,7 +22,7 @@ def content_hash(payload: str | bytes) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
-class EpistemicClass(str, Enum):
+class EpistemicClass(StrEnum):
     COMPANY_DECLARED = "COMPANY_DECLARED"
     ADMIN_RECORDED_COMPANY_REP = "ADMIN_RECORDED_COMPANY_REP"
     COMPANY_DOMAIN_OBSERVED = "COMPANY_DOMAIN_OBSERVED"

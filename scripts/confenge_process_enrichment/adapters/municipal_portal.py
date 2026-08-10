@@ -21,14 +21,13 @@ import time
 import unicodedata
 from dataclasses import dataclass, field
 from typing import Any
-from urllib.parse import quote, urljoin, urlparse
+from urllib.parse import urljoin, urlparse
 
 import requests
 
 from scripts.confenge_process_enrichment.identifiers import (
     digits_only,
     normalize_cnpj,
-    normalize_process_number,
     process_number_variants,
 )
 
@@ -346,7 +345,7 @@ class MunicipalPortalAdapter:
             if code == 404 or not html:
                 continue
 
-            family = _guess_family(base, html)
+            _guess_family(base, html)
             queue = [base]
             queue.extend(self._follow_internal_links(html, base)[:6])
             seen_page: set[str] = set()

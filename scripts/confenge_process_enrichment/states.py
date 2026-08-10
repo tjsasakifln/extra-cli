@@ -6,11 +6,11 @@ exhausted or an explicit blocker was recorded — never after site/web-only.
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class InvestigationState(str, Enum):
+class InvestigationState(StrEnum):
     NOT_STARTED = "NOT_STARTED"
     CONTRACTS_RESOLVED = "CONTRACTS_RESOLVED"
     PNCP_CONTRACT_DOCS_FETCHED = "PNCP_CONTRACT_DOCS_FETCHED"
@@ -27,7 +27,7 @@ class InvestigationState(str, Enum):
     COMPLETE = "COMPLETE"
 
 
-class TerminalState(str, Enum):
+class TerminalState(StrEnum):
     """Account-level terminal investigation outcomes (mutually exclusive intent)."""
 
     NO_CONTACT_FOUND = "NO_CONTACT_FOUND"
