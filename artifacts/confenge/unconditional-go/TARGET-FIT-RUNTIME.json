@@ -1,41 +1,24 @@
 {
-  "generated_at": "2026-08-10T07:29:37Z",
+  "generated_at": "2026-08-10T08:55:31Z",
+  "emitter": "scripts/confenge/emit_unconditional_go_pack.py",
   "TARGET_FIT_RUNTIME": "HEALTHY",
-  "status_cli_exit": 0,
-  "status_text": "STATUS: HEALTHY\nDATALAKE WATERMARK: 2026-08-05T11:18:41.438381+02:00\nTARGET-FIT WATERMARK: 2026-08-05T11:18:41.438381+02:00\nLAG: 0s\nDIRTY: 0\nPROCESSING: 0\nRETRY: 0\nDEAD: 0\nCURRENT VERSION: confenge-target-fit-v1\nCONFIRMED: 156\nPROBABLE: 609\nOUT: 273\nMATERIALIZED: 1038\nCOVERAGE_MODE: BOOTSTRAPPING\nCOVERAGE_RATIO: 100.00%\nCANONICAL_ROOTS: 1038\nFULL_NATIONAL_READY: False\nLAST_FULL_RECONCILE: (never)\nUNEXPLAINED_MISSING: 0\nLAST SUCCESS: 2026-08-10T09:27:23.734587+02:00\nASYNC MODE: SHADOW\nAUTO PAUSED: False",
+  "status_text": "STATUS: HEALTHY\nDATALAKE WATERMARK: 2026-08-05T11:18:41.438381+02:00\nTARGET-FIT WATERMARK: 2026-08-05T11:18:41.438381+02:00\nLAG: 0s\nDIRTY: 0\nPROCESSING: 0\nRETRY: 0\nDEAD: 0\nCURRENT VERSION: confenge-target-fit-v1\nCONFIRMED: 8337\nPROBABLE: 411025\nOUT: 92284\nLAST SUCCESS: 2026-08-10T10:55:44.686850+02:00\nASYNC MODE: SHADOW\nAUTO PAUSED: False",
   "metrics": {
     "dirty_queue_depth": 0,
     "dirty_oldest_age": null,
     "watermark_lag": 0.0,
     "target_fit_distribution": {
-      "CONFIRMED": 156,
-      "PROBABLE": 609,
-      "OUT": 273
+      "CONFIRMED": 8337,
+      "PROBABLE": 411025,
+      "OUT": 92284
     },
     "classifier_version": "confenge-target-fit-v1",
     "async_mode": "SHADOW",
     "status": "HEALTHY",
     "dead_letter_total": 0,
     "retry_total": 0,
-    "processing": 0,
-    "coverage_ratio": 1.0,
-    "coverage_mode": "BOOTSTRAPPING",
-    "canonical_company_count": 1038,
-    "materialized_company_count": 1038,
-    "last_full_reconcile_completed_at": null,
-    "last_full_reconcile_unexplained_missing": 0,
-    "FULL_NATIONAL_READY": false
+    "processing": 0
   },
-  "datalake_watermark": "2026-08-05T11:18:41.438381+02:00",
-  "target_fit_watermark": "2026-08-05T11:18:41.438381+02:00",
-  "watermark_lag_s": 0.0,
   "async_mode": "SHADOW",
-  "last_successful_run": "2026-08-10T09:27:23.734587+02:00",
-  "module_deployed": true,
-  "FULL_NATIONAL_READY": false,
-  "coverage_mode": "BOOTSTRAPPING",
-  "canonical_roots": 1038,
-  "materialized": 1038,
-  "coverage_ratio": 1.0,
-  "note": "status CLI HEALTHY lag=0 equal watermarks; bootstrapped 1038 roots at 100% coverage"
+  "watermark_lag_s": 0.0
 }
