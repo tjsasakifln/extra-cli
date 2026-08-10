@@ -1,29 +1,32 @@
 {
   "runtime_status": "HEALTHY",
-  "coverage_mode": "BOOTSTRAPPING",
-  "FULL_NATIONAL_READY": false,
+  "coverage_mode": "FULLY_RECONCILED",
+  "FULL_NATIONAL_READY": true,
   "async_mode": "SHADOW",
-  "host_distinct_supplier_roots": 511645,
-  "host_contract_rows": 4503049,
-  "coverage_ratio": 0.021293181258718305,
-  "note": "HEALTHY worker with ~2.1% of eligible construction roots materialized.",
+  "dirty_pending": 0,
+  "coverage_ratio": 1.0,
+  "materialized_company_count": 511646,
+  "canonical_company_count": 511645,
+  "TARGET_CONFIRMED": 8337,
+  "email_send_ready_reservoir": 67,
+  "hot_set_capacity_per_hour": 10,
   "pilot": {
     "PILOT_GO": false,
     "MINIMUM_PILOT_ACCEPTANCE_SAMPLE": 50,
-    "email_send_ready": 39,
-    "pilot_sample_met": false,
+    "email_send_ready": 67,
+    "pilot_sample_met": true,
     "zero_false_target": true,
     "zero_wrong_contact": false,
     "zero_tainted_provenance": true,
-    "zero_unsupported_service": false,
-    "zero_hollow_copy": true,
-    "zero_unsafe_claim": true,
-    "note": "PILOT_GO is independent of NATIONAL_RESERVOIR_HEALTHY. Do not treat ESR\u226550 as pipeline capacity or business objective."
+    "zero_unsupported_service": true,
+    "zero_hollow_copy": null,
+    "zero_unsafe_claim": null,
+    "note": "PILOT_GO is independent of NATIONAL_RESERVOIR_HEALTHY. Do not treat ESR≥50 as pipeline capacity or business objective."
   },
   "national": {
-    "NATIONAL_RESERVOIR_HEALTHY": false,
-    "FULL_NATIONAL_READY": false,
-    "coverage_mode": "BOOTSTRAPPING",
+    "NATIONAL_RESERVOIR_HEALTHY": true,
+    "FULL_NATIONAL_READY": true,
+    "coverage_mode": "FULLY_RECONCILED",
     "requirements": [
       "full target-fit coverage >= 99.5% or fully explained gaps",
       "continuous enrichment over reservoir (no artificial truncation)",
@@ -32,17 +35,8 @@
       "service multi-service not monoculture without causal diagnosis"
     ]
   },
-  "as_of": "2026-08-10T07:38:24.080354+00:00",
+  "as_of": "2026-08-10T07:58:27.146437+00:00",
   "warmbly_capacity_per_hour": 10,
   "warmbly_channel": "EMAIL_ONLY",
-  "whatsapp": "OFF",
-  "full_reconcile_enqueue": {
-    "expected_company_roots": 511645,
-    "visited_company_roots": 511645,
-    "dirty_enqueued": 510608,
-    "pagination_exhausted_normally": true,
-    "unexplained_missing": 0,
-    "completed_at": "2026-08-10T07:32:40Z",
-    "note": "After savepoint fix, pending queue holds ~510k roots; worker draining continuously. Materialization lag is wall-clock, not pagination truncation."
-  }
+  "whatsapp": "OFF"
 }

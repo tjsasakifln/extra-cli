@@ -1,22 +1,28 @@
 {
   "schema": "confenge.service_distribution.v1",
-  "total_companies": 41,
-  "distinct_services": 1,
+  "total_companies": 67,
+  "distinct_services": 2,
   "distribution": [
     {
       "service_id": "estruturacao_pleito_reajuste",
-      "company_count": 41,
-      "pct": 100.0,
+      "company_count": 50,
+      "pct": 74.6268656716418,
+      "median_confidence": 0.55
+    },
+    {
+      "service_id": "unknown",
+      "company_count": 17,
+      "pct": 25.37313432835821,
       "median_confidence": 0.55
     }
   ],
   "SERVICE_MONOCULTURE": {
-    "flagged": true,
-    "dominant_service_id": "estruturacao_pleito_reajuste",
-    "dominant_share": 1.0,
+    "flagged": false,
+    "dominant_service_id": null,
+    "dominant_share": 0.746268656716418,
     "threshold": 0.95,
-    "blocks_outreach_release": true,
-    "causal_diagnosis_required": true,
-    "causal_diagnosis": "REAJUSTE_MONOCULTURE: ≥95% of routed companies selected estruturacao_pleito_reajuste. Required causal check before outreach: (1) confirm portfolio bags are multi-contract when datalake has multi contracts; (2) confirm specialty signals (aditivo/glosa/licitação/BDI) are extracted from objects; (3) confirm mature_no_reajuste does not fire on publication-date-only ages; (4) if evidence is truly thin mature books only, document as DATA_TRUE_THIN_BOOK_VERIFICATION not router default."
+    "blocks_outreach_release": false,
+    "causal_diagnosis_required": false,
+    "causal_diagnosis": null
   }
 }
