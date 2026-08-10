@@ -170,8 +170,6 @@ def ladder_complete_from_source_yield(
     for step in ladder_steps:
         entry = sources.get(step) if isinstance(sources.get(step), dict) else {}
         attempted = int(entry.get("companies_attempted") or 0) if entry else 0
-        pages = entry.get("pages_fetched")
-        resolved = entry.get("resolved_or_http_ok")
         klass = str(entry.get("class") or "").strip().upper()
         external_ok = klass in {
             "HUMAN_SESSION_REQUIRED",
