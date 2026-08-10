@@ -5,10 +5,9 @@
   "processing_stuck": 0,
   "process_harvest": "COMPLETE",
   "contact_enrichment_initial_full_sweep": "COMPLETE",
+  "full_source_ladder_complete": true,
   "continuous_workers": "HEALTHY",
   "target_fit": "HEALTHY",
-  "full_source_ladder_complete": true,
-  "CONTACT_RETRY_PENDING": 0,
   "database_watermark": "2026-08-10T17:32:18Z",
-  "as_of": "2026-08-10T17:34:13Z"
+  "as_of": "2026-08-10T17:52:48Z"
 }

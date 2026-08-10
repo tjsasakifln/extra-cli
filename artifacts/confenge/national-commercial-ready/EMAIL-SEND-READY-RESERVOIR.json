@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-08-10T17:34:13Z",
+  "as_of": "2026-08-10T17:52:48Z",
   "EMAIL_SEND_READY_DISTINCT_COMPANIES": 72,
   "email_roots_upper_bound": 223,
   "funnel": {
@@ -38,7 +38,7 @@
   "gap_vs_reserve": 828,
   "MIN_OPERATIONAL_RESERVE": 900,
   "NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY": false,
-  "PILOT_READY_CANDIDATE": true,
+  "PILOT_READY_CANDIDATE": false,
   "service_distribution": {
     "diagnostico_contratual_b2g": 108,
     "auditoria_orcamento_bdi": 33,

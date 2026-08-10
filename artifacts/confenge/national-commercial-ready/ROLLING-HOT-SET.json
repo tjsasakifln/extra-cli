@@ -1,0 +1,315 @@
+{
+  "schema": "confenge.rolling_hot_set.v1",
+  "as_of": "2026-08-10T17:52:48Z",
+  "ACTIVE_HOT_SET": 10,
+  "hot_set_size_configured": 10,
+  "reservoir_eligible": 72,
+  "roots": [
+    "01324865",
+    "01608331",
+    "04213084",
+    "08594071",
+    "08661713",
+    "08818983",
+    "08872776",
+    "09258103",
+    "09361172",
+    "10814673"
+  ],
+  "leads": [
+    {
+      "cnpj_raiz": "01324865",
+      "razao_social": "VANIZ J G LO ME",
+      "email": "riollielima@hotmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "auditoria_orcamento_bdi",
+      "why_this_account": "VANIZ J G LO ME aparece com execução contratual pública em mais de uma UF (RS, SC). Âncora pública: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA FORNECIMENTO DE MATERIAIS, MÃO DE OBRA E DEMAIS OBRIGAÇÕES NECESSÁRIAS PARA A….",
+      "why_now": "Contrato com término previsto em 2026-09-25; órgão PREFEITURA MUNICIPAL DE TRÊS PASSOS; objeto: 1.1\tContratação de empresa do ramo pertinente para execução de: A\tLote I: Iluminação Praça do Distri (horizonte ~46 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA FORNECIMENTO DE MATERIAIS, MÃO DE OBRA E DEMAIS OBRIGAÇÕES NECESSÁRIAS PARA A EXECUÇÃO DA OBRA DE CONSTRUÇÃO DE 10 UNIDADES HABITACIONAIS,; órgão: Fundo Rotativo Habitacional; UF SC; R$ 1,597,006",
+      "micro_offer": "DOCUMENT_CHECKLIST",
+      "cta": "Envio escopo de auditoria focal (composições + BDI) para um contrato-alvo.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:auditoria_orcamento_bdi",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "budget_bdi"
+      ]
+    },
+    {
+      "cnpj_raiz": "01608331",
+      "razao_social": "TEBECON CONSTRUTORA LTDA",
+      "email": "licitacao.rotocycle@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "LICITACOES",
+      "mailbox_send_blocked": false,
+      "service_code": "apoio_licitacoes_propostas",
+      "why_this_account": "No caso de TEBECON CONSTRUTORA LTDA, o encaixe parte de um fato concreto de execução contratual pública: CONTRATAÇÃO DE EMPRESA PARA PRESTAÇÃO DE SERVIÇOS TÉCNICOS DE ENGENHARIA ESPECIALIZADOS PARA EXECUÇÃO DE INFRAESTRUTURA…. Sem generalizar portfólio além do que está no input.",
+      "why_now": "Contrato com término previsto em 2026-09-28; órgão PREFEITURA DO MUNICÍPIO DE BERTIOGA; objeto: CONTRATAÇÃO DE EMPRESA PARA PRESTAÇÃO DE SERVIÇOS TÉCNICOS DE ENGENHARIA ESPECIALIZADOS PARA EXECUÇÃ (horizonte ~49 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA PARA PRESTAÇÃO DE SERVIÇOS TÉCNICOS DE ENGENHARIA ESPECIALIZADOS PARA EXECUÇÃO DE INFRAESTRUTURA URBANA NA AVENIDA BRUNO COVAS - BAIRRO CHACARA VISTA LINDA, ; órgão: PREFEITURA DO MUNICÍPIO DE BERTIOGA; UF SP; R$ 145,000",
+      "micro_offer": "PROCUREMENT_RISK_SNAPSHOT",
+      "cta": "Posso ajudar a varrer um edital em janela e devolver riscos técnicos de proposta em formato curto.",
+      "source_type": "public_process_document",
+      "source_url": "https://pncp.gov.br/pncp-api/v1/orgaos/68020916000147/compras/2026/35/arquivos/3",
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:apoio_licitacoes_propostas",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "tender_proposal"
+      ]
+    },
+    {
+      "cnpj_raiz": "04213084",
+      "razao_social": "CONSTRUTORA LATERAL DE OBRAS LTDA.",
+      "email": "jaime.jasdistribuidora@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "auditoria_orcamento_bdi",
+      "why_this_account": "CONSTRUTORA LATERAL DE OBRAS LTDA. aparece com pavimentação/vias em mais de uma UF (PR, SC). Âncora pública: Contratação de uma empresa de engenharia para a pavimentação de Vias Urbanas em CBUQ no Bairro Jardim Dona Hermínia jun….",
+      "why_now": "Publicação/marco recente no PNCP: publicação em 2026-05-12; órgão MUNICIPIO DE SAO MATEUS DO SUL; objeto: Contratação de uma empresa de engenharia para a pavimentação de Vias Urbanas em CBUQ no Bairro Jardi.",
+      "observed_fact": "objeto: Contratação de uma empresa de engenharia para a pavimentação de Vias Urbanas em CBUQ no Bairro Jardim Dona Hermínia; órgão: MUNICIPIO DE SAO MATEUS DO SUL; UF PR; R$ 1,704,156",
+      "micro_offer": "DOCUMENT_CHECKLIST",
+      "cta": "Envio escopo de auditoria focal (composições + BDI) para um contrato-alvo.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:auditoria_orcamento_bdi",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "budget_bdi"
+      ]
+    },
+    {
+      "cnpj_raiz": "08594071",
+      "razao_social": "ENGELEC - ENGENHARIA ELÉTRICA E CIVIL LTDA",
+      "email": "topografiadooeste@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "apoio_licitacoes_propostas",
+      "why_this_account": "ENGELEC - ENGENHARIA ELÉTRICA E CIVIL LTDA — execução contratual pública cruzando UFs (MS, PR). Fato: Contratação de empresa especializada para a Execução da Conclusão do Bloco S05/CCO/CME com área total útil de 2.261,74….",
+      "why_now": "Contrato com término previsto em 2026-11-11; órgão UEM - Universidade Estadual de Maringá; objeto: Contratação de empresa especializada para a Execução da Conclusão do Bloco S05/CCO/CME com área tota (horizonte ~93 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: Contratação de empresa especializada para a Execução da Conclusão do Bloco S05/CCO/CME com área total útil de 2.261,74 m2 e área total a ser construída de 4.216,49 m2. Faz parte da; órgão: UEM - Universidade Estadual de Maringá; UF PR; R$ 12,500,000",
+      "micro_offer": "PROCUREMENT_RISK_SNAPSHOT",
+      "cta": "Disponibilizo apoio de pico em análise de edital/proposta sob NDA.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:apoio_licitacoes_propostas",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "tender_proposal"
+      ]
+    },
+    {
+      "cnpj_raiz": "08661713",
+      "razao_social": "VM VELOSO CERQUEIRA LTDA",
+      "email": "muciomallan21@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "diagnostico_contratual_b2g",
+      "why_this_account": "VM VELOSO CERQUEIRA LTDA — foco no fato de execução contratual pública disponível no input: Contrato, a execução da obra de construção de 430 (quatrocentos e trinta) cisternas de placas, com capacidade mínima de….",
+      "why_now": "Há um marco datado e recente na carteira pública: publicação em 2026-07-28; órgão EPI - SECRETARIA DE AGRICULTURA FAMILIAR; objeto: Contrato, a execução da obra de construção de 430 (quatrocentos e trinta) cisternas de placas, com c.",
+      "observed_fact": "objeto: Contrato, a execução da obra de construção de 430 (quatrocentos e trinta) cisternas de placas, com capacidade mínima de 16.000 litros cada, incluindo fornecimento de materiais, mão; órgão: EPI - SECRETARIA DE AGRICULTURA FAMILIAR; UF PI; R$ 6,765,634",
+      "micro_offer": "DIAGNOSTIC_CHECKLIST",
+      "cta": "Se preferir, começamos por uma conversa de 15 minutos só para validar se há encaixe real.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "fallback"
+      ]
+    },
+    {
+      "cnpj_raiz": "08818983",
+      "razao_social": "VALENTINA CONSTRUTORA LTDA",
+      "email": "gilsonfreo@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "auditoria_orcamento_bdi",
+      "why_this_account": "No caso de VALENTINA CONSTRUTORA LTDA, o encaixe parte de um fato concreto de edificação/reforma: EXECUÇÃO, NA FORMA DE EMPREITADA GLOBAL, COM FORNECIMENTO DE MATERIAL E MÃO DE OBRA, PARA EDIFICAÇÃO DE ATÉ 10 UNIDADES…. Sem generalizar portfólio além do que está no input.",
+      "why_now": "Contrato com término previsto em 2026-09-26; órgão Prefeitura Municipal Barra do Rio Azul; objeto: EXECUÇÃO, NA FORMA DE EMPREITADA GLOBAL, COM FORNECIMENTO DE MATERIAL E MÃO DE OBRA, DA EDIFICAÇÃO D (horizonte ~47 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: EXECUÇÃO, NA FORMA DE EMPREITADA GLOBAL, COM FORNECIMENTO DE MATERIAL E MÃO DE OBRA, PARA EDIFICAÇÃO DE ATÉ 10 UNIDADES HABITACIONAIS, JUNTO À AVENIDA ALBERTONI, TUDO CONFORME OS M; órgão: Prefeitura Municipal Barra do Rio Azul; UF RS; R$ 123,700",
+      "micro_offer": "DOCUMENT_CHECKLIST",
+      "cta": "Se fizer sentido, faço uma segunda opinião só sobre um pacote de planilha/BDI — sem substituir a equipe.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:auditoria_orcamento_bdi",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "budget_bdi"
+      ]
+    },
+    {
+      "cnpj_raiz": "08872776",
+      "razao_social": "CONSTRUTORA ANDRADE LTDA ME",
+      "email": "cpljuruti2021@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "diagnostico_contratual_b2g",
+      "why_this_account": "CONSTRUTORA ANDRADE LTDA ME — foco no fato de edificação/reforma disponível no input: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE SERVIÇO DE REFORMA E ADEQUAÇÃO DA PRAÇA DA REPUBLICA. ATENDENDO A….",
+      "why_now": "Há um marco datado e recente na carteira pública: publicação em 2026-03-06; órgão SECRETARIA MUNICIPAL DE INFRAESTURURA; objeto: CONTRATAÇÃO DE EMPRESA\r\nESPECIALIZADA PARA EXECUÇÃO DE SERVIÇO DE REFORMA E\r\nADEQUAÇÃO DA PRAÇA DA R.",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA\r\nESPECIALIZADA PARA EXECUÇÃO DE SERVIÇO DE REFORMA E\r\nADEQUAÇÃO DA PRAÇA DA REPUBLICA. ATENDENDO AS NECESSIDADES\r\nDA SECRETARIA MUNICIPAL DE INFRAESTRUTURA.; órgão: SECRETARIA MUNICIPAL DE INFRAESTURURA; UF PA; R$ 1,860,356",
+      "micro_offer": "DIAGNOSTIC_CHECKLIST",
+      "cta": "Sugiro um diagnóstico contratual B2G curto para mapear riscos e priorizar encaixes.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "fallback"
+      ]
+    },
+    {
+      "cnpj_raiz": "09258103",
+      "razao_social": "PETREL EVENTOS LTDA",
+      "email": "wddistribuidorawd@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "diagnostico_contratual_b2g",
+      "why_this_account": "PETREL EVENTOS LTDA aparece com execução contratual pública em mais de uma UF (GO, PA). Âncora pública: Prestação de serviço para organização e montagem de stande medindo área de 70m2 (10m x 7m) - ponta de ilha, que viabili….",
+      "why_now": "Há um marco datado e recente na carteira pública: publicação em 2026-03-12; órgão SETUR; objeto: Prestação de serviço para organização e montagem de stande medindo área de 70m2 (10m x 7m) - ponta d.",
+      "observed_fact": "objeto: Prestação de serviço para organização e montagem de stande medindo área de 70m2 (10m x 7m) - ponta de ilha, que viabilizará a participação da Secretaria de Estado de Turismo do Par; órgão: SETUR; UF PA; R$ 198,655",
+      "micro_offer": "DIAGNOSTIC_CHECKLIST",
+      "cta": "Se preferir, começamos por uma conversa de 15 minutos só para validar se há encaixe real.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "fallback"
+      ]
+    },
+    {
+      "cnpj_raiz": "09361172",
+      "razao_social": "COIMA - CONSTRUTORA DE INFRA-ESTRUTURA E MEIO AMBIENTE LTDA",
+      "email": "sanitol.oficial@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "estruturacao_pleito_reajuste",
+      "why_this_account": "COIMA - CONSTRUTORA DE INFRA-ESTRUTURA E MEIO AMBIENTE LTDA — drenagem cruzando UFs (MG, PR). Fato: Contratação de empresa para a execução das obras de Macrodrenagem e Canalização do Braço do Rio Canoas junto a MUNICIPI….",
+      "why_now": "Há um marco datado e recente na carteira pública: publicação em 2026-04-08; órgão MUNICIPIO DE SAO MATEUS DO SUL; objeto: Contratação de empresa para a execução das obras de Macrodrenagem e Canalização do Braço do Rio Cano.",
+      "observed_fact": "objeto: Contratação de empresa para a execução das obras de Macrodrenagem e Canalização do Braço do Rio Canoas; órgão: MUNICIPIO DE SAO MATEUS DO SUL; UF PR; R$ 7,984,254",
+      "micro_offer": "REAJUSTE_CHECK",
+      "cta": "Posso enviar um roteiro objetivo de checagem de reajuste (cláusula → índice → memória) para um contrato-piloto.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:estruturacao_pleito_reajuste",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "mature_no_reajuste"
+      ]
+    },
+    {
+      "cnpj_raiz": "10814673",
+      "razao_social": "ESTRELA MULTISERVIÇOS LTDA",
+      "email": "pmi25@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "diagnostico_contratual_b2g",
+      "why_this_account": "No caso de ESTRELA MULTISERVIÇOS LTDA, o encaixe parte de um fato concreto de pavimentação/vias: CONTRATAÇÃO DE OBRAS E SERVIÇOS DE ENGENHARIA PARA A EXECUÇÃO DE PAVIMENTAÇÃO ASFÁLTICA NO BAIRRO CEZARLÂNDIA, SITUADO…. Sem generalizar portfólio além do que está no input.",
+      "why_now": "Há um marco datado e recente na carteira pública: publicação em 2026-02-25; órgão PREFEITURA MUNICIPAL DE BONITO - PA; objeto: CONTRATAÇÃO DE OBRAS E SERVIÇOS DE ENGENHARIA PARA A EXECUÇÃO DE PAVIMENTAÇÃO ASFÁLTICA NO BAIRRO CE.",
+      "observed_fact": "objeto: CONTRATAÇÃO DE OBRAS E SERVIÇOS DE ENGENHARIA PARA A EXECUÇÃO DE PAVIMENTAÇÃO ASFÁLTICA NO BAIRRO CEZARLÂNDIA, SITUADO NA ZONA URBANA DO MUNICÍPIO DE BONITO/PA, ABRANGENDO AS RUAS ; órgão: PREFEITURA MUNICIPAL DE BONITO - PA; UF PA; R$ 998,794",
+      "micro_offer": "DIAGNOSTIC_CHECKLIST",
+      "cta": "Sugiro um diagnóstico contratual B2G curto para mapear riscos e priorizar encaixes.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "fallback"
+      ]
+    }
+  ],
+  "entered": [
+    "01324865",
+    "01608331",
+    "04213084",
+    "08594071",
+    "08661713",
+    "08818983",
+    "08872776",
+    "09258103",
+    "09361172",
+    "10814673"
+  ],
+  "exited": [],
+  "note": "Rolling window over NATIONAL_EMAIL_SEND_READY_RESERVOIR; not a fixed Top-N commercial cohort."
+}

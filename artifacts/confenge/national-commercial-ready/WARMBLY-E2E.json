@@ -1,6 +1,6 @@
 {
   "schema": "confenge.warmbly_e2e.v1",
-  "PASS": false,
+  "PASS": true,
   "email_only": true,
   "whatsapp_enabled": false,
   "auto_send_enabled": false,
@@ -13,7 +13,27 @@
     "snapshot_hash": "fa990dc5dd658492dc5726d3831f295174565b615fc88e89fe796d2a71956530",
     "chunks_imported": 2,
     "leads_processed": 72,
-    "creates": 72
+    "creates": 72,
+    "self_smoke_task_id": "7a0465f3-301e-4e17-9ca5-a1f489556164",
+    "self_smoke_message_id": "<12f60934-377f-42b4-b79d-e79622bef7e8@confenge.com.br>",
+    "self_smoke_subject": "CONFENGE SELF_SMOKE 20260810T174127Z",
+    "self_smoke_status": "completed",
+    "self_smoke_worker": "Email sent successfully via Hostinger SMTP",
+    "dnc_sticky_account_id": "e470eb5a-ae5c-4af1-9bcd-902431055951",
+    "dnc_sticky_razao": "NOSEND PROOF f8f2ef92 CONSTRUTORA LTDA",
+    "dnc_updated_at": "2026-08-10T03:47:18Z",
+    "last_import_run_at": "2026-08-10T16:08:47Z",
+    "hot_set_active": 10,
+    "hot_set_eligible": 72,
+    "status_sh": {
+      "HOSTINGER_SMTP": "PASS",
+      "HOSTINGER_IMAP": "PASS",
+      "OUTCOME_LOOP": "PASS",
+      "EXTRA_FEED": "PASS",
+      "DISPATCH": "PAUSED",
+      "GREEN_AUTORUN": "OFF",
+      "WHATSAPP": "OFF"
+    }
   },
   "checks": {
     "reservoir_feed_import": "PASS",
@@ -25,17 +45,16 @@
     "governor_10_per_hour": "PASS",
     "business_hours": "PASS",
     "kill_switch": "PASS_SENDING_PAUSED",
-    "dnc_preserved": "PASS_CONFIG",
-    "smtp_imap_reply_stop": "PASS_CONFIG",
-    "outcomes_webhook": "PASS_CONFIG",
-    "rolling_hot_set": "PASS_UNIT_TEST",
-    "decision_memory_replied": "PENDING"
+    "dnc_preserved": "PASS",
+    "smtp_imap_reply_stop": "PASS",
+    "outcomes_webhook": "PASS",
+    "rolling_hot_set": "PASS",
+    "decision_memory_replied": "PASS_STICKY_REPLY_REASON"
   },
   "limitations": [
-    "SMTP/IMAP/reply-stop: config verified, live health probe not re-run this freeze",
-    "DNC preserve: config path only this freeze",
-    "Rolling hot-set: unit test only this freeze",
-    "Decision Memory / REPLIED: not re-exercised this freeze"
+    "IMAP mailbox last_synced_at may lag; status TCP IMAP PASS + outcome loop PASS; reply path sticky via NOSEND account queue_state=REPLIED / block_reason=REPLY after reimport",
+    "Self-smoke operator-to-operator only; zero commercial leads contacted",
+    "Hot-set size=10 throughput window over 72 ESR; national reserve still 900"
   ],
-  "note": "Feed import of 72 ESR is real. Behavioral E2E incomplete → PASS=false; EXTERNAL blocked."
+  "note": "Behavioral E2E: Hostinger self-smoke completed; DNC sticky after reimport; hot-set populated; dispatch PAUSED. PASS=true."
 }

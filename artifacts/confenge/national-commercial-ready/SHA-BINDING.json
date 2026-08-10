@@ -1,17 +1,18 @@
 {
-  "origin_main": "ba10b2d5b56c0054059d7d0730c605d0fdddb39f",
-  "host_deployed_sha": "ba10b2d5b56c0054059d7d0730c605d0fdddb39f",
-  "runtime_sha": "ba10b2d5b56c0054059d7d0730c605d0fdddb39f",
+  "origin_main": "238754c071a163daf6747876c65aab025f71b2d3",
+  "host_deployed_sha": "238754c071a163daf6747876c65aab025f71b2d3",
+  "runtime_sha": "238754c071a163daf6747876c65aab025f71b2d3",
   "triple_sha_equal": true,
-  "warmbly_origin_main": "c22cfb9ef6e7e2fc1397aeb73356e85fd01eb9af",
-  "warmbly_host_deployed": "c22cfb9ef6e7e2fc1397aeb73356e85fd01eb9af",
-  "warmbly_runtime": "c22cfb9ef6e7e2fc1397aeb73356e85fd01eb9af",
+  "warmbly_origin_main": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
+  "warmbly_host_deployed": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
+  "warmbly_runtime": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
   "pr_222_merged": true,
   "pr_223_merged": true,
   "pr_224_merged": true,
   "pr_226_merged": true,
-  "merged_sha": "ba10b2d5b56c0054059d7d0730c605d0fdddb39f",
-  "note": "Rebound to post-#226 tip ba10b2d5 = host .deployed_sha",
-  "as_of": "2026-08-10T17:34:13Z",
-  "pack_git_sha": "da5891cd63e01c6f88db4bc0404bf1ebb6028489"
+  "pr_227_merged": true,
+  "merged_sha": "238754c071a163daf6747876c65aab025f71b2d3",
+  "note": "Rebound to post-#227 tip 238754c0 = host .deployed_sha",
+  "as_of": "2026-08-10T17:52:48Z",
+  "pack_git_sha": "d2e7f8ca6ec1692749f2deff846e96e1fb947a9f"
 }

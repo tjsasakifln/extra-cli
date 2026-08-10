@@ -1,35 +1,37 @@
-# FINAL-REPORT — National commercial reservoir (strict ESR)
+# CONFENGE National Reservoir — Final Report
 
-- generated_at: `2026-08-10T17:34:13Z`
-- extra_cli_sha: `da5891cd63e01c6f88db4bc0404bf1ebb6028489`
-- TARGET_CONFIRMED: **8382**
-- EMAIL_SEND_READY strict: **72**
-- email roots upper bound: **223**
-- MIN_OPERATIONAL_RESERVE: **900** (10/h × 9h × 10d)
-- NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY: **False**
-- PILOT_READY_CANDIDATE: **True**
-- terminal: **ENGINEERING_IN_PROGRESS**
-- machine audit PASS: **True** (n=100)
+**As of:** 2026-08-10T17:52:48Z
+**Terminal:** `EXTERNAL_BLOCKER_REQUIRES_TIAGO`
+**PR #227:** merged as `238754c071a1`
 
-## Funnel (strict)
+## Headline
 
-```json
-{
-  "TOTAL_CONTACT_CANDIDATES": 315,
-  "DISTINCT_COMPANIES_WITH_EMAIL": 223,
-  "COMPANY_OWNED": 83,
-  "IDENTITY_SAFE": 83,
-  "MAILBOX_ALLOWED": 220,
-  "PROVENANCE_VALID": 72,
-  "SERVICE_FIT_VALID": 223,
-  "COPY_CONTEXT_VALID": 72,
-  "EMAIL_SEND_READY_DISTINCT_COMPANIES": 72
-}
+| Metric | Value |
+|--------|-------|
+| TARGET_CONFIRMED | 8382 |
+| full_source_ladder_complete | true |
+| EMAIL_SEND_READY (strict) | 72 |
+| MIN_OPERATIONAL_RESERVE | 900 |
+| gap | 828 |
+| RESERVE_DAYS | 0.8 |
+| service_fit_unsupported | 0 |
+| machine audit | n=100 PASS (real stratified sample) |
+| SHA triple | 238754c071a1 equal |
+| Warmbly E2E | PASS (self-smoke + DNC sticky + hot-set + paused) |
+
+## Warmbly behavioral (this freeze)
+
+- Self-smoke Hostinger SMTP: task `7a0465f3-301e-4e17-9ca5-a1f489556164` **completed**; message_id `<12f60934-377f-42b4-b79d-e79622bef7e8@confenge.com.br>`; commercial_leads=none
+- DNC sticky: account `e470eb5a…` NOSEND PROOF remains `do_not_contact=true` after import run at 2026-08-10T16:08:47Z
+- Rolling hot-set: ACTIVE=10 / eligible=72
+- Controls: DISPATCH PAUSED, GREEN OFF, WHATSAPP OFF, SENDING_PAUSED
+
+## One action
+
+ESR strict final=72 com ladder terminal; gap_to_900=828. Autorizar fontes autenticadas de maior yield (documentadas por portal) OU decisão comercial de MIN_OPERATIONAL_RESERVE — sem atalho de engenharia.
+
+## Human review
+
+```bash
+python -m scripts.confenge.human_review --sample artifacts/confenge/national-commercial-ready/HUMAN-REVIEW-SAMPLE.json --reviewer tiago
 ```
-
-## Notes
-
-- email observed ≠ EMAIL_SEND_READY
-- gestao_monitoramento_contratual is a valid CONFENGE service; service_fit requires portfolio signals (not bare label)
-- HUMAN_REVIEW_PENDING until Tiago executes human_review CLI
-- NO REAL COMMERCIAL SEND during this goal
