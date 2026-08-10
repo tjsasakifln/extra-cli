@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-08-10T08:55:31Z",
+  "generated_at": "2026-08-10T09:27:23Z",
   "emitter": "scripts/confenge/emit_unconditional_go_pack.py",
   "extra_cli": {
-    "origin_main": "5b92233dd867306cc6e2ca6502117365ede191bc",
-    "host_deployed": "5b92233dd867306cc6e2ca6502117365ede191bc",
-    "runtime": "5b92233dd867306cc6e2ca6502117365ede191bc",
+    "origin_main": "60223f8881c366469667efbadf05417dcdb7f55c",
+    "host_deployed": "60223f8881c366469667efbadf05417dcdb7f55c",
+    "runtime": "60223f8881c366469667efbadf05417dcdb7f55c",
     "triple_match": true,
     "ci_green": true,
-    "ci_url": "https://github.com/tjsasakifln/extra-cli/actions/runs/31370668319"
+    "ci_url": "https://github.com/tjsasakifln/extra-cli/actions/runs/31373825679"
   },
   "warmbly": {
     "origin_main": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
