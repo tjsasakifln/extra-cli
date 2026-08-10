@@ -47,7 +47,11 @@ def _utcnow() -> datetime:
 
 
 def iter_universe_roots(conn: Any, *, page_size: int = 500) -> list[str]:
-    """Distinct CNPJ roots present in supplier contracts (keyset-friendly pages)."""
+    """Distinct CNPJ roots present in supplier contracts (keyset-friendly pages).
+
+    Prefer indexed ``fornecedor_cnpj_8`` when present (national scale). Fall back
+    to regexp on full CNPJ only when the denormalized root column is missing.
+    """
     with conn.cursor() as cur:
         cur.execute(
             """
@@ -56,6 +60,38 @@ def iter_universe_roots(conn: Any, *, page_size: int = 500) -> list[str]:
             """
         )
         cols = {r["column_name"] for r in (cur.fetchall() or [])}
+
+        # Fast path: precomputed 8-digit root (indexed on host-of-record)
+        if "fornecedor_cnpj_8" in cols:
+            roots: list[str] = []
+            last = ""
+            while True:
+                cur.execute(
+                    """
+                    SELECT DISTINCT fornecedor_cnpj_8 AS raiz
+                    FROM pncp_supplier_contracts
+                    WHERE fornecedor_cnpj_8 IS NOT NULL
+                      AND fornecedor_cnpj_8 > %s
+                      AND length(fornecedor_cnpj_8) = 8
+                    ORDER BY 1
+                    LIMIT %s
+                    """,
+                    (last, page_size),
+                )
+                raw = list(cur.fetchall() or [])
+                if not raw:
+                    break
+                raw_raizes = [digits_only(r["raiz"])[:8] for r in raw]
+                raw_raizes = [b for b in raw_raizes if len(b) == 8]
+                if not raw_raizes:
+                    break
+                last = raw_raizes[-1]
+                batch = [b for b in raw_raizes if b != "00000000"]
+                roots.extend(batch)
+                if len(raw) < page_size:
+                    break
+            return roots
+
         cnpj_col = (
             "fornecedor_cnpj"
             if "fornecedor_cnpj" in cols
@@ -64,7 +100,7 @@ def iter_universe_roots(conn: Any, *, page_size: int = 500) -> list[str]:
         if not cnpj_col:
             return []
 
-        roots: list[str] = []
+        roots = []
         last = ""
         while True:
             cur.execute(
@@ -95,7 +131,6 @@ def iter_universe_roots(conn: Any, *, page_size: int = 500) -> list[str]:
             if len(raw) < page_size:
                 break
     return roots
-
 
 def _load_materialized_index(conn: Any, *, mode: str) -> dict[str, dict[str, Any]]:
     """Map company_key → row from the authority table for this async mode.
