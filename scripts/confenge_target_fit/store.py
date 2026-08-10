@@ -344,6 +344,66 @@ def get_current(conn: Any, company_key: str) -> dict[str, Any] | None:
         return _as_dict(cur.fetchone())
 
 
+def _normalize_shadow_row(row: dict[str, Any] | None) -> dict[str, Any] | None:
+    """Map shadow table columns onto the current-table shape used by publishers."""
+    if not row:
+        return None
+    d = dict(row)
+    cls = d.get("shadow_class") or d.get("target_fit_class")
+    if not cls:
+        return None
+    return {
+        "company_key": d.get("company_key"),
+        "cnpj_raiz": d.get("cnpj_raiz"),
+        "target_fit_class": cls,
+        "target_fit_confidence": d.get("shadow_confidence")
+        if d.get("shadow_confidence") is not None
+        else d.get("target_fit_confidence"),
+        "target_fit_version": d.get("target_fit_version"),
+        "target_fit_reason_codes": d.get("reason_codes") or d.get("target_fit_reason_codes") or [],
+        "target_fit_evidence": d.get("evidence") or d.get("target_fit_evidence") or [],
+        "computed_at": d.get("computed_at"),
+        "source_watermark": d.get("source_watermark"),
+        "input_fingerprint": d.get("input_fingerprint"),
+        "operational_status": d.get("operational_status") or "ok",
+        "materialization_mode": "SHADOW",
+    }
+
+
+def get_shadow(conn: Any, company_key: str) -> dict[str, Any] | None:
+    """Fetch shadow materialization and normalize to published current shape."""
+    with conn.cursor() as cur:
+        try:
+            cur.execute(
+                "SELECT * FROM confenge_target_fit_shadow WHERE company_key = %s",
+                (company_key,),
+            )
+            return _normalize_shadow_row(_as_dict(cur.fetchone()))
+        except Exception:  # noqa: BLE001 — table may be absent in older envs
+            return None
+
+
+def get_published_for_mode(conn: Any, company_key: str) -> dict[str, Any] | None:
+    """Authoritative published row: current in ACTIVE/CANARY; shadow when SHADOW.
+
+    SHADOW never mutates eligibility tables but is still the continuous runtime
+    population (status CONFIRMED counts come from shadow). Downstream gates must
+    read the same source or every live join fails closed with an empty current.
+    """
+    mode = "SHADOW"
+    try:
+        ctrl = get_control(conn, "async_mode")
+        mode = str((ctrl or {}).get("mode") or "SHADOW").upper()
+    except Exception:  # noqa: BLE001
+        mode = "SHADOW"
+    if mode == "SHADOW":
+        shadow = get_shadow(conn, company_key)
+        if shadow:
+            return shadow
+        # Fall through to current if shadow missing (partial promote / hybrid).
+    return get_current(conn, company_key)
+
+
 def list_stale_versions(
     conn: Any,
     *,
