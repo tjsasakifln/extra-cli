@@ -1,6 +1,5 @@
 {
   "schema": "confenge.warmbly_e2e.v1",
-  "as_of": "2026-08-10T16:09:39Z",
   "PASS": true,
   "email_only": true,
   "whatsapp_enabled": false,
@@ -12,12 +11,10 @@
   "evidence": {
     "feed_run_id": "run-c48007591e089881",
     "snapshot_hash": "fa990dc5dd658492dc5726d3831f295174565b615fc88e89fe796d2a71956530",
-    "feed_sync_status": "completed",
     "chunks_imported": 2,
-    "lead_count_exported": 72,
-    "outreach_accounts_total": 445,
-    "contact_candidates_total": 530,
-    "manifest_uri": "https://confenge-feed:8443/manifest.json"
+    "leads_processed": 72,
+    "creates": 72,
+    "outreach_accounts_total": 445
   },
   "checks": {
     "reservoir_feed_import": "PASS",
@@ -31,7 +28,13 @@
     "smtp_imap_reply_stop": "PASS_CONFIG_STACK",
     "whatsapp_off": "PASS",
     "auto_send_off": "PASS",
+    "rolling_hot_set": "PASS_UNIT_TEST",
     "outcomes_webhook": "PASS_CONFIG"
   },
-  "note": "No commercial send. Feed sync imported 72 ESR export (2 chunks). SENDING_PAUSED=true AUTO_SEND=false WhatsApp=false."
+  "limitations": [
+    "SMTP/IMAP live probe not re-run this freeze (stack configured; commercial send paused)",
+    "Decision Memory / REPLIED preservation not re-exercised in this freeze",
+    "Hot-set rolling proven by unit test, not live Warmbly queue drain"
+  ],
+  "note": "Feed import PASS for 72 ESR. No commercial send."
 }

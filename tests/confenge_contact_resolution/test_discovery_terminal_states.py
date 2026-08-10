@@ -7,8 +7,10 @@ from scripts.confenge_contact_resolution.discovery_state import (
     CONTACT_FOUND_NOT_SENDABLE,
     CONTACT_READY,
     CONTACT_RETRY_PENDING,
+    DEFAULT_SOURCE_LADDER,
     classify_contact_terminal,
     measure_terminal_coverage,
+    sources_cover_required_ladder,
 )
 
 
@@ -23,15 +25,29 @@ def test_offline_noop_is_retry_pending_not_exhausted() -> None:
     assert "noop" in (st.terminal_reason or "") or "offline" in (st.terminal_reason or "")
 
 
-def test_ladder_complete_no_contact_is_exhausted() -> None:
+def test_process_only_not_exhausted_even_if_ladder_complete_flag() -> None:
+    """Process harvest alone must never produce CONTACT_EXHAUSTED."""
     st = classify_contact_terminal(
         cnpj_raiz="12345678",
-        sources_attempted=["official_site", "public_docs", "pncp_annexes"],
+        sources_attempted=["process_administrative_docs", "pncp_annexes"],
+        network_discovery=True,
+        ladder_complete=True,
+    )
+    assert st.terminal_state == CONTACT_RETRY_PENDING
+    assert st.ladder_complete is False
+    assert "ladder" in (st.terminal_reason or "")
+
+
+def test_full_required_ladder_no_contact_is_exhausted() -> None:
+    st = classify_contact_terminal(
+        cnpj_raiz="12345678",
+        sources_attempted=list(DEFAULT_SOURCE_LADDER),
         network_discovery=True,
         ladder_complete=True,
     )
     assert st.terminal_state == CONTACT_EXHAUSTED
     assert st.sources_attempted
+    assert sources_cover_required_ladder(st.sources_attempted)
 
 
 def test_send_ready_is_contact_ready() -> None:
@@ -66,7 +82,7 @@ def test_terminal_coverage_closed_sum() -> None:
         ),
         classify_contact_terminal(
             cnpj_raiz="2",
-            sources_attempted=["site", "docs"],
+            sources_attempted=list(DEFAULT_SOURCE_LADDER),
             network_discovery=True,
             ladder_complete=True,
         ),

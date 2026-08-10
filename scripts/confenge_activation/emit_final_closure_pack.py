@@ -87,24 +87,77 @@ def _load_json(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def build_adversarial_audit(esr_rows: list[dict[str, Any]], *, sample_size: int = 100) -> dict[str, Any]:
-    """Machine adversarial audit counters over stratified ESR (and fill if needed)."""
-    # Stratify by service_code
-    by_svc: dict[str, list[dict[str, Any]]] = {}
+def build_adversarial_audit(
+    esr_rows: list[dict[str, Any]],
+    *,
+    sample_size: int = 100,
+    not_ready_rows: list[dict[str, Any]] | None = None,
+    terminal_rows: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Stratified machine adversarial audit over ≥sample_size distinct companies.
+
+    Strata (in order, round-robin):
+      EMAIL_SEND_READY / CONTACT_READY
+      CONTACT_FOUND_NOT_SENDABLE / not_ready
+      CONTACT_EXHAUSTED / retry
+      multi service_code, multi source_type, multi ownership
+    """
+    pools: dict[str, list[dict[str, Any]]] = {
+        "esr": [],
+        "not_ready": [],
+        "exhausted": [],
+        "other": [],
+    }
+    seen_roots: set[str] = set()
+
+    def _root(r: dict[str, Any]) -> str:
+        return str(r.get("cnpj_raiz") or r.get("cnpj_root") or r.get("CNPJ") or "")[:8]
+
     for row in esr_rows:
         if not isinstance(row, dict):
             continue
-        svc = str(row.get("service_code") or "unknown")
-        by_svc.setdefault(svc, []).append(row)
+        root = _root(row)
+        if not root or root in seen_roots:
+            continue
+        seen_roots.add(root)
+        pools["esr"].append({**row, "audit_stratum": "EMAIL_SEND_READY"})
 
+    for row in not_ready_rows or []:
+        if not isinstance(row, dict):
+            continue
+        root = _root(row)
+        if not root or root in seen_roots:
+            continue
+        seen_roots.add(root)
+        pools["not_ready"].append({**row, "audit_stratum": "NOT_READY_OR_FOUND_NOT_SENDABLE"})
+
+    for row in terminal_rows or []:
+        if not isinstance(row, dict):
+            continue
+        root = _root(row)
+        if not root or root in seen_roots:
+            continue
+        st = str(row.get("terminal_state") or "")
+        seen_roots.add(root)
+        bucket = "exhausted" if "EXHAUSTED" in st or "RETRY" in st else "other"
+        pools[bucket].append(
+            {
+                **row,
+                "audit_stratum": st or "TERMINAL",
+                "ownership_status": row.get("ownership_status") or "N/A_NO_CONTACT",
+                "source_type": ",".join(row.get("sources_attempted") or []) or row.get("source_type"),
+            }
+        )
+
+    # Round-robin strata then services within esr
     sample: list[dict[str, Any]] = []
-    # Round-robin services
+    order = ["esr", "not_ready", "exhausted", "other"]
     while len(sample) < sample_size:
         progressed = False
-        for svc, rows in sorted(by_svc.items()):
-            if not rows:
+        for key in order:
+            if not pools[key]:
                 continue
-            sample.append(rows.pop(0))
+            sample.append(pools[key].pop(0))
             progressed = True
             if len(sample) >= sample_size:
                 break
@@ -128,39 +181,52 @@ def build_adversarial_audit(esr_rows: list[dict[str, Any]], *, sample_size: int 
     seen_copy: set[str] = set()
     for row in sample:
         flags: list[str] = []
-        # Fail-closed machine checks only (not human substitute)
-        if row.get("ownership_status") not in {"COMPANY_OWNED", "HUMAN_CONFIRMED"}:
-            counters["WRONG_CONTACT"] += 1
-            flags.append("WRONG_CONTACT")
-        if row.get("mailbox_send_blocked"):
-            counters["MAILBOX_INAPPROPRIATE"] += 1
-            flags.append("MAILBOX_INAPPROPRIATE")
-        if not row.get("why_this_account"):
-            counters["HOLLOW_COPY"] += 1
-            flags.append("HOLLOW_COPY")
-        if not row.get("why_now"):
-            counters["WHY_NOW_UNSUPPORTED"] += 1
-            flags.append("WHY_NOW_UNSUPPORTED")
-        if not row.get("service_code"):
-            counters["UNSUPPORTED_SERVICE"] += 1
-            flags.append("UNSUPPORTED_SERVICE")
-        copy_key = f"{row.get('why_this_account')}|{row.get('why_now')}|{row.get('micro_offer')}"
-        if copy_key in seen_copy and row.get("why_this_account"):
-            counters["DUPLICATE_COPY"] += 1
-            flags.append("DUPLICATE_COPY")
-        seen_copy.add(copy_key)
+        stratum = str(row.get("audit_stratum") or "")
+        is_esr = stratum == "EMAIL_SEND_READY" or row.get("email_send_ready") is True
+        # Only enforce contact/copy gates on ESR / sendable candidates
+        if is_esr:
+            if row.get("ownership_status") not in {"COMPANY_OWNED", "HUMAN_CONFIRMED"}:
+                counters["WRONG_CONTACT"] += 1
+                flags.append("WRONG_CONTACT")
+            if row.get("mailbox_send_blocked"):
+                counters["MAILBOX_INAPPROPRIATE"] += 1
+                flags.append("MAILBOX_INAPPROPRIATE")
+            if not row.get("why_this_account"):
+                counters["HOLLOW_COPY"] += 1
+                flags.append("HOLLOW_COPY")
+            if not row.get("why_now"):
+                counters["WHY_NOW_UNSUPPORTED"] += 1
+                flags.append("WHY_NOW_UNSUPPORTED")
+            if not row.get("service_code"):
+                counters["UNSUPPORTED_SERVICE"] += 1
+                flags.append("UNSUPPORTED_SERVICE")
+            copy_key = f"{row.get('why_this_account')}|{row.get('why_now')}|{row.get('micro_offer')}"
+            if copy_key in seen_copy and row.get("why_this_account"):
+                counters["DUPLICATE_COPY"] += 1
+                flags.append("DUPLICATE_COPY")
+            seen_copy.add(copy_key)
         audited.append({**row, "audit_flags": flags, "audit_pass": len(flags) == 0})
+
+    strata_counts: dict[str, int] = {}
+    for r in audited:
+        k = str(r.get("audit_stratum") or "?")
+        strata_counts[k] = strata_counts.get(k, 0) + 1
 
     return {
         "schema": "confenge.copy_audit.v1",
         "as_of": _utcnow(),
         "sample_size": len(audited),
         "target_sample_size": sample_size,
+        "strata_counts": strata_counts,
         "counters": counters,
-        "PASS": all(v == 0 for v in counters.values()) and len(audited) > 0,
+        "PASS": (
+            all(v == 0 for v in counters.values())
+            and len(audited) >= min(100, sample_size)
+            and len(audited) > 0
+        ),
         "note": (
             "Machine adversarial audit only. HUMAN_REVIEW_PENDING until Tiago runs "
-            "python -m scripts.confenge.human_review"
+            "python -m scripts.confenge.human_review. Stratified across ESR + not-ready + terminals."
         ),
         "rows": audited,
     }
@@ -177,99 +243,159 @@ def emit_pack(
     warmbly_e2e: dict[str, Any],
     source_yield: dict[str, Any] | None = None,
     loss_reasons: dict[str, Any] | None = None,
+    terminal_rows: list[dict[str, Any]] | None = None,
+    full_ladder_complete: bool | None = None,
 ) -> dict[str, Any]:
     as_of = _utcnow()
     sha = _git_sha()
     esr_n = int(esr_report.get("EMAIL_SEND_READY_DISTINCT_COMPANIES") or 0)
     funnel = esr_report.get("funnel") or {}
     ops = warmbly_ops_config_from_env()
+    eph = float(ops["emails_per_hour"])
+    bhd = float(ops["business_hours_per_day"])
     reserve = min_operational_reserve(
-        emails_per_hour=float(ops["emails_per_hour"]),
-        business_hours_per_day=float(ops["business_hours_per_day"]),
+        emails_per_hour=eph,
+        business_hours_per_day=bhd,
         business_days=10,
     )
     capacity = build_capacity_metrics(
         email_send_ready_distinct_companies=esr_n,
         active_hot_set_size=min(50, esr_n),
     )
-    national_universe = sum(int(v) for v in target_classes.values()) or int(esr_report.get("TARGET_CONFIRMED") or 0)
+    national_universe = sum(int(v) for v in target_classes.values()) or int(
+        esr_report.get("TARGET_CONFIRMED") or 0
+    )
     tc = int(target_classes.get("TARGET_CONFIRMED") or esr_report.get("TARGET_CONFIRMED") or 0)
 
     esr_rows = list(esr_report.get("esr_rows") or [])
-    audit = build_adversarial_audit(esr_rows, sample_size=min(100, max(len(esr_rows), 1)))
-
-    contact_complete = (
-        sum(int(v) for v in contact_terminals.values()) >= tc
-        and int(contact_terminals.get("CONTACT_RETRY_PENDING") or 0) == 0
-        and int(contact_terminals.get("CONTACT_NEVER_ATTEMPTED") or 0) == 0
+    not_ready_rows = list(esr_report.get("not_ready_sample") or esr_report.get("not_ready_rows") or [])
+    audit = build_adversarial_audit(
+        esr_rows,
+        sample_size=100,
+        not_ready_rows=not_ready_rows,
+        terminal_rows=terminal_rows or [],
     )
+
+    retry_n = int(contact_terminals.get("CONTACT_RETRY_PENDING") or 0)
+    never_n = int(contact_terminals.get("CONTACT_NEVER_ATTEMPTED") or 0)
+    terminal_sum = sum(int(v) for v in contact_terminals.values())
+    # Full ladder: every CONFIRMED has a terminal AND no process-only exhaustion
+    # (CONTACT_RETRY_PENDING must be 0 only when full ladder was actually run).
+    if full_ladder_complete is None:
+        full_ladder_complete = bool(runtime_health.get("full_source_ladder_complete"))
+    contact_partition_complete = terminal_sum >= tc and never_n == 0
+    contact_complete = contact_partition_complete and retry_n == 0 and bool(full_ladder_complete)
+
+    # service_fit ontology: measured from not_ready_top (not hardcoded)
+    not_ready_top = list(esr_report.get("not_ready_top") or [])
+    service_fit_unsupported = 0
+    for item in not_ready_top:
+        if isinstance(item, (list, tuple)) and len(item) >= 2:
+            if "service_fit_unsupported" in str(item[0]):
+                service_fit_unsupported = int(item[1])
+    service_fit_ok = service_fit_unsupported == 0
+
     healthy = bool(capacity.get("reserve_gate_ok") and esr_n >= reserve and contact_complete)
-    pilot_ready = esr_n >= 50 and bool(audit.get("PASS"))
+    pilot_ready = esr_n >= 50 and bool(audit.get("PASS")) and int(audit.get("sample_size") or 0) >= 100
     warmbly_pass = bool(warmbly_e2e.get("PASS"))
     sha_ok = bool(sha_binding.get("triple_sha_equal"))
+    # Demand non-config-only checks for warmbly true PASS
+    warmbly_checks = warmbly_e2e.get("checks") if isinstance(warmbly_e2e.get("checks"), dict) else {}
+    warmbly_feed_real = str(warmbly_checks.get("reservoir_feed_import") or "").upper() == "PASS"
 
-    if healthy and pilot_ready and warmbly_pass and sha_ok:
+    reserve_days = round(esr_n / (eph * bhd), 2) if eph * bhd > 0 else 0.0
+    pilot_tech = (
+        "READY_FOR_HUMAN_REVIEW"
+        if pilot_ready and warmbly_pass and warmbly_feed_real and sha_ok
+        else "PARTIAL"
+        if esr_n > 0
+        else "NOT_READY"
+    )
+    national_reserve = (
+        "HEALTHY"
+        if healthy
+        else f"PARTIAL_{reserve_days}_DAYS"
+        if esr_n > 0
+        else "EMPTY"
+    )
+
+    if healthy and pilot_ready and warmbly_pass and sha_ok and service_fit_ok:
         terminal = "READY_FOR_TIAGO_HUMAN_REVIEW"
     elif (
         not healthy
         and contact_complete
         and esr_n < reserve
         and warmbly_pass
+        and warmbly_feed_real
         and sha_ok
         and bool(audit.get("PASS"))
+        and int(audit.get("sample_size") or 0) >= 100
+        and service_fit_ok
+        and full_ladder_complete
     ):
-        # EXTERNAL only after full public ladder terminal + Warmbly tech health + SHA
         terminal = "EXTERNAL_BLOCKER_REQUIRES_TIAGO"
     else:
         terminal = "ENGINEERING_IN_PROGRESS"
+
+    if terminal == "ENGINEERING_IN_PROGRESS":
+        if not full_ladder_complete or retry_n > 0:
+            one_action = (
+                f"Executar source ladder completa (official_site/registry/company_pages) "
+                f"sobre RETRY_PENDING={retry_n}; process-only NÃO conta como CONTACT_EXHAUSTED. "
+                f"ESR={esr_n} reserve={reserve}."
+            )
+        elif not sha_ok:
+            one_action = f"Rebind SHA host/runtime ao origin/main; ESR={esr_n}."
+        elif not warmbly_pass or not warmbly_feed_real:
+            one_action = (
+                f"Completar Warmbly no-send E2E real (hot-set/DNC/SMTP); ESR={esr_n}."
+            )
+        elif int(audit.get("sample_size") or 0) < 100:
+            one_action = f"Auditoria adversarial estratificada ≥100 (agora {audit.get('sample_size')})."
+        elif not service_fit_ok:
+            one_action = (
+                f"Zerar service_fit_unsupported residual ({service_fit_unsupported}) "
+                f"via package/ontology; ESR={esr_n}."
+            )
+        else:
+            one_action = f"Fechar gaps de engenharia restantes; ESR={esr_n} reserve={reserve}."
+    elif terminal == "EXTERNAL_BLOCKER_REQUIRES_TIAGO":
+        one_action = (
+            f"ESR strict final={esr_n} com ladder terminal; gap_to_900={max(0, reserve - esr_n)}. "
+            "Autorizar fontes autenticadas de maior yield (documentadas por portal) "
+            "OU decisão comercial de MIN_OPERATIONAL_RESERVE — sem atalho de engenharia."
+        )
+    else:
+        one_action = None
 
     go = {
         "schema": "confenge.go_no_go.v1",
         "as_of": as_of,
         "NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY": healthy,
         "PILOT_READY_CANDIDATE": pilot_ready,
+        "PILOT_TECHNICAL_READINESS": pilot_tech,
+        "NATIONAL_RESERVE_READINESS": national_reserve,
+        "RESERVE_DAYS": reserve_days,
         "terminal_state": terminal,
         "gates": {
             "FULLY_RECONCILED": bool(runtime_health.get("FULLY_RECONCILED")),
-            "all_confirmed_terminal": contact_complete,
+            "all_confirmed_terminal": contact_partition_complete,
+            "full_source_ladder_complete": bool(full_ladder_complete),
             "email_send_ready_ge_min_reserve": esr_n >= reserve,
             "strict_esr_measured": True,
-            "service_fit_ontology_ok": True,
+            "service_fit_ontology_ok": service_fit_ok,
+            "service_fit_unsupported_count": service_fit_unsupported,
             "machine_audit_pass": bool(audit.get("PASS")),
-            "sha_bound": bool(sha_binding.get("triple_sha_equal")),
-            "warmbly_e2e_pass": bool(warmbly_e2e.get("PASS")),
+            "machine_audit_sample_size": int(audit.get("sample_size") or 0),
+            "sha_bound": sha_ok,
+            "warmbly_e2e_pass": warmbly_pass and warmbly_feed_real,
         },
         "EMAIL_SEND_READY_DISTINCT_COMPANIES": esr_n,
         "MIN_OPERATIONAL_RESERVE": reserve,
         "gap_vs_reserve": max(0, reserve - esr_n),
         "email_roots_upper_bound": esr_report.get("email_roots_upper_bound"),
         "funnel": funnel,
-        "one_action": (
-            None
-            if terminal == "READY_FOR_TIAGO_HUMAN_REVIEW"
-            else (
-                (
-                    f"Completar Warmbly no-send E2E do reservoir (import/idempotency/DNC/governor); "
-                    f"ESR strict={esr_n} << reserve={reserve} — não reduzir reserve prematuramente."
-                    if contact_complete and not warmbly_pass
-                    else (
-                        "Completar contact ladder full-sweep + service/copy package + strict ESR; "
-                        f"ESR={esr_n} reserve={reserve}."
-                        if not contact_complete
-                        else (
-                            f"Fechar gaps de engenharia restantes (SHA/Warmbly/audit); "
-                            f"ESR={esr_n} reserve={reserve}."
-                        )
-                    )
-                )
-                if terminal == "ENGINEERING_IN_PROGRESS"
-                else (
-                    f"ESR strict final={esr_n} com ladder terminal; gap_to_900={max(0, reserve - esr_n)}. "
-                    "Autorizar fontes autenticadas de maior yield (documentadas por portal) "
-                    "OU decisão comercial de MIN_OPERATIONAL_RESERVE — sem atalho de engenharia."
-                )
-            )
-        ),
+        "one_action": one_action,
         "human_review_command": (
             "python -m scripts.confenge.human_review "
             "--sample artifacts/confenge/national-commercial-ready/HUMAN-REVIEW-SAMPLE.json "
@@ -357,10 +483,28 @@ def emit_pack(
             "EMAIL_SEND_READY": esr_n,
         },
     )
-    _write(out_dir / "CONTACT-SOURCE-YIELD.json", source_yield or {"as_of": as_of, "sources": {}})
+    _write(
+        out_dir / "CONTACT-SOURCE-YIELD.json",
+        source_yield
+        or {
+            "as_of": as_of,
+            "sources": esr_report.get("yield_by_source")
+            or esr_report.get("service_distribution")
+            or {},
+            "note": (
+                "Prefer yield_by_source from harvest/enrich; falls back to service_distribution "
+                "when source ladder yield not yet aggregated."
+            ),
+        },
+    )
     _write(
         out_dir / "CONTACT-LOSS-REASONS.json",
-        loss_reasons or {"as_of": as_of, "reasons": esr_report.get("not_ready_top")},
+        loss_reasons
+        or {
+            "as_of": as_of,
+            "reasons": esr_report.get("not_ready_top"),
+            "CONTACT_RETRY_PENDING": retry_n,
+        },
     )
     _write(out_dir / "RUNTIME-HEALTH.json", {**runtime_health, "as_of": as_of})
     _write(out_dir / "SHA-BINDING.json", {**sha_binding, "as_of": as_of, "pack_git_sha": sha})
@@ -385,11 +529,16 @@ def emit_pack(
                 "",
                 f"**NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY:** `{healthy}`",
                 "",
+                f"**PILOT_TECHNICAL_READINESS:** `{pilot_tech}`",
+                f"**NATIONAL_RESERVE_READINESS:** `{national_reserve}`",
+                f"**RESERVE_DAYS:** `{reserve_days}` (= ESR / (eph × hours))",
+                "",
                 f"**PILOT_READY_CANDIDATE:** `{pilot_ready}`",
                 "",
                 f"**EMAIL_SEND_READY (strict):** {esr_n}",
                 f"**MIN_OPERATIONAL_RESERVE:** {reserve}",
                 f"**Gap:** {max(0, reserve - esr_n)}",
+                f"**full_source_ladder_complete:** `{full_ladder_complete}`",
                 "",
                 "## Gates",
                 "",

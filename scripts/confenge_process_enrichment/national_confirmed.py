@@ -567,7 +567,8 @@ def run_national_process_harvest(
                     )
 
             term = _terminal_from_process_result(result)
-            # Count process path as attempted when network harvest ran
+            # Process harvest only covers process ladder steps — never claim full
+            # DEFAULT_SOURCE_LADDER complete / CONTACT_EXHAUSTED from process alone.
             sources = ["process_administrative_docs", "pncp_annexes"]
             yield_by_source["process_administrative_docs"]["companies_attempted"] += 1
             yield_by_source["pncp_annexes"]["companies_attempted"] += 1
@@ -579,12 +580,17 @@ def run_national_process_harvest(
                 send_ready_proxy += 1
                 yield_by_source["process_administrative_docs"]["send_ready_found"] += 1
 
+            # Emails found → READY / FOUND_NOT_SENDABLE (ladder need not be full).
+            # No contact → RETRY_PENDING until official_site/registry/pages run.
+            process_has_contact = n_email > 0 or term in {
+                CONTACT_READY,
+                CONTACT_FOUND_NOT_SENDABLE,
+            }
             st = classify_contact_terminal(
                 cnpj_raiz=root,
                 sources_attempted=sources,
                 network_discovery=bool(cfg.allow_network),
-                ladder_complete=term
-                in {CONTACT_READY, CONTACT_FOUND_NOT_SENDABLE, CONTACT_EXHAUSTED, CONTACT_EXTERNAL_BLOCKER},
+                ladder_complete=False,  # process-only never completes full ladder
                 email_candidates=n_email,
                 email_send_ready=1 if term == CONTACT_READY else 0,
                 external_blocker="captcha_or_auth"
@@ -594,16 +600,15 @@ def run_national_process_harvest(
                 meta={
                     "process_terminal": term,
                     "elapsed_s": round(time.time() - t0, 3),
+                    "process_only_pass": True,
                 },
             )
-            # Prefer process-derived terminal label when ladder complete
-            if term in {
-                CONTACT_READY,
-                CONTACT_FOUND_NOT_SENDABLE,
-                CONTACT_EXHAUSTED,
-                CONTACT_EXTERNAL_BLOCKER,
-            }:
+            # Preserve process contact labels when emails exist; never force EXHAUSTED.
+            if process_has_contact and term in {CONTACT_READY, CONTACT_FOUND_NOT_SENDABLE}:
                 st.terminal_state = term
+            elif term == CONTACT_EXTERNAL_BLOCKER:
+                st.terminal_state = CONTACT_EXTERNAL_BLOCKER
+            # else keep classify result (RETRY_PENDING for process-only no-contact)
             terminals.append(st.as_dict())
 
             completed.add(root)
