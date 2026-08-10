@@ -249,31 +249,25 @@ def run_continuous_enrichment(
         "Use rebuild_national_funnel harvest+evaluate_email_send_ready for ESR."
     )
 
-    # Per-root terminal discovery states (observable; offline ≠ exhausted)
+    # Per-root terminal discovery states only for companies actually attempted
+    # under network discovery. Unattempted roots remain outside the partition
+    # (never_attempted in measure_terminal_coverage).
     terminal_states = []
     sources_default = list(DEFAULT_SOURCE_LADDER) if network_discovery else []
     for root in confirmed_keys:
         did_attempt = root in attempted_roots and network_discovery
-        # Per-company email counts unavailable from aggregate metrics alone;
-        # terminal is READY only when batch metrics later attribute ESR.
-        # Here we mark RETRY/EXHAUSTED/NEVER honestly from discovery flags.
         if not did_attempt:
-            st = classify_contact_terminal(
-                cnpj_raiz=root,
-                sources_attempted=[],
-                network_discovery=False,
-                ladder_complete=False,
-            )
-        else:
-            # Ladder treated complete when company finished in checkpoint under network
-            st = classify_contact_terminal(
-                cnpj_raiz=root,
-                sources_attempted=sources_default,
-                network_discovery=True,
-                ladder_complete=True,
-                email_candidates=0,
-                email_send_ready=0,
-            )
+            continue
+        # Ladder treated complete when company finished in checkpoint under network.
+        # Per-company email/ESR attribution is refined by rebuild_national_funnel.
+        st = classify_contact_terminal(
+            cnpj_raiz=root,
+            sources_attempted=sources_default,
+            network_discovery=True,
+            ladder_complete=True,
+            email_candidates=0,
+            email_send_ready=0,
+        )
         terminal_states.append(st)
     terminal_cov = measure_terminal_coverage(
         terminal_states, target_confirmed_total=len(confirmed_keys)
