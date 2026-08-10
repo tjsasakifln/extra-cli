@@ -103,34 +103,60 @@ def load_published_index(
         mode = "SHADOW"
 
     use_shadow = mode == "SHADOW"
-    table = "confenge_target_fit_shadow" if use_shadow else "confenge_company_target_fit_current"
     out: dict[str, dict[str, Any]] = {}
     with conn.cursor() as cur:
         try:
-            if keys and raizes:
-                cur.execute(
-                    f"""
-                    SELECT * FROM {table}
-                    WHERE company_key = ANY(%s) OR cnpj_raiz = ANY(%s)
-                    """,
-                    (list(keys), list(raizes)),
-                )
-            elif keys:
-                cur.execute(
-                    f"""
-                    SELECT * FROM {table}
-                    WHERE company_key = ANY(%s)
-                    """,
-                    (list(keys),),
-                )
+            # Table names are allowlisted literals only (no user input) — avoids S608.
+            if use_shadow:
+                if keys and raizes:
+                    cur.execute(
+                        """
+                        SELECT * FROM confenge_target_fit_shadow
+                        WHERE company_key = ANY(%s) OR cnpj_raiz = ANY(%s)
+                        """,
+                        (list(keys), list(raizes)),
+                    )
+                elif keys:
+                    cur.execute(
+                        """
+                        SELECT * FROM confenge_target_fit_shadow
+                        WHERE company_key = ANY(%s)
+                        """,
+                        (list(keys),),
+                    )
+                else:
+                    cur.execute(
+                        """
+                        SELECT * FROM confenge_target_fit_shadow
+                        WHERE cnpj_raiz = ANY(%s)
+                        """,
+                        (list(raizes),),
+                    )
             else:
-                cur.execute(
-                    f"""
-                    SELECT * FROM {table}
-                    WHERE cnpj_raiz = ANY(%s)
-                    """,
-                    (list(raizes),),
-                )
+                if keys and raizes:
+                    cur.execute(
+                        """
+                        SELECT * FROM confenge_company_target_fit_current
+                        WHERE company_key = ANY(%s) OR cnpj_raiz = ANY(%s)
+                        """,
+                        (list(keys), list(raizes)),
+                    )
+                elif keys:
+                    cur.execute(
+                        """
+                        SELECT * FROM confenge_company_target_fit_current
+                        WHERE company_key = ANY(%s)
+                        """,
+                        (list(keys),),
+                    )
+                else:
+                    cur.execute(
+                        """
+                        SELECT * FROM confenge_company_target_fit_current
+                        WHERE cnpj_raiz = ANY(%s)
+                        """,
+                        (list(raizes),),
+                    )
             rows = cur.fetchall() or []
         except Exception:  # noqa: BLE001
             rows = []
