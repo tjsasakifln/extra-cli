@@ -286,22 +286,42 @@ def emit_pack(
     contact_partition_complete = terminal_sum >= tc and never_n == 0
     contact_complete = contact_partition_complete and retry_n == 0 and bool(full_ladder_complete)
 
-    # service_fit ontology: measured from not_ready_top (not hardcoded)
+    # service_fit ontology: prefer explicit counters from strict ESR remeasure.
+    # Never treat "service_fit_supported" (PASS reason) as a loss.
     not_ready_top = list(esr_report.get("not_ready_top") or [])
-    service_fit_unsupported = 0
-    for item in not_ready_top:
-        if isinstance(item, (list, tuple)) and len(item) >= 2:
-            if "service_fit_unsupported" in str(item[0]):
-                service_fit_unsupported = int(item[1])
-    service_fit_ok = service_fit_unsupported == 0
+    service_fit_unsupported = int(esr_report.get("service_fit_unsupported_count") or 0)
+    if not service_fit_unsupported:
+        for item in not_ready_top:
+            if not isinstance(item, (list, tuple)) or len(item) < 2:
+                continue
+            key = str(item[0]).strip()
+            if key in {"service_fit_unsupported", "FAIL:service_fit_unsupported"}:
+                service_fit_unsupported = max(service_fit_unsupported, int(item[1]))
+    if "service_fit_ontology_ok" in esr_report:
+        service_fit_ok = bool(esr_report.get("service_fit_ontology_ok"))
+    else:
+        service_fit_ok = service_fit_unsupported == 0
 
     healthy = bool(capacity.get("reserve_gate_ok") and esr_n >= reserve and contact_complete)
     pilot_ready = esr_n >= 50 and bool(audit.get("PASS")) and int(audit.get("sample_size") or 0) >= 100
-    warmbly_pass = bool(warmbly_e2e.get("PASS"))
     sha_ok = bool(sha_binding.get("triple_sha_equal"))
-    # Demand non-config-only checks for warmbly true PASS
+    # Warmbly: PASS only if behavioral feed import is real AND no check is
+    # PASS_CONFIG / PASS_UNIT_TEST only for critical paths (SMTP/DNC/hot-set).
     warmbly_checks = warmbly_e2e.get("checks") if isinstance(warmbly_e2e.get("checks"), dict) else {}
     warmbly_feed_real = str(warmbly_checks.get("reservoir_feed_import") or "").upper() == "PASS"
+    config_only_critical = any(
+        str(warmbly_checks.get(k) or "").upper() in {"PASS_CONFIG", "PASS_UNIT_TEST", "PENDING"}
+        for k in (
+            "smtp_imap_reply_stop",
+            "dnc_preserved",
+            "rolling_hot_set",
+            "outcomes_webhook",
+        )
+    )
+    # Honest PASS: feed import real + commercial send blocked + no critical pending.
+    # Config-only SMTP/DNC does not grant warmbly_e2e_pass for EXTERNAL terminal.
+    warmbly_pass = bool(warmbly_e2e.get("PASS")) and warmbly_feed_real and not config_only_critical
+    warmbly_partial = warmbly_feed_real and bool(warmbly_e2e.get("PASS")) and config_only_critical
 
     reserve_days = round(esr_n / (eph * bhd), 2) if eph * bhd > 0 else 0.0
     pilot_tech = (
@@ -325,8 +345,7 @@ def emit_pack(
         not healthy
         and contact_complete
         and esr_n < reserve
-        and warmbly_pass
-        and warmbly_feed_real
+        and warmbly_pass  # requires real SMTP/DNC/hot-set — not PASS_CONFIG
         and sha_ok
         and bool(audit.get("PASS"))
         and int(audit.get("sample_size") or 0) >= 100
@@ -345,10 +364,12 @@ def emit_pack(
                 f"ESR={esr_n} reserve={reserve}."
             )
         elif not sha_ok:
-            one_action = f"Rebind SHA host/runtime ao origin/main; ESR={esr_n}."
-        elif not warmbly_pass or not warmbly_feed_real:
+            one_action = f"Rebind SHA host/runtime ao origin/main tip; ESR={esr_n}."
+        elif warmbly_partial or not warmbly_pass:
             one_action = (
-                f"Completar Warmbly no-send E2E real (hot-set/DNC/SMTP); ESR={esr_n}."
+                f"Completar Warmbly behavioral no-send E2E "
+                f"(SMTP/IMAP/reply-stop live + DNC preserve + rolling hot-set populated); "
+                f"feed import alone is insufficient. ESR={esr_n}."
             )
         elif int(audit.get("sample_size") or 0) < 100:
             one_action = f"Auditoria adversarial estratificada ≥100 (agora {audit.get('sample_size')})."
@@ -388,7 +409,10 @@ def emit_pack(
             "machine_audit_pass": bool(audit.get("PASS")),
             "machine_audit_sample_size": int(audit.get("sample_size") or 0),
             "sha_bound": sha_ok,
-            "warmbly_e2e_pass": warmbly_pass and warmbly_feed_real,
+            "warmbly_e2e_pass": warmbly_pass,
+            "warmbly_feed_import_pass": warmbly_feed_real,
+            "warmbly_behavioral_complete": warmbly_pass,
+            "warmbly_partial_config_only": warmbly_partial,
         },
         "EMAIL_SEND_READY_DISTINCT_COMPANIES": esr_n,
         "MIN_OPERATIONAL_RESERVE": reserve,

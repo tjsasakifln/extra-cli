@@ -1,0 +1,100 @@
+{
+  "schema": "confenge.source_ladder_classification.v1",
+  "sources": [
+    {
+      "step": 1,
+      "name": "datalake_existing",
+      "ladder_id": "public_docs_datalake",
+      "class": "PUBLIC_NO_AUTH",
+      "integrated": true,
+      "adapter": "registry / public_docs",
+      "companies_attempted": 8381
+    },
+    {
+      "step": 2,
+      "name": "pncp_structured",
+      "ladder_id": "pncp_annexes",
+      "class": "PUBLIC_NO_AUTH",
+      "integrated": true,
+      "adapter": "pncp_supplier_harvest",
+      "companies_attempted": 8382
+    },
+    {
+      "step": 3,
+      "name": "pncp_attachments",
+      "ladder_id": "pncp_annexes",
+      "class": "PUBLIC_NO_AUTH",
+      "integrated": true,
+      "adapter": "process_resolve + text_extract",
+      "companies_attempted": 8382
+    },
+    {
+      "step": 4,
+      "name": "public_admin_process",
+      "ladder_id": "process_administrative_docs",
+      "class": "PUBLIC_NO_AUTH",
+      "integrated": true,
+      "adapter": "national_confirmed process harvest",
+      "companies_attempted": 8382
+    },
+    {
+      "step": 5,
+      "name": "orgao_official_portal",
+      "ladder_id": "transparency_compras",
+      "class": "PUBLIC_NO_AUTH",
+      "integrated": true,
+      "adapter": "municipal_portal (process enrichment)",
+      "note": "HTTP GET only; not yet wired into contact enrich-batch adapters list",
+      "companies_attempted": 20
+    },
+    {
+      "step": 6,
+      "name": "company_official_site",
+      "ladder_id": "official_site",
+      "class": "PUBLIC_NO_AUTH",
+      "integrated": true,
+      "adapter": "site / site_crawl",
+      "companies_attempted": 8381
+    },
+    {
+      "step": 7,
+      "name": "company_contact_pages",
+      "ladder_id": "company_public_pages",
+      "class": "PUBLIC_NO_AUTH",
+      "integrated": true,
+      "adapter": "contact_page + web_search",
+      "companies_attempted": 8381
+    },
+    {
+      "step": 8,
+      "name": "company_public_pdfs",
+      "ladder_id": "company_public_pages",
+      "class": "PUBLIC_NO_AUTH",
+      "integrated": true,
+      "adapter": "site crawl PDF links",
+      "companies_attempted": 8381
+    },
+    {
+      "step": 9,
+      "name": "public_compras_transparency",
+      "ladder_id": "transparency_compras",
+      "class": "PUBLIC_NO_AUTH",
+      "integrated": "PARTIAL",
+      "adapter": "municipal_portal.py",
+      "note": "Public GET; national contact graph must call it for FULL public exhaustion",
+      "companies_attempted": 20
+    },
+    {
+      "step": 10,
+      "name": "sei_authenticated",
+      "ladder_id": "sei",
+      "class": "HUMAN_SESSION_REQUIRED",
+      "integrated": true,
+      "adapter": "sei_human_session",
+      "note": "Requires human session / CAPTCHA — valid EXTERNAL after PUBLIC_NO_AUTH exhausted",
+      "companies_attempted": 0
+    }
+  ],
+  "public_no_auth_unattempted": [],
+  "all_public_no_auth_attempted": true
+}

@@ -1,14 +1,14 @@
 # FINAL-REPORT — National commercial reservoir (strict ESR)
 
-- generated_at: `2026-08-10T17:07:41Z`
-- extra_cli_sha: `7612004a867853d4b523059f859f1a876ae1567f`
+- generated_at: `2026-08-10T17:34:13Z`
+- extra_cli_sha: `da5891cd63e01c6f88db4bc0404bf1ebb6028489`
 - TARGET_CONFIRMED: **8382**
 - EMAIL_SEND_READY strict: **72**
 - email roots upper bound: **223**
 - MIN_OPERATIONAL_RESERVE: **900** (10/h × 9h × 10d)
 - NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY: **False**
 - PILOT_READY_CANDIDATE: **True**
-- terminal: **EXTERNAL_BLOCKER_REQUIRES_TIAGO**
+- terminal: **ENGINEERING_IN_PROGRESS**
 - machine audit PASS: **True** (n=100)
 
 ## Funnel (strict)
