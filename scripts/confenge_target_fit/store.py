@@ -4,6 +4,7 @@ Uses Postgres row locks (FOR UPDATE SKIP LOCKED) + lock TTL for crash recovery.
 Never depends on sticky lockfiles.
 """
 
+# ruff: noqa: S608  # dynamic SQL over allowlisted table/column identifiers
 from __future__ import annotations
 
 import json
@@ -41,7 +42,7 @@ def _json_default(obj: Any) -> Any:
 
         if isinstance(obj, Decimal):
             return float(obj)
-    except Exception:  # noqa: BLE001
+    except Exception:  # noqa: BLE001, S110 — Decimal optional at import time
         pass
     if hasattr(obj, "isoformat"):
         return obj.isoformat()
@@ -759,7 +760,7 @@ def max_current_watermark(conn: Any) -> str:
                     except ValueError:
                         continue
                     candidates.append((ts, wm))
-            except Exception:  # noqa: BLE001 — table may not exist mid-migration
+            except Exception:  # noqa: BLE001, S110 — table may not exist mid-migration
                 pass
         # Control plane CDC watermark
         cur.execute(

@@ -6,6 +6,7 @@ national scans. Watermark-driven, cheap polling.
 ETL never waits on this path.
 """
 
+# ruff: noqa: S608  # dynamic SQL over allowlisted table/column identifiers
 from __future__ import annotations
 
 import hashlib
@@ -13,8 +14,8 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from scripts.confenge_target_fit.company_key import (
-    company_key_from_raiz,
     cnpj_raiz_from_cnpj14,
+    company_key_from_raiz,
     digits_only,
     is_consortium_contract,
 )

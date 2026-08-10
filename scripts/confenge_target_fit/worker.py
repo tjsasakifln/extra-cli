@@ -13,8 +13,6 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from scripts.confenge_target_fit import (
-    EVT_DOWNGRADE,
-    EVT_LOST,
     MODE_AUTO_PAUSE,
     MODE_SHADOW,
     STATUS_DEAD,

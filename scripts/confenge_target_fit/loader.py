@@ -4,6 +4,7 @@ Maps contract → CNPJ14 → CNPJ root → company target-fit.
 Treats consórcios conservatively (CONSORTIUM_EVIDENCE provenance).
 """
 
+# ruff: noqa: S608  # dynamic SQL over allowlisted table/column identifiers
 from __future__ import annotations
 
 from datetime import datetime

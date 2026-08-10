@@ -13,8 +13,8 @@ from scripts.confenge_target_fit import (
     TARGET_PROBABLE_RESEARCH,
 )
 from scripts.confenge_target_fit.company_key import (
-    company_key_from_raiz,
     cnpj_raiz_from_cnpj14,
+    company_key_from_raiz,
     digits_only,
 )
 from scripts.confenge_target_fit.freshness import evaluate_freshness
@@ -214,6 +214,7 @@ def published_from_row_or_db(
     row: dict[str, Any] | None,
     *,
     conn: Any | None = None,
+    published_index: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, Any] | None:
     """Resolve published target-fit with explicit authority.
 
@@ -252,7 +253,7 @@ def resolve_suppressed(
         try:
             if bool(is_send_suppressed(conn, company_key)):
                 return True
-        except Exception:  # noqa: BLE001
+        except Exception:  # noqa: BLE001, S110 — ledger optional mid-migration
             pass
         # Live store class OUT after CONFIRMED is also a commercial block even
         # without an invalidation row (class is authority).
@@ -262,7 +263,7 @@ def resolve_suppressed(
                 # Not automatically "suppressed" for research queues — class gate
                 # already blocks send. Keep explicit ledger OR row flags only.
                 pass
-        except Exception:  # noqa: BLE001
+        except Exception:  # noqa: BLE001, S110 — current projection optional
             pass
     if row and (
         row.get("target_fit_suppressed")

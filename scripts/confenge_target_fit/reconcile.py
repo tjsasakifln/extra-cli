@@ -4,6 +4,7 @@ Detects missed CDC events, drift, orphan records, incomplete version
 propagation. Cheap when fingerprints match.
 """
 
+# ruff: noqa: S608  # dynamic SQL over allowlisted table/column identifiers
 from __future__ import annotations
 
 import hashlib

@@ -12,7 +12,6 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Any
 
 from scripts.confenge_target_fit import MODULE_VERSION, TARGET_FIT_VERSION
 from scripts.confenge_target_fit.cdc import company_from_any_cnpj
