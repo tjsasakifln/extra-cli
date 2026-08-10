@@ -1,6 +1,6 @@
 # FINAL REPORT — CONFENGE-OUTREACH-UNCONDITIONAL-GO-01
 
-Generated: `2026-08-10T09:27:23Z`
+Generated: `2026-08-10T09:46:52Z`
 Emitter: `scripts/confenge/emit_unconditional_go_pack.py`
 
 ## Terminal
@@ -15,7 +15,7 @@ Prior ESR=62 demo cohort remains **INVALIDATED**. Do not reuse.
 
 | Item | Value |
 |------|--------|
-| extra-cli SHA | `60223f8881c366469667efbadf05417dcdb7f55c` origin=host=runtime |
+| extra-cli SHA | `e39abf790fb0d4f81aeaf1f985fef197de42b953` origin=host=runtime |
 | warmbly SHA | `81d83429316aa6241cc81b3ac8e761bfc59c2487` origin=host=runtime |
 | CI | green on exact HEADs |
 | TARGET_FIT | HEALTHY |

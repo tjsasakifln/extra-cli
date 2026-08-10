@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-10T09:27:23Z",
+  "generated_at": "2026-08-10T09:46:52Z",
   "session": "post-merge-9bcb7ef5",
   "clean_cohort_imported_to_production": true,
   "import_status": "completed",
@@ -26,7 +26,7 @@
     "whatsapp": "OFF"
   },
   "taint_check": "0 demo/fixture sendable",
-  "extra_cli_sha": "60223f8881c366469667efbadf05417dcdb7f55c",
+  "extra_cli_sha": "e39abf790fb0d4f81aeaf1f985fef197de42b953",
   "warmbly_sha": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
   "commercial_leads_not_sent": true,
   "emitter": "scripts/confenge/emit_unconditional_go_pack.py"

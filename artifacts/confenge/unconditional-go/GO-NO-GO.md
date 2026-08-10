@@ -1,6 +1,6 @@
 # GO / NO-GO — Unconditional CONFENGE email pilot
 
-Generated: `2026-08-10T09:27:23Z`
+Generated: `2026-08-10T09:46:52Z`
 Emitter: `scripts/confenge/emit_unconditional_go_pack.py` (sole pack writer)
 
 ## Terminal state
@@ -8,7 +8,7 @@ Emitter: `scripts/confenge/emit_unconditional_go_pack.py` (sole pack writer)
 ### `EXTERNAL_BLOCKER_REQUIRES_TIAGO`
 
 All **controllable engineering** §21 booleans are true from live probes
-(origin/main == host `.deployed_sha` == runtime == `60223f8881c3…`).
+(origin/main == host `.deployed_sha` == runtime == `e39abf790fb0…`).
 
 The **sole remaining non-automatable gate** is real human review of the stratified sample
 (`HUMAN_REVIEW_PENDING`, n=15). Machine processes must not mint `HUMAN_REVIEW_APPROVED`.
@@ -17,10 +17,10 @@ The **sole remaining non-automatable gate** is real human review of the stratifi
 
 | Probe | Value |
 |-------|--------|
-| extra-cli origin/main | `60223f8881c366469667efbadf05417dcdb7f55c` |
-| extra-cli host deployed | `60223f8881c366469667efbadf05417dcdb7f55c` |
-| extra-cli runtime | `60223f8881c366469667efbadf05417dcdb7f55c` |
-| extra-cli CI | green (https://github.com/tjsasakifln/extra-cli/actions/runs/31373825679) |
+| extra-cli origin/main | `e39abf790fb0d4f81aeaf1f985fef197de42b953` |
+| extra-cli host deployed | `e39abf790fb0d4f81aeaf1f985fef197de42b953` |
+| extra-cli runtime | `e39abf790fb0d4f81aeaf1f985fef197de42b953` |
+| extra-cli CI | green (https://github.com/tjsasakifln/extra-cli/actions/runs/31375489612) |
 | warmbly origin/main | `81d83429316aa6241cc81b3ac8e761bfc59c2487` |
 | warmbly host/runtime | `81d83429316aa6241cc81b3ac8e761bfc59c2487` |
 | TARGET_FIT_RUNTIME | HEALTHY |
