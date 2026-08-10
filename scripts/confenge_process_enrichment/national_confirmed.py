@@ -69,12 +69,14 @@ class NationalHarvestConfig:
     output_dir: Path = field(default_factory=lambda: DEFAULT_OUT)
     max_companies: int | None = None
     allow_network: bool = True
-    max_contracts: int = 8
-    max_docs_per_contract: int = 4
-    max_docs_fetch: int = 6
+    max_contracts: int = 4
+    max_docs_per_contract: int = 3
+    max_docs_fetch: int = 4
     resume: bool = True
     dsn: str | None = None
-    politeness_seconds: float = 0.15
+    politeness_seconds: float = 0.05
+    # Optional shard for parallel workers: only process roots with this prefix
+    root_prefix: str | None = None
 
 
 def load_confirmed_roots(dsn: str) -> list[dict[str, Any]]:
@@ -139,6 +141,69 @@ def _save_checkpoint(path: Path, completed: set[str]) -> None:
 def _result_to_public_docs(result: Any) -> list[dict[str, Any]]:
     """Convert enrichment contact graph into public_docs adapter rows."""
     docs: list[dict[str, Any]] = []
+    # Prefer dossier / outreach exports when graph fields are sparse
+    payload = result.to_dict() if hasattr(result, "to_dict") else {}
+    dossier = payload.get("dossier") if isinstance(payload, dict) else None
+    if isinstance(dossier, dict):
+        for email in dossier.get("EMAILS") or []:
+            if email:
+                docs.append(
+                    {
+                        "email": email,
+                        "phone": None,
+                        "name": None,
+                        "cargo": None,
+                        "url": None,
+                        "source_url": None,
+                        "document_id": None,
+                        "document": None,
+                        "doc_type": "process_administrative",
+                        "pattern_guessed_email": False,
+                        "epistemic_class": "COMPANY_DECLARED",
+                        "source_type": "public_process_document",
+                    }
+                )
+        for person in dossier.get("PEOPLE") or []:
+            if not isinstance(person, dict):
+                continue
+            for email in person.get("emails") or []:
+                docs.append(
+                    {
+                        "email": email,
+                        "phone": (person.get("phones") or [None])[0],
+                        "name": person.get("name"),
+                        "cargo": (person.get("roles") or [None])[0],
+                        "url": person.get("source_url"),
+                        "source_url": person.get("source_url"),
+                        "document_id": person.get("source_document_id"),
+                        "document": person.get("source_document_id"),
+                        "doc_type": "process_administrative",
+                        "pattern_guessed_email": False,
+                        "epistemic_class": person.get("epistemic_best") or "OBSERVED_PUBLIC",
+                        "source_type": "public_process_document",
+                    }
+                )
+        for route in dossier.get("REFERRAL_ROUTE") or []:
+            if isinstance(route, dict) and route.get("email"):
+                docs.append(
+                    {
+                        "email": route["email"],
+                        "phone": None,
+                        "name": None,
+                        "cargo": route.get("role_observed"),
+                        "url": None,
+                        "source_url": None,
+                        "document_id": route.get("source_document_id"),
+                        "document": route.get("source_document_id"),
+                        "doc_type": "process_administrative",
+                        "pattern_guessed_email": False,
+                        "epistemic_class": route.get("epistemic_class") or "OBSERVED_PUBLIC",
+                        "source_type": "public_process_document",
+                    }
+                )
+        if docs:
+            return docs
+
     graph = getattr(result, "contact_graph", None)
     if graph is None and hasattr(result, "to_dict"):
         payload = result.to_dict() or {}
@@ -312,6 +377,9 @@ def run_national_process_harvest(
     terminals_path = out / "contact-discovery-terminals.jsonl"
 
     roots = load_confirmed_roots(dsn)
+    if cfg.root_prefix:
+        pref = str(cfg.root_prefix)
+        roots = [r for r in roots if str(r.get("cnpj_raiz") or "").startswith(pref)]
     confirmed_keys = [str(r.get("cnpj_raiz") or "") for r in roots if r.get("cnpj_raiz")]
     completed: set[str] = set()
     if cfg.resume:

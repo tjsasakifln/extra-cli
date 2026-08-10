@@ -212,6 +212,7 @@ def cmd_national_confirmed(args: argparse.Namespace) -> int:
         resume=not bool(args.no_resume),
         dsn=dsn,
         politeness_seconds=float(args.politeness_seconds),
+        root_prefix=getattr(args, "root_prefix", None),
     )
     report = run_national_process_harvest(dsn, cfg=cfg)
     print(json.dumps(report, indent=2, ensure_ascii=False, default=str))
@@ -271,9 +272,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="Smoke bound only — never 50 (PILOT_ACCEPTANCE_SAMPLE)",
     )
     n.add_argument("--allow-network", action="store_true")
-    n.add_argument("--max-contracts", type=int, default=8)
+    n.add_argument("--max-contracts", type=int, default=4)
     n.add_argument("--no-resume", action="store_true")
-    n.add_argument("--politeness-seconds", type=float, default=0.15)
+    n.add_argument("--politeness-seconds", type=float, default=0.05)
+    n.add_argument(
+        "--root-prefix",
+        default=None,
+        help="Optional CNPJ-root prefix shard for parallel workers (e.g. 0, 1, 00)",
+    )
     n.set_defaults(func=cmd_national_confirmed)
 
     sh = sub.add_parser("sei-human", help="SEI public search with human captcha/session")
