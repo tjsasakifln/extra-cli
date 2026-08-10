@@ -18,7 +18,7 @@
     "zero_unsupported_service": false,
     "zero_hollow_copy": true,
     "zero_unsafe_claim": true,
-    "note": "PILOT_GO is independent of NATIONAL_RESERVOIR_HEALTHY. Do not treat ESR≥50 as pipeline capacity or business objective."
+    "note": "PILOT_GO is independent of NATIONAL_RESERVOIR_HEALTHY. Do not treat ESR\u226550 as pipeline capacity or business objective."
   },
   "national": {
     "NATIONAL_RESERVOIR_HEALTHY": false,
@@ -32,8 +32,17 @@
       "service multi-service not monoculture without causal diagnosis"
     ]
   },
-  "as_of": "2026-08-10T07:23:47.969975+00:00",
+  "as_of": "2026-08-10T07:38:24.080354+00:00",
   "warmbly_capacity_per_hour": 10,
   "warmbly_channel": "EMAIL_ONLY",
-  "whatsapp": "OFF"
+  "whatsapp": "OFF",
+  "full_reconcile_enqueue": {
+    "expected_company_roots": 511645,
+    "visited_company_roots": 511645,
+    "dirty_enqueued": 510608,
+    "pagination_exhausted_normally": true,
+    "unexplained_missing": 0,
+    "completed_at": "2026-08-10T07:32:40Z",
+    "note": "After savepoint fix, pending queue holds ~510k roots; worker draining continuously. Materialization lag is wall-clock, not pagination truncation."
+  }
 }

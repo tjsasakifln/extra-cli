@@ -91,3 +91,20 @@ Root causes of ~1.038 materialization (host 2026-08-10): (1) Pre-#215 keyset pag
 - Claim FULL_NATIONAL_READY without full reconcile evidence
 - Treat worker HEALTHY + 2% populated as national readiness
 
+
+## Post-campaign full reconcile (host-of-record)
+
+After deploying SHADOW-aware reconcile + `fornecedor_cnpj_8` keyset + savepoint fix:
+
+```text
+expected_company_roots = 511645
+visited_company_roots  = 511645
+dirty_enqueued         ≈ 510608  (missing vs prior 1038 shadow)
+pagination_exhausted_normally = true
+unexplained_missing    = 0
+```
+
+Worker loop drains the dirty queue continuously. Shadow materialization grows
+asynchronously (HEALTHY runtime ≠ FULLY_RECONCILED until coverage ≥ 99.5%).
+
+See PR #217.
