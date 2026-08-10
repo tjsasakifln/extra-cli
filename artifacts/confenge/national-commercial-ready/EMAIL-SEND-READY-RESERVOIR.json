@@ -1,0 +1,26 @@
+{
+  "as_of": "2026-08-10T11:26:37Z",
+  "EMAIL_SEND_READY_DISTINCT_COMPANIES": 60,
+  "capacity": {
+    "schema": "confenge.operational_capacity_metrics.v1",
+    "PILOT_ACCEPTANCE_SAMPLE": 50,
+    "NATIONAL_EMAIL_SEND_READY_RESERVOIR": 60,
+    "ACTIVE_HOT_SET": 10,
+    "MIN_OPERATIONAL_RESERVE": 900,
+    "operational_reserve_days": 10,
+    "emails_per_hour": 10.0,
+    "business_hours_per_day": 9.0,
+    "reserve_gate_ok": false,
+    "hot_set_le_reservoir": true,
+    "pilot_is_not_capacity": true,
+    "note": "50 is PILOT_ACCEPTANCE_SAMPLE (quality only). Reservoir=60, hot_set=10, min_reserve=900.",
+    "warmbly": {
+      "email_only": true,
+      "whatsapp_enabled": false,
+      "auto_send_enabled": false,
+      "sending_paused": false,
+      "send_window_start": "09:00",
+      "send_window_end": "18:00"
+    }
+  }
+}

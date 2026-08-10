@@ -17,6 +17,7 @@ MODULE_VERSION = "confenge-target-fit-continuous-refresh-v1"
 from scripts.confenge_universe.target_fit import (  # noqa: E402
     TARGET_CONFIRMED,
     TARGET_FIT_VERSION,
+    TARGET_INSUFFICIENT_EVIDENCE,
     TARGET_OUT_OF_SCOPE,
     TARGET_PROBABLE_RESEARCH,
     TargetFitDecision,
@@ -62,6 +63,7 @@ HEALTH_FAILED = "FAILED"
 # Rank for upgrade/downgrade detection (higher = better commercial fit)
 CLASS_RANK: dict[str, int] = {
     TARGET_OUT_OF_SCOPE: 0,
+    TARGET_INSUFFICIENT_EVIDENCE: 0,
     TARGET_PROBABLE_RESEARCH: 1,
     TARGET_CONFIRMED: 2,
     RECOMPUTE_REQUIRED: -1,
@@ -100,6 +102,7 @@ __all__ = [
     "STORE_SCHEMA_VERSION",
     "TARGET_CONFIRMED",
     "TARGET_FIT_VERSION",
+    "TARGET_INSUFFICIENT_EVIDENCE",
     "TARGET_OUT_OF_SCOPE",
     "TARGET_PROBABLE_RESEARCH",
     "TargetFitDecision",

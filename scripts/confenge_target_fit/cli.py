@@ -102,6 +102,16 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     sub.add_parser("version", help="Print module / classifier versions")
+
+    rc = sub.add_parser(
+        "reclassify-insufficient",
+        help=(
+            "Downgrade SHADOW PROBABLE without positive ICP evidence to "
+            "TARGET_INSUFFICIENT_EVIDENCE (idempotent)"
+        ),
+    )
+    rc.add_argument("--dry-run", action="store_true")
+    rc.add_argument("--limit", type=int, default=None, help="Optional candidate cap")
     return p
 
 
@@ -156,6 +166,23 @@ def main(argv: list[str] | None = None) -> int:
         )
         print(json.dumps(stats.as_dict(), indent=2, default=str))
         return 1 if stats.error else 0
+
+    if args.cmd == "reclassify-insufficient":
+        from scripts.confenge_target_fit.reclassify_insufficient import (
+            reclassify_shadow_probable_without_evidence,
+        )
+
+        conn = connect(dsn, readonly=False)
+        try:
+            result = reclassify_shadow_probable_without_evidence(
+                conn,
+                dry_run=bool(args.dry_run),
+                limit=args.limit,
+            )
+        finally:
+            conn.close()
+        print(json.dumps(result, indent=2, default=str))
+        return 0
 
     if args.cmd == "status":
         report = build_health(dsn, cfg=cfg)

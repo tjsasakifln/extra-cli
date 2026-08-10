@@ -1,0 +1,24 @@
+{
+  "network_harvest_attempted": 75,
+  "emails_found": 75,
+  "email_send_ready": 60,
+  "yield_esr_of_attempted": 0.8,
+  "sources": {
+    "official_site": {
+      "attempted": 75,
+      "contacts_found": 60,
+      "send_ready": 50
+    },
+    "public_docs": {
+      "attempted": 75,
+      "contacts_found": 15,
+      "send_ready": 10
+    },
+    "process_admin": {
+      "attempted": 0,
+      "contacts_found": 0,
+      "send_ready": 0,
+      "note": "process_documents table empty; process-first package deployed this goal"
+    }
+  }
+}

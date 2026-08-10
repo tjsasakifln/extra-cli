@@ -55,10 +55,88 @@ def coverage_ratio(
     *,
     materialized_company_count: int,
     canonical_company_count: int,
+    clamp: bool = True,
 ) -> float | None:
+    """Coverage of valid materialized roots over canonical roots.
+
+    Invariant: when clamp=True (default), result is always in [0, 1].
+    Over-materialization must be reported via orphan/overcount fields, never
+    as coverage_ratio > 1.
+    """
     if canonical_company_count <= 0:
         return None
-    return float(materialized_company_count) / float(canonical_company_count)
+    raw = float(materialized_company_count) / float(canonical_company_count)
+    if clamp:
+        if raw < 0:
+            return 0.0
+        if raw > 1.0:
+            return 1.0
+    return raw
+
+
+def reconcile_accounting(
+    *,
+    canonical_roots: int,
+    materialized_roots: int,
+    orphan_materialized_roots: int = 0,
+    duplicate_cnpj_root: int = 0,
+    invalid_cnpj_root: int = 0,
+    explicit_exclusions: int = 0,
+    exclusion_reason_counts: dict[str, int] | None = None,
+) -> dict[str, Any]:
+    """Closed-form universe accounting with hard invariants.
+
+    valid_materialized = materialized - orphans - invalid (duplicates counted separately)
+    0 <= coverage_ratio <= 1
+    valid_materialized <= canonical
+    unexplained_missing = max(0, canonical - valid_materialized - explicit_exclusions)
+    """
+    orphans = max(0, int(orphan_materialized_roots))
+    dups = max(0, int(duplicate_cnpj_root))
+    invalid = max(0, int(invalid_cnpj_root))
+    exclusions = max(0, int(explicit_exclusions))
+    mat = max(0, int(materialized_roots))
+    canon = max(0, int(canonical_roots))
+    valid_materialized = max(0, mat - orphans - invalid)
+    # Duplicates inflate mat without adding unique roots; surface but don't
+    # double-subtract if orphan pass already used distinct roots.
+    if valid_materialized > canon:
+        overcount = valid_materialized - canon
+        valid_materialized = canon
+    else:
+        overcount = 0
+    unexplained = max(0, canon - valid_materialized - exclusions)
+    ratio = coverage_ratio(
+        materialized_company_count=valid_materialized,
+        canonical_company_count=canon,
+        clamp=True,
+    )
+    equation_ok = (valid_materialized + exclusions + unexplained) == canon
+    invariants = {
+        "coverage_ratio_in_0_1": ratio is None or (0.0 <= ratio <= 1.0 + 1e-12),
+        "valid_materialized_le_canonical": valid_materialized <= canon,
+        "orphan_materialized_roots_eq_0": orphans == 0,
+        "duplicate_cnpj_root_eq_0": dups == 0,
+        "invalid_cnpj_root_eq_0": invalid == 0,
+        "unexplained_missing_eq_0": unexplained == 0,
+        "equation_closed": equation_ok,
+    }
+    return {
+        "schema": "confenge.universe_accounting.v1",
+        "canonical_roots": canon,
+        "materialized_roots": mat,
+        "materialized_valid_roots": valid_materialized,
+        "orphan_materialized_roots": orphans,
+        "duplicate_cnpj_root": dups,
+        "invalid_cnpj_root": invalid,
+        "explicit_exclusions": exclusions,
+        "exclusion_reason_counts": dict(exclusion_reason_counts or {}),
+        "unexplained_missing": unexplained,
+        "overcount_clamped": overcount,
+        "coverage_ratio": ratio,
+        "invariants": invariants,
+        "FULLY_RECONCILED": all(invariants.values()),
+    }
 
 
 def classify_coverage_mode(
@@ -123,15 +201,37 @@ def build_coverage_snapshot(
     dead: int = 0,
     lag_seconds: float | None = None,
     population_source: str = "shadow",
+    orphan_materialized_roots: int = 0,
+    duplicate_cnpj_root: int = 0,
+    invalid_cnpj_root: int = 0,
+    exclusion_reason_counts: dict[str, int] | None = None,
 ) -> dict[str, Any]:
     """Machine-readable coverage watermark (real counts only — no hard-coded N)."""
-    ratio = coverage_ratio(
-        materialized_company_count=materialized_company_count,
-        canonical_company_count=canonical_company_count,
+    accounting = reconcile_accounting(
+        canonical_roots=int(canonical_company_count),
+        materialized_roots=int(materialized_company_count),
+        orphan_materialized_roots=int(orphan_materialized_roots),
+        duplicate_cnpj_root=int(duplicate_cnpj_root),
+        invalid_cnpj_root=int(invalid_cnpj_root),
+        explicit_exclusions=int(explicit_exclusions),
+        exclusion_reason_counts=exclusion_reason_counts,
     )
+    # Prefer closed-form unexplained from accounting when stricter
+    unexplained = max(int(unexplained_missing), int(accounting["unexplained_missing"]))
+    # If orphans present, they explain overcount but also fail FULLY_RECONCILED
+    ratio = accounting["coverage_ratio"]
     gaps = dict(gap_breakdown or {})
+    if orphan_materialized_roots:
+        gaps["ORPHAN_MATERIALIZED"] = int(orphan_materialized_roots)
+    if duplicate_cnpj_root:
+        gaps["DUPLICATE_CNPJ_ROOT"] = int(duplicate_cnpj_root)
+    if invalid_cnpj_root:
+        gaps["INVALID_CNPJ"] = int(gaps.get("INVALID_CNPJ", 0)) + int(invalid_cnpj_root)
     # Reject UNKNOWN labels if present
-    unknown = {k: v for k, v in gaps.items() if k not in KNOWN_GAP_STATES}
+    unknown = {k: v for k, v in gaps.items() if k not in KNOWN_GAP_STATES and k not in {
+        "ORPHAN_MATERIALIZED",
+        "DUPLICATE_CNPJ_ROOT",
+    }}
     if unknown:
         # Fold unknown into DATA_ERROR for honesty rather than inventing acceptance
         gaps["DATA_ERROR"] = int(gaps.get("DATA_ERROR", 0)) + sum(int(v) for v in unknown.values())
@@ -141,31 +241,54 @@ def build_coverage_snapshot(
     mode = classify_coverage_mode(
         coverage=ratio,
         last_full_reconcile_completed_at=last_full_reconcile_completed_at,
-        unexplained_missing=int(unexplained_missing),
+        unexplained_missing=int(unexplained),
         pagination_exhausted_normally=bool(pagination_exhausted_normally),
         auto_paused=auto_paused,
         dead=dead,
         lag_seconds=lag_seconds,
     )
-    full_national_ready = mode == COVERAGE_MODE_FULLY_RECONCILED and unexplained_missing == 0
+    if orphan_materialized_roots > 0 or duplicate_cnpj_root > 0 or invalid_cnpj_root > 0:
+        # Cannot be fully reconciled with accounting defects
+        if mode == COVERAGE_MODE_FULLY_RECONCILED:
+            mode = COVERAGE_MODE_PARTIAL
+    full_national_ready = (
+        mode == COVERAGE_MODE_FULLY_RECONCILED
+        and unexplained == 0
+        and orphan_materialized_roots == 0
+        and duplicate_cnpj_root == 0
+        and invalid_cnpj_root == 0
+        and (ratio is None or ratio <= 1.0 + 1e-12)
+    )
     return {
         "schema": "confenge.target_fit_coverage.v1",
         "canonical_company_count": int(canonical_company_count),
         "materialized_company_count": int(materialized_company_count),
+        "materialized_valid_roots": int(accounting["materialized_valid_roots"]),
+        "orphan_materialized_roots": int(orphan_materialized_roots),
+        "duplicate_cnpj_root": int(duplicate_cnpj_root),
+        "invalid_cnpj_root": int(invalid_cnpj_root),
         "coverage_ratio": ratio,
+        "coverage_ratio_raw_unclamped": (
+            float(materialized_company_count) / float(canonical_company_count)
+            if canonical_company_count > 0
+            else None
+        ),
         "coverage_threshold": TARGET_FIT_COVERAGE_THRESHOLD,
         "expected_company_roots": int(expected_company_roots),
         "visited_company_roots": int(visited_company_roots),
         "explicit_exclusions": int(explicit_exclusions),
-        "unexplained_missing": int(unexplained_missing),
+        "exclusion_reason_counts": dict(exclusion_reason_counts or {}),
+        "unexplained_missing": int(unexplained),
         "pagination_exhausted_normally": bool(pagination_exhausted_normally),
         "last_full_reconcile_completed_at": last_full_reconcile_completed_at,
-        "last_full_reconcile_unexplained_missing": int(unexplained_missing),
+        "last_full_reconcile_unexplained_missing": int(unexplained),
         "gap_breakdown": gaps,
         "population_source": population_source,
         "async_mode": async_mode,
         "coverage_mode": mode,
         "FULL_NATIONAL_READY": full_national_ready,
+        "FULLY_RECONCILED": bool(accounting["FULLY_RECONCILED"] and full_national_ready),
+        "accounting": accounting,
         "as_of": _utcnow_iso(),
     }
 

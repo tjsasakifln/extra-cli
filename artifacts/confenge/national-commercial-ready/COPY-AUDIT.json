@@ -1,0 +1,14 @@
+{
+  "FALSE_TARGET": 0,
+  "WRONG_COMPANY": 0,
+  "WRONG_CONTACT": 0,
+  "TAINTED_PROVENANCE": 0,
+  "MAILBOX_INAPPROPRIATE": 0,
+  "UNSUPPORTED_SERVICE": 0,
+  "HOLLOW_COPY": 0,
+  "UNSAFE_CLAIM": 0,
+  "INVENTED_PAIN": 0,
+  "WHY_NOW_UNSUPPORTED": 0,
+  "DUPLICATE_COPY": 0,
+  "note": "Counters are 0 only for structural gates on harvest ESR evaluate path; full ≥100 stratified audit after enrichment drain."
+}

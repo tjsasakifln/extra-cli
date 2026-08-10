@@ -164,6 +164,7 @@ class HealthReport:
     last_success: str | None
     async_mode: str
     auto_paused: bool
+    insufficient: int = 0
     details: dict[str, Any] = field(default_factory=dict)
 
     def as_dict(self) -> dict[str, Any]:
@@ -187,7 +188,8 @@ class HealthReport:
             f"CONFIRMED: {self.confirmed}",
             f"PROBABLE: {self.probable}",
             f"OUT: {self.out}",
-            f"MATERIALIZED: {self.confirmed + self.probable + self.out}",
+            f"INSUFFICIENT_EVIDENCE: {self.insufficient}",
+            f"MATERIALIZED: {self.confirmed + self.probable + self.out + self.insufficient}",
             f"COVERAGE_MODE: {cov.get('coverage_mode') or 'BOOTSTRAPPING'}",
             f"COVERAGE_RATIO: {ratio_s}",
             f"CANONICAL_ROOTS: {cov.get('canonical_company_count') or 0}",

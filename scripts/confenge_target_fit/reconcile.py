@@ -336,6 +336,20 @@ def run_reconcile(
         canonical_count = int(canonical) if canonical is not None else expected_company_roots
         materialized_count = len(materialized_rows)
 
+        # Duplicates / invalid among materialization index
+        seen_roots: set[str] = set()
+        duplicate_cnpj_root = 0
+        invalid_cnpj_root = 0
+        for _ck, row in materialized_rows.items():
+            r = digits_only(row.get("cnpj_raiz"))[:8]
+            if not r or len(r) != 8 or not r.isdigit() or r == "00000000":
+                invalid_cnpj_root += 1
+                continue
+            if r in seen_roots:
+                duplicate_cnpj_root += 1
+            else:
+                seen_roots.add(r)
+
         coverage_snap = build_coverage_snapshot(
             canonical_company_count=canonical_count,
             materialized_company_count=materialized_count,
@@ -345,7 +359,7 @@ def run_reconcile(
             pagination_exhausted_normally=pagination_exhausted_normally,
             explicit_exclusions=explicit_exclusions,
             gap_breakdown={
-                "INVALID_CNPJ": 0,  # filtered before roots list
+                "INVALID_CNPJ": invalid_cnpj_root,
                 "RETRY_PENDING": still_missing_keys if still_missing_keys else 0,
             },
             last_full_reconcile_completed_at=_utcnow().isoformat()
@@ -353,6 +367,9 @@ def run_reconcile(
             else None,
             async_mode=mode,
             population_source=population_source,
+            orphan_materialized_roots=orphan,
+            duplicate_cnpj_root=duplicate_cnpj_root,
+            invalid_cnpj_root=invalid_cnpj_root,
         )
         # Only mark full reconcile complete when we scanned without smoke bound
         if max_enqueue is None and pagination_exhausted_normally:

@@ -1,0 +1,112 @@
+{
+  "rows": [
+    {
+      "stage": "NATIONAL_COMMERCIAL_UNIVERSE",
+      "count": 513650,
+      "pct_of_previous": null,
+      "notes": "supplier CNPJ roots (canonical)"
+    },
+    {
+      "stage": "TARGET_CONFIRMED",
+      "count": 8348,
+      "pct_of_previous": 0.016252
+    },
+    {
+      "stage": "TARGET_PROBABLE_RESEARCH",
+      "count": 411610,
+      "pct_of_previous": 0.801343,
+      "notes": "requires positive ICP evidence"
+    },
+    {
+      "stage": "TARGET_OUT_OF_SCOPE",
+      "count": 92392,
+      "pct_of_previous": 0.179873
+    },
+    {
+      "stage": "TARGET_INSUFFICIENT_EVIDENCE",
+      "count": 0,
+      "pct_of_previous": 0.0,
+      "notes": "not PROBABLE — no positive ICP evidence"
+    },
+    {
+      "stage": "target_fit_class_partition_sum",
+      "count": 512350,
+      "pct_of_previous": 0.997469,
+      "notes": "CONFIRMED+PROBABLE+OUT+INSUFFICIENT (should ≈ universe when fully classified)"
+    },
+    {
+      "stage": "CONTACT_READY",
+      "count": 60,
+      "pct_of_previous": 0.007187
+    },
+    {
+      "stage": "CONTACT_FOUND_NOT_SENDABLE",
+      "count": 15,
+      "pct_of_previous": 0.001797
+    },
+    {
+      "stage": "CONTACT_EXHAUSTED",
+      "count": 0,
+      "pct_of_previous": 0.0
+    },
+    {
+      "stage": "CONTACT_RETRY_PENDING",
+      "count": 0,
+      "pct_of_previous": 0.0
+    },
+    {
+      "stage": "CONTACT_EXTERNAL_BLOCKER",
+      "count": 0,
+      "pct_of_previous": 0.0
+    },
+    {
+      "stage": "CONTACT_NEVER_ATTEMPTED",
+      "count": 8273,
+      "pct_of_previous": 0.991016
+    },
+    {
+      "stage": "contact_terminal_partition_sum",
+      "count": 8348,
+      "pct_of_previous": 1.0,
+      "notes": "must equal TARGET_CONFIRMED"
+    },
+    {
+      "stage": "EMAIL_SEND_READY",
+      "count": 60,
+      "pct_of_previous": 0.007187
+    },
+    {
+      "stage": "WARMBLY_RESERVOIR",
+      "count": 60,
+      "pct_of_previous": 1.0
+    },
+    {
+      "stage": "ACTIVE_HOT_SET",
+      "count": 10,
+      "pct_of_previous": 0.166667
+    }
+  ],
+  "capacity": {
+    "schema": "confenge.operational_capacity_metrics.v1",
+    "PILOT_ACCEPTANCE_SAMPLE": 50,
+    "NATIONAL_EMAIL_SEND_READY_RESERVOIR": 60,
+    "ACTIVE_HOT_SET": 10,
+    "MIN_OPERATIONAL_RESERVE": 900,
+    "operational_reserve_days": 10,
+    "emails_per_hour": 10.0,
+    "business_hours_per_day": 9.0,
+    "reserve_gate_ok": false,
+    "hot_set_le_reservoir": true,
+    "pilot_is_not_capacity": true,
+    "note": "50 is PILOT_ACCEPTANCE_SAMPLE (quality only). Reservoir=60, hot_set=10, min_reserve=900.",
+    "warmbly": {
+      "email_only": true,
+      "whatsapp_enabled": false,
+      "auto_send_enabled": false,
+      "sending_paused": false,
+      "send_window_start": "09:00",
+      "send_window_end": "18:00"
+    }
+  },
+  "as_of": "2026-08-10T11:26:37Z"
+}

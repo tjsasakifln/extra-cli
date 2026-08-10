@@ -1,13 +1,17 @@
 """Explicit ICP target-fit for CONFENGE automatic outreach.
 
 Classes:
-  TARGET_CONFIRMED         — material evidence of construction/engineering execution
-  TARGET_PROBABLE_RESEARCH — possible adjacency; never EMAIL_SEND_READY
-  TARGET_OUT_OF_SCOPE      — commerce/material/fleet/etc. without execution proof
+  TARGET_CONFIRMED              — material evidence of construction/engineering execution
+  TARGET_PROBABLE_RESEARCH      — POSITIVE ICP adjacency evidence; never EMAIL_SEND_READY
+  TARGET_INSUFFICIENT_EVIDENCE  — no positive construction/engineering evidence yet
+  TARGET_OUT_OF_SCOPE           — commerce/material/fleet/etc. without execution proof
 
 Name alone never confirms. CNAE alone never confirms. A single weak keyword,
 high contract value, or infrastructure agency alone never confirms.
 Triangulation required for TARGET_CONFIRMED.
+
+PROBABLE is NOT a synonym for "unknown". Absence of evidence is
+TARGET_INSUFFICIENT_EVIDENCE (or OUT when hard negatives apply).
 """
 
 from __future__ import annotations
@@ -33,11 +37,22 @@ from scripts.commercial_leads.sector_fit import (
     NAME_OUT_OF_SCOPE,
 )
 
-TARGET_FIT_VERSION = "confenge-target-fit-v1"
+# v2: PROBABLE requires positive ICP evidence; unknown → INSUFFICIENT_EVIDENCE
+TARGET_FIT_VERSION = "confenge-target-fit-v2"
 
 TARGET_CONFIRMED = "TARGET_CONFIRMED"
 TARGET_PROBABLE_RESEARCH = "TARGET_PROBABLE_RESEARCH"
+TARGET_INSUFFICIENT_EVIDENCE = "TARGET_INSUFFICIENT_EVIDENCE"
 TARGET_OUT_OF_SCOPE = "TARGET_OUT_OF_SCOPE"
+
+# Positive ICP construction/engineering activity classes (not mere supplier)
+_POSITIVE_ICP_ACTIVITIES = frozenset(
+    {
+        ACTIVITY_CONSTRUCTION,
+        ACTIVITY_ENGINEERING_SERVICE,
+        ACTIVITY_TECHNICAL_DESIGN,
+    }
+)
 
 # Execution-heavy markers in objects (not mere supply/adjacency)
 _EXECUTION_MARKERS: tuple[str, ...] = (
@@ -293,6 +308,20 @@ def classify_target_fit(
             relevant_supply_only_count=supply_only,
         )
 
+    # Pure supply/adjacency contracts without any execution → OUT (not PROBABLE)
+    if n_exec == 0 and supply_only > 0 and not cnae_eng:
+        reasons.append("supply_adjacency_only")
+        return TargetFitDecision(
+            target_fit_class=TARGET_OUT_OF_SCOPE,
+            target_fit_confidence=0.75,
+            target_fit_evidence=evidence,
+            target_fit_reason_codes=reasons,
+            sector_fit=sector,
+            activity_class=activity,
+            relevant_execution_contract_count=0,
+            relevant_supply_only_count=supply_only,
+        )
+
     # TARGET_CONFIRMED: triangulation
     # Path A: sector CONFIRMED/STRONG + ≥1 execution contract
     # Path B: ≥3 execution contracts across history (even if sector POSSIBLE)
@@ -344,13 +373,37 @@ def classify_target_fit(
             relevant_supply_only_count=supply_only,
         )
 
+    # Positive ICP evidence flags (at least one required for PROBABLE)
+    positive_cnae = bool(cnae_eng)
+    positive_activity = activity in _POSITIVE_ICP_ACTIVITIES
+    positive_sector = sector in {
+        CLASS_CONFIRMED,
+        CLASS_STRONG,
+        CLASS_POSSIBLE,
+    } or "POSSIBLE" in sector or "ENGINEERING" in sector or "CONSTRUCTION" in sector
+    positive_exec = n_exec >= 1
+    rel_count = int(ce.get("relevant_contract_count") or 0)
+    positive_ce_count = rel_count >= 1 and float(ce.get("relevant_ratio") or 0) >= 0.3
+    has_positive_icp = (
+        positive_exec
+        or positive_cnae
+        or positive_activity
+        or (positive_sector and sector in {CLASS_CONFIRMED, CLASS_STRONG, CLASS_POSSIBLE})
+        or positive_ce_count
+    )
+
     # Sector CONFIRMED/STRONG without execution objects in the provided slice
-    # → research (do not auto-send on name+CNAE alone)
+    # → research only when other positive ICP signals exist
     if sector in {CLASS_CONFIRMED, CLASS_STRONG} and n_exec == 0:
-        # If construction_evidence already counted relevant contracts highly, allow research not out
-        rel_count = int(ce.get("relevant_contract_count") or 0)
         if rel_count >= 3 and float(ce.get("relevant_ratio") or 0) >= 0.7:
             reasons.append("sector_strong_but_objects_not_in_slice_research")
+            evidence.append(
+                {
+                    "id": "ce-relevant",
+                    "type": "CONSTRUCTION_EVIDENCE_COUNT",
+                    "excerpt": f"relevant_contract_count={rel_count}",
+                }
+            )
             return TargetFitDecision(
                 target_fit_class=TARGET_PROBABLE_RESEARCH,
                 target_fit_confidence=0.55,
@@ -361,10 +414,31 @@ def classify_target_fit(
                 relevant_execution_contract_count=n_exec,
                 relevant_supply_only_count=supply_only,
             )
-        reasons.append("sector_strong_without_execution_objects")
+        if positive_cnae or positive_activity or positive_ce_count:
+            reasons.append("sector_strong_without_execution_objects")
+            if positive_cnae:
+                reasons.append("positive_cnae_engineering")
+                evidence.append(
+                    {
+                        "id": "cnae",
+                        "type": "CNAE_ENGINEERING",
+                        "excerpt": str(cnae_principal or cnae_digits),
+                    }
+                )
+            return TargetFitDecision(
+                target_fit_class=TARGET_PROBABLE_RESEARCH,
+                target_fit_confidence=0.5,
+                target_fit_evidence=evidence,
+                target_fit_reason_codes=reasons,
+                sector_fit=sector,
+                activity_class=activity,
+                relevant_execution_contract_count=n_exec,
+                relevant_supply_only_count=supply_only,
+            )
+        reasons.append("sector_label_without_positive_icp_evidence")
         return TargetFitDecision(
-            target_fit_class=TARGET_PROBABLE_RESEARCH,
-            target_fit_confidence=0.5,
+            target_fit_class=TARGET_INSUFFICIENT_EVIDENCE,
+            target_fit_confidence=0.35,
             target_fit_evidence=evidence,
             target_fit_reason_codes=reasons,
             sector_fit=sector,
@@ -375,10 +449,7 @@ def classify_target_fit(
 
     if n_exec == 1 or sector == CLASS_POSSIBLE or "POSSIBLE" in sector:
         reasons.append("possible_or_single_execution_needs_research")
-        if hard_name and n_exec == 0:
-            # already handled; keep research if some weak signal
-            pass
-        if n_exec == 0 and supply_only > 0:
+        if n_exec == 0 and supply_only > 0 and not (positive_cnae or positive_activity):
             reasons.append("supply_adjacency_only")
             return TargetFitDecision(
                 target_fit_class=TARGET_OUT_OF_SCOPE,
@@ -390,9 +461,34 @@ def classify_target_fit(
                 relevant_execution_contract_count=0,
                 relevant_supply_only_count=supply_only,
             )
+        if has_positive_icp:
+            if positive_exec:
+                reasons.append("single_execution_contract_positive")
+            if positive_cnae:
+                reasons.append("positive_cnae_engineering")
+                evidence.append(
+                    {
+                        "id": "cnae",
+                        "type": "CNAE_ENGINEERING",
+                        "excerpt": str(cnae_principal or cnae_digits),
+                    }
+                )
+            if positive_activity:
+                reasons.append(f"positive_activity:{activity}")
+            return TargetFitDecision(
+                target_fit_class=TARGET_PROBABLE_RESEARCH,
+                target_fit_confidence=0.45,
+                target_fit_evidence=evidence,
+                target_fit_reason_codes=reasons,
+                sector_fit=sector,
+                activity_class=activity,
+                relevant_execution_contract_count=n_exec,
+                relevant_supply_only_count=supply_only,
+            )
+        reasons.append("possible_label_without_positive_icp_evidence")
         return TargetFitDecision(
-            target_fit_class=TARGET_PROBABLE_RESEARCH,
-            target_fit_confidence=0.45,
+            target_fit_class=TARGET_INSUFFICIENT_EVIDENCE,
+            target_fit_confidence=0.3,
             target_fit_evidence=evidence,
             target_fit_reason_codes=reasons,
             sector_fit=sector,
@@ -403,21 +499,55 @@ def classify_target_fit(
 
     if n_exec == 0 and not sector:
         reasons.append("no_sector_no_execution")
+        if positive_cnae or positive_activity:
+            if positive_cnae:
+                reasons.append("positive_cnae_engineering")
+                evidence.append(
+                    {
+                        "id": "cnae",
+                        "type": "CNAE_ENGINEERING",
+                        "excerpt": str(cnae_principal or cnae_digits),
+                    }
+                )
+            return TargetFitDecision(
+                target_fit_class=TARGET_PROBABLE_RESEARCH,
+                target_fit_confidence=0.4,
+                target_fit_evidence=evidence,
+                target_fit_reason_codes=reasons,
+                sector_fit=sector,
+                activity_class=activity,
+                relevant_execution_contract_count=0,
+                relevant_supply_only_count=supply_only,
+            )
         return TargetFitDecision(
-            target_fit_class=TARGET_OUT_OF_SCOPE,
-            target_fit_confidence=0.7,
+            target_fit_class=TARGET_INSUFFICIENT_EVIDENCE,
+            target_fit_confidence=0.25,
             target_fit_evidence=evidence,
-            target_fit_reason_codes=reasons,
+            target_fit_reason_codes=reasons + ["insufficient_positive_icp_evidence"],
             sector_fit=sector,
             activity_class=activity,
             relevant_execution_contract_count=0,
             relevant_supply_only_count=supply_only,
         )
 
-    reasons.append("default_research")
+    # Default: never inflate PROBABLE without positive ICP evidence
+    if has_positive_icp:
+        reasons.append("positive_icp_needs_research")
+        return TargetFitDecision(
+            target_fit_class=TARGET_PROBABLE_RESEARCH,
+            target_fit_confidence=0.4,
+            target_fit_evidence=evidence,
+            target_fit_reason_codes=reasons,
+            sector_fit=sector,
+            activity_class=activity,
+            relevant_execution_contract_count=n_exec,
+            relevant_supply_only_count=supply_only,
+        )
+
+    reasons.append("insufficient_positive_icp_evidence")
     return TargetFitDecision(
-        target_fit_class=TARGET_PROBABLE_RESEARCH,
-        target_fit_confidence=0.4,
+        target_fit_class=TARGET_INSUFFICIENT_EVIDENCE,
+        target_fit_confidence=0.25,
         target_fit_evidence=evidence,
         target_fit_reason_codes=reasons,
         sector_fit=sector,

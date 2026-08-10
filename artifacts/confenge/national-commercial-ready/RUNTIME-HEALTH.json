@@ -1,0 +1,5 @@
+{
+  "target_fit_worker": "inactive_dead",
+  "async_mode": "SHADOW",
+  "note": "Worker unit enabled but inactive; start after deploy"
+}

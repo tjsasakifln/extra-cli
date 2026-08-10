@@ -12,6 +12,7 @@ from scripts.confenge_target_fit import (
     HEALTH_STALE,
     TARGET_CONFIRMED,
     TARGET_FIT_VERSION,
+    TARGET_INSUFFICIENT_EVIDENCE,
     TARGET_OUT_OF_SCOPE,
     TARGET_PROBABLE_RESEARCH,
 )
@@ -86,11 +87,13 @@ def build_health(
             confirmed = int(shadow_dist.get(TARGET_CONFIRMED, 0))
             probable = int(shadow_dist.get(TARGET_PROBABLE_RESEARCH, 0))
             out = int(shadow_dist.get(TARGET_OUT_OF_SCOPE, 0))
+            insufficient = int(shadow_dist.get(TARGET_INSUFFICIENT_EVIDENCE, 0))
             pop_source = "shadow"
         else:
             confirmed = int(dist.get(TARGET_CONFIRMED, 0))
             probable = int(dist.get(TARGET_PROBABLE_RESEARCH, 0))
             out = int(dist.get(TARGET_OUT_OF_SCOPE, 0))
+            insufficient = int(dist.get(TARGET_INSUFFICIENT_EVIDENCE, 0))
             pop_source = "current"
 
         status = HEALTH_HEALTHY
@@ -104,19 +107,21 @@ def build_health(
             status = HEALTH_DEGRADED
         elif dirty > cfg.cdc_max_companies_per_cycle:
             status = HEALTH_DEGRADED
-        elif last_ok is None and confirmed + probable + out == 0:
+        elif last_ok is None and confirmed + probable + out + insufficient == 0:
             status = HEALTH_DEGRADED
 
-        materialized = confirmed + probable + out
+        materialized = confirmed + probable + out + insufficient
         cov_ctrl = load_coverage_control(conn)
         canonical = int(cov_ctrl.get("canonical_company_count") or 0)
         # Prefer live population as numerator; fall back to stored snapshot
         mat_count = materialized or int(cov_ctrl.get("materialized_company_count") or 0)
         if canonical <= 0:
             canonical = int(cov_ctrl.get("expected_company_roots") or 0) or mat_count
+        # Clamp coverage to [0,1]; overcount must never report ratio > 1
         ratio = coverage_ratio(
-            materialized_company_count=mat_count,
+            materialized_company_count=min(mat_count, canonical) if canonical > 0 else mat_count,
             canonical_company_count=canonical,
+            clamp=True,
         )
         last_full = cov_ctrl.get("last_full_reconcile_completed_at")
         unexplained = int(
@@ -168,6 +173,7 @@ def build_health(
             last_success=last_ok,
             async_mode=mode,
             auto_paused=bool(auto.get("paused")),
+            insufficient=insufficient,
             details={
                 "queue": q,
                 "distribution_current": dist,
@@ -177,6 +183,7 @@ def build_health(
                 "slo_minutes": cfg.reclass_slo_minutes,
                 "as_of": datetime.now(UTC).isoformat(),
                 "coverage": coverage_payload,
+                "INSUFFICIENT_EVIDENCE": insufficient,
             },
         )
     finally:
@@ -202,6 +209,7 @@ def metrics_snapshot(dsn: str) -> dict[str, Any]:
             "CONFIRMED": report.confirmed,
             "PROBABLE": report.probable,
             "OUT": report.out,
+            "INSUFFICIENT_EVIDENCE": report.insufficient,
         },
         "classifier_version": report.current_version,
         "async_mode": report.async_mode,

@@ -17,9 +17,19 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from scripts.confenge_activation.operational_metrics import (
+    PILOT_ACCEPTANCE_SAMPLE as MINIMUM_PILOT_ACCEPTANCE_SAMPLE,
+)
+from scripts.confenge_activation.operational_metrics import (
+    assert_not_pilot_as_capacity,
+)
 from scripts.confenge_contact_resolution.contact_coverage import (
-    MINIMUM_PILOT_ACCEPTANCE_SAMPLE,
     measure_contact_coverage,
+)
+from scripts.confenge_contact_resolution.discovery_state import (
+    DEFAULT_SOURCE_LADDER,
+    classify_contact_terminal,
+    measure_terminal_coverage,
 )
 from scripts.confenge_contact_resolution.enrichment_batch import (
     CompanyJob,
@@ -151,13 +161,14 @@ def run_continuous_enrichment(
 ) -> dict[str, Any]:
     """Advance contact enrichment over live CONFIRMED reservoir (resumable)."""
     cfg = cfg or ContinuousEnrichmentConfig()
-    # Enforce before any I/O: 50 is MINIMUM_PILOT_ACCEPTANCE_SAMPLE only.
+    # Enforce before any I/O: 50 is PILOT_ACCEPTANCE_SAMPLE / MINIMUM_PILOT_ACCEPTANCE_SAMPLE only.
     if cfg.max_companies == MINIMUM_PILOT_ACCEPTANCE_SAMPLE:
         raise ValueError(
             f"Refuse max_companies={MINIMUM_PILOT_ACCEPTANCE_SAMPLE}: that value is "
-            "MINIMUM_PILOT_ACCEPTANCE_SAMPLE only, not reservoir capacity. "
-            "Omit max_companies for full continuous enrichment."
+            "MINIMUM_PILOT_ACCEPTANCE_SAMPLE / PILOT_ACCEPTANCE_SAMPLE only, not "
+            "reservoir capacity. Omit max_companies for full continuous enrichment."
         )
+    assert_not_pilot_as_capacity(cfg.max_companies, context="enrich-continuous")
     out = Path(cfg.output_dir)
     out.mkdir(parents=True, exist_ok=True)
 
@@ -237,6 +248,41 @@ def run_continuous_enrichment(
         "EMAIL_SEND_READY / identity-safe not inferred from batch counters. "
         "Use rebuild_national_funnel harvest+evaluate_email_send_ready for ESR."
     )
+
+    # Per-root terminal discovery states (observable; offline ≠ exhausted)
+    terminal_states = []
+    sources_default = list(DEFAULT_SOURCE_LADDER) if network_discovery else []
+    for root in confirmed_keys:
+        did_attempt = root in attempted_roots and network_discovery
+        # Per-company email counts unavailable from aggregate metrics alone;
+        # terminal is READY only when batch metrics later attribute ESR.
+        # Here we mark RETRY/EXHAUSTED/NEVER honestly from discovery flags.
+        if not did_attempt:
+            st = classify_contact_terminal(
+                cnpj_raiz=root,
+                sources_attempted=[],
+                network_discovery=False,
+                ladder_complete=False,
+            )
+        else:
+            # Ladder treated complete when company finished in checkpoint under network
+            st = classify_contact_terminal(
+                cnpj_raiz=root,
+                sources_attempted=sources_default,
+                network_discovery=True,
+                ladder_complete=True,
+                email_candidates=0,
+                email_send_ready=0,
+            )
+        terminal_states.append(st)
+    terminal_cov = measure_terminal_coverage(
+        terminal_states, target_confirmed_total=len(confirmed_keys)
+    )
+    terminals_path = out / "contact-discovery-terminals.jsonl"
+    with terminals_path.open("w", encoding="utf-8") as fh:
+        for st in terminal_states:
+            fh.write(json.dumps(st.as_dict(), ensure_ascii=False) + "\n")
+
     report = {
         "schema": "confenge.continuous_contact_enrichment.v1",
         "as_of": _utcnow(),
@@ -244,14 +290,20 @@ def run_continuous_enrichment(
         "max_companies_bound": cfg.max_companies,
         "summary": summary,
         "contact_coverage": coverage,
+        "contact_terminal_coverage": terminal_cov,
+        "terminals_path": str(terminals_path),
         "output_dir": str(out),
         "note": (
             "Continuous enrichment over TARGET_CONFIRMED; no pilot Top-50 capacity. "
-            f"MINIMUM_PILOT_ACCEPTANCE_SAMPLE={MINIMUM_PILOT_ACCEPTANCE_SAMPLE} is quality-only."
+            f"PILOT_ACCEPTANCE_SAMPLE={MINIMUM_PILOT_ACCEPTANCE_SAMPLE} is quality-only."
         ),
     }
     (out / "continuous-coverage.json").write_text(
         json.dumps(report, indent=2, ensure_ascii=False, default=str) + "\n",
+        encoding="utf-8",
+    )
+    (out / "contact-terminal-coverage.json").write_text(
+        json.dumps(terminal_cov, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
     logger.info(
