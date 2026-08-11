@@ -15,9 +15,10 @@ import argparse
 import json
 import re
 from collections import Counter
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 from scripts.confenge_account_intelligence.pipeline import build_dossier
 from scripts.confenge_activation.operational_metrics import (
@@ -37,11 +38,21 @@ from scripts.confenge_contact_resolution.ownership import (
     resolve_ownership,
 )
 from scripts.confenge_contact_resolution.send_readiness import evaluate_email_send_ready
+from scripts.confenge_outreach_pipeline.integrity_sample import compose_body, compose_subject
+from scripts.linkage.keys import is_valid_cnpj14
+from scripts.warmbly_bridge.export import ExportConfig, export_outreach
+from scripts.warmbly_bridge.mapping import build_leads
 
 DEFAULT_HARVEST = Path("artifacts/confenge/process-first-national-confirmed")
 DEFAULT_OUT = Path("artifacts/confenge/national-commercial-ready")
 
 _EMAIL_RE = re.compile(r"[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}", re.I)
+_PILOT_ENGINEERING_HOOK_RE = re.compile(
+    r"engenhari|obra|paviment|asfalt|drenag|saneamento|esgoto|rede de água|"
+    r"construç|reforma|manutenção predial|infraestrutura|terraplen|topografi|"
+    r"projeto executivo|fiscalização",
+    re.I,
+)
 
 
 def _utcnow() -> str:
@@ -55,6 +66,41 @@ def _root8(value: Any) -> str:
     if len(digits) >= 8:
         return digits[:8]
     return digits
+
+
+def _cnpj14(value: Any, *, root: str | None = None) -> str | None:
+    """Return a defensible full CNPJ; never manufacture branch/check digits."""
+    digits = re.sub(r"\D", "", str(value or ""))
+    if len(digits) != 14 or not is_valid_cnpj14(digits):
+        return None
+    if root and digits[:8] != root:
+        return None
+    return digits
+
+
+def _source_host(source_url: str | None) -> str | None:
+    if not source_url:
+        return None
+    raw = str(source_url).strip()
+    if not raw:
+        return None
+    try:
+        return (urlparse(raw if "://" in raw else f"https://{raw}").hostname or "").lower() or None
+    except ValueError:
+        return None
+
+
+def _company_authored(row: dict[str, Any]) -> bool:
+    """Accept company authorship only when the source explicitly proves it."""
+    if row.get("company_authored_likely") is True or row.get("found_on_company_document") is True:
+        return True
+    return str(row.get("source_type") or "").strip().lower() in {
+        "site",
+        "contact_page",
+        "official_site",
+        "company_site",
+        "website",
+    }
 
 
 def _contracts_from_account(account: dict[str, Any]) -> list[dict[str, Any]]:
@@ -111,9 +157,9 @@ def _email_entries_from_account(account: dict[str, Any]) -> list[dict[str, Any]]
                     "source_url": row.get("source_url"),
                     "role_observed": row.get("role_observed"),
                     "person_name": row.get("person_name"),
-                    "epistemic_class": row.get("epistemic_class") or "COMPANY_DECLARED",
+                    "epistemic_class": row.get("epistemic_class") or "OBSERVED_PUBLIC",
                     "pattern_guessed": bool(row.get("pattern_guessed")),
-                    "company_authored_likely": True,
+                    "company_authored_likely": _company_authored(row),
                     "observation_date": row.get("observation_date") or row.get("first_seen_at"),
                 },
             )
@@ -126,9 +172,9 @@ def _email_entries_from_account(account: dict[str, Any]) -> list[dict[str, Any]]
                     "source_url": row.get("source_url"),
                     "role_observed": row.get("role_observed") or row.get("role"),
                     "person_name": row.get("person_name") or row.get("name"),
-                    "epistemic_class": row.get("epistemic_class") or "COMPANY_DECLARED",
+                    "epistemic_class": row.get("epistemic_class") or "OBSERVED_PUBLIC",
                     "pattern_guessed": bool(row.get("pattern_guessed")),
-                    "company_authored_likely": True,
+                    "company_authored_likely": _company_authored(row),
                 },
             )
     best = account.get("best_contacts_by_service") or {}
@@ -144,9 +190,9 @@ def _email_entries_from_account(account: dict[str, Any]) -> list[dict[str, Any]]
                         if isinstance(row.get("roles"), list)
                         else row.get("role"),
                         "person_name": row.get("person_name"),
-                        "epistemic_class": row.get("epistemic_best") or "COMPANY_DECLARED",
-                        "pattern_guessed": False,
-                        "company_authored_likely": True,
+                        "epistemic_class": row.get("epistemic_best") or "OBSERVED_PUBLIC",
+                        "pattern_guessed": bool(row.get("pattern_guessed")),
+                        "company_authored_likely": _company_authored(row),
                     },
                 )
     return found
@@ -179,8 +225,9 @@ def _load_jsonl_emails(path: Path) -> dict[str, list[dict[str, Any]]]:
                     "source_type": row.get("source_type") or "public_process_document",
                     "source_url": row.get("source_url"),
                     "pattern_guessed": False,
-                    "company_authored_likely": True,
-                    "epistemic_class": "COMPANY_DECLARED",
+                    "company_authored_likely": _company_authored(row),
+                    "epistemic_class": row.get("epistemic_class") or "OBSERVED_PUBLIC",
+                    "provenance_chain": row.get("provenance_chain") or [],
                 }
             )
     return by_root
@@ -190,13 +237,24 @@ def _resolve_ownership_for_email(
     *,
     email: str,
     root: str,
+    cnpj14: str | None,
     razao: str | None,
     source_type: str,
     source_url: str | None,
     company_authored: bool,
 ) -> tuple[str, str]:
     """Return (ownership_status, verification_status)."""
-    cnpj14 = (root + "000100")[:14]
+    if not cnpj14 or not is_valid_cnpj14(cnpj14) or cnpj14[:8] != root:
+        return "UNRESOLVED", VerificationStatus.OBSERVED.value
+    source_kind = (source_type or "").strip().lower()
+    if not company_authored and source_kind not in {
+        "site",
+        "contact_page",
+        "official_site",
+        "company_site",
+        "website",
+    }:
+        return "UNRESOLVED", VerificationStatus.OBSERVED.value
     cand = ContactCandidate(
         candidate_id=f"{root}:{email}",
         cnpj14=cnpj14,
@@ -211,10 +269,13 @@ def _resolve_ownership_for_email(
         found_on_official_source=False,
         epistemic_class="OBSERVED_PUBLIC",
     )
+    source_host = _source_host(source_url)
+    email_domain = email.rsplit("@", 1)[-1].lower() if "@" in email else None
+    official_domain = email_domain if source_host == email_domain else None
     ctx = OwnershipContext(
         cnpj14=cnpj14,
         razao_social=razao,
-        official_domain=email.rsplit("@", 1)[-1].lower() if "@" in email else None,
+        official_domain=official_domain,
     )
     try:
         result = resolve_ownership(cand, ctx=ctx)
@@ -263,10 +324,19 @@ def build_company_package(
     account: dict[str, Any] | None,
     contracts: list[dict[str, Any]],
     razao: str | None,
+    cnpj14: str | None = None,
 ) -> dict[str, Any]:
     """Account intelligence → canonical service + message spine package."""
+    actual_cnpj14 = _cnpj14(cnpj14, root=root)
+    if actual_cnpj14 is None:
+        candidates = [
+            (account or {}).get("account_cnpj"),
+            (account or {}).get("cnpj14"),
+            *(c.get("fornecedor_cnpj") for c in contracts),
+        ]
+        actual_cnpj14 = next((x for raw in candidates if (x := _cnpj14(raw, root=root))), None)
     raw = {
-        "cnpj14": (root + "000100")[:14],
+        "cnpj14": actual_cnpj14,
         "cnpj_root": root,
         "razao_social": razao,
         "target_fit_class": "TARGET_CONFIRMED",
@@ -310,6 +380,7 @@ def evaluate_root_candidates(
     contracts = contracts if contracts is not None else _contracts_from_account(account or {})
     razao = _infer_razao(account or {}, contracts)
     company = build_company_package(root=root, account=account, contracts=contracts, razao=razao)
+    actual_cnpj14 = _cnpj14(company.get("cnpj14"), root=root)
     svc = str((company.get("primary_service") or {}).get("service_id") or company.get("service_code") or "")
 
     best: dict[str, Any] | None = None
@@ -330,10 +401,11 @@ def evaluate_root_candidates(
         own, ver = _resolve_ownership_for_email(
             email=email,
             root=root,
+            cnpj14=actual_cnpj14,
             razao=razao,
             source_type=str(row.get("source_type") or "public_process_document"),
             source_url=row.get("source_url"),
-            company_authored=bool(row.get("company_authored_likely", True)),
+            company_authored=bool(row.get("company_authored_likely", False)),
         )
         if own == "COMPANY_OWNED":
             any_company_owned = True
@@ -351,6 +423,7 @@ def evaluate_root_candidates(
             require_copy_context=True,
             source_type=str(row.get("source_type") or "public_process_document"),
             source_url=row.get("source_url"),
+            provenance_chain=list(row.get("provenance_chain") or []),
             canonical_universe_member=True,
         )
         for r in result.reasons or []:
@@ -368,6 +441,7 @@ def evaluate_root_candidates(
 
         payload = {
             "cnpj_raiz": root,
+            "cnpj14": actual_cnpj14,
             "razao_social": razao,
             "email": email,
             "ownership_status": own,
@@ -389,7 +463,10 @@ def evaluate_root_candidates(
             "reasons": list(result.reasons or []),
             "supporting_signal_ids": list((company.get("primary_service") or {}).get("supporting_signal_ids") or []),
         }
-        if result.email_send_ready:
+        if actual_cnpj14 is None:
+            payload["reasons"] = list(payload["reasons"]) + ["invalid_or_missing_cnpj14"]
+            payload["email_send_ready"] = False
+        if payload["email_send_ready"]:
             return {
                 "root": root,
                 "email_send_ready": True,
@@ -477,14 +554,14 @@ def load_harvest_universe(
     return accounts, emails_by_root, terminals
 
 
-def _load_supplier_names(roots: list[str], dsn: str | None = None) -> dict[str, str]:
-    """Batch-load fornecedor_nome from pncp_supplier_contracts for ownership identity."""
+def _load_supplier_identities(roots: list[str], dsn: str | None = None) -> dict[str, dict[str, str]]:
+    """Load the most evidenced real CNPJ14/name per root from the canonical lake."""
     import os
 
-    dsn = dsn or os.environ.get("DATABASE_URL") or os.environ.get("LOCAL_DATALAKE_DSN")
+    dsn = dsn or os.environ.get("LOCAL_DATALAKE_DSN") or os.environ.get("DATABASE_URL")
     if not dsn or not roots:
         return {}
-    out: dict[str, str] = {}
+    out: dict[str, dict[str, str]] = {}
     try:
         import psycopg2
         import psycopg2.extras
@@ -500,21 +577,558 @@ def _load_supplier_names(roots: list[str], dsn: str | None = None) -> dict[str, 
                 part = roots[i : i + chunk]
                 cur.execute(
                     """
-                    SELECT fornecedor_cnpj_8 AS root,
-                           MAX(NULLIF(TRIM(fornecedor_nome), '')) AS nome
-                    FROM pncp_supplier_contracts
-                    WHERE fornecedor_cnpj_8 = ANY(%s)
-                    GROUP BY 1
+                    WITH ranked AS (
+                      SELECT fornecedor_cnpj_8 AS root,
+                             regexp_replace(COALESCE(fornecedor_cnpj, ''), '\\D', '', 'g') AS cnpj14,
+                             MAX(NULLIF(TRIM(fornecedor_nome), '')) AS nome,
+                             COUNT(*) AS evidence_count,
+                             ROW_NUMBER() OVER (
+                               PARTITION BY fornecedor_cnpj_8
+                               ORDER BY COUNT(*) DESC,
+                                        MAX(COALESCE(data_assinatura, data_publicacao)) DESC NULLS LAST
+                             ) AS rn
+                      FROM pncp_supplier_contracts
+                      WHERE fornecedor_cnpj_8 = ANY(%s)
+                        AND COALESCE(is_active, TRUE) IS TRUE
+                      GROUP BY fornecedor_cnpj_8,
+                               regexp_replace(COALESCE(fornecedor_cnpj, ''), '\\D', '', 'g')
+                    )
+                    SELECT root, cnpj14, nome
+                    FROM ranked
+                    WHERE rn = 1 AND length(cnpj14) = 14
                     """,
                     (part,),
                 )
                 for row in cur.fetchall() or []:
-                    if row.get("root") and row.get("nome"):
-                        out[str(row["root"])] = str(row["nome"])
+                    root = str(row.get("root") or "")
+                    cnpj = _cnpj14(row.get("cnpj14"), root=root)
+                    if root and cnpj and row.get("nome"):
+                        out[root] = {"cnpj14": cnpj, "razao_social": str(row["nome"])}
         conn.close()
     except Exception:  # noqa: BLE001
         return out
     return out
+
+
+def load_contracts_by_root(
+    roots: list[str],
+    *,
+    dsn: str,
+    per_root: int = 30,
+) -> dict[str, list[dict[str, Any]]]:
+    """Hydrate current public-contract evidence for a small verified cohort."""
+    if not dsn:
+        raise ValueError("dsn is required to hydrate a pilot cohort")
+    if not roots:
+        return {}
+    import psycopg2
+    import psycopg2.extras
+
+    out: dict[str, list[dict[str, Any]]] = {root: [] for root in roots}
+    with psycopg2.connect(dsn) as conn, conn.cursor(
+        cursor_factory=psycopg2.extras.RealDictCursor
+    ) as cur:
+        cur.execute(
+            """
+            WITH ranked AS (
+              SELECT fornecedor_cnpj_8,
+                     fornecedor_cnpj,
+                     fornecedor_nome,
+                     contrato_id,
+                     objeto_contrato,
+                     orgao_nome,
+                     uf,
+                     municipio,
+                     valor_total,
+                     data_assinatura,
+                     data_publicacao,
+                     data_inicio,
+                     data_fim,
+                     ROW_NUMBER() OVER (
+                       PARTITION BY fornecedor_cnpj_8
+                       ORDER BY COALESCE(data_assinatura, data_publicacao) DESC NULLS LAST,
+                                valor_total DESC NULLS LAST
+                     ) AS rn
+              FROM pncp_supplier_contracts
+              WHERE fornecedor_cnpj_8 = ANY(%s)
+                AND COALESCE(is_active, TRUE) IS TRUE
+            )
+            SELECT * FROM ranked WHERE rn <= %s
+            ORDER BY fornecedor_cnpj_8, rn
+            """,
+            (roots, max(1, int(per_root))),
+        )
+        for raw in cur.fetchall() or []:
+            row = dict(raw)
+            root = str(row.get("fornecedor_cnpj_8") or "")
+            out.setdefault(root, []).append(
+                {
+                    "contract_id": row.get("contrato_id"),
+                    "numero_controle_pncp": row.get("contrato_id"),
+                    "objeto_contrato": row.get("objeto_contrato"),
+                    "orgao_nome": row.get("orgao_nome"),
+                    "uf": row.get("uf"),
+                    "municipio": row.get("municipio"),
+                    "valor_total": row.get("valor_total"),
+                    "data_inicio": row.get("data_inicio") or row.get("data_assinatura"),
+                    "data_fim": row.get("data_fim"),
+                    "data_publicacao": row.get("data_publicacao") or row.get("data_assinatura"),
+                    "fornecedor_cnpj": row.get("fornecedor_cnpj"),
+                    "fornecedor_nome": row.get("fornecedor_nome"),
+                }
+            )
+    return out
+
+
+def _primary_contract(dossier: dict[str, Any], contracts: list[dict[str, Any]]) -> dict[str, Any]:
+    evidence_ids = list((dossier.get("message_spine") or {}).get("fact_evidence_ids") or [])
+    wanted = {
+        str(value).removeprefix("cf-contract-").removeprefix("ev-contract-")
+        for value in evidence_ids
+    }
+    chosen = next(
+        (row for row in contracts if str(row.get("contract_id") or "") in wanted),
+        contracts[0] if contracts else {},
+    )
+    return {
+        "contract_id": chosen.get("contract_id"),
+        "agency": chosen.get("orgao_nome"),
+        "object": chosen.get("objeto_contrato"),
+        "uf": chosen.get("uf"),
+        "value_brl": chosen.get("valor_total"),
+        "publication_date": chosen.get("data_publicacao"),
+        "start_date": chosen.get("data_inicio"),
+        "end_date": chosen.get("data_fim"),
+    }
+
+
+def _pilot_message(dossier: dict[str, Any]) -> dict[str, str]:
+    """Use the existing composer while leading with evidence, not score prose."""
+    copy_dossier = dict(dossier)
+    copy_dossier["why_this_account"] = ""
+    copy_dossier["why_you"] = ""
+    for field in ("observed_fact", "body_seed_fact"):
+        copy_dossier[field] = " ".join(str(copy_dossier.get(field) or "").split())
+    spine = dict(copy_dossier.get("message_spine") or {})
+    for field in ("observed_fact", "why_now", "body_seed_fact"):
+        spine[field] = " ".join(str(spine.get(field) or "").split())
+    copy_dossier["message_spine"] = spine
+    subject = " ".join(compose_subject(copy_dossier).split())
+    if len(subject) > 78:
+        subject = subject[:78].rsplit(" ", 1)[0].rstrip(" :/-")
+    return {"subject": subject, "body": compose_body(copy_dossier)}
+
+
+def _pilot_access_rank(candidate: dict[str, Any]) -> tuple[int, int, int, str]:
+    mailbox = str(candidate.get("mailbox_purpose") or "")
+    mailbox_order = {
+        "COMERCIAL": 0,
+        "LICITACOES": 1,
+        "GENERIC_CONTACT": 2,
+        "UNKNOWN": 3,
+    }
+    contracts = int(candidate.get("n_contracts") or 0)
+    sweet_spot = 0 if 3 <= contracts <= 20 else 1
+    orgs = int(candidate.get("n_agencies") or 0)
+    return (mailbox_order.get(mailbox, 9), sweet_spot, orgs, str(candidate.get("cnpj14") or ""))
+
+
+def _sanitize_pilot_contract_dates(contracts: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Prevent a future start/publication from being described as a recent event."""
+    today = date.today()
+    sanitized: list[dict[str, Any]] = []
+    for contract in contracts:
+        row = dict(contract)
+        for field in ("data_inicio", "data_publicacao", "start_date", "publication_date"):
+            raw = str(row.get(field) or "")[:10]
+            try:
+                value = date.fromisoformat(raw)
+            except ValueError:
+                continue
+            if value > today:
+                row[field] = None
+        sanitized.append(row)
+    return sanitized
+
+
+def build_pilot_review(
+    seed_rows: list[dict[str, Any]],
+    *,
+    contracts_by_root: dict[str, list[dict[str, Any]]],
+    target_size: int = 20,
+) -> dict[str, Any]:
+    """Create a small, diverse and human-reviewable cohort from verified ESR seeds."""
+    candidates: list[dict[str, Any]] = []
+    rejected: list[dict[str, Any]] = []
+
+    def reject(seed: dict[str, Any], reason: str) -> None:
+        rejected.append(
+            {
+                "cnpj14": seed.get("cnpj14"),
+                "empresa": seed.get("razao_social") or seed.get("company_name"),
+                "email": seed.get("email") or seed.get("contact_email"),
+                "reason": reason,
+            }
+        )
+
+    for seed in seed_rows:
+        root = _root8(seed.get("root") or seed.get("cnpj14"))
+        cnpj14 = _cnpj14(seed.get("cnpj14"), root=root)
+        company_name = str(seed.get("razao_social") or seed.get("company_name") or "").strip()
+        email = str(seed.get("email") or seed.get("contact_email") or "").strip().lower()
+        source_type = str(seed.get("source_type") or "")
+        source_url = seed.get("source_url")
+        provenance_chain = list(seed.get("provenance_chain") or [])
+        if not cnpj14 or not company_name:
+            reject(seed, "invalid_or_missing_company_identity")
+            continue
+        if not email or "@" not in email:
+            reject(seed, "missing_email")
+            continue
+        if seed.get("dnc") or seed.get("do_not_contact"):
+            reject(seed, "do_not_contact")
+            continue
+        if seed.get("bounced") or seed.get("hard_bounce"):
+            reject(seed, "bounce_suppressed")
+            continue
+        if not seed.get("provenance_chain_valid") or not provenance_chain or not source_url:
+            reject(seed, "provenance_not_defensible")
+            continue
+        if str(seed.get("ownership_status") or "") not in {"COMPANY_OWNED", "HUMAN_CONFIRMED"}:
+            reject(seed, "ownership_not_defensible")
+            continue
+        if str(seed.get("verification_status") or "") not in {"VERIFIED", "HUMAN_CONFIRMED"}:
+            reject(seed, "email_not_verified")
+            continue
+        folded_name = company_name.upper()
+        if "CONSORCIO" in folded_name or "CONSÓRCIO" in folded_name:
+            reject(seed, "complex_consortium_reserved_for_abm")
+            continue
+        if "RECUPERACAO JUDICIAL" in folded_name or "RECUPERAÇÃO JUDICIAL" in folded_name:
+            reject(seed, "judicial_recovery_risk")
+            continue
+        mailbox = classify_mailbox_purpose(email)
+        if mailbox.send_blocked or mailbox.purpose == "FINANCEIRO":
+            reject(seed, f"low_utility_mailbox:{mailbox.purpose}")
+            continue
+
+        contracts = contracts_by_root.get(root) or []
+        matching_contracts = [
+            row
+            for row in contracts
+            if _root8(row.get("fornecedor_cnpj")) in {"", root}
+        ]
+        if not matching_contracts:
+            reject(seed, "no_current_public_contract_evidence")
+            continue
+        pilot_contracts = _sanitize_pilot_contract_dates(matching_contracts)
+        dossier = build_company_package(
+            root=root,
+            account={"account_cnpj": cnpj14, "razao_social": company_name},
+            contracts=pilot_contracts,
+            razao=company_name,
+            cnpj14=cnpj14,
+        )
+        hook_object = str(dossier.get("observed_fact") or "").split("; órgão:", 1)[0]
+        if not _PILOT_ENGINEERING_HOOK_RE.search(hook_object):
+            reject(seed, "primary_hook_not_engineering_specific")
+            continue
+        service_code = str((dossier.get("primary_service") or {}).get("service_id") or "")
+        readiness = evaluate_email_send_ready(
+            company=dossier,
+            email=email,
+            ownership_status=str(seed.get("ownership_status")),
+            verification_status=str(seed.get("verification_status")),
+            dnc=False,
+            bounce=False,
+            contact_fresh=True,
+            service_code=service_code,
+            factual_evidence=True,
+            evidence_ids=list(dossier.get("evidence_ids") or []),
+            require_copy_context=True,
+            source_type=source_type,
+            source_url=source_url,
+            provenance_chain=provenance_chain,
+            contact={
+                "email": email,
+                "ownership_status": seed.get("ownership_status"),
+                "verification_status": seed.get("verification_status"),
+                "source_type": source_type,
+                "source_url": source_url,
+                "provenance_chain": provenance_chain,
+            },
+            canonical_universe_member=True,
+        )
+        if not readiness.email_send_ready:
+            reject(seed, f"email_send_ready_failed:{','.join(readiness.reasons[:4])}")
+            continue
+        agencies = {str(row.get("orgao_nome") or "").strip() for row in matching_contracts}
+        primary_contract = _primary_contract(dossier, pilot_contracts)
+        message = _pilot_message(dossier)
+        candidate = {
+            "cnpj14": cnpj14,
+            "cnpj_raiz": root,
+            "empresa": company_name,
+            "razao_social": company_name,
+            "contact": email,
+            "email": email,
+            "mailbox_purpose": mailbox.purpose,
+            "ownership_status": seed.get("ownership_status"),
+            "verification_status": seed.get("verification_status"),
+            "source_type": source_type,
+            "source_url": source_url,
+            "provenance_chain": provenance_chain,
+            "email_send_ready": True,
+            "recommended_service": service_code,
+            "service_name": (dossier.get("primary_service") or {}).get("label"),
+            "service_fit_rationale": dossier.get("service_fit_rationale"),
+            "why_this_company": dossier.get("why_this_account"),
+            "why_this_account": dossier.get("why_this_account"),
+            "why_now": (dossier.get("message_spine") or {}).get("why_now"),
+            "observed_fact": dossier.get("observed_fact"),
+            "primary_contract": primary_contract,
+            "supporting_evidence": [primary_contract],
+            "micro_offer": dossier.get("micro_offer_code"),
+            "cta": dossier.get("cta"),
+            "message": message,
+            "draft": message,
+            "evidence_ids": list(dossier.get("evidence_ids") or []),
+            "supporting_signal_ids": list(
+                (dossier.get("primary_service") or {}).get("supporting_signal_ids") or []
+            ),
+            "n_contracts": len(matching_contracts),
+            "n_agencies": len(agencies - {""}),
+            "risks": [],
+            "review_status": "HUMAN_REVIEW_PENDING",
+            "review_decision": None,
+            "allowed_decisions": ["APPROVE", "REJECT", "SKIP"],
+        }
+        if len(matching_contracts) >= 30:
+            candidate["risks"].append("portfolio_capped_at_30; access complexity requires human sanity check")
+        candidates.append(candidate)
+
+    # Keep very broad/complex accounts in ABM even when a commercial mailbox exists.
+    eligible: list[dict[str, Any]] = []
+    for row in candidates:
+        if (
+            int(row.get("n_contracts") or 0) >= 30
+            and int(row.get("n_agencies") or 0) >= 18
+        ):
+            rejected.append(
+                {
+                    "cnpj14": row.get("cnpj14"),
+                    "empresa": row.get("empresa"),
+                    "email": row.get("email"),
+                    "reason": "high_access_complexity_reserved_for_abm",
+                }
+            )
+            continue
+        eligible.append(row)
+
+    # Diversity is a pilot sampling concern, not a new global score: rotate services,
+    # preferring useful mailboxes and manageable portfolios within each service.
+    by_service: dict[str, list[dict[str, Any]]] = {}
+    for row in eligible:
+        by_service.setdefault(str(row.get("recommended_service") or ""), []).append(row)
+    for rows in by_service.values():
+        rows.sort(key=_pilot_access_rank)
+    selected: list[dict[str, Any]] = []
+    service_names = sorted(by_service)
+    while len(selected) < max(0, target_size):
+        progressed = False
+        for service in service_names:
+            rows = by_service[service]
+            if rows and len(selected) < target_size:
+                selected.append(rows.pop(0))
+                progressed = True
+        if not progressed:
+            break
+
+    selected_ids = {str(row.get("cnpj14")) for row in selected}
+    for row in eligible:
+        if str(row.get("cnpj14")) not in selected_ids:
+            rejected.append(
+                {
+                    "cnpj14": row.get("cnpj14"),
+                    "empresa": row.get("empresa"),
+                    "email": row.get("email"),
+                    "reason": "qualified_reservoir_not_selected_for_first_cohort",
+                }
+            )
+    return {
+        "schema": "confenge.pilot_human_review.v1",
+        "generated_at": _utcnow(),
+        "target_size": target_size,
+        "status": "HUMAN_REVIEW_PENDING",
+        "n": len(selected),
+        "email_send_ready": sum(1 for row in selected if row.get("email_send_ready")),
+        "approved": 0,
+        "service_distribution": dict(Counter(row["recommended_service"] for row in selected)),
+        "leads": selected,
+        "rejections": rejected,
+    }
+
+
+def build_pilot_feed_inputs(
+    review: dict[str, Any],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
+    """Translate reviewed candidates through the existing Warmbly bridge contract."""
+    universe: list[dict[str, Any]] = []
+    intelligence: list[dict[str, Any]] = []
+    contacts: list[dict[str, Any]] = []
+    for rank, lead in enumerate(review.get("leads") or [], 1):
+        contract = lead.get("primary_contract") or {}
+        evidence_id = f"pncp-contract:{contract.get('contract_id')}"
+        source_host = _source_host(lead.get("source_url"))
+        universe.append(
+            {
+                "cnpj14": lead.get("cnpj14"),
+                "razao_social": lead.get("razao_social"),
+                "rank": rank,
+                "tier": "PILOT",
+                "target_fit_class": "TARGET_CONFIRMED",
+                "target_fit_fresh": True,
+                "canonical_universe_member": True,
+                "official_domain": source_host,
+                "construction_evidence": {
+                    "sector_fit": "CONFIRMED_ENGINEERING",
+                    "target_fit_class": "TARGET_CONFIRMED",
+                    "relevant_contract_count": lead.get("n_contracts"),
+                },
+                "portfolio": {"pass_contract_count": lead.get("n_contracts")},
+                "contracts": [
+                    {
+                        "id": contract.get("contract_id"),
+                        "object": contract.get("object"),
+                        "agency": contract.get("agency"),
+                        "uf": contract.get("uf"),
+                        "value_brl": contract.get("value_brl"),
+                        "publication_date": contract.get("publication_date"),
+                        "start_date": contract.get("start_date"),
+                        "end_date": contract.get("end_date"),
+                    }
+                ],
+            }
+        )
+        intelligence.append(
+            {
+                "cnpj14": lead.get("cnpj14"),
+                "why_now": {
+                    "code": "PUBLIC_CONTRACT_WINDOW",
+                    "summary": lead.get("why_now"),
+                    "observed_at": contract.get("publication_date") or contract.get("end_date"),
+                    "confidence": "HIGH",
+                    "evidence_ids": [evidence_id],
+                },
+                "offer": {
+                    "service_code": lead.get("recommended_service"),
+                    "canonical_service_code": lead.get("recommended_service"),
+                    "extra_cli_service_id": lead.get("recommended_service"),
+                    "service_name": lead.get("service_name"),
+                    "entry_offer": lead.get("cta"),
+                    "micro_offer_code": lead.get("micro_offer"),
+                    "rationale": lead.get("service_fit_rationale"),
+                },
+                "messaging": {
+                    "fact_to_mention": lead.get("observed_fact"),
+                    "question_to_ask": lead.get("cta"),
+                    "cta": lead.get("cta"),
+                    "why_now": lead.get("why_now"),
+                    "claims_to_avoid": [
+                        "dor confirmada",
+                        "erro contratual confirmado",
+                    ],
+                },
+                "evidence": [
+                    {
+                        "id": evidence_id,
+                        "type": "PNCP_CONTRACT",
+                        "title": "Contrato público observado",
+                        "document": contract.get("contract_id"),
+                        "date": contract.get("publication_date"),
+                        "synthesis": lead.get("observed_fact"),
+                        "epistemic_class": "CONFIRMED_FACT",
+                        "reliability": "HIGH",
+                    }
+                ],
+                "primary_service": {
+                    "service_id": lead.get("recommended_service"),
+                    "service_code": lead.get("recommended_service"),
+                    "supporting_signal_ids": lead.get("supporting_signal_ids") or [],
+                    "evidence_ids": [evidence_id],
+                },
+                "service_candidates": [
+                    {
+                        "service_id": lead.get("recommended_service"),
+                        "supporting_signal_ids": lead.get("supporting_signal_ids") or [],
+                        "evidence_ids": [evidence_id],
+                    }
+                ],
+                "observed_fact": lead.get("observed_fact"),
+                "why_this_account": lead.get("why_this_account"),
+                "cta": lead.get("cta"),
+                "evidence_ids": [evidence_id],
+            }
+        )
+        contacts.append(
+            {
+                "cnpj14": lead.get("cnpj14"),
+                "contacts": [
+                    {
+                        "email": lead.get("email"),
+                        "ownership_status": lead.get("ownership_status"),
+                        "verification_status": lead.get("verification_status"),
+                        "source_type": lead.get("source_type"),
+                        "source_url": lead.get("source_url"),
+                        "provenance": {
+                            "source_type": lead.get("source_type"),
+                            "source_url": lead.get("source_url"),
+                            "provenance_chain": lead.get("provenance_chain") or [],
+                        },
+                        "enrollable": True,
+                        "recommended": True,
+                        "email_send_ready": True,
+                    }
+                ],
+            }
+        )
+    return universe, intelligence, contacts
+
+
+def write_pilot_feed(review: dict[str, Any], out_dir: Path) -> dict[str, Any]:
+    """Emit a standard confenge.outreach.v1 feed; no pilot-only wire format."""
+    universe, intelligence, contacts = build_pilot_feed_inputs(review)
+    mapped = build_leads(universe, intelligence, contacts)
+    if len(mapped) != len(review.get("leads") or []) or not all(
+        bool(lead.get("email_send_ready")) for lead in mapped
+    ):
+        raise ValueError("pilot feed mapping did not preserve EMAIL_SEND_READY for every reviewed lead")
+    source_dir = out_dir / "source"
+    source_dir.mkdir(parents=True, exist_ok=True)
+    paths = {
+        "universe": source_dir / "universe.jsonl",
+        "intelligence": source_dir / "account-intelligence.jsonl",
+        "contacts": source_dir / "contacts.jsonl",
+    }
+    for key, rows in (
+        ("universe", universe),
+        ("intelligence", intelligence),
+        ("contacts", contacts),
+    ):
+        paths[key].write_text(
+            "".join(json.dumps(row, ensure_ascii=False, default=str) + "\n" for row in rows),
+            encoding="utf-8",
+        )
+    return export_outreach(
+        ExportConfig(
+            universe=paths["universe"],
+            account_intelligence=paths["intelligence"],
+            contacts=paths["contacts"],
+            out_dir=out_dir,
+            max_leads_per_chunk=max(1, len(mapped)),
+            system="extra-cli-confenge-pilot",
+        )
+    )
 
 
 def rebuild_strict_esr(
@@ -538,14 +1152,19 @@ def rebuild_strict_esr(
     if max_roots is not None:
         roots_with_email = roots_with_email[: max(0, max_roots)]
 
-    names = _load_supplier_names(roots_with_email, dsn=dsn)
-    # Inject razao into accounts when missing
-    for root, nome in names.items():
+    identities = _load_supplier_identities(roots_with_email, dsn=dsn)
+    # Inject only identities observed in the canonical datalake.
+    for root, identity in identities.items():
         acc = accounts.get(root)
         if acc is None:
-            accounts[root] = {"account_cnpj": root, "razao_social": nome}
-        elif not acc.get("razao_social"):
-            acc["razao_social"] = nome
+            accounts[root] = {
+                "account_cnpj": identity["cnpj14"],
+                "razao_social": identity["razao_social"],
+            }
+        else:
+            acc["account_cnpj"] = identity["cnpj14"]
+            if not acc.get("razao_social"):
+                acc["razao_social"] = identity["razao_social"]
 
     esr_rows: list[dict[str, Any]] = []
     not_ready: list[dict[str, Any]] = []
@@ -685,16 +1304,32 @@ def write_esr_artifacts(report: dict[str, Any], out_dir: Path = DEFAULT_OUT) -> 
     )
 
 
+def write_pilot_review(review: dict[str, Any], out_dir: Path = DEFAULT_OUT) -> Path:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    path = out_dir / "HUMAN-REVIEW-SAMPLE.json"
+    path.write_text(
+        json.dumps(review, indent=2, ensure_ascii=False, default=str) + "\n",
+        encoding="utf-8",
+    )
+    return path
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--harvest-dir", type=Path, default=DEFAULT_HARVEST)
     p.add_argument("--out-dir", type=Path, default=DEFAULT_OUT)
     p.add_argument("--max-roots", type=int, default=None, help="Cap for dry runs")
     p.add_argument("--confirmed-roots-file", type=Path, default=None)
+    p.add_argument("--dsn", default=None, help="Canonical datalake DSN (defaults to LOCAL_DATALAKE_DSN)")
+    p.add_argument("--pilot-seed-file", type=Path, default=None, help="Verified ESR seed JSON for Top20 review")
+    p.add_argument("--pilot-size", type=int, default=20)
+    p.add_argument("--pilot-feed-out", type=Path, default=None, help="Optional standard Warmbly feed directory")
     return p
 
 
 def main(argv: list[str] | None = None) -> int:
+    import os
+
     args = build_parser().parse_args(argv)
     confirmed: set[str] | None = None
     if args.confirmed_roots_file and args.confirmed_roots_file.is_file():
@@ -718,8 +1353,42 @@ def main(argv: list[str] | None = None) -> int:
         harvest_dir=args.harvest_dir,
         confirmed_roots=confirmed,
         max_roots=args.max_roots,
+        dsn=args.dsn,
     )
     write_esr_artifacts(report, out_dir=args.out_dir)
+    pilot_summary: dict[str, Any] | None = None
+    if args.pilot_seed_file:
+        if not args.pilot_seed_file.is_file():
+            raise SystemExit(f"pilot seed file not found: {args.pilot_seed_file}")
+        seed_payload = json.loads(args.pilot_seed_file.read_text(encoding="utf-8"))
+        if isinstance(seed_payload, list):
+            seed_rows = seed_payload
+        elif isinstance(seed_payload, dict):
+            seed_rows = seed_payload.get("leads") or seed_payload.get("rows") or []
+        else:
+            seed_rows = []
+        if not seed_rows:
+            raise SystemExit("pilot seed file contains no leads")
+        pilot_dsn = args.dsn or os.environ.get("LOCAL_DATALAKE_DSN") or os.environ.get("DATABASE_URL")
+        if not pilot_dsn:
+            raise SystemExit("--dsn or LOCAL_DATALAKE_DSN is required for pilot hydration")
+        seed_roots = sorted({_root8(row.get("root") or row.get("cnpj14")) for row in seed_rows})
+        contracts_by_root = load_contracts_by_root(seed_roots, dsn=pilot_dsn)
+        review = build_pilot_review(
+            seed_rows,
+            contracts_by_root=contracts_by_root,
+            target_size=max(0, args.pilot_size),
+        )
+        write_pilot_review(review, out_dir=args.out_dir)
+        feed_result = write_pilot_feed(review, args.pilot_feed_out) if args.pilot_feed_out else None
+        pilot_summary = {
+            "n": review["n"],
+            "email_send_ready": review["email_send_ready"],
+            "approved": review["approved"],
+            "service_distribution": review["service_distribution"],
+            "rejections": len(review["rejections"]),
+            "warmbly_feed": feed_result,
+        }
     summary = {
         "EMAIL_SEND_READY_DISTINCT_COMPANIES": report["EMAIL_SEND_READY_DISTINCT_COMPANIES"],
         "email_roots_upper_bound": report["email_roots_upper_bound"],
@@ -729,6 +1398,7 @@ def main(argv: list[str] | None = None) -> int:
         "PILOT_READY_CANDIDATE": report["PILOT_READY_CANDIDATE"],
         "not_ready_top": report["not_ready_top"][:10],
         "service_distribution": report["service_distribution"],
+        "pilot_review": pilot_summary,
     }
     print(json.dumps(summary, indent=2, ensure_ascii=False))
     return 0

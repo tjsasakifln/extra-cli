@@ -57,7 +57,7 @@ def _display_lead(lead: dict[str, Any], idx: int, total: int) -> None:
     print("=" * 72)
     fields = [
         ("empresa", lead.get("legal_name") or lead.get("razao_social") or lead.get("empresa")),
-        ("CNPJ", lead.get("cnpj_raiz") or lead.get("cnpj") or lead.get("cnpj14")),
+        ("CNPJ", lead.get("cnpj14") or lead.get("cnpj") or lead.get("cnpj_raiz")),
         ("email", lead.get("email") or (lead.get("contact") or {}).get("email")),
         ("fonte do email", lead.get("source_url") or lead.get("email_source") or lead.get("source_type")),
         (

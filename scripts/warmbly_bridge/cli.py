@@ -72,12 +72,13 @@ def cmd_export(args: argparse.Namespace) -> int:
 
 
 def _build_store(args: argparse.Namespace) -> Any:
-    if getattr(args, "memory_store", False) or not getattr(args, "dsn", None):
+    dsn = getattr(args, "dsn", None) or os.environ.get("LOCAL_DATALAKE_DSN")
+    if getattr(args, "memory_store", False) or not dsn:
         return InMemoryOutcomeStore()
     from scripts.decision_memory.db import connect
     from scripts.decision_memory.repository import DecisionMemoryRepository
 
-    conn = connect(args.dsn)
+    conn = connect(dsn)
     return DecisionMemoryOutcomeStore(DecisionMemoryRepository(conn))
 
 
