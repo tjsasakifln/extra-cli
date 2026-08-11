@@ -589,12 +589,15 @@ def _load_supplier_identities(roots: list[str], dsn: str | None = None) -> dict[
                       FROM pncp_supplier_contracts
                       WHERE fornecedor_cnpj_8 = ANY(%s)
                         AND COALESCE(is_active, TRUE) IS TRUE
+                        AND length(
+                          regexp_replace(COALESCE(fornecedor_cnpj, ''), '\\D', '', 'g')
+                        ) = 14
                       GROUP BY fornecedor_cnpj_8,
                                regexp_replace(COALESCE(fornecedor_cnpj, ''), '\\D', '', 'g')
                     )
                     SELECT root, cnpj14, nome
                     FROM ranked
-                    WHERE rn = 1 AND length(cnpj14) = 14
+                    WHERE rn = 1
                     """,
                     (part,),
                 )
@@ -859,7 +862,8 @@ def build_pilot_review(
             canonical_universe_member=True,
         )
         if not readiness.email_send_ready:
-            reject(seed, f"email_send_ready_failed:{','.join(readiness.reasons[:4])}")
+            reasons = [str(reason) for reason in (readiness.reasons or [])][:4]
+            reject(seed, f"email_send_ready_failed:{','.join(reasons)}")
             continue
         agencies = {str(row.get("orgao_nome") or "").strip() for row in matching_contracts}
         primary_contract = _primary_contract(dossier, pilot_contracts)
@@ -906,6 +910,20 @@ def build_pilot_review(
             candidate["risks"].append("portfolio_capped_at_30; access complexity requires human sanity check")
         candidates.append(candidate)
 
+    # One company, one pilot lead. Keep the most operationally useful contact
+    # when an upstream seed contains multiple rows for the same valid CNPJ.
+    unique_candidates: dict[str, dict[str, Any]] = {}
+    for row in candidates:
+        key = str(row.get("cnpj14") or "")
+        incumbent = unique_candidates.get(key)
+        if incumbent is None or _pilot_access_rank(row) < _pilot_access_rank(incumbent):
+            if incumbent is not None:
+                reject(incumbent, "duplicate_company_candidate")
+            unique_candidates[key] = row
+        else:
+            reject(row, "duplicate_company_candidate")
+    candidates = list(unique_candidates.values())
+
     # Keep very broad/complex accounts in ABM even when a commercial mailbox exists.
     eligible: list[dict[str, Any]] = []
     for row in candidates:
@@ -943,9 +961,9 @@ def build_pilot_review(
         if not progressed:
             break
 
-    selected_ids = {str(row.get("cnpj14")) for row in selected}
+    selected_ids = {id(row) for row in selected}
     for row in eligible:
-        if str(row.get("cnpj14")) not in selected_ids:
+        if id(row) not in selected_ids:
             rejected.append(
                 {
                     "cnpj14": row.get("cnpj14"),
@@ -1097,6 +1115,8 @@ def build_pilot_feed_inputs(
 def write_pilot_feed(review: dict[str, Any], out_dir: Path) -> dict[str, Any]:
     """Emit a standard confenge.outreach.v1 feed; no pilot-only wire format."""
     universe, intelligence, contacts = build_pilot_feed_inputs(review)
+    if not universe:
+        raise ValueError("pilot feed requested for a review with no leads")
     mapped = build_leads(universe, intelligence, contacts)
     if len(mapped) != len(review.get("leads") or []) or not all(
         bool(lead.get("email_send_ready")) for lead in mapped

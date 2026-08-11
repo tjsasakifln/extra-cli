@@ -37,9 +37,9 @@ decisões distintas.
   unchanged, demonstrando idempotência.
 - Warmbly: 20/20 contatos da coorte presentes, zero DNC, bounce ou bloqueio;
   zero itens na fila e zero autorizações de envio.
-- Outcome receptor: persistência PostgreSQL (sem `--memory-store`), HMAC e
-  idempotência comprovados; quatro eventos distintos persistidos e 68 itens do
-  outbox entregues ao receptor.
+- Outcome receptor: persistência PostgreSQL com `LOCAL_DATALAKE_DSN` configurado
+  e sem `--memory-store`, HMAC e idempotência comprovados; quatro eventos
+  distintos persistidos e 68 itens do outbox entregues ao receptor.
 - Controles: `stop_on_reply=true`; casos live de reply-stop sem touch futuro;
   governor 10/h; kill switch engatado; dispatch pausado por operador.
 - Transporte: conexões SMTP e IMAP e o self-smoke anterior passaram. SPF ainda

@@ -258,11 +258,12 @@ def test_pilot_review_has_full_identity_evidence_message_and_human_gate(tmp_path
         ],
     }
     review = build_pilot_review(
-        [seed],
+        [seed, {**seed, "email": "comercial@construtoraalvorada.com.br"}],
         contracts_by_root={raw["cnpj_root"]: raw["contracts"]},
         target_size=1,
     )
     assert review["n"] == 1, review
+    assert any(row["reason"] == "duplicate_company_candidate" for row in review["rejections"])
     lead = review["leads"][0]
     assert lead["cnpj14"] == raw["cnpj14"]
     assert lead["email_send_ready"] is True
@@ -280,6 +281,13 @@ def test_pilot_review_has_full_identity_evidence_message_and_human_gate(tmp_path
     chunk = json.loads((tmp_path / "feed" / "chunk_0000.json").read_text(encoding="utf-8"))
     assert chunk["leads"][0]["email_send_ready"] is True
     assert chunk["leads"][0]["offer"]["service_code"] == lead["recommended_service"]
+
+
+def test_empty_pilot_review_cannot_emit_feed(tmp_path: Path) -> None:
+    import pytest
+
+    with pytest.raises(ValueError, match="no leads"):
+        write_pilot_feed({"leads": []}, tmp_path / "empty-feed")
 
 
 def test_pattern_guess_never_send_ready() -> None:
@@ -433,3 +441,13 @@ def test_outcome_receptor_uses_dsn_from_environment_without_argv(
 
     assert store is connection
     assert seen == {"dsn": "postgresql://local-env", "connection": connection}
+
+
+def test_outcome_receptor_fails_closed_without_store_dsn(monkeypatch) -> None:
+    import pytest
+
+    from scripts.warmbly_bridge import cli
+
+    monkeypatch.delenv("LOCAL_DATALAKE_DSN", raising=False)
+    with pytest.raises(ValueError, match="no outcome store DSN"):
+        cli._build_store(Namespace(memory_store=False, dsn=None))
