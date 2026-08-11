@@ -21,13 +21,13 @@ def test_refuse_pilot_sample_as_max_companies(tmp_path) -> None:  # noqa: ANN001
 
 
 def test_terminal_from_process_result_mapping() -> None:
-    from scripts.confenge_process_enrichment.models import TerminalState
-    from scripts.confenge_process_enrichment.national_confirmed import (
-        _terminal_from_process_result,
-    )
     from scripts.confenge_contact_resolution.discovery_state import (
         CONTACT_EXHAUSTED,
         CONTACT_READY,
+    )
+    from scripts.confenge_process_enrichment.models import TerminalState
+    from scripts.confenge_process_enrichment.national_confirmed import (
+        _terminal_from_process_result,
     )
 
     class _R:

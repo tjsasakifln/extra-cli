@@ -1,9 +1,12 @@
-"""Continuous enrichment over TARGET_CONFIRMED — no pilot capacity cap."""
+"""Continuous enrichment over the construction universe — no pilot capacity cap."""
 
 from __future__ import annotations
 
+import inspect
+
 import pytest
 
+from scripts.confenge_contact_resolution import continuous_from_target_fit
 from scripts.confenge_contact_resolution.contact_coverage import MINIMUM_PILOT_ACCEPTANCE_SAMPLE
 from scripts.confenge_contact_resolution.continuous_from_target_fit import (
     ContinuousEnrichmentConfig,
@@ -47,3 +50,14 @@ def test_company_job_priority_order() -> None:
     ordered = sorted(jobs, key=priority_sort_key)
     assert ordered[0].priority_tier == "A1"
     assert ordered[1].priority_tier == "A2"
+
+
+def test_continuous_enrichment_population_is_sector_not_target_fit() -> None:
+    src = inspect.getsource(continuous_from_target_fit.load_construction_jobs_from_dsn)
+    assert "confenge_company_sector_current" in src
+    assert "CONSTRUCTION_CONFIRMED" in src
+    assert "CONSTRUCTION_PROBABLE" in src
+    assert "WHERE shadow_class" not in src
+    assert "WHERE target_fit_class" not in src
+    assert 'raiz + "0001"' not in src
+    assert "representative_cnpj14" in src

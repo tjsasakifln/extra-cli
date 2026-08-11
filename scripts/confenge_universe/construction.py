@@ -16,43 +16,22 @@ from scripts.commercial_leads.contract_relevance import (
 )
 from scripts.commercial_leads.contract_relevance import classify_contract_relevance
 from scripts.commercial_leads.sector_fit import (
-    ACTIVITY_CONSTRUCTION,
-    ACTIVITY_ENGINEERING_SERVICE,
-    ACTIVITY_TECHNICAL_DESIGN,
-    CLASS_CONFIRMED,
-    CLASS_OUT,
-    CLASS_POSSIBLE,
-    CLASS_STRONG,
-    classify_supplier_sector_fit,
-)
-from scripts.commercial_leads.sector_fit import (
     RULE_VERSION as SECTOR_FIT_VERSION,
 )
+from scripts.commercial_leads.sector_fit import (
+    classify_supplier_sector_fit,
+)
+from scripts.confenge_sector import (
+    CONSTRUCTION_CONFIRMED,
+    CONSTRUCTION_PROBABLE,
+    SECTOR_CLASSIFIER_VERSION,
+    classify_company_sector,
+)
 from scripts.confenge_universe.target_fit import (
-    TARGET_OUT_OF_SCOPE,
     TARGET_PROBABLE_RESEARCH,
     classify_target_fit,
 )
 from scripts.coverage.sector_engineering import classify_sector
-
-# Activity classes that belong in the construction/engineering B2G universe
-UNIVERSE_ACTIVITY_CLASSES = frozenset(
-    {
-        ACTIVITY_CONSTRUCTION,
-        ACTIVITY_ENGINEERING_SERVICE,
-        ACTIVITY_TECHNICAL_DESIGN,
-    }
-)
-
-# Sector fit classes that prove construction evidence strong enough for membership
-# POSSIBLE may enter the research universe but never auto-send (see target_fit).
-CONSTRUCTION_MEMBER_CLASSES = frozenset(
-    {
-        CLASS_CONFIRMED,
-        CLASS_STRONG,
-        CLASS_POSSIBLE,
-    }
-)
 
 
 @dataclass
@@ -74,6 +53,8 @@ class ConstructionEvidence:
     target_fit_reason_codes: list[str] = field(default_factory=list)
     target_fit_confidence: float = 0.0
     target_fit_version: str = ""
+    sector_class: str = "SECTOR_INSUFFICIENT_EVIDENCE"
+    sector_classifier_version: str = SECTOR_CLASSIFIER_VERSION
 
     def as_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -101,6 +82,7 @@ def assess_construction(
     contracts: list[dict[str, Any]],
     cnae_principal: str | None = None,
     cnaes_secundarios: list[str] | None = None,
+    history_stats: dict[str, Any] | None = None,
 ) -> ConstructionEvidence:
     """Decide whether a supplier group has B2G construction/engineering evidence."""
     decision = classify_supplier_sector_fit(
@@ -110,46 +92,24 @@ def assess_construction(
         cnae_principal=cnae_principal,
         cnaes_secundarios=cnaes_secundarios or [],
         history_is_full=True,
+        history_stats=history_stats,
     )
     cats = _object_categories(contracts)
     reasons = list(decision.reason_codes)
-    is_member = False
-    epistemic = "EVIDENCE"
-
-    if decision.classification in (CLASS_CONFIRMED, CLASS_STRONG):
-        is_member = True
-        epistemic = "EVIDENCE"
-        reasons.append("sector_fit_publishable")
-    elif decision.classification == CLASS_POSSIBLE and decision.relevant_contract_count >= 1:
-        # POSSIBLE with at least one relevant contract stays in universe
-        is_member = True
-        epistemic = "INFERENCE"
-        reasons.append("sector_fit_possible_with_relevant_contract")
-    elif decision.activity_class in UNIVERSE_ACTIVITY_CLASSES and decision.relevant_contract_count >= 1:
-        is_member = True
-        epistemic = "INFERENCE"
-        reasons.append("activity_class_engineering_with_relevant")
-    elif decision.classification == CLASS_OUT:
-        is_member = False
-        epistemic = "EVIDENCE"
-        reasons.append("sector_fit_out_of_scope")
-    else:
-        # Corroborate with sector_engineering on any PASS object
-        pass_hits = 0
-        for row in contracts:
-            obj = row.get("objeto_contrato") or row.get("objeto")
-            if classify_contract_relevance(obj).status == "PASS":
-                sm = classify_sector(str(obj or ""))
-                if sm.sector_match:
-                    pass_hits += 1
-        if pass_hits >= 1:
-            is_member = True
-            epistemic = "INFERENCE"
-            reasons.append("sector_engineering_corroboration")
-        else:
-            is_member = False
-            epistemic = "ABSENCE"
-            reasons.append("no_construction_evidence")
+    sector = classify_company_sector(
+        razao_social=razao_social,
+        nome_fantasia=nome_fantasia,
+        contracts=contracts,
+        cnae_principal=cnae_principal,
+        cnaes_secundarios=cnaes_secundarios or [],
+        history_is_full=True,
+        history_stats=history_stats,
+    )
+    is_member = sector.is_construction
+    epistemic = "EVIDENCE" if sector.sector_class == CONSTRUCTION_CONFIRMED else "INFERENCE"
+    if sector.sector_class == CONSTRUCTION_PROBABLE:
+        reasons.append("sector_probable_retained_for_research")
+    reasons.append(f"canonical_sector_class:{sector.sector_class}")
 
     # Explicit ICP target-fit (stricter than universe membership).
     # POSSIBLE/adjacency can stay in universe for research but not auto-send.
@@ -168,15 +128,9 @@ def assess_construction(
             "relevant_ratio": float(decision.relevant_contract_ratio),
         },
     )
-    # Hard out-of-scope with zero execution: do not keep as universe construction member.
-    if tf.target_fit_class == TARGET_OUT_OF_SCOPE and tf.relevant_execution_contract_count == 0:
-        is_member = False
-        epistemic = "EVIDENCE"
-        reasons.append("target_fit_out_of_scope")
-        reasons.extend(tf.target_fit_reason_codes[:3])
-
     return ConstructionEvidence(
         is_construction=is_member,
+        sector_class=sector.sector_class,
         sector_fit=decision.classification,
         activity_class=decision.activity_class,
         confidence=float(decision.confidence),
@@ -189,6 +143,7 @@ def assess_construction(
             "sector_fit": SECTOR_FIT_VERSION,
             "contract_relevance": CONTRACT_RELEVANCE_VERSION,
             "construction_bridge": "confenge-universe-construction-v2",
+            "sector_classifier": SECTOR_CLASSIFIER_VERSION,
             "target_fit": tf.target_fit_version,
         },
         epistemic_class=epistemic,

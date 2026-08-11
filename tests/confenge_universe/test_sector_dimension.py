@@ -1,0 +1,72 @@
+"""Adversarial invariants for sector membership versus target-fit."""
+
+from __future__ import annotations
+
+import inspect
+from types import SimpleNamespace
+
+from scripts.confenge_sector import (
+    CONSTRUCTION_CONFIRMED,
+    CONSTRUCTION_PROBABLE,
+    NON_CONSTRUCTION,
+    SECTOR_INSUFFICIENT_EVIDENCE,
+    classify_company_sector,
+)
+from scripts.confenge_universe import construction as construction_module
+from scripts.confenge_universe.target_fit import TARGET_OUT_OF_SCOPE
+
+
+def test_sector_classification_is_explicit_and_independent() -> None:
+    confirmed = classify_company_sector(
+        razao_social="ENGENHARIA EXEMPLO LTDA",
+        cnae_principal="7112-0/00",
+        contracts=[],
+    )
+    probable = classify_company_sector(
+        razao_social="CONSTRUTORA EM PESQUISA LTDA",
+        contracts=[],
+    )
+    non_construction = classify_company_sector(
+        razao_social="FARMACIA EXEMPLO LTDA",
+        cnae_principal="4771-7/01",
+        contracts=[],
+    )
+    unresolved = classify_company_sector(razao_social="ALFA LTDA", contracts=[])
+
+    assert confirmed.sector_class == CONSTRUCTION_CONFIRMED
+    assert probable.sector_class == CONSTRUCTION_PROBABLE
+    assert non_construction.sector_class == NON_CONSTRUCTION
+    assert unresolved.sector_class == SECTOR_INSUFFICIENT_EVIDENCE
+
+
+def test_target_out_of_scope_cannot_remove_confirmed_construction(monkeypatch) -> None:  # noqa: ANN001
+    monkeypatch.setattr(
+        construction_module,
+        "classify_target_fit",
+        lambda **_: SimpleNamespace(
+            target_fit_class=TARGET_OUT_OF_SCOPE,
+            target_fit_confidence=0.9,
+            target_fit_evidence=[],
+            target_fit_reason_codes=["commercially_out_for_now"],
+            target_fit_version="test-target-fit",
+            relevant_execution_contract_count=0,
+        ),
+    )
+
+    evidence = construction_module.assess_construction(
+        razao_social="ENGENHARIA EXEMPLO LTDA",
+        cnae_principal="7112-0/00",
+        contracts=[],
+    )
+
+    assert evidence.sector_class == CONSTRUCTION_CONFIRMED
+    assert evidence.is_construction is True
+    assert evidence.target_fit_class == TARGET_OUT_OF_SCOPE
+
+
+def test_warmbly_mapping_never_uses_target_out_as_sector_membership_proxy() -> None:
+    from scripts.warmbly_bridge import mapping
+
+    source = inspect.getsource(mapping.map_lead)
+    assert 'pub_class != "TARGET_OUT_OF_SCOPE"' not in source
+    assert "construction_universe_member" in source

@@ -23,14 +23,32 @@ from scripts.confenge_activation.pilot_go_policy import build_universe_manifest
 
 def _universe(n: int) -> dict:
     return build_universe_manifest(
-        observed_supplier_roots=n,
+        supplier_roots_observed=n,
+        sector_classes={
+            "CONSTRUCTION_CONFIRMED": n,
+            "CONSTRUCTION_PROBABLE": 0,
+            "NON_CONSTRUCTION": 0,
+            "SECTOR_INSUFFICIENT_EVIDENCE": 0,
+        },
+        target_fit_population=n,
         materialized_roots=n,
-        target_classes={"TARGET_CONFIRMED": n},
+        target_classes={
+            "TARGET_CONFIRMED": n,
+            "TARGET_PROBABLE_RESEARCH": 0,
+            "TARGET_OUT_OF_SCOPE": 0,
+            "TARGET_INSUFFICIENT_EVIDENCE": 0,
+        },
         source_contract_rows=n * 4,
         datalake_watermark="2026-08-10T12:00:00Z",
-        target_fit_version="confenge-target-fit-v2",
+        source_cdc_watermark="2026-08-10T11:59:59Z",
         database_snapshot="123:123:",
-        construction_commercial_roots=n,
+        transaction_timestamp="2026-08-10T12:00:00Z",
+        construction_universe_derivation="sector_class IN construction classes",
+        construction_evidence_version="confenge-sector-v1",
+        query_sha256="a" * 64,
+        construction_classifier_sha256="b" * 64,
+        target_fit_classifier_sha256="c" * 64,
+        target_fit_version="confenge-target-fit-v2",
     )
 
 
@@ -44,30 +62,36 @@ def test_cli_fails_closed_without_atomic_universe_manifest(tmp_path: Path) -> No
                 "a" * 40,
                 "--host-deployed-sha",
                 "a" * 40,
+                "--evaluated-code-sha",
+                "a" * 40,
             ]
         )
 
 
-def test_sha_bound_false_when_triple_equal_but_not_origin_tip() -> None:
+def test_evidence_publication_after_evaluation_does_not_invalidate_binding() -> None:
     tip = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     stale = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
     binding = build_sha_binding(
-        origin_main=stale,
+        origin_main=tip,
         host_deployed=stale,
         runtime=stale,
+        evaluated_code_sha=stale,
         expected_origin_tip=tip,
     )
     assert binding["triple_sha_equal"] is True
-    assert binding["sha_bound"] is False
-    assert binding["tip_matches_origin_main"] is False
+    assert binding["sha_bound"] is True
+    assert binding["tip_matches_origin_main"] is True
+    assert binding["evaluated_code_sha"] == stale
+    assert binding["evidence_publication_sha"] == tip
 
 
-def test_sha_bound_true_only_when_triple_equals_tip() -> None:
+def test_sha_bound_requires_evaluated_deployment_runtime_equality() -> None:
     tip = "cccccccccccccccccccccccccccccccccccccccc"
     binding = build_sha_binding(
         origin_main=tip,
         host_deployed=tip,
         runtime=tip,
+        evaluated_code_sha=tip,
         expected_origin_tip=tip,
     )
     assert binding["triple_sha_equal"] is True
@@ -116,6 +140,11 @@ def test_ladder_complete_when_all_steps_at_target() -> None:
 def test_warmbly_pass_false_when_critical_pass_config() -> None:
     warmbly = {
         "PASS": True,
+        "email_only": True,
+        "whatsapp_enabled": False,
+        "auto_send_enabled": False,
+        "emails_per_hour": 10,
+        "dispatch": {"state": "PAUSED_MANUAL_START"},
         "checks": {
             "reservoir_feed_import": "PASS",
             "smtp_imap_reply_stop": "PASS_CONFIG",
@@ -201,6 +230,11 @@ def test_emit_pack_forbids_external_on_partial_ladder(
     }
     warmbly = {
         "PASS": True,
+        "email_only": True,
+        "whatsapp_enabled": False,
+        "auto_send_enabled": False,
+        "emails_per_hour": 10,
+        "dispatch": {"state": "PAUSED_MANUAL_START"},
         "checks": {
             "reservoir_feed_import": "PASS",
             "smtp_imap_reply_stop": "PASS",
@@ -301,6 +335,11 @@ def test_emit_pack_stale_sha_cannot_leave_engineering(tmp_path: Path) -> None:
     }
     warmbly = {
         "PASS": True,
+        "email_only": True,
+        "whatsapp_enabled": False,
+        "auto_send_enabled": False,
+        "emails_per_hour": 10,
+        "dispatch": {"state": "PAUSED_MANUAL_START"},
         "checks": {
             "reservoir_feed_import": "PASS",
             "smtp_imap_reply_stop": "PASS",
@@ -312,7 +351,8 @@ def test_emit_pack_stale_sha_cannot_leave_engineering(tmp_path: Path) -> None:
     sha = build_sha_binding(
         origin_main=stale,
         host_deployed=stale,
-        runtime=stale,
+        runtime=tip,
+        evaluated_code_sha=stale,
         expected_origin_tip=tip,
     )
     man = emit_pack(
@@ -399,6 +439,11 @@ def test_emit_pack_go_below_900_after_top20_and_10_approvals(tmp_path: Path) -> 
     }
     warmbly = {
         "PASS": True,
+        "email_only": True,
+        "whatsapp_enabled": False,
+        "auto_send_enabled": False,
+        "emails_per_hour": 10,
+        "dispatch": {"state": "PAUSED_MANUAL_START"},
         "checks": {
             "reservoir_feed_import": "PASS",
             "smtp_imap_reply_stop": "PASS",

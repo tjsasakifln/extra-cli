@@ -412,7 +412,7 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 - [ ] O perfil relaciona cada dor observável a uma oferta concreta: diagnóstico B2G, monitoramento, análise de edital, apoio à proposta ou acompanhamento administrativo de contrato.
 - [ ] A unidade primária de lead é a pessoa jurídica identificada por CNPJ; nomes semelhantes, filiais e grupos econômicos não são fundidos sem regra e evidência.
 - [ ] Cada execução registra versão do perfil, janela temporal, filtros, versão/hash do dataset, data de corte e quantidade de empresas elegíveis.
-- [ ] Cada execução full-scale publica `confenge.universe_manifest.v2` reconciliado no mesmo watermark do datalake; números históricos não são constantes operacionais.
+- [ ] Cada execução full-scale publica `confenge.universe_manifest.v3` reconciliado no mesmo snapshot atômico do datalake, separando supplier universe, dimensão setorial e target-fit; números históricos não são constantes operacionais.
 - [ ] Empresas sem CNPJ defensável ou fora do perfil permanecem visíveis como excluídas, com motivo, e não entram silenciosamente no ranking.
 - [ ] Órgãos públicos, pessoas físicas e registros sem relação com uma oferta da CONFENGE não são tratados como leads.
 

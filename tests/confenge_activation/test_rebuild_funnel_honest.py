@@ -10,7 +10,7 @@ from scripts.confenge_contact_resolution.contact_coverage import measure_contact
 
 def test_measure_contact_coverage_uses_real_keys_not_synthetic() -> None:
     m = measure_contact_coverage(
-        target_confirmed_keys=["11222333", "44555666", "77888999"],
+        population_keys=["11222333", "44555666", "77888999"],
         attempted_keys=["11222333"],
         real_email_keys=["11222333"],
         company_owned_keys=["11222333"],
@@ -43,7 +43,7 @@ def test_rebuild_source_calls_evaluate_email_send_ready() -> None:
 def test_national_universe_label_not_fake_construction_only() -> None:
     src = inspect.getsource(rnf.gather_live_metrics)
     assert "pncp_supplier" in src or "supplier" in src.lower()
-    assert "construction_relevant" in src
+    assert "construction_roots" in src
 
 
 def test_all_target_classes_count_toward_materialized_universe() -> None:
@@ -53,4 +53,6 @@ def test_all_target_classes_count_toward_materialized_universe() -> None:
     assert "universe_manifest" in src
     assert 'isolation_level="REPEATABLE READ"' in src
     assert "txid_current_snapshot()" in src
-    assert 'construction_commercial_derivation="TARGET_CONFIRMED+TARGET_PROBABLE_RESEARCH"' in src
+    assert "sector_classes[CONSTRUCTION_CONFIRMED]" in src
+    assert "construction_universe_derivation" in src
+    assert "TARGET_CONFIRMED+TARGET_PROBABLE_RESEARCH" not in src

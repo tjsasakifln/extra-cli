@@ -470,11 +470,15 @@ def map_lead(
                 suppressed=suppressed,
             )
             pub_class = str(pub.get("target_fit_class") or "")
+            construction_member = bool(
+                company_ctx.get("canonical_universe_member", True)
+            )
             fit = TargetFitResult(
                 tier=map_class_to_send_tier(pub_class),
                 reasons=list(pub_reasons) + ["published_target_fit"],
                 sector_fit=str(pub.get("sector_fit") or company_ctx.get("sector_fit") or ""),
-                canonical_universe_member=pub_class != "TARGET_OUT_OF_SCOPE",
+                # Target-fit may block send, but never rewrites sector membership.
+                canonical_universe_member=construction_member,
             )
             lead = attach_published_fields(lead, published=pub, freshness=fresh)
             if blocks:
@@ -488,7 +492,9 @@ def map_lead(
                 tier="OUT_OF_SCOPE",
                 reasons=["TARGET_FIT_MISSING", "live_store_miss"],
                 sector_fit="",
-                canonical_universe_member=False,
+                canonical_universe_member=bool(
+                    company_ctx.get("canonical_universe_member", True)
+                ),
             )
             lead["target_fit_class"] = None
             lead["target_fit_confidence"] = None
@@ -506,7 +512,9 @@ def map_lead(
                 tier="OUT_OF_SCOPE",
                 reasons=[f"published_path_error:{type(exc).__name__}", "fail_closed"],
                 sector_fit="",
-                canonical_universe_member=False,
+                canonical_universe_member=bool(
+                    company_ctx.get("canonical_universe_member", True)
+                ),
             )
             lead["target_fit_class"] = None
             lead["target_fit_confidence"] = None
@@ -532,6 +540,7 @@ def map_lead(
 
     lead["target_fit_send_tier"] = fit.tier
     lead["target_fit_reasons"] = list(fit.reasons)
+    lead["construction_universe_member"] = fit.canonical_universe_member
 
     # Pick best email contact for company-level email_send_ready
     best_ready = False

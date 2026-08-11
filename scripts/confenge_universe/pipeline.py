@@ -240,6 +240,7 @@ def finalize_bucket(
         nome_fantasia=nome_fantasia,
         contracts=list(bucket.contracts_for_classify),
         cnae_principal=cnae,
+        history_stats=bucket.sector_history.as_stats(),
     )
 
     dnc = is_dnc_cnpj(identity.cnpj14, identity.cnpj_root, dnc_set)

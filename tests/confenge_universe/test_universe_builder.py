@@ -492,6 +492,10 @@ def test_scale_250k_synthetic_no_full_materialization(tmp_path: Path) -> None:
     # classify buffer is capped
     assert len(bucket.contracts_for_classify) <= bucket.max_contracts_for_classify
     assert bucket.contract_count == 5000
+    stats = bucket.sector_history.as_stats()
+    assert stats["total_contract_count_full_history"] == 5000
+    assert stats["relevant_contract_count"] == 5000
+    assert stats["denominator_invariant_ok"] is True
 
     # Full pipeline on 3k synthetic for integration + recon; full_scale false
     def small_gen() -> Iterator[dict[str, Any]]:

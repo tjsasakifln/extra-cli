@@ -77,6 +77,7 @@ def _display_lead(lead: dict[str, Any], idx: int, total: int) -> None:
         ("why_this_account", lead.get("why_this_account")),
         ("why_now", lead.get("why_now")),
         ("micro_offer", lead.get("micro_offer")),
+        ("riscos", lead.get("risks") or lead.get("limitations")),
         ("draft", lead.get("draft") or lead.get("email_draft") or lead.get("subject")),
     ]
     for label, val in fields:
@@ -101,6 +102,37 @@ def _append_decision(path: Path, row: dict[str, Any]) -> None:
         fh.write(json.dumps(row, ensure_ascii=False, default=str) + "\n")
 
 
+def _lead_identity(lead: dict[str, Any]) -> tuple[str, str, str]:
+    raw = lead.get("cnpj_raiz") or lead.get("cnpj_root") or lead.get("cnpj") or lead.get(
+        "cnpj14"
+    )
+    digits = "".join(ch for ch in str(raw or "") if ch.isdigit())
+    root = digits[:8] if len(digits) >= 8 else ""
+    email = str(lead.get("email") or (lead.get("contact") or {}).get("email") or "").strip().lower()
+    return root, email, f"{root}|{email}" if root and email else ""
+
+
+def _completed_decision_keys(path: Path) -> set[str]:
+    completed: set[str] = set()
+    if not path.is_file():
+        return completed
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        try:
+            row = json.loads(raw)
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(row, dict):
+            continue
+        status = str(row.get("review_status") or row.get("status") or "").upper()
+        if status not in {HUMAN_REVIEW_APPROVED, HUMAN_REVIEW_REJECTED}:
+            continue
+        _, _, derived_key = _lead_identity(row)
+        key = str(row.get("lead_key") or derived_key)
+        if key:
+            completed.add(key)
+    return completed
+
+
 def run_interactive(
     *,
     sample_path: Path,
@@ -118,11 +150,11 @@ def run_interactive(
 
     leads = load_sample(sample_path)
     if only_pending:
+        completed = _completed_decision_keys(decisions_path)
         pending = [
             L
             for L in leads
-            if str(L.get("review_status") or L.get("human_review_status") or HUMAN_REVIEW_PENDING)
-            == HUMAN_REVIEW_PENDING
+            if _lead_identity(L)[2] not in completed
         ]
     else:
         pending = leads
@@ -148,9 +180,12 @@ def run_interactive(
                 print("Stopped by operator.")
                 return 0
             if raw in {"S", "SKIP"}:
+                root, email, key = _lead_identity(lead)
                 row = {
-                    "cnpj_raiz": lead.get("cnpj_raiz") or lead.get("cnpj"),
-                    "email": lead.get("email"),
+                    "lead_key": key,
+                    "cnpj_root": root,
+                    "cnpj_raiz": root,
+                    "email": email,
                     "decision": "SKIP",
                     "review_status": HUMAN_REVIEW_PENDING,
                     "reviewer": reviewer,
@@ -162,6 +197,10 @@ def run_interactive(
                 break
             if raw in {"A", "APPROVE", "R", "REJECT"}:
                 approve = raw in {"A", "APPROVE"}
+                root, email, key = _lead_identity(lead)
+                if not key:
+                    print("ERROR: lead requires a valid CNPJ root and email")
+                    continue
                 try:
                     decision = mint_human_review_decision(
                         reviewer=reviewer,
@@ -183,46 +222,18 @@ def run_interactive(
                     print(f"ERROR: {exc}")
                     continue
                 row = {
-                    "cnpj_raiz": lead.get("cnpj_raiz") or lead.get("cnpj"),
-                    "email": lead.get("email"),
+                    "lead_key": key,
+                    "cnpj_root": root,
+                    "cnpj_raiz": root,
+                    "email": email,
                     "legal_name": lead.get("legal_name") or lead.get("razao_social"),
                     **decision,
                     "review_status": decision["status"],
                 }
                 _append_decision(decisions_path, row)
-                # update in-memory for optional sample rewrite
-                lead["review_status"] = decision["status"]
-                lead["human_review"] = decision
                 print(f"recorded {decision['status']}")
                 break
             print("Invalid — use A / R / S / Q")
-
-    # Persist updated sample statuses
-    try:
-        original = json.loads(sample_path.read_text(encoding="utf-8"))
-        if isinstance(original, dict) and isinstance(original.get("leads"), list):
-            # map by cnpj+email
-            by_key = {
-                (
-                    str(L.get("cnpj_raiz") or L.get("cnpj")),
-                    str(L.get("email") or ""),
-                ): L
-                for L in pending
-            }
-            for item in original["leads"]:
-                k = (
-                    str(item.get("cnpj_raiz") or item.get("cnpj")),
-                    str(item.get("email") or ""),
-                )
-                if k in by_key and by_key[k].get("human_review"):
-                    item["review_status"] = by_key[k]["review_status"]
-                    item["human_review"] = by_key[k]["human_review"]
-            sample_path.write_text(
-                json.dumps(original, indent=2, ensure_ascii=False, default=str) + "\n",
-                encoding="utf-8",
-            )
-    except OSError as exc:
-        print(f"warning: could not rewrite sample: {exc}", file=sys.stderr)
 
     print(f"\nDone. Decisions appended to {decisions_path}")
     return 0

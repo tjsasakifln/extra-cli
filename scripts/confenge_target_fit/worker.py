@@ -12,6 +12,7 @@ import uuid
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
+from scripts.confenge_sector.store import materialize_sector, publish_sector_materialization
 from scripts.confenge_target_fit import (
     MODE_AUTO_PAUSE,
     MODE_SHADOW,
@@ -69,6 +70,7 @@ def _get_shadow_as_previous(conn: Any, company_key: str) -> dict[str, Any] | Non
             "target_fit_reason_codes": d.get("reason_codes") or [],
             "target_fit_evidence": d.get("evidence") or [],
             "input_fingerprint": d.get("input_fingerprint"),
+            "classifier_sha": d.get("classifier_sha"),
             "source_watermark": d.get("source_watermark"),
             "computed_at": d.get("computed_at"),
             "operational_status": "shadow_only",
@@ -139,6 +141,12 @@ def process_one(
             cnpj_raiz=item.cnpj_raiz,
             source_watermark=item.source_watermark,
         )
+        # Sector membership and target-fit share the same CDC trigger, but are
+        # independently materialized. A target-fit downgrade can never erase
+        # or redefine the sector row.
+        sector = materialize_sector(company)
+        result["sector_changed"] = publish_sector_materialization(conn, sector)
+        result["sector_class"] = sector.sector_class
         previous = _normalize_json_fields(get_current(conn, item.company_key))
         if previous is None and mode == MODE_SHADOW:
             # In SHADOW, canonical current is not updated — use shadow as baseline

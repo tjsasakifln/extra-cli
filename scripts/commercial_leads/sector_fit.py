@@ -297,96 +297,112 @@ def _row_pub_date(row: Any) -> date | None:
     )
 
 
+@dataclass(slots=True)
+class ContractHistoryAccumulator:
+    """Exact streaming denominator with bounded evidence samples.
+
+    Counts and classification signals cover every contract. Only human-readable
+    evidence snippets are capped; those caps never affect classification.
+    """
+
+    object_field: str = "objeto_contrato"
+    relevant: int = 0
+    irrelevant: int = 0
+    review: int = 0
+    total: int = 0
+    relevant_agencies: set[str] = field(default_factory=set)
+    relevant_objects: set[str] = field(default_factory=set)
+    first_relevant_date: date | None = None
+    last_relevant_date: date | None = None
+    category_dist: Counter[str] = field(default_factory=Counter)
+    evidence_relevant: list[dict[str, Any]] = field(default_factory=list)
+    conflicting_contracts: list[dict[str, Any]] = field(default_factory=list)
+    supply_hits: int = 0
+    eng_service_hits: int = 0
+
+    def add(self, row: Any) -> None:
+        self.total += 1
+        obj = _row_object(row, self.object_field)
+        rel = classify_contract_relevance(obj)
+        self.category_dist[rel.status] += 1
+        obj_norm = normalize_text(obj)
+        if any(marker in obj_norm for marker in SUPPLY_ONLY_MARKERS):
+            self.supply_hits += 1
+        if any(marker in obj_norm for marker in ENG_SERVICE_MARKERS):
+            self.eng_service_hits += 1
+
+        if rel.status == "PASS":
+            self.relevant += 1
+            agency = _row_agency(row)
+            if agency:
+                self.relevant_agencies.add(str(agency).strip().lower())
+            if obj_norm:
+                self.relevant_objects.add(obj_norm[:40])
+            published = _row_pub_date(row)
+            if published:
+                if self.first_relevant_date is None or published < self.first_relevant_date:
+                    self.first_relevant_date = published
+                if self.last_relevant_date is None or published > self.last_relevant_date:
+                    self.last_relevant_date = published
+            if len(self.evidence_relevant) < 30:
+                self.evidence_relevant.append(
+                    {
+                        "type": "relevant_contract",
+                        "objeto": str(obj)[:160] if obj else None,
+                        "reason_codes": rel.reason_codes,
+                        "strong_hits": rel.strong_hits[:5],
+                        "agency": agency,
+                    }
+                )
+        elif rel.status == "REVIEW":
+            self.review += 1
+        else:
+            self.irrelevant += 1
+            if rel.negative_context and len(self.conflicting_contracts) < 20:
+                self.conflicting_contracts.append(
+                    {
+                        "type": "out_of_scope_contract",
+                        "objeto": str(obj)[:160] if obj else None,
+                        "negative": rel.negative_context[:5],
+                    }
+                )
+
+    def as_stats(self) -> dict[str, Any]:
+        ratio = self.relevant / self.total if self.total else 0.0
+        time_span = None
+        if self.first_relevant_date and self.last_relevant_date:
+            time_span = (self.last_relevant_date - self.first_relevant_date).days
+        return {
+            "relevant_contract_count": self.relevant,
+            "irrelevant_contract_count": self.irrelevant,
+            "review_contract_count": self.review,
+            "total_contract_count_full_history": self.total,
+            "relevant_contract_ratio_full_history": round(ratio, 4),
+            "agency_count_relevant": len(self.relevant_agencies),
+            "object_diversity": len(self.relevant_objects),
+            "time_span_days": time_span,
+            "contract_category_distribution": dict(self.category_dist),
+            "evidence_relevant": list(self.evidence_relevant),
+            "conflicting_contracts": list(self.conflicting_contracts),
+            "supply_hits": self.supply_hits,
+            "eng_service_hits": self.eng_service_hits,
+            "denominator_invariant_ok": (
+                self.relevant + self.irrelevant + self.review == self.total
+            ),
+            "object_labels": [],
+        }
+
+
 def compute_contract_history_stats(
     contracts: list[Any],
     *,
     object_field: str = "objeto_contrato",
 ) -> dict[str, Any]:
     """Compute full-history concentration stats (denominator must include all contracts)."""
-    relevant = 0
-    irrelevant = 0
-    review = 0
-    total = 0
-    object_labels: list[str] = []
-    relevant_agencies: set[str] = set()
-    relevant_objects: set[str] = set()
-    dates: list[date] = []
-    category_dist: Counter[str] = Counter()
-    evidence_relevant: list[dict[str, Any]] = []
-    conflicting_contracts: list[dict[str, Any]] = []
-    supply_hits = 0
-    eng_service_hits = 0
-
+    accumulator = ContractHistoryAccumulator(object_field=object_field)
     for row in contracts:
-        total += 1
-        obj = _row_object(row, object_field)
-        rel = classify_contract_relevance(obj)
-        object_labels.append(rel.status)
-        category_dist[rel.status] += 1
-        obj_norm = normalize_text(obj)
-        if any(m in obj_norm for m in SUPPLY_ONLY_MARKERS):
-            supply_hits += 1
-        if any(m in obj_norm for m in ENG_SERVICE_MARKERS):
-            eng_service_hits += 1
-
-        if rel.status == "PASS":
-            relevant += 1
-            agency = _row_agency(row)
-            if agency:
-                relevant_agencies.add(str(agency).strip().lower())
-            if obj_norm:
-                # coarse diversity: first 40 chars of normalized object
-                relevant_objects.add(obj_norm[:40])
-            d = _row_pub_date(row)
-            if d:
-                dates.append(d)
-            evidence_relevant.append(
-                {
-                    "type": "relevant_contract",
-                    "objeto": (str(obj)[:160] if obj else None),
-                    "reason_codes": rel.reason_codes,
-                    "strong_hits": rel.strong_hits[:5],
-                    "agency": agency,
-                }
-            )
-        elif rel.status == "REVIEW":
-            review += 1
-        else:
-            irrelevant += 1
-            if rel.negative_context:
-                conflicting_contracts.append(
-                    {
-                        "type": "out_of_scope_contract",
-                        "objeto": (str(obj)[:160] if obj else None),
-                        "negative": rel.negative_context[:5],
-                    }
-                )
-
-    ratio = (relevant / total) if total else 0.0
-    time_span = None
-    if len(dates) >= 2:
-        time_span = (max(dates) - min(dates)).days
-    elif len(dates) == 1:
-        time_span = 0
-
-    invariant_ok = (relevant + irrelevant + review) == total
-    return {
-        "relevant_contract_count": relevant,
-        "irrelevant_contract_count": irrelevant,
-        "review_contract_count": review,
-        "total_contract_count_full_history": total,
-        "relevant_contract_ratio_full_history": round(ratio, 4),
-        "agency_count_relevant": len(relevant_agencies),
-        "object_diversity": len(relevant_objects),
-        "time_span_days": time_span,
-        "contract_category_distribution": dict(category_dist),
-        "evidence_relevant": evidence_relevant,
-        "conflicting_contracts": conflicting_contracts,
-        "supply_hits": supply_hits,
-        "eng_service_hits": eng_service_hits,
-        "denominator_invariant_ok": invariant_ok,
-        "object_labels": object_labels,
-    }
+        accumulator.add(row)
+    return accumulator.as_stats()
 
 
 def infer_activity_class(
@@ -433,6 +449,7 @@ def classify_supplier_sector_fit(
     object_field: str = "objeto_contrato",
     run_id: str | None = None,
     history_is_full: bool = True,
+    history_stats: dict[str, Any] | None = None,
 ) -> SectorFitDecision:
     """Classify supplier sector fit with full provenance on full contract history.
 
@@ -457,7 +474,34 @@ def classify_supplier_sector_fit(
         conflicting.append({"type": "legal_name_negative", "hits": neg_name})
         reasons.append("name_out_of_scope_marker")
 
-    stats = compute_contract_history_stats(contracts, object_field=object_field)
+    stats = history_stats or compute_contract_history_stats(contracts, object_field=object_field)
+    required_stats = {
+        "relevant_contract_count",
+        "irrelevant_contract_count",
+        "review_contract_count",
+        "total_contract_count_full_history",
+        "relevant_contract_ratio_full_history",
+        "agency_count_relevant",
+        "object_diversity",
+        "time_span_days",
+        "contract_category_distribution",
+        "evidence_relevant",
+        "conflicting_contracts",
+        "supply_hits",
+        "eng_service_hits",
+        "denominator_invariant_ok",
+    }
+    missing_stats = required_stats - set(stats)
+    if missing_stats:
+        raise ValueError(f"history_stats missing fields: {sorted(missing_stats)}")
+    if (
+        int(stats["relevant_contract_count"])
+        + int(stats["irrelevant_contract_count"])
+        + int(stats["review_contract_count"])
+        != int(stats["total_contract_count_full_history"])
+        or not bool(stats["denominator_invariant_ok"])
+    ):
+        raise ValueError("history_stats denominator invariant failed")
     relevant = int(stats["relevant_contract_count"])
     total = int(stats["total_contract_count_full_history"])
     ratio = float(stats["relevant_contract_ratio_full_history"])

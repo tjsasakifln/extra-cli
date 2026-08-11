@@ -6,27 +6,34 @@
 
 ## Context
 
-Os pacotes de fechamento misturavam três denominadores distintos: todos os fornecedores presentes no histórico contratual, as empresas classificadas para o ICP de construção e a reserva de contatos `EMAIL_SEND_READY`. Snapshots do mesmo dia registraram 48.748 construction-eligible e 8.348/8.382 `TARGET_CONFIRMED`, enquanto o emissor reutilizava constantes e tratava a reserva de 900 como bloqueio do piloto. A publicação de evidência também alterava o HEAD e provocava PRs sucessivos de SHA rebind.
+Os pacotes de fechamento misturavam três populações distintas: todos os fornecedores presentes no histórico contratual, as empresas pertencentes ao setor de construção e o estado comercial mutável de target-fit. A reserva de contatos `EMAIL_SEND_READY` é uma quarta métrica operacional. Contagens de snapshots históricos chegaram a coincidir ou divergir sem provar relação entre os conjuntos; nenhuma delas é constante. A publicação de evidência também alterava o HEAD e provocava PRs sucessivos de SHA rebind.
 
 ## Decision
 
-1. `confenge.universe_manifest.v2` é o contrato canônico do universo e fecha contratos lidos, roots observados, roots materializados e todas as classes de target-fit na mesma transação PostgreSQL `REPEATABLE READ`. O manifesto registra o snapshot transacional, o watermark CDC e a derivação explícita do universo comercial de construção.
-2. `CONFIRMED`, `PROBABLE`, `INSUFFICIENT` e `OUT_OF_SCOPE` permanecem no ledger. Estado de contato ou DNC altera elegibilidade de envio, nunca o histórico nem o denominador observado.
-3. Top-N, auditorias e hot sets são subsets de validação/operação. Não podem limitar scan, classificação, materialização ou reconsideração.
-4. `confenge.go_no_go.v2` separa `UNIVERSE_HEALTH`, `PILOT_QUALITY`, `PILOT_GO` e `NATIONAL_RESERVOIR_HEALTH`.
-5. O piloto pode receber GO abaixo de 900 quando o universo está reconciliado, os gates técnicos passam, o Top-20 foi revisado e ao menos 10 leads foram aprovados por humano atribuível.
-6. Mesmo após GO, Warmbly permanece `PAUSED_MANUAL_START`, e-mail apenas, WhatsApp desligado e 10 envios/h até comando explícito de Tiago.
-7. `evaluated_code_sha` identifica o código provado; `evidence_publication_sha` identifica somente a publicação de ponteiros. A segunda identidade não invalida a primeira.
+1. `confenge.universe_manifest.v3` é o contrato canônico. Na mesma visão PostgreSQL `REPEATABLE READ`, fecha `SUPPLIER_UNIVERSE`, a dimensão setorial, a população de target-fit e suas materializações. Registra snapshot, timestamp transacional, watermark CDC, queries e hashes integrais dos classificadores.
+2. `CONSTRUCTION_UNIVERSE` é derivado exclusivamente de `CONSTRUCTION_CONFIRMED + CONSTRUCTION_PROBABLE`. `NON_CONSTRUCTION` e `SECTOR_INSUFFICIENT_EVIDENCE` fecham a partição setorial. Nenhuma classe `TARGET_*` define pertencimento setorial.
+3. `TARGET_CONFIRMED`, `TARGET_PROBABLE_RESEARCH`, `TARGET_INSUFFICIENT_EVIDENCE` e `TARGET_OUT_OF_SCOPE` fecham separadamente `target_fit_population`. `TARGET_INSUFFICIENT_EVIDENCE` é estado reconsiderável, não exclusão.
+4. A dimensão setorial e target-fit compartilham CDC/dirty queue, mas possuem materializações e históricos independentes. Enriquecimento contínuo enumera todo `CONSTRUCTION_UNIVERSE`; target-fit, contato, DNC e provenance controlam somente prioridade e envio.
+5. Top-N, auditorias, hot sets, Top-20, ESR e a reserva 900 são subsets/métricas de validação ou operação. Não podem limitar scan, classificação, materialização, enriquecimento contínuo ou reconsideração.
+6. `confenge.go_no_go.v2` separa `UNIVERSE_HEALTH`, `PILOT_QUALITY`, `HUMAN_ACCEPTANCE`, `PILOT_GO` e `NATIONAL_RESERVOIR_HEALTH`.
+7. O piloto pode receber GO abaixo de 900 quando o universo está reconciliado, os gates técnicos passam, o Top-20 foi revisado e ao menos 10 leads foram aprovados por humano atribuível.
+8. Mesmo após GO, Warmbly permanece `PAUSED_MANUAL_START`, e-mail apenas, WhatsApp desligado e 10 envios/h até comando explícito de Tiago.
+9. `evaluated_code_sha` identifica o código provado; `evidence_publication_sha` identifica somente a publicação de ponteiros. A segunda identidade não invalida a primeira.
+10. `scripts.confenge_activation.pilot_go_policy.evaluate_pilot_go` é a única autoridade de decisão terminal; o emissor de pacote apenas coleta gates e delega à política. Emissores anteriores são `SUPERSEDED_NON_TERMINAL`.
+11. O rebuild setorial integral lê contratos ordenados por CNPJ-raiz no snapshot, fecha cada raiz uma única vez e publica por staging bounded. `row_batch_size` e `root_batch_size` são controles de I/O/memória, nunca limites de população; checkpoints registram linhas e raízes processadas antes da troca atômica da materialização corrente.
 
 ## Consequences
 
 - Ausência ou inconsistência do manifesto bloqueia o GO; baixa reserva não.
 - Decisões humanas são append-only e sobrevivem à regeneração do pacote.
 - Dumps e linhas completas permanecem fora do Git conforme ADR-020; o PR carrega somente código, testes e documentação leve.
-- Os números 48.748, 8 mil e 900 são evidências/targets com semânticas próprias, nunca constantes de universo.
+- Contagens históricas são exemplos auditáveis, nunca fallbacks operacionais. `MIN_OPERATIONAL_RESERVE=900` permanece meta configurada de escala nacional, não denominador nem gate do piloto controlado.
+- A memória residente do rebuild não cresce linearmente com centenas de milhares de raízes; cresce com o lote operacional configurado e com o histórico da raiz corrente.
 
 ## Acceptance
 
 - Igualdade de conjuntos/contagens e ausência de truncamento testadas.
 - Caso ESR `<900`, Top-20 revisado e 10 aprovados produz GO com dispatch pausado.
 - Subsets não alteram nenhum denominador do manifesto.
+- Uma empresa `CONSTRUCTION_CONFIRMED + TARGET_INSUFFICIENT_EVIDENCE` permanece materializada, enriquecível e reconsiderável.
+- Linhagem de versão/hash divergente bloqueia o fechamento mesmo quando as contagens coincidem.

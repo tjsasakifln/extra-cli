@@ -153,7 +153,18 @@
         "commercial_state": { "type": "string" },
         "target_fit_class": {
           "type": ["string", "null"],
-          "description": "Published ICP class from extra-cli continuous refresh (TARGET_CONFIRMED|TARGET_PROBABLE_RESEARCH|TARGET_OUT_OF_SCOPE). Warmbly must not re-score."
+          "enum": [
+            "TARGET_CONFIRMED",
+            "TARGET_PROBABLE_RESEARCH",
+            "TARGET_INSUFFICIENT_EVIDENCE",
+            "TARGET_OUT_OF_SCOPE",
+            null
+          ],
+          "description": "Published mutable commercial target-fit class. It never defines construction-sector membership and Warmbly must not re-score it."
+        },
+        "construction_universe_member": {
+          "type": "boolean",
+          "description": "Independent sector-membership fact supplied by extra-cli; target-fit downgrades do not rewrite it."
         },
         "target_fit_confidence": {
           "type": ["number", "null"],

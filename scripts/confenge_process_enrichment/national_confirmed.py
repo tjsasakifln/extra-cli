@@ -1,11 +1,11 @@
-"""National process-first harvest over live TARGET_CONFIRMED (no Top-N capacity).
+"""National process-first harvest over the live construction universe.
 
-Loads CONFIRMED roots from target-fit SHADOW/current, runs ProcessFirstEnricher
+Loads construction roots from the independent sector dimension, runs ProcessFirstEnricher
 with checkpoint/resume, and writes:
   - per-account JSON results
   - public_docs.jsonl consumable by contact-resolution PublicDocsAdapter
   - contact candidates jsonl (observed emails only; no pattern guess as send-ready)
-  - terminal discovery states for every processed CONFIRMED
+  - terminal discovery states for every processed construction company
 
 ``max_companies`` is smoke-only. Omit for full national population.
 Never treat 50 as capacity.
@@ -25,6 +25,9 @@ from scripts.confenge_activation.operational_metrics import (
     PILOT_ACCEPTANCE_SAMPLE,
     assert_not_pilot_as_capacity,
 )
+from scripts.confenge_contact_resolution.continuous_from_target_fit import (
+    load_construction_jobs_from_dsn,
+)
 from scripts.confenge_contact_resolution.discovery_state import (
     CONTACT_EXHAUSTED,
     CONTACT_EXTERNAL_BLOCKER,
@@ -36,9 +39,6 @@ from scripts.confenge_contact_resolution.discovery_state import (
 )
 from scripts.confenge_process_enrichment.models import TerminalState
 from scripts.confenge_process_enrichment.pipeline import ProcessFirstConfig, ProcessFirstEnricher
-from scripts.confenge_target_fit import MODE_SHADOW, TARGET_CONFIRMED
-from scripts.confenge_target_fit.db import connect
-from scripts.confenge_target_fit.store import get_control
 
 logger = logging.getLogger(__name__)
 
@@ -79,38 +79,14 @@ class NationalHarvestConfig:
     root_prefix: str | None = None
 
 
+def load_construction_roots(dsn: str) -> list[dict[str, Any]]:
+    """Load the prioritized construction universe for bounded/resumable work."""
+    return [dict(job.meta or {}) for job in load_construction_jobs_from_dsn(dsn)]
+
+
 def load_confirmed_roots(dsn: str) -> list[dict[str, Any]]:
-    """Load TARGET_CONFIRMED company roots from live materialization."""
-    conn = connect(dsn, readonly=True)
-    try:
-        mode_ctrl = get_control(conn, "async_mode")
-        mode = str(mode_ctrl.get("mode") or MODE_SHADOW).upper()
-        with conn.cursor() as cur:
-            if mode == MODE_SHADOW:
-                cur.execute(
-                    """
-                    SELECT company_key, cnpj_raiz, shadow_class AS target_fit_class,
-                           shadow_confidence AS conf
-                    FROM confenge_target_fit_shadow
-                    WHERE shadow_class = %s
-                    ORDER BY shadow_confidence DESC NULLS LAST, cnpj_raiz
-                    """,
-                    (TARGET_CONFIRMED,),
-                )
-            else:
-                cur.execute(
-                    """
-                    SELECT company_key, cnpj_raiz, target_fit_class,
-                           target_fit_confidence AS conf
-                    FROM confenge_company_target_fit_current
-                    WHERE target_fit_class = %s
-                    ORDER BY target_fit_confidence DESC NULLS LAST, cnpj_raiz
-                    """,
-                    (TARGET_CONFIRMED,),
-                )
-            return [dict(r) for r in (cur.fetchall() or [])]
-    finally:
-        conn.close()
+    """Compatibility alias; target-fit no longer controls enrichment inclusion."""
+    return load_construction_roots(dsn)
 
 
 def _accounts_completed_roots(accounts_dir: Path) -> set[str]:
@@ -428,11 +404,11 @@ def run_national_process_harvest(
     candidates_path = out / "contact-candidates.jsonl"
     terminals_path = out / "contact-discovery-terminals.jsonl"
 
-    roots = load_confirmed_roots(dsn)
+    roots = load_construction_roots(dsn)
     if cfg.root_prefix:
         pref = str(cfg.root_prefix)
         roots = [r for r in roots if str(r.get("cnpj_raiz") or "").startswith(pref)]
-    confirmed_keys = [str(r.get("cnpj_raiz") or "") for r in roots if r.get("cnpj_raiz")]
+    construction_keys = [str(r.get("cnpj_raiz") or "") for r in roots if r.get("cnpj_raiz")]
     completed: set[str] = set()
     if cfg.resume:
         completed = set(
@@ -629,10 +605,11 @@ def run_national_process_harvest(
 
     _save_checkpoint(ckpt_path, completed, accounts_dir=accounts_dir)
 
-    # Terminal coverage for all CONFIRMED (attempted = completed this/prior runs)
+    # Terminal coverage for the construction universe (attempted = completed current/prior runs)
     terminal_cov = measure_terminal_coverage(
         terminals if terminals else [],
-        target_confirmed_total=len(confirmed_keys),
+        population_total=len(construction_keys),
+        population_name="CONSTRUCTION_UNIVERSE",
     )
     # Merge prior terminals if present
     prior_terminals: list[dict[str, Any]] = []
@@ -652,12 +629,16 @@ def run_national_process_harvest(
     with terminals_path.open("w", encoding="utf-8") as fh:
         for t in merged:
             fh.write(json.dumps(t, ensure_ascii=False) + "\n")
-    terminal_cov = measure_terminal_coverage(merged, target_confirmed_total=len(confirmed_keys))
+    terminal_cov = measure_terminal_coverage(
+        merged,
+        population_total=len(construction_keys),
+        population_name="CONSTRUCTION_UNIVERSE",
+    )
 
     report = {
         "schema": "confenge.national_process_harvest.v1",
         "as_of": _utcnow(),
-        "TARGET_CONFIRMED_total": len(confirmed_keys),
+        "CONSTRUCTION_UNIVERSE_total": len(construction_keys),
         "processed_this_run": processed,
         "completed_total": len(completed),
         "emails_observed": emails_found,
@@ -671,7 +652,7 @@ def run_national_process_harvest(
         "contact_terminal_coverage": terminal_cov,
         "source_yield": yield_by_source,
         "note": (
-            "Process-first harvest over TARGET_CONFIRMED. "
+            "Process-first harvest over CONSTRUCTION_UNIVERSE; target-fit only affects priority/send. "
             f"PILOT_ACCEPTANCE_SAMPLE={PILOT_ACCEPTANCE_SAMPLE} is quality-only. "
             "Emails are OBSERVED only; ESR requires evaluate_email_send_ready."
         ),

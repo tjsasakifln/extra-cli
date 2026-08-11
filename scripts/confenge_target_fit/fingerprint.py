@@ -114,6 +114,13 @@ def build_fingerprint_payload(
         "relevant_contract_count": int(ce.get("relevant_contract_count") or 0),
         "relevant_ratio": round(float(ce.get("relevant_ratio") or 0.0), 4),
     }
+    branch_cnpjs = sorted(
+        {
+            _digits(value)[:14]
+            for value in company.branch_cnpjs
+            if len(_digits(value)) >= 14
+        }
+    )
 
     return {
         "company_key": company.company_key,
@@ -123,6 +130,7 @@ def build_fingerprint_payload(
         "cnae_principal": _digits(company.cnae_principal),
         "cnaes_sec": cnaes,
         "contracts": contracts,
+        "branch_cnpjs": branch_cnpjs,
         "construction_evidence": ce_view,
         "is_consortium_member": bool(company.is_consortium_member),
         "target_fit_version": target_fit_version,

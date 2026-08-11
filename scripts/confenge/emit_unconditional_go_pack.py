@@ -7,7 +7,7 @@ Sole writer of:
 
 Fail-closed: this legacy writer exits before any deploy/probe.  The only
 terminal authority is scripts.confenge_activation.emit_final_closure_pack with
-a valid confenge.universe_manifest.v2 and append-only human decisions.
+a valid confenge.universe_manifest.v3 and append-only human decisions.
 """
 
 from __future__ import annotations
@@ -455,6 +455,10 @@ def main() -> int:
 
 def _legacy_main_disabled() -> int:
     """Preserved implementation for audit only; never a terminal entrypoint."""
+    raise RuntimeError(
+        "SUPERSEDED_NON_TERMINAL: historical implementation is not executable; "
+        "use scripts.confenge_activation.emit_final_closure_pack"
+    )
     PACK.mkdir(parents=True, exist_ok=True)
     now = _now()
     print(f"EMIT start {now}")
@@ -741,7 +745,7 @@ Emitter: `scripts/confenge/emit_unconditional_go_pack.py` (sole pack writer)
 ### `{terminal}`
 
 """
-    if terminal == "EXTERNAL_BLOCKER_REQUIRES_TIAGO":
+    if terminal == "SUPERSEDED_NON_TERMINAL":
         go_md += f"""All **controllable engineering** §21 booleans are true from live probes
 (origin/main == host `.deployed_sha` == runtime == `{extra_main[:12]}…`).
 
@@ -794,7 +798,7 @@ PY
 ### Comando de retomada
 
 ```text
-Resume CONFENGE-OUTREACH-UNCONDITIONAL-GO-01 after HUMAN_REVIEW_COMPLETE; run python3 -m scripts.confenge.emit_unconditional_go_pack and emit GO_FOR_REAL_CONFENGE_EMAIL_PILOT if eng still green.
+Use the canonical final-closure emitter after attributable human review; this historical emitter remains superseded.
 ```
 """
     else:

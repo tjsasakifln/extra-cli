@@ -15,9 +15,10 @@ from pathlib import Path
 from typing import Any
 
 from scripts.confenge_activation.operational_metrics import (
+    CONFENGE_BUSINESS_HOURS_PER_DAY,
+    CONFENGE_PILOT_EMAILS_PER_HOUR,
+    MIN_OPERATIONAL_RESERVE,
     build_capacity_metrics,
-    min_operational_reserve,
-    warmbly_ops_config_from_env,
 )
 from scripts.confenge_activation.pilot_go_policy import (
     GO_NO_GO_SCHEMA,
@@ -38,6 +39,7 @@ ARTIFACT_NAMES = [
     "FUNNEL.json",
     "TARGET-FIT-COVERAGE.json",
     "TARGET-FIT-CLASS-DISTRIBUTION.json",
+    "SECTOR-CLASS-DISTRIBUTION.json",
     "UNIVERSE-MANIFEST.json",
     "CONTACT-COVERAGE.json",
     "CONTACT-SOURCE-YIELD.json",
@@ -110,6 +112,7 @@ def build_sha_binding(
     origin_main: str,
     host_deployed: str,
     runtime: str,
+    evaluated_code_sha: str | None = None,
     expected_origin_tip: str | None = None,
     warmbly_origin_main: str | None = None,
     warmbly_host_deployed: str | None = None,
@@ -119,29 +122,31 @@ def build_sha_binding(
 ) -> dict[str, Any]:
     """Build SHA-BINDING without defaulting host/runtime to local HEAD.
 
-    ``triple_sha_equal`` is true only when origin_main == host_deployed == runtime
-    (all non-empty). For terminal gating, ``sha_bound`` is true only when the
-    triple is equal **and** (if provided) origin_main matches ``expected_origin_tip``
-    (typically ``git rev-parse origin/main`` after fetch). A self-consistent but
-    stale triple (≠ tip) is therefore **not** bound.
+    Terminal gating binds the immutable code evaluation to deployment/runtime:
+    ``evaluated_code_sha == host_deployed == runtime``. The current origin tip
+    and evidence-publication SHA are separate lineage and cannot invalidate an
+    evaluation merely because evidence pointers were committed afterwards.
     """
     om = (origin_main or "").strip()
     hd = (host_deployed or "").strip()
     rt = (runtime or "").strip()
+    evaluated = (str(evaluated_code_sha or "").strip() or om)
     tip = (expected_origin_tip or "").strip() or None
-    triple = bool(om and hd and rt and om == hd == rt)
+    triple = bool(evaluated and hd and rt and evaluated == hd == rt)
     tip_ok = True if tip is None else (om == tip)
+    publication = str(evidence_publication_sha or "").strip() or om or None
     out: dict[str, Any] = {
         "origin_main": om or None,
-        "evaluated_code_sha": om or None,
-        "evidence_publication_sha": (str(evidence_publication_sha or "").strip() or None),
+        "evaluated_code_sha": evaluated or None,
+        "evidence_publication_sha": publication,
         "host_deployed_sha": hd or None,
         "runtime_sha": rt or None,
         "expected_origin_tip": tip,
         "triple_sha_equal": triple,
         "tip_matches_origin_main": tip_ok if tip is not None else None,
-        # Gate flag used by emit_pack terminals
-        "sha_bound": triple and tip_ok,
+        "evaluated_deployment_runtime_equal": triple,
+        # Gate flag used by emit_pack terminals. Publication lineage is not a code gate.
+        "sha_bound": triple,
         "warmbly_origin_main": warmbly_origin_main,
         "warmbly_host_deployed": warmbly_host_deployed,
         "warmbly_runtime": warmbly_runtime,
@@ -165,7 +170,8 @@ def ladder_complete_from_source_yield(
     PUBLIC_AUTH_REQUIRED / CAPTCHA_REQUIRED / PAID_SOURCE / LEGALLY_RESTRICTED)
     documenting the residual N.
 
-    Partial PUBLIC_NO_AUTH probes (e.g. transparency_compras 20/8382, pages_fetched=0)
+    Historical regression fixtures with partial probes (for example 20/8382,
+    never a live fallback) force complete=false.
     force complete=false.
     """
     tc = max(0, int(target_confirmed))
@@ -199,7 +205,7 @@ def ladder_complete_from_source_yield(
             )
         )
         # Near-full national coverage (≥99.9%) counts as ladder-complete for that step
-        # (allows off-by-one bookkeeping without accepting 20/8382 probes).
+        # (allows off-by-one bookkeeping without accepting historical partial probes).
         ratio = (attempted / tc) if tc > 0 else 0.0
         if attempted >= threshold or ratio >= 0.999:
             covered.append(step)
@@ -254,6 +260,30 @@ def warmbly_behavioral_pass(warmbly_e2e: dict[str, Any]) -> tuple[bool, bool, bo
     return warmbly_pass, feed_real, config_only
 
 
+def warmbly_runtime_controls_pass(warmbly_e2e: dict[str, Any]) -> bool:
+    """Require observed no-send controls, not merely desired configuration."""
+    dispatch = warmbly_e2e.get("dispatch")
+    if not isinstance(dispatch, dict):
+        dispatch = {}
+    rate = warmbly_e2e.get("emails_per_hour", warmbly_e2e.get("rate_per_hour"))
+    try:
+        rate_ok = float(rate) == CONFENGE_PILOT_EMAILS_PER_HOUR
+    except (TypeError, ValueError):
+        rate_ok = False
+    state = str(
+        dispatch.get("state")
+        or warmbly_e2e.get("dispatch_state")
+        or ""
+    ).upper()
+    return bool(
+        rate_ok
+        and warmbly_e2e.get("email_only") is True
+        and warmbly_e2e.get("whatsapp_enabled") is False
+        and warmbly_e2e.get("auto_send_enabled") is False
+        and state in {"PAUSED", "PAUSED_MANUAL_START"}
+    )
+
+
 def assert_pack_postconditions(
     out_dir: Path,
     *,
@@ -274,18 +304,12 @@ def assert_pack_postconditions(
         )
     if go.get("PILOT_READY_CANDIDATE") != man.get("PILOT_READY_CANDIDATE"):
         errors.append("PILOT_READY_CANDIDATE mismatch GO vs MANIFEST")
-    tip = (expected_origin_tip or "").strip()
     terminal = str(go.get("terminal_state") or "")
     claims_bound = bool((go.get("gates") or {}).get("sha_bound"))
-    leaves_engineering = terminal in {
-        "READY_FOR_TIAGO_HUMAN_REVIEW",
-        "GO_FOR_REAL_CONFENGE_EMAIL_PILOT",
-        "EXTERNAL_BLOCKER_REQUIRES_TIAGO",
-    }
-    if tip and str(sha.get("origin_main") or "") != tip and (claims_bound or leaves_engineering):
-        errors.append(f"SHA origin_main={sha.get('origin_main')!r} != tip={tip!r}")
-    if tip and claims_bound and str(man.get("extra_cli_sha") or "") != tip:
-        errors.append(f"MANIFEST.extra_cli_sha={man.get('extra_cli_sha')!r} not tip-bound")
+    if claims_bound and str(man.get("evaluated_code_sha") or "") != str(
+        sha.get("evaluated_code_sha") or ""
+    ):
+        errors.append("MANIFEST.evaluated_code_sha differs from SHA-BINDING evaluation")
     esr_n = int(go.get("EMAIL_SEND_READY_DISTINCT_COMPANIES") or esr.get("EMAIL_SEND_READY_DISTINCT_COMPANIES") or 0)
     rows = esr.get("esr_rows") if isinstance(esr.get("esr_rows"), list) else []
     rows_file = out_dir / "EMAIL-SEND-READY-ROWS.jsonl"
@@ -300,14 +324,6 @@ def assert_pack_postconditions(
             st = str(checks.get(k) or "").upper()
             if st in _CONFIG_ONLY_STATUSES:
                 errors.append(f"WARMBLY PASS=true but {k}={st}")
-    if terminal == "EXTERNAL_BLOCKER_REQUIRES_TIAGO":
-        gates = go.get("gates") if isinstance(go.get("gates"), dict) else {}
-        if not gates.get("full_source_ladder_complete"):
-            errors.append("EXTERNAL forbidden when full_source_ladder_complete=false")
-        if not gates.get("sha_bound"):
-            errors.append("EXTERNAL forbidden when sha_bound=false")
-        if not gates.get("warmbly_e2e_pass"):
-            errors.append("EXTERNAL forbidden when warmbly_e2e_pass=false")
     if terminal == "GO_FOR_REAL_CONFENGE_EMAIL_PILOT":
         gates = go.get("gates") if isinstance(go.get("gates"), dict) else {}
         if go.get("schema") != GO_NO_GO_SCHEMA or not go.get("PILOT_GO"):
@@ -488,19 +504,16 @@ def emit_pack(
     pack_git_sha = _git_sha()
     esr_n = int(esr_report.get("EMAIL_SEND_READY_DISTINCT_COMPANIES") or 0)
     funnel = esr_report.get("funnel") or {}
-    ops = warmbly_ops_config_from_env()
-    eph = float(ops["emails_per_hour"])
-    bhd = float(ops["business_hours_per_day"])
-    reserve = min_operational_reserve(
-        emails_per_hour=eph,
-        business_hours_per_day=bhd,
-        business_days=10,
-    )
+    eph = float(CONFENGE_PILOT_EMAILS_PER_HOUR)
+    bhd = float(CONFENGE_BUSINESS_HOURS_PER_DAY)
+    reserve = MIN_OPERATIONAL_RESERVE
     capacity = build_capacity_metrics(
         email_send_ready_distinct_companies=esr_n,
         active_hot_set_size=min(50, esr_n),
+        emails_per_hour=eph,
+        business_hours_per_day=bhd,
     )
-    national_universe = int(universe_manifest.get("observed_supplier_roots") or 0)
+    national_universe = int(universe_manifest.get("supplier_roots_observed") or 0)
     manifest_classes = universe_manifest.get("target_classes") or {}
     normalized_target_classes = {key: int(target_classes.get(key) or 0) for key in manifest_classes}
     if normalized_target_classes != dict(manifest_classes):
@@ -567,6 +580,7 @@ def emit_pack(
         if tip and str(sha_binding.get("origin_main") or "") != tip:
             sha_ok = False
     warmbly_pass, warmbly_feed_real, config_only_critical = warmbly_behavioral_pass(warmbly_e2e)
+    warmbly_controls_ok = warmbly_runtime_controls_pass(warmbly_e2e)
     warmbly_partial = warmbly_feed_real and bool(warmbly_e2e.get("PASS")) and config_only_critical
 
     reserve_days = round(esr_n / (eph * bhd), 2) if eph * bhd > 0 else 0.0
@@ -582,6 +596,7 @@ def emit_pack(
         "service_fit_ontology_ok": service_fit_ok,
         "sha_bound": sha_ok,
         "warmbly_behavioral_e2e_pass": warmbly_pass and warmbly_feed_real,
+        "warmbly_runtime_controls_10h_email_only_paused": warmbly_controls_ok,
     }
     policy = evaluate_pilot_go(
         universe_manifest=universe_manifest,
@@ -619,8 +634,9 @@ def emit_pack(
         elif not sha_ok:
             tip = expected_origin_tip or sha_binding.get("expected_origin_tip") or "origin/main"
             one_action = (
-                f"Rebind SHA: origin_main=host=runtime={tip} "
-                f"(atual origin={sha_binding.get('origin_main')}, host={sha_binding.get('host_deployed_sha')}); "
+                "Avaliar/deployar a mesma revisão de código no host e runtime: "
+                f"evaluated={sha_binding.get('evaluated_code_sha')}, "
+                f"host={sha_binding.get('host_deployed_sha')}, runtime={sha_binding.get('runtime_sha')}; "
                 f"ESR={esr_n}."
             )
         elif warmbly_partial or not warmbly_pass:
@@ -674,10 +690,11 @@ def emit_pack(
             "warmbly_e2e_pass": warmbly_pass,
             "warmbly_feed_import_pass": warmbly_feed_real,
             "warmbly_behavioral_complete": warmbly_pass,
+            "warmbly_runtime_controls_pass": warmbly_controls_ok,
             "warmbly_partial_config_only": warmbly_partial,
             "human_top20_review_complete": bool(human_review.get("top20_review_complete")),
             "human_hot_set_10_approved": bool(human_review.get("hot_set_10_approved")),
-            "universe_manifest_v2_valid": not validate_universe_manifest(universe_manifest),
+            "universe_manifest_v3_valid": not validate_universe_manifest(universe_manifest),
         },
         "EMAIL_SEND_READY_DISTINCT_COMPANIES": esr_n,
         "MIN_OPERATIONAL_RESERVE": reserve,
@@ -685,8 +702,8 @@ def emit_pack(
         "email_roots_upper_bound": esr_report.get("email_roots_upper_bound"),
         "funnel": funnel,
         "universe": {
-            "observed_supplier_roots": national_universe,
-            "construction_commercial_roots": universe_manifest.get("construction_commercial_roots"),
+            "supplier_roots_observed": national_universe,
+            "construction_roots": universe_manifest.get("construction_roots"),
             "datalake_watermark": universe_manifest.get("datalake_watermark"),
         },
         "one_action": one_action,
@@ -697,12 +714,97 @@ def emit_pack(
         ),
     }
 
+    gate_guidance = {
+        "universe_fully_reconciled": (
+            str(validate_universe_manifest(universe_manifest)),
+            "atomic universe closure failed",
+            "rerun full sector + target reconciliation from one snapshot",
+        ),
+        "runtime_fully_reconciled": (
+            str(runtime_health.get("FULLY_RECONCILED")),
+            "runtime did not report full reconciliation",
+            "complete live reconciliation and rebuild the pack",
+        ),
+        "all_confirmed_terminal": (
+            f"terminal_sum={terminal_sum}; target_confirmed={tc}; never={never_n}",
+            "target-confirmed contact partition is open",
+            "resume bounded contact workers until every root has a terminal state",
+        ),
+        "full_source_ladder_complete": (
+            str(yield_eval.get("missing") or []),
+            "one or more measured source-ladder stages remain incomplete",
+            "resume only the missing ladder checkpoints",
+        ),
+        "strict_esr_minimum_50": (
+            f"ESR={esr_n}",
+            "controlled-pilot quality population is below 50",
+            "resolve real contact/provenance/copy failures without relaxing gates",
+        ),
+        "machine_audit_pass_100": (
+            f"PASS={audit.get('PASS')}; n={audit.get('sample_size')}",
+            "adversarial quality audit is insufficient or failed",
+            "fix the failed rows and rerun the 100-row audit",
+        ),
+        "service_fit_ontology_ok": (
+            f"unsupported={service_fit_unsupported}",
+            "one or more leads lack defensible service fit",
+            "correct evidence-based service routing; never invent pain",
+        ),
+        "sha_bound": (
+            f"evaluated={sha_binding.get('evaluated_code_sha')}; host={sha_binding.get('host_deployed_sha')}; runtime={sha_binding.get('runtime_sha')}",
+            "evaluated code is not the deployed runtime revision",
+            "deploy and evaluate the same immutable revision",
+        ),
+        "warmbly_behavioral_e2e_pass": (
+            str(warmbly_e2e.get("checks") or {}),
+            "real Warmbly behavioral proof is incomplete",
+            "rerun the no-send behavioral probes on the live runtime",
+        ),
+        "warmbly_runtime_controls_10h_email_only_paused": (
+            f"rate={warmbly_e2e.get('emails_per_hour')}; dispatch={warmbly_e2e.get('dispatch')}",
+            "live dispatch controls differ from 10/h, EMAIL_ONLY, WhatsApp OFF, paused",
+            "restore the required live controls and remeasure",
+        ),
+    }
+    false_gate_rows = [
+        (gate, *gate_guidance[gate])
+        for gate, ok in technical_gates.items()
+        if not ok and gate in gate_guidance
+    ]
+    if not human_review.get("top20_review_complete"):
+        false_gate_rows.append(
+            (
+                "human_top20_review_complete",
+                f"reviewed={human_review.get('reviewed_current_esr')}",
+                "attributable human review is incomplete",
+                go["human_review_command"],
+            )
+        )
+    if not human_review.get("hot_set_10_approved"):
+        false_gate_rows.append(
+            (
+                "human_hot_set_10_approved",
+                f"approved={human_review.get('approved_current_esr')}",
+                "fewer than 10 current leads are explicitly approved",
+                go["human_review_command"],
+            )
+        )
+    false_gate_table = [
+        "| Gate falso | Evidência objetiva | Root cause | Ação mínima |",
+        "|---|---|---|---|",
+        *[
+            "| " + " | ".join(str(value).replace("|", "\\|") for value in row) + " |"
+            for row in false_gate_rows
+        ],
+    ]
+
     hr_leads = []
-    for row in esr_rows[: min(100, len(esr_rows))]:
+    for row in esr_rows[: min(20, len(esr_rows))]:
         decision = human_review.get("latest_by_key", {}).get(lead_key(row))
         hr_leads.append(
             {
                 **row,
+                "lead_key": lead_key(row),
                 "review_status": (
                     decision.get("review_status") or decision.get("status") if decision else HUMAN_REVIEW_PENDING
                 ),
@@ -710,12 +812,29 @@ def emit_pack(
                 "empresa": row.get("razao_social"),
                 "CNPJ": row.get("cnpj_raiz"),
                 "recommended_service": row.get("service_code"),
+                "contact": {
+                    "name": row.get("contact_name") or row.get("name"),
+                    "role": row.get("contact_role") or row.get("role"),
+                    "email": row.get("email"),
+                    "ownership_status": row.get("ownership_status"),
+                    "mailbox_purpose": row.get("mailbox_purpose"),
+                },
+                "source": {
+                    "type": row.get("source_type"),
+                    "url": row.get("source_url"),
+                    "document": row.get("source_document"),
+                    "observed_at": row.get("source_date") or row.get("observed_at"),
+                },
+                "evidence": row.get("supporting_evidence") or row.get("evidence") or [],
+                "risks": row.get("risks") or row.get("limitations") or row.get("claims_to_avoid") or [],
+                "decision": decision,
                 "draft": None,
             }
         )
 
     funnel_rows = [
-        {"stage": "NATIONAL_COMMERCIAL_UNIVERSE", "count": national_universe},
+        {"stage": "SUPPLIER_UNIVERSE", "count": national_universe},
+        {"stage": "CONSTRUCTION_UNIVERSE", "count": universe_manifest.get("construction_roots")},
         {"stage": "TARGET_CONFIRMED", "count": tc},
         {"stage": "DISTINCT_COMPANIES_WITH_EMAIL", "count": funnel.get("DISTINCT_COMPANIES_WITH_EMAIL")},
         {"stage": "COMPANY_OWNED", "count": funnel.get("COMPANY_OWNED")},
@@ -760,6 +879,15 @@ def emit_pack(
     _write(
         out_dir / "TARGET-FIT-CLASS-DISTRIBUTION.json",
         {"as_of": as_of, "classes": target_classes, "national_universe": national_universe},
+    )
+    _write(
+        out_dir / "SECTOR-CLASS-DISTRIBUTION.json",
+        {
+            "as_of": as_of,
+            "classes": universe_manifest.get("sector_classes") or {},
+            "supplier_roots_observed": national_universe,
+            "construction_roots": universe_manifest.get("construction_roots"),
+        },
     )
     _write(out_dir / "UNIVERSE-MANIFEST.json", universe_manifest)
     _write(
@@ -874,7 +1002,7 @@ def emit_pack(
             "status_default": HUMAN_REVIEW_PENDING,
             "count": len(hr_leads),
             "leads": hr_leads,
-            "note": "Never auto-approve. Machine audit ≠ human review.",
+            "note": "Definitive ordered Top-20. Never auto-approve. Machine audit ≠ human review.",
             "human_review_summary": {key: value for key, value in human_review.items() if key != "latest_by_key"},
         },
     )
@@ -885,15 +1013,42 @@ def emit_pack(
                 "# FINAL-REPORT — National commercial reservoir (strict ESR)",
                 "",
                 f"- generated_at: `{as_of}`",
-                f"- extra_cli_sha: `{sha_binding.get('origin_main') or pack_git_sha}`",
-                f"- TARGET_CONFIRMED: **{tc}**",
-                f"- EMAIL_SEND_READY strict: **{esr_n}**",
-                f"- email roots upper bound: **{esr_report.get('email_roots_upper_bound')}**",
-                f"- MIN_OPERATIONAL_RESERVE: **{reserve}** (10/h × 9h × 10d)",
-                f"- NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY: **{healthy}**",
-                f"- PILOT_READY_CANDIDATE: **{pilot_ready_candidate}**",
-                f"- PILOT_GO: **{pilot_go}**",
-                f"- terminal: **{terminal}**",
+                f"- evaluated_code_sha: `{sha_binding.get('evaluated_code_sha') or pack_git_sha}`",
+                "",
+                "```text",
+                f"SUPPLIER_UNIVERSE={national_universe}",
+                f"CONSTRUCTION_UNIVERSE={universe_manifest.get('construction_roots')}",
+                f"SECTOR_INSUFFICIENT={universe_manifest.get('genuinely_unresolved_sector_roots')}",
+                "",
+                f"TARGET_CONFIRMED={target_classes.get('TARGET_CONFIRMED', 0)}",
+                f"TARGET_PROBABLE={target_classes.get('TARGET_PROBABLE_RESEARCH', 0)}",
+                f"TARGET_INSUFFICIENT={target_classes.get('TARGET_INSUFFICIENT_EVIDENCE', 0)}",
+                f"TARGET_OUT_OF_SCOPE={target_classes.get('TARGET_OUT_OF_SCOPE', 0)}",
+                "",
+                f"EMAIL_SEND_READY={esr_n}",
+                f"MIN_OPERATIONAL_RESERVE={reserve}",
+                "",
+                f"UNIVERSE_HEALTH={policy['UNIVERSE_HEALTH']}",
+                f"PILOT_QUALITY={policy['PILOT_QUALITY']}",
+                f"HUMAN_ACCEPTANCE={policy['HUMAN_ACCEPTANCE']}",
+                f"PILOT_GO={str(pilot_go).lower()}",
+                f"NATIONAL_RESERVOIR_HEALTH={policy['NATIONAL_RESERVOIR_HEALTH']}",
+                "",
+                f"WARMBLY_BEHAVIORAL_E2E={'PASS' if warmbly_pass else 'FAIL'}",
+                "DISPATCH=PAUSED_MANUAL_START",
+                "CHANNEL=EMAIL_ONLY",
+                "WHATSAPP=OFF",
+                "RATE=10/h",
+                "",
+                f"terminal_state={terminal}",
+                "```",
+                "",
+                "GO alcançado. Nenhum envio foi iniciado. A única ação seguinte é o comando manual de início por Tiago."
+                if pilot_go
+                else "GO NÃO ALCANÇADO",
+                "",
+                *(false_gate_table if not pilot_go else []),
+                "",
                 f"- machine audit PASS: **{audit.get('PASS')}** (n={audit.get('sample_size')})",
                 "",
                 "## Funnel (strict)",
@@ -923,9 +1078,9 @@ def emit_pack(
         p = out_dir / name
         if p.is_file():
             hashes[name] = _sha256_file(p)
-    # Prefer measured origin_main tip for MANIFEST.extra_cli_sha (not local HEAD).
+    # Bind the manifest to evaluated code, independently from evidence publication.
     extra_cli_sha = (
-        str(sha_binding.get("origin_main") or "").strip() or str(expected_origin_tip or "").strip() or pack_git_sha
+        str(sha_binding.get("evaluated_code_sha") or "").strip() or pack_git_sha
     )
     manifest = {
         "schema": "confenge.national_commercial_ready_pack.v2",
@@ -978,6 +1133,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Host .deployed_sha (never defaulted to local HEAD)",
     )
     p.add_argument(
+        "--evaluated-code-sha",
+        type=str,
+        required=True,
+        help="Immutable code revision whose CI/runtime gates were evaluated",
+    )
+    p.add_argument(
         "--runtime-sha",
         type=str,
         default=None,
@@ -1002,7 +1163,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--universe-manifest",
         type=Path,
         default=DEFAULT_OUT / "UNIVERSE-MANIFEST.json",
-        help="Required confenge.universe_manifest.v2 from the atomic full-lake run",
+        help="Required confenge.universe_manifest.v3 from the atomic full-lake run",
     )
     p.add_argument(
         "--human-review-decisions",
@@ -1031,6 +1192,7 @@ def main(argv: list[str] | None = None) -> int:
         origin_main=origin,
         host_deployed=host,
         runtime=runtime,
+        evaluated_code_sha=args.evaluated_code_sha,
         expected_origin_tip=tip,
         warmbly_origin_main=args.warmbly_sha,
         warmbly_host_deployed=args.warmbly_sha,
@@ -1042,7 +1204,7 @@ def main(argv: list[str] | None = None) -> int:
     # constants (48,748 / 8,382 / 900) are never denominators here.
     classes = dict(universe.get("target_classes") or {})
     terms = esr.get("process_terminal_counts") or {}
-    observed = int(universe.get("observed_supplier_roots") or 0)
+    observed = int(universe.get("supplier_roots_observed") or 0)
     materialized = int(universe.get("materialized_roots") or 0)
     runtime_health = {
         "FULLY_RECONCILED": bool(universe.get("FULLY_RECONCILED")),

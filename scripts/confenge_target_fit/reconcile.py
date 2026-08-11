@@ -25,6 +25,7 @@ from typing import Any
 from scripts.confenge_target_fit import MODE_SHADOW, TARGET_FIT_VERSION
 from scripts.confenge_target_fit.cdc import priority_for_reason, watermark_str
 from scripts.confenge_target_fit.company_key import company_key_from_raiz, digits_only
+from scripts.confenge_target_fit.compute import classifier_sha
 from scripts.confenge_target_fit.config import TargetFitRefreshConfig
 from scripts.confenge_target_fit.coverage import (
     build_coverage_snapshot,
@@ -144,7 +145,7 @@ def _load_materialized_index(conn: Any, *, mode: str) -> dict[str, dict[str, Any
             cur.execute(
                 """
                 SELECT company_key, cnpj_raiz, target_fit_version, input_fingerprint,
-                       shadow_class, 'ok' AS operational_status
+                       classifier_sha, shadow_class, 'ok' AS operational_status
                 FROM confenge_target_fit_shadow
                 """
             )
@@ -162,11 +163,64 @@ def _load_materialized_index(conn: Any, *, mode: str) -> dict[str, dict[str, Any
         cur.execute(
             """
             SELECT company_key, cnpj_raiz, target_fit_version, input_fingerprint,
-                   operational_status, target_fit_class
+                   classifier_sha, operational_status, target_fit_class
             FROM confenge_company_target_fit_current
             """
         )
         return {r["company_key"]: dict(r) for r in (cur.fetchall() or [])}
+
+
+def archive_orphan_materializations(
+    conn: Any,
+    *,
+    mode: str,
+    orphan_rows: list[dict[str, Any]],
+    source_watermark: str,
+) -> int:
+    """Remove stale current projections only after recording durable events.
+
+    Target history remains append-only. This repairs the current denominator;
+    it never erases historical classifications or decisions.
+    """
+    if not orphan_rows:
+        return 0
+    table = (
+        "confenge_target_fit_shadow"
+        if str(mode).upper() == MODE_SHADOW
+        else "confenge_company_target_fit_current"
+    )
+    archived = 0
+    with conn.cursor() as cur:
+        for row in orphan_rows:
+            company_key = str(row.get("company_key") or "")
+            cnpj_raiz = digits_only(row.get("cnpj_raiz"))[:8]
+            old_class = row.get("target_fit_class") or row.get("shadow_class")
+            if not company_key or len(cnpj_raiz) != 8:
+                continue
+            cur.execute(
+                """
+                INSERT INTO confenge_target_fit_events (
+                    event_type, company_key, cnpj_raiz, old_class, new_class,
+                    reason_codes, changed_evidence_ids, source_watermark,
+                    computed_at, target_fit_version, payload
+                ) VALUES (
+                    'TARGET_FIT_SOURCE_REMOVED', %s, %s, %s, NULL,
+                    '["supplier_root_absent_from_atomic_reconcile"]'::jsonb,
+                    '[]'::jsonb, %s, now(), %s,
+                    '{"current_projection_archived": true, "history_preserved": true}'::jsonb
+                )
+                """,
+                (
+                    company_key,
+                    cnpj_raiz,
+                    old_class,
+                    source_watermark,
+                    TARGET_FIT_VERSION,
+                ),
+            )
+            cur.execute(f"DELETE FROM {table} WHERE company_key = %s", (company_key,))
+            archived += cur.rowcount or 0
+    return archived
 
 
 def count_canonical_eligible_roots(conn: Any) -> int | None:
@@ -244,6 +298,9 @@ def run_reconcile(
             source_watermark=wm,
         )
         conn.commit()
+        # Every denominator and materialization decision below observes one
+        # transaction snapshot. Concurrent ingestion is handled by CDC after it.
+        conn.set_session(isolation_level="REPEATABLE READ")
 
         roots = iter_universe_roots(conn, page_size=cfg.reconcile_page_size)
         pagination_exhausted_normally = True  # loop ends only on empty/short page
@@ -277,6 +334,9 @@ def run_reconcile(
             elif cur_row.get("target_fit_version") != TARGET_FIT_VERSION:
                 reason = "reconcile_version_drift"
                 version_stale += 1
+            elif str(cur_row.get("classifier_sha") or "") != classifier_sha():
+                reason = "reconcile_classifier_drift"
+                version_stale += 1
             elif cur_row.get("operational_status") in {
                 "recompute_required",
                 "refresh_failed",
@@ -290,7 +350,7 @@ def run_reconcile(
             # Fresh idempotency per full-reconcile cycle so previous early-exit
             # batches (done under truncated universe) cannot block remaining roots.
             idem = "reconcile:" + hashlib.sha256(
-                f"{ck}|{wm}|{reason}|{TARGET_FIT_VERSION}|full".encode()
+                f"{cycle_id}|{ck}|{wm}|{reason}|{TARGET_FIT_VERSION}|full".encode()
             ).hexdigest()[:32]
             if enqueue_dirty(
                 conn,
@@ -307,12 +367,21 @@ def run_reconcile(
                 enqueued += 1
 
         # Orphans: materialization for roots no longer in contracts (info only)
-        orphan = 0
+        orphan_rows: list[dict[str, Any]] = []
         root_set = set(roots)
         for ck, row in materialized_rows.items():
             r = digits_only(row.get("cnpj_raiz"))[:8]
             if r and r not in root_set:
-                orphan += 1
+                orphan_rows.append({"company_key": ck, **row})
+        orphan_archived = archive_orphan_materializations(
+            conn,
+            mode=mode,
+            orphan_rows=orphan_rows,
+            source_watermark=wm,
+        )
+        for row in orphan_rows:
+            materialized_rows.pop(str(row["company_key"]), None)
+        orphan = 0
 
         # Unexplained missing = roots not materialized and not yet enqueued under
         # a hard smoke max_enqueue bound. When max_enqueue is None, any remaining
@@ -330,10 +399,9 @@ def run_reconcile(
             # Full enqueue path: pending work is explained as RETRY_PENDING
             unexplained_missing = 0
 
-        canonical = count_canonical_eligible_roots(conn)
-        # Denominator for coverage: prefer canonical eligible when known;
-        # otherwise use full visited supplier roots (honest upper bound).
-        canonical_count = int(canonical) if canonical is not None else expected_company_roots
+        # Target-fit closes over the supplier-root population. Construction
+        # membership is a separate sector dimension and cannot shrink this denominator.
+        canonical_count = expected_company_roots
         materialized_count = len(materialized_rows)
 
         # Duplicates / invalid among materialization index
@@ -394,6 +462,7 @@ def run_reconcile(
                 "missing": missing,
                 "version_stale": version_stale,
                 "orphans": orphan,
+                "orphan_current_rows_archived_with_event": orphan_archived,
                 "pagination_exhausted_normally": pagination_exhausted_normally,
                 "unexplained_missing": unexplained_missing,
                 "still_missing_keys": still_missing_keys,

@@ -43,8 +43,8 @@ def build_funnel_rows(metrics: dict[str, Any]) -> list[dict[str, Any]]:
             None,
         ),
         (
-            "construction-relevant (CONFIRMED+PROBABLE)",
-            "construction_relevant",
+            "construction universe (independent sector dimension)",
+            "construction_roots",
             "national_universe",
         ),
         ("target-fit eligible roots (supplier materialize set)", "target_fit_eligible", "national_universe"),

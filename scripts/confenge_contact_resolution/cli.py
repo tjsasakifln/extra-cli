@@ -166,7 +166,7 @@ def build_parser() -> argparse.ArgumentParser:
     cont = sub.add_parser(
         "enrich-continuous",
         help=(
-            "Continuous contact enrichment over live TARGET_CONFIRMED reservoir "
+            "Continuous contact enrichment over the live construction universe "
             "(no pilot Top-50 capacity; omit --max-companies for full advance)"
         ),
     )
@@ -175,7 +175,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--output-dir",
         "-o",
         type=Path,
-        default=Path("artifacts/confenge/contact-enrichment/continuous-confirmed"),
+        default=Path("artifacts/confenge/contact-enrichment/continuous-construction"),
     )
     cont.add_argument(
         "--max-companies",
@@ -183,7 +183,6 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Smoke/batch bound only — never set to 50 (MINIMUM_PILOT_ACCEPTANCE_SAMPLE)",
     )
-    cont.add_argument("--include-probable", action="store_true")
     cont.add_argument("--allow-network", action="store_true")
     cont.add_argument("--fixtures-dir", type=Path, default=None)
     cont.add_argument("--no-resume", action="store_true")
@@ -409,7 +408,6 @@ def cmd_enrich_continuous(args: argparse.Namespace) -> int:
         allow_network=bool(args.allow_network),
         fixtures_dir=args.fixtures_dir,
         resume=not bool(args.no_resume),
-        include_probable=bool(args.include_probable),
     )
     # Wire the same discovery cascade as enrich-batch so --allow-network actually
     # runs cheap web search + official site crawl (not an offline no-op).

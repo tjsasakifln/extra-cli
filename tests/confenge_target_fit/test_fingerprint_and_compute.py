@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-import pytest
-
 from scripts.confenge_target_fit import (
     TARGET_CONFIRMED,
     TARGET_FIT_VERSION,
@@ -119,6 +117,18 @@ def test_same_event_twice_same_effective_state():
     assert evt2 is None
     assert mat2.target_fit_class == mat1.target_fit_class
     assert mat2.input_fingerprint == mat1.input_fingerprint
+
+
+def test_same_fingerprint_with_missing_classifier_lineage_recomputes() -> None:
+    c = _construction_company()
+    mat1, _, _ = compute_materialization(c, previous=None, mode="ACTIVE")
+    previous = mat1.as_dict()
+    previous["classifier_sha"] = ""
+
+    mat2, _, meta2 = compute_materialization(c, previous=previous, mode="ACTIVE")
+
+    assert meta2["skipped_fingerprint"] is False
+    assert mat2.classifier_sha == mat1.classifier_sha
 
 
 def test_supply_only_never_confirms():

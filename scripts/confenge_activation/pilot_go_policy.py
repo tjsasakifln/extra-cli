@@ -13,7 +13,6 @@ must never be used as universe denominators or materialization limits.
 
 from __future__ import annotations
 
-import hashlib
 import json
 from collections.abc import Iterable
 from pathlib import Path
@@ -31,14 +30,21 @@ from scripts.confenge_target_fit import (
     TARGET_PROBABLE_RESEARCH,
 )
 
-UNIVERSE_SCHEMA = "confenge.universe_manifest.v2"
+UNIVERSE_SCHEMA = "confenge.universe_manifest.v3"
 GO_NO_GO_SCHEMA = "confenge.go_no_go.v2"
+TERMINAL_AUTHORITY = "scripts.confenge_activation.pilot_go_policy.evaluate_pilot_go"
 
 TARGET_CLASS_KEYS = (
     TARGET_CONFIRMED,
     TARGET_PROBABLE_RESEARCH,
     TARGET_OUT_OF_SCOPE,
     TARGET_INSUFFICIENT_EVIDENCE,
+)
+SECTOR_CLASS_KEYS = (
+    "CONSTRUCTION_CONFIRMED",
+    "CONSTRUCTION_PROBABLE",
+    "NON_CONSTRUCTION",
+    "SECTOR_INSUFFICIENT_EVIDENCE",
 )
 
 MINIMUM_HUMAN_REVIEWED = 20
@@ -49,24 +55,25 @@ def _nonnegative(value: Any) -> int:
     return max(0, int(value or 0))
 
 
-def _sha256_text(value: str) -> str:
-    return hashlib.sha256(value.encode("utf-8")).hexdigest()
-
-
 def build_universe_manifest(
     *,
-    observed_supplier_roots: int,
+    supplier_roots_observed: int,
+    sector_classes: dict[str, int],
+    target_fit_population: int,
     materialized_roots: int,
     target_classes: dict[str, int],
     source_contract_rows: int,
     datalake_watermark: str,
+    source_cdc_watermark: str,
+    database_snapshot: str,
+    transaction_timestamp: str,
+    construction_universe_derivation: str,
+    construction_evidence_version: str,
+    query_sha256: str,
+    construction_classifier_sha256: str,
+    target_fit_classifier_sha256: str,
     target_fit_version: str,
-    database_snapshot: str | None = None,
-    source_cdc_watermark: str | None = None,
-    construction_commercial_roots: int | None = None,
-    construction_commercial_derivation: str | None = None,
-    query_sha256: str | None = None,
-    classifier_sha256: str | None = None,
+    sector_materialized_roots: int | None = None,
     full_scale: bool = True,
     truncated: bool = False,
     pagination_exhausted_normally: bool = True,
@@ -74,39 +81,51 @@ def build_universe_manifest(
     orphan_materialized_roots: int = 0,
     duplicate_cnpj_root: int = 0,
     invalid_cnpj_root: int = 0,
+    sector_version_mismatch: int = 0,
+    sector_classifier_mismatch: int = 0,
+    target_version_mismatch: int = 0,
+    target_classifier_mismatch: int = 0,
 ) -> dict[str, Any]:
     """Build a closed, versioned universe ledger from one atomic watermark.
 
-    ``construction_commercial_roots`` is a measured classification result, not
-    a configured target.  If the upstream full construction assessor does not
-    provide it, CONFIRMED+PROBABLE is the conservative live derivation.
+    Construction membership is computed only from ``sector_classes``. Target
+    classes close their own population and never define the construction set.
     """
-    observed = _nonnegative(observed_supplier_roots)
+    observed = _nonnegative(supplier_roots_observed)
     materialized = _nonnegative(materialized_roots)
+    sector_materialized = _nonnegative(sector_materialized_roots if sector_materialized_roots is not None else sum(sector_classes.values()))
     contracts = _nonnegative(source_contract_rows)
     classes = {key: _nonnegative(target_classes.get(key)) for key in TARGET_CLASS_KEYS}
+    sectors = {key: _nonnegative(sector_classes.get(key)) for key in SECTOR_CLASS_KEYS}
     unknown_classes = sorted(set(target_classes) - set(TARGET_CLASS_KEYS))
+    unknown_sector_classes = sorted(set(sector_classes) - set(SECTOR_CLASS_KEYS))
     class_sum = sum(classes.values())
-    commercial = (
-        _nonnegative(construction_commercial_roots)
-        if construction_commercial_roots is not None
-        else classes[TARGET_CONFIRMED] + classes[TARGET_PROBABLE_RESEARCH]
-    )
+    sector_sum = sum(sectors.values())
+    construction = sectors["CONSTRUCTION_CONFIRMED"] + sectors["CONSTRUCTION_PROBABLE"]
+    non_construction = sectors["NON_CONSTRUCTION"]
+    unresolved_sector = sectors["SECTOR_INSUFFICIENT_EVIDENCE"]
+    target_population = _nonnegative(target_fit_population)
     watermark = str(datalake_watermark or "").strip()
-    snapshot = str(database_snapshot or "").strip()
-    cdc_watermark = str(source_cdc_watermark or "").strip()
+    snapshot = str(database_snapshot).strip()
+    cdc_watermark = str(source_cdc_watermark).strip()
+    captured_at = str(transaction_timestamp).strip()
     version = str(target_fit_version or "").strip()
-    query_hash = str(query_sha256 or "").strip() or _sha256_text(
-        "pncp_supplier_contracts:distinct-valid-fornecedor-cnpj-root:full-history:v2"
-    )
-    classifier_hash = str(classifier_sha256 or "").strip() or _sha256_text(version)
+    derivation = str(construction_universe_derivation).strip()
+    construction_version = str(construction_evidence_version).strip()
+    query_hash = str(query_sha256).removeprefix("sha256:").strip()
+    construction_hash = str(construction_classifier_sha256).removeprefix("sha256:").strip()
+    target_hash = str(target_fit_classifier_sha256).removeprefix("sha256:").strip()
 
     invariants = {
         "positive_observed_supplier_universe": observed > 0,
         "source_contract_rows_cover_roots": contracts >= observed > 0,
-        "class_sum_equals_observed_supplier_roots": class_sum == observed,
+        "sector_sum_equals_observed_supplier_roots": sector_sum == observed,
+        "construction_partition_is_sector_derived": construction + non_construction + unresolved_sector == observed,
+        "target_class_sum_equals_target_fit_population": class_sum == target_population,
+        "target_fit_population_equals_observed_supplier_roots": target_population == observed,
         "materialized_equals_observed_supplier_roots": materialized == observed,
-        "commercial_universe_within_observed": 0 < commercial <= observed,
+        "sector_materialized_equals_observed_supplier_roots": sector_materialized == observed,
+        "construction_universe_within_observed": 0 < construction <= observed,
         "pagination_exhausted_normally": bool(pagination_exhausted_normally),
         "full_scale": bool(full_scale),
         "not_truncated": not bool(truncated),
@@ -114,34 +133,44 @@ def build_universe_manifest(
         "orphan_materialized_roots_eq_0": _nonnegative(orphan_materialized_roots) == 0,
         "duplicate_cnpj_root_eq_0": _nonnegative(duplicate_cnpj_root) == 0,
         "invalid_cnpj_root_eq_0": _nonnegative(invalid_cnpj_root) == 0,
-        "single_watermark_present": bool(watermark),
+        "sector_version_mismatch_eq_0": _nonnegative(sector_version_mismatch) == 0,
+        "sector_classifier_mismatch_eq_0": _nonnegative(sector_classifier_mismatch) == 0,
+        "target_version_mismatch_eq_0": _nonnegative(target_version_mismatch) == 0,
+        "target_classifier_mismatch_eq_0": _nonnegative(target_classifier_mismatch) == 0,
+        "single_watermark_present": bool(watermark and cdc_watermark and captured_at),
         "atomic_database_snapshot_present": bool(snapshot) if full_scale else True,
-        "classifier_version_present": bool(version),
+        "classifier_versions_present": bool(version and construction_version),
+        "lineage_hashes_present": all(len(value) == 64 for value in (query_hash, construction_hash, target_hash)),
+        "construction_derivation_is_sector_only": bool(derivation) and "TARGET_" not in derivation.upper(),
         "no_unknown_target_classes": not unknown_classes,
+        "no_unknown_sector_classes": not unknown_sector_classes,
     }
     return {
         "schema": UNIVERSE_SCHEMA,
+        "source_contract_rows": contracts,
+        "supplier_roots_observed": observed,
+        "construction_roots": construction,
+        "non_construction_roots": non_construction,
+        "genuinely_unresolved_sector_roots": unresolved_sector,
+        "construction_universe_derivation": derivation,
+        "construction_evidence_version": construction_version,
+        "target_fit_population": target_population,
+        "target_classes": classes,
+        "sector_classes": sectors,
+        "materialized_roots": materialized,
+        "sector_materialized_roots": sector_materialized,
         "datalake_watermark": watermark or None,
         "database_snapshot": snapshot or None,
         "source_cdc_watermark": cdc_watermark or None,
-        "source_contract_rows": contracts,
-        "observed_supplier_roots": observed,
-        "construction_commercial_roots": commercial,
-        "construction_commercial_derivation": (
-            str(construction_commercial_derivation or "").strip()
-            or (
-                "caller_measured"
-                if construction_commercial_roots is not None
-                else "TARGET_CONFIRMED+TARGET_PROBABLE_RESEARCH"
-            )
-        ),
-        "materialized_roots": materialized,
-        "target_classes": classes,
+        "transaction_timestamp": captured_at or None,
         "target_class_sum": class_sum,
+        "sector_class_sum": sector_sum,
         "unknown_target_classes": unknown_classes,
+        "unknown_sector_classes": unknown_sector_classes,
         "target_fit_version": version or None,
         "query_sha256": query_hash,
-        "classifier_sha256": classifier_hash,
+        "construction_classifier_sha256": construction_hash,
+        "target_fit_classifier_sha256": target_hash,
         "full_scale": bool(full_scale),
         "truncated": bool(truncated),
         "pagination_exhausted_normally": bool(pagination_exhausted_normally),
@@ -149,6 +178,10 @@ def build_universe_manifest(
         "orphan_materialized_roots": _nonnegative(orphan_materialized_roots),
         "duplicate_cnpj_root": _nonnegative(duplicate_cnpj_root),
         "invalid_cnpj_root": _nonnegative(invalid_cnpj_root),
+        "sector_version_mismatch": _nonnegative(sector_version_mismatch),
+        "sector_classifier_mismatch": _nonnegative(sector_classifier_mismatch),
+        "target_version_mismatch": _nonnegative(target_version_mismatch),
+        "target_classifier_mismatch": _nonnegative(target_classifier_mismatch),
         "invariants": invariants,
         "FULLY_RECONCILED": all(invariants.values()),
         "subset_policy": {
@@ -161,7 +194,7 @@ def build_universe_manifest(
 
 
 def validate_universe_manifest(manifest: dict[str, Any] | None) -> list[str]:
-    """Return fail-closed violations for a universe-manifest v2 document."""
+    """Return fail-closed violations for a universe-manifest v3 document."""
     if not isinstance(manifest, dict):
         return ["universe_manifest_missing"]
     errors: list[str] = []
@@ -174,9 +207,130 @@ def validate_universe_manifest(manifest: dict[str, Any] | None) -> list[str]:
         errors.extend(f"invariant_false:{key}" for key, ok in invariants.items() if not ok)
     if not manifest.get("FULLY_RECONCILED"):
         errors.append("FULLY_RECONCILED_false")
-    if not manifest.get("query_sha256") or not manifest.get("classifier_sha256"):
-        errors.append("lineage_hash_missing")
-    return errors
+    required = (
+        "source_contract_rows",
+        "supplier_roots_observed",
+        "construction_roots",
+        "non_construction_roots",
+        "construction_universe_derivation",
+        "construction_evidence_version",
+        "target_fit_population",
+        "target_classes",
+        "sector_classes",
+        "materialized_roots",
+        "sector_materialized_roots",
+        "genuinely_unresolved_sector_roots",
+        "sector_version_mismatch",
+        "sector_classifier_mismatch",
+        "target_version_mismatch",
+        "target_classifier_mismatch",
+        "datalake_watermark",
+        "source_cdc_watermark",
+        "database_snapshot",
+        "transaction_timestamp",
+        "query_sha256",
+        "construction_classifier_sha256",
+        "target_fit_classifier_sha256",
+    )
+    errors.extend(f"required_field_missing:{key}" for key in required if manifest.get(key) in (None, ""))
+    target_classes = manifest.get("target_classes") or {}
+    sector_classes = manifest.get("sector_classes") or {}
+    if not isinstance(target_classes, dict):
+        errors.append("target_classes_not_object")
+        target_classes = {}
+    if not isinstance(sector_classes, dict):
+        errors.append("sector_classes_not_object")
+        sector_classes = {}
+    if set(target_classes) != set(TARGET_CLASS_KEYS):
+        errors.append("target_class_keys_not_closed")
+    if set(sector_classes) != set(SECTOR_CLASS_KEYS):
+        errors.append("sector_class_keys_not_closed")
+
+    invalid_counts: list[str] = []
+
+    def count(value: Any, field: str) -> int:
+        try:
+            parsed = int(value)
+        except (TypeError, ValueError):
+            invalid_counts.append(field)
+            return -1
+        if parsed < 0:
+            invalid_counts.append(field)
+        return parsed
+
+    observed = count(manifest.get("supplier_roots_observed"), "supplier_roots_observed")
+    contracts = count(manifest.get("source_contract_rows"), "source_contract_rows")
+    target_population = count(manifest.get("target_fit_population"), "target_fit_population")
+    materialized = count(manifest.get("materialized_roots"), "materialized_roots")
+    sector_materialized = count(manifest.get("sector_materialized_roots"), "sector_materialized_roots")
+    construction = count(manifest.get("construction_roots"), "construction_roots")
+    non_construction = count(manifest.get("non_construction_roots"), "non_construction_roots")
+    unresolved = count(
+        manifest.get("genuinely_unresolved_sector_roots"),
+        "genuinely_unresolved_sector_roots",
+    )
+    target_counts = {
+        key: count(target_classes.get(key), f"target_classes.{key}") for key in TARGET_CLASS_KEYS
+    }
+    sector_counts = {
+        key: count(sector_classes.get(key), f"sector_classes.{key}") for key in SECTOR_CLASS_KEYS
+    }
+    if invalid_counts:
+        errors.extend(f"invalid_count:{field}" for field in sorted(set(invalid_counts)))
+
+    if sum(target_counts.values()) != target_population:
+        errors.append("target_class_sum_mismatch")
+    if sum(sector_counts.values()) != observed:
+        errors.append("sector_class_sum_mismatch")
+    expected_construction = (
+        sector_counts["CONSTRUCTION_CONFIRMED"] + sector_counts["CONSTRUCTION_PROBABLE"]
+    )
+    if expected_construction != construction:
+        errors.append("construction_roots_not_sector_derived")
+    if sector_counts["NON_CONSTRUCTION"] != non_construction:
+        errors.append("non_construction_roots_mismatch")
+    if sector_counts["SECTOR_INSUFFICIENT_EVIDENCE"] != unresolved:
+        errors.append("unresolved_sector_roots_mismatch")
+    if construction + non_construction + unresolved != observed:
+        errors.append("sector_partition_not_closed")
+    if target_population != observed:
+        errors.append("target_fit_population_not_supplier_population")
+    if materialized != observed:
+        errors.append("materialized_roots_not_supplier_population")
+    if sector_materialized != observed:
+        errors.append("sector_materialized_roots_not_supplier_population")
+    if contracts < observed or observed <= 0:
+        errors.append("source_contract_rows_do_not_cover_supplier_roots")
+    if manifest.get("full_scale") is not True:
+        errors.append("full_scale_false")
+    if manifest.get("truncated") is not False:
+        errors.append("truncated_true_or_missing")
+    if manifest.get("pagination_exhausted_normally") is not True:
+        errors.append("pagination_not_exhausted_normally")
+    for field in (
+        "unexplained_missing",
+        "orphan_materialized_roots",
+        "duplicate_cnpj_root",
+        "invalid_cnpj_root",
+        "sector_version_mismatch",
+        "sector_classifier_mismatch",
+        "target_version_mismatch",
+        "target_classifier_mismatch",
+    ):
+        if count(manifest.get(field), field) != 0:
+            errors.append(f"{field}_not_zero")
+    if "TARGET_" in str(manifest.get("construction_universe_derivation") or "").upper():
+        errors.append("construction_derivation_uses_target_fit")
+    hexdigits = set("0123456789abcdef")
+    for field in (
+        "query_sha256",
+        "construction_classifier_sha256",
+        "target_fit_classifier_sha256",
+    ):
+        value = str(manifest.get(field) or "").removeprefix("sha256:").lower()
+        if len(value) != 64 or not set(value) <= hexdigits:
+            errors.append(f"invalid_sha256:{field}")
+    return list(dict.fromkeys(errors))
 
 
 def lead_key(row: dict[str, Any]) -> str:
@@ -317,6 +471,7 @@ __all__ = [
     "MINIMUM_HUMAN_APPROVED",
     "MINIMUM_HUMAN_REVIEWED",
     "TARGET_CLASS_KEYS",
+    "TERMINAL_AUTHORITY",
     "UNIVERSE_SCHEMA",
     "build_universe_manifest",
     "evaluate_pilot_go",

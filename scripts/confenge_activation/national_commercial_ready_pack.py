@@ -1,7 +1,7 @@
 """Legacy non-terminal artifact pack.
 
 This module remains readable for historical reproducibility but cannot emit a
-GO terminal.  Use ``emit_final_closure_pack`` with universe-manifest v2.
+GO terminal. Use ``emit_final_closure_pack`` with universe-manifest v3.
 """
 
 from __future__ import annotations
@@ -245,10 +245,10 @@ def build_go_no_go(
         "schema": "confenge.go_no_go.v1",
         "as_of": _utcnow(),
         "NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY": healthy,
-        "GO_FOR_REAL_CONFENGE_EMAIL_PILOT": terminal == "GO_FOR_REAL_CONFENGE_EMAIL_PILOT",
+        "canonical_terminal_go": False,
         "terminal_state": terminal,
         "superseded_by": "scripts.confenge_activation.emit_final_closure_pack",
-        "required_schema": "confenge.universe_manifest.v2",
+        "required_schema": "confenge.universe_manifest.v3",
         "gates": gates,
         "human_review_pending": human_review_pending,
         "human_review_accepted": human_review_accepted,

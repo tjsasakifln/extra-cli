@@ -40,10 +40,18 @@ from scripts.confenge_universe.target_fit import classify_target_fit
 def classifier_sha() -> str:
     """Stable hash of classifier source for materialization provenance."""
     try:
-        src = inspect.getsource(classify_target_fit)
+        from scripts.commercial_leads import contract_relevance as relevance_module
+        from scripts.confenge_universe import target_fit as target_fit_module
+
+        src = "\n".join(
+            (
+                inspect.getsource(target_fit_module),
+                inspect.getsource(relevance_module),
+            )
+        )
     except (OSError, TypeError):
         src = TARGET_FIT_VERSION
-    return "sha256:" + hashlib.sha256(src.encode("utf-8")).hexdigest()[:16]
+    return "sha256:" + hashlib.sha256(src.encode("utf-8")).hexdigest()
 
 
 def compute_materialization(
@@ -71,11 +79,14 @@ def compute_materialization(
     prev_ver = (previous or {}).get("target_fit_version")
     prev_class = (previous or {}).get("target_fit_class")
     prev_conf = (previous or {}).get("target_fit_confidence")
+    current_classifier_sha = classifier_sha()
+    prev_classifier_sha = str((previous or {}).get("classifier_sha") or "")
 
     if (
         previous
         and prev_fp == fp
         and prev_ver == target_fit_version
+        and prev_classifier_sha == current_classifier_sha
         and prev_class
         and prev_class not in {REFRESH_FAILED, "RECOMPUTE_REQUIRED"}
     ):
@@ -96,7 +107,7 @@ def compute_materialization(
             source_max_updated_at=company.source_max_updated_at
             or previous.get("source_max_updated_at"),
             input_fingerprint=fp,
-            classifier_sha=str(previous.get("classifier_sha") or classifier_sha()),
+            classifier_sha=current_classifier_sha,
             schema_version=STORE_SCHEMA_VERSION,
             operational_status="ok",
             sector_fit=str(previous.get("sector_fit") or ""),
@@ -148,7 +159,7 @@ def compute_materialization(
             source_watermark=company.source_watermark,
             source_max_updated_at=company.source_max_updated_at,
             input_fingerprint=fp,
-            classifier_sha=classifier_sha(),
+            classifier_sha=current_classifier_sha,
             schema_version=STORE_SCHEMA_VERSION,
             operational_status="refresh_failed",
             materialization_mode=mode,
@@ -222,7 +233,7 @@ def compute_materialization(
         source_watermark=company.source_watermark,
         source_max_updated_at=company.source_max_updated_at,
         input_fingerprint=fp,
-        classifier_sha=classifier_sha(),
+        classifier_sha=current_classifier_sha,
         schema_version=STORE_SCHEMA_VERSION,
         operational_status="shadow_only" if mode == MODE_SHADOW else "ok",
         sector_fit=decision.sector_fit or (company.sector_fit or ""),
