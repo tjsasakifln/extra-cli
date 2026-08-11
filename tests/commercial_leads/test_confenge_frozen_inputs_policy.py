@@ -412,6 +412,32 @@ def test_binding_allows_edital_fails_on_pipeline(tmp_path: Path, monkeypatch: py
     assert rep2["ok"] is False, rep2
     assert any("protected_input_changed" in i for i in rep2["issues"])
 
+    # An architecture checkpoint may preserve an unchanged BLOCKED artifact as
+    # explicitly stale. It must not rebind evidence to code that was not run live.
+    blocked = json.loads(result.read_text(encoding="utf-8"))
+    blocked["status"] = "BLOCKED"
+    result.write_text(json.dumps(blocked) + "\n", encoding="utf-8")
+    stale = check_artifact_binding(
+        head_sha=tip2,
+        result_path=result,
+        allow_stale_non_terminal=True,
+        change_base_sha=tip2,
+    )
+    assert stale["ok"] is True, stale
+    assert stale["status"] == "STALE_EVIDENCE_NON_TERMINAL"
+    assert stale["bound_sha"] == freeze
+
+    blocked["status"] = "GO_FOR_REAL_CONFENGE_EMAIL_PILOT"
+    result.write_text(json.dumps(blocked) + "\n", encoding="utf-8")
+    false_go = check_artifact_binding(
+        head_sha=tip2,
+        result_path=result,
+        allow_stale_non_terminal=True,
+        change_base_sha=tip2,
+    )
+    assert false_go["ok"] is False, false_go
+    assert any("protected_input_changed" in i for i in false_go["issues"])
+
 
 def test_manifest_includes_gates_and_section_keys(tmp_path: Path) -> None:
     repo = _init_mini_repo(tmp_path)
