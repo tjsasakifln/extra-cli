@@ -1,0 +1,18 @@
+[Unit]
+Description=CONFENGE Warmbly outcome receptor (persistent Decision Memory)
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/extra-consultoria
+Environment=PYTHONPATH=/opt/extra-consultoria
+EnvironmentFile=/opt/extra-consultoria/.env
+EnvironmentFile=/opt/warmbly-confenge/.env
+ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.warmbly_bridge serve-outcomes --host 127.0.0.1 --port 8790
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

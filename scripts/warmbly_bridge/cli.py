@@ -72,12 +72,18 @@ def cmd_export(args: argparse.Namespace) -> int:
 
 
 def _build_store(args: argparse.Namespace) -> Any:
-    if getattr(args, "memory_store", False) or not getattr(args, "dsn", None):
+    if getattr(args, "memory_store", False):
         return InMemoryOutcomeStore()
+    dsn = getattr(args, "dsn", None) or os.environ.get("LOCAL_DATALAKE_DSN")
+    if not dsn:
+        raise ValueError(
+            "no outcome store DSN: pass --dsn, set LOCAL_DATALAKE_DSN, "
+            "or explicitly pass --memory-store"
+        )
     from scripts.decision_memory.db import connect
     from scripts.decision_memory.repository import DecisionMemoryRepository
 
-    conn = connect(args.dsn)
+    conn = connect(dsn)
     return DecisionMemoryOutcomeStore(DecisionMemoryRepository(conn))
 
 
@@ -91,7 +97,11 @@ def cmd_serve(args: argparse.Namespace) -> int:
             }
         )
         return EXIT_USAGE
-    store = _build_store(args)
+    try:
+        store = _build_store(args)
+    except ValueError as exc:
+        _print({"ok": False, "error": str(exc)})
+        return EXIT_USAGE
     config = ReceptorConfig(
         secret=secret,
         store=store,
