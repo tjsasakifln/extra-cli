@@ -1,8 +1,8 @@
 # Story: Critical Issues Wave 1
 
-**Status:** InProgress  
-**Branch:** `agent/critical-issues-wave-1`  
-**Base:** `origin/main` at `fffdd3ff5d08702013fe2e2f405b945be2d7ba39`  
+**Status:** InProgress
+**Branch:** `agent/critical-issues-wave-1`
+**Base:** `origin/main` at `fffdd3ff5d08702013fe2e2f405b945be2d7ba39`
 **Capability:** Fail-closed multifonte collection, packaging, and national-contract truth
 
 ## Goal

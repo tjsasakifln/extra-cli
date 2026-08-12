@@ -1,6 +1,6 @@
 # Supplier identity privacy policy
 
-**Scope:** supplier identifiers ingested from PNCP contracts  
+**Scope:** supplier identifiers ingested from PNCP contracts
 **Status:** enforced by migration 076 and application tests; acceptance remains
 subject to branch review and merge.
 

@@ -1,7 +1,7 @@
 # Critical Issues Wave 1 — Handoff
 
-**Branch:** `agent/critical-issues-wave-1`  
-**Scope:** #303, #286, #237, #245, #234, #278, #288, #233, #311, #313  
+**Branch:** `agent/critical-issues-wave-1`
+**Scope:** #303, #286, #237, #245, #234, #278, #288, #233, #311, #313
 **Truth ceiling:** branch evidence is at most `VERIFIED`; issue closure and DOD
 acceptance require exact-HEAD CI and the repository's human/main gates.
 
