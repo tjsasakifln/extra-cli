@@ -69,6 +69,9 @@ The production pipeline reads the canonical CDC watermark from the target-fit
 control plane, uses it for freshness evaluation, and records it as
 `manifest.source.datalake_watermark`. An explicit non-tombstone decision with
 an empty version, computation timestamp, or source watermark aborts the export.
+For a direct `export-outreach` operation, pass the same value with
+`--datalake-watermark`; omitting it conservatively compares against the export
+timestamp.
 
 Chunks are ordered ascending by source watermark, computation timestamp and
 CNPJ. Import is authorized only when

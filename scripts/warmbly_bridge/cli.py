@@ -59,6 +59,7 @@ def cmd_export(args: argparse.Namespace) -> int:
         profile_version=args.profile_version,
         system=args.system,
         generated_at=args.generated_at,
+        datalake_watermark=args.datalake_watermark,
         repo_sha=args.repo_sha,
     )
     try:
@@ -199,6 +200,11 @@ def build_parser() -> argparse.ArgumentParser:
     e.add_argument("--profile-version", default=DEFAULT_PROFILE_VERSION)
     e.add_argument("--system", default="extra-cli")
     e.add_argument("--generated-at", default=None, help="Override generated_at (tests)")
+    e.add_argument(
+        "--datalake-watermark",
+        default=None,
+        help="Canonical CDC watermark used to evaluate target-fit freshness",
+    )
     e.add_argument("--repo-sha", default=None, help="Override repo_sha (tests)")
     e.set_defaults(func=cmd_export)
 

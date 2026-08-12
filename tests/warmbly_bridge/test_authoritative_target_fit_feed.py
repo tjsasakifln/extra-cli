@@ -271,3 +271,25 @@ def test_freshness_uses_canonical_datalake_watermark_not_export_clock(tmp_path: 
     assert leads[0]["email_send_ready"] is True
     manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["source"]["datalake_watermark"] == source_watermark
+
+
+def test_cli_exposes_canonical_datalake_watermark() -> None:
+    from scripts.warmbly_bridge.cli import build_parser
+
+    args = build_parser().parse_args(
+        [
+            "export-outreach",
+            "--universe",
+            "universe.jsonl",
+            "--account-intelligence",
+            "intelligence.jsonl",
+            "--contacts",
+            "contacts.jsonl",
+            "--out",
+            "feed",
+            "--datalake-watermark",
+            "2026-08-12T08:00:00Z",
+        ]
+    )
+
+    assert args.datalake_watermark == "2026-08-12T08:00:00Z"
