@@ -1,0 +1,54 @@
+{
+  "schema": "confenge.authoritative-outreach-feed-verification.v1",
+  "generated_at": "2026-08-12T12:00:00Z",
+  "generation_scope": "deterministic named-case proof; operational full-universe chunks remain outside Git under ADR-020",
+  "source": {
+    "repo_sha": "authoritative-test",
+    "snapshot_hash": "ed7ec4fce6b4d2d89ca1709f891f9f5d6711b5cd1c97b68c4862a2fb90aae3a0"
+  },
+  "manifest": {
+    "manifest_content_hash": "b8b3f41725bbc44b18293a23cac32efaf8c66176b96eb850467349d5687b7f34",
+    "chunk_content_hash": "06c4b59d835b70ab2b3ace604b29b9b5bbe570f4f71bc332280ccfc9c974804c",
+    "declared_universe_count": 4,
+    "full_decision_count": 4,
+    "coverage_complete": true,
+    "watermarks_monotonic": true,
+    "omission_preserves_authorization": false,
+    "json_schema_valid": true
+  },
+  "cases": [
+    {
+      "cnpj14": "14893700000105",
+      "name": "PREVENCAO LABORATORIO DE ANALISES CLINICAS LTDA",
+      "target_fit_class": "TARGET_OUT_OF_SCOPE",
+      "target_fit_fresh": true,
+      "target_fit_send_tier": "OUT_OF_SCOPE",
+      "email_send_ready": false
+    },
+    {
+      "cnpj14": "01607033000167",
+      "name": "BEBA MAIS PIRACICABA DISTRIBUIDORA DE BEBIDAS LTDA",
+      "target_fit_class": "TARGET_OUT_OF_SCOPE",
+      "target_fit_fresh": true,
+      "target_fit_send_tier": "OUT_OF_SCOPE",
+      "email_send_ready": false
+    },
+    {
+      "cnpj14": "01942594000112",
+      "name": "SULPEL INDUSTRIA E COMERCIO DE PAPEIS LTDA",
+      "target_fit_class": "TARGET_INSUFFICIENT_EVIDENCE",
+      "target_fit_fresh": true,
+      "target_fit_send_tier": "RESEARCH_ONLY",
+      "email_send_ready": false
+    },
+    {
+      "cnpj14": "11222333000181",
+      "name": "ALFA CONSTRUTORA E ENGENHARIA LTDA",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "target_fit_fresh": true,
+      "target_fit_send_tier": "A_AUTOMATIC",
+      "email_send_ready": true
+    }
+  ],
+  "dispatch_or_import_performed": false
+}

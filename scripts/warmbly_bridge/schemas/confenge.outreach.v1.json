@@ -60,7 +60,15 @@
         "contacts",
         "contracts",
         "evidence",
-        "commercial_state"
+        "commercial_state",
+        "target_fit_class",
+        "target_fit_fresh",
+        "target_fit_version",
+        "target_fit_computed_at",
+        "target_fit_source_watermark",
+        "target_fit_evidence_ids",
+        "target_fit_send_tier",
+        "email_send_ready"
       ],
       "properties": {
         "source_lead_id": { "type": "string", "minLength": 1 },
@@ -152,8 +160,17 @@
         },
         "commercial_state": { "type": "string" },
         "target_fit_class": {
-          "type": ["string", "null"],
-          "description": "Published ICP class from extra-cli continuous refresh (TARGET_CONFIRMED|TARGET_PROBABLE_RESEARCH|TARGET_OUT_OF_SCOPE). Warmbly must not re-score."
+          "type": "string",
+          "enum": [
+            "TARGET_CONFIRMED",
+            "TARGET_PROBABLE_RESEARCH",
+            "TARGET_INSUFFICIENT_EVIDENCE",
+            "TARGET_OUT_OF_SCOPE",
+            "TARGET_FIT_MISSING",
+            "REFRESH_FAILED",
+            "RECOMPUTE_REQUIRED"
+          ],
+          "description": "Authoritative published ICP decision. TARGET_FIT_MISSING is an explicit fail-closed tombstone; Warmbly must not re-score or retain an older authorization."
         },
         "target_fit_confidence": {
           "type": ["number", "null"],
@@ -161,19 +178,24 @@
           "maximum": 1
         },
         "target_fit_version": {
-          "type": ["string", "null"],
+          "type": "string",
+          "minLength": 1,
           "description": "Classifier version that produced the published decision."
         },
         "target_fit_computed_at": {
-          "type": ["string", "null"],
+          "type": "string",
+          "minLength": 1,
+          "format": "date-time",
           "description": "ISO timestamp when target-fit was materialised."
         },
         "target_fit_source_watermark": {
-          "type": ["string", "null"],
+          "type": "string",
+          "minLength": 1,
+          "format": "date-time",
           "description": "Datalake watermark observed when target-fit was computed."
         },
         "target_fit_fresh": {
-          "type": ["boolean", "null"],
+          "type": "boolean",
           "description": "False when stale/missing/failed relative to datalake watermark policy."
         },
         "target_fit_evidence_ids": {
@@ -182,12 +204,21 @@
           "description": "Provenance ids only — full evidence stays in extra-cli materialization."
         },
         "target_fit_send_tier": {
-          "type": ["string", "null"],
+          "type": "string",
+          "enum": ["A_AUTOMATIC", "B_EVIDENCE_SUPPORTED", "RESEARCH_ONLY", "OUT_OF_SCOPE"],
           "description": "Legacy send tier mapped from published class (A_AUTOMATIC|B_EVIDENCE_SUPPORTED|RESEARCH_ONLY|OUT_OF_SCOPE)."
         },
         "email_send_ready": {
-          "type": ["boolean", "null"],
+          "type": "boolean",
           "description": "EMAIL_SEND_READY after all gates including published target-fit freshness. Never true if target_fit_class != TARGET_CONFIRMED or not fresh."
+        },
+        "target_fit_reason_codes": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "target_fit_tombstone": {
+          "type": "boolean",
+          "description": "True only for an explicit missing-decision revocation record."
         },
         "activation": {
           "type": "object",

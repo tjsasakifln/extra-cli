@@ -70,6 +70,30 @@ def evaluate_freshness(
             blocks_send=True,
         )
 
+    if op == "missing" or cls == "TARGET_FIT_MISSING":
+        return FreshnessDecision(
+            company_key=company_key,
+            target_fit_fresh=False,
+            target_fit_age_seconds=age,
+            target_fit_computed_at=computed if isinstance(computed, datetime) else None,
+            target_fit_source_watermark=tf_wm,
+            datalake_watermark=datalake_watermark or "",
+            reason="TARGET_FIT_MISSING",
+            blocks_send=True,
+        )
+
+    if op == "stale":
+        return FreshnessDecision(
+            company_key=company_key,
+            target_fit_fresh=False,
+            target_fit_age_seconds=age,
+            target_fit_computed_at=computed if isinstance(computed, datetime) else None,
+            target_fit_source_watermark=tf_wm,
+            datalake_watermark=datalake_watermark or "",
+            reason="TARGET_FIT_STALE",
+            blocks_send=True,
+        )
+
     if op in {"recompute_required"} or cls == "RECOMPUTE_REQUIRED":
         return FreshnessDecision(
             company_key=company_key,
@@ -184,7 +208,7 @@ def feed_fields_from_current(
         "target_fit_version": current.get("target_fit_version"),
         "target_fit_computed_at": computed,
         "target_fit_source_watermark": current.get("source_watermark"),
-        "target_fit_fresh": freshness.target_fit_fresh and not freshness.blocks_send,
+        "target_fit_fresh": freshness.target_fit_fresh,
         "target_fit_evidence_ids": ids,
         "target_fit_freshness_reason": freshness.reason,
     }

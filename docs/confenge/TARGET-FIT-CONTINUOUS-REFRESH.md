@@ -103,6 +103,11 @@ python -m scripts.confenge_target_fit requeue --cnpj ...
 python -m scripts.confenge_target_fit worker
 ```
 
+`requeue` copies the canonical `cdc_watermark` into the dirty item and refuses
+the operation when that watermark is empty. A changed watermark is republished
+even when the semantic input fingerprint is unchanged, preserving decision
+provenance instead of silently skipping the refresh.
+
 ### Pause / resume
 
 ```bash
@@ -140,7 +145,7 @@ CONFIRMED → PROBABLE/OUT (ACTIVE)
 | `scripts/confenge_target_fit/published.py` | Load `confenge_company_target_fit_current`, map class→send tier, evaluate freshness/suppression |
 | `send_readiness.evaluate_email_send_ready` | When published fields present on company row, they are **authoritative** (no local re-triangulation) |
 | `warmbly_bridge.mapping.map_lead` | Prefers published `target_fit_*` fields; never re-scores ICP class when materialization is present |
-| `confenge.outreach.v1` schema | Optional lead fields: class, confidence, version, computed_at, source_watermark, fresh, evidence_ids |
+| `confenge.outreach.v1` schema | Required decision fields: class, version, computed_at, source_watermark, fresh, evidence_ids, send tier and email_send_ready |
 
 Feed fields for `confenge.outreach.v1`:
 
@@ -151,6 +156,15 @@ Feed fields for `confenge.outreach.v1`:
 - `target_fit_source_watermark`
 - `target_fit_fresh`
 - `target_fit_evidence_ids`
+- `target_fit_send_tier`
+- `email_send_ready`
+
+`target_fit_fresh` describes whether the published decision is current; it is
+not a synonym for send eligibility. A fresh OUT/INSUFFICIENT decision remains
+fresh and still has `email_send_ready=false`. Missing materialization is
+published as a non-fresh `TARGET_FIT_MISSING` tombstone. Feed order is
+`source_watermark`, `computed_at`, CNPJ ascending so consumers can apply the
+snapshot deterministically.
 
 Warmbly must **not** rescore. Fail-closed if not `TARGET_CONFIRMED` or not fresh.
 

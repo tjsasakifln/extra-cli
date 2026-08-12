@@ -8,7 +8,7 @@ Native producer of `confenge.outreach.v1` and optional HMAC receptor for
 
 | Is | Is not |
 | --- | --- |
-| Path-based export from universe / account-intelligence / contacts JSONL | A universe ranking engine |
+| Path-based export from the full decision universe, target-fit snapshot, intelligence and contacts JSONL | A send-ready cohort exporter |
 | Chunked feed with cursor, hashes, manifest, resume | One monolithic unusable JSON dump |
 | Messaging **context** for Warmbly to draft copy | Final email/WhatsApp copy |
 | Outcome webhook into Decision & Outcome Memory | A second parallel outcome ledger |
@@ -23,9 +23,12 @@ python3 -m scripts.warmbly_bridge export-outreach \
   --universe scripts/warmbly_bridge/fixtures/universe.jsonl \
   --account-intelligence scripts/warmbly_bridge/fixtures/account_intelligence.jsonl \
   --contacts scripts/warmbly_bridge/fixtures/contacts.jsonl \
+  --target-fit-snapshot /path/to/full-target-fit-snapshot.jsonl \
+  --expected-universe-count 12345 \
   --out /tmp/confenge-outreach-out
 
-# Smoke only (not production — production omits --limit):
+# Smoke only. Its manifest has coverage_complete=false and must not be imported
+# as an authoritative account snapshot:
 python3 -m scripts.warmbly_bridge export-outreach \
   --universe ... --account-intelligence ... --contacts ... \
   --out /tmp/confenge-outreach-out \
@@ -46,11 +49,42 @@ when content hashes match (resume / idempotency).
 Missing any of `--universe`, `--account-intelligence`, or `--contacts`
 exits non-zero with an explicit error — no shallow feed is written.
 
+## Authoritative target-fit snapshot
+
+Production must pass `--target-fit-snapshot` and the reconciled
+`--expected-universe-count`. The universe contains every addressable CONFENGE
+company decision, not only the expensive-enrichment hot set: eligible companies,
+`TARGET_OUT_OF_SCOPE`, `TARGET_INSUFFICIENT_EVIDENCE`, DNC and valid-CNPJ
+exclusions all remain present.
+
+Every lead requires `target_fit_class`, `target_fit_fresh`,
+`target_fit_version`, `target_fit_computed_at`,
+`target_fit_source_watermark`, `target_fit_evidence_ids`,
+`target_fit_send_tier` and `email_send_ready`. A CNPJ omitted from the supplied
+snapshot is emitted as `TARGET_FIT_MISSING` with
+`target_fit_tombstone=true` and `email_send_ready=false`; an older CONFIRMED
+authorization can therefore never survive by omission.
+
+The production pipeline reads the canonical CDC watermark from the target-fit
+control plane, uses it for freshness evaluation, and records it as
+`manifest.source.datalake_watermark`. An explicit non-tombstone decision with
+an empty version, computation timestamp, or source watermark aborts the export.
+For a direct `export-outreach` operation, pass the same value with
+`--datalake-watermark`; omitting it conservatively compares against the export
+timestamp.
+
+Chunks are ordered ascending by source watermark, computation timestamp and
+CNPJ. Import is authorized only when
+`manifest.authoritative_target_fit.coverage_complete=true`,
+`ordering.watermarks_monotonic=true` and
+`omission_preserves_authorization=false`. A smoke limit or undeclared universe
+produces a visibly partial manifest.
+
 ## Serve / import chunks
 
 ### File import (Warmbly side)
 
-Point Warmbly import at a chunk file or directory of chunks (see Warmbly
+After checking the authoritative manifest gates, point Warmbly import at a chunk file or directory of chunks (see Warmbly
 docs / PR #4 import API). Each `chunk_*.json` is a self-contained feed with
 `schema_version`, `source`, `pagination`, and `leads`.
 

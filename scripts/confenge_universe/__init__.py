@@ -37,6 +37,7 @@ OUTREACH_ELIGIBILITY_STATES = frozenset(
 UNIVERSE_MEMBER_STATES = frozenset({ELIGIBLE, DNC})
 
 DEFAULT_JSONL_NAME = "confenge-universe-v1.jsonl"
+DEFAULT_EXCLUSIONS_JSONL_NAME = "confenge-universe-exclusions-v1.jsonl"
 DEFAULT_MANIFEST_NAME = "confenge-universe-manifest-v1.json"
 
 __all__ = [
@@ -54,5 +55,6 @@ __all__ = [
     "OUTREACH_ELIGIBILITY_STATES",
     "UNIVERSE_MEMBER_STATES",
     "DEFAULT_JSONL_NAME",
+    "DEFAULT_EXCLUSIONS_JSONL_NAME",
     "DEFAULT_MANIFEST_NAME",
 ]

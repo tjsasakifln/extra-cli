@@ -9,10 +9,13 @@ from typing import Any
 
 from scripts.confenge_target_fit import (
     TARGET_CONFIRMED,
+    TARGET_FIT_VERSION,
+    TARGET_INSUFFICIENT_EVIDENCE,
     TARGET_OUT_OF_SCOPE,
     TARGET_PROBABLE_RESEARCH,
 )
 from scripts.confenge_target_fit.company_key import (
+    canonical_cnpj14,
     cnpj_raiz_from_cnpj14,
     company_key_from_raiz,
     digits_only,
@@ -27,15 +30,113 @@ from scripts.confenge_target_fit.store import (
     is_send_suppressed,
 )
 
+TARGET_FIT_MISSING = "TARGET_FIT_MISSING"
+
+
+def _row_target_fit_payload(row: dict[str, Any]) -> dict[str, Any]:
+    embedded = row.get("published_target_fit") or row.get("target_fit_materialization")
+    if isinstance(embedded, dict):
+        return dict(embedded)
+    construction = row.get("construction_evidence")
+    if not isinstance(construction, dict):
+        construction = {}
+    return {
+        "target_fit_class": row.get("target_fit_class") or construction.get("target_fit_class"),
+        "target_fit_confidence": row.get("target_fit_confidence")
+        if row.get("target_fit_confidence") is not None
+        else construction.get("target_fit_confidence"),
+        "target_fit_version": row.get("target_fit_version") or construction.get("target_fit_version"),
+        "target_fit_evidence": row.get("target_fit_evidence") or construction.get("target_fit_evidence") or [],
+        "target_fit_reason_codes": row.get("target_fit_reason_codes")
+        or construction.get("target_fit_reason_codes")
+        or [],
+        "computed_at": row.get("target_fit_computed_at") or row.get("computed_at"),
+        "source_watermark": row.get("target_fit_source_watermark") or row.get("source_watermark"),
+        "operational_status": row.get("target_fit_operational_status") or row.get("operational_status"),
+    }
+
+
+def complete_published_decision(
+    row: dict[str, Any],
+    *,
+    computed_at: str,
+    source_watermark: str,
+    require_authoritative_metadata: bool = False,
+) -> dict[str, Any] | None:
+    """Return a complete authoritative decision, including an explicit miss tombstone."""
+    company = row.get("company") if isinstance(row.get("company"), dict) else {}
+    cnpj = canonical_cnpj14(row.get("cnpj14") or row.get("cnpj") or company.get("cnpj14"))
+    if not cnpj:
+        return None
+    raiz = cnpj[:8]
+    payload = _row_target_fit_payload(row)
+    target_class = str(payload.get("target_fit_class") or TARGET_FIT_MISSING).upper()
+    missing = target_class == TARGET_FIT_MISSING
+    if require_authoritative_metadata and not missing:
+        required = {
+            "target_fit_version": payload.get("target_fit_version"),
+            "computed_at": payload.get("computed_at"),
+            "source_watermark": payload.get("source_watermark"),
+        }
+        absent = [name for name, value in required.items() if not str(value or "").strip()]
+        if absent:
+            raise ValueError(f"published target-fit decision incomplete for {cnpj}: {', '.join(absent)}")
+    evidence = payload.get("target_fit_evidence") or []
+    if not isinstance(evidence, list):
+        evidence = []
+    reasons = payload.get("target_fit_reason_codes") or []
+    if not isinstance(reasons, list):
+        reasons = []
+    if missing and TARGET_FIT_MISSING not in reasons:
+        reasons = [*reasons, TARGET_FIT_MISSING]
+    return {
+        **payload,
+        "company_key": company_key_from_raiz(raiz),
+        "cnpj_raiz": raiz,
+        "target_fit_class": target_class,
+        "target_fit_confidence": payload.get("target_fit_confidence"),
+        "target_fit_version": str(payload.get("target_fit_version") or TARGET_FIT_VERSION),
+        "target_fit_evidence": evidence,
+        "target_fit_reason_codes": [str(reason) for reason in reasons],
+        "computed_at": str(payload.get("computed_at") or computed_at),
+        "source_watermark": str(payload.get("source_watermark") or source_watermark),
+        "operational_status": str(payload.get("operational_status") or ("missing" if missing else "ok")).lower(),
+        "target_fit_tombstone": missing,
+    }
+
+
+def build_published_index_from_rows(
+    rows: list[dict[str, Any]],
+    *,
+    computed_at: str,
+    source_watermark: str,
+    require_authoritative_metadata: bool = False,
+) -> dict[str, dict[str, Any]]:
+    """Build a full snapshot index; later rows supersede earlier ones deterministically."""
+    out: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        decision = complete_published_decision(
+            row,
+            computed_at=computed_at,
+            source_watermark=source_watermark,
+            require_authoritative_metadata=require_authoritative_metadata,
+        )
+        if decision is None:
+            continue
+        raiz = str(decision["cnpj_raiz"])
+        key = str(decision["company_key"])
+        out[key] = decision
+        out[raiz] = decision
+        out[f"cnpj_root:{raiz}"] = decision
+    return out
+
 
 def company_key_from_row(row: dict[str, Any] | None) -> str | None:
     if not row:
         return None
     if row.get("company_key"):
         return str(row["company_key"])
-    cnpj: Any = row.get("cnpj14") or row.get("cnpj") or row.get("cnpj_root") or row.get(
-        "cnpj_raiz"
-    )
+    cnpj: Any = row.get("cnpj14") or row.get("cnpj") or row.get("cnpj_root") or row.get("cnpj_raiz")
     company = row.get("company")
     if isinstance(company, dict):
         cnpj = cnpj or company.get("cnpj14") or company.get("cnpj_root")
@@ -318,11 +419,8 @@ def _embed_from_row(row: dict[str, Any]) -> dict[str, Any] | None:
             "target_fit_reason_codes": row.get("target_fit_reason_codes") or [],
             "target_fit_evidence": row.get("target_fit_evidence") or [],
             "computed_at": row.get("target_fit_computed_at") or row.get("computed_at"),
-            "source_watermark": row.get("target_fit_source_watermark")
-            or row.get("source_watermark"),
-            "operational_status": row.get("target_fit_operational_status")
-            or row.get("operational_status")
-            or "ok",
+            "source_watermark": row.get("target_fit_source_watermark") or row.get("source_watermark"),
+            "operational_status": row.get("target_fit_operational_status") or row.get("operational_status") or "ok",
             "input_fingerprint": row.get("input_fingerprint"),
         }
     return None
@@ -398,9 +496,14 @@ def map_class_to_send_tier(target_fit_class: str | None) -> str:
     cls = (target_fit_class or "").strip().upper()
     if cls == TARGET_CONFIRMED:
         return "A_AUTOMATIC"
-    if cls == TARGET_PROBABLE_RESEARCH:
+    if cls in {TARGET_PROBABLE_RESEARCH, TARGET_INSUFFICIENT_EVIDENCE}:
         return "RESEARCH_ONLY"
-    if cls in {TARGET_OUT_OF_SCOPE, "REFRESH_FAILED", "RECOMPUTE_REQUIRED"}:
+    if cls in {
+        TARGET_OUT_OF_SCOPE,
+        TARGET_FIT_MISSING,
+        "REFRESH_FAILED",
+        "RECOMPUTE_REQUIRED",
+    }:
         return "OUT_OF_SCOPE"
     return "OUT_OF_SCOPE"
 
@@ -471,7 +574,7 @@ def attach_published_fields(
     computed = published.get("computed_at") or published.get("target_fit_computed_at")
     if hasattr(computed, "isoformat"):
         computed = computed.isoformat()
-    fresh_ok = bool(freshness and freshness.target_fit_fresh and not freshness.blocks_send)
+    fresh_ok = bool(freshness and freshness.target_fit_fresh)
     out.update(
         {
             "target_fit_class": published.get("target_fit_class"),
@@ -483,6 +586,8 @@ def attach_published_fields(
             "target_fit_fresh": fresh_ok,
             "target_fit_evidence_ids": ids,
             "target_fit_freshness_reason": (freshness.reason if freshness else None),
+            "target_fit_reason_codes": list(published.get("target_fit_reason_codes") or []),
+            "target_fit_tombstone": bool(published.get("target_fit_tombstone")),
         }
     )
     return out
@@ -514,7 +619,5 @@ def resolve_gate_from_conn(
         "blocks_send": blocks,
         "reasons": reasons,
         "freshness": fresh,
-        "send_tier": map_class_to_send_tier(
-            (published or {}).get("target_fit_class") if published else None
-        ),
+        "send_tier": map_class_to_send_tier((published or {}).get("target_fit_class") if published else None),
     }

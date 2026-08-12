@@ -11,6 +11,7 @@ from typing import Any
 
 from scripts.commercial_leads.contract_relevance import classify_contract_relevance
 from scripts.confenge_universe import (
+    DEFAULT_EXCLUSIONS_JSONL_NAME,
     DNC,
     ELIGIBLE,
     MODULE_VERSION,
@@ -161,9 +162,7 @@ def load_dnc_from_commercial_state(dsn: str) -> set[str]:
     return out
 
 
-def load_registry_from_dsn(
-    dsn: str, cnpjs: list[str]
-) -> dict[str, dict[str, Any]]:
+def load_registry_from_dsn(dsn: str, cnpjs: list[str]) -> dict[str, dict[str, Any]]:
     """Load supplier_registry cadastral rows for representative CNPJs. Fail-soft."""
     if not cnpjs:
         return {}
@@ -396,9 +395,7 @@ def run_universe_build(
     resolved_csv = csv_path
 
     if row_iter is not None:
-        batches: Iterator[list[dict[str, Any]]] = iter_contract_rows(
-            row_iter, batch_size=batch_size
-        )
+        batches: Iterator[list[dict[str, Any]]] = iter_contract_rows(row_iter, batch_size=batch_size)
         source_meta = {
             "mode": "iterator",
             "as_of": as_of_d.isoformat(),
@@ -440,9 +437,7 @@ def run_universe_build(
         source_meta = {**source_meta, **source_meta_extra}
     source_meta["dnc_sources"] = dnc_sources
 
-    agg = UniverseAggregator(
-        as_of=as_of_d, enable_independent_brand=enable_independent_brand
-    )
+    agg = UniverseAggregator(as_of=as_of_d, enable_independent_brand=enable_independent_brand)
 
     peak_batch = 0
     for batch in batches:
@@ -474,9 +469,7 @@ def run_universe_build(
     input_entity_keys = set(agg.buckets.keys())
 
     for bucket in agg.all_buckets():
-        rec, meta = finalize_bucket(
-            bucket, as_of=as_of_d, dnc_set=dnc, registry=reg_map
-        )
+        rec, meta = finalize_bucket(bucket, as_of=as_of_d, dnc_set=dnc, registry=reg_map)
         if rec is not None:
             records.append(rec)
             elig_breakdown[str(rec["outreach_eligibility"])] += 1
@@ -498,18 +491,16 @@ def run_universe_build(
     n_input_entities = len(input_entity_keys)
     n_eligibles = len(records)
     # Prefer exact: eligibles + exclusions that came from buckets
-    bucket_excl = [
-        e for e in exclusions if not str(e.get("entity_key", "")).startswith("identity:")
-    ]
+    bucket_excl = [e for e in exclusions if not str(e.get("entity_key", "")).startswith("identity:")]
     n_excl_from_buckets = len(bucket_excl)
     recon_ok = n_input_entities == n_eligibles + n_excl_from_buckets
-    bucket_excl_breakdown = Counter(
-        str(e.get("outreach_eligibility") or "UNKNOWN") for e in bucket_excl
-    )
+    bucket_excl_breakdown = Counter(str(e.get("outreach_eligibility") or "UNKNOWN") for e in bucket_excl)
     if sum(bucket_excl_breakdown.values()) != n_excl_from_buckets:
         recon_ok = False
 
     jsonl_meta = write_jsonl_stream(records, jsonl_path)
+    exclusions_path = out / DEFAULT_EXCLUSIONS_JSONL_NAME
+    exclusions_meta = write_jsonl_stream(exclusions, exclusions_path)
     counts = {
         "input_contract_rows": agg.stats["input_contract_rows"],
         "input_supplier_roots": n_input_entities,
@@ -550,7 +541,7 @@ def run_universe_build(
             "full_scale_command": (
                 "python3 -m scripts.confenge_universe build "
                 "--out output/confenge_universe "
-                "--dsn \"$LOCAL_DATALAKE_DSN\" "
+                '--dsn "$LOCAL_DATALAKE_DSN" '
                 "# omit --max-rows for full national scan"
             ),
         },
@@ -563,6 +554,11 @@ def run_universe_build(
         "exclusions": n_excl_from_buckets,
         "ok": recon_ok,
     }
+    manifest["outputs"]["exclusions_jsonl"] = {
+        "filename": exclusions_path.name,
+        "lines": exclusions_meta["lines"],
+        "sha256": exclusions_meta["sha256"],
+    }
     write_manifest(manifest, manifest_path)
 
     return {
@@ -571,6 +567,7 @@ def run_universe_build(
         "repo_sha": sha,
         "jsonl_path": str(jsonl_path),
         "manifest_path": str(manifest_path),
+        "exclusions_jsonl_path": str(exclusions_path),
         "counts": counts,
         "records": records,
         "exclusions": exclusions,

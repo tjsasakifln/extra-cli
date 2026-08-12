@@ -40,7 +40,6 @@ from scripts.confenge_contact_resolution.send_readiness import evaluate_email_se
 from scripts.confenge_outreach_pipeline.integrity_sample import compose_body, compose_subject
 from scripts.linkage.keys import is_valid_cnpj14
 from scripts.warmbly_bridge.export import ExportConfig, export_outreach
-from scripts.warmbly_bridge.mapping import build_leads
 
 DEFAULT_HARVEST = Path("artifacts/confenge/process-first-national-confirmed")
 DEFAULT_OUT = Path("artifacts/confenge/national-commercial-ready")
@@ -627,9 +626,7 @@ def load_contracts_by_root(
     import psycopg2.extras
 
     out: dict[str, list[dict[str, Any]]] = {root: [] for root in roots}
-    with psycopg2.connect(dsn) as conn, conn.cursor(
-        cursor_factory=psycopg2.extras.RealDictCursor
-    ) as cur:
+    with psycopg2.connect(dsn) as conn, conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute(
             """
             WITH ranked AS (
@@ -684,10 +681,7 @@ def load_contracts_by_root(
 
 def _primary_contract(dossier: dict[str, Any], contracts: list[dict[str, Any]]) -> dict[str, Any]:
     evidence_ids = list((dossier.get("message_spine") or {}).get("fact_evidence_ids") or [])
-    wanted = {
-        str(value).removeprefix("cf-contract-").removeprefix("ev-contract-")
-        for value in evidence_ids
-    }
+    wanted = {str(value).removeprefix("cf-contract-").removeprefix("ev-contract-") for value in evidence_ids}
     chosen = next(
         (row for row in contracts if str(row.get("contract_id") or "") in wanted),
         contracts[0] if contracts else {},
@@ -815,11 +809,7 @@ def build_pilot_review(
             continue
 
         contracts = contracts_by_root.get(root) or []
-        matching_contracts = [
-            row
-            for row in contracts
-            if _root8(row.get("fornecedor_cnpj")) in {"", root}
-        ]
+        matching_contracts = [row for row in contracts if _root8(row.get("fornecedor_cnpj")) in {"", root}]
         if not matching_contracts:
             reject(seed, "no_current_public_contract_evidence")
             continue
@@ -896,9 +886,7 @@ def build_pilot_review(
             "message": message,
             "draft": message,
             "evidence_ids": list(dossier.get("evidence_ids") or []),
-            "supporting_signal_ids": list(
-                (dossier.get("primary_service") or {}).get("supporting_signal_ids") or []
-            ),
+            "supporting_signal_ids": list((dossier.get("primary_service") or {}).get("supporting_signal_ids") or []),
             "n_contracts": len(matching_contracts),
             "n_agencies": len(agencies - {""}),
             "risks": [],
@@ -927,10 +915,7 @@ def build_pilot_review(
     # Keep very broad/complex accounts in ABM even when a commercial mailbox exists.
     eligible: list[dict[str, Any]] = []
     for row in candidates:
-        if (
-            int(row.get("n_contracts") or 0) >= 30
-            and int(row.get("n_agencies") or 0) >= 18
-        ):
+        if int(row.get("n_contracts") or 0) >= 30 and int(row.get("n_agencies") or 0) >= 18:
             rejected.append(
                 {
                     "cnpj14": row.get("cnpj14"),
@@ -1112,27 +1097,40 @@ def build_pilot_feed_inputs(
     return universe, intelligence, contacts
 
 
-def write_pilot_feed(review: dict[str, Any], out_dir: Path) -> dict[str, Any]:
-    """Emit a standard confenge.outreach.v1 feed; no pilot-only wire format."""
-    universe, intelligence, contacts = build_pilot_feed_inputs(review)
-    if not universe:
+def write_pilot_feed(
+    review: dict[str, Any],
+    out_dir: Path,
+    *,
+    authoritative_universe: list[dict[str, Any]] | None = None,
+    target_fit_snapshot: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Emit confenge.outreach.v1 only with a declared full decision universe.
+
+    A reviewed pilot is a selection overlay, not an authoritative account
+    snapshot.  Exporting only its send-ready rows would let omitted downgrades
+    retain stale authorization at the consumer.
+    """
+    pilot_universe, intelligence, contacts = build_pilot_feed_inputs(review)
+    if not pilot_universe:
         raise ValueError("pilot feed requested for a review with no leads")
-    mapped = build_leads(universe, intelligence, contacts)
-    if len(mapped) != len(review.get("leads") or []) or not all(
-        bool(lead.get("email_send_ready")) for lead in mapped
-    ):
-        raise ValueError("pilot feed mapping did not preserve EMAIL_SEND_READY for every reviewed lead")
+    if authoritative_universe is None or target_fit_snapshot is None:
+        raise ValueError(
+            "refusing send-ready-only confenge.outreach.v1: provide the full "
+            "authoritative_universe and target_fit_snapshot"
+        )
     source_dir = out_dir / "source"
     source_dir.mkdir(parents=True, exist_ok=True)
     paths = {
         "universe": source_dir / "universe.jsonl",
         "intelligence": source_dir / "account-intelligence.jsonl",
         "contacts": source_dir / "contacts.jsonl",
+        "target_fit": source_dir / "target-fit-snapshot.jsonl",
     }
     for key, rows in (
-        ("universe", universe),
+        ("universe", authoritative_universe),
         ("intelligence", intelligence),
         ("contacts", contacts),
+        ("target_fit", target_fit_snapshot),
     ):
         paths[key].write_text(
             "".join(json.dumps(row, ensure_ascii=False, default=str) + "\n" for row in rows),
@@ -1143,8 +1141,10 @@ def write_pilot_feed(review: dict[str, Any], out_dir: Path) -> dict[str, Any]:
             universe=paths["universe"],
             account_intelligence=paths["intelligence"],
             contacts=paths["contacts"],
+            target_fit_snapshot=paths["target_fit"],
+            expected_universe_count=len(authoritative_universe),
             out_dir=out_dir,
-            max_leads_per_chunk=max(1, len(mapped)),
+            max_leads_per_chunk=max(1, len(authoritative_universe)),
             system="extra-cli-confenge-pilot",
         )
     )
@@ -1347,7 +1347,6 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--dsn", default=None, help="Canonical datalake DSN (defaults to LOCAL_DATALAKE_DSN)")
     p.add_argument("--pilot-seed-file", type=Path, default=None, help="Verified ESR seed JSON for Top20 review")
     p.add_argument("--pilot-size", type=int, default=20)
-    p.add_argument("--pilot-feed-out", type=Path, default=None, help="Optional standard Warmbly feed directory")
     return p
 
 
@@ -1404,14 +1403,17 @@ def main(argv: list[str] | None = None) -> int:
             target_size=max(0, args.pilot_size),
         )
         write_pilot_review(review, out_dir=args.out_dir)
-        feed_result = write_pilot_feed(review, args.pilot_feed_out) if args.pilot_feed_out else None
         pilot_summary = {
             "n": review["n"],
             "email_send_ready": review["email_send_ready"],
             "approved": review["approved"],
             "service_distribution": review["service_distribution"],
             "rejections": len(review["rejections"]),
-            "warmbly_feed": feed_result,
+            "warmbly_feed": None,
+            "warmbly_feed_note": (
+                "Pilot selection is not an authoritative decision snapshot; "
+                "use scripts.confenge_outreach_pipeline for feed export."
+            ),
         }
     summary = {
         "EMAIL_SEND_READY_DISTINCT_COMPANIES": report["EMAIL_SEND_READY_DISTINCT_COMPANIES"],

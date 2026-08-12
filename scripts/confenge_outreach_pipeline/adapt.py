@@ -35,8 +35,7 @@ def universe_row_to_intelligence_input(
         # Absence of reajuste proof is NOT positive economic evidence.
         # Avoid false positives on negated phrases ("sem aditivo").
         _neg = any(
-            p in obj_l
-            for p in ("sem aditiv", "sem glosa", "sem reajuste", "sem reequil", "sem medicao", "sem medição")
+            p in obj_l for p in ("sem aditiv", "sem glosa", "sem reajuste", "sem reequil", "sem medicao", "sem medição")
         )
         has_addendum = bool(c.get("has_addendum")) or (
             not _neg
@@ -183,9 +182,7 @@ def universe_row_to_intelligence_input(
         "construction_evidence": ce,
         "target_fit_class": ce.get("target_fit_class") or row.get("target_fit_class"),
         "target_fit_evidence": ce.get("target_fit_evidence") or row.get("target_fit_evidence") or [],
-        "target_fit_reason_codes": ce.get("target_fit_reason_codes")
-        or row.get("target_fit_reason_codes")
-        or [],
+        "target_fit_reason_codes": ce.get("target_fit_reason_codes") or row.get("target_fit_reason_codes") or [],
         "target_fit_confidence": ce.get("target_fit_confidence") or row.get("target_fit_confidence"),
         "target_fit_version": ce.get("target_fit_version") or row.get("target_fit_version"),
         "portfolio_stats": {
@@ -202,12 +199,7 @@ def universe_row_to_intelligence_input(
 def intelligence_dossier_to_bridge_row(dossier: dict[str, Any]) -> dict[str, Any]:
     """Normalize confenge-account-intelligence-v1 dossier for warmbly_bridge join."""
     snap = dossier.get("account_snapshot") if isinstance(dossier.get("account_snapshot"), dict) else {}
-    cnpj = _digits(
-        snap.get("cnpj14")
-        or dossier.get("cnpj14")
-        or dossier.get("cnpj")
-        or ""
-    )
+    cnpj = _digits(snap.get("cnpj14") or dossier.get("cnpj14") or dossier.get("cnpj") or "")
     primary = dossier.get("primary_service") if isinstance(dossier.get("primary_service"), dict) else {}
     why = dossier.get("why_now") if isinstance(dossier.get("why_now"), dict) else {}
     dominant = dossier.get("dominant_state") if isinstance(dossier.get("dominant_state"), dict) else {}
@@ -274,11 +266,7 @@ def intelligence_dossier_to_bridge_row(dossier: dict[str, Any]) -> dict[str, Any
     if not contracts:
         # Intelligence dossier keeps portfolio_summary, not full contracts; carry
         # normalized contracts stashed by the pipeline on the dossier when present.
-        contracts = (
-            dossier.get("_pipeline_contracts")
-            if isinstance(dossier.get("_pipeline_contracts"), list)
-            else []
-        )
+        contracts = dossier.get("_pipeline_contracts") if isinstance(dossier.get("_pipeline_contracts"), list) else []
     # Bridge feed contracts are opaque JSON objects for Warmbly.
     bridge_contracts: list[dict[str, Any]] = []
     for c in contracts:
@@ -322,11 +310,7 @@ def intelligence_dossier_to_bridge_row(dossier: dict[str, Any]) -> dict[str, Any
     razao = snap.get("razao_social") or dossier.get("razao_social") or ""
     why_you = str(
         dossier.get("why_this_account")
-        or (
-            f"empresa com execução pública de engenharia/construção observável: {razao}"
-            if razao
-            else ""
-        )
+        or (f"empresa com execução pública de engenharia/construção observável: {razao}" if razao else "")
     )
 
     return {
@@ -353,9 +337,7 @@ def intelligence_dossier_to_bridge_row(dossier: dict[str, Any]) -> dict[str, Any
             "summary": why_summary,
             "observed_at": str(why.get("observed_at") or dossier.get("as_of") or ""),
             "confidence": _confidence_from_epistemic(why.get("epistemic_class")),
-            "evidence_ids": [
-                e["id"] for e in evidence if e.get("epistemic_class") == "CONFIRMED_FACT"
-            ][:5],
+            "evidence_ids": [e["id"] for e in evidence if e.get("epistemic_class") == "CONFIRMED_FACT"][:5],
         },
         "offer": {
             "service_code": warmbly_service or raw_service,
@@ -363,11 +345,7 @@ def intelligence_dossier_to_bridge_row(dossier: dict[str, Any]) -> dict[str, Any
             "extra_cli_service_id": raw_service,
             "service_name": str(primary.get("label") or primary.get("service_name") or ""),
             "entry_offer": str(primary.get("approach_mode") or ""),
-            "micro_offer_code": str(
-                dossier.get("micro_offer_code")
-                or primary.get("approach_mode")
-                or ""
-            ),
+            "micro_offer_code": str(dossier.get("micro_offer_code") or primary.get("approach_mode") or ""),
             "rationale": str(dossier.get("service_fit_rationale") or ""),
         },
         "service_candidates": list(dossier.get("service_candidates") or []),
@@ -463,17 +441,10 @@ def contact_resolution_to_bridge_row(resolution: dict[str, Any]) -> dict[str, An
         if recommended_id and cand.get("candidate_id") == recommended_id:
             is_rec = True
 
-        phone = (
-            cand.get("phone_e164")
-            or cand.get("phone_raw")
-            or cand.get("phone")
-            or ""
-        )
+        phone = cand.get("phone_e164") or cand.get("phone_raw") or cand.get("phone") or ""
         contacts.append(
             {
-                "source_contact_id": str(
-                    cand.get("candidate_id") or cand.get("source_contact_id") or f"ct-{cnpj}-{i}"
-                ),
+                "source_contact_id": str(cand.get("candidate_id") or cand.get("source_contact_id") or f"ct-{cnpj}-{i}"),
                 "name": str(cand.get("name") or ""),
                 "role": str(cand.get("cargo") or cand.get("role") or ""),
                 "email": str(cand.get("email") or cand.get("email_display") or ""),
@@ -514,6 +485,7 @@ def universe_row_for_bridge(row: dict[str, Any], *, rank: int) -> dict[str, Any]
     if str(row.get("outreach_eligibility") or "").upper() == "DNC":
         commercial_state = "DO_NOT_CONTACT"
 
+    construction = row.get("construction_evidence") if isinstance(row.get("construction_evidence"), dict) else {}
     return {
         "cnpj14": cnpj,
         "cnpj_root": _digits(row.get("cnpj_root") or cnpj[:8]),
@@ -532,4 +504,14 @@ def universe_row_for_bridge(row: dict[str, Any], *, rank: int) -> dict[str, Any]
         "priority_score": score_f,
         "priority_reason": row.get("priority_reason"),
         "outreach_eligibility": row.get("outreach_eligibility"),
+        "construction_evidence": construction,
+        "target_fit_class": row.get("target_fit_class") or construction.get("target_fit_class"),
+        "target_fit_confidence": row.get("target_fit_confidence")
+        if row.get("target_fit_confidence") is not None
+        else construction.get("target_fit_confidence"),
+        "target_fit_version": row.get("target_fit_version") or construction.get("target_fit_version"),
+        "target_fit_evidence": row.get("target_fit_evidence") or construction.get("target_fit_evidence") or [],
+        "target_fit_reason_codes": row.get("target_fit_reason_codes")
+        or construction.get("target_fit_reason_codes")
+        or [],
     }

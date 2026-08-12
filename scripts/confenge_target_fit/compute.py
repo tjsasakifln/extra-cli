@@ -71,6 +71,8 @@ def compute_materialization(
     prev_ver = (previous or {}).get("target_fit_version")
     prev_class = (previous or {}).get("target_fit_class")
     prev_conf = (previous or {}).get("target_fit_confidence")
+    prev_watermark = str((previous or {}).get("source_watermark") or "")
+    incoming_watermark = str(company.source_watermark or "")
 
     if (
         previous
@@ -78,6 +80,10 @@ def compute_materialization(
         and prev_ver == target_fit_version
         and prev_class
         and prev_class not in {REFRESH_FAILED, "RECOMPUTE_REQUIRED"}
+        # A newer canonical watermark is provenance work even when semantic
+        # inputs are unchanged. Recompute/publish so the durable snapshot can
+        # prove which datalake state the decision observed.
+        and (not incoming_watermark or incoming_watermark == prev_watermark)
     ):
         meta["skipped_fingerprint"] = True
         mat = MaterializedTargetFit(
