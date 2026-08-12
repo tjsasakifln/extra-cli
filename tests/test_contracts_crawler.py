@@ -248,6 +248,141 @@ class TestTransform:
         assert record["valor_total"] == 150000.00
 
 
+class TestCrawlWithEvidenceCompletion:
+    """Issue #303: source exhaustion, terminal state and checkpoint honesty."""
+
+    @staticmethod
+    def _run_one_window(monkeypatch, pages, *, checkpoint=None, max_pages=10):
+        responses = iter(pages)
+        monkeypatch.setattr(cc, "CONTRACTS_FULL_DAYS", 1)
+        monkeypatch.setattr(cc, "CONTRACTS_WINDOW_DAYS", 1)
+        monkeypatch.setattr(cc, "CONTRACTS_MAX_PAGES", max_pages)
+        monkeypatch.setattr(cc, "CONTRACTS_REQUEST_DELAY", 0)
+        monkeypatch.setattr(cc, "CONTRACTS_JANELA_DELAY", 0)
+        monkeypatch.setattr(cc, "load_checkpoint", lambda _mode: checkpoint)
+        monkeypatch.setattr(cc, "save_checkpoint", lambda _checkpoint: None)
+        monkeypatch.setattr(cc, "_fetch_page", lambda *_args: next(responses))
+        return cc.crawl_with_evidence(mode="full")
+
+    def test_real_zero_first_page_is_complete(self, monkeypatch):
+        result = self._run_one_window(
+            monkeypatch,
+            [cc.FetchResult(cc.FetchStatus.SUCCESS_ZERO, total_records=0, total_pages=0)],
+        )
+        window = result.windows[0]
+        assert window.status is cc.FetchStatus.SUCCESS_ZERO
+        assert window.request_completed is True
+        assert window.scope_complete is True
+        assert result.total_windows_ok == 1
+
+    def test_nonempty_single_page_becomes_success_data(self, monkeypatch):
+        result = self._run_one_window(
+            monkeypatch,
+            [
+                cc.FetchResult(
+                    cc.FetchStatus.SUCCESS_DATA,
+                    items=[MOCK_CONTRACT],
+                    total_records=1,
+                    total_pages=1,
+                    current_page=1,
+                )
+            ],
+        )
+        window = result.windows[0]
+        assert window.status is cc.FetchStatus.SUCCESS_DATA
+        assert window.scope_complete is True
+        assert window.records_fetched == 1
+        assert result.total_windows_ok == 1
+
+    def test_multiple_pages_require_declared_exhaustion(self, monkeypatch):
+        result = self._run_one_window(
+            monkeypatch,
+            [
+                cc.FetchResult(cc.FetchStatus.SUCCESS_DATA, items=[MOCK_CONTRACT], total_records=2, total_pages=2),
+                cc.FetchResult(cc.FetchStatus.SUCCESS_DATA, items=[MOCK_CONTRACT], total_records=2, total_pages=2),
+            ],
+        )
+        window = result.windows[0]
+        assert window.status is cc.FetchStatus.SUCCESS_DATA
+        assert window.pages_fetched == 2
+        assert window.scope_complete is True
+
+    def test_intermediate_failure_is_partial_and_not_checkpointed(self, monkeypatch):
+        checkpoint = cc.CrawlCheckpoint(mode="full")
+        monkeypatch.setenv("LOCAL_DATALAKE_DSN", "postgresql://unused")
+        result = self._run_one_window(
+            monkeypatch,
+            [
+                cc.FetchResult(cc.FetchStatus.SUCCESS_DATA, items=[MOCK_CONTRACT], total_records=2, total_pages=2),
+                cc.FetchResult(cc.FetchStatus.HTTP_SERVER_ERROR, error_message="HTTP 500", total_pages=2),
+            ],
+            checkpoint=checkpoint,
+        )
+        window = result.windows[0]
+        assert window.status is cc.FetchStatus.HTTP_SERVER_ERROR
+        assert window.scope_complete is False
+        assert checkpoint.completed_windows == []
+        assert result.total_windows_failed == 1
+
+    def test_page_cap_is_partial_and_not_checkpointed(self, monkeypatch):
+        checkpoint = cc.CrawlCheckpoint(mode="full")
+        result = self._run_one_window(
+            monkeypatch,
+            [cc.FetchResult(cc.FetchStatus.SUCCESS_DATA, items=[MOCK_CONTRACT], total_records=2, total_pages=2)],
+            checkpoint=checkpoint,
+            max_pages=1,
+        )
+        window = result.windows[0]
+        assert window.status is cc.FetchStatus.PARTIAL
+        assert "Hit CONTRACTS_MAX_PAGES" in (window.error_message or "")
+        assert window.scope_complete is False
+        assert checkpoint.completed_windows == []
+        assert result.total_windows_failed == 1
+
+    def test_incomplete_persistence_is_not_checkpointed(self, monkeypatch):
+        checkpoint = cc.CrawlCheckpoint(mode="full")
+        monkeypatch.setenv("LOCAL_DATALAKE_DSN", "postgresql://unused")
+        monkeypatch.setattr(cc, "_persist_window_if_enabled", lambda _items: 0)
+        result = self._run_one_window(
+            monkeypatch,
+            [
+                cc.FetchResult(
+                    cc.FetchStatus.SUCCESS_DATA,
+                    items=[MOCK_CONTRACT],
+                    total_records=1,
+                    total_pages=1,
+                )
+            ],
+            checkpoint=checkpoint,
+        )
+        window = result.windows[0]
+        assert window.status is cc.FetchStatus.PARTIAL
+        assert "Persistence incomplete" in (window.error_message or "")
+        assert checkpoint.completed_windows == []
+
+    def test_complete_persistence_advances_checkpoint(self, monkeypatch):
+        checkpoint = cc.CrawlCheckpoint(mode="full")
+        monkeypatch.setenv("LOCAL_DATALAKE_DSN", "postgresql://unused")
+        monkeypatch.setattr(cc, "_persist_window_if_enabled", lambda _items: 1)
+        result = self._run_one_window(
+            monkeypatch,
+            [
+                cc.FetchResult(
+                    cc.FetchStatus.SUCCESS_DATA,
+                    items=[MOCK_CONTRACT],
+                    total_records=1,
+                    total_pages=1,
+                )
+            ],
+            checkpoint=checkpoint,
+        )
+        window = result.windows[0]
+        assert window.status is cc.FetchStatus.SUCCESS_DATA
+        assert window.scope_complete is True
+        assert window.persisted_records == 1
+        assert len(checkpoint.completed_windows) == 1
+
+
 # ---------------------------------------------------------------------------
 # _trunc()
 # ---------------------------------------------------------------------------

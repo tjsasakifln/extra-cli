@@ -22,6 +22,14 @@ os.environ.setdefault("LOCAL_DATALAKE_DSN", os.environ["DATABASE_URL"])
 os.environ.setdefault("CONTRACTS_FULL_DAYS", "90")
 
 
+def evaluate_crawl_report_status(report: dict) -> str:
+    """Return success only when every planned crawl window is complete."""
+    failed = int(report.get("total_windows_failed") or 0)
+    completed = int(report.get("total_windows_ok") or 0)
+    skipped = int(report.get("total_windows_skipped") or 0)
+    return "success" if failed == 0 and completed + skipped > 0 else "partial"
+
+
 def main() -> int:
     out = _PROJECT_ROOT / "output" / "contracts" / "pilot-90d-next30d.json"
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -41,6 +49,7 @@ def main() -> int:
             report["total_records"] = getattr(result, "total_records", None)
             report["total_windows_ok"] = getattr(result, "total_windows_ok", None)
             report["total_windows_failed"] = getattr(result, "total_windows_failed", None)
+            report["total_windows_skipped"] = getattr(result, "total_windows_skipped", None)
             wins = getattr(result, "windows", None) or []
             report["windows"] = [
                 {
@@ -49,6 +58,9 @@ def main() -> int:
                     "status": str(getattr(w, "status", None)),
                     "records": getattr(w, "records_fetched", None),
                     "error": getattr(w, "error_message", None),
+                    "request_completed": getattr(w, "request_completed", False),
+                    "scope_complete": getattr(w, "scope_complete", False),
+                    "persisted_records": getattr(w, "persisted_records", 0),
                 }
                 for w in wins[:80]
             ]
@@ -56,7 +68,10 @@ def main() -> int:
             records = cc.crawl(mode="full")
             report["path"] = "crawl"
             report["total_records"] = len(records or [])
-        report["status"] = "success"
+        if report.get("path") == "crawl_with_evidence":
+            report["status"] = evaluate_crawl_report_status(report)
+        else:
+            report["status"] = "success"
     except Exception as e:
         report["status"] = "failed"
         report["error"] = f"{type(e).__name__}: {e}"

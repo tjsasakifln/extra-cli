@@ -952,11 +952,16 @@ CLI canônica: `python3 -m scripts.process_documents`.
 - [x] A data final do backfill é registrada.
 - [ ] O período é particionado em janelas controladas.
 - [x] Cada janela possui checkpoint. Evidência: `data/contracts_checkpoints/contracts_full.json` per-window keys · crawl 45d · EXTRA-OPS-95-FOUNDATION 2026-07-19
-- [ ] Cada janela possui status.
-- [ ] Cada janela possui contagem de páginas.
-- [ ] Cada janela possui contagem de registros.
+- [ ] Cada janela possui status. **#303 `VERIFIED` em branch:** estado terminal
+  distingue data, zero, parcial e falha; aceite requer CI no HEAD e `main`.
+- [ ] Cada janela possui contagem de páginas. **#303 `VERIFIED` em branch:**
+  evidência expõe `last_page` e `total_pages`; ainda não `ACCEPTED`.
+- [ ] Cada janela possui contagem de registros. **#303 `VERIFIED` em branch:**
+  evidência expõe obtidos e persistidos; ainda não `ACCEPTED`.
 - [ ] Cada janela possui contagem de erros.
-- [ ] Uma janela com erro parcial não é marcada como concluída.
+- [ ] Uma janela com erro parcial não é marcada como concluída. **#303
+  `VERIFIED` em branch:** erro intermediário, cap, rejeição de transformação ou
+  persistência incompleta não avançam checkpoint; aceite requer CI + `main`.
 - [ ] Uma janela concluída pode ser comprovada por manifest.
 - [x] O backfill pode ser retomado após interrupção. Evidência: contracts full/backfill_3y checkpoint modes · M5-resume · EXTRA-OPS-95-FOUNDATION 2026-07-19
 - [x] O backfill não reinicia janelas concluídas sem necessidade.
@@ -3118,4 +3123,3 @@ CI (PR #12):
 - [x] Scheduler prefers CIGA/DOM families before PNCP under lag drain — avoids 429 starvation.
 - [x] Queue state repair: SUCCESS_ZERO/NONZERO with `scope_complete≠false` reconciled missing `last_success_at` (inconsistent prior gap-close state).
 - Residual non-claims unchanged: official SINAPI live bulk dump; external https webhook delivery.
-

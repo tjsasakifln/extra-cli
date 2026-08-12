@@ -17,10 +17,37 @@ from scripts.crawl.run_contracts_90d_pilot import (
     evaluate_window_completion,
 )
 from scripts.crawl.run_evidence import bind_checkpoint_run_id
+from scripts.ops.run_contracts_pilot import evaluate_crawl_report_status
 
 # ---------------------------------------------------------------------------
 # evaluate_window_completion
 # ---------------------------------------------------------------------------
+
+
+def test_run_contracts_pilot_never_upgrades_partial_windows_to_success():
+    assert (
+        evaluate_crawl_report_status(
+            {
+                "total_windows_ok": 2,
+                "total_windows_failed": 1,
+                "total_windows_skipped": 0,
+            }
+        )
+        == "partial"
+    )
+
+
+def test_run_contracts_pilot_accepts_complete_or_resumed_windows():
+    assert (
+        evaluate_crawl_report_status(
+            {
+                "total_windows_ok": 0,
+                "total_windows_failed": 0,
+                "total_windows_skipped": 3,
+            }
+        )
+        == "success"
+    )
 
 
 def test_max_pages_without_exhaustion_is_incomplete():
