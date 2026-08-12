@@ -257,6 +257,24 @@ def test_real_db_schema_and_package(tmp_path: Path):
         assert result["population_count"] >= 1
         assert result["supplier_count"] >= 1
 
+        conn = psycopg2.connect(DSN)
+        try:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    SELECT count(*)
+                    FROM pncp_supplier_contracts
+                    WHERE contrato_id LIKE 'CMI-%'
+                      AND NOT (
+                        supplier_id_type = 'CNPJ'
+                        AND fornecedor_cnpj = supplier_identifier
+                      )
+                    """
+                )
+                assert cur.fetchone()[0] == 0
+        finally:
+            conn.close()
+
         # required artifacts
         required = [
             "metadata.json",
