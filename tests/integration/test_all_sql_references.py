@@ -100,8 +100,10 @@ def test_canonical_views_exist_in_known():
         "v_entities_canonical",
         "v_open_opportunities_canonical",
         "v_contracts_canonical",
+        "v_contracts_canonical_v2",
         "v_suppliers_canonical",
         "v_value_observations_canonical",
+        "v_value_observations_canonical_v2",
     }
     missing = canonical - KNOWN_SCHEMA_OBJECTS
     assert not missing, f"Canonical views missing from KNOWN_SCHEMA_OBJECTS: {missing}"

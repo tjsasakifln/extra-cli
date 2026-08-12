@@ -30,8 +30,10 @@ CANONICAL_VIEWS_5 = {
     "v_entities_canonical",
     "v_open_opportunities_canonical",
     "v_contracts_canonical",
+    "v_contracts_canonical_v2",
     "v_suppliers_canonical",
     "v_value_observations_canonical",
+    "v_value_observations_canonical_v2",
 }
 EXPECTED_VIEWS = CANONICAL_VIEWS_5 | {
     "v_latest_evidence",

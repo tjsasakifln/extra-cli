@@ -72,7 +72,7 @@ EXPECTED_VIEWS: set[str] = {
     "v_contract_historical",  # 026 — contract_intel/cli.py
     "v_supplier_winners",  # 026 — contract_intel/cli.py
     "v_expiring_contracts",  # 026 — contract_intel/cli.py
-    "v_contracts_canonical",  # 030 — competitive_intel_validation.py
+    "v_contracts_canonical_v2",  # 077 — competitive_intel_validation.py
     "v_opportunity_coverage_summary",  # 027 — opportunity_intel/cli.py
     "v_target_universe_active",  # 038 — universe_tools.py
 }

@@ -58,7 +58,7 @@ then by critical-path unlocks. The resulting scope is:
   with explicit reuse provenance only.
 - [x] #311: CNPJ, CPF, foreign, and unknown supplier identifiers remain distinct;
   CPF is never padded or joined as CNPJ.
-- [ ] #313: canonical contract views expose separate buyer and supplier
+- [x] #313: canonical contract views expose separate buyer and supplier
   identities and consumers migrate to the corrected version.
 
 ## Quality gates
@@ -102,6 +102,9 @@ then by critical-path unlocks. The resulting scope is:
 - `db/migrations/076_contract_supplier_identity.sql`
 - `docs/security/supplier-identity-privacy.md`
 - `tests/test_contract_supplier_identity.py`
+- `db/migrations/077_contract_roles_canonical_v2.sql`
+- `docs/ops/contract-roles-v2.md`
+- `tests/test_contract_roles_v2.py`
 - `DOD.md`
 - `docs/ops/critical-issues-wave-1-handoff.md`
 - `docs/stories/story-critical-issues-wave-1.md`
@@ -119,3 +122,4 @@ then by critical-path unlocks. The resulting scope is:
 | 2026-08-12 | #288 | VERIFIED_LOCAL | 80 focused tests pass; 10,037-row snapshot reconciles without LIMIT or duplicates |
 | 2026-08-12 | #233 | VERIFIED_LOCAL | 87 focused tests pass; package rejects foreign lineage and reconciles selected persisted/reused count |
 | 2026-08-12 | #311 | VERIFIED_LOCAL | 150 focused tests pass; migration applies and transaction proves four identity types with CPF masked |
+| 2026-08-12 | #313 | VERIFIED_LOCAL | 24 focused tests pass; adversarial DB test and four EXPLAIN plans prove role separation and indexes |

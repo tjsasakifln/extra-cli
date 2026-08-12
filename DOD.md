@@ -3166,3 +3166,9 @@ CI (PR #12):
   populates `fornecedor_cnpj`, missing identity no longer drops the contract,
   and CPF exports are fully masked. Commercial registry consumers select CNPJ
   identities only. Exact-HEAD CI and `main` are required.
+- [ ] Canonical contracts separate buyer and supplier roles. **#313 `VERIFIED`
+  on branch:** v2 resolves `buyer_entity_id` exclusively from `orgao_cnpj`,
+  emits a distinct `supplier_identity_id`, and persists method, confidence,
+  reason codes, run and snapshot in `contract_role_links`. An adversarial DB
+  test prevents supplier-root inversion and four indexed EXPLAIN plans pass.
+  Exact-HEAD CI and `main` are required.

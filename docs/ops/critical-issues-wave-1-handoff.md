@@ -18,7 +18,7 @@ acceptance require exact-HEAD CI and the repository's human/main gates.
 | #288 | VERIFIED | 80 loader/pack/weekly tests; 10,037 rows reconcile to one SQL snapshot | exact-HEAD CI + main |
 | #233 | VERIFIED | 87 loader/pack/weekly tests; exact run membership and reuse proof | exact-HEAD CI + main |
 | #311 | VERIFIED | 150 crawler/consumer tests + real migration transaction for four types | exact-HEAD CI + main |
-| #313 | OPEN | — | implementation and test |
+| #313 | VERIFIED | 24 linkage/schema tests; adversarial buyer/supplier DB proof + four indexed plans | exact-HEAD CI + main |
 
 ## #303 verification
 
@@ -192,3 +192,30 @@ The crawler and alternate PNCP adapter share the typed normalizer, contracts
 without CNPJ are retained, and commercial registry/intelligence discovery now
 selects validated CNPJ identities only. Privacy handling is recorded in
 `docs/security/supplier-identity-privacy.md`.
+
+## #313 verification
+
+```text
+REQUIRE_TEST_DB=1 REQUIRE_REAL_DB=1 \
+TEST_DSN=postgresql://test:test@127.0.0.1:5433/extra_test \
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -o addopts= \
+  tests/test_contract_roles_v2.py -q --tb=short
+3 passed
+
+PGCONNECT_TIMEOUT=2 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest \
+  -o addopts= tests/test_canonical_entity_linkage.py \
+  tests/test_competitive_intel_validation.py \
+  tests/integration/test_all_sql_references.py -q --tb=short
+21 passed, 2 skipped
+```
+
+Migration 077 applied successfully to `extra_test`. The rolled-back adversarial
+test used different buyer and supplier CNPJ roots that each corresponded to a
+different public entity: v2 linked `buyer_entity_id` only to the `orgao_cnpj`
+root and emitted the supplier as a separate content-addressed identity. The
+role ledger persisted match methods, confidence, reason codes, run and
+snapshot. Four `EXPLAIN (ANALYZE, BUFFERS)` assertions used the buyer,
+supplier, contract primary-key and snapshot indexes. The sole Python consumer
+of v1 now queries `v_contracts_canonical_v2`; v1 remains present but marked
+deprecated. Evidence and the #291/#292 migration rule are in
+`docs/ops/contract-roles-v2.md`.
