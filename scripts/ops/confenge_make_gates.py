@@ -68,7 +68,7 @@ def cmd_full_candidate_history(_: argparse.Namespace) -> int:
                 """
                 SELECT COUNT(*)::int AS n
                 FROM public.pncp_supplier_contracts
-                WHERE supplier_id_type = 'CNPJ' AND fornecedor_cnpj = %s
+                WHERE right(regexp_replace(fornecedor_cnpj, '\\D', '', 'g'), 14) = %s
                 """,
                 (cnpj,),
             )
@@ -168,7 +168,7 @@ def cmd_all_status_history(_: argparse.Namespace) -> int:
                         """
                         SELECT COUNT(*)::int AS n
                         FROM public.pncp_supplier_contracts
-                        WHERE supplier_id_type = 'CNPJ' AND fornecedor_cnpj = %s
+                        WHERE right(regexp_replace(fornecedor_cnpj, '\\D', '', 'g'), 14) = %s
                         """,
                         (cnpj,),
                     )
@@ -178,7 +178,7 @@ def cmd_all_status_history(_: argparse.Namespace) -> int:
                         SELECT COUNT(*)::int AS n
                         FROM public.pncp_supplier_contracts
                         WHERE is_active = TRUE
-                          AND supplier_id_type = 'CNPJ' AND fornecedor_cnpj = %s
+                          AND right(regexp_replace(fornecedor_cnpj, '\\D', '', 'g'), 14) = %s
                         """,
                         (cnpj,),
                     )

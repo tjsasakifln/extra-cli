@@ -66,7 +66,6 @@ from scripts.commercial_leads.supplier_registry import (
     load_registry_map,
 )
 from scripts.commercial_leads.top10_gate import evaluate_top10_gate
-from scripts.contracts_identity import normalize_cnpj_supplier
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
@@ -168,15 +167,21 @@ def _segment_sql_prefilter(profile: CommercialProfile) -> tuple[str, list[Any]]:
 
 _CONTRACT_SELECT = (
     "contrato_id, orgao_cnpj, orgao_nome, "
-    "fornecedor_cnpj, fornecedor_nome, supplier_id_type, supplier_country, "
-    "supplier_identifier_export, objeto_contrato, valor_total, "
+    "fornecedor_cnpj, fornecedor_nome, objeto_contrato, valor_total, "
     "data_inicio, data_fim, data_publicacao, uf, source, source_id, "
     "is_active"
 )
 
 
 def _normalize_cnpj_digits(raw: Any) -> str | None:
-    return normalize_cnpj_supplier(raw)
+    import re
+
+    digits = re.sub(r"\D", "", str(raw or ""))
+    if len(digits) >= 14:
+        return digits[-14:]
+    if len(digits) == 14:
+        return digits
+    return None
 
 
 def discover_candidate_suppliers(
@@ -203,7 +208,6 @@ def discover_candidate_suppliers(
         + _CONTRACT_SELECT
         + " FROM public.pncp_supplier_contracts "
         "WHERE is_active = TRUE "
-        "AND supplier_id_type = 'CNPJ' "
         "AND fornecedor_cnpj IS NOT NULL "
         "AND btrim(fornecedor_cnpj) <> '' "
         "AND (" + filt + ")"
@@ -401,12 +405,11 @@ def load_full_supplier_histories(
     sql = (  # noqa: S608
         "SELECT "
         + _CONTRACT_SELECT
-        + ", fornecedor_cnpj AS fornecedor_cnpj_digits "
+        + ", regexp_replace(fornecedor_cnpj, '\\D', '', 'g') AS fornecedor_cnpj_digits "
         "FROM public.pncp_supplier_contracts "
-        "WHERE supplier_id_type = 'CNPJ' "
-        "AND fornecedor_cnpj IS NOT NULL "
+        "WHERE fornecedor_cnpj IS NOT NULL "
         "AND btrim(fornecedor_cnpj) <> '' "
-        "AND fornecedor_cnpj = ANY(%s) "
+        "AND right(regexp_replace(fornecedor_cnpj, '\\D', '', 'g'), 14) = ANY(%s) "
     )
     if active_only:
         sql += "AND is_active = TRUE "
@@ -432,12 +435,12 @@ def load_full_supplier_histories(
 
     # Reconcile vs all-status (or active-only) snapshot counts — never silent drop
     count_sql = """
-        SELECT fornecedor_cnpj AS cnpj14, COUNT(*)::int AS n
+        SELECT right(regexp_replace(fornecedor_cnpj, '\\D', '', 'g'), 14) AS cnpj14,
+               COUNT(*)::int AS n
         FROM public.pncp_supplier_contracts
-        WHERE supplier_id_type = 'CNPJ'
-          AND fornecedor_cnpj IS NOT NULL
+        WHERE fornecedor_cnpj IS NOT NULL
           AND btrim(fornecedor_cnpj) <> ''
-          AND fornecedor_cnpj = ANY(%s)
+          AND right(regexp_replace(fornecedor_cnpj, '\\D', '', 'g'), 14) = ANY(%s)
     """
     if active_only:
         count_sql += " AND is_active = TRUE "
