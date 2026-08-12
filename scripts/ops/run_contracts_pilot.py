@@ -15,11 +15,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
-os.environ.setdefault(
-    "DATABASE_URL", "postgresql://test:test@127.0.0.1:5433/pncp_datalake"
-)
-os.environ.setdefault("LOCAL_DATALAKE_DSN", os.environ["DATABASE_URL"])
-os.environ.setdefault("CONTRACTS_FULL_DAYS", "90")
+_DEFAULT_DSN = "postgresql://test:test@127.0.0.1:5433/pncp_datalake"
 
 
 def evaluate_crawl_report_status(report: dict) -> str:
@@ -31,6 +27,14 @@ def evaluate_crawl_report_status(report: dict) -> str:
 
 
 def main() -> int:
+    dsn = os.getenv("LOCAL_DATALAKE_DSN") or os.getenv("DATABASE_URL") or _DEFAULT_DSN
+    # Runtime configuration belongs to the executable path. Importing the
+    # status predicate must never redirect other tests or callers to a
+    # different database.
+    os.environ["LOCAL_DATALAKE_DSN"] = dsn
+    os.environ["DATABASE_URL"] = dsn
+    os.environ.setdefault("CONTRACTS_FULL_DAYS", "90")
+
     out = _PROJECT_ROOT / "output" / "contracts" / "pilot-90d-next30d.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     start = time.monotonic()
@@ -83,7 +87,7 @@ def main() -> int:
     try:
         import psycopg2
 
-        conn = psycopg2.connect(os.environ["DATABASE_URL"])
+        conn = psycopg2.connect(dsn)
         cur = conn.cursor()
         cur.execute("SELECT count(*) FROM pncp_supplier_contracts")
         report["pncp_supplier_contracts_count"] = cur.fetchone()[0]

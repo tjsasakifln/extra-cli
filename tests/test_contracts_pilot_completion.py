@@ -5,7 +5,9 @@ Imports real functions from scripts.crawl.run_contracts_90d_pilot — no local r
 
 from __future__ import annotations
 
+import importlib
 import json
+import os
 from pathlib import Path
 
 import pytest
@@ -48,6 +50,18 @@ def test_run_contracts_pilot_accepts_complete_or_resumed_windows():
         )
         == "success"
     )
+
+
+def test_importing_pilot_runner_does_not_mutate_database_environment(monkeypatch):
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    monkeypatch.delenv("LOCAL_DATALAKE_DSN", raising=False)
+
+    import scripts.ops.run_contracts_pilot as pilot_runner
+
+    importlib.reload(pilot_runner)
+
+    assert "DATABASE_URL" not in os.environ
+    assert "LOCAL_DATALAKE_DSN" not in os.environ
 
 
 def test_max_pages_without_exhaustion_is_incomplete():
