@@ -14,7 +14,6 @@ from scripts.confenge_target_fit.company_key import (
 from scripts.confenge_target_fit.config import TargetFitRefreshConfig
 from scripts.confenge_target_fit.transitions import classify_event_type
 
-
 ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -177,3 +176,29 @@ def test_target_fit_module_exports_pr211_contract():
     assert tf.TARGET_OUT_OF_SCOPE == "TARGET_OUT_OF_SCOPE"
     assert hasattr(tf, "classify_target_fit")
     assert hasattr(tf, "TARGET_FIT_VERSION")
+
+
+def test_manual_requeue_inherits_canonical_cdc_watermark(monkeypatch):
+    from scripts.confenge_target_fit import store
+
+    captured = {}
+    monkeypatch.setattr(
+        store,
+        "get_control",
+        lambda _conn, key: {"watermark": "2026-08-12T10:00:00Z"} if key == "cdc_watermark" else {},
+    )
+    monkeypatch.setattr(store, "enqueue_dirty", lambda _conn, **kwargs: captured.update(kwargs) or True)
+
+    store.requeue_company(object(), company_key="cnpj_root:12345678", cnpj_raiz="12345678")
+
+    assert captured["source_watermark"] == "2026-08-12T10:00:00Z"
+
+
+def test_manual_requeue_refuses_missing_cdc_watermark(monkeypatch):
+    import pytest
+
+    from scripts.confenge_target_fit import store
+
+    monkeypatch.setattr(store, "get_control", lambda _conn, _key: {})
+    with pytest.raises(ValueError, match="canonical CDC source watermark"):
+        store.requeue_company(object(), company_key="cnpj_root:12345678", cnpj_raiz="12345678")

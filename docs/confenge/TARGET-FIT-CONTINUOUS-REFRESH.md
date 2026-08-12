@@ -103,6 +103,11 @@ python -m scripts.confenge_target_fit requeue --cnpj ...
 python -m scripts.confenge_target_fit worker
 ```
 
+`requeue` copies the canonical `cdc_watermark` into the dirty item and refuses
+the operation when that watermark is empty. A changed watermark is republished
+even when the semantic input fingerprint is unchanged, preserving decision
+provenance instead of silently skipping the refresh.
+
 ### Pause / resume
 
 ```bash

@@ -6,7 +6,10 @@ import json
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 from scripts.warmbly_bridge.export import ExportConfig, export_outreach
+from scripts.warmbly_bridge.io_jsonl import InputError
 
 NOW = "2026-08-12T12:00:00Z"
 
@@ -55,6 +58,7 @@ def _export(
     universe: list[dict[str, Any]],
     target_fit: list[dict[str, Any]],
     suffix: str,
+    datalake_watermark: str | None = None,
 ) -> tuple[Path, list[dict[str, Any]]]:
     source = tmp_path / suffix
     source.mkdir()
@@ -130,6 +134,7 @@ def _export(
             expected_universe_count=len(universe),
             out_dir=out,
             generated_at=NOW,
+            datalake_watermark=datalake_watermark,
             repo_sha="authoritative-test",
             max_leads_per_chunk=3,
         )
@@ -231,3 +236,38 @@ def test_downgrade_and_missing_snapshot_cannot_resurrect_prior_authorization(
     assert tombstoned[0]["target_fit_class"] == "TARGET_FIT_MISSING"
     assert tombstoned[0]["target_fit_tombstone"] is True
     assert tombstoned[0]["email_send_ready"] is False
+
+
+def test_explicit_decision_without_source_watermark_fails_closed(tmp_path: Path) -> None:
+    universe = [{"cnpj14": "11222333000181", "razao_social": "ALFA ENGENHARIA", "commercial_state": "NEW"}]
+    incomplete = _decision("11222333000181", "TARGET_CONFIRMED", evidence_ids=["e1"])
+    incomplete.pop("target_fit_source_watermark")
+
+    with pytest.raises(InputError, match="source_watermark"):
+        _export(tmp_path, universe=universe, target_fit=[incomplete], suffix="incomplete")
+
+
+def test_freshness_uses_canonical_datalake_watermark_not_export_clock(tmp_path: Path) -> None:
+    source_watermark = "2026-08-12T08:00:00Z"
+    universe = [
+        {"cnpj14": "11222333000181", "razao_social": "ALFA ENGENHARIA", "commercial_state": "NEW"}
+    ]
+    decision = _decision(
+        "11222333000181",
+        "TARGET_CONFIRMED",
+        watermark=source_watermark,
+        evidence_ids=["e1"],
+    )
+
+    out, leads = _export(
+        tmp_path,
+        universe=universe,
+        target_fit=[decision],
+        suffix="canonical-watermark",
+        datalake_watermark=source_watermark,
+    )
+
+    assert leads[0]["target_fit_fresh"] is True
+    assert leads[0]["email_send_ready"] is True
+    manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["source"]["datalake_watermark"] == source_watermark

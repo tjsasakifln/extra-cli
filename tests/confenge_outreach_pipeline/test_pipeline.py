@@ -70,9 +70,10 @@ def test_limit_downstream_does_not_shrink_universe(tmp_path: Path) -> None:
 
 def test_offline_snapshot_uses_embedded_decisions() -> None:
     rows = [{"cnpj14": "11222333000181", "target_fit_class": "TARGET_CONFIRMED"}]
-    snapshot, authority = _published_target_fit_snapshot(rows, dsn=None)
+    snapshot, authority, watermark = _published_target_fit_snapshot(rows, dsn=None)
     assert snapshot == rows
     assert authority == "universe_embedded_snapshot"
+    assert watermark is None
 
 
 def test_production_snapshot_uses_published_store_and_canonicalizes_prevencao(
@@ -100,14 +101,20 @@ def test_production_snapshot_uses_published_store_and_canonicalizes_prevencao(
             }
         },
     )
+    monkeypatch.setattr(
+        pipeline,
+        "get_control",
+        lambda connection, key: {"watermark": "2026-08-12T08:00:00Z"},
+    )
 
-    snapshot, authority = _published_target_fit_snapshot(
+    snapshot, authority, watermark = _published_target_fit_snapshot(
         [{"cnpj14": "01489370000105"}],
         dsn="postgresql://unused",
     )
 
     assert conn.closed is True
     assert authority == "published_target_fit_store"
+    assert watermark == "2026-08-12T08:00:00Z"
     assert snapshot == [
         {
             "cnpj14": "14893700000105",

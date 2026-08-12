@@ -53,6 +53,7 @@ from scripts.confenge_outreach_pipeline.adapt import (
 from scripts.confenge_outreach_pipeline.sample import sample_profile_counts, select_diverse_sample
 from scripts.confenge_target_fit.company_key import canonical_cnpj14
 from scripts.confenge_target_fit.published import load_published_index
+from scripts.confenge_target_fit.store import get_control
 from scripts.confenge_universe import (
     DEFAULT_EXCLUSIONS_JSONL_NAME,
     DEFAULT_JSONL_NAME,
@@ -117,14 +118,14 @@ def _published_target_fit_snapshot(
     rows: list[dict[str, Any]],
     *,
     dsn: str | None,
-) -> tuple[list[dict[str, Any]], str]:
+) -> tuple[list[dict[str, Any]], str, str | None]:
     """Resolve production decisions from the mode-aware published store.
 
     Offline fixtures retain embedded decisions. With a production DSN, store
     misses stay omitted here so the exporter emits explicit missing tombstones.
     """
     if not dsn:
-        return list(rows), "universe_embedded_snapshot"
+        return list(rows), "universe_embedded_snapshot", None
 
     from scripts.confenge_target_fit.db import connect
 
@@ -133,6 +134,8 @@ def _published_target_fit_snapshot(
     conn = connect(dsn, readonly=True)
     try:
         published = load_published_index(conn, cnpj14s=lookup_cnpjs)
+        control = get_control(conn, "cdc_watermark")
+        datalake_watermark = str(control.get("watermark") or "").strip() or None
     finally:
         conn.close()
 
@@ -152,7 +155,7 @@ def _published_target_fit_snapshot(
                 "company_key": f"cnpj_root:{canonical[:8]}",
             }
         )
-    return snapshot, "published_target_fit_store"
+    return snapshot, "published_target_fit_store", datalake_watermark
 
 
 def _service_context_from_primary(service_id: str | None) -> str:
@@ -337,7 +340,11 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
         decision_rows = [
             row for row in [*universe_rows, *exclusion_rows] if canonical_cnpj14(row.get("cnpj14") or row.get("cnpj"))
         ]
-        target_fit_snapshot_rows, target_fit_authority = _published_target_fit_snapshot(
+        (
+            target_fit_snapshot_rows,
+            target_fit_authority,
+            target_fit_datalake_watermark,
+        ) = _published_target_fit_snapshot(
             decision_rows,
             dsn=cfg.dsn,
         )
@@ -661,6 +668,8 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
                 target_fit_snapshot=target_fit_snapshot_path,
                 expected_universe_count=len(bridge_universe),
                 out_dir=dirs["feed"],
+                datalake_watermark=target_fit_datalake_watermark,
+                require_authoritative_target_fit_metadata=bool(cfg.dsn),
                 repo_sha=repo_sha,
                 deactivations=deactivations,
             )

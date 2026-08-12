@@ -78,6 +78,8 @@ class ExportConfig:
     profile_version: str = DEFAULT_PROFILE_VERSION
     system: str = DEFAULT_SYSTEM
     generated_at: str | None = None  # inject for deterministic tests
+    datalake_watermark: str | None = None
+    require_authoritative_target_fit_metadata: bool = True
     repo_sha: str | None = None
     # Delta deactivations for accounts leaving ACTIONABLE_NOW (manifest section)
     deactivations: list[dict[str, Any]] | None = None
@@ -286,6 +288,12 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
         generated_at = str(prior["generated_at"])
     else:
         generated_at = _utcnow()
+    datalake_watermark = str(cfg.datalake_watermark or generated_at)
+    _parse_timestamp(
+        datalake_watermark,
+        field="datalake_watermark",
+        cnpj="authoritative-snapshot",
+    )
     if cfg.repo_sha is not None:
         repo_sha = cfg.repo_sha
     elif same_snapshot and prior_source.get("repo_sha"):
@@ -303,26 +311,34 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
             computed_at=generated_at,
             source_watermark=generated_at,
         )
-        published_index.update(
-            build_published_index_from_rows(
+        try:
+            published_index.update(
+                build_published_index_from_rows(
+                    target_fit_rows,
+                    computed_at=generated_at,
+                    source_watermark=generated_at,
+                    require_authoritative_metadata=cfg.require_authoritative_target_fit_metadata,
+                )
+            )
+        except ValueError as exc:
+            raise InputError(str(exc)) from exc
+    else:
+        target_fit_rows = universe_rows
+        try:
+            published_index = build_published_index_from_rows(
                 target_fit_rows,
                 computed_at=generated_at,
                 source_watermark=generated_at,
+                require_authoritative_metadata=cfg.require_authoritative_target_fit_metadata,
             )
-        )
-    else:
-        target_fit_rows = universe_rows
-        published_index = build_published_index_from_rows(
-            target_fit_rows,
-            computed_at=generated_at,
-            source_watermark=generated_at,
-        )
+        except ValueError as exc:
+            raise InputError(str(exc)) from exc
     leads = build_leads(
         universe_rows,
         intel_rows,
         contact_rows,
         published_index=published_index,
-        datalake_watermark=generated_at,
+        datalake_watermark=datalake_watermark,
     )
     leads.sort(key=_decision_order_key)
     if cfg.limit is not None:
@@ -336,6 +352,7 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
         "repo_sha": repo_sha,
         "profile_id": cfg.profile_id,
         "profile_version": cfg.profile_version,
+        "datalake_watermark": datalake_watermark,
     }
 
     chunk_specs = _chunk_leads(

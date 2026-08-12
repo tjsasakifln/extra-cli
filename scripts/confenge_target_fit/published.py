@@ -61,6 +61,7 @@ def complete_published_decision(
     *,
     computed_at: str,
     source_watermark: str,
+    require_authoritative_metadata: bool = False,
 ) -> dict[str, Any] | None:
     """Return a complete authoritative decision, including an explicit miss tombstone."""
     company = row.get("company") if isinstance(row.get("company"), dict) else {}
@@ -71,6 +72,15 @@ def complete_published_decision(
     payload = _row_target_fit_payload(row)
     target_class = str(payload.get("target_fit_class") or TARGET_FIT_MISSING).upper()
     missing = target_class == TARGET_FIT_MISSING
+    if require_authoritative_metadata and not missing:
+        required = {
+            "target_fit_version": payload.get("target_fit_version"),
+            "computed_at": payload.get("computed_at"),
+            "source_watermark": payload.get("source_watermark"),
+        }
+        absent = [name for name, value in required.items() if not str(value or "").strip()]
+        if absent:
+            raise ValueError(f"published target-fit decision incomplete for {cnpj}: {', '.join(absent)}")
     evidence = payload.get("target_fit_evidence") or []
     if not isinstance(evidence, list):
         evidence = []
@@ -100,11 +110,17 @@ def build_published_index_from_rows(
     *,
     computed_at: str,
     source_watermark: str,
+    require_authoritative_metadata: bool = False,
 ) -> dict[str, dict[str, Any]]:
     """Build a full snapshot index; later rows supersede earlier ones deterministically."""
     out: dict[str, dict[str, Any]] = {}
     for row in rows:
-        decision = complete_published_decision(row, computed_at=computed_at, source_watermark=source_watermark)
+        decision = complete_published_decision(
+            row,
+            computed_at=computed_at,
+            source_watermark=source_watermark,
+            require_authoritative_metadata=require_authoritative_metadata,
+        )
         if decision is None:
             continue
         raiz = str(decision["cnpj_raiz"])

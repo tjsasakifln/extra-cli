@@ -65,6 +65,11 @@ snapshot is emitted as `TARGET_FIT_MISSING` with
 `target_fit_tombstone=true` and `email_send_ready=false`; an older CONFIRMED
 authorization can therefore never survive by omission.
 
+The production pipeline reads the canonical CDC watermark from the target-fit
+control plane, uses it for freshness evaluation, and records it as
+`manifest.source.datalake_watermark`. An explicit non-tombstone decision with
+an empty version, computation timestamp, or source watermark aborts the export.
+
 Chunks are ordered ascending by source watermark, computation timestamp and
 CNPJ. Import is authorized only when
 `manifest.authoritative_target_fit.coverage_complete=true`,
