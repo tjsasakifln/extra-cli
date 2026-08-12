@@ -52,7 +52,7 @@ then by critical-path unlocks. The resulting scope is:
   stratified pilot artifact.
 - [x] #278: provisioned systemd units use the canonical service user and
   `/opt`/`/var/lib` paths with preflight validation.
-- [ ] #288: all eligible snapshot observations are read without a silent fixed
+- [x] #288: all eligible snapshot observations are read without a silent fixed
   limit, with stable pagination/streaming evidence.
 - [ ] #233: every packaged observation is bound to the selected collection/run,
   with explicit reuse provenance only.
@@ -96,6 +96,8 @@ then by critical-path unlocks. The resulting scope is:
 - `deploy/systemd/templates/extra-process-documents-incremental.timer.in`
 - `scripts/ops/provision_process_documents_systemd.py`
 - `tests/test_process_documents_systemd.py`
+- `scripts/ops/multi_source_open_pack/db_loaders.py`
+- `tests/test_snapshot_observation_loader.py`
 - `DOD.md`
 - `docs/ops/critical-issues-wave-1-handoff.md`
 - `docs/stories/story-critical-issues-wave-1.md`
@@ -110,3 +112,4 @@ then by critical-path unlocks. The resulting scope is:
 | 2026-08-12 | #237 | VERIFIED_LOCAL | 58 resilience/feeder tests pass; local success survives aggregate degradation |
 | 2026-08-12 | #234 | VERIFIED_LOCAL | 103 focused tests pass; missing/mismatched approval stops before queue/package writes |
 | 2026-08-12 | #278 | VERIFIED_LOCAL | 49 systemd/resilience tests pass; rendered pair verifies and reinstall is idempotent |
+| 2026-08-12 | #288 | VERIFIED_LOCAL | 80 focused tests pass; 10,037-row snapshot reconciles without LIMIT or duplicates |

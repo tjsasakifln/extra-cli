@@ -555,6 +555,11 @@ class TestPackE2EFixture:
         assert "PILOT_APPROVAL_MISSING" not in codes
         assert manifest["pilot_approval"]["approved"] is True
         assert manifest["pilot_approval"]["pilot_entities"] == 30
+        observation_limit = manifest["presentation_limits"]["observations_sheet"]
+        assert observation_limit["purpose"] == "presentation_only"
+        assert observation_limit["eligible"] == result["observations_n"]
+        assert observation_limit["included"] == result["observations_n"]
+        assert observation_limit["truncated"] is False
         assert "COVERAGE_EVIDENCE_MISSING" in codes
         assert "PROFILE_CRITICAL_FIELDS_PENDING" in codes
         for code in codes:

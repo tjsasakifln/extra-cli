@@ -547,6 +547,22 @@ def build_pack(
         "shortlist_process_ids": [p.process_id for p in shortlist],
         "decision_layer_process_count": len(decision_procs),
         "secondary_reference_process_count": len(secondary),
+        "presentation_limits": {
+            "observations_sheet": {
+                "purpose": "presentation_only",
+                "limit": 5000,
+                "eligible": len(observations),
+                "included": min(len(observations), 5000),
+                "truncated": len(observations) > 5000,
+            },
+            "shortlist": {
+                "purpose": "explicit_decision_shortlist",
+                "limit": shortlist_limit,
+                "eligible": len(complete_pool),
+                "included": len(shortlist),
+                "truncated": len(complete_pool) > len(shortlist),
+            },
+        },
     }
 
     for error in inv_errors:

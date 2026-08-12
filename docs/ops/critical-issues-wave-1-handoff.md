@@ -15,7 +15,7 @@ acceptance require exact-HEAD CI and the repository's human/main gates.
 | #245 | VERIFIED | 25 pack tests; independent QA/readiness gates in all formats | exact-HEAD CI + main |
 | #234 | VERIFIED | 103 pack/queue/weekly tests; preflight before state/output writes | exact-HEAD CI + main |
 | #278 | VERIFIED | 49 systemd/resilience tests; rendered pair + idempotent install smoke | exact-HEAD CI + main |
-| #288 | OPEN | — | implementation and test |
+| #288 | VERIFIED | 80 loader/pack/weekly tests; 10,037 rows reconcile to one SQL snapshot | exact-HEAD CI + main |
 | #233 | OPEN | — | implementation and test |
 | #311 | OPEN | — | implementation and test |
 | #313 | OPEN | — | implementation and test |
@@ -123,3 +123,23 @@ configuration with identical deploy/config hashes, runs preflight and
 is explicitly `UNIT_INSTALL_SMOKE_ONLY` with `vps_operational=false`. Debian 13
 compatibility and the non-destructive, no-reimage procedure are documented in
 `docs/ops/netcup-inventory-live.md`.
+
+## #288 verification
+
+```text
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -o addopts= \
+  tests/test_snapshot_observation_loader.py \
+  tests/test_multi_source_open_pack.py \
+  tests/test_weekly_decision_artifacts.py tests/test_weekly_cycle.py \
+  -q --tb=short
+80 passed, 1 skipped
+```
+
+The PostgreSQL loaders no longer use a fixed row limit. A server-side cursor
+streams a single materialized SQL statement ordered by unique `id`; that same
+statement publishes `txid_current_snapshot()` and the eligible `COUNT(*)`.
+Returning a prefix, duplicate, changed snapshot, or memory estimate above the
+512 MiB VPS budget raises `SnapshotReconciliationError`. The 10,037-row test
+also measures actual peak allocation below the budget. Observation-sheet and
+shortlist cuts remain presentation-only and are explicitly labeled in pack
+metadata. Cross-source lineage selection remains the separate #233 commit.

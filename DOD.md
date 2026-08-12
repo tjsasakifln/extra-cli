@@ -3149,3 +3149,8 @@ CI (PR #12):
   app/state/env/venv; rendered timer and service share deploy/config hashes;
   reinstall is idempotent and the smoke does not claim `VPS_OPERATIONAL`.
   Exact-HEAD CI and `main` are still required.
+- [ ] Snapshot observation reads are integral and memory-bounded. **#288
+  `VERIFIED` on branch:** server-side cursor batches have stable unique-ID order,
+  reconcile to the eligible count and SQL snapshot, read 10,037/10,037 in the
+  scale test, and fail instead of truncating when the 512 MiB budget is exceeded.
+  Presentation-only limits are labeled. Exact-HEAD CI and `main` are required.

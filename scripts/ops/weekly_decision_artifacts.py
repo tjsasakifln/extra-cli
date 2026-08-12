@@ -577,6 +577,22 @@ def build_weekly_decision_artifacts(
             "probabilidade_de_vitoria",
             "RESIDUAL_NOT_GENERATED",
         ],
+        "presentation_limits": {
+            "observations_sheet": {
+                "purpose": "presentation_only",
+                "limit": 500,
+                "eligible": len(observations),
+                "included": min(len(observations), 500),
+                "truncated": len(observations) > 500,
+            },
+            "shortlist": {
+                "purpose": "explicit_decision_shortlist",
+                "limit": shortlist_limit,
+                "eligible": len(processes),
+                "included": len(shortlist),
+                "truncated": len(processes) > len(shortlist),
+            },
+        },
     }
     if freshness_notes:
         pack_meta["terminal_state"] = "BLOCKED" if not inv_errors else "FAIL"
