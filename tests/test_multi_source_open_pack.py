@@ -574,7 +574,7 @@ class TestPackE2EFixture:
         assert {row[2] for row in gate_rows} == {False}
         assert {row[3] for row in gate_rows} == {False}
 
-        from PyPDF2 import PdfReader
+        from pypdf import PdfReader
 
         pdf_text = "\n".join(
             page.extract_text() or ""
