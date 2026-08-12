@@ -93,18 +93,15 @@ def test_contract_without_cnpj_is_not_dropped_and_cpf_export_is_safe() -> None:
     assert "52998224725" not in export_payload
 
 
-def test_migration_enforces_typed_identity_and_cnpj_only_consumers() -> None:
+def test_migration_enforces_typed_identity_and_cnpj_only_compatibility_key() -> None:
     root = Path(__file__).resolve().parents[1]
     migration = (root / "db/migrations/076_contract_supplier_identity.sql").read_text(
         encoding="utf-8"
     )
-    commercial = (root / "scripts/commercial_leads/pipeline.py").read_text(
-        encoding="utf-8"
-    )
-
     assert "supplier_id_type IN ('CNPJ', 'CPF', 'FOREIGN', 'UNKNOWN')" in migration
     assert "fn_contract_valid_cpf" in migration
     assert "fn_contract_valid_cnpj" in migration
     assert "fornecedor_cnpj IS NULL" in migration
-    assert "supplier_id_type = 'CNPJ'" in commercial
-    assert "zfill(14)" not in commercial
+    assert "fornecedor_cnpj = supplier_identifier" in migration
+    assert "WHERE supplier_id_type = 'CNPJ'" in migration
+    assert "zfill(14)" not in migration
