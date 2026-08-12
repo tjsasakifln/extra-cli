@@ -11,7 +11,7 @@ acceptance require exact-HEAD CI and the repository's human/main gates.
 |---:|---|---|---|
 | #303 | VERIFIED | Focused contracts suite; new zero/data/multipage/error/cap/persistence cases | exact-HEAD CI + main |
 | #286 | VERIFIED | 23 pack tests; blocker codes reconciled across four formats | exact-HEAD CI + main |
-| #237 | OPEN | — | implementation and test |
+| #237 | VERIFIED | 58 resilience/feeder tests; local terminal fields independent of aggregate exit | exact-HEAD CI + main |
 | #245 | VERIFIED | 25 pack tests; independent QA/readiness gates in all formats | exact-HEAD CI + main |
 | #234 | OPEN | — | implementation and test |
 | #278 | OPEN | — | implementation and test |
@@ -65,3 +65,22 @@ The fixture proves `structural_qa.ok=true` can coexist honestly with
 `delivery_readiness.ok=false`; in that state `deliverable=false`, terminal state
 is `BLOCKED`, and the CLI exits non-zero. Manifest, README, XLSX and PDF expose
 the same gate states.
+
+## #237 verification
+
+```text
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -o addopts= \
+  tests/test_daily_multi_source_collect.py tests/test_local_resilience.py \
+  -q --tb=short
+58 passed
+
+python3 -m ruff check scripts/crawl/resilience/pipeline.py \
+  scripts/ops/resilient_cycle.py scripts/ops/daily_multi_source_collect.py \
+  tests/test_daily_multi_source_collect.py tests/test_local_resilience.py
+All checks passed!
+```
+
+The source node now owns `terminal_status`, `request_completed`, and
+`scope_complete`. A degraded aggregate exit remains visible under `aggregate`
+but no longer rewrites a completed SC Compras result; a genuinely incomplete
+SC Compras node remains `partial`.

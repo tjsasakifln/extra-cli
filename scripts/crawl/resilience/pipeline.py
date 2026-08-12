@@ -79,17 +79,22 @@ class OperationalPipeline:
         # Resume: if previous run already watermarked this scope, short-circuit.
         existing_wm = self.watermarks.load(source, scope)
         if existing_wm and existing_wm.get("status") == "committed":
+            db_committed = bool(existing_wm.get("db_committed"))
             return {
                 "status": "success",
+                "terminal_status": "success",
                 "satisfactory": True,
                 "operational_satisfactory": bool(
-                    existing_wm.get("db_committed") and self.config.execution_mode != "fixture"
+                    db_committed and self.config.execution_mode != "fixture"
                 ),
                 "resumed": True,
                 "watermark": existing_wm,
                 "records_fetched": 0,
                 "records_persisted": 0,
                 "db_records_committed": 0,
+                "db_committed": db_committed,
+                "request_completed": True,
+                "scope_complete": True,
                 "errors": [],
             }
 
@@ -322,6 +327,21 @@ class OperationalPipeline:
 
             out = {
                 "status": fetched.status,
+                "terminal_status": (
+                    "success_zero"
+                    if fetched.status == "empty_confirmed"
+                    and fetched.coverage_satisfactory
+                    and (db_committed or self.config.execution_mode == "fixture")
+                    else "success"
+                    if fetched.status == "success"
+                    and fetched.coverage_satisfactory
+                    and (db_committed or self.config.execution_mode == "fixture")
+                    else "blocked"
+                    if fetched.status == "auth_blocked"
+                    else "partial"
+                    if fetched.records
+                    else "failure"
+                ),
                 "satisfactory": evidence.get("satisfactory"),
                 "mechanics_satisfactory": evidence.get("mechanics_satisfactory"),
                 "operational_satisfactory": evidence.get("operational_satisfactory"),
@@ -330,6 +350,8 @@ class OperationalPipeline:
                 "records_fetched": len(fetched.records),
                 "records_persisted": persist_result.db_records_committed if db_committed else len(normalized),
                 "db_records_committed": persist_result.db_records_committed if db_committed else 0,
+                "request_completed": bool(fetched.request_completed),
+                "scope_complete": bool(fetched.coverage_satisfactory),
                 "db_committed": db_committed,
                 "checkpoint": asdict(run_cp),
                 "evidence": str(evidence_path),
@@ -381,6 +403,7 @@ class OperationalPipeline:
             )
             return {
                 "status": "error",
+                "terminal_status": "failure",
                 "satisfactory": False,
                 "mechanics_satisfactory": False,
                 "operational_satisfactory": False,
@@ -389,6 +412,8 @@ class OperationalPipeline:
                 "db_records_committed": 0,
                 "records_fetched": 0,
                 "records_persisted": 0,
+                "request_completed": False,
+                "scope_complete": False,
                 "environment": self.config.environment,
                 "execution_mode": self.config.execution_mode,
                 "started_at": started_at,

@@ -237,6 +237,12 @@ def run_cycle(
         "log_path": str(log_path),
         "claim": claim,
         "host": config.host,
+        "aggregate": {
+            "status": status_label,
+            "exit_code": exit_code,
+            "pending_checkpoints": len(pending),
+            "pending_dlq": len(dlq.pending()),
+        },
     }
     summary_path = config.ops_path / "runs" / f"{run_id}.json"
     steps.append({"step": "health-summary", "status": summary["status"], "path": str(summary_path)})
@@ -253,6 +259,7 @@ def run_cycle(
                 "environment": config.environment,
                 "execution_mode": config.execution_mode,
                 "result": result,
+                "aggregate": summary["aggregate"],
             },
         )
     return exit_code, summary

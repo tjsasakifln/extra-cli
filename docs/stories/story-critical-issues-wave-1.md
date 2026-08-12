@@ -44,7 +44,7 @@ then by critical-path unlocks. The resulting scope is:
 
 - [x] #286: BLOCKED packages contain ordered structured blockers reconciled
   across PDF, XLSX, README, manifest, and exit status.
-- [ ] #237: source success remains visible when another source degrades, while
+- [x] #237: source success remains visible when another source degrades, while
   the aggregate remains fail-closed.
 - [x] #245: `structural_qa` and `delivery_readiness` are independent gates and
   both are required for delivery.
@@ -78,6 +78,11 @@ then by critical-path unlocks. The resulting scope is:
 - `scripts/ops/multi_source_open_pack/pipeline.py`
 - `scripts/ops/multi_source_open_pack/render_pack.py`
 - `tests/test_multi_source_open_pack.py`
+- `scripts/crawl/resilience/pipeline.py`
+- `scripts/ops/resilient_cycle.py`
+- `scripts/ops/daily_multi_source_collect.py`
+- `tests/test_local_resilience.py`
+- `tests/test_daily_multi_source_collect.py`
 - `DOD.md`
 - `docs/ops/critical-issues-wave-1-handoff.md`
 - `docs/stories/story-critical-issues-wave-1.md`
@@ -89,3 +94,4 @@ then by critical-path unlocks. The resulting scope is:
 | 2026-08-12 | #303 | VERIFIED_LOCAL | 76 focused legacy/new tests pass; ruff and diff-check pass |
 | 2026-08-12 | #286 | VERIFIED_LOCAL | 23 multi-source pack tests pass; codes reconcile in JSON/MD/XLSX/PDF |
 | 2026-08-12 | #245 | VERIFIED_LOCAL | 25 pack tests pass; structural QA green remains delivery-blocked |
+| 2026-08-12 | #237 | VERIFIED_LOCAL | 58 resilience/feeder tests pass; local success survives aggregate degradation |

@@ -3134,3 +3134,8 @@ CI (PR #12):
   branch:** `deliverable=true` requires both gates; stale/failed sources, pilot,
   coverage, documents, profile and human blockers keep readiness false while
   structural QA may remain green. Exact-HEAD CI and `main` are still required.
+- [ ] Source-local terminal results survive aggregate degradation. **#237
+  `VERIFIED` on branch:** `terminal_status`, `request_completed`, and
+  `scope_complete` are emitted from each source node; aggregate pending work is
+  reported separately and cannot demote a completed source. Exact-HEAD CI and
+  `main` are still required.

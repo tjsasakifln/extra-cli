@@ -355,6 +355,11 @@ def test_fixture_cycle_never_makes_live_health_green(tmp_path: Path, monkeypatch
     assert second["status"] == "TEST_HEALTHY"
     assert all(row.get("satisfactory") for row in second["results"].values())
     assert all(not row.get("operational_satisfactory") for row in second["results"].values())
+    assert all(row.get("request_completed") for row in second["results"].values())
+    assert all(row.get("scope_complete") for row in second["results"].values())
+    assert all(row.get("terminal_status") in {"success", "success_zero"} for row in second["results"].values())
+    assert second["aggregate"]["status"] == second["status"]
+    assert second["aggregate"]["exit_code"] == code2
 
     # Fixture health may be green.
     fixture_code, fixture_health = collect_health(env="fixture")
