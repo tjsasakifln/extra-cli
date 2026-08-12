@@ -462,6 +462,7 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 - [ ] “Propensão” ou probabilidade de compra só pode ser publicada depois de amostra suficiente, definição de outcome, separação temporal treino/teste, calibração e validação retrospectiva documentadas.
 - [ ] Resultados de contato real retroalimentam a avaliação e o ajuste de sinais, sem reescrever silenciosamente o histórico.
 - [ ] Não são usados atributos pessoais sensíveis ou proxies discriminatórios; `DO_NOT_CONTACT` e restrições legais/comerciais são respeitados.
+- [ ] O `confenge.outreach.v1` publica uma decisão target-fit completa para todo CNPJ endereçável do universo reconciliado, inclusive OUT, insuficiente, stale, DNC, downgrades e tombstones; omissão nunca preserva autorização anterior.
 - [ ] O primeiro ciclo de uso real registra decisões de Tiago, contatos realizados e resultados observados, inclusive quando não houver conversão.
 
 #### Gate imediato `CONFENGE_COMMERCIAL_READY`
@@ -3118,4 +3119,3 @@ CI (PR #12):
 - [x] Scheduler prefers CIGA/DOM families before PNCP under lag drain — avoids 429 starvation.
 - [x] Queue state repair: SUCCESS_ZERO/NONZERO with `scope_complete≠false` reconciled missing `last_success_at` (inconsistent prior gap-close state).
 - Residual non-claims unchanged: official SINAPI live bulk dump; external https webhook delivery.
-

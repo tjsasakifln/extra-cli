@@ -3,8 +3,9 @@
 Canonical **production** path (no manual JSON handoff):
 
 ```text
-universe → activation planner → hot set → account intelligence
-  → contact resolution → confenge.outreach.v1
+full supplier decision universe → activation planner → hot set
+  → account intelligence/contact resolution for the hot set
+  → authoritative confenge.outreach.v1 for the full decision universe
 ```
 
 Smoke / diagnostic path (not a commercial shortlist strategy):
@@ -45,22 +46,31 @@ python -m scripts.confenge_outreach_pipeline run \
 | `--force-sample-mode` | Smoke: diverse sample instead of activation |
 | `--activation-capacity` | Override hot-set size (policy capacity by default) |
 | `--limit-downstream` | Smoke sample size only; **not** production commercial strategy |
+| `--feed-limit` | Rejected: truncating an authoritative decision snapshot is unsafe |
 | `--max-workers` | Concurrency for expensive stages |
 | `--max-rows` | **Diagnostic sampling** of universe source; never claim full-scale when set |
 | `--csv` | Offline fixture path |
 | `--skip-contacts` | Empty contacts (offline speed) |
 
-`--limit-downstream` does **not** limit universe discovery.
+`--limit-downstream` does **not** limit universe discovery or feed decisions.
+It limits only expensive intelligence/contact work. The feed also includes
+valid-CNPJ exclusions and DNC. Missing target-fit rows become explicit
+`TARGET_FIT_MISSING` tombstones.
+
+With `--dsn`, decisions come from the mode-aware published target-fit store
+(shadow in SHADOW mode; current in ACTIVE/CANARY). The on-the-fly universe
+classification is used only by offline fixture runs; a production store miss
+does not fall back to an embedded CONFIRMED stamp.
 
 ## Outputs
 
 ```text
-01_universe/          confenge-universe-v1.jsonl + manifest
+01_universe/          included + excluded decision JSONLs + manifest
 02_downstream_sample/ diverse commercial sample
 03_account_intelligence/
 04_contact_resolution/
-05_bridge_inputs/     joined shapes for warmbly_bridge
-06_warmbly_feed/      chunked confenge.outreach.v1
+05_bridge_inputs/     full universe + target-fit snapshot; hot-set intel/contacts
+06_warmbly_feed/      temporally ordered authoritative confenge.outreach.v1
 reports/pipeline-manifest.json
 ```
 

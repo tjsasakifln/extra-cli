@@ -51,7 +51,14 @@ from scripts.confenge_outreach_pipeline.adapt import (
     universe_row_to_intelligence_input,
 )
 from scripts.confenge_outreach_pipeline.sample import sample_profile_counts, select_diverse_sample
-from scripts.confenge_universe import DEFAULT_JSONL_NAME, DEFAULT_MANIFEST_NAME
+from scripts.confenge_target_fit.company_key import canonical_cnpj14
+from scripts.confenge_target_fit.published import load_published_index
+from scripts.confenge_target_fit.store import get_control
+from scripts.confenge_universe import (
+    DEFAULT_EXCLUSIONS_JSONL_NAME,
+    DEFAULT_JSONL_NAME,
+    DEFAULT_MANIFEST_NAME,
+)
 from scripts.confenge_universe.pipeline import run_universe_build
 from scripts.warmbly_bridge.export import ExportConfig, export_outreach
 
@@ -105,6 +112,50 @@ def _read_jsonl(path: Path) -> list[dict[str, Any]]:
             continue
         rows.append(json.loads(text))
     return rows
+
+
+def _published_target_fit_snapshot(
+    rows: list[dict[str, Any]],
+    *,
+    dsn: str | None,
+) -> tuple[list[dict[str, Any]], str, str | None]:
+    """Resolve production decisions from the mode-aware published store.
+
+    Offline fixtures retain embedded decisions. With a production DSN, store
+    misses stay omitted here so the exporter emits explicit missing tombstones.
+    """
+    if not dsn:
+        return list(rows), "universe_embedded_snapshot", None
+
+    from scripts.confenge_target_fit.db import connect
+
+    raw_cnpjs = [str(row.get("cnpj14") or row.get("cnpj") or "") for row in rows]
+    lookup_cnpjs = sorted({cnpj for raw in raw_cnpjs for cnpj in (raw, canonical_cnpj14(raw)) if cnpj})
+    conn = connect(dsn, readonly=True)
+    try:
+        published = load_published_index(conn, cnpj14s=lookup_cnpjs)
+        control = get_control(conn, "cdc_watermark")
+        datalake_watermark = str(control.get("watermark") or "").strip() or None
+    finally:
+        conn.close()
+
+    snapshot: list[dict[str, Any]] = []
+    for raw in raw_cnpjs:
+        canonical = canonical_cnpj14(raw)
+        if not canonical:
+            continue
+        decision = published.get(canonical[:8]) or published.get(raw[:8])
+        if not decision:
+            continue
+        snapshot.append(
+            {
+                **decision,
+                "cnpj14": canonical,
+                "cnpj_raiz": canonical[:8],
+                "company_key": f"cnpj_root:{canonical[:8]}",
+            }
+        )
+    return snapshot, "published_target_fit_store", datalake_watermark
 
 
 def _service_context_from_primary(service_id: str | None) -> str:
@@ -173,6 +224,11 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
     out.mkdir(parents=True, exist_ok=True)
 
     use_activation = bool(cfg.use_activation_planner) and not bool(cfg.force_sample_mode)
+    if cfg.feed_limit is not None:
+        raise ValueError(
+            "feed_limit is incompatible with the authoritative CONFENGE decision feed; "
+            "limit expensive enrichment with limit_downstream instead"
+        )
 
     dirs = {
         "universe": out / "01_universe",
@@ -217,9 +273,15 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
     try:
         # ── 1. Universe ──────────────────────────────────────────────────
         universe_jsonl = dirs["universe"] / DEFAULT_JSONL_NAME
+        exclusions_jsonl = dirs["universe"] / DEFAULT_EXCLUSIONS_JSONL_NAME
         universe_manifest = dirs["universe"] / DEFAULT_MANIFEST_NAME
-        skip_uni = bool(cfg.skip_universe and universe_jsonl.is_file())
-        if not skip_uni and ckpt.stage_completed("universe") and universe_jsonl.is_file():
+        skip_uni = bool(cfg.skip_universe and universe_jsonl.is_file() and exclusions_jsonl.is_file())
+        if (
+            not skip_uni
+            and ckpt.stage_completed("universe")
+            and universe_jsonl.is_file()
+            and exclusions_jsonl.is_file()
+        ):
             skip_uni = True
             _progress(cfg.progress, "[universe] resume: reusing completed checkpoint artifacts")
 
@@ -237,9 +299,9 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
                 try:
                     man = json.loads(universe_manifest.read_text(encoding="utf-8"))
                     uni_meta["counts"] = man.get("counts") or {}
-                    uni_meta["reconciliation_ok"] = (man.get("counts") or {}).get(
-                        "reconciliation", {}
-                    ).get("ok") or man.get("extra", {}).get("reconciliation_bucket_ok")
+                    uni_meta["reconciliation_ok"] = (man.get("counts") or {}).get("reconciliation", {}).get(
+                        "ok"
+                    ) or man.get("extra", {}).get("reconciliation_bucket_ok")
                     uni_meta["source"] = man.get("source") or {}
                 except (json.JSONDecodeError, OSError):
                     pass
@@ -254,6 +316,7 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
                 dnc_path=cfg.dnc_path,
             )
             universe_jsonl = Path(uni_meta.get("jsonl_path") or universe_jsonl)
+            exclusions_jsonl = Path(uni_meta.get("exclusions_jsonl_path") or exclusions_jsonl)
             universe_manifest = Path(uni_meta.get("manifest_path") or universe_manifest)
         stages["universe"] = {
             k: uni_meta.get(k)
@@ -273,8 +336,26 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
         }
 
         universe_rows = _read_jsonl(universe_jsonl)
+        exclusion_rows = _read_jsonl(exclusions_jsonl)
+        decision_rows = [
+            row for row in [*universe_rows, *exclusion_rows] if canonical_cnpj14(row.get("cnpj14") or row.get("cnpj"))
+        ]
+        (
+            target_fit_snapshot_rows,
+            target_fit_authority,
+            target_fit_datalake_watermark,
+        ) = _published_target_fit_snapshot(
+            decision_rows,
+            dsn=cfg.dsn,
+        )
         stages["universe_row_count"] = len(universe_rows)
         stages["reservoir_count"] = len(universe_rows)
+        stages["target_fit_decision_universe_count"] = len(decision_rows)
+        stages["target_fit_unaddressable_exclusion_count"] = len(exclusion_rows) - (
+            len(decision_rows) - len(universe_rows)
+        )
+        stages["target_fit_snapshot_count"] = len(target_fit_snapshot_rows)
+        stages["target_fit_authority"] = target_fit_authority
         uni_counts = stages.get("universe", {}).get("counts") or uni_meta.get("counts") or {}
         ckpt.universe_total = len(universe_rows)
         ckpt.full_datalake_scanned = bool(
@@ -331,9 +412,7 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
                 include_watch_fill=True,
             )
             cycle_projections = list(cycle.projections)
-            write_projections_jsonl(
-                dirs["activation"] / "activation-projections.jsonl", cycle.projections
-            )
+            write_projections_jsonl(dirs["activation"] / "activation-projections.jsonl", cycle.projections)
             write_hot_set_jsonl(dirs["activation"] / "hot-set.jsonl", cycle.hot_set)
             (dirs["activation"] / "deactivations.json").write_text(
                 json.dumps(cycle.deactivations, indent=2, ensure_ascii=False) + "\n",
@@ -346,28 +425,19 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
             deactivations = list(cycle.deactivations)
             activation_by_cnpj = {p.cnpj14: p.as_dict() for p in cycle.projections}
             # Map hot set back to universe rows (preserve order of hot set)
-            by_cnpj = {
-                "".join(ch for ch in str(r.get("cnpj14") or "") if ch.isdigit()): r
-                for r in universe_rows
-            }
+            by_cnpj = {"".join(ch for ch in str(r.get("cnpj14") or "") if ch.isdigit()): r for r in universe_rows}
             sample_rows = [by_cnpj[c] for c in (p.cnpj14 for p in cycle.hot_set) if c in by_cnpj]
             # Safety: never silent-truncate reservoir; expensive path is hot set only
             sample_path = dirs["sample"] / "downstream-hot-set.jsonl"
             _write_jsonl(sample_path, sample_rows)
-            planned_cap = (
-                int(capacity)
-                if capacity is not None
-                else policy.capacity.planned_capacity()
-            )
+            planned_cap = int(capacity) if capacity is not None else policy.capacity.planned_capacity()
             stages["activation"] = {
                 **cycle.summary(),
                 "projections_path": str(dirs["activation"] / "activation-projections.jsonl"),
                 "hot_set_path": str(dirs["activation"] / "hot-set.jsonl"),
                 "capacity_this_round": planned_cap,
                 "capacity_source": (
-                    "activation_capacity_override"
-                    if cfg.activation_capacity is not None
-                    else "policy.planned_capacity"
+                    "activation_capacity_override" if cfg.activation_capacity is not None else "policy.planned_capacity"
                 ),
                 "note": (
                     "Hot set is capacity-aware activation planning, not arbitrary Top-N. "
@@ -436,9 +506,7 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
         # ── 3. Account intelligence ──────────────────────────────────────
         ckpt.mark_running("intelligence")
         save_checkpoint(out, ckpt)
-        intel_inputs = [
-            universe_row_to_intelligence_input(r, as_of=as_of.isoformat()) for r in sample_rows
-        ]
+        intel_inputs = [universe_row_to_intelligence_input(r, as_of=as_of.isoformat()) for r in sample_rows]
         intel_input_path = dirs["intel"] / "intelligence-inputs.jsonl"
         _write_jsonl(intel_input_path, intel_inputs)
 
@@ -502,8 +570,7 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
                 )
             )
             cnpjs = [
-                "".join(ch for ch in str(r.get("cnpj14") or r.get("cnpj") or "") if ch.isdigit())
-                for r in sample_rows
+                "".join(ch for ch in str(r.get("cnpj14") or r.get("cnpj") or "") if ch.isdigit()) for r in sample_rows
             ]
             cnpjs = [c for c in cnpjs if c]
             resolutions = resolver.resolve_batch(cnpjs, max_workers=cfg.max_workers)
@@ -544,9 +611,7 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
         # ── 5. Bridge universe inputs + export ───────────────────────────
         ckpt.mark_running("feed")
         save_checkpoint(out, ckpt)
-        bridge_universe = [
-            universe_row_for_bridge(r, rank=i + 1) for i, r in enumerate(sample_rows)
-        ]
+        bridge_universe = [universe_row_for_bridge(r, rank=i + 1) for i, r in enumerate(decision_rows)]
         # Attach activation projection onto bridge universe rows when available
         if activation_by_cnpj:
             for br in bridge_universe:
@@ -566,6 +631,8 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
                     }
         bridge_universe_path = dirs["bridge_inputs"] / "universe.jsonl"
         _write_jsonl(bridge_universe_path, bridge_universe)
+        target_fit_snapshot_path = dirs["bridge_inputs"] / "target-fit-snapshot.jsonl"
+        _write_jsonl(target_fit_snapshot_path, target_fit_snapshot_rows)
 
         # Empty hot set is a valid ops state (all capacity consumed / no eligibles)
         # — write empty feed artifacts instead of failing closed on empty join.
@@ -598,8 +665,11 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
                 universe=bridge_universe_path,
                 account_intelligence=bridge_intel_path,
                 contacts=bridge_contacts_path,
+                target_fit_snapshot=target_fit_snapshot_path,
+                expected_universe_count=len(bridge_universe),
                 out_dir=dirs["feed"],
-                limit=cfg.feed_limit,
+                datalake_watermark=target_fit_datalake_watermark,
+                require_authoritative_target_fit_metadata=bool(cfg.dsn),
                 repo_sha=repo_sha,
                 deactivations=deactivations,
             )
@@ -610,17 +680,13 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
 
         # Persist funnel progress: mark exported / no-contact on projections
         if use_activation and cycle_projections:
-            contact_by = {
-                "".join(ch for ch in str(c.get("cnpj14") or "") if ch.isdigit()): c
-                for c in bridge_contacts
-            }
+            contact_by = {"".join(ch for ch in str(c.get("cnpj14") or "") if ch.isdigit()): c for c in bridge_contacts}
             updated = []
             for p in cycle_projections:
                 d = p.as_dict() if hasattr(p, "as_dict") else dict(p)
                 cnpj = d.get("cnpj14")
                 if cnpj and any(
-                    "".join(ch for ch in str(r.get("cnpj14") or "") if ch.isdigit()) == cnpj
-                    for r in sample_rows
+                    "".join(ch for ch in str(r.get("cnpj14") or "") if ch.isdigit()) == cnpj for r in sample_rows
                 ):
                     crow = contact_by.get(cnpj) or {}
                     contacts = crow.get("contacts") or []
@@ -666,8 +732,7 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
             "contracts_per_sec": round(contracts_n / elapsed, 2) if contracts_n else None,
             "companies_per_min": round(len(universe_rows) / (elapsed / 60.0), 2),
             "contacts_per_min": round(
-                float((stages.get("contacts") or {}).get("metrics", {}).get("empresas_total") or 0)
-                / (elapsed / 60.0),
+                float((stages.get("contacts") or {}).get("metrics", {}).get("empresas_total") or 0) / (elapsed / 60.0),
                 2,
             ),
             "elapsed_seconds": stages["elapsed_seconds"],

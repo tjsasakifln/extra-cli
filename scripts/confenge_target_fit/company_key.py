@@ -5,13 +5,27 @@ from __future__ import annotations
 import re
 from typing import Any
 
+# Curated corrections are applied at the commercial-feed boundary as identity
+# aliases.  Keep the raw source evidence unchanged; every emitted decision uses
+# the corrected canonical CNPJ.
+_CNPJ14_CORRECTIONS = {
+    "01489370000105": "14893700000105",  # PREVENCAO LABORATORIO
+}
+
 
 def digits_only(value: Any) -> str:
     return re.sub(r"\D", "", str(value or ""))
 
 
+def canonical_cnpj14(value: Any) -> str:
+    digits = digits_only(value)
+    if len(digits) != 14:
+        return ""
+    return _CNPJ14_CORRECTIONS.get(digits, digits)
+
+
 def cnpj_raiz_from_cnpj14(cnpj: str | None) -> str | None:
-    d = digits_only(cnpj)
+    d = canonical_cnpj14(cnpj) or digits_only(cnpj)
     if len(d) >= 8:
         return d[:8]
     return None
@@ -50,19 +64,10 @@ def resolve_company_from_contract(contract: dict[str, Any]) -> tuple[str, str] |
 
 
 def is_consortium_contract(contract: dict[str, Any]) -> bool:
-    if contract.get("is_consortium") or contract.get("consorcio") or contract.get(
-        "consortium"
-    ):
+    if contract.get("is_consortium") or contract.get("consorcio") or contract.get("consortium"):
         return True
-    obj = str(
-        contract.get("objeto_contrato")
-        or contract.get("objeto")
-        or contract.get("object")
-        or ""
-    ).lower()
-    nome = str(
-        contract.get("fornecedor_nome") or contract.get("nome_fornecedor") or ""
-    ).lower()
+    obj = str(contract.get("objeto_contrato") or contract.get("objeto") or contract.get("object") or "").lower()
+    nome = str(contract.get("fornecedor_nome") or contract.get("nome_fornecedor") or "").lower()
     markers = ("consórcio", "consorcio", " em consorcio", " em consórcio")
     return any(m in obj or m in nome for m in markers)
 
