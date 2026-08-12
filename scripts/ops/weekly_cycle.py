@@ -1587,6 +1587,11 @@ def stage_delivery(
                 intel=intel,
                 runs=runs,
                 skip_network=skip_inventory,
+                pilot_approval_path=(
+                    Path(os.environ["EXTRA_PILOT_APPROVAL"])
+                    if os.getenv("EXTRA_PILOT_APPROVAL")
+                    else None
+                ),
             )
         except Exception as exc:  # noqa: BLE001
             decision_pack = {

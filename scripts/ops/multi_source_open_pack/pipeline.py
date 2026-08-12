@@ -21,6 +21,10 @@ from scripts.ops.multi_source_open_pack.decide import (
 from scripts.ops.multi_source_open_pack.documents import inventariar_shortlist
 from scripts.ops.multi_source_open_pack.loaders import load_all_observations, load_csv_dicts
 from scripts.ops.multi_source_open_pack.models import CanonicalProcess, ReconciliationStats
+from scripts.ops.multi_source_open_pack.pilot_gate import (
+    PilotScaleBlockedError,
+    require_pilot_approval,
+)
 from scripts.ops.multi_source_open_pack.reconcile import build_reconciliation
 from scripts.ops.multi_source_open_pack.render_pack import (
     CLIENT_ARTIFACTS,
@@ -37,6 +41,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[3]
 MOTOR_VERSION = "extra-ms-open-pack/2.0.0"
 DEFAULT_UNIVERSE = PROJECT_ROOT / "config" / "target_entities_200km.csv"
 DEFAULT_PROFILE = PROJECT_ROOT / "config" / "client_profiles" / "extra.yaml"
+DEFAULT_PILOT_POLICY = PROJECT_ROOT / "config" / "source_applicability.yaml"
 
 _BLOCKER_ORDER = {
     code: position
@@ -286,6 +291,7 @@ def build_pack(
     ciga_lookback_days: int = 45,
     inventory_docs: bool = True,
     skip_network: bool = False,
+    pilot_approval_path: Path | None = None,
 ) -> dict[str, Any]:
     """Build the 6 client artifacts. Returns pack result dict with terminal_state."""
     now = now or utc_now()
@@ -294,9 +300,16 @@ def build_pack(
     as_of = as_of or now.astimezone(BR_TZ).date()
     pack_id = pack_id or f"EXTRA-MS-OPEN-{now.astimezone(BR_TZ).strftime('%Y%m%dT%H%M%SZ')}"
     out_dir = Path(out_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
 
     entities = load_universe(universe_path)
+    pilot_gate = require_pilot_approval(
+        universe_path=universe_path,
+        policy_path=DEFAULT_PILOT_POLICY,
+        universe_entity_count=len(entities),
+        universe_entity_ids={entity.entity_key for entity in entities},
+        approval_path=pilot_approval_path,
+    )
+    out_dir.mkdir(parents=True, exist_ok=True)
     by_cnpj8, names, by_name, municipios = build_indexes(entities)
     profile = _load_profile(profile_path)
 
@@ -512,6 +525,7 @@ def build_pack(
             "logo": str(logo) if logo else "",
         },
         "human_accept": "PENDING_HUMAN",
+        "pilot_approval": pilot_gate.to_dict(),
         "terminal_state": "FAIL" if inv_errors else "PASS",
         "invariant_errors": inv_errors,
         "blocking_reasons": [],
@@ -552,14 +566,6 @@ def build_pack(
             owner="source_ops",
             next_action="Executar CIGA/DOM com escopo completo ou registrar falha nominal.",
         )
-
-    _add_blocking_reason(
-        pack_meta,
-        code="PILOT_APPROVAL_MISSING",
-        evidence=f"Universo com {stats.entes_universo} entes sem aprovação de piloto vinculada ao pacote.",
-        owner="product_owner",
-        next_action="Anexar aprovação humana válida do piloto estratificado de 30 entes.",
-    )
 
     if not cov_rows:
         _add_blocking_reason(
@@ -846,6 +852,12 @@ def run_pack_cli(argv: list[str] | None = None) -> int:
     parser.add_argument("--out-dir", type=Path, required=True, help="Diretório de saída do pack")
     parser.add_argument("--universe", type=Path, default=DEFAULT_UNIVERSE)
     parser.add_argument("--profile", type=Path, default=DEFAULT_PROFILE)
+    parser.add_argument(
+        "--pilot-approval",
+        type=Path,
+        default=None,
+        help="JSON de aprovação humana do piloto de 30, obrigatório para universo maior",
+    )
     parser.add_argument("--pncp", type=Path, default=None, help="CSV open PNCP")
     parser.add_argument("--ciga", type=Path, default=None, help="JSONL publicações CIGA/DOM")
     parser.add_argument("--sc-compras", type=Path, default=None, help="JSONL SC Compras open")
@@ -868,22 +880,32 @@ def run_pack_cli(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     as_of = date.fromisoformat(args.as_of) if args.as_of else None
-    result = build_pack(
-        out_dir=args.out_dir,
-        universe_path=args.universe,
-        profile_path=args.profile,
-        pncp_path=args.pncp,
-        ciga_path=args.ciga,
-        sc_compras_path=args.sc_compras,
-        coverage_path=args.coverage,
-        brand_dir=args.brand_dir,
-        as_of=as_of,
-        pack_id=args.pack_id,
-        shortlist_limit=args.shortlist_limit,
-        ciga_lookback_days=args.ciga_lookback_days,
-        inventory_docs=not args.no_inventory,
-        skip_network=args.skip_network,
-    )
+    try:
+        result = build_pack(
+            out_dir=args.out_dir,
+            universe_path=args.universe,
+            profile_path=args.profile,
+            pncp_path=args.pncp,
+            ciga_path=args.ciga,
+            sc_compras_path=args.sc_compras,
+            coverage_path=args.coverage,
+            brand_dir=args.brand_dir,
+            as_of=as_of,
+            pack_id=args.pack_id,
+            shortlist_limit=args.shortlist_limit,
+            ciga_lookback_days=args.ciga_lookback_days,
+            inventory_docs=not args.no_inventory,
+            skip_network=args.skip_network,
+            pilot_approval_path=args.pilot_approval,
+        )
+    except PilotScaleBlockedError as exc:
+        result = {
+            "terminal_state": "BLOCKED",
+            "deliverable": False,
+            "pilot_gate": exc.decision.to_dict(),
+        }
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 1
     print(json.dumps(result, ensure_ascii=False, indent=2))
     state = result.get("terminal_state")
     if state == "FAIL":

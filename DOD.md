@@ -3139,3 +3139,8 @@ CI (PR #12):
   `scope_complete` are emitted from each source node; aggregate pending work is
   reported separately and cannot demote a completed source. Exact-HEAD CI and
   `main` are still required.
+- [ ] Scale beyond 30 entities requires an approved stratified pilot. **#234
+  `VERIFIED` on branch:** queue and package paths stop before writing state when
+  approval is absent or hash-invalid; a valid artifact proves 30 entities,
+  sources, pagination, zero results, deduplication, evidence and human review.
+  Exact-HEAD CI and `main` are still required.

@@ -13,7 +13,7 @@ acceptance require exact-HEAD CI and the repository's human/main gates.
 | #286 | VERIFIED | 23 pack tests; blocker codes reconciled across four formats | exact-HEAD CI + main |
 | #237 | VERIFIED | 58 resilience/feeder tests; local terminal fields independent of aggregate exit | exact-HEAD CI + main |
 | #245 | VERIFIED | 25 pack tests; independent QA/readiness gates in all formats | exact-HEAD CI + main |
-| #234 | OPEN | — | implementation and test |
+| #234 | VERIFIED | 103 pack/queue/weekly tests; preflight before state/output writes | exact-HEAD CI + main |
 | #278 | OPEN | — | implementation and test |
 | #288 | OPEN | — | implementation and test |
 | #233 | OPEN | — | implementation and test |
@@ -84,3 +84,22 @@ The source node now owns `terminal_status`, `request_completed`, and
 `scope_complete`. A degraded aggregate exit remains visible under `aggregate`
 but no longer rewrites a completed SC Compras result; a genuinely incomplete
 SC Compras node remains `partial`.
+
+## #234 verification
+
+```text
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -o addopts= \
+  tests/test_multi_source_open_pack.py \
+  tests/process_documents/test_entity_queue_and_process_card.py \
+  tests/process_documents/test_daily_rotation_multisource.py \
+  tests/test_weekly_decision_artifacts.py tests/test_weekly_cycle.py \
+  -q --tb=short
+103 passed, 1 skipped
+```
+
+The skip is a pre-existing environment-dependent weekly test. The scale gate
+runs before queue initialization, observation loading, coverage generation, or
+package directory creation. It validates exactly 30 stratified pilot entities,
+multi-source pagination/zero/dedup evidence and human approval, all bound to the
+active universe and source-policy hashes. Usage and schema are documented in
+`docs/ops/pilot-scale-approval.md`.

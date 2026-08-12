@@ -892,13 +892,15 @@ test-edital-relevance-final-blocker:
 # --- Extra multi-source open pack (EXTRA-MS-OPEN, 6 client artifacts) ---
 .PHONY: extra-ms-open-pack test-extra-ms-open-pack
 # Motor canônico: python3 -m scripts.ops.multi_source_open_pack
-# Required: OUT_DIR. Optional: PNCP, CIGA, SC_COMPRAS, COVERAGE, BRAND_DIR, AS_OF, PACK_ID
+# Required: OUT_DIR. PILOT_APPROVAL is also required when UNIVERSE has >30 entities.
+# Optional: PNCP, CIGA, SC_COMPRAS, COVERAGE, BRAND_DIR, AS_OF, PACK_ID
 extra-ms-open-pack:
 	@test -n "$(OUT_DIR)" || (echo "ERROR: set OUT_DIR=/path/to/pack-out"; exit 2)
 	@echo "==> EXTRA-MS-OPEN multi-source decision pack"
 	@echo "    OUT_DIR=$(OUT_DIR)"
 	python3 -m scripts.ops.multi_source_open_pack \
 		--out-dir "$(OUT_DIR)" \
+		$(if $(PILOT_APPROVAL),--pilot-approval "$(PILOT_APPROVAL)",) \
 		$(if $(PNCP),--pncp "$(PNCP)",) \
 		$(if $(CIGA),--ciga "$(CIGA)",) \
 		$(if $(SC_COMPRAS),--sc-compras "$(SC_COMPRAS)",) \

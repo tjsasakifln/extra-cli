@@ -27,7 +27,13 @@ from scripts.ops.multi_source_open_pack.classify_aec import classify_aec
 from scripts.ops.multi_source_open_pack.consolidate import consolidate_observations
 from scripts.ops.multi_source_open_pack.db_loaders import load_all_lake_observations
 from scripts.ops.multi_source_open_pack.decide import apply_decisions, select_shortlist
-from scripts.ops.multi_source_open_pack.pipeline import MOTOR_VERSION, default_limitations, default_source_policy
+from scripts.ops.multi_source_open_pack.pilot_gate import require_pilot_approval
+from scripts.ops.multi_source_open_pack.pipeline import (
+    DEFAULT_PILOT_POLICY,
+    MOTOR_VERSION,
+    default_limitations,
+    default_source_policy,
+)
 from scripts.ops.multi_source_open_pack.reconcile import build_reconciliation
 from scripts.ops.multi_source_open_pack.render_pack import write_excel, write_pdf
 from scripts.ops.multi_source_open_pack.textutil import BR_TZ, iso_z, utc_now
@@ -459,6 +465,7 @@ def build_weekly_decision_artifacts(
     skip_network: bool = True,
     shortlist_limit: int = 25,
     now: datetime | None = None,
+    pilot_approval_path: Path | None = None,
 ) -> dict[str, Any]:
     """Build canonical decision pack products into ``out_dir``."""
     now = now or utc_now()
@@ -468,12 +475,21 @@ def build_weekly_decision_artifacts(
     as_of_s = as_of.isoformat()
     run_tag = cycle_id.replace(":", "").replace("/", "-")
     out_dir = Path(out_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
     freshness = freshness or []
     intel = intel or {}
     runs = runs or []
 
     entities = load_universe(universe_path)
+    if pilot_approval_path is None and os.getenv("EXTRA_PILOT_APPROVAL"):
+        pilot_approval_path = Path(os.environ["EXTRA_PILOT_APPROVAL"])
+    pilot_gate = require_pilot_approval(
+        universe_path=universe_path,
+        policy_path=DEFAULT_PILOT_POLICY,
+        universe_entity_count=len(entities),
+        universe_entity_ids={entity.entity_key for entity in entities},
+        approval_path=pilot_approval_path,
+    )
+    out_dir.mkdir(parents=True, exist_ok=True)
     by_cnpj8, names, by_name, municipios = build_indexes(entities)
     profile = _load_profile(profile_path)
 
@@ -550,6 +566,7 @@ def build_weekly_decision_artifacts(
         "limitations": limitations,
         "source_policy": source_policy,
         "human_accept": "PENDING_HUMAN",
+        "pilot_approval": pilot_gate.to_dict(),
         "terminal_state": "FAIL" if inv_errors else "PASS",
         "invariant_errors": inv_errors,
         "shortlist_process_ids": [p.process_id for p in shortlist],
@@ -678,8 +695,6 @@ def build_weekly_decision_artifacts(
     decision_memory_board: dict[str, Any] | None = None
     decision_memory_board_path: Path | None = None
     try:
-        import os
-
         dsn = os.getenv("LOCAL_DATALAKE_DSN")
         if dsn:
             from scripts.decision_memory.db import connect

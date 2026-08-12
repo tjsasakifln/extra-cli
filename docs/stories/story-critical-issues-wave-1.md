@@ -48,7 +48,7 @@ then by critical-path unlocks. The resulting scope is:
   the aggregate remains fail-closed.
 - [x] #245: `structural_qa` and `delivery_readiness` are independent gates and
   both are required for delivery.
-- [ ] #234: scale beyond 30 entities requires a valid, hash-bound, human-approved
+- [x] #234: scale beyond 30 entities requires a valid, hash-bound, human-approved
   stratified pilot artifact.
 - [ ] #278: provisioned systemd units use the canonical service user and
   `/opt`/`/var/lib` paths with preflight validation.
@@ -83,6 +83,13 @@ then by critical-path unlocks. The resulting scope is:
 - `scripts/ops/daily_multi_source_collect.py`
 - `tests/test_local_resilience.py`
 - `tests/test_daily_multi_source_collect.py`
+- `scripts/ops/multi_source_open_pack/pilot_gate.py`
+- `scripts/process_documents/collect.py`
+- `scripts/process_documents/cli.py`
+- `scripts/ops/weekly_decision_artifacts.py`
+- `scripts/ops/weekly_cycle.py`
+- `tests/process_documents/test_entity_queue_and_process_card.py`
+- `docs/ops/pilot-scale-approval.md`
 - `DOD.md`
 - `docs/ops/critical-issues-wave-1-handoff.md`
 - `docs/stories/story-critical-issues-wave-1.md`
@@ -95,3 +102,4 @@ then by critical-path unlocks. The resulting scope is:
 | 2026-08-12 | #286 | VERIFIED_LOCAL | 23 multi-source pack tests pass; codes reconcile in JSON/MD/XLSX/PDF |
 | 2026-08-12 | #245 | VERIFIED_LOCAL | 25 pack tests pass; structural QA green remains delivery-blocked |
 | 2026-08-12 | #237 | VERIFIED_LOCAL | 58 resilience/feeder tests pass; local success survives aggregate degradation |
+| 2026-08-12 | #234 | VERIFIED_LOCAL | 103 focused tests pass; missing/mismatched approval stops before queue/package writes |

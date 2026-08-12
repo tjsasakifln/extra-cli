@@ -10,6 +10,7 @@ Daily incremental path uses:
 from __future__ import annotations
 
 import json
+import os
 import time
 from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime, timedelta
@@ -36,6 +37,8 @@ from scripts.process_documents.models import EntityDocumentDiscovery
 from scripts.process_documents.process_card import build_cards_from_collect_summary
 from scripts.process_documents.statuses import ActivityStatus, DocumentRunStatus
 from scripts.process_documents.storage import ensure_roots, write_json
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 # Platforms that collapse to the same adapter key (one live call per key).
 _PLATFORM_TO_ADAPTER_KEY: dict[str, str] = {
@@ -581,6 +584,7 @@ def collect_many(
     meta_root: Path | None = None,
     overdue_only: bool = False,
     build_process_cards: bool = True,
+    pilot_approval_path: Path | None = None,
 ) -> dict[str, Any]:
     """Collect for a batch of entities.
 
@@ -589,6 +593,22 @@ def collect_many(
     """
     discoveries = load_discovery()
     targets = _eligible_targets(discoveries, only_active=only_active, canonical_ids=canonical_ids)
+
+    from scripts.ops.multi_source_open_pack.pilot_gate import require_pilot_approval
+    from scripts.ops.multi_source_open_pack.universe import load_universe
+
+    universe_path = PROJECT_ROOT / "config" / "target_entities_200km.csv"
+    policy_path = PROJECT_ROOT / "config" / "source_applicability.yaml"
+    universe = load_universe(universe_path)
+    if pilot_approval_path is None and os.getenv("EXTRA_PILOT_APPROVAL"):
+        pilot_approval_path = Path(os.environ["EXTRA_PILOT_APPROVAL"])
+    pilot_gate = require_pilot_approval(
+        universe_path=universe_path,
+        policy_path=policy_path,
+        universe_entity_count=len(targets),
+        universe_entity_ids={entity.entity_key for entity in universe},
+        approval_path=pilot_approval_path,
+    )
 
     queue = load_entity_queue(meta_root=meta_root)
     ensure_entries(queue, [d.canonical_id for d in targets])
@@ -677,6 +697,7 @@ def collect_many(
         "results": results,
         "selection_policy": selection_policy,
         "multi_source": multi_source,
+        "pilot_gate": pilot_gate.to_dict(),
         "selected_canonical_ids": selected_ids,
         "eligible_count": len(targets),
         "overdue_count": qsum.get("overdue_count"),
@@ -718,6 +739,7 @@ def backfill(
     until: str | None = None,
     limit: int | None = None,
     download: bool = True,
+    pilot_approval_path: Path | None = None,
 ) -> dict[str, Any]:
     until = until or datetime.now(UTC).date().isoformat()
     if not since:
@@ -750,6 +772,7 @@ def backfill(
         # Backfill already tracks completed_entities; keep multi-source default.
         rotation=False,
         persist_visits=False,
+        pilot_approval_path=pilot_approval_path,
     )
     for r in summary.get("results") or []:
         cid = r.get("canonical_entity_id")
@@ -790,6 +813,7 @@ def incremental(
     max_wall_seconds: float | None = None,
     meta_root: Path | None = None,
     build_daily_report: bool = True,
+    pilot_approval_path: Path | None = None,
 ) -> dict[str, Any]:
     """Daily incremental refresh: success-lag queue + multi-source.
 
@@ -812,6 +836,7 @@ def incremental(
             persist_visits=True,
             meta_root=meta_root,
             overdue_only=False,
+            pilot_approval_path=pilot_approval_path,
         )
         summary["drain_stop_reason"] = "drain_disabled"
         summary["batches"] = 1
@@ -850,6 +875,7 @@ def incremental(
             persist_visits=True,
             meta_root=meta_root,
             overdue_only=True,
+            pilot_approval_path=pilot_approval_path,
         )
         batches += 1
         batch_ids = list(last_summary.get("selected_canonical_ids") or [])
@@ -959,4 +985,3 @@ def _attach_daily_report(summary: dict[str, Any], *, meta_root: Path | None = No
         summary["daily_ops_report_day"] = report.get("day")
     except Exception as exc:  # noqa: BLE001
         summary["daily_ops_report_error"] = str(exc)
-

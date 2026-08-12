@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 from datetime import date, datetime
 from pathlib import Path
@@ -14,8 +15,13 @@ from scripts.ops.multi_source_open_pack.consolidate import consolidate_observati
 from scripts.ops.multi_source_open_pack.decide import apply_decisions, select_shortlist
 from scripts.ops.multi_source_open_pack.events import classify_event
 from scripts.ops.multi_source_open_pack.models import SourceObservation
+from scripts.ops.multi_source_open_pack.pilot_gate import (
+    PilotScaleBlockedError,
+    require_pilot_approval,
+)
 from scripts.ops.multi_source_open_pack.pipeline import (
     CLIENT_ARTIFACTS,
+    DEFAULT_PILOT_POLICY,
     _finalize_blocking_reasons,
     _set_delivery_gates,
     build_pack,
@@ -27,6 +33,115 @@ from scripts.ops.multi_source_open_pack.universe import annotate_observation_uni
 FIXTURES = Path(__file__).parent / "fixtures" / "multi_source_open_pack"
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 UNIVERSE = PROJECT_ROOT / "config" / "target_entities_200km.csv"
+
+
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _write_pilot_approval(tmp_path: Path) -> Path:
+    evidence = tmp_path / "pilot-source-evidence.json"
+    evidence.write_text('{"status":"complete"}\n', encoding="utf-8")
+    evidence_sha256 = _sha256(evidence)
+    rows = []
+    for index, entity in enumerate(load_universe(UNIVERSE)[:30]):
+        source_results = []
+        for source, records in (("pncp", 1), ("ciga_ckan", 0)):
+            source_results.append(
+                {
+                    "source": source,
+                    "request_completed": True,
+                    "scope_complete": True,
+                    "pagination": {
+                        "complete": True,
+                        "pages_fetched": 1,
+                        "pages_expected": 1,
+                    },
+                    "records": records,
+                    "zero_proof": "success_zero" if records == 0 else "not_zero",
+                    "deduplication": {
+                        "complete": True,
+                        "input_records": records,
+                        "output_records": records,
+                        "duplicates_removed": 0,
+                    },
+                    "evidence_path": evidence.name,
+                    "evidence_sha256": evidence_sha256,
+                }
+            )
+        rows.append(
+            {
+                "entity_id": entity.entity_key,
+                "stratum": "near" if index % 2 == 0 else "far",
+                "source_results": source_results,
+            }
+        )
+    approval = tmp_path / "pilot-approval.json"
+    approval.write_text(
+        json.dumps(
+            {
+                "schema_version": "pilot-scale-approval/v1",
+                "universe_sha256": _sha256(UNIVERSE),
+                "policy_sha256": _sha256(DEFAULT_PILOT_POLICY),
+                "sources": ["pncp", "ciga_ckan"],
+                "entities": rows,
+                "human_approval": {
+                    "status": "APPROVED",
+                    "approved_by": "product-owner",
+                    "approved_at": "2026-08-12T12:00:00Z",
+                },
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    return approval
+
+
+class TestPilotScaleGate:
+    def test_missing_approval_blocks_before_output_creation(self, tmp_path: Path) -> None:
+        out = tmp_path / "must-not-exist"
+
+        with pytest.raises(PilotScaleBlockedError) as error:
+            build_pack(out_dir=out, universe_path=UNIVERSE, skip_network=True)
+
+        assert error.value.decision.code == "PILOT_APPROVAL_MISSING"
+        assert out.exists() is False
+
+    def test_hash_divergence_invalidates_approval_before_scale(self, tmp_path: Path) -> None:
+        approval = _write_pilot_approval(tmp_path)
+        payload = json.loads(approval.read_text(encoding="utf-8"))
+        payload["universe_sha256"] = "0" * 64
+        approval.write_text(json.dumps(payload), encoding="utf-8")
+        out = tmp_path / "must-not-exist"
+
+        with pytest.raises(PilotScaleBlockedError) as error:
+            build_pack(
+                out_dir=out,
+                universe_path=UNIVERSE,
+                pilot_approval_path=approval,
+                skip_network=True,
+            )
+
+        assert error.value.decision.code == "PILOT_APPROVAL_HASH_MISMATCH"
+        assert out.exists() is False
+
+    def test_policy_change_invalidates_previous_approval(self, tmp_path: Path) -> None:
+        approval = _write_pilot_approval(tmp_path)
+        changed_policy = tmp_path / "source_applicability.yaml"
+        changed_policy.write_bytes(DEFAULT_PILOT_POLICY.read_bytes() + b"\n# changed\n")
+        entities = load_universe(UNIVERSE)
+
+        with pytest.raises(PilotScaleBlockedError) as error:
+            require_pilot_approval(
+                universe_path=UNIVERSE,
+                policy_path=changed_policy,
+                universe_entity_count=len(entities),
+                universe_entity_ids={entity.entity_key for entity in entities},
+                approval_path=approval,
+            )
+
+        assert error.value.decision.code == "PILOT_APPROVAL_HASH_MISMATCH"
 
 
 def _obs(**kwargs) -> SourceObservation:
@@ -374,6 +489,7 @@ class TestPackE2EFixture:
             pack_id="EXTRA-MS-OPEN-TEST-FIXTURE",
             shortlist_limit=10,
             skip_network=True,
+            pilot_approval_path=_write_pilot_approval(tmp_path),
         )
 
         assert set(CLIENT_ARTIFACTS) == set(CLIENT_ARTIFACTS)
@@ -436,7 +552,9 @@ class TestPackE2EFixture:
         )
         codes = [reason["code"] for reason in reasons]
         assert len(codes) == len(set(codes))
-        assert "PILOT_APPROVAL_MISSING" in codes
+        assert "PILOT_APPROVAL_MISSING" not in codes
+        assert manifest["pilot_approval"]["approved"] is True
+        assert manifest["pilot_approval"]["pilot_entities"] == 30
         assert "COVERAGE_EVIDENCE_MISSING" in codes
         assert "PROFILE_CRITICAL_FIELDS_PENDING" in codes
         for code in codes:
@@ -527,6 +645,7 @@ class TestPackE2EFixture:
             now=datetime(2026, 7, 31, 12, 0, tzinfo=BR_TZ),
             pack_id="EXTRA-MS-OPEN-TEST-XLSX",
             skip_network=True,
+            pilot_approval_path=_write_pilot_approval(tmp_path),
         )
         wb = openpyxl.load_workbook(out / "02-oportunidades-multifonte-dados.xlsx")
         names = set(wb.sheetnames)
