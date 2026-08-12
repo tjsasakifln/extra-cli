@@ -3123,3 +3123,10 @@ CI (PR #12):
 - [x] Scheduler prefers CIGA/DOM families before PNCP under lag drain — avoids 429 starvation.
 - [x] Queue state repair: SUCCESS_ZERO/NONZERO with `scope_complete≠false` reconciled missing `last_success_at` (inconsistent prior gap-close state).
 - Residual non-claims unchanged: official SINAPI live bulk dump; external https webhook delivery.
+
+## Critical issues wave 1 (branch evidence; not accepted)
+
+- [ ] Structured blockers in the multi-source package. **#286 `VERIFIED` on
+  branch:** every `BLOCKED` package has ordered `code`/`evidence`/`owner`/
+  `next_action`, reconciled across manifest, README, XLSX and PDF. This remains
+  unchecked until exact-HEAD CI and `main` acceptance.

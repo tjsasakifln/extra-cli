@@ -12,7 +12,12 @@ from typing import Any
 from scripts.ops.multi_source_open_pack.analysis import apply_minimum_analysis
 from scripts.ops.multi_source_open_pack.classify_aec import TAXONOMY_VERSION
 from scripts.ops.multi_source_open_pack.consolidate import consolidate_observations
-from scripts.ops.multi_source_open_pack.decide import SCORING_VERSION, apply_decisions, select_shortlist
+from scripts.ops.multi_source_open_pack.decide import (
+    SCORING_VERSION,
+    _profile_pending_fields,
+    apply_decisions,
+    select_shortlist,
+)
 from scripts.ops.multi_source_open_pack.documents import inventariar_shortlist
 from scripts.ops.multi_source_open_pack.loaders import load_all_observations, load_csv_dicts
 from scripts.ops.multi_source_open_pack.models import CanonicalProcess, ReconciliationStats
@@ -32,6 +37,68 @@ PROJECT_ROOT = Path(__file__).resolve().parents[3]
 MOTOR_VERSION = "extra-ms-open-pack/2.0.0"
 DEFAULT_UNIVERSE = PROJECT_ROOT / "config" / "target_entities_200km.csv"
 DEFAULT_PROFILE = PROJECT_ROOT / "config" / "client_profiles" / "extra.yaml"
+
+_BLOCKER_ORDER = {
+    code: position
+    for position, code in enumerate(
+        (
+            "INVARIANT_RECONCILIATION_FAILED",
+            "NO_OBSERVATIONS",
+            "CIGA_REQUIRED_SOURCE_MISSING",
+            "PILOT_APPROVAL_MISSING",
+            "COVERAGE_EVIDENCE_MISSING",
+            "COVERAGE_EVIDENCE_INCOMPLETE",
+            "SOURCE_FRESHNESS_STALE",
+            "SHORTLIST_DOCUMENTS_INCOMPLETE",
+            "SHORTLIST_DOCUMENT_TEXT_INSUFFICIENT",
+            "SHORTLIST_BUYER_ANALYSIS_MISSING",
+            "SHORTLIST_EMPTY_AFTER_DOCUMENT_FILTER",
+            "PROFILE_CRITICAL_FIELDS_PENDING",
+        )
+    )
+}
+
+
+def _add_blocking_reason(
+    pack_meta: dict[str, Any],
+    *,
+    code: str,
+    evidence: str,
+    owner: str,
+    next_action: str,
+) -> None:
+    reason = {
+        "code": code,
+        "evidence": evidence,
+        "owner": owner,
+        "next_action": next_action,
+    }
+    reasons = pack_meta.setdefault("blocking_reasons", [])
+    if not any(
+        current.get("code") == code and current.get("evidence") == evidence
+        for current in reasons
+    ):
+        reasons.append(reason)
+
+
+def _finalize_blocking_reasons(pack_meta: dict[str, Any]) -> None:
+    reasons = pack_meta.setdefault("blocking_reasons", [])
+    reasons.sort(
+        key=lambda reason: (
+            _BLOCKER_ORDER.get(str(reason.get("code")), len(_BLOCKER_ORDER)),
+            str(reason.get("code")),
+            str(reason.get("evidence")),
+        )
+    )
+    terminal = str(pack_meta.get("terminal_state") or "")
+    consistency_errors: list[str] = []
+    if terminal == "BLOCKED" and not reasons:
+        consistency_errors.append("BLOCKED terminal_state requires blocking_reasons")
+    if terminal == "PASS" and reasons:
+        consistency_errors.append("PASS terminal_state forbids active blocking_reasons")
+    if consistency_errors:
+        pack_meta["invariant_errors"] = list(pack_meta.get("invariant_errors") or []) + consistency_errors
+        pack_meta["terminal_state"] = "FAIL"
 
 
 def _git_sha(root: Path) -> str:
@@ -411,6 +478,7 @@ def build_pack(
         "human_accept": "PENDING_HUMAN",
         "terminal_state": "FAIL" if inv_errors else "PASS",
         "invariant_errors": inv_errors,
+        "blocking_reasons": [],
         "claims_allowed": [
             "contagens_dimensionalmente_rotuladas",
             "processo_canonic_deduplicado",
@@ -431,12 +499,73 @@ def build_pack(
         "secondary_reference_process_count": len(secondary),
     }
 
+    for error in inv_errors:
+        _add_blocking_reason(
+            pack_meta,
+            code="INVARIANT_RECONCILIATION_FAILED",
+            evidence=error,
+            owner="data_quality",
+            next_action="Corrigir a reconciliação e regenerar o pacote.",
+        )
+
+    if not stats.observacoes_por_fonte.get("ciga_ckan"):
+        _add_blocking_reason(
+            pack_meta,
+            code="CIGA_REQUIRED_SOURCE_MISSING",
+            evidence="Fonte municipal obrigatória ciga_ckan sem observações no pacote.",
+            owner="source_ops",
+            next_action="Executar CIGA/DOM com escopo completo ou registrar falha nominal.",
+        )
+
+    _add_blocking_reason(
+        pack_meta,
+        code="PILOT_APPROVAL_MISSING",
+        evidence=f"Universo com {stats.entes_universo} entes sem aprovação de piloto vinculada ao pacote.",
+        owner="product_owner",
+        next_action="Anexar aprovação humana válida do piloto estratificado de 30 entes.",
+    )
+
+    if not cov_rows:
+        _add_blocking_reason(
+            pack_meta,
+            code="COVERAGE_EVIDENCE_MISSING",
+            evidence="Nenhuma matriz ente×fonte foi fornecida em --coverage.",
+            owner="coverage_ops",
+            next_action="Gerar e fornecer a matriz de cobertura do universo ativo.",
+        )
+    elif stats.entes_cobertos < stats.entes_universo:
+        _add_blocking_reason(
+            pack_meta,
+            code="COVERAGE_EVIDENCE_INCOMPLETE",
+            evidence=f"Entes cobertos={stats.entes_cobertos}; universo={stats.entes_universo}.",
+            owner="coverage_ops",
+            next_action="Resolver os gaps nominais e regenerar a matriz de cobertura.",
+        )
+
+    pending_profile = _profile_pending_fields(profile)
+    if pending_profile:
+        _add_blocking_reason(
+            pack_meta,
+            code="PROFILE_CRITICAL_FIELDS_PENDING",
+            evidence="Campos críticos pendentes: " + ", ".join(pending_profile),
+            owner="tiago",
+            next_action="Concluir a elicitação humana e versionar o perfil aprovado.",
+        )
+
     if freshness_notes:
         pack_meta["terminal_state"] = "BLOCKED" if not inv_errors else "FAIL"
         pack_meta["claims_forbidden"] = list(
             set(pack_meta["claims_forbidden"]) | {"cobertura_live_completa", "freshness_24h"}
         )
         pack_meta["blockers_external"] = freshness_notes
+        for note in freshness_notes:
+            _add_blocking_reason(
+                pack_meta,
+                code="SOURCE_FRESHNESS_STALE",
+                evidence=note,
+                owner="source_ops",
+                next_action="Reexecutar a fonte e comprovar freshness <=24h.",
+            )
         # partial claim if shortlist pages revalidated live
         if live_pages_ok and shortlist and live_pages_ok == len(shortlist):
             pack_meta["claims_allowed"].append("shortlist_paginas_oficiais_revalidadas_http_live")
@@ -473,17 +602,45 @@ def build_pack(
             gate_issues.append(
                 f"{len(incomplete)}/{len(shortlist)} shortlist sem docs complete (edital/anexo parseado)"
             )
+            _add_blocking_reason(
+                pack_meta,
+                code="SHORTLIST_DOCUMENTS_INCOMPLETE",
+                evidence=gate_issues[-1],
+                owner="document_ops",
+                next_action="Baixar, hash-ear e parsear edital/anexos oficiais da shortlist.",
+            )
         if weak_edital:
             gate_issues.append(
                 f"{len(weak_edital)}/{len(shortlist)} shortlist sem texto documental suficiente para análise"
+            )
+            _add_blocking_reason(
+                pack_meta,
+                code="SHORTLIST_DOCUMENT_TEXT_INSUFFICIENT",
+                evidence=gate_issues[-1],
+                owner="document_ops",
+                next_action="Obter texto oficial suficiente e repetir a análise documental.",
             )
         if no_buyer:
             gate_issues.append(
                 f"{len(no_buyer)}/{len(shortlist)} shortlist sem análise de órgão baseada em evidência"
             )
+            _add_blocking_reason(
+                pack_meta,
+                code="SHORTLIST_BUYER_ANALYSIS_MISSING",
+                evidence=gate_issues[-1],
+                owner="market_intelligence",
+                next_action="Gerar análise do órgão com evidência do pack.",
+            )
         if not shortlist:
             gate_issues.append(
                 "shortlist vazia após filtro de inventário completo — sem base decisória executiva"
+            )
+            _add_blocking_reason(
+                pack_meta,
+                code="SHORTLIST_EMPTY_AFTER_DOCUMENT_FILTER",
+                evidence=gate_issues[-1],
+                owner="document_ops",
+                next_action="Completar o inventário documental antes de publicar shortlist.",
             )
         if gate_issues and pack_meta["terminal_state"] == "PASS":
             pack_meta["terminal_state"] = "BLOCKED"
@@ -512,6 +669,17 @@ def build_pack(
         pack_meta["blockers_external"] = pack_meta.get("blockers_external", []) + [
             "Nenhuma observação carregada — forneça --pncp/--ciga/--sc-compras"
         ]
+        _add_blocking_reason(
+            pack_meta,
+            code="NO_OBSERVATIONS",
+            evidence="Nenhuma observação foi carregada no pacote.",
+            owner="source_ops",
+            next_action="Fornecer ao menos uma coleta completa e vinculada ao run.",
+        )
+
+    if pack_meta["blocking_reasons"] and pack_meta["terminal_state"] == "PASS":
+        pack_meta["terminal_state"] = "BLOCKED"
+    _finalize_blocking_reasons(pack_meta)
 
     # Do not ship internal cache as client artifact — remove from client listing later
     pack_meta["internal_doc_cache"] = str(doc_cache) if doc_cache.exists() else ""
@@ -529,6 +697,7 @@ def build_pack(
         as_of=pack_meta["as_of"],
         limitations=limitations,
         motor_version=MOTOR_VERSION,
+        pack_meta=pack_meta,
     )
     write_csv(csv_path, csv_procs)
 

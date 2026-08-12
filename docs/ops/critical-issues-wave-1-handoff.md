@@ -10,7 +10,7 @@ acceptance require exact-HEAD CI and the repository's human/main gates.
 | Issue | State | Reproducible evidence | Remaining gate |
 |---:|---|---|---|
 | #303 | VERIFIED | Focused contracts suite; new zero/data/multipage/error/cap/persistence cases | exact-HEAD CI + main |
-| #286 | OPEN | — | implementation and test |
+| #286 | VERIFIED | 23 pack tests; blocker codes reconciled across four formats | exact-HEAD CI + main |
 | #237 | OPEN | — | implementation and test |
 | #245 | OPEN | — | implementation and test |
 | #234 | OPEN | — | implementation and test |
@@ -35,3 +35,20 @@ All checks passed!
 ```
 
 No live coverage, `LOCAL_READY`, or `VPS_OPERATIONAL` claim is made.
+
+## #286 verification
+
+```text
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -o addopts= \
+  tests/test_multi_source_open_pack.py -q --tb=short
+23 passed
+
+python3 -m ruff check scripts/ops/multi_source_open_pack/pipeline.py \
+  scripts/ops/multi_source_open_pack/render_pack.py \
+  tests/test_multi_source_open_pack.py
+All checks passed!
+```
+
+The generated fixture package is `BLOCKED` and carries ordered blocker objects
+with `code`, `evidence`, `owner`, and `next_action`. README, manifest, workbook
+and PDF expose the identical code sequence. No readiness seal is claimed.

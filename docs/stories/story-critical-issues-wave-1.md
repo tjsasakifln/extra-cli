@@ -42,7 +42,7 @@ then by critical-path unlocks. The resulting scope is:
 
 ### Remaining issues
 
-- [ ] #286: BLOCKED packages contain ordered structured blockers reconciled
+- [x] #286: BLOCKED packages contain ordered structured blockers reconciled
   across PDF, XLSX, README, manifest, and exit status.
 - [ ] #237: source success remains visible when another source degrades, while
   the aggregate remains fail-closed.
@@ -75,6 +75,9 @@ then by critical-path unlocks. The resulting scope is:
 - `scripts/ops/run_contracts_pilot.py`
 - `tests/test_contracts_crawler.py`
 - `tests/test_contracts_pilot_completion.py`
+- `scripts/ops/multi_source_open_pack/pipeline.py`
+- `scripts/ops/multi_source_open_pack/render_pack.py`
+- `tests/test_multi_source_open_pack.py`
 - `DOD.md`
 - `docs/ops/critical-issues-wave-1-handoff.md`
 - `docs/stories/story-critical-issues-wave-1.md`
@@ -84,3 +87,4 @@ then by critical-path unlocks. The resulting scope is:
 | Date | Issue | State | Evidence |
 |---|---:|---|---|
 | 2026-08-12 | #303 | VERIFIED_LOCAL | 76 focused legacy/new tests pass; ruff and diff-check pass |
+| 2026-08-12 | #286 | VERIFIED_LOCAL | 23 multi-source pack tests pass; codes reconcile in JSON/MD/XLSX/PDF |

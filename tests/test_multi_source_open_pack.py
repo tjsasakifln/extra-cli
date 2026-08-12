@@ -6,16 +6,19 @@ import csv
 import json
 from datetime import date, datetime
 from pathlib import Path
-from zoneinfo import ZoneInfo
 
 import pytest
 
 from scripts.ops.multi_source_open_pack.classify_aec import classify_aec
-from scripts.ops.multi_source_open_pack.consolidate import consolidate_observations, merge_key_for
-from scripts.ops.multi_source_open_pack.decide import apply_decisions, evaluate_process, select_shortlist
+from scripts.ops.multi_source_open_pack.consolidate import consolidate_observations
+from scripts.ops.multi_source_open_pack.decide import apply_decisions, select_shortlist
 from scripts.ops.multi_source_open_pack.events import classify_event
-from scripts.ops.multi_source_open_pack.models import CanonicalProcess, SourceObservation
-from scripts.ops.multi_source_open_pack.pipeline import CLIENT_ARTIFACTS, build_pack
+from scripts.ops.multi_source_open_pack.models import SourceObservation
+from scripts.ops.multi_source_open_pack.pipeline import (
+    CLIENT_ARTIFACTS,
+    _finalize_blocking_reasons,
+    build_pack,
+)
 from scripts.ops.multi_source_open_pack.reconcile import build_reconciliation
 from scripts.ops.multi_source_open_pack.textutil import BR_TZ, days_remaining, parse_datetime
 from scripts.ops.multi_source_open_pack.universe import annotate_observation_universe, build_indexes, load_universe
@@ -415,6 +418,38 @@ class TestPackE2EFixture:
         assert "scripts.ops.multi_source_open_pack" in manifest.get("motor_module", "")
         assert result["motor_version"]
 
+        # #286: BLOCKED always carries the same ordered structured codes in
+        # manifest, README, XLSX and PDF.
+        assert manifest["terminal_state"] == "BLOCKED"
+        reasons = manifest["blocking_reasons"]
+        assert reasons
+        assert all(
+            set(reason) >= {"code", "evidence", "owner", "next_action"}
+            for reason in reasons
+        )
+        codes = [reason["code"] for reason in reasons]
+        assert len(codes) == len(set(codes))
+        assert "PILOT_APPROVAL_MISSING" in codes
+        assert "COVERAGE_EVIDENCE_MISSING" in codes
+        assert "PROFILE_CRITICAL_FIELDS_PENDING" in codes
+        for code in codes:
+            assert code in readme
+
+        openpyxl = pytest.importorskip("openpyxl")
+        workbook = openpyxl.load_workbook(out / "02-oportunidades-multifonte-dados.xlsx")
+        gate_rows = list(workbook["Gates"].iter_rows(min_row=2, values_only=True))
+        assert [row[1] for row in gate_rows if row[1]] == codes
+        assert {row[0] for row in gate_rows} == {"BLOCKED"}
+
+        from PyPDF2 import PdfReader
+
+        pdf_text = "\n".join(
+            page.extract_text() or ""
+            for page in PdfReader(out / "01-resumo-executivo-multifonte.pdf").pages
+        )
+        for code in codes:
+            assert code in pdf_text
+
         # checksums match
         checksums = json.loads((out / "checksums.json").read_text(encoding="utf-8"))
         import hashlib
@@ -492,6 +527,29 @@ class TestPackE2EFixture:
 
 
 class TestReconciliationInvariants:
+    def test_blocked_without_reason_fails_qa_contract(self):
+        meta = {"terminal_state": "BLOCKED", "blocking_reasons": [], "invariant_errors": []}
+        _finalize_blocking_reasons(meta)
+        assert meta["terminal_state"] == "FAIL"
+        assert any("requires blocking_reasons" in error for error in meta["invariant_errors"])
+
+    def test_pass_with_active_reason_fails_qa_contract(self):
+        meta = {
+            "terminal_state": "PASS",
+            "blocking_reasons": [
+                {
+                    "code": "ACTIVE_BLOCKER",
+                    "evidence": "evidence",
+                    "owner": "owner",
+                    "next_action": "act",
+                }
+            ],
+            "invariant_errors": [],
+        }
+        _finalize_blocking_reasons(meta)
+        assert meta["terminal_state"] == "FAIL"
+        assert any("forbids active" in error for error in meta["invariant_errors"])
+
     def test_invariants_hold(self):
         entities = load_universe(UNIVERSE)
         obs = [

@@ -42,6 +42,7 @@ def write_readme(
     as_of: str,
     limitations: list[str],
     motor_version: str,
+    pack_meta: dict[str, Any],
 ) -> None:
     labels = format_reconciliation_labels(stats)
     lines = [
@@ -75,6 +76,7 @@ def write_readme(
         "- `manifest.json` / `checksums.json` — integridade + reconciliação",
         "",
         f"Motor: `{motor_version}` · gerado: `{generated_at}` · as_of: `{as_of}`",
+        f"Estado terminal: **{pack_meta.get('terminal_state', 'UNKNOWN')}**",
         "",
         "## Reconciliação",
         "",
@@ -95,6 +97,16 @@ def write_readme(
     ]
     for lim in limitations:
         lines.append(f"- {lim}")
+    lines += ["", "## Blocking reasons", ""]
+    reasons = pack_meta.get("blocking_reasons") or []
+    if reasons:
+        for reason in reasons:
+            lines.append(
+                f"- `{reason.get('code')}` — {reason.get('evidence')} "
+                f"Owner: {reason.get('owner')}. Próxima ação: {reason.get('next_action')}"
+            )
+    else:
+        lines.append("- Nenhum blocker ativo.")
     lines += [
         "",
         "Aceite humano: **PENDING_HUMAN** (Tiago). Ausência de manifestação ≠ aceite.",
@@ -234,6 +246,27 @@ def write_excel(
     ws.column_dimensions["A"].width = 58
     ws.column_dimensions["B"].width = 18
     ws.freeze_panes = "A8"
+
+    # --- Gates / blockers (same codes as README, PDF and manifest) ---
+    wg = wb.create_sheet("Gates")
+    gate_cols = ["terminal_state", "code", "evidence", "owner", "next_action"]
+    style_header(wg, gate_cols)
+    reasons = pack_meta.get("blocking_reasons") or []
+    rows = reasons or [{"code": "", "evidence": "", "owner": "", "next_action": ""}]
+    for i, reason in enumerate(rows, start=2):
+        values = [
+            pack_meta.get("terminal_state", "UNKNOWN"),
+            reason.get("code", ""),
+            reason.get("evidence", ""),
+            reason.get("owner", ""),
+            reason.get("next_action", ""),
+        ]
+        for j, value in enumerate(values, start=1):
+            cell = wg.cell(i, j, excel_safe(value))
+            cell.font = font_cell
+            cell.alignment = Alignment(wrap_text=True, vertical="top")
+    autosize(wg, gate_cols, max_w=70)
+    wg.freeze_panes = "A2"
 
     # --- Shortlist ---
     wsl = wb.create_sheet("Shortlist")
@@ -615,6 +648,15 @@ def write_pdf(
         )
     )
     story.append(HRFlowable(width="100%", thickness=1, color=lime, spaceBefore=4, spaceAfter=8))
+
+    blocker_codes = [str(r.get("code")) for r in pack_meta.get("blocking_reasons") or []]
+    story.append(
+        Paragraph(
+            f"Estado terminal: <b>{pack_meta.get('terminal_state', 'UNKNOWN')}</b><br/>"
+            f"Blocking reasons: {', '.join(blocker_codes) if blocker_codes else 'nenhum'}",
+            styles["BodyC"],
+        )
+    )
 
     story.append(Paragraph("1. Estado do mercado monitorado e cobertura reconciliada", styles["H1C"]))
     story.append(
