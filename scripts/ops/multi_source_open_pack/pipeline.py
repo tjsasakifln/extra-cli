@@ -54,6 +54,7 @@ _BLOCKER_ORDER = {
             "SHORTLIST_BUYER_ANALYSIS_MISSING",
             "SHORTLIST_EMPTY_AFTER_DOCUMENT_FILTER",
             "PROFILE_CRITICAL_FIELDS_PENDING",
+            "HUMAN_ACCEPT_PENDING",
         )
     )
 }
@@ -99,6 +100,41 @@ def _finalize_blocking_reasons(pack_meta: dict[str, Any]) -> None:
     if consistency_errors:
         pack_meta["invariant_errors"] = list(pack_meta.get("invariant_errors") or []) + consistency_errors
         pack_meta["terminal_state"] = "FAIL"
+
+
+def _set_delivery_gates(pack_meta: dict[str, Any]) -> None:
+    """Publish structural QA and operational readiness as independent gates."""
+    invariant_errors = list(pack_meta.get("invariant_errors") or [])
+    structural_qa = {
+        "ok": not invariant_errors,
+        "invariant_errors": invariant_errors,
+        "checks": {
+            "reconciliation_invariants": not invariant_errors,
+            "artifact_shape": not any(
+                "artifact" in str(error).lower() for error in invariant_errors
+            ),
+        },
+    }
+    reasons = list(pack_meta.get("blocking_reasons") or [])
+    active_codes = [str(reason.get("code")) for reason in reasons]
+    delivery_readiness = {
+        "ok": structural_qa["ok"] and not reasons,
+        "blocking_codes": active_codes,
+        "checks": {
+            "required_sources": not any("SOURCE" in code for code in active_codes),
+            "pilot": not any("PILOT" in code for code in active_codes),
+            "coverage": not any("COVERAGE" in code for code in active_codes),
+            "documents": not any("DOCUMENT" in code or "SHORTLIST" in code for code in active_codes),
+            "freshness": not any("FRESHNESS" in code for code in active_codes),
+            "profile": not any("PROFILE" in code for code in active_codes),
+            "human_accept": not any("HUMAN_ACCEPT" in code for code in active_codes),
+        },
+    }
+    deliverable = structural_qa["ok"] and delivery_readiness["ok"]
+    pack_meta["structural_qa"] = structural_qa
+    pack_meta["delivery_readiness"] = delivery_readiness
+    pack_meta["deliverable"] = deliverable
+    pack_meta["terminal_state"] = "PASS" if deliverable else ("BLOCKED" if structural_qa["ok"] else "FAIL")
 
 
 def _git_sha(root: Path) -> str:
@@ -677,9 +713,19 @@ def build_pack(
             next_action="Fornecer ao menos uma coleta completa e vinculada ao run.",
         )
 
+    if pack_meta.get("human_accept") != "APPROVED":
+        _add_blocking_reason(
+            pack_meta,
+            code="HUMAN_ACCEPT_PENDING",
+            evidence=f"human_accept={pack_meta.get('human_accept') or 'UNKNOWN'}.",
+            owner="tiago",
+            next_action="Revisar o pacote e registrar aprovação humana explícita.",
+        )
+
     if pack_meta["blocking_reasons"] and pack_meta["terminal_state"] == "PASS":
         pack_meta["terminal_state"] = "BLOCKED"
     _finalize_blocking_reasons(pack_meta)
+    _set_delivery_gates(pack_meta)
 
     # Do not ship internal cache as client artifact — remove from client listing later
     pack_meta["internal_doc_cache"] = str(doc_cache) if doc_cache.exists() else ""
@@ -778,6 +824,9 @@ def build_pack(
         "observations_n": len(observations),
         "client_artifacts": list(CLIENT_ARTIFACTS),
         "invariant_errors": pack_meta.get("invariant_errors", []),
+        "structural_qa": pack_meta["structural_qa"],
+        "delivery_readiness": pack_meta["delivery_readiness"],
+        "deliverable": pack_meta["deliverable"],
         "git_sha": pack_meta["git_sha"],
         "motor_version": MOTOR_VERSION,
     }

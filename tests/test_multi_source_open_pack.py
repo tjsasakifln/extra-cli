@@ -17,6 +17,7 @@ from scripts.ops.multi_source_open_pack.models import SourceObservation
 from scripts.ops.multi_source_open_pack.pipeline import (
     CLIENT_ARTIFACTS,
     _finalize_blocking_reasons,
+    _set_delivery_gates,
     build_pack,
 )
 from scripts.ops.multi_source_open_pack.reconcile import build_reconciliation
@@ -421,6 +422,12 @@ class TestPackE2EFixture:
         # #286: BLOCKED always carries the same ordered structured codes in
         # manifest, README, XLSX and PDF.
         assert manifest["terminal_state"] == "BLOCKED"
+        assert manifest["structural_qa"]["ok"] is True
+        assert manifest["delivery_readiness"]["ok"] is False
+        assert manifest["deliverable"] is False
+        assert result["structural_qa"]["ok"] is True
+        assert result["delivery_readiness"]["ok"] is False
+        assert result["deliverable"] is False
         reasons = manifest["blocking_reasons"]
         assert reasons
         assert all(
@@ -438,8 +445,11 @@ class TestPackE2EFixture:
         openpyxl = pytest.importorskip("openpyxl")
         workbook = openpyxl.load_workbook(out / "02-oportunidades-multifonte-dados.xlsx")
         gate_rows = list(workbook["Gates"].iter_rows(min_row=2, values_only=True))
-        assert [row[1] for row in gate_rows if row[1]] == codes
+        assert [row[4] for row in gate_rows if row[4]] == codes
         assert {row[0] for row in gate_rows} == {"BLOCKED"}
+        assert {row[1] for row in gate_rows} == {True}
+        assert {row[2] for row in gate_rows} == {False}
+        assert {row[3] for row in gate_rows} == {False}
 
         from PyPDF2 import PdfReader
 
@@ -449,6 +459,10 @@ class TestPackE2EFixture:
         )
         for code in codes:
             assert code in pdf_text
+        assert "Structural QA: PASS" in pdf_text
+        assert "Delivery readiness: BLOCKED" in pdf_text
+        assert "Structural QA: **PASS**" in readme
+        assert "Delivery readiness: **BLOCKED**" in readme
 
         # checksums match
         checksums = json.loads((out / "checksums.json").read_text(encoding="utf-8"))
@@ -549,6 +563,33 @@ class TestReconciliationInvariants:
         _finalize_blocking_reasons(meta)
         assert meta["terminal_state"] == "FAIL"
         assert any("forbids active" in error for error in meta["invariant_errors"])
+
+    def test_structural_green_can_remain_delivery_blocked(self):
+        meta = {
+            "terminal_state": "BLOCKED",
+            "blocking_reasons": [
+                {
+                    "code": "SOURCE_FRESHNESS_STALE",
+                    "evidence": "stale",
+                    "owner": "source_ops",
+                    "next_action": "refresh",
+                }
+            ],
+            "invariant_errors": [],
+        }
+        _set_delivery_gates(meta)
+        assert meta["structural_qa"]["ok"] is True
+        assert meta["delivery_readiness"]["ok"] is False
+        assert meta["deliverable"] is False
+        assert meta["terminal_state"] == "BLOCKED"
+
+    def test_package_is_deliverable_only_when_both_gates_pass(self):
+        meta = {"terminal_state": "PASS", "blocking_reasons": [], "invariant_errors": []}
+        _set_delivery_gates(meta)
+        assert meta["structural_qa"]["ok"] is True
+        assert meta["delivery_readiness"]["ok"] is True
+        assert meta["deliverable"] is True
+        assert meta["terminal_state"] == "PASS"
 
     def test_invariants_hold(self):
         entities = load_universe(UNIVERSE)

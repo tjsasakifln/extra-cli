@@ -12,7 +12,7 @@ acceptance require exact-HEAD CI and the repository's human/main gates.
 | #303 | VERIFIED | Focused contracts suite; new zero/data/multipage/error/cap/persistence cases | exact-HEAD CI + main |
 | #286 | VERIFIED | 23 pack tests; blocker codes reconciled across four formats | exact-HEAD CI + main |
 | #237 | OPEN | — | implementation and test |
-| #245 | OPEN | — | implementation and test |
+| #245 | VERIFIED | 25 pack tests; independent QA/readiness gates in all formats | exact-HEAD CI + main |
 | #234 | OPEN | — | implementation and test |
 | #278 | OPEN | — | implementation and test |
 | #288 | OPEN | — | implementation and test |
@@ -52,3 +52,16 @@ All checks passed!
 The generated fixture package is `BLOCKED` and carries ordered blocker objects
 with `code`, `evidence`, `owner`, and `next_action`. README, manifest, workbook
 and PDF expose the identical code sequence. No readiness seal is claimed.
+
+## #245 verification
+
+```text
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -o addopts= \
+  tests/test_multi_source_open_pack.py -q --tb=short
+25 passed
+```
+
+The fixture proves `structural_qa.ok=true` can coexist honestly with
+`delivery_readiness.ok=false`; in that state `deliverable=false`, terminal state
+is `BLOCKED`, and the CLI exits non-zero. Manifest, README, XLSX and PDF expose
+the same gate states.

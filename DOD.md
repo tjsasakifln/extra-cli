@@ -3130,3 +3130,7 @@ CI (PR #12):
   branch:** every `BLOCKED` package has ordered `code`/`evidence`/`owner`/
   `next_action`, reconciled across manifest, README, XLSX and PDF. This remains
   unchecked until exact-HEAD CI and `main` acceptance.
+- [ ] Structural QA is distinct from delivery readiness. **#245 `VERIFIED` on
+  branch:** `deliverable=true` requires both gates; stale/failed sources, pilot,
+  coverage, documents, profile and human blockers keep readiness false while
+  structural QA may remain green. Exact-HEAD CI and `main` are still required.

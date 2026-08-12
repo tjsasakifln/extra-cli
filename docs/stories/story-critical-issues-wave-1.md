@@ -46,7 +46,7 @@ then by critical-path unlocks. The resulting scope is:
   across PDF, XLSX, README, manifest, and exit status.
 - [ ] #237: source success remains visible when another source degrades, while
   the aggregate remains fail-closed.
-- [ ] #245: `structural_qa` and `delivery_readiness` are independent gates and
+- [x] #245: `structural_qa` and `delivery_readiness` are independent gates and
   both are required for delivery.
 - [ ] #234: scale beyond 30 entities requires a valid, hash-bound, human-approved
   stratified pilot artifact.
@@ -88,3 +88,4 @@ then by critical-path unlocks. The resulting scope is:
 |---|---:|---|---|
 | 2026-08-12 | #303 | VERIFIED_LOCAL | 76 focused legacy/new tests pass; ruff and diff-check pass |
 | 2026-08-12 | #286 | VERIFIED_LOCAL | 23 multi-source pack tests pass; codes reconcile in JSON/MD/XLSX/PDF |
+| 2026-08-12 | #245 | VERIFIED_LOCAL | 25 pack tests pass; structural QA green remains delivery-blocked |

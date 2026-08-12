@@ -77,6 +77,10 @@ def write_readme(
         "",
         f"Motor: `{motor_version}` · gerado: `{generated_at}` · as_of: `{as_of}`",
         f"Estado terminal: **{pack_meta.get('terminal_state', 'UNKNOWN')}**",
+        f"Structural QA: **{'PASS' if (pack_meta.get('structural_qa') or {}).get('ok') else 'FAIL'}**",
+        "Delivery readiness: "
+        f"**{'PASS' if (pack_meta.get('delivery_readiness') or {}).get('ok') else 'BLOCKED'}**",
+        f"Entregável: **{'SIM' if pack_meta.get('deliverable') else 'NÃO'}**",
         "",
         "## Reconciliação",
         "",
@@ -249,13 +253,25 @@ def write_excel(
 
     # --- Gates / blockers (same codes as README, PDF and manifest) ---
     wg = wb.create_sheet("Gates")
-    gate_cols = ["terminal_state", "code", "evidence", "owner", "next_action"]
+    gate_cols = [
+        "terminal_state",
+        "structural_qa_ok",
+        "delivery_readiness_ok",
+        "deliverable",
+        "code",
+        "evidence",
+        "owner",
+        "next_action",
+    ]
     style_header(wg, gate_cols)
     reasons = pack_meta.get("blocking_reasons") or []
     rows = reasons or [{"code": "", "evidence": "", "owner": "", "next_action": ""}]
     for i, reason in enumerate(rows, start=2):
         values = [
             pack_meta.get("terminal_state", "UNKNOWN"),
+            bool((pack_meta.get("structural_qa") or {}).get("ok")),
+            bool((pack_meta.get("delivery_readiness") or {}).get("ok")),
+            bool(pack_meta.get("deliverable")),
             reason.get("code", ""),
             reason.get("evidence", ""),
             reason.get("owner", ""),
@@ -653,6 +669,10 @@ def write_pdf(
     story.append(
         Paragraph(
             f"Estado terminal: <b>{pack_meta.get('terminal_state', 'UNKNOWN')}</b><br/>"
+            f"Structural QA: <b>{'PASS' if (pack_meta.get('structural_qa') or {}).get('ok') else 'FAIL'}</b><br/>"
+            "Delivery readiness: "
+            f"<b>{'PASS' if (pack_meta.get('delivery_readiness') or {}).get('ok') else 'BLOCKED'}</b><br/>"
+            f"Entregável: <b>{'SIM' if pack_meta.get('deliverable') else 'NÃO'}</b><br/>"
             f"Blocking reasons: {', '.join(blocker_codes) if blocker_codes else 'nenhum'}",
             styles["BodyC"],
         )
