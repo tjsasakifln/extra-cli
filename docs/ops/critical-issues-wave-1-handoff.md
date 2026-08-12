@@ -17,7 +17,7 @@ acceptance require exact-HEAD CI and the repository's human/main gates.
 | #278 | VERIFIED | 49 systemd/resilience tests; rendered pair + idempotent install smoke | exact-HEAD CI + main |
 | #288 | VERIFIED | 80 loader/pack/weekly tests; 10,037 rows reconcile to one SQL snapshot | exact-HEAD CI + main |
 | #233 | VERIFIED | 87 loader/pack/weekly tests; exact run membership and reuse proof | exact-HEAD CI + main |
-| #311 | OPEN | — | implementation and test |
+| #311 | VERIFIED | 150 crawler/consumer tests + real migration transaction for four types | exact-HEAD CI + main |
 | #313 | OPEN | — | implementation and test |
 
 ## #303 verification
@@ -163,3 +163,32 @@ SHA-256 over its membership, and in-SLA freshness proof in package metadata.
 Unbound official-act/file discovery is disabled for the collection-isolated
 path; a foreign or missing lineage fails before the package directory is
 created.
+
+## #311 verification
+
+```text
+PGCONNECT_TIMEOUT=2 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest \
+  -o addopts= tests/test_contract_supplier_identity.py \
+  tests/test_contracts_crawler.py tests/test_upsert_contracts.py \
+  tests/test_contracts_pilot_completion.py tests/test_contracts_per_window_persist.py \
+  tests/test_crawler_pncp.py tests/test_date_propagation.py \
+  tests/commercial_leads/test_all_status_history.py \
+  tests/commercial_leads/test_identity.py \
+  tests/commercial_leads/test_registry_selection_independence.py \
+  tests/test_cmi_contract_market_intelligence.py \
+  tests/test_deliverable_b_competitors.py tests/test_live_consulting_pack.py \
+  -q --tb=short
+150 passed, 5 skipped
+
+python3 -m scripts.ops.apply_migrations \
+  --dsn postgresql://test:test@127.0.0.1:5433/extra_test
+applied 076_contract_supplier_identity.sql
+```
+
+A rolled-back database transaction then inserted and read one CNPJ, CPF,
+foreign and unknown contract through the real RPC. Only the CNPJ populated
+`fornecedor_cnpj`; CPF exposed only `CPF:***.***.***-**` in its export field.
+The crawler and alternate PNCP adapter share the typed normalizer, contracts
+without CNPJ are retained, and commercial registry/intelligence discovery now
+selects validated CNPJ identities only. Privacy handling is recorded in
+`docs/security/supplier-identity-privacy.md`.

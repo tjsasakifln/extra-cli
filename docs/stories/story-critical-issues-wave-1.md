@@ -56,7 +56,7 @@ then by critical-path unlocks. The resulting scope is:
   limit, with stable pagination/streaming evidence.
 - [x] #233: every packaged observation is bound to the selected collection/run,
   with explicit reuse provenance only.
-- [ ] #311: CNPJ, CPF, foreign, and unknown supplier identifiers remain distinct;
+- [x] #311: CNPJ, CPF, foreign, and unknown supplier identifiers remain distinct;
   CPF is never padded or joined as CNPJ.
 - [ ] #313: canonical contract views expose separate buyer and supplier
   identities and consumers migrate to the corrected version.
@@ -98,6 +98,10 @@ then by critical-path unlocks. The resulting scope is:
 - `tests/test_process_documents_systemd.py`
 - `scripts/ops/multi_source_open_pack/db_loaders.py`
 - `tests/test_snapshot_observation_loader.py`
+- `scripts/contracts_identity.py`
+- `db/migrations/076_contract_supplier_identity.sql`
+- `docs/security/supplier-identity-privacy.md`
+- `tests/test_contract_supplier_identity.py`
 - `DOD.md`
 - `docs/ops/critical-issues-wave-1-handoff.md`
 - `docs/stories/story-critical-issues-wave-1.md`
@@ -114,3 +118,4 @@ then by critical-path unlocks. The resulting scope is:
 | 2026-08-12 | #278 | VERIFIED_LOCAL | 49 systemd/resilience tests pass; rendered pair verifies and reinstall is idempotent |
 | 2026-08-12 | #288 | VERIFIED_LOCAL | 80 focused tests pass; 10,037-row snapshot reconciles without LIMIT or duplicates |
 | 2026-08-12 | #233 | VERIFIED_LOCAL | 87 focused tests pass; package rejects foreign lineage and reconciles selected persisted/reused count |
+| 2026-08-12 | #311 | VERIFIED_LOCAL | 150 focused tests pass; migration applies and transaction proves four identity types with CPF masked |

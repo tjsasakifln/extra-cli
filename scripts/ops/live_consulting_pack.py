@@ -32,6 +32,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
+from scripts.contracts_identity import normalize_cnpj_supplier  # noqa: E402
 from scripts.ops import deliverable_a_org_ranking as deliv_a  # noqa: E402
 from scripts.ops import deliverable_b_competitors as deliv_b  # noqa: E402
 from scripts.ops import deliverable_c_expiring as deliv_c  # noqa: E402
@@ -528,7 +529,7 @@ def build_deliverable_b(
         f"""
         WITH eng AS (
           SELECT
-            COALESCE(fornecedor_cnpj_8, left(COALESCE(fornecedor_cnpj,''),8)) AS root,
+            left(fornecedor_cnpj, 8) AS root,
             fornecedor_cnpj,
             fornecedor_nome,
             orgao_nome,
@@ -537,6 +538,7 @@ def build_deliverable_b(
             upper(btrim(uf)) AS uf_u
           FROM pncp_supplier_contracts
           WHERE COALESCE(is_active, TRUE)
+            AND supplier_id_type = 'CNPJ'
             AND (%s::text IS NULL OR upper(btrim(uf)) = upper(%s))
             AND fornecedor_cnpj IS NOT NULL AND btrim(fornecedor_cnpj) <> ''
             AND objeto_contrato IS NOT NULL
@@ -591,14 +593,9 @@ def build_deliverable_b(
     )
     candidates: list[dict[str, Any]] = []
     for r in rows_raw:
-        cnpj = "".join(ch for ch in str(r.get("cnpj") or "") if ch.isdigit())
-        if len(cnpj) < 14:
-            if len(cnpj) == 8:
-                cnpj = cnpj + "000000"
-            elif len(cnpj) > 0:
-                cnpj = cnpj.zfill(14)
-            else:
-                continue
+        cnpj = normalize_cnpj_supplier(r.get("cnpj"))
+        if not cnpj:
+            continue
         orgaos = list(r.get("orgaos") or [])
         geo = r.get("geo_counts") or {}
         if isinstance(geo, str):

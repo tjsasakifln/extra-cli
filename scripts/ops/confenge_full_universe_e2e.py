@@ -60,9 +60,10 @@ def frozen_candidates(conn: Any, run_result: Path | None) -> list[str]:
     rows = fetch_all(
         conn,
         """
-        SELECT DISTINCT right(regexp_replace(fornecedor_cnpj, '\\D', '', 'g'), 14) AS c
+        SELECT DISTINCT fornecedor_cnpj AS c
         FROM public.pncp_supplier_contracts
-        WHERE length(regexp_replace(coalesce(fornecedor_cnpj,''), '\\D', '', 'g')) >= 14
+        WHERE supplier_id_type = 'CNPJ'
+          AND fornecedor_cnpj IS NOT NULL
         ORDER BY 1
         """,
     )

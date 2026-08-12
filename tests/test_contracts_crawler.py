@@ -20,7 +20,9 @@ MOCK_CONTRACT = {
         "ufSigla": "SC",
         "municipioNome": "Florianopolis",
     },
-    "niFornecedor": "00999999000199",
+    "niFornecedor": "11222333000181",
+    "tipoPessoa": "PJ",
+    "codigoPaisFornecedor": "BR",
     "nomeRazaoSocialFornecedor": "Empresa Exemplo Ltda",
     "valorGlobal": 150000.00,
     "dataAssinatura": "2025-06-15T10:00:00Z",
@@ -36,7 +38,8 @@ MOCK_CONTRACT_NO_UNIDADE = {
         "razaoSocial": "Secretaria de Estado da Saude de SC",
     },
     "unidadeOrgao": {},
-    "niFornecedor": "00999999000199",
+    "niFornecedor": "11222333000181",
+    "tipoPessoa": "PJ",
     "nomeRazaoSocialFornecedor": "Empresa Exemplo Ltda",
     "valorGlobal": 50000.00,
     "dataAssinatura": "2025-06-15T10:00:00Z",
@@ -57,7 +60,8 @@ MOCK_CONTRACT_ZERO_VALUE = {
         "ufSigla": "SC",
         "municipioNome": "Florianopolis",
     },
-    "niFornecedor": "00999999000199",
+    "niFornecedor": "11222333000181",
+    "tipoPessoa": "PJ",
     "nomeRazaoSocialFornecedor": "Empresa Exemplo Ltda",
     "valorGlobal": 0,
     "dataAssinatura": "2025-06-20T10:00:00Z",
@@ -155,7 +159,10 @@ class TestTransformRecord:
         assert result["contrato_id"] == "12345678901234567890"
         assert result["orgao_cnpj"] == "12345678000199"
         assert result["orgao_nome"] == "Secretaria Municipal de Administracao"
-        assert result["fornecedor_cnpj"] == "00999999000199"
+        assert result["fornecedor_cnpj"] == "11222333000181"
+        assert result["supplier_id_type"] == "CNPJ"
+        assert result["supplier_identifier"] == "11222333000181"
+        assert result["supplier_country"] == "BR"
         assert result["fornecedor_nome"] == "Empresa Exemplo Ltda"
         assert result["objeto_contrato"] == "Prestacao de servicos de limpeza predial"
         assert result["valor_total"] == 150000.00
@@ -177,6 +184,12 @@ class TestTransformRecord:
             "orgao_cnpj",
             "orgao_nome",
             "fornecedor_cnpj",
+            "supplier_id_type",
+            "supplier_identifier",
+            "supplier_country",
+            "supplier_identifier_hash",
+            "supplier_identifier_export",
+            "supplier_identity_reason",
             "fornecedor_nome",
             "objeto_contrato",
             "valor_total",
@@ -244,7 +257,7 @@ class TestTransform:
 
         record = result[0]
         assert record["contrato_id"] == "12345678901234567890"
-        assert record["fornecedor_cnpj"] == "00999999000199"
+        assert record["fornecedor_cnpj"] == "11222333000181"
         assert record["valor_total"] == 150000.00
 
 

@@ -34,6 +34,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
+from scripts.contracts_identity import normalize_cnpj_supplier  # noqa: E402
 from scripts.lib.value_semantics import VALOR_SEMANTICA_LABELS, ValorSemantica  # noqa: E402
 from scripts.ops import deliverable_d_prices as _d_prices  # noqa: E402
 from scripts.ops.deliverable_b_competitors import (  # noqa: E402
@@ -136,8 +137,7 @@ def git_sha() -> str:
 
 
 def normalize_cnpj(raw: str | None) -> str:
-    digits = "".join(ch for ch in str(raw or "") if ch.isdigit())
-    return digits.zfill(14) if digits else ""
+    return normalize_cnpj_supplier(raw) or ""
 
 
 def _conn(dsn: str) -> Any:

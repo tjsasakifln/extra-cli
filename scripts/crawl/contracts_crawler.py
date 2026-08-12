@@ -34,6 +34,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
+from scripts.contracts_identity import normalize_supplier_identity
 from scripts.crawl.common import (
     digits_only as _digits_only,
 )
@@ -563,8 +564,17 @@ def _transform_record(rec: dict) -> dict | None:
 
         orgao_cnpj = _digits_only(orgao.get("cnpj"))
 
-        # Supplier data
-        fornecedor_cnpj = _digits_only(rec.get("niFornecedor"))
+        # Supplier identity is typed.  The legacy field remains CNPJ-only;
+        # CPF/foreign/invalid identifiers must never become a CNPJ join key.
+        supplier_identity = normalize_supplier_identity(
+            rec.get("niFornecedor"),
+            declared_type=rec.get("tipoPessoa"),
+            country=(
+                rec.get("codigoPaisFornecedor")
+                or rec.get("paisFornecedor")
+                or rec.get("codigoPais")
+            ),
+        )
         fornecedor_nome = (rec.get("nomeRazaoSocialFornecedor") or "").strip()
 
         # Object / description
@@ -629,7 +639,7 @@ def _transform_record(rec: dict) -> dict | None:
             "contrato_id": contrato_id,
             "orgao_cnpj": orgao_cnpj or None,
             "orgao_nome": orgao_nome,
-            "fornecedor_cnpj": fornecedor_cnpj or None,
+            **supplier_identity.to_record_fields(),
             "fornecedor_nome": fornecedor_nome or None,
             "objeto_contrato": objeto or None,
             "valor_total": round(valor, 2) if valor is not None else None,
@@ -1041,7 +1051,7 @@ def transform(records: list[dict]) -> list[dict]:
     transformed: list[dict] = []
     for rec in records:
         t = _transform_record(rec)
-        if t and t.get("fornecedor_cnpj"):
+        if t:
             transformed.append(t)
     return transformed
 

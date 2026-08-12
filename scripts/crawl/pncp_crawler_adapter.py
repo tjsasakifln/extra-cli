@@ -15,6 +15,7 @@ from typing import Any
 
 import requests
 
+from scripts.contracts_identity import normalize_supplier_identity
 from scripts.crawl.common import safe_float, safe_int
 from scripts.crawl.dlq_sync import dlq_write
 from scripts.crawl.ingestion._base.crawler import CrawlRequest, FetchResult
@@ -791,7 +792,11 @@ def transform_contracts(raw_records: list[dict[str, Any]]) -> list[dict[str, Any
 
         numero_controle = raw.get("numeroControlePncpCompra")
         orgao_cnpj = digits_only(orgao.get("cnpj"))
-        fornecedor_cnpj = digits_only(raw.get("niFornecedor"))
+        supplier_identity = normalize_supplier_identity(
+            raw.get("niFornecedor"),
+            declared_type=raw.get("tipoPessoa"),
+            country=raw.get("codigoPaisFornecedor") or raw.get("paisFornecedor"),
+        )
         ano_contrato = raw.get("anoContrato")
         sequencial_contrato = raw.get("sequencialContrato")
 
@@ -808,7 +813,7 @@ def transform_contracts(raw_records: list[dict[str, Any]]) -> list[dict[str, Any
             [
                 str(numero_controle or ""),
                 orgao_cnpj,
-                fornecedor_cnpj,
+                supplier_identity.supplier_identifier_hash or "",
                 str(ano_contrato or ""),
                 str(sequencial_contrato or ""),
                 str(raw.get("dataPublicacaoPncp") or ""),
@@ -829,7 +834,7 @@ def transform_contracts(raw_records: list[dict[str, Any]]) -> list[dict[str, Any
                 "unidade_municipio": unidade.get("municipioNome"),
                 "unidade_codigo_ibge": digits_only(unidade.get("codigoIbge")),
                 "unidade_sub_rogada_nome": unidade_sub.get("nomeUnidadeSubRogada"),
-                "fornecedor_cnpj": fornecedor_cnpj,
+                **supplier_identity.to_record_fields(),
                 "fornecedor_tipo_pessoa": raw.get("tipoPessoa"),
                 "fornecedor_pais_codigo": raw.get("codigoPaisFornecedor"),
                 "ano_contrato": ano_contrato,

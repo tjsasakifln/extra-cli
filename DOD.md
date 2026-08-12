@@ -3160,3 +3160,9 @@ CI (PR #12):
   and explicit reuse includes prior run, membership SHA-256 and freshness.
   Foreign or missing lineage fails before artifact creation. Exact-HEAD CI and
   `main` are required.
+- [ ] Contract supplier identity preserves person type without CNPJ coercion.
+  **#311 `VERIFIED` on branch:** migration 076 and both PNCP contract adapters
+  distinguish CNPJ, CPF, foreign and unknown identifiers; only validated CNPJ
+  populates `fornecedor_cnpj`, missing identity no longer drops the contract,
+  and CPF exports are fully masked. Commercial registry consumers select CNPJ
+  identities only. Exact-HEAD CI and `main` are required.
