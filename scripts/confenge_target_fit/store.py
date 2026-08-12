@@ -226,6 +226,9 @@ def claim_batch(
             FROM confenge_target_fit_dirty
             WHERE status IN ('pending', 'retry')
               AND (next_retry_at IS NULL OR next_retry_at <= now())
+              AND pg_try_advisory_xact_lock(
+                    hashtext(confenge_target_fit_dirty.company_key)
+                  )
               AND NOT EXISTS (
                   SELECT 1
                   FROM confenge_target_fit_dirty p
@@ -241,7 +244,10 @@ def claim_batch(
             (max(batch_size * 4, batch_size),),
         )
         candidates = cur.fetchall() or []
-        # Step 2: keep first row per company_key (already priority-ordered)
+        # Step 2: keep first row per company_key (already priority-ordered).
+        # The transaction-scoped advisory lock above closes the cross-row race:
+        # concurrent workers may skip different row locks for the same company,
+        # but only one transaction can claim that company_key.
         seen: set[str] = set()
         selected_ids: list[int] = []
         for row in candidates:
