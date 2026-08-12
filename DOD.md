@@ -3144,3 +3144,8 @@ CI (PR #12):
   approval is absent or hash-invalid; a valid artifact proves 30 entities,
   sources, pagination, zero results, deduplication, evidence and human review.
   Exact-HEAD CI and `main` are still required.
+- [ ] Process-documents systemd uses the canonical host identity and paths.
+  **#278 `VERIFIED` on branch:** provision preflight rejects missing user,
+  app/state/env/venv; rendered timer and service share deploy/config hashes;
+  reinstall is idempotent and the smoke does not claim `VPS_OPERATIONAL`.
+  Exact-HEAD CI and `main` are still required.

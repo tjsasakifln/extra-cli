@@ -14,7 +14,7 @@ acceptance require exact-HEAD CI and the repository's human/main gates.
 | #237 | VERIFIED | 58 resilience/feeder tests; local terminal fields independent of aggregate exit | exact-HEAD CI + main |
 | #245 | VERIFIED | 25 pack tests; independent QA/readiness gates in all formats | exact-HEAD CI + main |
 | #234 | VERIFIED | 103 pack/queue/weekly tests; preflight before state/output writes | exact-HEAD CI + main |
-| #278 | OPEN | — | implementation and test |
+| #278 | VERIFIED | 49 systemd/resilience tests; rendered pair + idempotent install smoke | exact-HEAD CI + main |
 | #288 | OPEN | — | implementation and test |
 | #233 | OPEN | — | implementation and test |
 | #311 | OPEN | — | implementation and test |
@@ -103,3 +103,23 @@ package directory creation. It validates exactly 30 stratified pilot entities,
 multi-source pagination/zero/dedup evidence and human approval, all bound to the
 active universe and source-policy hashes. Usage and schema are documented in
 `docs/ops/pilot-scale-approval.md`.
+
+## #278 verification
+
+```text
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -o addopts= \
+  tests/test_process_documents_systemd.py tests/test_local_resilience.py \
+  -q --tb=short
+49 passed
+
+bash -n deploy/install.sh deploy/provision-vps.sh
+```
+
+The process-documents unit now uses `extra-consultoria`,
+`/opt/extra-consultoria`, `/var/lib/extra-consultoria`, the application venv,
+and the canonical env file. Provisioning renders timer and service from one
+configuration with identical deploy/config hashes, runs preflight and
+`systemd-analyze verify`, and is byte-idempotent on reinstall. Its smoke claim
+is explicitly `UNIT_INSTALL_SMOKE_ONLY` with `vps_operational=false`. Debian 13
+compatibility and the non-destructive, no-reimage procedure are documented in
+`docs/ops/netcup-inventory-live.md`.

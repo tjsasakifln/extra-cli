@@ -50,7 +50,7 @@ then by critical-path unlocks. The resulting scope is:
   both are required for delivery.
 - [x] #234: scale beyond 30 entities requires a valid, hash-bound, human-approved
   stratified pilot artifact.
-- [ ] #278: provisioned systemd units use the canonical service user and
+- [x] #278: provisioned systemd units use the canonical service user and
   `/opt`/`/var/lib` paths with preflight validation.
 - [ ] #288: all eligible snapshot observations are read without a silent fixed
   limit, with stable pagination/streaming evidence.
@@ -90,6 +90,12 @@ then by critical-path unlocks. The resulting scope is:
 - `scripts/ops/weekly_cycle.py`
 - `tests/process_documents/test_entity_queue_and_process_card.py`
 - `docs/ops/pilot-scale-approval.md`
+- `deploy/systemd/extra-process-documents-incremental.service`
+- `deploy/systemd/extra-process-documents-incremental.timer`
+- `deploy/systemd/templates/extra-process-documents-incremental.service.in`
+- `deploy/systemd/templates/extra-process-documents-incremental.timer.in`
+- `scripts/ops/provision_process_documents_systemd.py`
+- `tests/test_process_documents_systemd.py`
 - `DOD.md`
 - `docs/ops/critical-issues-wave-1-handoff.md`
 - `docs/stories/story-critical-issues-wave-1.md`
@@ -103,3 +109,4 @@ then by critical-path unlocks. The resulting scope is:
 | 2026-08-12 | #245 | VERIFIED_LOCAL | 25 pack tests pass; structural QA green remains delivery-blocked |
 | 2026-08-12 | #237 | VERIFIED_LOCAL | 58 resilience/feeder tests pass; local success survives aggregate degradation |
 | 2026-08-12 | #234 | VERIFIED_LOCAL | 103 focused tests pass; missing/mismatched approval stops before queue/package writes |
+| 2026-08-12 | #278 | VERIFIED_LOCAL | 49 systemd/resilience tests pass; rendered pair verifies and reinstall is idempotent |
