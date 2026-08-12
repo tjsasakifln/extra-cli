@@ -159,7 +159,13 @@ def test_production_activation_does_not_use_limit_downstream_as_capacity(tmp_pat
     assert result.stages["universe_row_count"] >= result.stages["sample"]["count"]
 
 
-def test_cli_run_fixture_end_to_end(tmp_path: Path) -> None:
+def test_cli_run_fixture_end_to_end(tmp_path: Path, monkeypatch) -> None:
+    # Full CI exposes a real datalake DSN. CSV fixture mode must remain offline
+    # unless the operator explicitly combines it with --dsn.
+    monkeypatch.setenv(
+        "LOCAL_DATALAKE_DSN",
+        "postgresql://ambient:ambient@127.0.0.1:1/must_not_be_used",
+    )
     out = tmp_path / "cli_out"
     code = cli_main(
         [
