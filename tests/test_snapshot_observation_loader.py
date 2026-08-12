@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+import os
 import tracemalloc
 from typing import Any
 
@@ -106,6 +107,8 @@ def test_more_than_ten_thousand_rows_are_read_exactly_once(
     assert snapshot["complete"] is True
     assert snapshot["presentation_truncated"] is False
     assert snapshot["estimated_memory_bytes"] < snapshot["memory_budget_bytes"]
+    assert snapshot["memory_accounting"] == "estimated_payload_guard_not_physical_bound"
+    assert snapshot["physical_memory_bounded"] is False
     assert peak_memory < snapshot["memory_budget_bytes"]
     assert connection.cursor_name.startswith("extra_opportunity_intel_")
     assert "LIMIT" not in connection.sql.upper()
@@ -265,3 +268,95 @@ def test_idempotent_reload_keeps_same_rows_and_lineage_hash(
         row.observation_id for row in second
     ]
     assert first_snapshot["lineage"]["sha256"] == second_snapshot["lineage"]["sha256"]
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(
+    os.getenv("REQUIRE_TEST_DB") != "1",
+    reason="Set REQUIRE_TEST_DB=1 to run real lineage snapshot test",
+)
+def test_real_postgres_lineage_query_loads_only_the_selected_run() -> None:
+    import psycopg2
+    import psycopg2.extras
+
+    dsn = os.getenv(
+        "TEST_DSN", "postgresql://test:test@127.0.0.1:5433/extra_test"
+    )
+    conn = psycopg2.connect(dsn, cursor_factory=psycopg2.extras.RealDictCursor)
+    try:
+        with conn.cursor() as cursor:
+            run_ids = []
+            for suffix in ("selected", "foreign"):
+                cursor.execute(
+                    """
+                    INSERT INTO opportunity_runs (
+                        source, scope_key, external_run_id, status, scope_complete,
+                        records_fetched, started_at, finished_at, metadata
+                    ) VALUES (
+                        'pncp', 'test-pr325-lineage', %s, 'completed', TRUE,
+                        1, NOW(), NOW(), '{"test_pr325_lineage": true}'::jsonb
+                    ) RETURNING id
+                    """,
+                    (f"test-pr325-{suffix}",),
+                )
+                run_ids.append(int(cursor.fetchone()["id"]))
+
+            opportunity_ids = []
+            for suffix in ("selected", "foreign"):
+                source_id = f"test-pr325-lineage-{suffix}"
+                cursor.execute(
+                    """
+                    INSERT INTO opportunity_intel (
+                        source, source_id, content_hash, numero_controle_pncp,
+                        objeto, orgao_cnpj, orgao_nome, municipio, uf,
+                        status_canonico, data_publicacao, data_encerramento,
+                        is_active, source_active, crawl_batch_id
+                    ) VALUES (
+                        'pncp', %s, %s, %s,
+                        %s, '82922233000100', 'Comprador lineage',
+                        'FLORIANOPOLIS', 'SC', 'open', CURRENT_DATE,
+                        CURRENT_DATE + 30, TRUE, TRUE, 'test-pr325-lineage'
+                    ) RETURNING id
+                    """,
+                    (
+                        source_id,
+                        f"hash-{source_id}",
+                        source_id,
+                        f"Objeto {suffix}",
+                    ),
+                )
+                opportunity_ids.append(int(cursor.fetchone()["id"]))
+
+            for run_id, suffix in zip(run_ids, ("selected", "foreign"), strict=True):
+                source_id = f"test-pr325-lineage-{suffix}"
+                cursor.execute(
+                    """
+                    INSERT INTO source_snapshot_membership (
+                        source_run_id, source, scope_key, source_record_id,
+                        canonical_opportunity_key
+                    ) VALUES (%s, 'pncp', 'test-pr325-lineage', %s, %s)
+                    """,
+                    (run_id, source_id, source_id),
+                )
+
+        observations, snapshot = load_opportunity_intel_snapshot(
+            conn,
+            lineage=OpportunityLineageSelection(
+                collection_id="test-pr325-collection",
+                source_run_id=run_ids[0],
+                external_run_id="test-pr325-selected",
+                mode="persisted",
+                expected_records=1,
+            ),
+        )
+
+        assert [observation.id_externo for observation in observations] == [
+            "test-pr325-lineage-selected"
+        ]
+        assert snapshot["rows_read"] == 1
+        assert snapshot["lineage"]["source_run_id"] == run_ids[0]
+        assert opportunity_ids[1] != opportunity_ids[0]
+        assert "foreign" not in observations[0].objeto.lower()
+    finally:
+        conn.rollback()
+        conn.close()

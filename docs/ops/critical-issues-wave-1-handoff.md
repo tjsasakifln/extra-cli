@@ -15,10 +15,61 @@ acceptance require exact-HEAD CI and the repository's human/main gates.
 | #245 | VERIFIED | 25 pack tests; independent QA/readiness gates in all formats | exact-HEAD CI + main |
 | #234 | VERIFIED | 103 pack/queue/weekly tests; preflight before state/output writes | exact-HEAD CI + main |
 | #278 | VERIFIED | 49 systemd/resilience tests; rendered pair + idempotent install smoke | exact-HEAD CI + main |
-| #288 | VERIFIED | 80 loader/pack/weekly tests; 10,037 rows reconcile to one SQL snapshot | exact-HEAD CI + main |
+| #288 | VERIFIED | 10,037 rows reconcile to one SQL snapshot; estimate guard is fail-closed | exact-HEAD CI + main; true bounded streaming in #326 |
 | #233 | VERIFIED | 87 loader/pack/weekly tests; exact run membership and reuse proof | exact-HEAD CI + main |
 | #311 | VERIFIED | 150 crawler/consumer tests + real migration transaction for four types | exact-HEAD CI + main |
 | #313 | VERIFIED | 24 linkage/schema tests; adversarial buyer/supplier DB proof + four indexed plans | exact-HEAD CI + main |
+
+## Semantic blocker closure validation (PR #325 final candidate)
+
+```text
+python3 -m scripts.ops.run_full_suite
+4296 passed, 136 skipped, coverage 49.69%, exit 0
+
+python3 -m scripts.ops.apply_migrations --mode fresh ...
+migrations_ok mode=fresh applied=77 skipped=0 repaired=0
+
+python3 -m ruff check scripts/
+All checks passed!
+
+git diff --check
+exit 0
+
+python3 -m scripts.ops.check_generated_artifacts_policy --base origin/main
+generated-artifacts-policy: checked=59 violations=0 PASS
+
+python3 -m scripts.ops.check_pr_reviewability --base origin/main --draft
+pr-reviewability: draft=True violations=0 PASS
+
+python3 -m scripts.ops.check_pr_reviewability --base origin/main
+FAIL multi_capability_mix (human-approved exception or decomposition required)
+```
+
+The full suite ran against disposable PostgreSQL 16 with pgvector after a
+clean installation through migration 077 and the canonical seeds. Focused
+real-PostgreSQL tests additionally exercised two valid CNPJs, CPF, FOREIGN and
+UNKNOWN identities, different buyer/supplier roots, v2/fallback population
+equality, fallback transaction recovery, and selected-run lineage isolation.
+
+The explicitly requested `python3 -m ruff check .` is not green repository-wide:
+it reports 296 findings on this branch versus 300 on `origin/main`, concentrated
+in vendored framework assets and pre-existing test debt tracked by TD-7.1. The
+blocking project/CI boundary is `ruff check scripts/`, which is green; no lint
+rule or threshold was weakened in this PR.
+
+The draft reviewability boundary is green, but the Ready-mode policy remains
+fail-closed because this ten-issue wave mixes migrations, CI, runtime,
+commercial and test buckets. The policy permits readiness only after scope
+decomposition or a human-approved, owned and time-bounded exception in
+`docs/pr-reviewability-exceptions.json`; this branch does not invent that
+approval and must remain Draft until the gate is satisfied.
+
+Golden path `gp-20260812-195814` remained `PARTIAL` (exit 2): PNCP exhausted
+retries after HTTP 504, PCP fetched 147, ComprasGov proved `success_zero`, the
+contracts freshness gate was stale, and coverage reported one evidence row
+outside the identity map. This is external/operational evidence, not a local
+success claim; it does not establish `GO`, `LOCAL_READY`, live coverage, or
+`VPS_OPERATIONAL`.
 
 ## #303 verification
 
@@ -99,8 +150,13 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -o addopts= \
 
 The skip is a pre-existing environment-dependent weekly test. The scale gate
 runs before queue initialization, observation loading, coverage generation, or
-package directory creation. It validates exactly 30 stratified pilot entities,
-multi-source pagination/zero/dedup evidence and human approval, all bound to the
+package directory creation. It validates exactly 30 stratified pilot entities
+and, independently for every entity, exactly one result for each declared
+source. Missing, duplicate and undeclared sources fail even when the global
+union looks complete. Complete pagination requires exact page equality; zero
+pages require zero records; deduplication must reconcile arithmetically and its
+output must equal the reported records. Every entity/source result remains
+bound to an evidence path and SHA-256, and the artifact remains bound to the
 active universe and source-policy hashes. Usage and schema are documented in
 `docs/ops/pilot-scale-approval.md`.
 
@@ -136,13 +192,19 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -o addopts= \
 ```
 
 The PostgreSQL loaders no longer use a fixed row limit. A server-side cursor
-streams a single materialized SQL statement ordered by unique `id`; that same
+reads one materialized SQL statement in pages ordered by unique `id`; that same
 statement publishes `txid_current_snapshot()` and the eligible `COUNT(*)`.
-Returning a prefix, duplicate, changed snapshot, or memory estimate above the
-512 MiB VPS budget raises `SnapshotReconciliationError`. The 10,037-row test
-also measures actual peak allocation below the budget. Observation-sheet and
-shortlist cuts remain presentation-only and are explicitly labeled in pack
-metadata. Collection/run isolation is implemented separately by #233 below.
+Returning a prefix, duplicate, changed snapshot, or payload-memory estimate
+above the 512 MiB budget raises `SnapshotReconciliationError`. The 10,037-row
+fixture test also measures its actual peak allocation below that budget.
+
+This is deliberately **not** a physical bounded-memory claim: the loader keeps
+all raw rows, then materializes all `SourceObservation` objects and the combined
+source list in RAM. Replacing those contracts with a spool/iterator/chunk
+pipeline would broaden PR #325 into an architectural redesign. Issue #326 tracks
+that P1/high follow-up with RSS-based acceptance criteria. Observation-sheet
+and shortlist cuts remain presentation-only and explicitly labeled. Collection
+run isolation is implemented separately by #233 below.
 
 ## #233 verification
 
@@ -209,13 +271,15 @@ PGCONNECT_TIMEOUT=2 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest \
 21 passed, 2 skipped
 ```
 
-Migration 077 applied successfully to `extra_test`. The rolled-back adversarial
-test used different buyer and supplier CNPJ roots that each corresponded to a
-different public entity: v2 linked `buyer_entity_id` only to the `orgao_cnpj`
-root and emitted the supplier as a separate content-addressed identity. The
-role ledger persisted match methods, confidence, reason codes, run and
-snapshot. Four `EXPLAIN (ANALYZE, BUFFERS)` assertions used the buyer,
-supplier, contract primary-key and snapshot indexes. The sole Python consumer
-of v1 now queries `v_contracts_canonical_v2`; v1 remains present but marked
-deprecated. Evidence and the #291/#292 migration rule are in
-`docs/ops/contract-roles-v2.md`.
+Migration 077 applied successfully in a fresh installation. The rolled-back
+adversarial transaction used different buyer and supplier CNPJ roots plus two
+valid CNPJ suppliers, one CPF, one FOREIGN and one UNKNOWN identity. Market
+share, HHI and supplier ranking included only the two CNPJs, emitted no NULL
+supplier bucket, and produced the same population and values through v2 and
+the base-table fallback. `buyer_entity_id` came only from `orgao_cnpj`; supplier
+identity never occupied the buyer role. The role ledger persisted match
+methods, confidence, reason codes, run and snapshot. Four `EXPLAIN (ANALYZE,
+BUFFERS)` assertions used the buyer, supplier, contract primary-key and
+snapshot indexes. The sole Python consumer of v2 is corrected; v1 remains
+present but marked deprecated. Evidence and the #291/#292 migration rule are
+in `docs/ops/contract-roles-v2.md`.

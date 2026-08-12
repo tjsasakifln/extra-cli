@@ -87,12 +87,10 @@ EXPECTED_FUNCTIONS: set[str] = {
     "generate_coverage_snapshot",  # 012/021a — coverage snapshots
 }
 
-# FK constraints that MUST be validated (migration 041a)
-PENDING_FK_VALIDATION: list[dict[str, str]] = [
-    {"table": "pncp_raw_bids", "constraint": "fk_bids_orgao_entity_v2"},
-    {"table": "pncp_supplier_contracts", "constraint": "fk_contracts_orgao_entity_v2"},
-    {"table": "pncp_supplier_contracts", "constraint": "fk_contracts_supplier_entity_v2"},
-]
+# Migrations 055/056 intentionally replaced the 041a national-root FKs with
+# indexed soft joins. National buyers/suppliers are not required to belong to
+# the SC public-entity universe, so no FK remains pending validation here.
+PENDING_FK_VALIDATION: list[dict[str, str]] = []
 
 DEFAULT_DSN = os.getenv(
     "LOCAL_DATALAKE_DSN",

@@ -3149,11 +3149,14 @@ CI (PR #12):
   app/state/env/venv; rendered timer and service share deploy/config hashes;
   reinstall is idempotent and the smoke does not claim `VPS_OPERATIONAL`.
   Exact-HEAD CI and `main` are still required.
-- [ ] Snapshot observation reads are integral and memory-bounded. **#288
-  `VERIFIED` on branch:** server-side cursor batches have stable unique-ID order,
-  reconcile to the eligible count and SQL snapshot, read 10,037/10,037 in the
-  scale test, and fail instead of truncating when the 512 MiB budget is exceeded.
-  Presentation-only limits are labeled. Exact-HEAD CI and `main` are required.
+- [ ] Snapshot observation reads are integral and guarded by a measured/estimated
+  memory budget. **#288 `VERIFIED` on branch:** server-side cursor batches have
+  stable unique-ID order, reconcile to the eligible count and SQL snapshot, read
+  10,037/10,037 in the fixture scale test, and fail instead of truncating when
+  the estimated 512 MiB budget is exceeded. The current pipeline still
+  materializes all rows and observations, so this is not a claim of physically
+  bounded memory; true bounded streaming is tracked in #326. Presentation-only
+  limits are labeled. Exact-HEAD CI and `main` are required.
 - [ ] Weekly decision packages are isolated to their selected collection.
   **#233 `VERIFIED` on branch:** PNCP observations are joined through the exact
   `source_snapshot_membership` run, persisted/reused totals reconcile exactly,

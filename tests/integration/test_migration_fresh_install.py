@@ -54,9 +54,13 @@ EXPECTED_VIEWS = CANONICAL_VIEWS_5 | {
     "v_opportunity_coverage_summary",
 }
 EXPECTED_CONSTRAINTS = {
-    "fk_bids_orgao_entity_v2",
     "uq_spe_cnpj_8",
     "uq_oi_content_hash",
+}
+NATIONAL_SOFT_JOIN_CONSTRAINTS = {
+    "fk_bids_orgao_entity_v2",
+    "fk_contracts_orgao_entity_v2",
+    "fk_contracts_supplier_entity_v2",
 }
 MATCH_LOGGING_COLUMNS = {"match_method", "match_score", "match_confidence"}
 
@@ -202,6 +206,27 @@ def test_fk_constraints_exist():
 
     assert not missing, f"Missing constraints: {missing}"
     _logger.info("All %d constraints exist", len(EXPECTED_CONSTRAINTS))
+
+
+def test_national_orgao_and_supplier_roots_remain_soft_join_keys():
+    """Migrations 055/056 must not reintroduce SC-universe hard FKs."""
+    cur, conn = _get_cursor()
+    if cur is None:
+        return
+
+    try:
+        cur.execute(
+            "SELECT conname FROM pg_constraint WHERE conname = ANY(%s)",
+            (list(NATIONAL_SOFT_JOIN_CONSTRAINTS),),
+        )
+        present = {row[0] for row in cur.fetchall()}
+    finally:
+        conn.close()
+
+    assert not present, (
+        "National CNPJ roots are soft joins after migrations 055/056; "
+        f"unexpected hard FKs: {sorted(present)}"
+    )
 
 
 def test_unique_cnpj_8_exists():

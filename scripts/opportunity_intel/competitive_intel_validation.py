@@ -70,6 +70,9 @@ _MARKET_SHARE_QUERY = """
     FROM v_contracts_canonical_v2
     WHERE valor IS NOT NULL
       AND valor > 0
+      AND supplier_id_type = 'CNPJ'
+      AND supplier_cnpj IS NOT NULL
+      AND is_active IS TRUE
     GROUP BY supplier_cnpj
     ORDER BY total DESC
     LIMIT 20
@@ -83,6 +86,9 @@ _HHI_QUERY = """
         FROM v_contracts_canonical_v2
         WHERE valor IS NOT NULL
           AND valor > 0
+          AND supplier_id_type = 'CNPJ'
+          AND supplier_cnpj IS NOT NULL
+          AND is_active IS TRUE
         GROUP BY supplier_cnpj
     ),
     grand_total AS (
@@ -118,6 +124,9 @@ _SUPPLIER_RANKING_QUERY = """
     WHERE valor IS NOT NULL
       AND valor > 0
       AND buyer_entity_id IS NOT NULL
+      AND supplier_id_type = 'CNPJ'
+      AND supplier_cnpj IS NOT NULL
+      AND is_active IS TRUE
     GROUP BY buyer_entity_id, buyer_entity_nome, supplier_cnpj, supplier_nome
     ORDER BY buyer_entity_id, ranking
 """
@@ -136,7 +145,9 @@ _MARKET_SHARE_FALLBACK = """
     WHERE valor_total IS NOT NULL
       AND valor_total > 0
       AND supplier_id_type = 'CNPJ'
+      AND fornecedor_cnpj IS NOT NULL
       AND is_active IS TRUE
+      AND (data_inicio IS NOT NULL OR data_publicacao IS NOT NULL)
     GROUP BY fornecedor_cnpj
     ORDER BY total DESC
     LIMIT 20
@@ -151,7 +162,9 @@ _HHI_FALLBACK = """
         WHERE valor_total IS NOT NULL
           AND valor_total > 0
           AND supplier_id_type = 'CNPJ'
+          AND fornecedor_cnpj IS NOT NULL
           AND is_active IS TRUE
+          AND (data_inicio IS NOT NULL OR data_publicacao IS NOT NULL)
         GROUP BY fornecedor_cnpj
     ),
     grand_total AS (
@@ -189,7 +202,9 @@ _SUPPLIER_RANKING_FALLBACK = """
     WHERE c.valor_total IS NOT NULL
       AND c.valor_total > 0
       AND c.supplier_id_type = 'CNPJ'
+      AND c.fornecedor_cnpj IS NOT NULL
       AND c.is_active IS TRUE
+      AND (c.data_inicio IS NOT NULL OR c.data_publicacao IS NOT NULL)
       AND e.id IS NOT NULL
     GROUP BY e.id, e.razao_social, c.fornecedor_cnpj, c.fornecedor_nome
     ORDER BY e.id, ranking
@@ -227,20 +242,30 @@ def _run_check(
         ``CheckResult(status="pass")`` on success, or
         ``CheckResult(status="fail", error_message=...)`` on error.
     """
+    use_savepoint = getattr(conn, "autocommit", True) is False
+    savepoint_active = False
     try:
         with conn.cursor() as cursor:
+            if use_savepoint:
+                cursor.execute("SAVEPOINT competitive_intel_primary")
+                savepoint_active = True
             cursor.execute(primary_query)
             if use_fetchone:
                 cursor.fetchone()
             else:
                 cursor.fetchall()
+            if savepoint_active:
+                cursor.execute("RELEASE SAVEPOINT competitive_intel_primary")
+                savepoint_active = False
         return CheckResult(status="pass", error_message="")
     except psycopg2.errors.UndefinedColumn as exc:
+        _restore_after_failed_primary(conn, savepoint_active)
         # Column-level error — report immediately with column name in message
         msg = str(exc)
         logger.warning("Column error in %s: %s", description, msg)
         return CheckResult(status="fail", error_message=msg)
     except psycopg2.errors.UndefinedTable:
+        _restore_after_failed_primary(conn, savepoint_active)
         # View does not exist — try the base table fallback
         logger.info(
             "View not found for %s — trying pncp_supplier_contracts fallback",
@@ -248,9 +273,21 @@ def _run_check(
         )
         return _try_fallback(conn, fallback_query, description, use_fetchone=use_fetchone)
     except psycopg2.Error as exc:
+        _restore_after_failed_primary(conn, savepoint_active)
         msg = str(exc)
         logger.warning("Database error in %s: %s", description, msg)
         return CheckResult(status="fail", error_message=msg)
+
+
+def _restore_after_failed_primary(
+    conn: psycopg2.extensions.connection, savepoint_active: bool
+) -> None:
+    """Restore a caller-owned transaction without committing or rolling it back."""
+    if not savepoint_active:
+        return
+    with conn.cursor() as cursor:
+        cursor.execute("ROLLBACK TO SAVEPOINT competitive_intel_primary")
+        cursor.execute("RELEASE SAVEPOINT competitive_intel_primary")
 
 
 def _try_fallback(

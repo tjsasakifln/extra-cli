@@ -4,12 +4,17 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections import Counter
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
 PILOT_LIMIT = 30
 PILOT_SCHEMA = "pilot-scale-approval/v1"
+
+
+def _is_non_negative_int(value: Any) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool) and value >= 0
 
 
 def sha256_file(path: Path) -> str:
@@ -143,8 +148,23 @@ def require_pilot_approval(
     if unknown:
         errors.append(f"entities outside approved universe: {unknown[:3]}")
 
+    declared_sources_raw = artifact.get("sources")
+    declared_sources: list[str] = []
+    if not isinstance(declared_sources_raw, list):
+        errors.append("sources must be a list")
+    else:
+        for source_index, source_value in enumerate(declared_sources_raw):
+            if not isinstance(source_value, str) or not source_value.strip():
+                errors.append(f"sources[{source_index}] must be a non-empty string")
+                continue
+            declared_sources.append(source_value.strip())
+        if len(declared_sources) < 2:
+            errors.append("sources must declare at least two sources")
+        if len(declared_sources) != len(set(declared_sources)):
+            errors.append("sources must be unique")
+    declared_source_set = set(declared_sources)
+
     strata: set[str] = set()
-    observed_sources: set[str] = set()
     for row_index, row in enumerate(entities):
         if not isinstance(row, dict):
             errors.append(f"entities[{row_index}] must be an object")
@@ -158,6 +178,37 @@ def require_pilot_approval(
         if not isinstance(source_results, list) or not source_results:
             errors.append(f"entities[{row_index}].source_results is required")
             continue
+        entity_sources = [
+            str(result.get("source") or "").strip()
+            for result in source_results
+            if isinstance(result, dict)
+        ]
+        source_counts = Counter(entity_sources)
+        missing_sources = sorted(declared_source_set - set(entity_sources))
+        extra_sources = sorted(set(entity_sources) - declared_source_set - {""})
+        duplicate_sources = sorted(
+            source for source, count in source_counts.items() if source and count != 1
+        )
+        if missing_sources:
+            errors.append(
+                f"entities[{row_index}].source_results missing declared sources: "
+                f"{missing_sources}"
+            )
+        if extra_sources:
+            errors.append(
+                f"entities[{row_index}].source_results has undeclared sources: "
+                f"{extra_sources}"
+            )
+        if duplicate_sources:
+            errors.append(
+                f"entities[{row_index}].source_results has duplicate sources: "
+                f"{duplicate_sources}"
+            )
+        if len(source_results) != len(declared_sources):
+            errors.append(
+                f"entities[{row_index}].source_results must contain exactly one result "
+                "for each declared source"
+            )
         for source_index, result in enumerate(source_results):
             prefix = f"entities[{row_index}].source_results[{source_index}]"
             if not isinstance(result, dict):
@@ -166,34 +217,41 @@ def require_pilot_approval(
             source = str(result.get("source") or "").strip()
             if not source:
                 errors.append(f"{prefix}.source is required")
-            else:
-                observed_sources.add(source)
             if result.get("request_completed") is not True or result.get("scope_complete") is not True:
                 errors.append(f"{prefix} must prove request_completed and scope_complete")
-            pagination = result.get("pagination") or {}
+            pagination = result.get("pagination")
+            if not isinstance(pagination, dict):
+                errors.append(f"{prefix}.pagination must be an object")
+                pagination = {}
             fetched = pagination.get("pages_fetched")
             expected = pagination.get("pages_expected")
             if (
                 pagination.get("complete") is not True
-                or not isinstance(fetched, int)
-                or not isinstance(expected, int)
-                or fetched < expected
+                or not _is_non_negative_int(fetched)
+                or not _is_non_negative_int(expected)
+                or fetched != expected
             ):
                 errors.append(f"{prefix}.pagination is incomplete")
             records = result.get("records")
             zero_proof = result.get("zero_proof")
-            if not isinstance(records, int) or records < 0:
+            if not _is_non_negative_int(records):
                 errors.append(f"{prefix}.records must be a non-negative integer")
             elif zero_proof != ("success_zero" if records == 0 else "not_zero"):
                 errors.append(f"{prefix}.zero_proof does not match records")
-            dedup = result.get("deduplication") or {}
+            if fetched == 0 and expected == 0 and records != 0:
+                errors.append(f"{prefix}.zero-page pagination requires zero records")
+            dedup = result.get("deduplication")
+            if not isinstance(dedup, dict):
+                errors.append(f"{prefix}.deduplication must be an object")
+                dedup = {}
             before = dedup.get("input_records")
             after = dedup.get("output_records")
             removed = dedup.get("duplicates_removed")
             if (
                 dedup.get("complete") is not True
-                or not all(isinstance(value, int) and value >= 0 for value in (before, after, removed))
+                or not all(_is_non_negative_int(value) for value in (before, after, removed))
                 or before - after != removed
+                or after != records
             ):
                 errors.append(f"{prefix}.deduplication is invalid")
             evidence_ref = str(result.get("evidence_path") or "")
@@ -213,13 +271,6 @@ def require_pilot_approval(
 
     if len(strata) < 2:
         errors.append("pilot must include at least two strata")
-    declared_sources = artifact.get("sources")
-    if (
-        not isinstance(declared_sources, list)
-        or len(observed_sources) < 2
-        or set(str(value) for value in declared_sources) != observed_sources
-    ):
-        errors.append("sources must equal the multi-source results represented in the pilot")
     approval = artifact.get("human_approval") or {}
     if (
         approval.get("status") != "APPROVED"
@@ -246,7 +297,10 @@ def require_pilot_approval(
         required=True,
         approved=True,
         code="PILOT_APPROVED",
-        evidence=f"validated {scale_limit} entities across {len(strata)} strata and {len(observed_sources)} sources",
+        evidence=(
+            f"validated {scale_limit} entities across {len(strata)} strata and "
+            f"{len(declared_source_set)} sources"
+        ),
         approval_path=str(approval_path),
         approval_sha256=sha256_file(approval_path),
         universe_sha256=universe_sha256,

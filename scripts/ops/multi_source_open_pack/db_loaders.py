@@ -31,7 +31,7 @@ MEMORY_OVERHEAD_FACTOR = 4
 
 
 class SnapshotReconciliationError(RuntimeError):
-    """The streamed rows do not exactly match their SQL snapshot."""
+    """The paged rows do not exactly match their SQL snapshot."""
 
 
 class LineageSelectionError(SnapshotReconciliationError):
@@ -179,7 +179,7 @@ def _stream_snapshot_rows(
     required_lineage_run_id: int | None = None,
     required_external_run_id: str | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    """Fetch one SQL snapshot in bounded batches and reconcile its exact count."""
+    """Fetch in bounded DB batches, retaining all rows for exact reconciliation."""
     cursor_name = f"extra_{source}_{uuid.uuid4().hex}"
     try:
         cur = conn.cursor(name=cursor_name)
@@ -271,6 +271,8 @@ def _stream_snapshot_rows(
         "complete": True,
         "estimated_memory_bytes": estimated_memory_bytes,
         "memory_budget_bytes": memory_budget_bytes,
+        "memory_accounting": "estimated_payload_guard_not_physical_bound",
+        "physical_memory_bounded": False,
         "presentation_truncated": False,
     }
 

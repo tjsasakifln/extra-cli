@@ -184,6 +184,7 @@ SELECT
     contract.supplier_country,
     contract.fornecedor_cnpj AS supplier_cnpj,
     contract.fornecedor_nome AS supplier_nome,
+    contract.is_active,
     roles.supplier_match_method,
     roles.supplier_match_confidence,
     roles.supplier_reason_codes,

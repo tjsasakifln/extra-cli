@@ -1,6 +1,6 @@
 # Story: Critical Issues Wave 1
 
-**Status:** Ready for Review
+**Status:** InProgress
 **Branch:** `agent/critical-issues-wave-1`
 **Base:** `origin/main` at `fffdd3ff5d08702013fe2e2f405b945be2d7ba39`
 **Capability:** Fail-closed multifonte collection, packaging, and national-contract truth
@@ -53,7 +53,9 @@ then by critical-path unlocks. The resulting scope is:
 - [x] #278: provisioned systemd units use the canonical service user and
   `/opt`/`/var/lib` paths with preflight validation.
 - [x] #288: all eligible snapshot observations are read without a silent fixed
-  limit, with stable pagination/streaming evidence.
+  limit, with stable server-side pagination and exact reconciliation. Current
+  in-memory materialization is estimate-guarded, not physically bounded; the
+  architectural follow-up is #326.
 - [x] #233: every packaged observation is bound to the selected collection/run,
   with explicit reuse provenance only.
 - [x] #311: CNPJ, CPF, foreign, and unknown supplier identifiers remain distinct;
@@ -140,7 +142,7 @@ then by critical-path unlocks. The resulting scope is:
 | 2026-08-12 | #237 | VERIFIED_LOCAL | 58 resilience/feeder tests pass; local success survives aggregate degradation |
 | 2026-08-12 | #234 | VERIFIED_LOCAL | 103 focused tests pass; missing/mismatched approval stops before queue/package writes |
 | 2026-08-12 | #278 | VERIFIED_LOCAL | 49 systemd/resilience tests pass; rendered pair verifies and reinstall is idempotent |
-| 2026-08-12 | #288 | VERIFIED_LOCAL | 80 focused tests pass; 10,037-row snapshot reconciles without LIMIT or duplicates |
+| 2026-08-12 | #288 | VERIFIED_LOCAL | 10,037-row fixture reconciles without LIMIT/duplicates and stays under measured budget; no physical bounded-memory claim; follow-up #326 |
 | 2026-08-12 | #233 | VERIFIED_LOCAL | 87 focused tests pass; package rejects foreign lineage and reconciles selected persisted/reused count |
 | 2026-08-12 | #311 | VERIFIED_LOCAL | 150 focused tests pass; migration applies and transaction proves four identity types with CPF masked |
 | 2026-08-12 | #313 | VERIFIED_LOCAL | 24 focused tests pass; adversarial DB test and four EXPLAIN plans prove role separation and indexes |

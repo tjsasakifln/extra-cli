@@ -10,6 +10,14 @@ from pathlib import Path
 import pytest
 
 from scripts.contracts_identity import normalize_supplier_identity
+from scripts.opportunity_intel.competitive_intel_validation import (
+    _HHI_FALLBACK,
+    _HHI_QUERY,
+    _MARKET_SHARE_FALLBACK,
+    _MARKET_SHARE_QUERY,
+    _SUPPLIER_RANKING_FALLBACK,
+    _SUPPLIER_RANKING_QUERY,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -27,6 +35,22 @@ def _valid_cnpj_for_root(root: str) -> str:
     first = digit(base, [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2])
     partial = base + first
     return partial + digit(partial, [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2])
+
+
+def _insert_role_test_entities(cursor, count: int) -> list[dict]:
+    entities = []
+    for index in range(count):
+        root = f"91{index:06d}"
+        cursor.execute(
+            """
+            INSERT INTO sc_public_entities (razao_social, cnpj_8, municipio, is_active)
+            VALUES (%s, %s, 'FLORIANOPOLIS', TRUE)
+            RETURNING id, cnpj_8
+            """,
+            (f"Entidade teste de papel {index}", root),
+        )
+        entities.append(dict(cursor.fetchone()))
+    return entities
 
 
 def test_v2_is_versioned_and_v1_is_explicitly_deprecated() -> None:
@@ -87,16 +111,7 @@ def test_adversarial_supplier_root_cannot_become_buyer() -> None:
     conn = psycopg2.connect(dsn, cursor_factory=psycopg2.extras.RealDictCursor)
     try:
         with conn.cursor() as cursor:
-            cursor.execute(
-                """
-                SELECT id, cnpj_8
-                FROM sc_public_entities
-                WHERE cnpj_8 IS NOT NULL AND length(cnpj_8) = 8
-                ORDER BY id LIMIT 2
-                """
-            )
-            entities = list(cursor.fetchall())
-            assert len(entities) == 2
+            entities = _insert_role_test_entities(cursor, 2)
             buyer, supplier_root_entity = entities
             buyer_cnpj = _valid_cnpj_for_root(str(buyer["cnpj_8"]))
             supplier_cnpj = _valid_cnpj_for_root(str(supplier_root_entity["cnpj_8"]))
@@ -202,6 +217,158 @@ def test_adversarial_supplier_root_cannot_become_buyer() -> None:
                 cursor.execute("EXPLAIN (ANALYZE, BUFFERS) " + query, params)
                 plan = "\n".join(plan_row["QUERY PLAN"] for plan_row in cursor.fetchall())
                 assert expected_index in plan
+    finally:
+        conn.rollback()
+        conn.close()
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(
+    os.getenv("REQUIRE_TEST_DB") != "1",
+    reason="Set REQUIRE_TEST_DB=1 to run supplier analytics population test",
+)
+def test_company_analytics_exclude_non_cnpj_and_match_fallback_population() -> None:
+    import psycopg2
+    import psycopg2.extras
+
+    dsn = os.getenv(
+        "TEST_DSN", "postgresql://test:test@127.0.0.1:5433/extra_test"
+    )
+    conn = psycopg2.connect(dsn, cursor_factory=psycopg2.extras.RealDictCursor)
+    try:
+        with conn.cursor() as cursor:
+            entities = _insert_role_test_entities(cursor, 3)
+            buyer, supplier_entity_a, supplier_entity_b = entities
+            buyer_cnpj = _valid_cnpj_for_root(str(buyer["cnpj_8"]))
+            cnpj_a = _valid_cnpj_for_root(str(supplier_entity_a["cnpj_8"]))
+            cnpj_b = _valid_cnpj_for_root(str(supplier_entity_b["cnpj_8"]))
+            identities = [
+                normalize_supplier_identity(cnpj_a, declared_type="PJ"),
+                normalize_supplier_identity(cnpj_b, declared_type="PJ"),
+                normalize_supplier_identity("52998224725", declared_type="PF"),
+                normalize_supplier_identity(
+                    "AB-123/xy", declared_type="FOREIGN", country="US"
+                ),
+                normalize_supplier_identity("11111111111", declared_type="PF"),
+            ]
+            assert [identity.supplier_id_type for identity in identities] == [
+                "CNPJ",
+                "CNPJ",
+                "CPF",
+                "FOREIGN",
+                "UNKNOWN",
+            ]
+
+            # Isolate the disposable test transaction from any pre-existing contracts.
+            cursor.execute("DELETE FROM public.pncp_supplier_contracts")
+            cursor.execute(
+                "SELECT set_config('extra.contract_role_run_id', %s, true)",
+                ("test-company-analytics-population",),
+            )
+            values = [100, 300, 900, 800, 700]
+            records = []
+            for index, (identity, value) in enumerate(
+                zip(identities, values, strict=True)
+            ):
+                records.append(
+                    {
+                        "contrato_id": f"test-company-population-{index}",
+                        "orgao_cnpj": buyer_cnpj,
+                        "orgao_nome": "Comprador analitico",
+                        "fornecedor_nome": f"Fornecedor {index}",
+                        **identity.to_record_fields(),
+                        "objeto_contrato": "Servico de engenharia",
+                        "valor_total": value,
+                        "data_publicacao": "2026-08-12",
+                        "source": "pncp",
+                        "source_id": f"test-company-source-{index}",
+                    }
+                )
+            cursor.execute(
+                "SELECT * FROM upsert_pncp_supplier_contracts(%s::jsonb)",
+                (json.dumps(records),),
+            )
+            assert len(cursor.fetchall()) == 5
+
+            cursor.execute(
+                """
+                SELECT supplier_id_type, supplier_cnpj, buyer_entity_id,
+                       supplier_identity_id
+                FROM v_contracts_canonical_v2
+                ORDER BY contrato_id
+                """
+            )
+            typed_rows = list(cursor.fetchall())
+            assert [row["supplier_id_type"] for row in typed_rows] == [
+                "CNPJ",
+                "CNPJ",
+                "CPF",
+                "FOREIGN",
+                "UNKNOWN",
+            ]
+            assert [row["supplier_cnpj"] for row in typed_rows] == [
+                cnpj_a,
+                cnpj_b,
+                None,
+                None,
+                None,
+            ]
+            assert {row["buyer_entity_id"] for row in typed_rows} == {buyer["id"]}
+            assert buyer["id"] not in {
+                supplier_entity_a["id"],
+                supplier_entity_b["id"],
+            }
+
+            cursor.execute(_MARKET_SHARE_QUERY)
+            primary_market = list(cursor.fetchall())
+            cursor.execute(_MARKET_SHARE_FALLBACK)
+            fallback_market = list(cursor.fetchall())
+            primary_market_population = [
+                (row["supplier_cnpj"], float(row["total"]), row["contratos"])
+                for row in primary_market
+            ]
+            fallback_market_population = [
+                (row["supplier_cnpj"], float(row["total"]), row["contratos"])
+                for row in fallback_market
+            ]
+            assert primary_market_population == fallback_market_population
+            assert primary_market_population == [(cnpj_b, 300.0, 1), (cnpj_a, 100.0, 1)]
+            assert all(row["supplier_cnpj"] is not None for row in primary_market)
+
+            cursor.execute(_HHI_QUERY)
+            primary_hhi = float(cursor.fetchone()["hhi"])
+            cursor.execute(_HHI_FALLBACK)
+            fallback_hhi = float(cursor.fetchone()["hhi"])
+            assert primary_hhi == pytest.approx(6250.0)
+            assert fallback_hhi == pytest.approx(primary_hhi)
+
+            cursor.execute(_SUPPLIER_RANKING_QUERY)
+            primary_ranking = list(cursor.fetchall())
+            cursor.execute(_SUPPLIER_RANKING_FALLBACK)
+            fallback_ranking = list(cursor.fetchall())
+            primary_ranking_population = [
+                (
+                    row["buyer_entity_id"],
+                    row["supplier_cnpj"],
+                    float(row["total"]),
+                    row["ranking"],
+                )
+                for row in primary_ranking
+            ]
+            fallback_ranking_population = [
+                (
+                    row["buyer_entity_id"],
+                    row["supplier_cnpj"],
+                    float(row["total"]),
+                    row["ranking"],
+                )
+                for row in fallback_ranking
+            ]
+            assert primary_ranking_population == fallback_ranking_population
+            assert primary_ranking_population == [
+                (buyer["id"], cnpj_b, 300.0, 1),
+                (buyer["id"], cnpj_a, 100.0, 2),
+            ]
     finally:
         conn.rollback()
         conn.close()

@@ -14,10 +14,13 @@ The JSON must use `schema_version=pilot-scale-approval/v1` and contain:
 
 - exactly 30 unique `entities`, all members of the active universe;
 - at least two non-empty `stratum` values;
-- at least two declared `sources`, exactly matching the source results;
+- at least two unique declared `sources`; every one of the 30 entities must
+  contain exactly one result for every declared source, with no missing,
+  duplicate, or undeclared source;
 - for every entity/source result: completed request and scope, complete page
-  counts, record count, `success_zero` or `not_zero`, and a reconciled
-  deduplication count;
+  counts with `pages_fetched == pages_expected`, record count, `success_zero`
+  or `not_zero`, and a reconciled deduplication count whose `output_records`
+  equals `records`;
 - an existing evidence file and its full SHA-256 for every source result;
 - full SHA-256 values for `config/target_entities_200km.csv` and
   `config/source_applicability.yaml`;
@@ -65,6 +68,9 @@ source results per row are present):
 ```
 
 Relative evidence paths are resolved from the approval artifact directory.
+Zero-page pagination is valid only as `pages_fetched=pages_expected=0` with
+`records=0`, `success_zero`, and zero deduplication output; an empty first page
+represented as `1/1` with zero records remains valid as well.
 Changing either the universe or source-applicability policy invalidates an old
 approval. A missing, malformed, mismatched, or self-incomplete artifact stops
 before package output or queue state is created.

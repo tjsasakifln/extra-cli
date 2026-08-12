@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import csv
 import hashlib
 import json
@@ -98,7 +99,148 @@ def _write_pilot_approval(tmp_path: Path) -> Path:
     return approval
 
 
+def _read_pilot_approval(approval: Path) -> dict:
+    return json.loads(approval.read_text(encoding="utf-8"))
+
+
+def _write_changed_pilot_approval(approval: Path, payload: dict) -> None:
+    approval.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+
+
+def _require_test_pilot_approval(approval: Path):
+    entities = load_universe(UNIVERSE)
+    return require_pilot_approval(
+        universe_path=UNIVERSE,
+        policy_path=DEFAULT_PILOT_POLICY,
+        universe_entity_count=len(entities),
+        universe_entity_ids={entity.entity_key for entity in entities},
+        approval_path=approval,
+    )
+
+
 class TestPilotScaleGate:
+    def test_fully_complete_entity_source_matrix_is_approved(self, tmp_path: Path) -> None:
+        decision = _require_test_pilot_approval(_write_pilot_approval(tmp_path))
+
+        assert decision.approved is True
+        assert decision.code == "PILOT_APPROVED"
+        assert decision.pilot_entities == 30
+
+    def test_sources_distributed_globally_but_incomplete_per_entity_fail(
+        self, tmp_path: Path
+    ) -> None:
+        approval = _write_pilot_approval(tmp_path)
+        payload = _read_pilot_approval(approval)
+        for index, entity in enumerate(payload["entities"]):
+            entity["source_results"] = [entity["source_results"][index % 2]]
+        _write_changed_pilot_approval(approval, payload)
+
+        with pytest.raises(PilotScaleBlockedError) as error:
+            _require_test_pilot_approval(approval)
+
+        assert error.value.decision.code == "PILOT_APPROVAL_INVALID"
+        assert "missing declared sources" in error.value.decision.evidence
+
+    def test_one_entity_missing_one_declared_source_fails(self, tmp_path: Path) -> None:
+        approval = _write_pilot_approval(tmp_path)
+        payload = _read_pilot_approval(approval)
+        payload["entities"][0]["source_results"].pop()
+        _write_changed_pilot_approval(approval, payload)
+
+        with pytest.raises(PilotScaleBlockedError, match="missing declared sources"):
+            _require_test_pilot_approval(approval)
+
+    def test_duplicate_source_result_fails(self, tmp_path: Path) -> None:
+        approval = _write_pilot_approval(tmp_path)
+        payload = _read_pilot_approval(approval)
+        duplicate = copy.deepcopy(payload["entities"][0]["source_results"][0])
+        payload["entities"][0]["source_results"].append(duplicate)
+        _write_changed_pilot_approval(approval, payload)
+
+        with pytest.raises(PilotScaleBlockedError, match="duplicate sources"):
+            _require_test_pilot_approval(approval)
+
+    def test_undeclared_extra_source_result_fails(self, tmp_path: Path) -> None:
+        approval = _write_pilot_approval(tmp_path)
+        payload = _read_pilot_approval(approval)
+        extra = copy.deepcopy(payload["entities"][0]["source_results"][0])
+        extra["source"] = "sc_compras"
+        payload["entities"][0]["source_results"].append(extra)
+        _write_changed_pilot_approval(approval, payload)
+
+        with pytest.raises(PilotScaleBlockedError, match="undeclared sources"):
+            _require_test_pilot_approval(approval)
+
+    @pytest.mark.parametrize(
+        ("pages_fetched", "pages_expected"),
+        [(0, 1), (2, 1)],
+        ids=["fewer-pages", "extra-pages"],
+    )
+    def test_complete_pagination_requires_exact_page_count(
+        self, tmp_path: Path, pages_fetched: int, pages_expected: int
+    ) -> None:
+        approval = _write_pilot_approval(tmp_path)
+        payload = _read_pilot_approval(approval)
+        pagination = payload["entities"][0]["source_results"][0]["pagination"]
+        pagination["pages_fetched"] = pages_fetched
+        pagination["pages_expected"] = pages_expected
+        _write_changed_pilot_approval(approval, payload)
+
+        with pytest.raises(PilotScaleBlockedError, match="pagination is incomplete"):
+            _require_test_pilot_approval(approval)
+
+    def test_output_records_must_equal_reported_records(self, tmp_path: Path) -> None:
+        approval = _write_pilot_approval(tmp_path)
+        payload = _read_pilot_approval(approval)
+        dedup = payload["entities"][0]["source_results"][0]["deduplication"]
+        dedup.update(input_records=0, output_records=0, duplicates_removed=0)
+        _write_changed_pilot_approval(approval, payload)
+
+        with pytest.raises(PilotScaleBlockedError, match="deduplication is invalid"):
+            _require_test_pilot_approval(approval)
+
+    def test_arithmetically_inconsistent_deduplication_fails(self, tmp_path: Path) -> None:
+        approval = _write_pilot_approval(tmp_path)
+        payload = _read_pilot_approval(approval)
+        payload["entities"][0]["source_results"][0]["deduplication"][
+            "duplicates_removed"
+        ] = 1
+        _write_changed_pilot_approval(approval, payload)
+
+        with pytest.raises(PilotScaleBlockedError, match="deduplication is invalid"):
+            _require_test_pilot_approval(approval)
+
+    def test_source_evidence_hash_divergence_fails(self, tmp_path: Path) -> None:
+        approval = _write_pilot_approval(tmp_path)
+        payload = _read_pilot_approval(approval)
+        payload["entities"][0]["source_results"][0]["evidence_sha256"] = "0" * 64
+        _write_changed_pilot_approval(approval, payload)
+
+        with pytest.raises(PilotScaleBlockedError) as error:
+            _require_test_pilot_approval(approval)
+
+        assert error.value.decision.code == "PILOT_APPROVAL_HASH_MISMATCH"
+        assert "evidence_sha256 mismatch" in error.value.decision.evidence
+
+    def test_zero_page_zero_result_is_valid(self, tmp_path: Path) -> None:
+        approval = _write_pilot_approval(tmp_path)
+        payload = _read_pilot_approval(approval)
+        zero_result = payload["entities"][0]["source_results"][1]
+        zero_result["pagination"].update(pages_fetched=0, pages_expected=0)
+        _write_changed_pilot_approval(approval, payload)
+
+        assert _require_test_pilot_approval(approval).approved is True
+
+    def test_zero_page_nonzero_result_is_impossible(self, tmp_path: Path) -> None:
+        approval = _write_pilot_approval(tmp_path)
+        payload = _read_pilot_approval(approval)
+        nonzero_result = payload["entities"][0]["source_results"][0]
+        nonzero_result["pagination"].update(pages_fetched=0, pages_expected=0)
+        _write_changed_pilot_approval(approval, payload)
+
+        with pytest.raises(PilotScaleBlockedError, match="zero-page pagination"):
+            _require_test_pilot_approval(approval)
+
     def test_missing_approval_blocks_before_output_creation(self, tmp_path: Path) -> None:
         out = tmp_path / "must-not-exist"
 
