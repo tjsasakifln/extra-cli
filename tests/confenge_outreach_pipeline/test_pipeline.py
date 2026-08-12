@@ -11,7 +11,11 @@ from scripts.confenge_outreach_pipeline.adapt import (
     universe_row_to_intelligence_input,
 )
 from scripts.confenge_outreach_pipeline.cli import main as cli_main
-from scripts.confenge_outreach_pipeline.pipeline import PipelineConfig, run_pipeline
+from scripts.confenge_outreach_pipeline.pipeline import (
+    PipelineConfig,
+    _published_target_fit_snapshot,
+    run_pipeline,
+)
 from scripts.confenge_outreach_pipeline.sample import classify_profile, select_diverse_sample
 from scripts.warmbly_bridge.mapping import build_leads
 
@@ -47,15 +51,71 @@ def test_limit_downstream_does_not_shrink_universe(tmp_path: Path) -> None:
     assert result.stages["manifest_summary"]["limit_downstream_is_batch_only"] is True
     # Intelligence only for sample
     assert result.stages["account_intelligence"]["count"] == 1
-    # Feed produced (or empty-ok)
+    # Feed is the complete decision universe; only expensive stages use the sample.
     feed = result.stages["feed"]
     assert feed.get("ok") is True
-    assert feed.get("lead_count") == 1
+    assert feed.get("lead_count") == result.stages["target_fit_decision_universe_count"]
+    assert feed.get("lead_count") > result.stages["sample"]["count"]
+    feed_manifest = json.loads((out / "06_warmbly_feed" / "manifest.json").read_text(encoding="utf-8"))
+    authority = feed_manifest["authoritative_target_fit"]
+    assert authority["coverage_complete"] is True
+    assert authority["omission_preserves_authorization"] is False
+    assert authority["ordering"]["watermarks_monotonic"] is True
     # Manifest records sampling flags honestly
     assert result.stages.get("sampling") is False  # no max_rows on universe
     assert result.stages.get("full_scale_universe") is False  # csv path
     # Checkpoint written for resume
     assert (out / "pipeline-checkpoint.json").is_file()
+
+
+def test_offline_snapshot_uses_embedded_decisions() -> None:
+    rows = [{"cnpj14": "11222333000181", "target_fit_class": "TARGET_CONFIRMED"}]
+    snapshot, authority = _published_target_fit_snapshot(rows, dsn=None)
+    assert snapshot == rows
+    assert authority == "universe_embedded_snapshot"
+
+
+def test_production_snapshot_uses_published_store_and_canonicalizes_prevencao(
+    monkeypatch,
+) -> None:
+    import scripts.confenge_outreach_pipeline.pipeline as pipeline
+    import scripts.confenge_target_fit.db as target_fit_db
+
+    class FakeConnection:
+        closed = False
+
+        def close(self) -> None:
+            self.closed = True
+
+    conn = FakeConnection()
+    monkeypatch.setattr(target_fit_db, "connect", lambda dsn, readonly: conn)
+    monkeypatch.setattr(
+        pipeline,
+        "load_published_index",
+        lambda connection, cnpj14s: {
+            "01489370": {
+                "cnpj_raiz": "01489370",
+                "company_key": "cnpj_root:01489370",
+                "target_fit_class": "TARGET_OUT_OF_SCOPE",
+            }
+        },
+    )
+
+    snapshot, authority = _published_target_fit_snapshot(
+        [{"cnpj14": "01489370000105"}],
+        dsn="postgresql://unused",
+    )
+
+    assert conn.closed is True
+    assert authority == "published_target_fit_store"
+    assert snapshot == [
+        {
+            "cnpj14": "14893700000105",
+            "cnpj_raiz": "14893700",
+            "company_key": "cnpj_root:14893700",
+            "target_fit_class": "TARGET_OUT_OF_SCOPE",
+        }
+    ]
 
 
 def test_production_activation_does_not_use_limit_downstream_as_capacity(tmp_path: Path) -> None:
@@ -287,9 +347,7 @@ def test_adapt_intelligence_and_contacts_join() -> None:
 
 def test_contract_schema_matches_warmbly_constants() -> None:
     """Producer schema_version equals Warmbly consumer constant."""
-    schema_path = (
-        ROOT / "scripts" / "warmbly_bridge" / "schemas" / "confenge.outreach.v1.json"
-    )
+    schema_path = ROOT / "scripts" / "warmbly_bridge" / "schemas" / "confenge.outreach.v1.json"
     assert schema_path.is_file()
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
     # schema file may use $id; constant in package is authoritative

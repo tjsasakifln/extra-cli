@@ -11,6 +11,8 @@ from argparse import Namespace
 from datetime import date, timedelta
 from pathlib import Path
 
+import pytest
+
 from scripts.confenge_account_intelligence.catalog import load_catalog
 from scripts.confenge_account_intelligence.pipeline import build_dossier
 from scripts.confenge_activation.strict_national_esr import (
@@ -224,9 +226,7 @@ def test_jsonl_public_document_does_not_invent_company_authorship(tmp_path: Path
 
 def test_pilot_does_not_describe_future_start_as_recent_event() -> None:
     future = (date.today() + timedelta(days=90)).isoformat()
-    sanitized = _sanitize_pilot_contract_dates(
-        [{"data_inicio": future, "data_publicacao": future, "data_fim": future}]
-    )
+    sanitized = _sanitize_pilot_contract_dates([{"data_inicio": future, "data_publicacao": future, "data_fim": future}])
     assert sanitized[0]["data_inicio"] is None
     assert sanitized[0]["data_publicacao"] is None
     assert sanitized[0]["data_fim"] == future
@@ -276,16 +276,11 @@ def test_pilot_review_has_full_identity_evidence_message_and_human_gate(tmp_path
     assert lead["review_status"] == "HUMAN_REVIEW_PENDING"
     assert lead["review_decision"] is None
     assert review["approved"] == 0
-    feed = write_pilot_feed(review, tmp_path / "feed")
-    assert feed["lead_count"] == 1
-    chunk = json.loads((tmp_path / "feed" / "chunk_0000.json").read_text(encoding="utf-8"))
-    assert chunk["leads"][0]["email_send_ready"] is True
-    assert chunk["leads"][0]["offer"]["service_code"] == lead["recommended_service"]
+    with pytest.raises(ValueError, match="send-ready-only"):
+        write_pilot_feed(review, tmp_path / "feed")
 
 
 def test_empty_pilot_review_cannot_emit_feed(tmp_path: Path) -> None:
-    import pytest
-
     with pytest.raises(ValueError, match="no leads"):
         write_pilot_feed({"leads": []}, tmp_path / "empty-feed")
 

@@ -49,6 +49,8 @@ def cmd_export(args: argparse.Namespace) -> int:
         universe=Path(args.universe),
         account_intelligence=Path(args.account_intelligence),
         contacts=Path(args.contacts),
+        target_fit_snapshot=(Path(args.target_fit_snapshot) if args.target_fit_snapshot else None),
+        expected_universe_count=args.expected_universe_count,
         out_dir=Path(args.out),
         limit=args.limit,
         max_leads_per_chunk=args.max_leads_per_chunk,
@@ -76,10 +78,7 @@ def _build_store(args: argparse.Namespace) -> Any:
         return InMemoryOutcomeStore()
     dsn = getattr(args, "dsn", None) or os.environ.get("LOCAL_DATALAKE_DSN")
     if not dsn:
-        raise ValueError(
-            "no outcome store DSN: pass --dsn, set LOCAL_DATALAKE_DSN, "
-            "or explicitly pass --memory-store"
-        )
+        raise ValueError("no outcome store DSN: pass --dsn, set LOCAL_DATALAKE_DSN, or explicitly pass --memory-store")
     from scripts.decision_memory.db import connect
     from scripts.decision_memory.repository import DecisionMemoryRepository
 
@@ -181,6 +180,17 @@ def build_parser() -> argparse.ArgumentParser:
     e.add_argument("--universe", required=True, help="Universe JSONL path")
     e.add_argument("--account-intelligence", required=True, help="Account intelligence JSONL path")
     e.add_argument("--contacts", required=True, help="Contacts JSONL path")
+    e.add_argument(
+        "--target-fit-snapshot",
+        default=None,
+        help="Authoritative full target-fit snapshot JSONL; defaults to embedded universe decisions",
+    )
+    e.add_argument(
+        "--expected-universe-count",
+        type=int,
+        default=None,
+        help="Declared authoritative universe cardinality; required for coverage_complete=true",
+    )
     e.add_argument("--out", required=True, help="Output directory for chunks + manifest")
     e.add_argument("--limit", type=int, default=None, help="Smoke limit (Top N); omit in production")
     e.add_argument("--max-leads-per-chunk", type=int, default=DEFAULT_MAX_LEADS_PER_CHUNK)

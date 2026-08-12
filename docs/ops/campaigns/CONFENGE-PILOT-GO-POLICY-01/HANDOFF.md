@@ -8,6 +8,13 @@ revalidada sobre contratos live, traduzida pelo bridge existente para
 `EMAIL_SEND_READY`; nenhuma aprovação humana foi fabricada (`approved=0`) e o
 dispatch permanece pausado.
 
+> **Superado para novas exportações (2026-08-12):** o artefato histórico de 20
+> linhas é uma seleção de piloto, não uma fotografia autoritativa do universo.
+> Ele não deve ser reexportado/importado como `confenge.outreach.v1`, porque a
+> omissão de downgrades poderia preservar autorização anterior. O writer agora
+> recusa coorte send-ready isolada; novas importações exigem o feed integral e
+> os gates descritos no handoff `CONFENGE-AUTHORITATIVE-OUTREACH-FEED-01`.
+
 A amostra strict ESR antiga não é evidência de prontidão: ela produzia CNPJ
 sintético e tratava documento público como autoria da empresa. Com validação
 fail-closed, essa amostra cai de 71 para zero. A coorte do piloto vem da amostra

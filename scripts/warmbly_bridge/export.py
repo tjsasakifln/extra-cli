@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from scripts.confenge_target_fit.published import build_published_index_from_rows
 from scripts.warmbly_bridge import (
     DEFAULT_MAX_BYTES_PER_CHUNK,
     DEFAULT_MAX_LEADS_PER_CHUNK,
@@ -45,9 +46,11 @@ def _git_sha() -> str:
         return "unknown"
 
 
-def _snapshot_hash(universe: Path, intel: Path, contacts: Path) -> str:
+def _snapshot_hash(universe: Path, intel: Path, contacts: Path, target_fit: Path | None) -> str:
     h = hashlib.sha256()
-    for p in (universe, intel, contacts):
+    for p in (universe, intel, contacts, target_fit):
+        if p is None:
+            continue
         h.update(p.name.encode())
         h.update(b"\0")
         h.update(p.read_bytes())
@@ -66,6 +69,8 @@ class ExportConfig:
     account_intelligence: Path
     contacts: Path
     out_dir: Path
+    target_fit_snapshot: Path | None = None
+    expected_universe_count: int | None = None
     limit: int | None = None
     max_leads_per_chunk: int = DEFAULT_MAX_LEADS_PER_CHUNK
     max_bytes_per_chunk: int = DEFAULT_MAX_BYTES_PER_CHUNK
@@ -83,16 +88,107 @@ def validate_inputs(cfg: ExportConfig) -> None:
     require_readable_file(cfg.universe, label="--universe")
     require_readable_file(cfg.account_intelligence, label="--account-intelligence")
     require_readable_file(cfg.contacts, label="--contacts")
+    if cfg.target_fit_snapshot is not None:
+        require_readable_file(cfg.target_fit_snapshot, label="--target-fit-snapshot")
     if cfg.max_leads_per_chunk < 1:
         raise InputError("--max-leads-per-chunk must be >= 1")
     if cfg.max_bytes_per_chunk < 1024:
         raise InputError("--max-bytes-per-chunk must be >= 1024")
+    if cfg.expected_universe_count is not None and cfg.expected_universe_count < 1:
+        raise InputError("--expected-universe-count must be >= 1")
 
 
 def _encode_chunk(feed: dict[str, Any]) -> bytes:
     # Canonical serialization for stable content hashes (resume/idempotency).
     text = json.dumps(feed, ensure_ascii=False, indent=2, sort_keys=True, default=str) + "\n"
     return text.encode("utf-8")
+
+
+def _decision_cursor(lead: dict[str, Any]) -> str:
+    return "|".join(
+        (
+            str(lead.get("target_fit_source_watermark") or ""),
+            str(lead.get("target_fit_computed_at") or ""),
+            str((lead.get("company") or {}).get("cnpj14") or ""),
+        )
+    )
+
+
+def _parse_timestamp(value: Any, *, field: str, cnpj: str) -> datetime:
+    text = str(value or "").strip()
+    try:
+        parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise InputError(f"invalid {field} timestamp for {cnpj}: {text!r}") from exc
+    if parsed.tzinfo is None:
+        raise InputError(f"timezone required in {field} for {cnpj}: {text!r}")
+    return parsed.astimezone(UTC)
+
+
+def _decision_order_key(lead: dict[str, Any]) -> tuple[datetime, datetime, str, str]:
+    cnpj = str((lead.get("company") or {}).get("cnpj14") or "")
+    return (
+        _parse_timestamp(
+            lead.get("target_fit_source_watermark"),
+            field="target_fit_source_watermark",
+            cnpj=cnpj,
+        ),
+        _parse_timestamp(
+            lead.get("target_fit_computed_at"),
+            field="target_fit_computed_at",
+            cnpj=cnpj,
+        ),
+        cnpj,
+        str(lead.get("source_lead_id") or ""),
+    )
+
+
+def _assert_authoritative_leads(leads: list[dict[str, Any]]) -> dict[str, Any]:
+    required = (
+        "target_fit_class",
+        "target_fit_fresh",
+        "target_fit_version",
+        "target_fit_computed_at",
+        "target_fit_source_watermark",
+        "target_fit_evidence_ids",
+        "target_fit_send_tier",
+        "email_send_ready",
+    )
+    cursors: list[str] = []
+    order_keys: list[tuple[datetime, datetime, str, str]] = []
+    seen: set[str] = set()
+    for lead in leads:
+        cnpj = str((lead.get("company") or {}).get("cnpj14") or "")
+        missing = [field for field in required if field not in lead or lead[field] is None]
+        if missing:
+            raise InputError(f"authoritative target-fit decision incomplete for {cnpj}: {missing}")
+        if not str(lead["target_fit_class"]):
+            raise InputError(f"authoritative target-fit class empty for {cnpj}")
+        if not str(lead["target_fit_version"]):
+            raise InputError(f"authoritative target-fit version empty for {cnpj}")
+        if not str(lead["target_fit_computed_at"]):
+            raise InputError(f"authoritative target-fit computed_at empty for {cnpj}")
+        if not str(lead["target_fit_source_watermark"]):
+            raise InputError(f"authoritative target-fit watermark empty for {cnpj}")
+        if cnpj in seen:
+            raise InputError(f"duplicate authoritative decision for CNPJ {cnpj}")
+        seen.add(cnpj)
+        cursors.append(_decision_cursor(lead))
+        order_keys.append(_decision_order_key(lead))
+    monotonic = all(a <= b for a, b in zip(order_keys, order_keys[1:]))
+    if not monotonic:
+        raise InputError("target-fit source watermarks are not monotonically ordered")
+    return {
+        "key": [
+            "target_fit_source_watermark",
+            "target_fit_computed_at",
+            "company.cnpj14",
+        ],
+        "direction": "ascending",
+        "watermarks_monotonic": True,
+        "first_cursor": cursors[0] if cursors else None,
+        "last_cursor": cursors[-1] if cursors else None,
+    }
 
 
 def _chunk_leads(
@@ -117,7 +213,7 @@ def _chunk_leads(
             "generated_at": generated_at,
             "source": source,
             "pagination": {
-                "cursor": current[0]["company"]["cnpj14"] if current else lead["company"]["cnpj14"],
+                "cursor": _decision_cursor(current[0] if current else lead),
                 "next_cursor": None,
                 "has_more": False,
                 "chunk_index": len(chunks),
@@ -137,9 +233,9 @@ def _chunk_leads(
 
     result: list[tuple[list[dict[str, Any]], dict[str, Any]]] = []
     for idx, slice_leads in enumerate(chunks):
-        cursor = slice_leads[0]["company"]["cnpj14"] if slice_leads else None
+        cursor = _decision_cursor(slice_leads[0]) if slice_leads else None
         has_more = idx < len(chunks) - 1
-        next_cursor = chunks[idx + 1][0]["company"]["cnpj14"] if has_more else None
+        next_cursor = _decision_cursor(chunks[idx + 1][0]) if has_more else None
         pagination = {
             "cursor": cursor,
             "next_cursor": next_cursor,
@@ -163,13 +259,15 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
     if not universe_rows:
         raise InputError("--universe has no records; refusing empty shallow export")
 
-    leads = build_leads(universe_rows, intel_rows, contact_rows)
-    if cfg.limit is not None:
-        if cfg.limit < 0:
-            raise InputError("--limit must be >= 0")
-        leads = leads[: cfg.limit]
+    if cfg.limit is not None and cfg.limit < 0:
+        raise InputError("--limit must be >= 0")
 
-    snapshot_hash = _snapshot_hash(cfg.universe, cfg.account_intelligence, cfg.contacts)
+    snapshot_hash = _snapshot_hash(
+        cfg.universe,
+        cfg.account_intelligence,
+        cfg.contacts,
+        cfg.target_fit_snapshot,
+    )
     run_id = _run_id(snapshot_hash, cfg.profile_id, cfg.profile_version)
     # Deterministic resume: reuse generated_at/repo_sha from prior manifest when
     # snapshot_hash matches so re-export yields identical chunk hashes.
@@ -194,6 +292,42 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
         repo_sha = str(prior_source["repo_sha"])
     else:
         repo_sha = _git_sha()
+
+    if cfg.target_fit_snapshot is not None:
+        target_fit_rows = read_jsonl(cfg.target_fit_snapshot, label="--target-fit-snapshot")
+        # Seed every addressable company as an explicit missing tombstone.  The
+        # authoritative snapshot then overwrites the companies it contains;
+        # omission can never preserve a CONFIRMED decision from an older feed.
+        published_index = build_published_index_from_rows(
+            [{"cnpj14": row.get("cnpj14") or row.get("cnpj")} for row in universe_rows],
+            computed_at=generated_at,
+            source_watermark=generated_at,
+        )
+        published_index.update(
+            build_published_index_from_rows(
+                target_fit_rows,
+                computed_at=generated_at,
+                source_watermark=generated_at,
+            )
+        )
+    else:
+        target_fit_rows = universe_rows
+        published_index = build_published_index_from_rows(
+            target_fit_rows,
+            computed_at=generated_at,
+            source_watermark=generated_at,
+        )
+    leads = build_leads(
+        universe_rows,
+        intel_rows,
+        contact_rows,
+        published_index=published_index,
+        datalake_watermark=generated_at,
+    )
+    leads.sort(key=_decision_order_key)
+    if cfg.limit is not None:
+        leads = leads[: cfg.limit]
+    ordering = _assert_authoritative_leads(leads)
 
     source = {
         "system": cfg.system,
@@ -278,6 +412,11 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
             stale.unlink(missing_ok=True)
 
     deacts = list(cfg.deactivations or [])
+    coverage_complete = bool(
+        cfg.expected_universe_count is not None
+        and cfg.limit is None
+        and len(leads) == len(universe_rows) == cfg.expected_universe_count
+    )
     manifest = {
         "schema_version": "confenge.outreach.manifest.v1",
         "module_version": MODULE_VERSION,
@@ -287,12 +426,26 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
             "universe": str(cfg.universe.resolve()),
             "account_intelligence": str(cfg.account_intelligence.resolve()),
             "contacts": str(cfg.contacts.resolve()),
+            "target_fit_snapshot": (
+                str(cfg.target_fit_snapshot.resolve())
+                if cfg.target_fit_snapshot is not None
+                else str(cfg.universe.resolve())
+            ),
         },
         "lead_count": len(leads),
         "chunk_count": len(chunk_meta),
         "max_leads_per_chunk": cfg.max_leads_per_chunk,
         "max_bytes_per_chunk": cfg.max_bytes_per_chunk,
         "limit": cfg.limit,
+        "authoritative_target_fit": {
+            "source": "target_fit_snapshot" if cfg.target_fit_snapshot is not None else "universe_embedded_snapshot",
+            "full_decision_count": len(leads),
+            "universe_count": len(universe_rows),
+            "declared_universe_count": cfg.expected_universe_count,
+            "coverage_complete": coverage_complete,
+            "omission_preserves_authorization": not coverage_complete,
+            "ordering": ordering,
+        },
         "chunks": chunk_meta,
         # Approach B: explicit deactivation delta (idempotent; Warmbly applies without DB coupling)
         "deactivations": deacts,
@@ -310,15 +463,15 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
         },
     }
     manifest_path = out / "manifest.json"
-    manifest_bytes = (
-        json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True, default=str) + "\n"
-    ).encode("utf-8")
+    manifest_bytes = (json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True, default=str) + "\n").encode(
+        "utf-8"
+    )
     manifest_path.write_bytes(manifest_bytes)
     manifest["manifest_content_hash"] = hashlib.sha256(manifest_bytes).hexdigest()
     # rewrite with self hash
-    manifest_bytes = (
-        json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True, default=str) + "\n"
-    ).encode("utf-8")
+    manifest_bytes = (json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True, default=str) + "\n").encode(
+        "utf-8"
+    )
     manifest_path.write_bytes(manifest_bytes)
 
     return {
