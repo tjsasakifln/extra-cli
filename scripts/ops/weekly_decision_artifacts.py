@@ -17,6 +17,7 @@ from __future__ import annotations
 import csv
 import json
 import os
+import re
 import shutil
 from datetime import datetime
 from pathlib import Path
@@ -25,7 +26,11 @@ from typing import Any
 from scripts.crawl.run_evidence import sha256_file
 from scripts.ops.multi_source_open_pack.classify_aec import classify_aec
 from scripts.ops.multi_source_open_pack.consolidate import consolidate_observations
-from scripts.ops.multi_source_open_pack.db_loaders import load_all_lake_observations
+from scripts.ops.multi_source_open_pack.db_loaders import (
+    LineageSelectionError,
+    OpportunityLineageSelection,
+    load_all_lake_observations,
+)
 from scripts.ops.multi_source_open_pack.decide import apply_decisions, select_shortlist
 from scripts.ops.multi_source_open_pack.pilot_gate import require_pilot_approval
 from scripts.ops.multi_source_open_pack.pipeline import (
@@ -61,6 +66,96 @@ RESULT_STATES = (
     "ERROR",
     "NOT_QUERIED",
 )
+
+
+def select_opportunity_lineage(
+    *,
+    collection_id: str,
+    runs: list[Any],
+    freshness: list[dict[str, Any]],
+) -> OpportunityLineageSelection:
+    """Resolve the one PNCP lake snapshot authorized for this collection."""
+    candidates = [
+        run for run in runs if getattr(run, "source", None) == "pncp_opportunities"
+    ]
+    if len(candidates) != 1:
+        raise LineageSelectionError(
+            "weekly package requires exactly one pncp_opportunities collection run"
+        )
+    run = candidates[0]
+    if str(getattr(run, "collection_id", "")) != collection_id:
+        raise LineageSelectionError(
+            f"collection mismatch: package={collection_id!r} "
+            f"run={getattr(run, 'collection_id', None)!r}"
+        )
+    status = str(getattr(run, "terminal_status", ""))
+    expected = int(getattr(run, "records_persisted", 0) or 0)
+    if status == "reused_fresh":
+        raw_uri = str(getattr(run, "raw_uri", "") or "")
+        match = re.fullmatch(r"db://opportunity_runs/(\d+)", raw_uri)
+        if not match:
+            raise LineageSelectionError(
+                "reused PNCP snapshot must identify db://opportunity_runs/<id>"
+            )
+        source_run_id = int(match.group(1))
+        proof = next(
+            (
+                row
+                for row in freshness
+                if row.get("source") == "pncp_opportunities"
+            ),
+            None,
+        )
+        if not proof or proof.get("level") != "fresh":
+            raise LineageSelectionError(
+                "reused PNCP snapshot requires explicit fresh evidence"
+            )
+        if int(proof.get("last_run_id") or 0) != source_run_id:
+            raise LineageSelectionError(
+                "reused PNCP run differs from the freshness evidence run"
+            )
+        external_run_id = str(proof.get("external_run_id") or "")
+        if not external_run_id:
+            raise LineageSelectionError(
+                "reused PNCP snapshot is missing its external run lineage"
+            )
+        age = proof.get("age_hours")
+        sla = proof.get("sla_hours")
+        if age is None or sla is None or float(age) > float(sla):
+            raise LineageSelectionError(
+                "reused PNCP snapshot is missing an in-SLA freshness proof"
+            )
+        return OpportunityLineageSelection(
+            collection_id=collection_id,
+            source_run_id=source_run_id,
+            external_run_id=external_run_id,
+            mode="reused",
+            expected_records=expected,
+            freshness_hours=float(age),
+            freshness_sla_hours=float(sla),
+        )
+    if status not in {"success", "success_zero"}:
+        raise LineageSelectionError(
+            f"PNCP run status {status!r} cannot feed a decision package"
+        )
+    parameters = dict(getattr(run, "parameters", None) or {})
+    source_run_id = int(parameters.get("opportunity_runs_id") or 0)
+    if source_run_id <= 0:
+        raise LineageSelectionError(
+            "live PNCP collection did not persist opportunity_runs_id"
+        )
+    expected_batch = f"weekly-{collection_id}"
+    if parameters.get("external_run_id") != expected_batch:
+        raise LineageSelectionError(
+            "live PNCP collection batch is not bound to this collection_id"
+        )
+    return OpportunityLineageSelection(
+        collection_id=collection_id,
+        source_run_id=source_run_id,
+        external_run_id=expected_batch,
+        mode="persisted",
+        expected_records=expected,
+    )
 
 
 def _atomic_json(path: Path, payload: Any) -> None:
@@ -489,15 +584,22 @@ def build_weekly_decision_artifacts(
         universe_entity_ids={entity.entity_key for entity in entities},
         approval_path=pilot_approval_path,
     )
-    out_dir.mkdir(parents=True, exist_ok=True)
+    opportunity_lineage = select_opportunity_lineage(
+        collection_id=collection_id,
+        runs=runs,
+        freshness=freshness,
+    )
     by_cnpj8, names, by_name, municipios = build_indexes(entities)
     profile = _load_profile(profile_path)
 
     observations, load_meta = load_all_lake_observations(
         conn,
         as_of=as_of,
-        auto_discover_files=True,
+        auto_discover_files=False,
+        opportunity_lineage=opportunity_lineage,
+        collection_isolated=True,
     )
+    out_dir.mkdir(parents=True, exist_ok=True)
     for obs in observations:
         annotate_observation_universe(
             obs,

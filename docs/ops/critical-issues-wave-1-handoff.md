@@ -16,7 +16,7 @@ acceptance require exact-HEAD CI and the repository's human/main gates.
 | #234 | VERIFIED | 103 pack/queue/weekly tests; preflight before state/output writes | exact-HEAD CI + main |
 | #278 | VERIFIED | 49 systemd/resilience tests; rendered pair + idempotent install smoke | exact-HEAD CI + main |
 | #288 | VERIFIED | 80 loader/pack/weekly tests; 10,037 rows reconcile to one SQL snapshot | exact-HEAD CI + main |
-| #233 | OPEN | — | implementation and test |
+| #233 | VERIFIED | 87 loader/pack/weekly tests; exact run membership and reuse proof | exact-HEAD CI + main |
 | #311 | OPEN | — | implementation and test |
 | #313 | OPEN | — | implementation and test |
 
@@ -142,4 +142,24 @@ Returning a prefix, duplicate, changed snapshot, or memory estimate above the
 512 MiB VPS budget raises `SnapshotReconciliationError`. The 10,037-row test
 also measures actual peak allocation below the budget. Observation-sheet and
 shortlist cuts remain presentation-only and are explicitly labeled in pack
-metadata. Cross-source lineage selection remains the separate #233 commit.
+metadata. Collection/run isolation is implemented separately by #233 below.
+
+## #233 verification
+
+```text
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -o addopts= \
+  tests/test_weekly_cycle.py tests/test_multi_source_open_pack.py \
+  tests/test_snapshot_observation_loader.py \
+  tests/test_weekly_decision_artifacts.py -q --tb=short
+87 passed, 1 skipped
+```
+
+The weekly package now resolves one `opportunity_runs.id` from its canonical
+`CollectionRun` and loads PNCP rows only through
+`source_snapshot_membership`. The selected membership count must equal the
+run's persisted count (or the explicitly reused count), and every streamed row
+must carry that same run lineage. Reuse records the prior run, deterministic
+SHA-256 over its membership, and in-SLA freshness proof in package metadata.
+Unbound official-act/file discovery is disabled for the collection-isolated
+path; a foreign or missing lineage fails before the package directory is
+created.

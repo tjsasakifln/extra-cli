@@ -3154,3 +3154,9 @@ CI (PR #12):
   reconcile to the eligible count and SQL snapshot, read 10,037/10,037 in the
   scale test, and fail instead of truncating when the 512 MiB budget is exceeded.
   Presentation-only limits are labeled. Exact-HEAD CI and `main` are required.
+- [ ] Weekly decision packages are isolated to their selected collection.
+  **#233 `VERIFIED` on branch:** PNCP observations are joined through the exact
+  `source_snapshot_membership` run, persisted/reused totals reconcile exactly,
+  and explicit reuse includes prior run, membership SHA-256 and freshness.
+  Foreign or missing lineage fails before artifact creation. Exact-HEAD CI and
+  `main` are required.

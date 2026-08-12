@@ -10,6 +10,8 @@ import pytest
 
 from scripts.ops.multi_source_open_pack import db_loaders
 from scripts.ops.multi_source_open_pack.db_loaders import (
+    LineageSelectionError,
+    OpportunityLineageSelection,
     SnapshotReconciliationError,
     load_opportunity_intel_snapshot,
 )
@@ -135,3 +137,122 @@ def test_memory_budget_exhaustion_fails_without_successful_truncation(
             page_size=1,
             memory_budget_bytes=1,
         )
+
+
+def test_selected_collection_run_is_exact_and_auditable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    rows = [_row(index, 2) for index in range(2)]
+    for index, row in enumerate(rows):
+        row["_lineage_run_id"] = 42
+        row["_lineage_external_run_id"] = "weekly-collection-a"
+        row["_lineage_source_record_id"] = f"pncp-{index}"
+        row["_lineage_key"] = f"key-{index}"
+    connection = _Connection(rows)
+    monkeypatch.setattr(db_loaders, "_table_exists", lambda *_args: True)
+
+    observations, snapshot = load_opportunity_intel_snapshot(
+        connection,
+        lineage=OpportunityLineageSelection(
+            collection_id="collection-a",
+            source_run_id=42,
+            external_run_id="weekly-collection-a",
+            mode="reused",
+            expected_records=2,
+            freshness_hours=3.5,
+            freshness_sla_hours=24,
+        ),
+    )
+
+    assert len(observations) == 2
+    assert "source_snapshot_membership" in connection.sql
+    assert connection.params == (42, "weekly-collection-a", "open", "upcoming")
+    assert snapshot["lineage"] == {
+        "collection_id": "collection-a",
+        "source_run_id": 42,
+        "external_run_id": "weekly-collection-a",
+        "mode": "reused",
+        "expected_records": 2,
+        "loaded_records": 2,
+        "sha256": snapshot["lineage"]["sha256"],
+        "freshness_hours": 3.5,
+        "freshness_sla_hours": 24,
+    }
+    assert len(snapshot["lineage"]["sha256"]) == 64
+
+
+def test_row_without_selected_run_lineage_fails_package_load(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    row = _row(0, 1)
+    row["_lineage_run_id"] = 99
+    row["_lineage_external_run_id"] = "weekly-foreign"
+    row["_lineage_source_record_id"] = "foreign"
+    connection = _Connection([row])
+    monkeypatch.setattr(db_loaders, "_table_exists", lambda *_args: True)
+
+    with pytest.raises(LineageSelectionError, match="expected run 42"):
+        load_opportunity_intel_snapshot(
+            connection,
+            lineage=OpportunityLineageSelection(
+                collection_id="collection-a",
+                source_run_id=42,
+                external_run_id="weekly-collection-a",
+                mode="persisted",
+                expected_records=1,
+            ),
+        )
+
+
+def test_selected_run_count_must_equal_persisted_plus_reused(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    row = _row(0, 1)
+    row["_lineage_run_id"] = 42
+    row["_lineage_external_run_id"] = "weekly-collection-a"
+    row["_lineage_source_record_id"] = "pncp-0"
+    connection = _Connection([row])
+    monkeypatch.setattr(db_loaders, "_table_exists", lambda *_args: True)
+
+    with pytest.raises(LineageSelectionError, match="loaded=1 expected=2"):
+        load_opportunity_intel_snapshot(
+            connection,
+            lineage=OpportunityLineageSelection(
+                collection_id="collection-a",
+                source_run_id=42,
+                external_run_id="weekly-collection-a",
+                mode="persisted",
+                expected_records=2,
+            ),
+        )
+
+
+def test_idempotent_reload_keeps_same_rows_and_lineage_hash(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    rows = [_row(index, 2) for index in range(2)]
+    for index, row in enumerate(rows):
+        row["_lineage_run_id"] = 42
+        row["_lineage_external_run_id"] = "weekly-collection-a"
+        row["_lineage_source_record_id"] = f"pncp-{index}"
+        row["_lineage_key"] = f"key-{index}"
+    monkeypatch.setattr(db_loaders, "_table_exists", lambda *_args: True)
+    lineage = OpportunityLineageSelection(
+        collection_id="collection-a",
+        source_run_id=42,
+        external_run_id="weekly-collection-a",
+        mode="persisted",
+        expected_records=2,
+    )
+
+    first, first_snapshot = load_opportunity_intel_snapshot(
+        _Connection([dict(row) for row in rows]), lineage=lineage
+    )
+    second, second_snapshot = load_opportunity_intel_snapshot(
+        _Connection([dict(row) for row in rows]), lineage=lineage
+    )
+
+    assert [row.observation_id for row in first] == [
+        row.observation_id for row in second
+    ]
+    assert first_snapshot["lineage"]["sha256"] == second_snapshot["lineage"]["sha256"]

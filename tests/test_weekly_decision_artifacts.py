@@ -3,16 +3,99 @@
 from __future__ import annotations
 
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
+from scripts.ops.multi_source_open_pack.db_loaders import LineageSelectionError
 from scripts.ops.multi_source_open_pack.models import BuyerEntity, SourceObservation
 from scripts.ops.weekly_decision_artifacts import (
     CANONICAL_N,
     RESULT_STATES,
     build_coverage_by_entity_source,
     is_engineering_opportunity,
+    select_opportunity_lineage,
 )
+
+
+def test_live_collection_selects_only_its_persisted_source_run() -> None:
+    selected = select_opportunity_lineage(
+        collection_id="cycle-20260812",
+        runs=[
+            SimpleNamespace(
+                source="pncp_opportunities",
+                collection_id="cycle-20260812",
+                terminal_status="success",
+                records_persisted=1732,
+                parameters={
+                    "opportunity_runs_id": 501,
+                    "external_run_id": "weekly-cycle-20260812",
+                },
+            )
+        ],
+        freshness=[],
+    )
+
+    assert selected.source_run_id == 501
+    assert selected.external_run_id == "weekly-cycle-20260812"
+    assert selected.expected_records == 1732
+    assert selected.mode == "persisted"
+
+
+def test_reuse_records_prior_run_and_freshness_proof() -> None:
+    selected = select_opportunity_lineage(
+        collection_id="cycle-20260812",
+        runs=[
+            SimpleNamespace(
+                source="pncp_opportunities",
+                collection_id="cycle-20260812",
+                terminal_status="reused_fresh",
+                records_persisted=1732,
+                raw_uri="db://opportunity_runs/500",
+            )
+        ],
+        freshness=[
+            {
+                "source": "pncp_opportunities",
+                "level": "fresh",
+                "last_run_id": 500,
+                "external_run_id": "weekly-cycle-20260811",
+                "age_hours": 2.25,
+                "sla_hours": 24,
+            }
+        ],
+    )
+
+    assert selected.source_run_id == 500
+    assert selected.external_run_id == "weekly-cycle-20260811"
+    assert selected.mode == "reused"
+    assert selected.freshness_hours == 2.25
+
+
+def test_reuse_of_different_or_stale_run_is_rejected() -> None:
+    run = SimpleNamespace(
+        source="pncp_opportunities",
+        collection_id="cycle-20260812",
+        terminal_status="reused_fresh",
+        records_persisted=1732,
+        raw_uri="db://opportunity_runs/500",
+    )
+
+    with pytest.raises(LineageSelectionError, match="differs"):
+        select_opportunity_lineage(
+            collection_id="cycle-20260812",
+            runs=[run],
+            freshness=[
+                {
+                    "source": "pncp_opportunities",
+                    "level": "fresh",
+                    "last_run_id": 499,
+                    "external_run_id": "weekly-cycle-20260810",
+                    "age_hours": 2,
+                    "sla_hours": 24,
+                }
+            ],
+        )
 
 
 class TestFleetFalsePositiveRegression:

@@ -7,9 +7,11 @@ EXTRA-MS-OPEN observation model without requiring pre-exported CSVs.
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import os
 import uuid
+from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -30,6 +32,23 @@ MEMORY_OVERHEAD_FACTOR = 4
 
 class SnapshotReconciliationError(RuntimeError):
     """The streamed rows do not exactly match their SQL snapshot."""
+
+
+class LineageSelectionError(SnapshotReconciliationError):
+    """A package row is outside the explicitly selected collection run."""
+
+
+@dataclass(frozen=True)
+class OpportunityLineageSelection:
+    """Exact PNCP snapshot authorized to feed one decision package."""
+
+    collection_id: str
+    source_run_id: int
+    external_run_id: str
+    mode: str
+    expected_records: int
+    freshness_hours: float | None = None
+    freshness_sla_hours: float | None = None
 
 
 def _memory_budget_bytes() -> int:
@@ -150,6 +169,8 @@ def _stream_snapshot_rows(
     source: str,
     page_size: int,
     memory_budget_bytes: int,
+    required_lineage_run_id: int | None = None,
+    required_external_run_id: str | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Fetch one SQL snapshot in bounded batches and reconcile its exact count."""
     cursor_name = f"extra_{source}_{uuid.uuid4().hex}"
@@ -188,6 +209,19 @@ def _stream_snapshot_rows(
                     )
                 if not present:
                     continue
+                if required_lineage_run_id is not None:
+                    row_lineage = row.get("_lineage_run_id")
+                    if row_lineage is None or int(row_lineage) != required_lineage_run_id:
+                        raise LineageSelectionError(
+                            f"{source}: row id={row.get('id')!r} has lineage "
+                            f"{row_lineage!r}, expected run {required_lineage_run_id}"
+                        )
+                    row_external_run = str(row.get("_lineage_external_run_id") or "")
+                    if row_external_run != required_external_run_id:
+                        raise LineageSelectionError(
+                            f"{source}: row id={row.get('id')!r} has external run "
+                            f"{row_external_run!r}, expected {required_external_run_id!r}"
+                        )
                 row_id = str(row.get("id") or "")
                 if not row_id or row_id in seen_ids:
                     raise SnapshotReconciliationError(
@@ -240,9 +274,14 @@ def load_opportunity_intel_snapshot(
     statuses: tuple[str, ...] = ("open", "upcoming"),
     page_size: int = DEFAULT_SNAPSHOT_PAGE_SIZE,
     memory_budget_bytes: int | None = None,
+    lineage: OpportunityLineageSelection | None = None,
 ) -> tuple[list[SourceObservation], dict[str, Any]]:
     """Load every eligible opportunity from one reconciled SQL snapshot."""
     if not _table_exists(conn, "opportunity_intel"):
+        if lineage is not None:
+            raise LineageSelectionError(
+                "opportunity_intel: selected lineage cannot be proven; table missing"
+            )
         return [], {
             "source": "opportunity_intel",
             "eligible_count": 0,
@@ -252,17 +291,73 @@ def load_opportunity_intel_snapshot(
             "presentation_truncated": False,
         }
     placeholders = ",".join(["%s"] * len(statuses))
+    if lineage is not None:
+        if lineage.source_run_id <= 0:
+            raise LineageSelectionError(
+                "opportunity_intel: selected source_run_id must be positive"
+            )
+        if not lineage.external_run_id:
+            raise LineageSelectionError(
+                "opportunity_intel: selected external_run_id is required"
+            )
+        if lineage.expected_records < 0:
+            raise LineageSelectionError(
+                "opportunity_intel: expected_records cannot be negative"
+            )
+        if not _table_exists(conn, "source_snapshot_membership"):
+            raise LineageSelectionError(
+                "opportunity_intel: source_snapshot_membership table missing"
+            )
+    if lineage is None:
+        eligible_sql = f"""
+            SELECT id, source, source_id, numero_controle_pncp, orgao_cnpj, orgao_nome,
+                   municipio, uf, objeto, modalidade, valor_estimado,
+                   status_canonico, data_publicacao, data_abertura, data_encerramento,
+                   link_edital, source_url, run_id, crawl_batch_id, proveniencia,
+                   NULL::bigint AS _lineage_run_id,
+                   NULL::text AS _lineage_external_run_id,
+                   NULL::text AS _lineage_source_record_id,
+                   NULL::text AS _lineage_key
+            FROM opportunity_intel
+            WHERE COALESCE(is_active, TRUE)
+              AND status_canonico IN ({placeholders})
+        """  # noqa: S608 — placeholders only
+        params: tuple[Any, ...] = tuple(statuses)
+    else:
+        eligible_sql = f"""
+            SELECT oi.id, oi.source, oi.source_id, oi.numero_controle_pncp,
+                   oi.orgao_cnpj, oi.orgao_nome, oi.municipio, oi.uf, oi.objeto,
+                   oi.modalidade, oi.valor_estimado, oi.status_canonico,
+                   oi.data_publicacao, oi.data_abertura, oi.data_encerramento,
+                   oi.link_edital, oi.source_url, oi.run_id, oi.crawl_batch_id,
+                   oi.proveniencia, membership.source_run_id AS _lineage_run_id,
+                   selected_run.external_run_id AS _lineage_external_run_id,
+                   membership.source_record_id AS _lineage_source_record_id,
+                   membership.canonical_opportunity_key AS _lineage_key
+            FROM source_snapshot_membership membership
+            JOIN opportunity_runs selected_run
+              ON selected_run.id = membership.source_run_id
+             AND selected_run.id = %s
+             AND selected_run.external_run_id = %s
+            JOIN LATERAL (
+                SELECT candidate.*
+                FROM opportunity_intel candidate
+                WHERE candidate.source_id = membership.source_record_id
+                   OR candidate.numero_controle_pncp = membership.source_record_id
+                   OR candidate.numero_controle_pncp = membership.canonical_opportunity_key
+                   OR candidate.content_hash = membership.canonical_opportunity_key
+                ORDER BY candidate.id DESC
+                LIMIT 1
+            ) oi ON TRUE
+            WHERE COALESCE(oi.is_active, TRUE)
+              AND oi.status_canonico IN ({placeholders})
+        """  # noqa: S608 — placeholders only
+        params = (lineage.source_run_id, lineage.external_run_id, *statuses)
     rows, snapshot = _stream_snapshot_rows(
         conn,
         f"""
         WITH eligible AS MATERIALIZED (
-            SELECT id, source, source_id, numero_controle_pncp, orgao_cnpj, orgao_nome,
-                   municipio, uf, objeto, modalidade, valor_estimado,
-                   status_canonico, data_publicacao, data_abertura, data_encerramento,
-                   link_edital, source_url, run_id, crawl_batch_id, proveniencia
-            FROM opportunity_intel
-            WHERE COALESCE(is_active, TRUE)
-              AND status_canonico IN ({placeholders})
+            {eligible_sql}
         ), snapshot_meta AS (
             SELECT COUNT(*)::bigint AS eligible_count,
                    txid_current_snapshot()::text AS snapshot_id
@@ -276,11 +371,36 @@ def load_opportunity_intel_snapshot(
         LEFT JOIN eligible ON TRUE
         ORDER BY eligible.id ASC NULLS LAST
         """,  # noqa: S608 — placeholders only
-        tuple(statuses),
+        params,
         source="opportunity_intel",
         page_size=page_size,
         memory_budget_bytes=memory_budget_bytes or _memory_budget_bytes(),
+        required_lineage_run_id=lineage.source_run_id if lineage else None,
+        required_external_run_id=lineage.external_run_id if lineage else None,
     )
+    if lineage is not None:
+        if snapshot["rows_read"] != lineage.expected_records:
+            raise LineageSelectionError(
+                "opportunity_intel: selected run "
+                f"{lineage.source_run_id} loaded={snapshot['rows_read']} "
+                f"expected={lineage.expected_records}"
+            )
+        digest_lines = sorted(
+            f"{r.get('_lineage_run_id')}:{r.get('_lineage_source_record_id')}:"
+            f"{r.get('_lineage_key') or ''}"
+            for r in rows
+        )
+        snapshot["lineage"] = {
+            "collection_id": lineage.collection_id,
+            "source_run_id": lineage.source_run_id,
+            "external_run_id": lineage.external_run_id,
+            "mode": lineage.mode,
+            "expected_records": lineage.expected_records,
+            "loaded_records": snapshot["rows_read"],
+            "sha256": hashlib.sha256("\n".join(digest_lines).encode("utf-8")).hexdigest(),
+            "freshness_hours": lineage.freshness_hours,
+            "freshness_sla_hours": lineage.freshness_sla_hours,
+        }
     out: list[SourceObservation] = []
     for r in rows:
         fonte = _normalize_source_key(str(r.get("source") or "pncp"))
@@ -511,6 +631,8 @@ def load_all_lake_observations(
     snapshot_page_size: int = DEFAULT_SNAPSHOT_PAGE_SIZE,
     memory_budget_bytes: int | None = None,
     auto_discover_files: bool = True,
+    opportunity_lineage: OpportunityLineageSelection | None = None,
+    collection_isolated: bool = False,
 ) -> tuple[list[SourceObservation], dict[str, Any]]:
     """Combine lake + optional file artifacts into one observation list."""
     as_of = as_of or date.today()
@@ -527,17 +649,54 @@ def load_all_lake_observations(
         conn,
         page_size=snapshot_page_size,
         memory_budget_bytes=effective_memory_budget,
+        lineage=opportunity_lineage,
     )
     rows.extend(opp)
     meta["sources_loaded"]["opportunity_intel"] = len(opp)
     meta["snapshots"]["opportunity_intel"] = opp_snapshot
+    if opportunity_lineage is not None:
+        persisted = (
+            opportunity_lineage.expected_records
+            if opportunity_lineage.mode == "persisted"
+            else 0
+        )
+        reused = (
+            opportunity_lineage.expected_records
+            if opportunity_lineage.mode == "reused"
+            else 0
+        )
+        meta["lineage_reconciliation"] = {
+            "collection_id": opportunity_lineage.collection_id,
+            "selected_source_run_id": opportunity_lineage.source_run_id,
+            "persisted_records": persisted,
+            "reused_records": reused,
+            "expected_total": persisted + reused,
+            "loaded_total": len(opp),
+            "exact": len(opp) == persisted + reused,
+            "reuse_proof": (
+                opp_snapshot.get("lineage")
+                if opportunity_lineage.mode == "reused"
+                else None
+            ),
+        }
 
-    acts, acts_snapshot = load_official_acts_snapshot(
-        conn,
-        lookback_days=ciga_lookback_days,
-        page_size=snapshot_page_size,
-        memory_budget_bytes=effective_memory_budget,
-    )
+    if collection_isolated:
+        acts, acts_snapshot = [], {
+            "source": "official_acts",
+            "eligible_count": 0,
+            "rows_read": 0,
+            "complete": True,
+            "excluded": "no selected collection lineage",
+            "presentation_truncated": False,
+        }
+        auto_discover_files = False
+    else:
+        acts, acts_snapshot = load_official_acts_snapshot(
+            conn,
+            lookback_days=ciga_lookback_days,
+            page_size=snapshot_page_size,
+            memory_budget_bytes=effective_memory_budget,
+        )
     rows.extend(acts)
     meta["sources_loaded"]["official_acts"] = len(acts)
     meta["snapshots"]["official_acts"] = acts_snapshot
@@ -615,5 +774,7 @@ __all__ = [
     "load_official_acts_snapshot",
     "load_opportunity_intel_observations",
     "load_opportunity_intel_snapshot",
+    "LineageSelectionError",
+    "OpportunityLineageSelection",
     "SnapshotReconciliationError",
 ]

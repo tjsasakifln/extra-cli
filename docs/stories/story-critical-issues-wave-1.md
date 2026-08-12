@@ -54,7 +54,7 @@ then by critical-path unlocks. The resulting scope is:
   `/opt`/`/var/lib` paths with preflight validation.
 - [x] #288: all eligible snapshot observations are read without a silent fixed
   limit, with stable pagination/streaming evidence.
-- [ ] #233: every packaged observation is bound to the selected collection/run,
+- [x] #233: every packaged observation is bound to the selected collection/run,
   with explicit reuse provenance only.
 - [ ] #311: CNPJ, CPF, foreign, and unknown supplier identifiers remain distinct;
   CPF is never padded or joined as CNPJ.
@@ -113,3 +113,4 @@ then by critical-path unlocks. The resulting scope is:
 | 2026-08-12 | #234 | VERIFIED_LOCAL | 103 focused tests pass; missing/mismatched approval stops before queue/package writes |
 | 2026-08-12 | #278 | VERIFIED_LOCAL | 49 systemd/resilience tests pass; rendered pair verifies and reinstall is idempotent |
 | 2026-08-12 | #288 | VERIFIED_LOCAL | 80 focused tests pass; 10,037-row snapshot reconciles without LIMIT or duplicates |
+| 2026-08-12 | #233 | VERIFIED_LOCAL | 87 focused tests pass; package rejects foreign lineage and reconciles selected persisted/reused count |
