@@ -689,17 +689,6 @@ def build_pack(
                 owner="market_intelligence",
                 next_action="Gerar análise do órgão com evidência do pack.",
             )
-        if not shortlist:
-            gate_issues.append(
-                "shortlist vazia após filtro de inventário completo — sem base decisória executiva"
-            )
-            _add_blocking_reason(
-                pack_meta,
-                code="SHORTLIST_EMPTY_AFTER_DOCUMENT_FILTER",
-                evidence=gate_issues[-1],
-                owner="document_ops",
-                next_action="Completar o inventário documental antes de publicar shortlist.",
-            )
         if gate_issues and pack_meta["terminal_state"] == "PASS":
             pack_meta["terminal_state"] = "BLOCKED"
             pack_meta["blockers_external"] = pack_meta.get("blockers_external", []) + gate_issues
@@ -733,6 +722,28 @@ def build_pack(
             evidence="Nenhuma observação foi carregada no pacote.",
             owner="source_ops",
             next_action="Fornecer ao menos uma coleta completa e vinculada ao run.",
+        )
+    elif not shortlist:
+        empty_shortlist = (
+            "shortlist vazia após filtro de inventário completo — sem base decisória executiva"
+        )
+        pack_meta["blockers_external"] = list(pack_meta.get("blockers_external") or []) + [
+            empty_shortlist
+        ]
+        pack_meta["claims_forbidden"] = list(
+            set(pack_meta.get("claims_forbidden") or [])
+            | {
+                "shortlist_docs_100_percent_complete",
+                "analise_edital_completa_100",
+                "client_ready_sem_ressalva",
+            }
+        )
+        _add_blocking_reason(
+            pack_meta,
+            code="SHORTLIST_EMPTY_AFTER_DOCUMENT_FILTER",
+            evidence=empty_shortlist,
+            owner="document_ops",
+            next_action="Completar o inventário documental antes de publicar shortlist.",
         )
 
     if pack_meta.get("human_accept") != "APPROVED":
@@ -835,6 +846,10 @@ def build_pack(
     if extra:
         # allow only nothing extra ideally; fail if unexpected client-facing
         pack_meta["extra_files_in_out_dir"] = extra
+
+    # Artifact-shape checks can add invariant failures after the first gate
+    # calculation; publish gates only from this final state.
+    _set_delivery_gates(pack_meta)
 
     result = {
         "pack_id": pack_id,

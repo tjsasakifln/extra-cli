@@ -88,6 +88,38 @@ def test_resilient_source_real_partial_stays_partial(monkeypatch: pytest.MonkeyP
     assert run.records_persisted == 50
 
 
+def test_resilient_source_does_not_invent_persistence_from_fetch_count(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from scripts.ops import resilient_cycle
+
+    monkeypatch.setattr(
+        resilient_cycle,
+        "run_cycle",
+        lambda **_kwargs: (
+            0,
+            {
+                "status": "healthy",
+                "results": {
+                    "sc_compras": {
+                        "status": "success",
+                        "terminal_status": "success",
+                        "request_completed": True,
+                        "scope_complete": True,
+                        "records_fetched": 50,
+                    }
+                },
+            },
+        ),
+    )
+
+    run = _live_resilient_source("collection-missing-persist", "sc_compras")
+
+    assert run.records_obtained == 50
+    assert run.records_persisted == 0
+    assert run.terminal_status != "success"
+
+
 def test_skip_without_proof_is_partial_never_success() -> None:
     a = SourceFeedAssessment(
         source="pncp_opportunities",

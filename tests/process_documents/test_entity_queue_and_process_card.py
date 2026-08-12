@@ -232,11 +232,15 @@ def test_collect_many_blocks_before_enqueuing_more_than_pilot(
 
 
 def test_process_documents_cli_reports_scale_block_as_structured_result(
-    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     from scripts.process_documents.cli import main
 
     monkeypatch.delenv("EXTRA_PILOT_APPROVAL", raising=False)
+    monkeypatch.setenv("PROCESS_DOCUMENTS_META_ROOT", str(tmp_path / "meta"))
+    monkeypatch.setenv("PROCESS_DOCUMENTS_RAW_ROOT", str(tmp_path / "raw"))
     targets = [_entity(f"{index:08d}:E", platforms=["pncp"]) for index in range(31)]
     with patch("scripts.process_documents.collect.load_discovery", return_value=targets):
         code = main(["probe", "--limit", "10"])

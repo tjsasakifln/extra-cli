@@ -5,6 +5,7 @@ structural. Full population path runs when CAMPAIGN_TEST_DSN has data.
 """
 from __future__ import annotations
 
+import inspect
 import json
 import os
 from datetime import date
@@ -68,6 +69,12 @@ def test_live_pack_module_entrypoint_registered() -> None:
     assert callable(a.build_report_from_rows)
     assert callable(b.select_competitors)
     assert callable(pkg.reconcile_package)
+
+
+def test_competitor_population_counters_share_cnpj_eligibility_filter() -> None:
+    source = inspect.getsource(lcp.build_deliverable_b)
+
+    assert source.count("supplier_id_type = 'CNPJ'") >= 3
 
 
 def test_national_intel_is_internal_engine() -> None:

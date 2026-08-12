@@ -139,6 +139,15 @@ def test_memory_budget_exhaustion_fails_without_successful_truncation(
         )
 
 
+def test_invalid_memory_budget_configuration_is_explicit(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("EXTRA_OBSERVATION_MEMORY_BUDGET_MB", "not-a-number")
+
+    with pytest.raises(ValueError, match="must be an integer"):
+        db_loaders._memory_budget_bytes()
+
+
 def test_selected_collection_run_is_exact_and_auditable(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

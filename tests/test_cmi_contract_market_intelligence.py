@@ -265,9 +265,9 @@ def test_real_db_schema_and_package(tmp_path: Path):
                     SELECT count(*)
                     FROM pncp_supplier_contracts
                     WHERE contrato_id LIKE 'CMI-%'
-                      AND NOT (
-                        supplier_id_type = 'CNPJ'
-                        AND fornecedor_cnpj = supplier_identifier
+                      AND (
+                        supplier_id_type IS DISTINCT FROM 'CNPJ'
+                        OR fornecedor_cnpj IS DISTINCT FROM supplier_identifier
                       )
                     """
                 )

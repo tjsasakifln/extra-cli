@@ -73,13 +73,24 @@ BEGIN
         END,
         CASE
             WHEN contract.supplier_identifier_hash IS NOT NULL
+                 AND contract.supplier_id_type IN ('CNPJ', 'CPF', 'FOREIGN')
                 THEN 'typed_identifier_sha256'
+            WHEN contract.supplier_identifier_hash IS NOT NULL
+                THEN 'typed_identifier_sha256_unknown_type'
             ELSE 'unresolved'
         END,
-        CASE WHEN contract.supplier_identifier_hash IS NOT NULL THEN 1.0 ELSE 0.0 END,
         CASE
             WHEN contract.supplier_identifier_hash IS NOT NULL
+                 AND contract.supplier_id_type IN ('CNPJ', 'CPF', 'FOREIGN') THEN 1.0
+            WHEN contract.supplier_identifier_hash IS NOT NULL THEN 0.5
+            ELSE 0.0
+        END,
+        CASE
+            WHEN contract.supplier_identifier_hash IS NOT NULL
+                 AND contract.supplier_id_type IN ('CNPJ', 'CPF', 'FOREIGN')
                 THEN ARRAY['SUPPLIER_TYPED_IDENTITY_VALIDATED']::TEXT[]
+            WHEN contract.supplier_identifier_hash IS NOT NULL
+                THEN ARRAY['SUPPLIER_IDENTITY_UNTYPED']::TEXT[]
             ELSE ARRAY['SUPPLIER_IDENTITY_UNRESOLVED']::TEXT[]
         END,
         p_match_run_id,

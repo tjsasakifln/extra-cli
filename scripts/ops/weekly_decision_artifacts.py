@@ -110,7 +110,7 @@ def select_opportunity_lineage(
             raise LineageSelectionError(
                 "reused PNCP snapshot requires explicit fresh evidence"
             )
-        if int(proof.get("last_run_id") or 0) != source_run_id:
+        if str(proof.get("last_run_id") or "") != str(source_run_id):
             raise LineageSelectionError(
                 "reused PNCP run differs from the freshness evidence run"
             )
@@ -121,7 +121,14 @@ def select_opportunity_lineage(
             )
         age = proof.get("age_hours")
         sla = proof.get("sla_hours")
-        if age is None or sla is None or float(age) > float(sla):
+        try:
+            age_h = float(age)  # type: ignore[arg-type]
+            sla_h = float(sla)  # type: ignore[arg-type]
+        except (TypeError, ValueError) as exc:
+            raise LineageSelectionError(
+                "reused PNCP snapshot has a non-numeric freshness proof"
+            ) from exc
+        if age_h > sla_h:
             raise LineageSelectionError(
                 "reused PNCP snapshot is missing an in-SLA freshness proof"
             )
@@ -131,8 +138,8 @@ def select_opportunity_lineage(
             external_run_id=external_run_id,
             mode="reused",
             expected_records=expected,
-            freshness_hours=float(age),
-            freshness_sla_hours=float(sla),
+            freshness_hours=age_h,
+            freshness_sla_hours=sla_h,
         )
     if status not in {"success", "success_zero"}:
         raise LineageSelectionError(

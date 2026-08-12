@@ -55,7 +55,14 @@ def _memory_budget_bytes() -> int:
     value = os.getenv("EXTRA_OBSERVATION_MEMORY_BUDGET_MB")
     if not value:
         return DEFAULT_OBSERVATION_MEMORY_BUDGET_BYTES
-    return max(1, int(value)) * 1024 * 1024
+    try:
+        megabytes = int(value.strip())
+    except ValueError as exc:
+        raise ValueError(
+            "EXTRA_OBSERVATION_MEMORY_BUDGET_MB must be an integer number of MB, "
+            f"got {value!r}"
+        ) from exc
+    return max(1, megabytes) * 1024 * 1024
 
 
 def _estimate_observation_memory(observations: list[SourceObservation]) -> int:

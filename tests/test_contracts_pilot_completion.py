@@ -39,7 +39,7 @@ def test_run_contracts_pilot_never_upgrades_partial_windows_to_success():
     )
 
 
-def test_run_contracts_pilot_accepts_complete_or_resumed_windows():
+def test_run_contracts_pilot_does_not_upgrade_skipped_only_run_to_success():
     assert (
         evaluate_crawl_report_status(
             {
@@ -48,7 +48,7 @@ def test_run_contracts_pilot_accepts_complete_or_resumed_windows():
                 "total_windows_skipped": 3,
             }
         )
-        == "success"
+        == "partial"
     )
 
 

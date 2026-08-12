@@ -7,6 +7,7 @@ import hashlib
 import os
 import pwd
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -94,9 +95,45 @@ def test_rendered_pair_shares_sha_config_and_canonical_tree(tmp_path: Path) -> N
 
 
 def test_systemd_analyze_verify_passes_for_rendered_pair(tmp_path: Path) -> None:
+    if not Path("/usr/bin/systemd-analyze").is_file():
+        pytest.skip("systemd-analyze is not installed on this host")
     verified, output = verify_rendered_units(render_units(_config(tmp_path)))
 
     assert verified is True, output
+
+
+def test_render_rejects_marker_embedded_in_assignment(tmp_path: Path) -> None:
+    config = _config(tmp_path)
+    template_dir = tmp_path / "templates"
+    template_dir.mkdir()
+    for name in (SERVICE_NAME, TIMER_NAME):
+        (template_dir / f"{name}.in").write_text(
+            "[Unit]\nDescription=x\nEnvironment=UNRESOLVED=@NOT_CONFIGURED@\n",
+            encoding="utf-8",
+        )
+
+    with pytest.raises(ValueError, match="@NOT_CONFIGURED@"):
+        render_units(config, template_dir=template_dir)
+
+
+@pytest.mark.parametrize(
+    "error",
+    [
+        FileNotFoundError(2, "missing", "/usr/bin/systemd-analyze"),
+        PermissionError(13, "denied", "/usr/bin/systemd-analyze"),
+    ],
+)
+def test_verify_reports_systemd_analyze_os_error_as_fail(
+    tmp_path: Path, error: OSError
+) -> None:
+    with patch(
+        "scripts.ops.provision_process_documents_systemd.subprocess.run",
+        side_effect=error,
+    ):
+        verified, output = verify_rendered_units(render_units(_config(tmp_path)))
+
+    assert verified is False
+    assert "systemd-analyze missing" in output
 
 
 def test_install_and_upgrade_are_idempotent_and_smoke_is_truthful(tmp_path: Path) -> None:

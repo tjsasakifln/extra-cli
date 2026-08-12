@@ -72,6 +72,32 @@ def test_reuse_records_prior_run_and_freshness_proof() -> None:
     assert selected.freshness_hours == 2.25
 
 
+def test_reuse_rejects_non_numeric_freshness_proof() -> None:
+    run = SimpleNamespace(
+        source="pncp_opportunities",
+        collection_id="cycle-20260812",
+        terminal_status="reused_fresh",
+        records_persisted=1732,
+        raw_uri="db://opportunity_runs/500",
+    )
+
+    with pytest.raises(LineageSelectionError, match="non-numeric freshness"):
+        select_opportunity_lineage(
+            collection_id="cycle-20260812",
+            runs=[run],
+            freshness=[
+                {
+                    "source": "pncp_opportunities",
+                    "level": "fresh",
+                    "last_run_id": "500",
+                    "external_run_id": "weekly-cycle-20260811",
+                    "age_hours": "invalid",
+                    "sla_hours": 24,
+                }
+            ],
+        )
+
+
 def test_reuse_of_different_or_stale_run_is_rejected() -> None:
     run = SimpleNamespace(
         source="pncp_opportunities",

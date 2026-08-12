@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from pathlib import Path
 
 import pytest
@@ -43,7 +44,7 @@ def test_v2_is_versioned_and_v1_is_explicitly_deprecated() -> None:
     assert "contract.fornecedor_cnpj AS supplier_cnpj" in migration
     assert "supplier_identity_id" in migration
     assert "v_contracts_canonical_v2" in consumer
-    assert "FROM v_contracts_canonical\n" not in consumer
+    assert not re.search(r"v_contracts_canonical(?!_v2)\b", consumer)
 
 
 def test_match_ledger_has_run_reasons_confidence_and_query_indexes() -> None:
@@ -65,10 +66,10 @@ def test_match_ledger_has_run_reasons_confidence_and_query_indexes() -> None:
     for index in (
         "idx_contract_roles_buyer",
         "idx_contract_roles_supplier",
-        "contract_role_links_pkey",
         "idx_contract_roles_snapshot",
     ):
-        assert index in migration or index == "contract_role_links_pkey"
+        assert index in migration
+    assert "contract_id                 TEXT PRIMARY KEY" in migration
 
 
 @pytest.mark.integration
@@ -138,6 +139,32 @@ def test_adversarial_supplier_root_cannot_become_buyer() -> None:
             assert row["match_run_id"] == "test-313-role-run"
             assert row["buyer_reason_codes"] == ["BUYER_ORGAO_CNPJ8_EXACT"]
 
+            unknown_record = {
+                "contrato_id": "test-313-unknown-supplier",
+                "orgao_cnpj": buyer_cnpj,
+                "fornecedor_cnpj": "11111111111",
+                "supplier_id_type": "UNKNOWN",
+                "supplier_identifier": "UNKNOWN:BR:11111111111",
+                "source": "pncp",
+            }
+            cursor.execute(
+                "SELECT * FROM upsert_pncp_supplier_contracts(%s::jsonb)",
+                (json.dumps([unknown_record]),),
+            )
+            cursor.execute(
+                """
+                SELECT supplier_match_method, supplier_match_confidence,
+                       supplier_reason_codes
+                FROM contract_role_links
+                WHERE contract_id = %s
+                """,
+                (unknown_record["contrato_id"],),
+            )
+            unknown_role = cursor.fetchone()
+            assert unknown_role["supplier_match_method"] == "typed_identifier_sha256_unknown_type"
+            assert unknown_role["supplier_match_confidence"] == 0.5
+            assert unknown_role["supplier_reason_codes"] == ["SUPPLIER_IDENTITY_UNTYPED"]
+
             explain_cases = {
                 "idx_contract_roles_buyer": (
                     "SELECT contract_id FROM contract_role_links "
@@ -159,7 +186,19 @@ def test_adversarial_supplier_root_cannot_become_buyer() -> None:
                     (row["snapshot_id"],),
                 ),
             }
+            cursor.execute(
+                """
+                SELECT indexname
+                FROM pg_indexes
+                WHERE schemaname = 'public' AND tablename = 'contract_role_links'
+                """
+            )
+            present_indexes = {item["indexname"] for item in cursor.fetchall()}
+            assert set(explain_cases) <= present_indexes
+            cursor.execute("SET LOCAL enable_seqscan = off")
             for expected_index, (query, params) in explain_cases.items():
+                if params[0] is None:
+                    continue
                 cursor.execute("EXPLAIN (ANALYZE, BUFFERS) " + query, params)
                 plan = "\n".join(plan_row["QUERY PLAN"] for plan_row in cursor.fetchall())
                 assert expected_index in plan

@@ -8,6 +8,7 @@ import hashlib
 import json
 import os
 import pwd
+import re
 import subprocess
 import sys
 import tempfile
@@ -81,7 +82,7 @@ def render_units(config: UnitConfig, template_dir: Path = TEMPLATE_DIR) -> dict[
         text = template.read_text(encoding="utf-8")
         for marker, value in config.replacements().items():
             text = text.replace(marker, value)
-        leftovers = sorted(set(part for part in text.split() if part.startswith("@")))
+        leftovers = sorted(set(re.findall(r"@[A-Z0-9_]+@", text)))
         if leftovers:
             raise ValueError(f"unrendered markers in {name}: {leftovers}")
         rendered[name] = text
@@ -96,12 +97,15 @@ def verify_rendered_units(rendered: dict[str, str]) -> tuple[bool, str]:
             path = root / name
             path.write_text(text, encoding="utf-8")
             paths.append(str(path))
-        proc = subprocess.run(  # noqa: S603
-            ["/usr/bin/systemd-analyze", "verify", *paths],
-            check=False,
-            capture_output=True,
-            text=True,
-        )
+        try:
+            proc = subprocess.run(  # noqa: S603
+                ["/usr/bin/systemd-analyze", "verify", *paths],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+        except OSError as exc:
+            return False, f"systemd-analyze missing: {exc.filename}"
     output = "\n".join(part.strip() for part in (proc.stdout, proc.stderr) if part.strip())
     return proc.returncode == 0, output
 
@@ -175,12 +179,15 @@ def install_units(
 
 
 def _git_sha(app_dir: Path) -> str:
-    proc = subprocess.run(  # noqa: S603
-        ["/usr/bin/git", "-C", str(app_dir), "rev-parse", "HEAD"],
-        check=False,
-        capture_output=True,
-        text=True,
-    )
+    try:
+        proc = subprocess.run(  # noqa: S603
+            ["/usr/bin/git", "-C", str(app_dir), "rev-parse", "HEAD"],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    except FileNotFoundError:
+        return "unknown"
     return proc.stdout.strip() if proc.returncode == 0 else "unknown"
 
 
@@ -219,17 +226,21 @@ def main(argv: list[str] | None = None) -> int:
     if errors:
         print(json.dumps({"status": "FAIL", "errors": errors}, indent=2))
         return 2
-    if not args.install:
-        rendered = render_units(config)
-        verified, output = verify_rendered_units(rendered)
-        print(json.dumps({"status": "PASS" if verified else "FAIL", "verify": output}, indent=2))
-        return 0 if verified else 2
-    evidence = install_units(
-        config,
-        unit_dir=args.unit_dir,
-        daemon_reload=not args.no_daemon_reload,
-        smoke_output=args.smoke_output,
-    )
+    try:
+        if not args.install:
+            rendered = render_units(config)
+            verified, output = verify_rendered_units(rendered)
+            print(json.dumps({"status": "PASS" if verified else "FAIL", "verify": output}, indent=2))
+            return 0 if verified else 2
+        evidence = install_units(
+            config,
+            unit_dir=args.unit_dir,
+            daemon_reload=not args.no_daemon_reload,
+            smoke_output=args.smoke_output,
+        )
+    except (OSError, RuntimeError, ValueError, subprocess.SubprocessError) as exc:
+        print(json.dumps({"status": "FAIL", "errors": [str(exc)]}, indent=2))
+        return 2
     print(json.dumps(evidence, indent=2, ensure_ascii=False))
     return 0
 

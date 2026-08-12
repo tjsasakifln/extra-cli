@@ -919,6 +919,7 @@ def crawl_with_evidence(mode: str = "backfill_3y") -> CrawlResult:
         scope_complete = False
         persisted_records = 0
         last_total_pages = 0
+        last_page_fetched = 0
 
         while page <= CONTRACTS_MAX_PAGES:
             fetch_result = _fetch_page(data_ini, data_fim, page)
@@ -930,6 +931,8 @@ def crawl_with_evidence(mode: str = "backfill_3y") -> CrawlResult:
                 if page == 1:
                     break
                 break  # Partial window — stop pagination
+
+            last_page_fetched = page
 
             if fetch_result.is_zero and page == 1:
                 if fetch_result.total_records == 0:
@@ -969,7 +972,7 @@ def crawl_with_evidence(mode: str = "backfill_3y") -> CrawlResult:
             window_status = FetchStatus.PARTIAL
             window_error = (
                 f"Hit CONTRACTS_MAX_PAGES={CONTRACTS_MAX_PAGES} before source exhaustion "
-                f"(last_page={page}, total_pages={last_total_pages})"
+                f"(last_page={last_page_fetched}, total_pages={last_total_pages})"
             )
 
         if scope_complete and window_records > 0 and checkpoint is not None:
@@ -1008,7 +1011,7 @@ def crawl_with_evidence(mode: str = "backfill_3y") -> CrawlResult:
             request_completed=request_completed,
             scope_complete=scope_complete,
             persisted_records=persisted_records,
-            last_page=page,
+            last_page=last_page_fetched,
             total_pages=last_total_pages,
         )
         result.windows.append(wr)

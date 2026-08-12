@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
+
+import pytest
 
 from scripts.contracts_identity import (
     cpf_export_mask,
@@ -105,3 +108,89 @@ def test_migration_enforces_typed_identity_and_cnpj_only_compatibility_key() -> 
     assert "fornecedor_cnpj = supplier_identifier" in migration
     assert "WHERE supplier_id_type = 'CNPJ'" in migration
     assert "zfill(14)" not in migration
+    assert "lpad(" not in migration.lower()
+    assert "rec->>'supplier_identifier_hash' AS supplier_identifier_hash" not in migration
+    assert "rec->>'supplier_identifier_export'" not in migration
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(
+    os.getenv("REQUIRE_TEST_DB") != "1",
+    reason="Set REQUIRE_TEST_DB=1 to run supplier identity RPC test",
+)
+def test_rpc_derives_identity_security_fields_and_rejects_missing_typed_id() -> None:
+    import psycopg2
+
+    dsn = os.getenv(
+        "TEST_DSN", "postgresql://test:test@127.0.0.1:5433/extra_test"
+    )
+    conn = psycopg2.connect(dsn)
+    try:
+        valid_cnpj = "11222333000181"
+        with conn.cursor() as cursor:
+            cursor.execute(
+                "SELECT * FROM upsert_pncp_supplier_contracts(%s::jsonb)",
+                (
+                    json.dumps(
+                        [
+                            {
+                                "contrato_id": "test-311-server-derived",
+                                "supplier_id_type": "CNPJ",
+                                "supplier_identifier": valid_cnpj,
+                                "fornecedor_cnpj": valid_cnpj,
+                                "supplier_identifier_hash": "0" * 64,
+                                "supplier_identifier_export": "attacker-controlled",
+                            }
+                        ]
+                    ),
+                ),
+            )
+            cursor.execute(
+                """
+                SELECT supplier_identifier_hash, supplier_identifier_export
+                FROM pncp_supplier_contracts
+                WHERE contrato_id = 'test-311-server-derived'
+                """
+            )
+            derived_hash, safe_export = cursor.fetchone()
+            assert derived_hash != "0" * 64
+            assert len(derived_hash) == 64
+            assert safe_export == valid_cnpj
+
+            cursor.execute(
+                "SELECT * FROM upsert_pncp_supplier_contracts(%s::jsonb)",
+                (
+                    json.dumps(
+                        [
+                            {
+                                "contrato_id": "test-311-invalid-declared",
+                                "supplier_id_type": "CNPJ",
+                                "supplier_identifier": "11111111111111",
+                                "supplier_country": "BR",
+                            }
+                        ]
+                    ),
+                ),
+            )
+            cursor.execute(
+                """
+                SELECT supplier_id_type, supplier_identifier, fornecedor_cnpj
+                FROM pncp_supplier_contracts
+                WHERE contrato_id = 'test-311-invalid-declared'
+                """
+            )
+            invalid_type, invalid_identifier, invalid_cnpj = cursor.fetchone()
+            assert invalid_type == "UNKNOWN"
+            assert invalid_identifier == "UNKNOWN:BR:11111111111111"
+            assert invalid_cnpj is None
+
+            cursor.execute("SAVEPOINT before_missing_typed_id")
+            with pytest.raises(psycopg2.errors.CheckViolation):
+                cursor.execute(
+                    "SELECT * FROM upsert_pncp_supplier_contracts(%s::jsonb)",
+                    (json.dumps([{"contrato_id": "test-311-missing", "supplier_id_type": "CNPJ"}]),),
+                )
+            cursor.execute("ROLLBACK TO SAVEPOINT before_missing_typed_id")
+    finally:
+        conn.rollback()
+        conn.close()

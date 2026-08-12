@@ -143,6 +143,47 @@ class TestPilotScaleGate:
 
         assert error.value.decision.code == "PILOT_APPROVAL_HASH_MISMATCH"
 
+    def test_missing_policy_is_structured_blocker(self, tmp_path: Path) -> None:
+        entities = load_universe(UNIVERSE)
+
+        with pytest.raises(PilotScaleBlockedError) as error:
+            require_pilot_approval(
+                universe_path=UNIVERSE,
+                policy_path=tmp_path / "missing-policy.yaml",
+                universe_entity_count=len(entities),
+                universe_entity_ids={entity.entity_key for entity in entities},
+                approval_path=None,
+            )
+
+        assert error.value.decision.code == "PILOT_INPUT_MISSING"
+        assert "policy file missing" in error.value.decision.evidence
+
+    def test_evidence_path_cannot_escape_approval_directory(self, tmp_path: Path) -> None:
+        approval_dir = tmp_path / "approval"
+        approval_dir.mkdir()
+        approval = _write_pilot_approval(approval_dir)
+        outside = tmp_path / "outside.json"
+        outside.write_text('{"status":"complete"}\n', encoding="utf-8")
+        payload = json.loads(approval.read_text(encoding="utf-8"))
+        for entity in payload["entities"]:
+            for result in entity["source_results"]:
+                result["evidence_path"] = "../outside.json"
+                result["evidence_sha256"] = _sha256(outside)
+        approval.write_text(json.dumps(payload), encoding="utf-8")
+        entities = load_universe(UNIVERSE)
+
+        with pytest.raises(PilotScaleBlockedError) as error:
+            require_pilot_approval(
+                universe_path=UNIVERSE,
+                policy_path=DEFAULT_PILOT_POLICY,
+                universe_entity_count=len(entities),
+                universe_entity_ids={entity.entity_key for entity in entities},
+                approval_path=approval,
+            )
+
+        assert error.value.decision.code == "PILOT_APPROVAL_INVALID"
+        assert "must stay inside approval directory" in error.value.decision.evidence
+
 
 def _obs(**kwargs) -> SourceObservation:
     defaults = dict(
@@ -714,6 +755,18 @@ class TestReconciliationInvariants:
         assert meta["delivery_readiness"]["ok"] is True
         assert meta["deliverable"] is True
         assert meta["terminal_state"] == "PASS"
+
+    def test_artifact_invariant_recomputed_into_final_gates(self):
+        meta = {
+            "terminal_state": "BLOCKED",
+            "blocking_reasons": [],
+            "invariant_errors": ["client artifacts mismatch: []"],
+        }
+        _set_delivery_gates(meta)
+        assert meta["structural_qa"]["ok"] is False
+        assert meta["structural_qa"]["checks"]["artifact_shape"] is False
+        assert meta["deliverable"] is False
+        assert meta["terminal_state"] == "FAIL"
 
     def test_invariants_hold(self):
         entities = load_universe(UNIVERSE)

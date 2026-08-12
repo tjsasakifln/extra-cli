@@ -145,19 +145,22 @@ ALTER TABLE public.pncp_supplier_contracts
 ALTER TABLE public.pncp_supplier_contracts
     ADD CONSTRAINT ck_contract_supplier_id_type
         CHECK (supplier_id_type IN ('CNPJ', 'CPF', 'FOREIGN', 'UNKNOWN')),
-    ADD CONSTRAINT ck_contract_supplier_identity_consistent CHECK (
+    ADD CONSTRAINT ck_contract_supplier_identity_consistent CHECK ((
         (supplier_id_type = 'CNPJ'
+            AND supplier_identifier IS NOT NULL
             AND public.fn_contract_valid_cnpj(supplier_identifier)
             AND fornecedor_cnpj = supplier_identifier)
         OR (supplier_id_type = 'CPF'
+            AND supplier_identifier IS NOT NULL
             AND public.fn_contract_valid_cpf(supplier_identifier)
             AND fornecedor_cnpj IS NULL
             AND supplier_identifier_export = 'CPF:***.***.***-**')
         OR (supplier_id_type = 'FOREIGN'
+            AND supplier_identifier IS NOT NULL
             AND supplier_identifier LIKE 'FOREIGN:%'
             AND fornecedor_cnpj IS NULL)
         OR (supplier_id_type = 'UNKNOWN' AND fornecedor_cnpj IS NULL)
-    ),
+    ) IS TRUE),
     ADD CONSTRAINT ck_contract_supplier_hash CHECK (
         supplier_identifier_hash IS NULL
         OR supplier_identifier_hash ~ '^[0-9a-f]{64}$'
@@ -175,48 +178,122 @@ RETURNS TABLE (action TEXT, contrato_id TEXT)
 LANGUAGE plpgsql
 AS $$
 BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM jsonb_array_elements(p_records) AS candidate(rec)
+        WHERE upper(btrim(COALESCE(candidate.rec->>'supplier_id_type', '')))
+                  IN ('CNPJ', 'CPF', 'FOREIGN')
+          AND COALESCE(
+                  NULLIF(btrim(candidate.rec->>'supplier_identifier'), ''),
+                  NULLIF(btrim(candidate.rec->>'fornecedor_cnpj'), '')
+              ) IS NULL
+    ) THEN
+        RAISE EXCEPTION 'supplier_identifier is required for declared CNPJ, CPF, or FOREIGN identity'
+            USING ERRCODE = '23514';
+    END IF;
+
     RETURN QUERY
-    WITH input AS (
+    WITH raw_input AS (
         SELECT DISTINCT ON ((rec->>'contrato_id'))
+            rec,
+            NULLIF(upper(btrim(rec->>'supplier_id_type')), '') AS declared_type,
+            COALESCE(
+                NULLIF(btrim(rec->>'supplier_identifier'), ''),
+                NULLIF(btrim(rec->>'fornecedor_cnpj'), '')
+            ) AS raw_identifier,
+            regexp_replace(
+                COALESCE(
+                    NULLIF(btrim(rec->>'supplier_identifier'), ''),
+                    NULLIF(btrim(rec->>'fornecedor_cnpj'), ''),
+                    ''
+                ),
+                '\D', '', 'g'
+            ) AS identifier_digits
+        FROM jsonb_array_elements(p_records) AS rec
+        WHERE COALESCE(rec->>'contrato_id', '') <> ''
+        ORDER BY (rec->>'contrato_id')
+    ), classified AS (
+        SELECT raw_input.*,
+            CASE
+                WHEN declared_type = 'CNPJ'
+                    AND public.fn_contract_valid_cnpj(raw_identifier) THEN 'CNPJ'
+                WHEN declared_type = 'CPF'
+                    AND public.fn_contract_valid_cpf(raw_identifier) THEN 'CPF'
+                WHEN declared_type = 'FOREIGN' AND raw_identifier IS NOT NULL THEN 'FOREIGN'
+                WHEN declared_type = 'UNKNOWN' THEN 'UNKNOWN'
+                WHEN declared_type IS NULL
+                    AND public.fn_contract_valid_cnpj(raw_identifier) THEN 'CNPJ'
+                WHEN declared_type IS NULL
+                    AND public.fn_contract_valid_cpf(raw_identifier) THEN 'CPF'
+                ELSE 'UNKNOWN'
+            END AS canonical_type
+        FROM raw_input
+    ), normalized AS (
+        SELECT classified.*,
+            CASE
+                WHEN canonical_type = 'CNPJ'
+                    AND public.fn_contract_valid_cnpj(raw_identifier)
+                    THEN identifier_digits
+                WHEN canonical_type = 'CPF'
+                    AND public.fn_contract_valid_cpf(raw_identifier)
+                    THEN identifier_digits
+                WHEN canonical_type = 'FOREIGN'
+                    AND raw_identifier LIKE 'FOREIGN:%'
+                    THEN raw_identifier
+                WHEN canonical_type = 'FOREIGN' AND raw_identifier IS NOT NULL
+                    THEN 'FOREIGN:' || COALESCE(NULLIF(rec->>'supplier_country', ''), 'ZZ')
+                         || ':' || raw_identifier
+                WHEN canonical_type = 'UNKNOWN'
+                    AND raw_identifier LIKE 'UNKNOWN:%'
+                    THEN raw_identifier
+                WHEN canonical_type = 'UNKNOWN' AND raw_identifier IS NOT NULL
+                    THEN 'UNKNOWN:' || COALESCE(NULLIF(rec->>'supplier_country', ''), 'ZZ')
+                         || ':' || raw_identifier
+                ELSE NULL
+            END AS canonical_identifier
+        FROM classified
+    ), input AS (
+        SELECT
             rec->>'contrato_id' AS in_contrato_id,
             rec->>'orgao_cnpj' AS orgao_cnpj,
             rec->>'orgao_nome' AS orgao_nome,
             CASE
-                WHEN COALESCE(NULLIF(rec->>'supplier_id_type', ''),
-                    CASE
-                        WHEN public.fn_contract_valid_cnpj(rec->>'fornecedor_cnpj') THEN 'CNPJ'
-                        WHEN public.fn_contract_valid_cpf(rec->>'fornecedor_cnpj') THEN 'CPF'
-                        ELSE 'UNKNOWN'
-                    END) = 'CNPJ'
-                THEN regexp_replace(rec->>'fornecedor_cnpj', '\D', '', 'g')
+                WHEN canonical_type = 'CNPJ'
+                    AND public.fn_contract_valid_cnpj(canonical_identifier)
+                    THEN canonical_identifier
                 ELSE NULL
             END AS fornecedor_cnpj,
             rec->>'fornecedor_nome' AS fornecedor_nome,
-            COALESCE(NULLIF(rec->>'supplier_id_type', ''),
+            canonical_type AS supplier_id_type,
+            canonical_identifier AS supplier_identifier,
+            COALESCE(
+                NULLIF(rec->>'supplier_country', ''),
                 CASE
-                    WHEN public.fn_contract_valid_cnpj(rec->>'fornecedor_cnpj') THEN 'CNPJ'
-                    WHEN public.fn_contract_valid_cpf(rec->>'fornecedor_cnpj') THEN 'CPF'
-                    ELSE 'UNKNOWN'
-                END) AS supplier_id_type,
-            COALESCE(NULLIF(rec->>'supplier_identifier', ''),
-                CASE
-                    WHEN public.fn_contract_valid_cnpj(rec->>'fornecedor_cnpj')
-                      OR public.fn_contract_valid_cpf(rec->>'fornecedor_cnpj')
-                    THEN regexp_replace(rec->>'fornecedor_cnpj', '\D', '', 'g')
-                    WHEN NULLIF(rec->>'fornecedor_cnpj', '') IS NOT NULL
-                    THEN 'UNKNOWN:ZZ:' || btrim(rec->>'fornecedor_cnpj')
+                    WHEN canonical_type IN ('CNPJ', 'CPF') THEN 'BR'
                     ELSE NULL
-                END) AS supplier_identifier,
-            NULLIF(rec->>'supplier_country', '') AS supplier_country,
-            NULLIF(rec->>'supplier_identifier_hash', '') AS supplier_identifier_hash,
-            COALESCE(NULLIF(rec->>'supplier_identifier_export', ''),
+                END
+            ) AS supplier_country,
+            CASE
+                WHEN canonical_identifier IS NULL THEN NULL
+                ELSE encode(digest(
+                    'supplier-identity-v1:' || canonical_type || ':' || canonical_identifier,
+                    'sha256'
+                ), 'hex')
+            END AS supplier_identifier_hash,
+            CASE
+                WHEN canonical_type = 'CPF' THEN 'CPF:***.***.***-**'
+                WHEN length(identifier_digits) = 11 THEN 'UNKNOWN:MASKED'
+                WHEN canonical_type = 'CNPJ' THEN canonical_identifier
+                WHEN canonical_type IN ('FOREIGN', 'UNKNOWN') THEN canonical_identifier
+                ELSE NULL
+            END AS supplier_identifier_export,
+            COALESCE(
+                NULLIF(rec->>'supplier_identity_reason', ''),
                 CASE
-                    WHEN public.fn_contract_valid_cpf(rec->>'fornecedor_cnpj')
-                        THEN 'CPF:***.***.***-**'
-                    ELSE NULLIF(rec->>'fornecedor_cnpj', '')
-                END) AS supplier_identifier_export,
-            COALESCE(NULLIF(rec->>'supplier_identity_reason', ''), 'legacy_rpc_classified')
-                AS supplier_identity_reason,
+                    WHEN declared_type IS NULL THEN 'legacy_rpc_classified'
+                    ELSE 'rpc_server_normalized'
+                END
+            ) AS supplier_identity_reason,
             rec->>'objeto_contrato' AS objeto_contrato,
             NULLIF(rec->>'valor_total', '')::NUMERIC AS valor_total,
             NULLIF(rec->>'data_inicio', '')::DATE AS data_inicio,
@@ -234,9 +311,7 @@ BEGIN
             NULLIF(rec->>'source_updated_at', '')::TIMESTAMPTZ AS source_updated_at,
             NULLIF(rec->>'query_window_start', '')::DATE AS query_window_start,
             NULLIF(rec->>'query_window_end', '')::DATE AS query_window_end
-        FROM jsonb_array_elements(p_records) AS rec
-        WHERE COALESCE(rec->>'contrato_id', '') <> ''
-        ORDER BY (rec->>'contrato_id')
+        FROM normalized
     ), upserted AS (
         INSERT INTO public.pncp_supplier_contracts AS target (
             contrato_id, orgao_cnpj, orgao_nome, fornecedor_cnpj, fornecedor_nome,

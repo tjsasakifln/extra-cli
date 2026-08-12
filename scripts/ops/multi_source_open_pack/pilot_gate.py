@@ -78,6 +78,21 @@ def require_pilot_approval(
     scale_limit: int = PILOT_LIMIT,
 ) -> PilotGateDecision:
     """Validate a human-approved pilot before any scale processing starts."""
+    missing_inputs = [
+        f"{label} file missing: {path}"
+        for label, path in (("universe", universe_path), ("policy", policy_path))
+        if not path.is_file()
+    ]
+    if missing_inputs:
+        raise PilotScaleBlockedError(
+            PilotGateDecision(
+                required=universe_entity_count > scale_limit,
+                approved=False,
+                code="PILOT_INPUT_MISSING",
+                evidence="; ".join(missing_inputs),
+                approval_path=str(approval_path or ""),
+            )
+        )
     universe_sha256 = sha256_file(universe_path)
     policy_sha256 = sha256_file(policy_path)
     if universe_entity_count <= scale_limit:
@@ -183,10 +198,15 @@ def require_pilot_approval(
                 errors.append(f"{prefix}.deduplication is invalid")
             evidence_ref = str(result.get("evidence_path") or "")
             evidence_hash = str(result.get("evidence_sha256") or "")
-            evidence_path = Path(evidence_ref)
-            if not evidence_path.is_absolute():
-                evidence_path = approval_path.parent / evidence_path
-            if not evidence_path.is_file():
+            evidence_candidate = Path(evidence_ref)
+            evidence_root = approval_path.parent.resolve()
+            if evidence_candidate.is_absolute():
+                errors.append(f"{prefix}.evidence_path must be relative to approval directory")
+                continue
+            evidence_path = (evidence_root / evidence_candidate).resolve()
+            if not evidence_path.is_relative_to(evidence_root):
+                errors.append(f"{prefix}.evidence_path must stay inside approval directory")
+            elif not evidence_path.is_file():
                 errors.append(f"{prefix}.evidence_path is missing")
             elif len(evidence_hash) != 64 or sha256_file(evidence_path) != evidence_hash:
                 errors.append(f"{prefix}.evidence_sha256 mismatch")

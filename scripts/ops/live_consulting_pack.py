@@ -497,6 +497,7 @@ def build_deliverable_b(
                          left(COALESCE(fornecedor_cnpj,''),8)))
             FROM pncp_supplier_contracts
             WHERE COALESCE(is_active, TRUE)
+              AND supplier_id_type = 'CNPJ'
               AND (%s::text IS NULL OR upper(btrim(uf)) = upper(%s))
               AND fornecedor_cnpj IS NOT NULL AND btrim(fornecedor_cnpj) <> ''
               AND objeto_contrato IS NOT NULL
@@ -513,6 +514,7 @@ def build_deliverable_b(
             SELECT COUNT(*)
             FROM pncp_supplier_contracts
             WHERE COALESCE(is_active, TRUE)
+              AND supplier_id_type = 'CNPJ'
               AND (%s::text IS NULL OR upper(btrim(uf)) = upper(%s))
               AND fornecedor_cnpj IS NOT NULL AND btrim(fornecedor_cnpj) <> ''
               AND objeto_contrato IS NOT NULL

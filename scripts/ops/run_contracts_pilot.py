@@ -15,19 +15,27 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
-_DEFAULT_DSN = "postgresql://test:test@127.0.0.1:5433/pncp_datalake"
-
-
 def evaluate_crawl_report_status(report: dict) -> str:
-    """Return success only when every planned crawl window is complete."""
+    """Return success only after at least one window completed in this run."""
     failed = int(report.get("total_windows_failed") or 0)
     completed = int(report.get("total_windows_ok") or 0)
     skipped = int(report.get("total_windows_skipped") or 0)
-    return "success" if failed == 0 and completed + skipped > 0 else "partial"
+    return "success" if failed == 0 and completed > 0 and skipped == 0 else "partial"
 
 
 def main() -> int:
-    dsn = os.getenv("LOCAL_DATALAKE_DSN") or os.getenv("DATABASE_URL") or _DEFAULT_DSN
+    dsn = os.getenv("LOCAL_DATALAKE_DSN") or os.getenv("DATABASE_URL")
+    if not dsn:
+        print(
+            json.dumps(
+                {
+                    "status": "failed",
+                    "error": "LOCAL_DATALAKE_DSN or DATABASE_URL is required",
+                }
+            ),
+            file=sys.stderr,
+        )
+        return 2
     # Runtime configuration belongs to the executable path. Importing the
     # status predicate must never redirect other tests or callers to a
     # different database.
