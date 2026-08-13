@@ -8,7 +8,6 @@ from scripts.ops.sector_classifier import (
     is_engineering_for_e,
 )
 
-
 AUDIT_KEYS = {
     "label",
     "positive_terms",

@@ -184,7 +184,10 @@ when --max-rows is omitted. Round N+1 advances the durable activation cursor.
 
 
 def cmd_run(args: argparse.Namespace) -> int:
-    dsn = args.dsn or os.environ.get("LOCAL_DATALAKE_DSN")
+    # An explicit CSV is an offline source and must not silently inherit a live
+    # target-fit store from the operator environment. Combining CSV + store is
+    # still available, but only through an explicit --dsn.
+    dsn = args.dsn or (None if args.csv else os.environ.get("LOCAL_DATALAKE_DSN"))
     if not dsn and not args.csv and not args.skip_universe:
         sys.stderr.write(
             "error: provide --dsn / LOCAL_DATALAKE_DSN, --csv, or --skip-universe\n"

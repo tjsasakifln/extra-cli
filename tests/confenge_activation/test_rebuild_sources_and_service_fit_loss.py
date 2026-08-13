@@ -44,7 +44,7 @@ def test_error_status_counts_as_attempted() -> None:
     assert "official_registry" in src
 
 
-def test_process_plus_empty_adapters_can_cover_required() -> None:
+def test_process_plus_legacy_adapters_cannot_fake_new_council_ladder_step() -> None:
     process = ["process_administrative_docs", "pncp_annexes"]
     enrich = _sources_from_enrich_row(
         {
@@ -57,7 +57,8 @@ def test_process_plus_empty_adapters_can_cover_required() -> None:
             ],
         }
     )
-    assert sources_cover_required_ladder(process + enrich)
+    assert not sources_cover_required_ladder(process + enrich)
+    assert sources_cover_required_ladder(process + enrich + ["professional_councils_associations"])
 
 
 def test_loss_reason_filter_excludes_pass_strings() -> None:

@@ -40,7 +40,6 @@ def test_write_reports_creates_eight_files(tmp_path: Path):
 
 
 def test_recall_not_ready_without_gold():
-    from scripts.reports.operational_reports import report_recall
 
     class FakeConn:
         pass

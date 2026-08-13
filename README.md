@@ -109,7 +109,7 @@ python3 -m scripts.ops.apply_migrations --dsn "$LOCAL_DATALAKE_DSN"
 
 # 4. Validação rápida
 python3 -m pytest tests/ -q --tb=no -x
-ruff check scripts/
+ruff check .
 
 # 5. Golden path (prova técnica de pipeline — fail-closed)
 python3 -m scripts.golden_path --dsn "$LOCAL_DATALAKE_DSN"

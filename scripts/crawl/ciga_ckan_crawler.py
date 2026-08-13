@@ -723,28 +723,42 @@ def crawl(mode: str = "full", resume: bool = False) -> list[dict]:
     Returns:
         List of raw publication dicts from CKAN.
     """
-    from scripts.crawl.provenance_sync import provenance_complete, provenance_start
+    from scripts.crawl.provenance_sync import provenance_complete, provenance_fail, provenance_start
 
-    months = list_domsc_months()
-    if not months:
-        _logger.error("No DOM-SC datasets found on CKAN")
-        return []
-
-    if mode == "incremental":
-        target_months = [months[-1]]
-    else:
-        target_months = months
-
-    run_id = f"ciga_ckan-{int(time.time())}"
-    provenance_start(source="ciga_ckan", mode=mode, params={"months": len(target_months)})
-
+    provenance_started_at = time.monotonic()
+    run_id = provenance_start(source="ciga_ckan", mode=mode)
     all_publications: list[dict] = []
-    for m in target_months:
-        _logger.info("Crawling %s", m)
-        pubs = download_month(m)
-        all_publications.extend(pubs)
+    try:
+        months = list_domsc_months()
+        if not months:
+            raise RuntimeError("No DOM-SC datasets found on CKAN")
 
-    provenance_complete(run_id, "ciga_ckan", records_fetched=len(all_publications))
+        if mode == "incremental":
+            target_months = [months[-1]]
+        else:
+            target_months = months
+
+        for month in target_months:
+            _logger.info("Crawling %s", month)
+            publications = download_month(month)
+            all_publications.extend(publications)
+
+        provenance_complete(
+            run_id=run_id,
+            source="ciga_ckan",
+            records_fetched=len(all_publications),
+            duration_ms=int((time.monotonic() - provenance_started_at) * 1000),
+        )
+    except Exception as exc:
+        provenance_fail(
+            run_id=run_id,
+            source="ciga_ckan",
+            error_message=str(exc),
+            records_fetched=len(all_publications),
+            records_failed=1,
+            duration_ms=int((time.monotonic() - provenance_started_at) * 1000),
+        )
+        raise
 
     _logger.info("Total procurement publications: %d", len(all_publications))
     return all_publications

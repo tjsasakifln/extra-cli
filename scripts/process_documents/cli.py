@@ -8,6 +8,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from scripts.ops.multi_source_open_pack.pilot_gate import PilotScaleBlockedError
+
 
 def _print(payload: Any) -> None:
     print(json.dumps(payload, ensure_ascii=False, indent=2, default=str))
@@ -42,6 +44,7 @@ def cmd_probe(args: argparse.Namespace) -> int:
         max_processes=args.max_processes,
         multi_source=not args.single_source,
         rotation=not args.no_rotation,
+        pilot_approval_path=args.pilot_approval,
     )
     _print(
         {
@@ -85,6 +88,7 @@ def cmd_collect(args: argparse.Namespace) -> int:
         download=not args.no_download,
         multi_source=not args.single_source,
         rotation=not args.no_rotation,
+        pilot_approval_path=args.pilot_approval,
     )
     _print(
         {
@@ -100,7 +104,13 @@ def cmd_collect(args: argparse.Namespace) -> int:
 def cmd_backfill(args: argparse.Namespace) -> int:
     from scripts.process_documents.collect import backfill
 
-    summary = backfill(since=args.since, until=args.until, limit=args.limit, download=not args.no_download)
+    summary = backfill(
+        since=args.since,
+        until=args.until,
+        limit=args.limit,
+        download=not args.no_download,
+        pilot_approval_path=args.pilot_approval,
+    )
     _print({"count": summary.get("count"), "by_status": summary.get("by_status"), "checkpoint": summary.get("checkpoint_uri")})
     return 0
 
@@ -117,6 +127,7 @@ def cmd_incremental(args: argparse.Namespace) -> int:
         max_batches=args.max_batches,
         max_entities=args.max_entities,
         max_wall_seconds=args.max_wall_seconds,
+        pilot_approval_path=args.pilot_approval,
     )
     _print(
         {
@@ -441,6 +452,7 @@ def build_parser() -> argparse.ArgumentParser:
     pr.add_argument("--all", action="store_true")
     pr.add_argument("--limit", type=int, default=10)
     pr.add_argument("--max-processes", type=int, default=3)
+    pr.add_argument("--pilot-approval", type=Path, default=None)
     pr.add_argument(
         "--single-source",
         action="store_true",
@@ -460,6 +472,7 @@ def build_parser() -> argparse.ArgumentParser:
     c.add_argument("--since", default=None)
     c.add_argument("--until", default=None)
     c.add_argument("--max-processes", type=int, default=8)
+    c.add_argument("--pilot-approval", type=Path, default=None)
     c.add_argument("--no-download", action="store_true")
     c.add_argument(
         "--single-source",
@@ -478,6 +491,7 @@ def build_parser() -> argparse.ArgumentParser:
     b.add_argument("--since", default=None)
     b.add_argument("--until", default=None)
     b.add_argument("--limit", type=int, default=20)
+    b.add_argument("--pilot-approval", type=Path, default=None)
     b.add_argument("--no-download", action="store_true")
     b.set_defaults(func=cmd_backfill)
 
@@ -487,6 +501,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     inc.add_argument("--all", action="store_true")
     inc.add_argument("--limit", type=int, default=50, help="Entities per drain batch")
+    inc.add_argument("--pilot-approval", type=Path, default=None)
     inc.add_argument("--no-download", action="store_true")
     inc.add_argument(
         "--single-source",
@@ -593,7 +608,17 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
-    return int(args.func(args))
+    try:
+        return int(args.func(args))
+    except PilotScaleBlockedError as exc:
+        _print(
+            {
+                "terminal_state": "BLOCKED",
+                "queue_mutated": False,
+                "pilot_gate": exc.decision.to_dict(),
+            }
+        )
+        return 1
 
 
 if __name__ == "__main__":

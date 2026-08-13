@@ -38,7 +38,8 @@ class TestUpsertRecordSchema:
             "ufSigla": "SC",
             "municipioNome": "Florianopolis",
         },
-        "niFornecedor": "00999999000199",
+        "niFornecedor": "11222333000181",
+        "tipoPessoa": "PJ",
         "nomeRazaoSocialFornecedor": "Empresa Exemplo Ltda",
         "valorGlobal": 150000.00,
         "dataAssinatura": "2025-06-15T10:00:00Z",
@@ -109,15 +110,18 @@ class TestUpsertEdgeCases:
         result = cc.transform([])
         assert result == []
 
-    def test_record_without_fornecedor_cnpj_is_skipped(self):
-        """Records without supplier CNPJ are filtered out."""
+    def test_record_without_supplier_identifier_is_preserved_as_unknown(self):
+        """Missing supplier identity stays explicit instead of dropping the contract."""
         rec = {
             "numeroControlePNCP": "99999999999999999999",
             "orgaoEntidade": {"cnpj": "12345678000199"},
             "objetoContrato": "Teste sem fornecedor",
         }
         result = cc.transform([rec])
-        assert len(result) == 0
+        assert len(result) == 1
+        assert result[0]["supplier_id_type"] == "UNKNOWN"
+        assert result[0]["supplier_identifier"] is None
+        assert result[0]["fornecedor_cnpj"] is None
 
     def test_null_valor_total_is_valid(self):
         """valor_total can be None for contracts without financial value."""

@@ -342,7 +342,7 @@ def stage_freshness(conn: Any) -> StageResult:
     opp = _q(
         conn,
         """
-        SELECT id, source, status, started_at, finished_at, records_fetched,
+        SELECT id, source, status, external_run_id, started_at, finished_at, records_fetched,
                records_new, completion_reason, error_message, scope_complete
         FROM opportunity_runs
         WHERE source LIKE %s
@@ -370,6 +370,7 @@ def stage_freshness(conn: Any) -> StageResult:
                 "sla_hours": PNCP_OPP_SLA_HOURS,
                 "age_hours": round(age, 2) if age is not None else None,
                 "last_run_id": r.get("id"),
+                "external_run_id": r.get("external_run_id"),
                 "last_status": st,
                 "scope_complete": scope_complete,
                 "records_fetched": r.get("records_fetched"),
@@ -1587,6 +1588,11 @@ def stage_delivery(
                 intel=intel,
                 runs=runs,
                 skip_network=skip_inventory,
+                pilot_approval_path=(
+                    Path(os.environ["EXTRA_PILOT_APPROVAL"])
+                    if os.getenv("EXTRA_PILOT_APPROVAL")
+                    else None
+                ),
             )
         except Exception as exc:  # noqa: BLE001
             decision_pack = {

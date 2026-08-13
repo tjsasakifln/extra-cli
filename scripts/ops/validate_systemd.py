@@ -29,6 +29,9 @@ SYSTEM_PYTHON_MARKERS = (
     "ExecStart=/usr/bin/python ",
 )
 
+PROCESS_DOCUMENTS_SERVICE = "extra-process-documents-incremental.service"
+PROCESS_DOCUMENTS_TIMER = "extra-process-documents-incremental.timer"
+
 
 def _sections(text: str) -> dict[str, str]:
     sections: dict[str, list[str]] = {}
@@ -75,6 +78,34 @@ def validate(root: Path = Path("deploy/systemd")) -> list[str]:
             if required not in timer_text:
                 errors.append(f"{timer.name}: missing {required}")
 
+    process_service = root / PROCESS_DOCUMENTS_SERVICE
+    process_timer = root / PROCESS_DOCUMENTS_TIMER
+    if not process_service.is_file() or not process_timer.is_file():
+        errors.append("missing canonical process-documents service/timer pair")
+    else:
+        service_text = process_service.read_text(encoding="utf-8")
+        timer_text = process_timer.read_text(encoding="utf-8")
+        for required in (
+            "User=extra-consultoria",
+            "Group=extra-consultoria",
+            "WorkingDirectory=/opt/extra-consultoria",
+            "EnvironmentFile=/opt/extra-consultoria/.env",
+            "PROCESS_DOCUMENTS_RAW_ROOT=/var/lib/extra-consultoria/raw/process_documents",
+            "PROCESS_DOCUMENTS_META_ROOT=/var/lib/extra-consultoria/output/process_documents",
+            "ExecStart=/opt/extra-consultoria/.venv/bin/python",
+        ):
+            if required not in service_text:
+                errors.append(f"{process_service.name}: missing {required}")
+        for forbidden in ("User=extra\n", "/opt/extra-cli", "/var/lib/extra-cli"):
+            if forbidden in service_text:
+                errors.append(f"{process_service.name}: forbidden legacy value {forbidden!r}")
+        if f"Unit={PROCESS_DOCUMENTS_SERVICE}" not in timer_text:
+            errors.append(f"{process_timer.name}: timer does not bind canonical service")
+        for marker in ("ExtraDeploySHA", "ExtraConfigSHA"):
+            service_match = re.search(rf"^# {marker}=(.+)$", service_text, flags=re.MULTILINE)
+            timer_match = re.search(rf"^# {marker}=(.+)$", timer_text, flags=re.MULTILINE)
+            if not service_match or not timer_match or service_match.group(1) != timer_match.group(1):
+                errors.append(f"process-documents pair has divergent {marker}")
     # Contracts / backup / health / metrics — operational surface for campaign
     for service in sorted(root.glob("*.service")):
         text = service.read_text(encoding="utf-8")

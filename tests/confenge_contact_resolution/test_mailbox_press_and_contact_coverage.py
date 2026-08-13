@@ -37,23 +37,23 @@ def test_eshop_and_sac_still_blocked() -> None:
     assert is_mailbox_send_allowed("rh@empresa.com.br") is False
 
 
-def test_commercial_and_licitacoes_allowed() -> None:
-    assert is_mailbox_send_allowed("comercial@tracado.com.br") is True
-    assert is_mailbox_send_allowed("licitacoes@empresa.com.br") is True
-    assert is_mailbox_send_allowed("engenharia@empresa.com.br") is True
+def test_commercial_and_licitacoes_are_functional_not_human_recipients() -> None:
+    assert is_mailbox_send_allowed("comercial@tracado.com.br") is False
+    assert is_mailbox_send_allowed("licitacoes@empresa.com.br") is False
+    assert is_mailbox_send_allowed("engenharia@empresa.com.br") is False
 
 
 def test_info_not_misclassified_as_financeiro_nf() -> None:
     """Regression: short alias 'nf' must not substring-match inside 'info'."""
     r = classify_mailbox_purpose("info@falk.com")
     assert r.purpose == "GENERIC_CONTACT"
-    assert r.send_blocked is False
+    assert r.send_blocked is True
 
 
 def test_contabilidade_is_financeiro_not_unknown() -> None:
     r = classify_mailbox_purpose("contabilidade@empresa.com.br")
     assert r.purpose == "FINANCEIRO"
-    assert r.send_blocked is False
+    assert r.send_blocked is True
 
 
 def test_contact_coverage_closed_sum() -> None:

@@ -35,13 +35,12 @@ TERMINAL_STATES = frozenset(
 
 # Source ladder order (configured cascade)
 DEFAULT_SOURCE_LADDER: tuple[str, ...] = (
-    "public_docs_datalake",
-    "process_administrative_docs",
-    "pncp_annexes",
     "official_site",
-    "transparency_compras",
-    "official_registry",
+    "process_administrative_docs",
+    "pncp_transparency_compras",
+    "professional_councils_associations",
     "company_public_pages",
+    "official_registry_corroboration",
 )
 
 # Minimum set that must be attempted before CONTACT_EXHAUSTED is legal.
@@ -50,30 +49,35 @@ DEFAULT_SOURCE_LADDER: tuple[str, ...] = (
 REQUIRED_FOR_EXHAUSTION: frozenset[str] = frozenset(
     {
         "process_administrative_docs",
-        "pncp_annexes",
         "official_site",
-        "official_registry",
+        "pncp_transparency_compras",
+        "professional_councils_associations",
         "company_public_pages",
+        "official_registry_corroboration",
     }
 )
 
 # Aliases accepted as covering a required ladder step
 _SOURCE_ALIASES: dict[str, frozenset[str]] = {
-    "process_administrative_docs": frozenset(
-        {"process_administrative_docs", "public_process_document", "public_docs"}
+    "process_administrative_docs": frozenset({"process_administrative_docs", "public_process_document", "public_docs"}),
+    "pncp_transparency_compras": frozenset(
+        {
+            "pncp_transparency_compras",
+            "pncp_annexes",
+            "pncp_annex",
+            "pncp",
+            "transparency_compras",
+            "transparency",
+            "compras",
+            "municipal_portal",
+        }
     ),
-    "pncp_annexes": frozenset({"pncp_annexes", "pncp_annex", "pncp"}),
-    "official_site": frozenset(
-        {"official_site", "site", "OFFICIAL_COMPANY_SITE", "REAL_OFFICIAL_SITE"}
+    "official_site": frozenset({"official_site", "site", "OFFICIAL_COMPANY_SITE", "REAL_OFFICIAL_SITE"}),
+    "professional_councils_associations": frozenset(
+        {"professional_councils_associations", "professional_council", "business_association", "crea", "cau"}
     ),
-    "official_registry": frozenset({"official_registry", "registry"}),
-    "company_public_pages": frozenset(
-        {"company_public_pages", "contact_page", "web_search", "site_crawl"}
-    ),
-    "public_docs_datalake": frozenset({"public_docs_datalake", "datalake", "public_docs"}),
-    "transparency_compras": frozenset(
-        {"transparency_compras", "transparency", "compras", "municipal_portal"}
-    ),
+    "official_registry_corroboration": frozenset({"official_registry_corroboration", "official_registry", "registry"}),
+    "company_public_pages": frozenset({"company_public_pages", "contact_page", "web_search", "site_crawl"}),
 }
 
 
@@ -83,11 +87,11 @@ def _utcnow() -> str:
 
 def sources_cover_required_ladder(sources_attempted: list[str] | None) -> bool:
     """True only when every REQUIRED_FOR_EXHAUSTION step was really attempted."""
-    attempted = {str(s).strip() for s in (sources_attempted or []) if s}
+    attempted = {str(s).strip().lower() for s in (sources_attempted or []) if s}
     if not attempted:
         return False
     for required in REQUIRED_FOR_EXHAUSTION:
-        aliases = _SOURCE_ALIASES.get(required, frozenset({required}))
+        aliases = {alias.lower() for alias in _SOURCE_ALIASES.get(required, frozenset({required}))}
         if not (attempted & aliases) and required not in attempted:
             return False
     return True
@@ -95,10 +99,10 @@ def sources_cover_required_ladder(sources_attempted: list[str] | None) -> bool:
 
 def missing_ladder_steps(sources_attempted: list[str] | None) -> list[str]:
     """Required steps not yet covered by sources_attempted."""
-    attempted = {str(s).strip() for s in (sources_attempted or []) if s}
+    attempted = {str(s).strip().lower() for s in (sources_attempted or []) if s}
     missing: list[str] = []
     for required in DEFAULT_SOURCE_LADDER:
-        aliases = _SOURCE_ALIASES.get(required, frozenset({required}))
+        aliases = {alias.lower() for alias in _SOURCE_ALIASES.get(required, frozenset({required}))}
         if required not in attempted and not (attempted & aliases):
             missing.append(required)
     return missing
@@ -134,12 +138,15 @@ def classify_contact_terminal(
     external_blocker: str | None = None,
     retryable_error: bool = False,
     attempt_count: int = 1,
+    last_attempt_at: str | None = None,
     next_retry_at: str | None = None,
     meta: dict[str, Any] | None = None,
 ) -> ContactDiscoveryState:
     """Derive terminal state from a real discovery attempt (not offline no-op)."""
     sources = list(sources_attempted or [])
-    now = _utcnow()
+    # A cache-only re-materialization is not a new source attempt. Preserve
+    # the actual observation timestamp supplied by the discovery ledger.
+    now = last_attempt_at or _utcnow()
 
     if not network_discovery and not sources and not ladder_complete:
         # Offline / structure pass — never count as discovery terminal completion

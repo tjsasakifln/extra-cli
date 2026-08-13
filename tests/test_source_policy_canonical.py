@@ -157,9 +157,6 @@ def test_historical_contracts_applicable_for_multi_sphere_natures() -> None:
 def test_historical_contracts_wildcard_when_esfera_unresolved() -> None:
     """Capability-level combination remains available via esfera=* rule."""
     pol = load_source_policy(require_active=True)
-    attrs = entity_attributes_from_canonical(
-        _ent("u", name="ENTIDADE AMBIGUA", natureza="Outro tipo sem esfera"),
-    )
     # Force unknown esfera path
     from scripts.coverage.source_policy import EntityAttributes
 

@@ -34,6 +34,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
+from scripts.contracts_identity import normalize_supplier_identity
 from scripts.crawl.common import (
     digits_only as _digits_only,
 )
@@ -102,12 +103,18 @@ class FetchStatus(Enum):
 
     SUCCESS_DATA = "success_data"  # Data returned (page may be non-empty)
     SUCCESS_ZERO = "success_zero"  # API OK, zero records for this query
+    PARTIAL = "partial"  # Data/scope incomplete; never checkpoint as complete
     CONNECTION_FAILED = "connection_failed"  # DNS/TCP/TLS/timeout
     HTTP_CLIENT_ERROR = "http_client_error"  # 4xx (not 429)
     HTTP_SERVER_ERROR = "http_server_error"  # 5xx
     HTTP_RATE_LIMIT = "http_rate_limit"  # 429
     PARSE_FAILED = "parse_failed"  # JSON parse error
     UNKNOWN_ERROR = "unknown_error"
+
+    @property
+    def is_success(self) -> bool:
+        """Whether this terminal state proves a complete successful request."""
+        return self in (FetchStatus.SUCCESS_DATA, FetchStatus.SUCCESS_ZERO)
 
 
 @dataclass
@@ -142,6 +149,7 @@ class FetchResult:
         _map = {
             FetchStatus.SUCCESS_DATA: "success_with_data",
             FetchStatus.SUCCESS_ZERO: "success_zero",
+            FetchStatus.PARTIAL: "partial",
             FetchStatus.CONNECTION_FAILED: "connection_failed",
             FetchStatus.HTTP_CLIENT_ERROR: "connection_failed",
             FetchStatus.HTTP_SERVER_ERROR: "connection_failed",
@@ -556,8 +564,17 @@ def _transform_record(rec: dict) -> dict | None:
 
         orgao_cnpj = _digits_only(orgao.get("cnpj"))
 
-        # Supplier data
-        fornecedor_cnpj = _digits_only(rec.get("niFornecedor"))
+        # Supplier identity is typed.  The legacy field remains CNPJ-only;
+        # CPF/foreign/invalid identifiers must never become a CNPJ join key.
+        supplier_identity = normalize_supplier_identity(
+            rec.get("niFornecedor"),
+            declared_type=rec.get("tipoPessoa"),
+            country=(
+                rec.get("codigoPaisFornecedor")
+                or rec.get("paisFornecedor")
+                or rec.get("codigoPais")
+            ),
+        )
         fornecedor_nome = (rec.get("nomeRazaoSocialFornecedor") or "").strip()
 
         # Object / description
@@ -622,7 +639,7 @@ def _transform_record(rec: dict) -> dict | None:
             "contrato_id": contrato_id,
             "orgao_cnpj": orgao_cnpj or None,
             "orgao_nome": orgao_nome,
-            "fornecedor_cnpj": fornecedor_cnpj or None,
+            **supplier_identity.to_record_fields(),
             "fornecedor_nome": fornecedor_nome or None,
             "objeto_contrato": objeto or None,
             "valor_total": round(valor, 2) if valor is not None else None,
@@ -663,6 +680,11 @@ class WindowResult:
     records_fetched: int = 0
     pages_fetched: int = 0
     error_message: str | None = None
+    request_completed: bool = False
+    scope_complete: bool = False
+    persisted_records: int = 0
+    last_page: int = 0
+    total_pages: int = 0
 
 
 @dataclass
@@ -674,6 +696,7 @@ class CrawlResult:
     total_records: int = 0
     total_windows_ok: int = 0
     total_windows_failed: int = 0
+    total_windows_skipped: int = 0
     checkpoint: CrawlCheckpoint | None = None
 
     @property
@@ -690,6 +713,11 @@ class CrawlResult:
                     "count_obtained": w.records_fetched,
                     "state": w.status.evidence_state,
                     "error_message": w.error_message,
+                    "request_completed": w.request_completed,
+                    "scope_complete": w.scope_complete,
+                    "persisted_records": w.persisted_records,
+                    "last_page": w.last_page,
+                    "total_pages": w.total_pages,
                 }
             )
         return rows
@@ -870,6 +898,7 @@ def crawl_with_evidence(mode: str = "backfill_3y") -> CrawlResult:
         # Skip completed windows (reentrant)
         if checkpoint and window_key in checkpoint.completed_windows:
             logger.debug("Skipping completed window: %s", window_key)
+            result.total_windows_skipped += 1
             cur = window_end + timedelta(days=1)
             continue
 
@@ -883,11 +912,18 @@ def crawl_with_evidence(mode: str = "backfill_3y") -> CrawlResult:
         page = 1
         window_records = 0
         window_pages = 0
-        window_status = FetchStatus.SUCCESS_ZERO
+        window_items: list[dict] = []
+        window_status = FetchStatus.PARTIAL
         window_error: str | None = None
+        request_completed = False
+        scope_complete = False
+        persisted_records = 0
+        last_total_pages = 0
+        last_page_fetched = 0
 
         while page <= CONTRACTS_MAX_PAGES:
             fetch_result = _fetch_page(data_ini, data_fim, page)
+            last_total_pages = fetch_result.total_pages
 
             if fetch_result.is_failure:
                 window_status = fetch_result.status
@@ -896,21 +932,74 @@ def crawl_with_evidence(mode: str = "backfill_3y") -> CrawlResult:
                     break
                 break  # Partial window — stop pagination
 
+            last_page_fetched = page
+
             if fetch_result.is_zero and page == 1:
-                window_status = FetchStatus.SUCCESS_ZERO
+                if fetch_result.total_records == 0:
+                    window_status = FetchStatus.SUCCESS_ZERO
+                    request_completed = True
+                    scope_complete = True
+                else:
+                    window_status = FetchStatus.PARTIAL
+                    window_error = (
+                        "First page was empty while source reported "
+                        f"total_records={fetch_result.total_records}"
+                    )
                 break
 
             if fetch_result.is_zero:
+                window_status = FetchStatus.PARTIAL
+                window_error = (
+                    f"Unexpected empty page {page} before declared exhaustion "
+                    f"(total_pages={fetch_result.total_pages})"
+                )
                 break
 
+            window_status = FetchStatus.SUCCESS_DATA
+            window_items.extend(fetch_result.items)
             window_records += len(fetch_result.items)
             window_pages += 1
 
-            if page >= fetch_result.total_pages:
+            if fetch_result.total_pages > 0 and page >= fetch_result.total_pages:
+                request_completed = True
+                scope_complete = True
                 break
 
             page += 1
             time.sleep(CONTRACTS_REQUEST_DELAY)
+
+        if not scope_complete and window_error is None:
+            window_status = FetchStatus.PARTIAL
+            window_error = (
+                f"Hit CONTRACTS_MAX_PAGES={CONTRACTS_MAX_PAGES} before source exhaustion "
+                f"(last_page={last_page_fetched}, total_pages={last_total_pages})"
+            )
+
+        if scope_complete and window_records > 0 and checkpoint is not None:
+            persistence_flag = os.getenv("CONTRACTS_PERSIST_EACH_WINDOW", "1").strip().lower()
+            persistence_enabled = persistence_flag not in {"0", "false", "no", "off"}
+            persistence_dsn = os.getenv("LOCAL_DATALAKE_DSN") or os.getenv("DATABASE_URL")
+            expected_records = len(transform(window_items))
+            if not persistence_enabled or not persistence_dsn:
+                window_status = FetchStatus.PARTIAL
+                window_error = "Completed source scope was not persisted before checkpoint"
+                scope_complete = False
+            elif expected_records != window_records:
+                window_status = FetchStatus.PARTIAL
+                window_error = (
+                    "Transform rejected records before checkpoint "
+                    f"(fetched={window_records}, transformable={expected_records})"
+                )
+                scope_complete = False
+            else:
+                persisted_records = _persist_window_if_enabled(window_items)
+                if persisted_records < expected_records:
+                    window_status = FetchStatus.PARTIAL
+                    window_error = (
+                        "Persistence incomplete before checkpoint "
+                        f"(expected={expected_records}, persisted={persisted_records})"
+                    )
+                    scope_complete = False
 
         wr = WindowResult(
             window_start=data_ini,
@@ -919,18 +1008,23 @@ def crawl_with_evidence(mode: str = "backfill_3y") -> CrawlResult:
             records_fetched=window_records,
             pages_fetched=window_pages,
             error_message=window_error,
+            request_completed=request_completed,
+            scope_complete=scope_complete,
+            persisted_records=persisted_records,
+            last_page=last_page_fetched,
+            total_pages=last_total_pages,
         )
         result.windows.append(wr)
         result.total_records += window_records
 
-        if window_status.is_success:
+        if window_status.is_success and scope_complete:
             result.total_windows_ok += 1
         else:
             result.total_windows_failed += 1
 
         # Update checkpoint
         if checkpoint:
-            if window_status.is_success:
+            if window_status.is_success and scope_complete:
                 checkpoint.completed_windows.append(window_key)
                 checkpoint.total_windows_completed += 1
                 checkpoint.total_contracts_fetched += window_records
@@ -960,7 +1054,7 @@ def transform(records: list[dict]) -> list[dict]:
     transformed: list[dict] = []
     for rec in records:
         t = _transform_record(rec)
-        if t and t.get("fornecedor_cnpj"):
+        if t:
             transformed.append(t)
     return transformed
 

@@ -118,7 +118,8 @@ def test_ladder_incomplete_when_transparency_partial_public_probe() -> None:
     }
     ev = ladder_complete_from_source_yield(yield_doc, target_confirmed=8382)
     assert ev["full_source_ladder_complete"] is False
-    assert "transparency_compras" in ev["missing"]
+    assert "pncp_transparency_compras" in ev["missing"]
+    assert "professional_councils_associations" in ev["missing"]
 
 
 def test_ladder_complete_when_all_steps_at_target() -> None:
@@ -279,7 +280,7 @@ def test_emit_pack_forbids_external_on_partial_ladder(
     go = json.loads((out / "GO-NO-GO.json").read_text(encoding="utf-8"))
     assert go["terminal_state"] == "ENGINEERING_IN_PROGRESS"
     assert go["gates"]["full_source_ladder_complete"] is False
-    assert "transparency_compras" in go["gates"]["ladder_yield_missing"]
+    assert "pncp_transparency_compras" in go["gates"]["ladder_yield_missing"]
     assert man["terminal_state"] == go["terminal_state"]
     assert man["extra_cli_sha"] == tip
     violations = assert_pack_postconditions(out, expected_origin_tip=tip)
@@ -428,13 +429,12 @@ def test_emit_pack_go_below_900_after_top20_and_10_approvals(tmp_path: Path) -> 
     sources = {
         step: {"companies_attempted": 100}
         for step in (
-            "public_docs_datalake",
-            "process_administrative_docs",
-            "pncp_annexes",
             "official_site",
-            "transparency_compras",
-            "official_registry",
+            "process_administrative_docs",
+            "pncp_transparency_compras",
+            "professional_councils_associations",
             "company_public_pages",
+            "official_registry_corroboration",
         )
     }
     warmbly = {

@@ -9,12 +9,10 @@ Usage:
     python architecture_validator.py [--path ARCH_DOC_PATH]
 """
 
-import os
-import sys
 import argparse
 import re
+import sys
 from pathlib import Path
-from typing import List, Dict, Set, Tuple
 
 
 class ValidationIssue:
@@ -38,7 +36,7 @@ class ArchitectureValidator:
     def __init__(self, doc_path: Path):
         self.doc_path = doc_path
         self.content = ""
-        self.issues: List[ValidationIssue] = []
+        self.issues: list[ValidationIssue] = []
 
         # Required sections in architecture doc
         self.required_sections = [
@@ -62,7 +60,7 @@ class ArchitectureValidator:
     def _load_document(self) -> bool:
         """Load architecture document"""
         try:
-            with open(self.doc_path, "r", encoding="utf-8") as f:
+            with open(self.doc_path, encoding="utf-8") as f:
                 self.content = f.read()
             return True
         except Exception as e:
@@ -208,14 +206,6 @@ class ArchitectureValidator:
 
     def _check_integration_points(self):
         """Check integration points documentation"""
-        integration_keywords = [
-            "integration",
-            "api",
-            "interface",
-            "endpoint",
-            "external",
-        ]
-
         integration_match = re.search(
             r"#{1,3}\s+Integration.*?\n(.*?)(?=\n#{1,3}|\Z)",
             self.content,

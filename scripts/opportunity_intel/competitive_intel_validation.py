@@ -58,21 +58,22 @@ class SchemaValidation:
 
 
 # ---------------------------------------------------------------------------
-# SQL Queries — v_contracts_canonical (migration 030)
+# SQL Queries — v_contracts_canonical_v2 (migration 077)
 # ---------------------------------------------------------------------------
-# Columns available in v_contracts_canonical:
-#   fornecedor_cnpj, fornecedor_nome, valor, objeto,
-#   entity_id, entity_nome, entity_cnpj_8, within_200km
+# Buyer and supplier roles are intentionally separate.
 
 _MARKET_SHARE_QUERY = """
     SELECT
-        fornecedor_cnpj,
+        supplier_cnpj,
         SUM(valor) AS total,
         COUNT(*) AS contratos
-    FROM v_contracts_canonical
+    FROM v_contracts_canonical_v2
     WHERE valor IS NOT NULL
       AND valor > 0
-    GROUP BY fornecedor_cnpj
+      AND supplier_id_type = 'CNPJ'
+      AND supplier_cnpj IS NOT NULL
+      AND is_active IS TRUE
+    GROUP BY supplier_cnpj
     ORDER BY total DESC
     LIMIT 20
 """
@@ -80,12 +81,15 @@ _MARKET_SHARE_QUERY = """
 _HHI_QUERY = """
     WITH supplier_totals AS (
         SELECT
-            fornecedor_cnpj,
+            supplier_cnpj,
             SUM(valor) AS total
-        FROM v_contracts_canonical
+        FROM v_contracts_canonical_v2
         WHERE valor IS NOT NULL
           AND valor > 0
-        GROUP BY fornecedor_cnpj
+          AND supplier_id_type = 'CNPJ'
+          AND supplier_cnpj IS NOT NULL
+          AND is_active IS TRUE
+        GROUP BY supplier_cnpj
     ),
     grand_total AS (
         SELECT SUM(total) AS gt
@@ -106,40 +110,45 @@ _HHI_QUERY = """
 
 _SUPPLIER_RANKING_QUERY = """
     SELECT
-        entity_id,
-        entity_nome,
-        fornecedor_cnpj,
-        fornecedor_nome,
+        buyer_entity_id,
+        buyer_entity_nome,
+        supplier_cnpj,
+        supplier_nome,
         SUM(valor) AS total,
         COUNT(*) AS contratos,
         ROW_NUMBER() OVER (
-            PARTITION BY entity_id
+            PARTITION BY buyer_entity_id
             ORDER BY SUM(valor) DESC
         ) AS ranking
-    FROM v_contracts_canonical
+    FROM v_contracts_canonical_v2
     WHERE valor IS NOT NULL
       AND valor > 0
-      AND entity_id IS NOT NULL
-    GROUP BY entity_id, entity_nome, fornecedor_cnpj, fornecedor_nome
-    ORDER BY entity_id, ranking
+      AND buyer_entity_id IS NOT NULL
+      AND supplier_id_type = 'CNPJ'
+      AND supplier_cnpj IS NOT NULL
+      AND is_active IS TRUE
+    GROUP BY buyer_entity_id, buyer_entity_nome, supplier_cnpj, supplier_nome
+    ORDER BY buyer_entity_id, ranking
 """
 
 # ---------------------------------------------------------------------------
 # SQL Queries — pncp_supplier_contracts (fallback when view missing)
 # ---------------------------------------------------------------------------
-# Real columns on pncp_supplier_contracts:
-#   ni_fornecedor, nome_fornecedor, valor_global, orgao_cnpj8, is_active
+# Fallback preserves the same roles directly from the fact table.
 
 _MARKET_SHARE_FALLBACK = """
     SELECT
-        ni_fornecedor AS fornecedor_cnpj,
-        SUM(valor_global) AS total,
+        fornecedor_cnpj AS supplier_cnpj,
+        SUM(valor_total) AS total,
         COUNT(*) AS contratos
     FROM pncp_supplier_contracts
-    WHERE valor_global IS NOT NULL
-      AND valor_global > 0
+    WHERE valor_total IS NOT NULL
+      AND valor_total > 0
+      AND supplier_id_type = 'CNPJ'
+      AND fornecedor_cnpj IS NOT NULL
       AND is_active IS TRUE
-    GROUP BY ni_fornecedor
+      AND (data_inicio IS NOT NULL OR data_publicacao IS NOT NULL)
+    GROUP BY fornecedor_cnpj
     ORDER BY total DESC
     LIMIT 20
 """
@@ -147,13 +156,16 @@ _MARKET_SHARE_FALLBACK = """
 _HHI_FALLBACK = """
     WITH supplier_totals AS (
         SELECT
-            ni_fornecedor,
-            SUM(valor_global) AS total
+            fornecedor_cnpj,
+            SUM(valor_total) AS total
         FROM pncp_supplier_contracts
-        WHERE valor_global IS NOT NULL
-          AND valor_global > 0
+        WHERE valor_total IS NOT NULL
+          AND valor_total > 0
+          AND supplier_id_type = 'CNPJ'
+          AND fornecedor_cnpj IS NOT NULL
           AND is_active IS TRUE
-        GROUP BY ni_fornecedor
+          AND (data_inicio IS NOT NULL OR data_publicacao IS NOT NULL)
+        GROUP BY fornecedor_cnpj
     ),
     grand_total AS (
         SELECT SUM(total) AS gt
@@ -174,24 +186,27 @@ _HHI_FALLBACK = """
 
 _SUPPLIER_RANKING_FALLBACK = """
     SELECT
-        e.id AS entity_id,
-        e.razao_social AS entity_nome,
-        c.ni_fornecedor AS fornecedor_cnpj,
-        c.nome_fornecedor AS fornecedor_nome,
-        SUM(c.valor_global) AS total,
+        e.id AS buyer_entity_id,
+        e.razao_social AS buyer_entity_nome,
+        c.fornecedor_cnpj AS supplier_cnpj,
+        c.fornecedor_nome AS supplier_nome,
+        SUM(c.valor_total) AS total,
         COUNT(*) AS contratos,
         ROW_NUMBER() OVER (
             PARTITION BY e.id
-            ORDER BY SUM(c.valor_global) DESC
+            ORDER BY SUM(c.valor_total) DESC
         ) AS ranking
     FROM pncp_supplier_contracts c
     JOIN sc_public_entities e
-        ON e.cnpj_8 = c.orgao_cnpj8
-    WHERE c.valor_global IS NOT NULL
-      AND c.valor_global > 0
+        ON e.cnpj_8 = left(regexp_replace(COALESCE(c.orgao_cnpj, ''), '\\D', '', 'g'), 8)
+    WHERE c.valor_total IS NOT NULL
+      AND c.valor_total > 0
+      AND c.supplier_id_type = 'CNPJ'
+      AND c.fornecedor_cnpj IS NOT NULL
       AND c.is_active IS TRUE
+      AND (c.data_inicio IS NOT NULL OR c.data_publicacao IS NOT NULL)
       AND e.id IS NOT NULL
-    GROUP BY e.id, e.razao_social, c.ni_fornecedor, c.nome_fornecedor
+    GROUP BY e.id, e.razao_social, c.fornecedor_cnpj, c.fornecedor_nome
     ORDER BY e.id, ranking
 """
 
@@ -217,7 +232,7 @@ def _run_check(
 
     Args:
         conn:           psycopg2 connection.
-        primary_query:  SQL targeting ``v_contracts_canonical``.
+        primary_query:  SQL targeting ``v_contracts_canonical_v2``.
         fallback_query: SQL targeting ``pncp_supplier_contracts``.
         description:    Human-readable label for logging.
         use_fetchone:   If True, calls ``fetchone()`` (for scalar results).
@@ -227,20 +242,30 @@ def _run_check(
         ``CheckResult(status="pass")`` on success, or
         ``CheckResult(status="fail", error_message=...)`` on error.
     """
+    use_savepoint = getattr(conn, "autocommit", True) is False
+    savepoint_active = False
     try:
         with conn.cursor() as cursor:
+            if use_savepoint:
+                cursor.execute("SAVEPOINT competitive_intel_primary")
+                savepoint_active = True
             cursor.execute(primary_query)
             if use_fetchone:
                 cursor.fetchone()
             else:
                 cursor.fetchall()
+            if savepoint_active:
+                cursor.execute("RELEASE SAVEPOINT competitive_intel_primary")
+                savepoint_active = False
         return CheckResult(status="pass", error_message="")
     except psycopg2.errors.UndefinedColumn as exc:
+        _restore_after_failed_primary(conn, savepoint_active)
         # Column-level error — report immediately with column name in message
         msg = str(exc)
         logger.warning("Column error in %s: %s", description, msg)
         return CheckResult(status="fail", error_message=msg)
     except psycopg2.errors.UndefinedTable:
+        _restore_after_failed_primary(conn, savepoint_active)
         # View does not exist — try the base table fallback
         logger.info(
             "View not found for %s — trying pncp_supplier_contracts fallback",
@@ -248,9 +273,21 @@ def _run_check(
         )
         return _try_fallback(conn, fallback_query, description, use_fetchone=use_fetchone)
     except psycopg2.Error as exc:
+        _restore_after_failed_primary(conn, savepoint_active)
         msg = str(exc)
         logger.warning("Database error in %s: %s", description, msg)
         return CheckResult(status="fail", error_message=msg)
+
+
+def _restore_after_failed_primary(
+    conn: psycopg2.extensions.connection, savepoint_active: bool
+) -> None:
+    """Restore a caller-owned transaction without committing or rolling it back."""
+    if not savepoint_active:
+        return
+    with conn.cursor() as cursor:
+        cursor.execute("ROLLBACK TO SAVEPOINT competitive_intel_primary")
+        cursor.execute("RELEASE SAVEPOINT competitive_intel_primary")
 
 
 def _try_fallback(
@@ -285,7 +322,7 @@ def validate_competitive_intel_schema(conn: psycopg2.extensions.connection) -> S
 
     The function is **READ-ONLY**: it never modifies schema or data.
 
-    1.  Tries each query against ``v_contracts_canonical`` (preferred).
+    1.  Tries each query against ``v_contracts_canonical_v2`` (preferred).
     2.  If the view does not exist, falls back to ``pncp_supplier_contracts``
         with adapted column names.
     3.  Returns a ``SchemaValidation`` with per-query status.
@@ -315,7 +352,7 @@ def validate_competitive_intel_schema(conn: psycopg2.extensions.connection) -> S
         'pass'
 
     Edge cases:
-        View missing: If ``v_contracts_canonical`` does not exist, each query
+        View missing: If ``v_contracts_canonical_v2`` does not exist, each query
             transparently falls back to ``pncp_supplier_contracts`` with
             adapted column aliases. The ``CheckResult`` still reports
             ``status="pass"`` as long as the fallback succeeds.

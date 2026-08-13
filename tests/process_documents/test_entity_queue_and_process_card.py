@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 import pytest
 
+from scripts.ops.multi_source_open_pack.pilot_gate import PilotScaleBlockedError
 from scripts.process_documents.backup_restore_proof import pack_meta_snapshot, restore_snapshot_verify
 from scripts.process_documents.collect import collect_many, incremental, select_batch_static_legacy
 from scripts.process_documents.entity_queue import (
@@ -206,6 +207,49 @@ def test_collect_many_updates_queue_on_success(
     for cid in s1["selected_canonical_ids"]:
         assert q[cid].last_success_at is not None
         assert q[cid].attempt_count >= 1
+
+
+def test_collect_many_blocks_before_enqueuing_more_than_pilot(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.delenv("EXTRA_PILOT_APPROVAL", raising=False)
+    targets = [_entity(f"{index:08d}:E", platforms=["pncp"]) for index in range(31)]
+    meta_root = tmp_path / "meta"
+
+    with (
+        patch("scripts.process_documents.collect.load_discovery", return_value=targets),
+        pytest.raises(PilotScaleBlockedError) as error,
+    ):
+        collect_many(
+            limit=10,
+            download=False,
+            meta_root=meta_root,
+            build_process_cards=False,
+        )
+
+    assert error.value.decision.code == "PILOT_APPROVAL_MISSING"
+    assert meta_root.exists() is False
+
+
+def test_process_documents_cli_reports_scale_block_as_structured_result(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from scripts.process_documents.cli import main
+
+    monkeypatch.delenv("EXTRA_PILOT_APPROVAL", raising=False)
+    monkeypatch.setenv("PROCESS_DOCUMENTS_META_ROOT", str(tmp_path / "meta"))
+    monkeypatch.setenv("PROCESS_DOCUMENTS_RAW_ROOT", str(tmp_path / "raw"))
+    targets = [_entity(f"{index:08d}:E", platforms=["pncp"]) for index in range(31)]
+    with patch("scripts.process_documents.collect.load_discovery", return_value=targets):
+        code = main(["probe", "--limit", "10"])
+
+    payload = capsys.readouterr().out
+    assert code == 1
+    assert '"terminal_state": "BLOCKED"' in payload
+    assert '"queue_mutated": false' in payload
+    assert "PILOT_APPROVAL_MISSING" in payload
 
 
 def test_incremental_drain_until_lag_cleared(

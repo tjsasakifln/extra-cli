@@ -24,9 +24,9 @@ pytestmark = [
 
 
 def _apply_migration():
-    from pathlib import Path
     import subprocess
     import sys
+    from pathlib import Path
 
     subprocess.check_call(
         [

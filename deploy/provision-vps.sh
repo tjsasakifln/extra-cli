@@ -1,10 +1,10 @@
 #!/bin/bash
 # provision-vps.sh — Provision a fresh VPS for Extra Consultoria
 # Target hardware baseline: Netcup RS 2000 G12 (8 cores, 16 GB RAM, 512 GB NVMe)
-# Provider-agnostic (Netcup SCP, Hetzner, etc.) — Ubuntu 24.04 LTS
+# Provider-agnostic (Netcup SCP, Hetzner, etc.) — Debian 13 or Ubuntu 24.04 LTS
 #
 # Usage (recommended):
-#   1. Boot Ubuntu 24.04 LTS on the VPS
+#   1. Boot Debian 13 or Ubuntu 24.04 LTS on the VPS
 #   2. Install your SSH public key for root (authorized_keys) BEFORE running
 #   3. scp deploy/provision-vps.sh root@<VPS_IP>:/root/
 #   4. ssh root@<VPS_IP>
@@ -357,7 +357,7 @@ deploy_application() {
     deactivate || true
     chown -R "$APP_USER:$APP_USER" "$APP_DIR/.venv"
 
-    mkdir -p /var/lib/extra-consultoria/resilience
+    mkdir -p /var/lib/extra-consultoria/{resilience,evidence}
     chown -R "$APP_USER:$APP_USER" /var/lib/extra-consultoria
 
     if [[ ! -f "$APP_DIR/.env" ]]; then
@@ -421,10 +421,16 @@ install_systemd_timers() {
         return 0
     fi
 
+    # Fail before touching /etc if the canonical user/path/env/venv is absent.
+    "$APP_DIR/.venv/bin/python" -m scripts.ops.provision_process_documents_systemd
     cp "$APP_DIR/deploy/systemd/"*.service /etc/systemd/system/ 2>/dev/null || true
     cp "$APP_DIR/deploy/systemd/"*.timer /etc/systemd/system/ 2>/dev/null || true
     # env example is not a unit
     rm -f /etc/systemd/system/*.example 2>/dev/null || true
+    "$APP_DIR/.venv/bin/python" -m scripts.ops.provision_process_documents_systemd \
+        --install \
+        --no-daemon-reload \
+        --smoke-output /var/lib/extra-consultoria/evidence/process-documents-unit-smoke.json
     systemctl daemon-reload
 
     # Wave A — safe day-1 set for 16 GB host

@@ -379,6 +379,7 @@ def recompute_cohort_audit(rows: list[dict[str, Any]]) -> dict[str, Any]:
             "target_fit_version": "confenge-target-fit-v1",
             "target_fit_operational_status": "ok",
         }
+        source_type = str(r.get("root_source_type") or r.get("source_type") or "UNKNOWN")
         res = evaluate_email_send_ready(
             company=company,
             email=email,
@@ -387,15 +388,25 @@ def recompute_cohort_audit(rows: list[dict[str, Any]]) -> dict[str, Any]:
             service_code=svc,
             factual_evidence=True,
             evidence_ids=company["evidence_ids"],
-            source_type="site",
+            source_type=source_type,
             source_url=src,
             provenance_chain=chain,
             contact={
+                **r,
                 "email": email,
                 "ownership_status": "COMPANY_OWNED",
                 "verification_status": "VERIFIED",
-                "source_type": "site",
+                "source_type": source_type,
                 "source_url": src,
+                "source": {
+                    "source_type": source_type,
+                    "source_url": src,
+                    "source_document": r.get("source_document"),
+                    "source_published_at": r.get("source_published_at"),
+                    "observed_at": r.get("observed_at"),
+                    "verified_at": r.get("verified_at"),
+                    "evidence_sha256": r.get("evidence_sha256"),
+                },
                 "provenance_chain": chain,
             },
         )

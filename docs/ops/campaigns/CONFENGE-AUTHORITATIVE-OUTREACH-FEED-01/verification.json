@@ -1,0 +1,69 @@
+{
+  "schema": "confenge.authoritative-outreach-feed-verification.v2",
+  "verified_at": "2026-08-13T01:11:56Z",
+  "generation_scope": "operational full-universe release; chunks remain outside Git under ADR-020",
+  "source": {
+    "repo_sha": "d0ce84741eb12eb115a4bcf73a9fde73d8fd1cfa",
+    "run_id": "run-0cd4121c646cb6d9",
+    "snapshot_hash": "a6c32643e67bcf2f9a1f3a8147d700a605de5de8934a078ddefb8308e8a03e5f",
+    "datalake_watermark": "2026-08-12T11:14:38.263297+02:00"
+  },
+  "manifest": {
+    "manifest_sha256": "341052580fe737bb9a70e289825fa56ecd970fefa6c94080ff1332320db2b06a",
+    "manifest_content_hash": "060e1c95c95fd1c1d4dd3dbb604da8c51bc71f35776bad17eeb2b874063300f6",
+    "lead_count": 401923,
+    "unique_cnpj_count": 401923,
+    "duplicate_cnpj_count": 0,
+    "chunk_count": 402,
+    "total_chunk_bytes": 844480022,
+    "declared_universe_count": 401923,
+    "full_decision_count": 401923,
+    "coverage_complete": true,
+    "watermarks_monotonic": true,
+    "omission_preserves_authorization": false,
+    "manifest_hash_valid": true,
+    "all_chunk_content_hashes_valid": true,
+    "all_chunk_leads_hashes_valid": true,
+    "json_schema_valid": true,
+    "served_https_hashes_valid": true
+  },
+  "target_fit": {
+    "required_fields_complete_for_all_leads": true,
+    "class_counts": {
+      "TARGET_CONFIRMED": 8173,
+      "TARGET_FIT_MISSING": 826,
+      "TARGET_INSUFFICIENT_EVIDENCE": 276618,
+      "TARGET_OUT_OF_SCOPE": 92959,
+      "TARGET_PROBABLE_RESEARCH": 23347
+    },
+    "fresh_count": 4810,
+    "strict_eligible_accounts_in_feed": 32,
+    "strict_ready_contacts_in_feed": 32,
+    "minimum_required": 30
+  },
+  "publication": {
+    "immutable_manifest_url": "https://159.195.18.88:8443/releases/run-0cd4121c646cb6d9-d0ce8474/manifest.json",
+    "continuous_manifest_url": "https://159.195.18.88:8443/manifest.json",
+    "chunks_published_before_manifest": true
+  },
+  "warmbly": {
+    "organization_id": "22222222-0000-0000-0000-000000000001",
+    "sync_status": "completed",
+    "chunks_total": 402,
+    "chunks_imported": 402,
+    "new_run_accounts": 401923,
+    "total_accounts_after_sync": 402012,
+    "strict_eligible_accounts_after_sync": 32,
+    "automatic_worker_noop_verified": true,
+    "last_manifest_uri": "https://159.195.18.88:8443/manifest.json"
+  },
+  "safety": {
+    "auto_send_enabled": false,
+    "green_autorun_enabled": false,
+    "require_human_approval": true,
+    "sending_paused": true,
+    "durable_kill_switch_active": true,
+    "selection_performed": false,
+    "dispatch_performed": false
+  }
+}

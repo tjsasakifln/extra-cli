@@ -12,10 +12,19 @@ from typing import Any
 from scripts.ops.multi_source_open_pack.analysis import apply_minimum_analysis
 from scripts.ops.multi_source_open_pack.classify_aec import TAXONOMY_VERSION
 from scripts.ops.multi_source_open_pack.consolidate import consolidate_observations
-from scripts.ops.multi_source_open_pack.decide import SCORING_VERSION, apply_decisions, select_shortlist
+from scripts.ops.multi_source_open_pack.decide import (
+    SCORING_VERSION,
+    _profile_pending_fields,
+    apply_decisions,
+    select_shortlist,
+)
 from scripts.ops.multi_source_open_pack.documents import inventariar_shortlist
 from scripts.ops.multi_source_open_pack.loaders import load_all_observations, load_csv_dicts
 from scripts.ops.multi_source_open_pack.models import CanonicalProcess, ReconciliationStats
+from scripts.ops.multi_source_open_pack.pilot_gate import (
+    PilotScaleBlockedError,
+    require_pilot_approval,
+)
 from scripts.ops.multi_source_open_pack.reconcile import build_reconciliation
 from scripts.ops.multi_source_open_pack.render_pack import (
     CLIENT_ARTIFACTS,
@@ -32,6 +41,105 @@ PROJECT_ROOT = Path(__file__).resolve().parents[3]
 MOTOR_VERSION = "extra-ms-open-pack/2.0.0"
 DEFAULT_UNIVERSE = PROJECT_ROOT / "config" / "target_entities_200km.csv"
 DEFAULT_PROFILE = PROJECT_ROOT / "config" / "client_profiles" / "extra.yaml"
+DEFAULT_PILOT_POLICY = PROJECT_ROOT / "config" / "source_applicability.yaml"
+
+_BLOCKER_ORDER = {
+    code: position
+    for position, code in enumerate(
+        (
+            "INVARIANT_RECONCILIATION_FAILED",
+            "NO_OBSERVATIONS",
+            "CIGA_REQUIRED_SOURCE_MISSING",
+            "PILOT_APPROVAL_MISSING",
+            "COVERAGE_EVIDENCE_MISSING",
+            "COVERAGE_EVIDENCE_INCOMPLETE",
+            "SOURCE_FRESHNESS_STALE",
+            "SHORTLIST_DOCUMENTS_INCOMPLETE",
+            "SHORTLIST_DOCUMENT_TEXT_INSUFFICIENT",
+            "SHORTLIST_BUYER_ANALYSIS_MISSING",
+            "SHORTLIST_EMPTY_AFTER_DOCUMENT_FILTER",
+            "PROFILE_CRITICAL_FIELDS_PENDING",
+            "HUMAN_ACCEPT_PENDING",
+        )
+    )
+}
+
+
+def _add_blocking_reason(
+    pack_meta: dict[str, Any],
+    *,
+    code: str,
+    evidence: str,
+    owner: str,
+    next_action: str,
+) -> None:
+    reason = {
+        "code": code,
+        "evidence": evidence,
+        "owner": owner,
+        "next_action": next_action,
+    }
+    reasons = pack_meta.setdefault("blocking_reasons", [])
+    if not any(
+        current.get("code") == code and current.get("evidence") == evidence
+        for current in reasons
+    ):
+        reasons.append(reason)
+
+
+def _finalize_blocking_reasons(pack_meta: dict[str, Any]) -> None:
+    reasons = pack_meta.setdefault("blocking_reasons", [])
+    reasons.sort(
+        key=lambda reason: (
+            _BLOCKER_ORDER.get(str(reason.get("code")), len(_BLOCKER_ORDER)),
+            str(reason.get("code")),
+            str(reason.get("evidence")),
+        )
+    )
+    terminal = str(pack_meta.get("terminal_state") or "")
+    consistency_errors: list[str] = []
+    if terminal == "BLOCKED" and not reasons:
+        consistency_errors.append("BLOCKED terminal_state requires blocking_reasons")
+    if terminal == "PASS" and reasons:
+        consistency_errors.append("PASS terminal_state forbids active blocking_reasons")
+    if consistency_errors:
+        pack_meta["invariant_errors"] = list(pack_meta.get("invariant_errors") or []) + consistency_errors
+        pack_meta["terminal_state"] = "FAIL"
+
+
+def _set_delivery_gates(pack_meta: dict[str, Any]) -> None:
+    """Publish structural QA and operational readiness as independent gates."""
+    invariant_errors = list(pack_meta.get("invariant_errors") or [])
+    structural_qa = {
+        "ok": not invariant_errors,
+        "invariant_errors": invariant_errors,
+        "checks": {
+            "reconciliation_invariants": not invariant_errors,
+            "artifact_shape": not any(
+                "artifact" in str(error).lower() for error in invariant_errors
+            ),
+        },
+    }
+    reasons = list(pack_meta.get("blocking_reasons") or [])
+    active_codes = [str(reason.get("code")) for reason in reasons]
+    delivery_readiness = {
+        "ok": structural_qa["ok"] and not reasons,
+        "blocking_codes": active_codes,
+        "checks": {
+            "required_sources": not any("SOURCE" in code for code in active_codes),
+            "pilot": not any("PILOT" in code for code in active_codes),
+            "coverage": not any("COVERAGE" in code for code in active_codes),
+            "documents": not any("DOCUMENT" in code or "SHORTLIST" in code for code in active_codes),
+            "freshness": not any("FRESHNESS" in code for code in active_codes),
+            "profile": not any("PROFILE" in code for code in active_codes),
+            "human_accept": not any("HUMAN_ACCEPT" in code for code in active_codes),
+        },
+    }
+    deliverable = structural_qa["ok"] and delivery_readiness["ok"]
+    pack_meta["structural_qa"] = structural_qa
+    pack_meta["delivery_readiness"] = delivery_readiness
+    pack_meta["deliverable"] = deliverable
+    pack_meta["terminal_state"] = "PASS" if deliverable else ("BLOCKED" if structural_qa["ok"] else "FAIL")
 
 
 def _git_sha(root: Path) -> str:
@@ -183,6 +291,7 @@ def build_pack(
     ciga_lookback_days: int = 45,
     inventory_docs: bool = True,
     skip_network: bool = False,
+    pilot_approval_path: Path | None = None,
 ) -> dict[str, Any]:
     """Build the 6 client artifacts. Returns pack result dict with terminal_state."""
     now = now or utc_now()
@@ -191,9 +300,16 @@ def build_pack(
     as_of = as_of or now.astimezone(BR_TZ).date()
     pack_id = pack_id or f"EXTRA-MS-OPEN-{now.astimezone(BR_TZ).strftime('%Y%m%dT%H%M%SZ')}"
     out_dir = Path(out_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
 
     entities = load_universe(universe_path)
+    pilot_gate = require_pilot_approval(
+        universe_path=universe_path,
+        policy_path=DEFAULT_PILOT_POLICY,
+        universe_entity_count=len(entities),
+        universe_entity_ids={entity.entity_key for entity in entities},
+        approval_path=pilot_approval_path,
+    )
+    out_dir.mkdir(parents=True, exist_ok=True)
     by_cnpj8, names, by_name, municipios = build_indexes(entities)
     profile = _load_profile(profile_path)
 
@@ -409,8 +525,10 @@ def build_pack(
             "logo": str(logo) if logo else "",
         },
         "human_accept": "PENDING_HUMAN",
+        "pilot_approval": pilot_gate.to_dict(),
         "terminal_state": "FAIL" if inv_errors else "PASS",
         "invariant_errors": inv_errors,
+        "blocking_reasons": [],
         "claims_allowed": [
             "contagens_dimensionalmente_rotuladas",
             "processo_canonic_deduplicado",
@@ -429,7 +547,68 @@ def build_pack(
         "shortlist_process_ids": [p.process_id for p in shortlist],
         "decision_layer_process_count": len(decision_procs),
         "secondary_reference_process_count": len(secondary),
+        "presentation_limits": {
+            "observations_sheet": {
+                "purpose": "presentation_only",
+                "limit": 5000,
+                "eligible": len(observations),
+                "included": min(len(observations), 5000),
+                "truncated": len(observations) > 5000,
+            },
+            "shortlist": {
+                "purpose": "explicit_decision_shortlist",
+                "limit": shortlist_limit,
+                "eligible": len(complete_pool),
+                "included": len(shortlist),
+                "truncated": len(complete_pool) > len(shortlist),
+            },
+        },
     }
+
+    for error in inv_errors:
+        _add_blocking_reason(
+            pack_meta,
+            code="INVARIANT_RECONCILIATION_FAILED",
+            evidence=error,
+            owner="data_quality",
+            next_action="Corrigir a reconciliação e regenerar o pacote.",
+        )
+
+    if not stats.observacoes_por_fonte.get("ciga_ckan"):
+        _add_blocking_reason(
+            pack_meta,
+            code="CIGA_REQUIRED_SOURCE_MISSING",
+            evidence="Fonte municipal obrigatória ciga_ckan sem observações no pacote.",
+            owner="source_ops",
+            next_action="Executar CIGA/DOM com escopo completo ou registrar falha nominal.",
+        )
+
+    if not cov_rows:
+        _add_blocking_reason(
+            pack_meta,
+            code="COVERAGE_EVIDENCE_MISSING",
+            evidence="Nenhuma matriz ente×fonte foi fornecida em --coverage.",
+            owner="coverage_ops",
+            next_action="Gerar e fornecer a matriz de cobertura do universo ativo.",
+        )
+    elif stats.entes_cobertos < stats.entes_universo:
+        _add_blocking_reason(
+            pack_meta,
+            code="COVERAGE_EVIDENCE_INCOMPLETE",
+            evidence=f"Entes cobertos={stats.entes_cobertos}; universo={stats.entes_universo}.",
+            owner="coverage_ops",
+            next_action="Resolver os gaps nominais e regenerar a matriz de cobertura.",
+        )
+
+    pending_profile = _profile_pending_fields(profile)
+    if pending_profile:
+        _add_blocking_reason(
+            pack_meta,
+            code="PROFILE_CRITICAL_FIELDS_PENDING",
+            evidence="Campos críticos pendentes: " + ", ".join(pending_profile),
+            owner="tiago",
+            next_action="Concluir a elicitação humana e versionar o perfil aprovado.",
+        )
 
     if freshness_notes:
         pack_meta["terminal_state"] = "BLOCKED" if not inv_errors else "FAIL"
@@ -437,6 +616,14 @@ def build_pack(
             set(pack_meta["claims_forbidden"]) | {"cobertura_live_completa", "freshness_24h"}
         )
         pack_meta["blockers_external"] = freshness_notes
+        for note in freshness_notes:
+            _add_blocking_reason(
+                pack_meta,
+                code="SOURCE_FRESHNESS_STALE",
+                evidence=note,
+                owner="source_ops",
+                next_action="Reexecutar a fonte e comprovar freshness <=24h.",
+            )
         # partial claim if shortlist pages revalidated live
         if live_pages_ok and shortlist and live_pages_ok == len(shortlist):
             pack_meta["claims_allowed"].append("shortlist_paginas_oficiais_revalidadas_http_live")
@@ -473,17 +660,34 @@ def build_pack(
             gate_issues.append(
                 f"{len(incomplete)}/{len(shortlist)} shortlist sem docs complete (edital/anexo parseado)"
             )
+            _add_blocking_reason(
+                pack_meta,
+                code="SHORTLIST_DOCUMENTS_INCOMPLETE",
+                evidence=gate_issues[-1],
+                owner="document_ops",
+                next_action="Baixar, hash-ear e parsear edital/anexos oficiais da shortlist.",
+            )
         if weak_edital:
             gate_issues.append(
                 f"{len(weak_edital)}/{len(shortlist)} shortlist sem texto documental suficiente para análise"
+            )
+            _add_blocking_reason(
+                pack_meta,
+                code="SHORTLIST_DOCUMENT_TEXT_INSUFFICIENT",
+                evidence=gate_issues[-1],
+                owner="document_ops",
+                next_action="Obter texto oficial suficiente e repetir a análise documental.",
             )
         if no_buyer:
             gate_issues.append(
                 f"{len(no_buyer)}/{len(shortlist)} shortlist sem análise de órgão baseada em evidência"
             )
-        if not shortlist:
-            gate_issues.append(
-                "shortlist vazia após filtro de inventário completo — sem base decisória executiva"
+            _add_blocking_reason(
+                pack_meta,
+                code="SHORTLIST_BUYER_ANALYSIS_MISSING",
+                evidence=gate_issues[-1],
+                owner="market_intelligence",
+                next_action="Gerar análise do órgão com evidência do pack.",
             )
         if gate_issues and pack_meta["terminal_state"] == "PASS":
             pack_meta["terminal_state"] = "BLOCKED"
@@ -512,6 +716,49 @@ def build_pack(
         pack_meta["blockers_external"] = pack_meta.get("blockers_external", []) + [
             "Nenhuma observação carregada — forneça --pncp/--ciga/--sc-compras"
         ]
+        _add_blocking_reason(
+            pack_meta,
+            code="NO_OBSERVATIONS",
+            evidence="Nenhuma observação foi carregada no pacote.",
+            owner="source_ops",
+            next_action="Fornecer ao menos uma coleta completa e vinculada ao run.",
+        )
+    elif not shortlist:
+        empty_shortlist = (
+            "shortlist vazia após filtro de inventário completo — sem base decisória executiva"
+        )
+        pack_meta["blockers_external"] = list(pack_meta.get("blockers_external") or []) + [
+            empty_shortlist
+        ]
+        pack_meta["claims_forbidden"] = list(
+            set(pack_meta.get("claims_forbidden") or [])
+            | {
+                "shortlist_docs_100_percent_complete",
+                "analise_edital_completa_100",
+                "client_ready_sem_ressalva",
+            }
+        )
+        _add_blocking_reason(
+            pack_meta,
+            code="SHORTLIST_EMPTY_AFTER_DOCUMENT_FILTER",
+            evidence=empty_shortlist,
+            owner="document_ops",
+            next_action="Completar o inventário documental antes de publicar shortlist.",
+        )
+
+    if pack_meta.get("human_accept") != "APPROVED":
+        _add_blocking_reason(
+            pack_meta,
+            code="HUMAN_ACCEPT_PENDING",
+            evidence=f"human_accept={pack_meta.get('human_accept') or 'UNKNOWN'}.",
+            owner="tiago",
+            next_action="Revisar o pacote e registrar aprovação humana explícita.",
+        )
+
+    if pack_meta["blocking_reasons"] and pack_meta["terminal_state"] == "PASS":
+        pack_meta["terminal_state"] = "BLOCKED"
+    _finalize_blocking_reasons(pack_meta)
+    _set_delivery_gates(pack_meta)
 
     # Do not ship internal cache as client artifact — remove from client listing later
     pack_meta["internal_doc_cache"] = str(doc_cache) if doc_cache.exists() else ""
@@ -529,6 +776,7 @@ def build_pack(
         as_of=pack_meta["as_of"],
         limitations=limitations,
         motor_version=MOTOR_VERSION,
+        pack_meta=pack_meta,
     )
     write_csv(csv_path, csv_procs)
 
@@ -599,6 +847,10 @@ def build_pack(
         # allow only nothing extra ideally; fail if unexpected client-facing
         pack_meta["extra_files_in_out_dir"] = extra
 
+    # Artifact-shape checks can add invariant failures after the first gate
+    # calculation; publish gates only from this final state.
+    _set_delivery_gates(pack_meta)
+
     result = {
         "pack_id": pack_id,
         "out_dir": str(out_dir),
@@ -609,6 +861,9 @@ def build_pack(
         "observations_n": len(observations),
         "client_artifacts": list(CLIENT_ARTIFACTS),
         "invariant_errors": pack_meta.get("invariant_errors", []),
+        "structural_qa": pack_meta["structural_qa"],
+        "delivery_readiness": pack_meta["delivery_readiness"],
+        "deliverable": pack_meta["deliverable"],
         "git_sha": pack_meta["git_sha"],
         "motor_version": MOTOR_VERSION,
     }
@@ -628,6 +883,12 @@ def run_pack_cli(argv: list[str] | None = None) -> int:
     parser.add_argument("--out-dir", type=Path, required=True, help="Diretório de saída do pack")
     parser.add_argument("--universe", type=Path, default=DEFAULT_UNIVERSE)
     parser.add_argument("--profile", type=Path, default=DEFAULT_PROFILE)
+    parser.add_argument(
+        "--pilot-approval",
+        type=Path,
+        default=None,
+        help="JSON de aprovação humana do piloto de 30, obrigatório para universo maior",
+    )
     parser.add_argument("--pncp", type=Path, default=None, help="CSV open PNCP")
     parser.add_argument("--ciga", type=Path, default=None, help="JSONL publicações CIGA/DOM")
     parser.add_argument("--sc-compras", type=Path, default=None, help="JSONL SC Compras open")
@@ -650,22 +911,32 @@ def run_pack_cli(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     as_of = date.fromisoformat(args.as_of) if args.as_of else None
-    result = build_pack(
-        out_dir=args.out_dir,
-        universe_path=args.universe,
-        profile_path=args.profile,
-        pncp_path=args.pncp,
-        ciga_path=args.ciga,
-        sc_compras_path=args.sc_compras,
-        coverage_path=args.coverage,
-        brand_dir=args.brand_dir,
-        as_of=as_of,
-        pack_id=args.pack_id,
-        shortlist_limit=args.shortlist_limit,
-        ciga_lookback_days=args.ciga_lookback_days,
-        inventory_docs=not args.no_inventory,
-        skip_network=args.skip_network,
-    )
+    try:
+        result = build_pack(
+            out_dir=args.out_dir,
+            universe_path=args.universe,
+            profile_path=args.profile,
+            pncp_path=args.pncp,
+            ciga_path=args.ciga,
+            sc_compras_path=args.sc_compras,
+            coverage_path=args.coverage,
+            brand_dir=args.brand_dir,
+            as_of=as_of,
+            pack_id=args.pack_id,
+            shortlist_limit=args.shortlist_limit,
+            ciga_lookback_days=args.ciga_lookback_days,
+            inventory_docs=not args.no_inventory,
+            skip_network=args.skip_network,
+            pilot_approval_path=args.pilot_approval,
+        )
+    except PilotScaleBlockedError as exc:
+        result = {
+            "terminal_state": "BLOCKED",
+            "deliverable": False,
+            "pilot_gate": exc.decision.to_dict(),
+        }
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 1
     print(json.dumps(result, ensure_ascii=False, indent=2))
     state = result.get("terminal_state")
     if state == "FAIL":

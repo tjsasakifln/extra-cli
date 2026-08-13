@@ -866,20 +866,37 @@ def _live_resilient_source(collection_id: str, source: str) -> CollectionRun:
         if not isinstance(summary, dict):
             summary = {"raw": str(summary)}
         results = summary.get("results") or summary.get("sources") or {}
-        src_out = results.get(mapped) or results.get(source) or summary
+        src_out = results.get(mapped) or results.get(source)
+        if src_out is None:
+            src_out = {
+                "status": "missing_source_result",
+                "terminal_status": "failure",
+                "request_completed": False,
+                "scope_complete": False,
+            }
         if not isinstance(src_out, dict):
             src_out = {"status": str(src_out)}
         st = str(src_out.get("status") or summary.get("status") or "").lower()
+        terminal = str(src_out.get("terminal_status") or "").lower()
+        request_completed = bool(src_out.get("request_completed", st in {"success", "completed", "ok", "success_zero", "empty"}))
+        scope_complete = bool(src_out.get("scope_complete", request_completed and st in {"success", "completed", "ok", "success_zero", "empty"}))
         fetched = int(src_out.get("records_fetched") or src_out.get("fetched") or 0)
-        persisted = int(src_out.get("records_persisted") or src_out.get("persisted") or fetched)
-        if code == 0 and st in {"success", "completed", "ok", "success_zero", "empty"}:
-            zero = fetched == 0 or st in {"empty", "success_zero"}
+        persisted_raw = src_out.get("records_persisted")
+        if persisted_raw is None:
+            persisted_raw = src_out.get("persisted")
+        persisted = int(persisted_raw or 0)
+        persistence_evidenced = persisted_raw is not None or fetched == 0
+        local_success = terminal in {"success", "success_zero"} or (
+            not terminal and st in {"success", "completed", "ok", "success_zero", "empty"}
+        )
+        if local_success and request_completed and scope_complete and persistence_evidenced:
+            zero = terminal == "success_zero" or fetched == 0 or st in {"empty", "success_zero"}
             run.finish(
                 records_obtained=fetched,
                 records_persisted=persisted,
-                request_completed=True,
-                scope_complete=True,
-                notes=[f"resilient_cycle rc={code} status={st}"],
+                request_completed=request_completed,
+                scope_complete=scope_complete,
+                notes=[f"resilient_cycle local={terminal or st} aggregate_rc={code}"],
             )
             if zero and run.terminal_status == "success":
                 # empty confirmed complete → success_zero via finish path; force if needed
@@ -896,12 +913,16 @@ def _live_resilient_source(collection_id: str, source: str) -> CollectionRun:
             run.finish(
                 records_obtained=fetched,
                 records_persisted=persisted,
-                request_completed=code == 0,
-                scope_complete=False,
-                error=f"resilient_rc={code} status={st}",
-                notes=["live collect incomplete"],
+                request_completed=request_completed,
+                scope_complete=scope_complete,
+                source_available=terminal != "blocked",
+                error=f"resilient_local={terminal or st} aggregate_rc={code}",
+                notes=["source-local live collect incomplete"],
             )
-            run.terminal_status = "partial" if fetched > 0 else "failure"
+            if terminal in {"partial", "failure", "blocked"}:
+                run.terminal_status = terminal
+            else:
+                run.terminal_status = "partial" if fetched > 0 else "failure"
     except Exception as exc:  # noqa: BLE001
         run.finish(
             request_completed=False,

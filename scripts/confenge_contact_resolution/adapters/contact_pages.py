@@ -2,15 +2,10 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
 from typing import Any
 
 from scripts.confenge_contact_resolution.adapters.base import AdapterContext
 from scripts.confenge_contact_resolution.models import RawObservation, SourceProvenance
-
-
-def _now() -> str:
-    return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
 class ContactPageAdapter:
@@ -57,7 +52,10 @@ class ContactPageAdapter:
                             source_url=page.get("url") or person.get("url"),
                             source_document=page.get("document"),
                             source_date=str(page.get("source_date") or "")[:10] or None,
-                            observed_at=_now(),
+                            source_published_at=str(page.get("source_published_at") or page.get("source_date") or "")
+                            or None,
+                            observed_at=str(page.get("observed_at")) if page.get("observed_at") else None,
+                            verified_at=str(page.get("verified_at")) if page.get("verified_at") else None,
                             notes="Public team/contact page",
                         ),
                         pattern_guessed_email=bool(person.get("pattern_guessed_email")),
@@ -86,7 +84,9 @@ class ContactPageAdapter:
                         source_url=ho.get("source_url"),
                         source_document=ho.get("outcome_id"),
                         source_date=str(ho.get("source_date") or "")[:10] or None,
-                        observed_at=_now(),
+                        source_published_at=str(ho.get("source_published_at") or ho.get("source_date") or "") or None,
+                        observed_at=str(ho.get("observed_at")) if ho.get("observed_at") else None,
+                        verified_at=str(ho.get("verified_at")) if ho.get("verified_at") else None,
                         notes="Human decision/outcome memory — dominant when DNC/bounce",
                     ),
                     dnc=bool(ho.get("dnc") or str(ho.get("state") or "").upper() == "DO_NOT_CONTACT"),

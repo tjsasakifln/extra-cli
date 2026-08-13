@@ -15,14 +15,23 @@ from scripts.confenge_contact_resolution.discovery.domain_probe import (
 )
 from scripts.confenge_contact_resolution.discovery.extract import (
     extract_contacts_from_html,
+    extract_contacts_from_text,
     extract_emails,
     extract_phones,
     extract_whatsapp,
 )
 from scripts.confenge_contact_resolution.discovery.official_domain import (
     DomainClass,
+    DomainResolution,
     classify_host,
     is_credible_company_domain,
+)
+from scripts.confenge_contact_resolution.discovery.public_document_fetch import (
+    fetch_cnpj_linked_public_document,
+)
+from scripts.confenge_contact_resolution.discovery.web_search_providers import (
+    DuckDuckGoHTMLProvider,
+    parse_bing_html,
 )
 from scripts.confenge_contact_resolution.email_policy import assess_email
 from scripts.confenge_contact_resolution.human_review import _contact_row
@@ -190,6 +199,118 @@ def test_html_extract_mailto_tel_whatsapp_jsonld():
     assert any(c.get("email") for c in contacts)
 
 
+def test_plain_text_requires_explicit_name_label_role_and_email():
+    text = (
+        "CNPJ 11.222.333/0001-81 Representante legal: João da Silva; "
+        "Engenheiro Civil; joao.silva@alphaengenharia.com.br"
+    )
+    contacts = extract_contacts_from_text(text, source_url="https://gov.br/doc/1.pdf")
+    assert contacts == [
+        {
+            "email": "joao.silva@alphaengenharia.com.br",
+            "name": "João da Silva",
+            "cargo": "Representante legal",
+            "url": "https://gov.br/doc/1.pdf",
+            "source_url": "https://gov.br/doc/1.pdf",
+            "context_text": text,
+        }
+    ]
+    assert (
+        extract_contacts_from_text(
+            "Engenheiro Civil joao.silva@alphaengenharia.com.br",
+            source_url="https://gov.br/doc/2.pdf",
+        )
+        == []
+    )
+
+
+def test_bing_parser_decodes_and_returns_organic_result():
+    import base64
+
+    target = "https://www.gov.br/compras/documento.pdf"
+    encoded = base64.urlsafe_b64encode(target.encode()).decode().rstrip("=")
+    html = f"""
+      <ol><li class="b_algo"><h2><a href="https://www.bing.com/ck/a?u=a1{encoded}">Documento</a></h2>
+      <div class="b_caption"><p>Proposta publicada</p></div></li></ol>
+    """
+    results = parse_bing_html(html)
+    assert len(results) == 1
+    assert results[0].url == target
+    assert results[0].snippet == "Proposta publicada"
+
+
+def test_ladder_hit_filter_rejects_search_noise_and_keeps_institutional_match():
+    from scripts.confenge_contact_resolution.discovery.cascade import _relevant_ladder_hit
+
+    noise = {
+        "url": "https://www.realself.com/question/implant-rippling",
+        "title": "Implant question",
+        "snippet": "Unrelated medical result",
+    }
+    assert not _relevant_ladder_hit(
+        "pncp_transparency_compras",
+        noise,
+        cnpj14="11222333000181",
+        razao_social="Alpha Engenharia Ltda",
+    )
+    official = {
+        "url": "https://transparencia.municipio.gov.br/contrato/1",
+        "title": "Contrato Alpha Engenharia",
+        "snippet": "Fornecedor Alpha Engenharia",
+    }
+    assert _relevant_ladder_hit(
+        "pncp_transparency_compras",
+        official,
+        cnpj14="11222333000181",
+        razao_social="Alpha Engenharia Ltda",
+    )
+
+
+def test_public_document_requires_exact_cnpj_before_emitting_contact(monkeypatch):
+    html = b"""
+      <html><body><p>CNPJ 11.222.333/0001-81</p><div>
+      <strong>Joao da Silva</strong><span>Engenheiro Civil</span>
+      <a href="mailto:joao@alphaengenharia.com.br">email</a></div></body></html>
+    """
+
+    class Response:
+        status = 200
+        headers = {"Content-Type": "text/html"}
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return None
+
+        def read(self, size):
+            return html
+
+        def geturl(self):
+            return "https://gov.br/doc/1"
+
+    monkeypatch.setattr(
+        "scripts.confenge_contact_resolution.discovery.public_document_fetch._public_http_url",
+        lambda *args, **kwargs: (True, None),
+    )
+    monkeypatch.setattr(
+        "scripts.confenge_contact_resolution.discovery.public_document_fetch._open_public_url",
+        lambda *args, **kwargs: Response(),
+    )
+    linked = fetch_cnpj_linked_public_document(
+        "https://gov.br/doc/1",
+        cnpj14="11222333000181",
+    )
+    assert linked.cnpj_linked is True
+    assert linked.contacts[0]["name"] == "Joao da Silva"
+    wrong = fetch_cnpj_linked_public_document(
+        "https://gov.br/doc/1",
+        cnpj14="99888777000166",
+    )
+    assert wrong.cnpj_linked is False
+    assert wrong.as_public_docs() == []
+
+
 def test_stop_early_budget_and_contact_found():
     budget = DiscoveryBudget(max_search_queries=0, max_pages=4, max_total_requests=10, max_seconds=30)
     stats = DiscoveryStats()
@@ -204,8 +325,61 @@ def test_stop_early_budget_and_contact_found():
     assert not s2.budget_exhausted(b2)
 
 
-def test_cascade_stop_early_on_strong_public_doc(monkeypatch):
-    """DiscoveryCascade must exit CONTACT_FOUND without web search when docs have strong contact."""
+def test_search_provider_failure_is_not_reported_as_source_exhaustion(monkeypatch):
+    from urllib.error import URLError
+
+    def unavailable(*args, **kwargs):
+        raise URLError("blocked")
+
+    monkeypatch.setattr(
+        "scripts.confenge_contact_resolution.discovery.web_search_providers.urlopen",
+        unavailable,
+    )
+    provider = DuckDuckGoHTMLProvider(min_interval=0)
+    for query in ("one", "two", "three"):
+        assert provider.search(query) == []
+    assert provider.available is False
+    assert provider.last_error == "URLError"
+
+    from scripts.confenge_contact_resolution.discovery.cascade import DiscoveryCascade
+
+    monkeypatch.setattr(
+        "scripts.confenge_contact_resolution.discovery.cascade.lookup_public_docs_for_cnpj",
+        lambda *args, **kwargs: [],
+    )
+    monkeypatch.setattr(
+        "scripts.confenge_contact_resolution.discovery.cascade.probe_official_domain",
+        lambda **kwargs: DomainResolution(),
+    )
+    result = DiscoveryCascade(
+        budget=DiscoveryBudget(max_search_queries=12, max_pages=8, max_total_requests=40),
+        web_provider=provider,
+        allow_network=True,
+    ).run(cnpj14="11222333000181", razao_social="ALPHA ENGENHARIA LTDA")
+    blocked = [a for a in result.source_attempts if a["outcome"] == "EXTERNAL_BLOCKER"]
+    assert blocked
+    assert all(a["reason_code"] == "search_provider_unavailable" for a in blocked)
+
+
+def test_resolution_cache_signature_includes_contract_and_discovery_budget():
+    from scripts.confenge_contact_resolution.discovery.cascade import DiscoveryCascade
+
+    low = ResolverConfig(
+        discovery_cascade=DiscoveryCascade(
+            budget=DiscoveryBudget(max_search_queries=2, max_pages=2),
+        )
+    )
+    high = ResolverConfig(
+        discovery_cascade=DiscoveryCascade(
+            budget=DiscoveryBudget(max_search_queries=12, max_pages=16),
+        )
+    )
+    assert ContactResolver(low)._adapters_sig() != ContactResolver(high)._adapters_sig()
+    assert "schema=" in ContactResolver(low)._adapters_sig()
+
+
+def test_cascade_does_not_stop_early_on_functional_public_doc(monkeypatch):
+    """A functional address in a public document is not a human recipient."""
     from scripts.confenge_contact_resolution.discovery.budget import InvestigationOutcome
     from scripts.confenge_contact_resolution.discovery.cascade import DiscoveryCascade
 
@@ -222,30 +396,13 @@ def test_cascade_stop_early_on_strong_public_doc(monkeypatch):
             }
         ]
 
-    def boom_search(*a, **k):
-        calls["search"] += 1
-        raise AssertionError("web search must not run after strong doc contact")
-
-    def boom_probe(*a, **k):
-        calls["probe"] += 1
-        raise AssertionError("domain probe must not run after strong doc contact")
-
     monkeypatch.setattr(
         "scripts.confenge_contact_resolution.discovery.cascade.lookup_public_docs_for_cnpj",
         fake_docs,
     )
-    monkeypatch.setattr(
-        "scripts.confenge_contact_resolution.discovery.cascade.probe_official_domain",
-        boom_probe,
-    )
-    monkeypatch.setattr(
-        "scripts.confenge_contact_resolution.discovery.cascade.build_web_search_provider",
-        lambda: type("P", (), {"search": boom_search, "search_business_contacts": boom_search})(),
-    )
-
     cascade = DiscoveryCascade(
         budget=DiscoveryBudget(max_search_queries=6, max_pages=8, max_total_requests=20),
-        allow_network=True,  # would enable search/probe if not stop-early
+        allow_network=False,
         dsn=None,
     )
     result = cascade.run(
@@ -254,11 +411,43 @@ def test_cascade_stop_early_on_strong_public_doc(monkeypatch):
         stop_when_strong_contact=True,
     )
     assert result.stats.outcome == InvestigationOutcome.CONTACT_FOUND.value
-    assert result.stats.stop_reason == "strong_public_doc"
+    assert result.stats.stop_reason == "discovery_contacts"
     assert result.stats.search_queries == 0
     assert calls["search"] == 0
     assert calls["probe"] == 0
+    assert not any(a["reason_code"] == "named_human_contact_found" for a in result.source_attempts)
+    assert all(
+        {
+            "cnpj14",
+            "source_adapter",
+            "observed_at",
+            "outcome",
+            "reason_code",
+            "limitations",
+            "evidence_sha256",
+            "terminal_state",
+            "next_action",
+        }
+        <= set(attempt)
+        for attempt in result.source_attempts
+    )
     assert any((d.get("email") or "").endswith("@alphaengenharia.com.br") for d in (result.ctx.public_docs or []))
+
+
+def test_strong_public_doc_requires_exact_cnpj_and_non_guessed_email():
+    from scripts.confenge_contact_resolution.discovery.cascade import _has_strong_doc_contact
+
+    doc = {
+        "cnpj14": "11222333000181",
+        "email": "maria@alpha.example",
+        "name": "Maria da Silva",
+        "cargo": "Diretora Comercial",
+        "url": "https://alpha.example/proposta.pdf",
+        "evidence_strength": "company_authored_document",
+    }
+    assert _has_strong_doc_contact([doc], cnpj14="11222333000181")
+    assert not _has_strong_doc_contact([doc], cnpj14="99888777000166")
+    assert not _has_strong_doc_contact([{**doc, "pattern_guessed_email": True}], cnpj14="11222333000181")
 
 
 def test_accounting_shared_phone_rejected_end_to_end():

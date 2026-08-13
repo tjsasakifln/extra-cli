@@ -68,13 +68,9 @@ def test_reports_must_show_limitations() -> None:
 
 def test_forbids_works_tracking_claim() -> None:
     bad = text_forbids_works_tracking("O sistema faz acompanhamento físico de obras.")
-    good = text_forbids_works_tracking(
-        "Acompanhamento administrativo de contratos, sem medição em campo."
-    )
     # "medição em campo" alone is also forbidden if claiming capability
     assert bad.ok is False
-    # The good sentence contains "sem medição em campo" as negation — pattern may hit.
-    # Prefer pure administrative wording:
+    # A negated field-measurement phrase may still match; use pure administrative wording.
     good2 = text_forbids_works_tracking(
         "Ferramenta de inteligência de editais e contratos administrativos."
     )

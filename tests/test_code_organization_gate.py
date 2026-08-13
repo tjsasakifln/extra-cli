@@ -3,10 +3,8 @@ from __future__ import annotations
 
 from scripts.ops.code_organization_gate import (
     SNAKE_MODULE,
-    check_module_names,
     run_gate,
 )
-from pathlib import Path
 
 
 def test_snake_module_regex():

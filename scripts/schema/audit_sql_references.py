@@ -48,6 +48,7 @@ KNOWN_TABLES: set[str] = {
     "opportunity_coverage",
     "_migrations",
     "contract_version_history",
+    "contract_role_links",
     "capability_coverage",
     "retention_policy",
 }
@@ -58,8 +59,10 @@ KNOWN_VIEWS: set[str] = {
     "v_entities_canonical",
     "v_open_opportunities_canonical",
     "v_contracts_canonical",
+    "v_contracts_canonical_v2",
     "v_suppliers_canonical",
     "v_value_observations_canonical",
+    "v_value_observations_canonical_v2",
     "v_coverage_gaps_by_municipio",
     "v_unmatched_bids",
     "v_contract_historical",

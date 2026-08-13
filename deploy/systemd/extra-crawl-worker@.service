@@ -1,0 +1,44 @@
+[Unit]
+Description=Extra Consultoria leased crawl worker %i
+After=network-online.target postgresql.service
+Wants=network-online.target
+Requires=postgresql.service
+OnFailure=extra-onfailure@%n.service
+StartLimitIntervalSec=900
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=extra-consultoria
+Group=extra-consultoria
+WorkingDirectory=/opt/extra-consultoria
+Environment=PYTHONPATH=/opt/extra-consultoria
+Environment=RESILIENCE_ENV=production
+EnvironmentFile=/etc/extra-consultoria/crawler.env
+ExecStartPre=/opt/extra-consultoria/.venv/bin/python -m scripts.ops.validate_crawler_runtime_security --env-file /etc/extra-consultoria/crawler.env
+ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.crawl.worker --worker-id worker-%i
+Restart=on-failure
+RestartSec=30
+KillSignal=SIGTERM
+TimeoutStopSec=90
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+MemoryHigh=384M
+MemoryMax=512M
+CPUQuota=100%
+ReadWritePaths=/var/lib/extra-consultoria /var/log/extra-consultoria
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=extra-crawl-worker-%i
+
+[Install]
+WantedBy=multi-user.target

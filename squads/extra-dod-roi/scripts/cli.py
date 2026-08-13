@@ -26,7 +26,7 @@ SQUAD_DIR = SCRIPT_DIR.parent
 
 def run_py(script: str, args: list[str]) -> int:
     cmd = [sys.executable, str(SCRIPT_DIR / script), *args]
-    return subprocess.call(cmd)
+    return subprocess.call(cmd)  # noqa: S603 - sys.executable + in-repo script
 
 
 def cmd_status(_: argparse.Namespace) -> int:

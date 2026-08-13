@@ -16,6 +16,7 @@ from scripts.golden_path import (
     evaluate_run_outcome,
 )
 
+
 def test_canonical_module_help() -> None:
     r = subprocess.run(
         [sys.executable, "-m", "scripts.golden_path", "--help"],

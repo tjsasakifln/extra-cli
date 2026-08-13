@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from unittest.mock import patch
 
-from scripts.ops.multi_source_open_pack.analysis import apply_minimum_analysis, analyze_edital_minimo
+from scripts.ops.multi_source_open_pack.analysis import analyze_edital_minimo, apply_minimum_analysis
 from scripts.ops.multi_source_open_pack.consolidate import consolidate_observations
 from scripts.ops.multi_source_open_pack.decide import apply_decisions
 from scripts.ops.multi_source_open_pack.documents import (

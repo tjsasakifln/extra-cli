@@ -408,7 +408,7 @@ Usamos **ruff** para linting e **mypy** para type checking:
 
 ```bash
 # Lint
-ruff check scripts/
+ruff check .
 
 # Formatacao
 ruff format scripts/
@@ -417,7 +417,7 @@ ruff format scripts/
 mypy scripts/
 
 # Os dois juntos
-ruff check scripts/ && mypy scripts/
+ruff check . && mypy scripts/
 ```
 
 As configs estao em `pyproject.toml`:
@@ -429,7 +429,7 @@ As configs estao em `pyproject.toml`:
 Antes de completar uma story:
 
 1. Rode `pytest` -- todos os testes devem passar
-2. Rode `ruff check scripts/` -- sem erros
+2. Rode `ruff check .` -- sem erros
 3. Verifique type hints
 
 ---

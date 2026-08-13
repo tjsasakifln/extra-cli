@@ -468,6 +468,7 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 - [ ] “Propensão” ou probabilidade de compra só pode ser publicada depois de amostra suficiente, definição de outcome, separação temporal treino/teste, calibração e validação retrospectiva documentadas.
 - [ ] Resultados de contato real retroalimentam a avaliação e o ajuste de sinais, sem reescrever silenciosamente o histórico.
 - [ ] Não são usados atributos pessoais sensíveis ou proxies discriminatórios; `DO_NOT_CONTACT` e restrições legais/comerciais são respeitados.
+- [ ] O `confenge.outreach.v1` publica uma decisão target-fit completa para todo CNPJ endereçável do universo reconciliado, inclusive OUT, insuficiente, stale, DNC, downgrades e tombstones; omissão nunca preserva autorização anterior.
 - [ ] O primeiro ciclo de uso real registra decisões de Tiago, contatos realizados e resultados observados, inclusive quando não houver conversão.
 
 #### Gate imediato `CONFENGE_COMMERCIAL_READY`
@@ -959,11 +960,16 @@ CLI canônica: `python3 -m scripts.process_documents`.
 - [x] A data final do backfill é registrada.
 - [ ] O período é particionado em janelas controladas.
 - [x] Cada janela possui checkpoint. Evidência: `data/contracts_checkpoints/contracts_full.json` per-window keys · crawl 45d · EXTRA-OPS-95-FOUNDATION 2026-07-19
-- [ ] Cada janela possui status.
-- [ ] Cada janela possui contagem de páginas.
-- [ ] Cada janela possui contagem de registros.
+- [ ] Cada janela possui status. **#303 `VERIFIED` em branch:** estado terminal
+  distingue data, zero, parcial e falha; aceite requer CI no HEAD e `main`.
+- [ ] Cada janela possui contagem de páginas. **#303 `VERIFIED` em branch:**
+  evidência expõe `last_page` e `total_pages`; ainda não `ACCEPTED`.
+- [ ] Cada janela possui contagem de registros. **#303 `VERIFIED` em branch:**
+  evidência expõe obtidos e persistidos; ainda não `ACCEPTED`.
 - [ ] Cada janela possui contagem de erros.
-- [ ] Uma janela com erro parcial não é marcada como concluída.
+- [ ] Uma janela com erro parcial não é marcada como concluída. **#303
+  `VERIFIED` em branch:** erro intermediário, cap, rejeição de transformação ou
+  persistência incompleta não avançam checkpoint; aceite requer CI + `main`.
 - [ ] Uma janela concluída pode ser comprovada por manifest.
 - [x] O backfill pode ser retomado após interrupção. Evidência: contracts full/backfill_3y checkpoint modes · M5-resume · EXTRA-OPS-95-FOUNDATION 2026-07-19
 - [x] O backfill não reinicia janelas concluídas sem necessidade.
@@ -2607,7 +2613,7 @@ O financiamento até esta data **não comprou** “plataforma 95% pronta e autô
 | 8 | **Reconciliação inicial multi-fonte** | 30 pares `compras_sc_id_crosswalk` (honesto: não é nº PNCP) | `official_acts_reconcile` |
 | 9 | **Métricas de cobertura com denominador** | 4,76% histórico preservado + métricas multi-fonte | `multi_source_coverage` |
 | 10 | **Relatório comercial com disclaimers** | JSON/HTML/CSV/XLSX amostra real | `docs/ops/session-2026-07-17/commercial-*` |
-| 11 | **Qualidade automatizada** | CI GitHub **verde** (lint, mypy, tests, bandit, pip-audit) | Actions em `main` |
+| 11 | **Qualidade automatizada** | CI GitHub **verde** (lint Ruff repository-wide, mypy, tests, bandit, pip-audit) | Actions em `main` |
 | 12 | **Governança DoD + HTML diretoria** | §38–§42; painel executivo atualizado | `DOD.md`, `extra-consultoria-plano-executivo.html` |
 
 ### 42.3 Resultados quantificados (mesma data de corte)
@@ -3125,3 +3131,55 @@ CI (PR #12):
 - [x] Scheduler prefers CIGA/DOM families before PNCP under lag drain — avoids 429 starvation.
 - [x] Queue state repair: SUCCESS_ZERO/NONZERO with `scope_complete≠false` reconciled missing `last_success_at` (inconsistent prior gap-close state).
 - Residual non-claims unchanged: official SINAPI live bulk dump; external https webhook delivery.
+
+## Critical issues wave 1 (branch evidence; not accepted)
+
+- [ ] Structured blockers in the multi-source package. **#286 `VERIFIED` on
+  branch:** every `BLOCKED` package has ordered `code`/`evidence`/`owner`/
+  `next_action`, reconciled across manifest, README, XLSX and PDF. This remains
+  unchecked until exact-HEAD CI and `main` acceptance.
+- [ ] Structural QA is distinct from delivery readiness. **#245 `VERIFIED` on
+  branch:** `deliverable=true` requires both gates; stale/failed sources, pilot,
+  coverage, documents, profile and human blockers keep readiness false while
+  structural QA may remain green. Exact-HEAD CI and `main` are still required.
+- [ ] Source-local terminal results survive aggregate degradation. **#237
+  `VERIFIED` on branch:** `terminal_status`, `request_completed`, and
+  `scope_complete` are emitted from each source node; aggregate pending work is
+  reported separately and cannot demote a completed source. Exact-HEAD CI and
+  `main` are still required.
+- [ ] Scale beyond 30 entities requires an approved stratified pilot. **#234
+  `VERIFIED` on branch:** queue and package paths stop before writing state when
+  approval is absent or hash-invalid; a valid artifact proves 30 entities,
+  sources, pagination, zero results, deduplication, evidence and human review.
+  Exact-HEAD CI and `main` are still required.
+- [ ] Process-documents systemd uses the canonical host identity and paths.
+  **#278 `VERIFIED` on branch:** provision preflight rejects missing user,
+  app/state/env/venv; rendered timer and service share deploy/config hashes;
+  reinstall is idempotent and the smoke does not claim `VPS_OPERATIONAL`.
+  Exact-HEAD CI and `main` are still required.
+- [ ] Snapshot observation reads are integral and guarded by a measured/estimated
+  memory budget. **#288 `VERIFIED` on branch:** server-side cursor batches have
+  stable unique-ID order, reconcile to the eligible count and SQL snapshot, read
+  10,037/10,037 in the fixture scale test, and fail instead of truncating when
+  the estimated 512 MiB budget is exceeded. The current pipeline still
+  materializes all rows and observations, so this is not a claim of physically
+  bounded memory; true bounded streaming is tracked in #326. Presentation-only
+  limits are labeled. Exact-HEAD CI and `main` are required.
+- [ ] Weekly decision packages are isolated to their selected collection.
+  **#233 `VERIFIED` on branch:** PNCP observations are joined through the exact
+  `source_snapshot_membership` run, persisted/reused totals reconcile exactly,
+  and explicit reuse includes prior run, membership SHA-256 and freshness.
+  Foreign or missing lineage fails before artifact creation. Exact-HEAD CI and
+  `main` are required.
+- [ ] Contract supplier identity preserves person type without CNPJ coercion.
+  **#311 `VERIFIED` on branch:** migration 076 and both PNCP contract adapters
+  distinguish CNPJ, CPF, foreign and unknown identifiers; only validated CNPJ
+  populates `fornecedor_cnpj`, missing identity no longer drops the contract,
+  and CPF exports are fully masked. Commercial registry consumers select CNPJ
+  identities only. Exact-HEAD CI and `main` are required.
+- [ ] Canonical contracts separate buyer and supplier roles. **#313 `VERIFIED`
+  on branch:** v2 resolves `buyer_entity_id` exclusively from `orgao_cnpj`,
+  emits a distinct `supplier_identity_id`, and persists method, confidence,
+  reason codes, run and snapshot in `contract_role_links`. An adversarial DB
+  test prevents supplier-root inversion and four indexed EXPLAIN plans pass.
+  Exact-HEAD CI and `main` are required.

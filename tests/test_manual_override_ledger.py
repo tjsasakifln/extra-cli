@@ -1,7 +1,6 @@
 """DoD §29 — manual overrides require motivo, data, autor."""
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 import pytest

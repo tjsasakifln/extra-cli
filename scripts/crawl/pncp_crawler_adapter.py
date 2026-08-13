@@ -15,6 +15,7 @@ from typing import Any
 
 import requests
 
+from scripts.contracts_identity import normalize_supplier_identity
 from scripts.crawl.common import safe_float, safe_int
 from scripts.crawl.dlq_sync import dlq_write
 from scripts.crawl.ingestion._base.crawler import CrawlRequest, FetchResult
@@ -31,7 +32,7 @@ from scripts.crawl.pncp_contract import (
     parse_modalidades_from_env,
     parse_target,
 )
-from scripts.crawl.security import USER_AGENT
+from scripts.crawl.security import USER_AGENT, public_get
 from scripts.crawl.watermark_sync import watermark_commit, watermark_read
 
 _logger = logging.getLogger(__name__)
@@ -163,15 +164,13 @@ def _http_get_json(
     session: requests.Session | None = None,
     sleeper: Any = time.sleep,
     http_policy: Any | None = None,
+    resolve_initial_dns: bool = True,
 ) -> FetchResult:
     # Policy is resolved at call time so env changes apply without module reload.
     if http_policy is None:
-        try:
-            from scripts.crawl.resilience.http_policy import HttpResiliencePolicy
+        from scripts.crawl.resilience.http_policy import HttpResiliencePolicy
 
-            http_policy = HttpResiliencePolicy.from_env()
-        except Exception:
-            http_policy = None
+        http_policy = HttpResiliencePolicy.from_env(url=url)
     max_retries = int(http_policy.max_retries) if http_policy is not None else PNCP_MAX_RETRIES
     connect_timeout = float(http_policy.connect_timeout) if http_policy is not None else PNCP_CONNECT_TIMEOUT
     read_timeout = float(http_policy.read_timeout) if http_policy is not None else PNCP_READ_TIMEOUT
@@ -186,7 +185,11 @@ def _http_get_json(
             "max_retries": max_retries,
             "connect_timeout": connect_timeout,
             "read_timeout": read_timeout,
+            "policy_version": getattr(http_policy, "policy_version", "legacy"),
+            "policy_domain": getattr(http_policy, "policy_domain", "default"),
+            "policy_fingerprint": getattr(http_policy, "policy_fingerprint", ""),
         },
+        "attempt_metrics": [],
     }
     http = session or requests.Session()
     close_session = session is None
@@ -194,18 +197,31 @@ def _http_get_json(
     try:
         for attempt in range(max_retries + 1):
             metadata["retries"] = attempt
+            attempt_started = time.monotonic()
             try:
-                response = http.get(
+                response = public_get(
+                    http,
                     url,
+                    resolve_initial_dns=resolve_initial_dns,
                     headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
                     timeout=(connect_timeout, read_timeout),
                 )
-            except (requests.Timeout, requests.ConnectionError) as exc:
-                if attempt < max_retries:
+            except (requests.Timeout, requests.ConnectionError, ValueError) as exc:
+                attempt_metric = {
+                    "attempt": attempt + 1,
+                    "outcome": type(exc).__name__,
+                    "latency_ms": round((time.monotonic() - attempt_started) * 1000, 3),
+                    "sleep_seconds": 0.0,
+                }
+                unsafe_target = isinstance(exc, ValueError)
+                if attempt < max_retries and not unsafe_target:
                     wait = _retry_delay(attempt, http_policy=http_policy)
                     metadata["retry_delays"].append(wait)
+                    attempt_metric["sleep_seconds"] = wait
+                    metadata["attempt_metrics"].append(attempt_metric)
                     sleeper(wait)
                     continue
+                metadata["attempt_metrics"].append(attempt_metric)
                 return FetchResult(
                     records=[],
                     request_completed=False,
@@ -216,6 +232,15 @@ def _http_get_json(
                 )
 
             status = response.status_code
+            raw_response_body = getattr(response, "content", None)
+            if isinstance(raw_response_body, (bytes, bytearray)):
+                metadata["raw_response_body"] = bytes(raw_response_body)
+            attempt_metric = {
+                "attempt": attempt + 1,
+                "http_status": status,
+                "latency_ms": round((time.monotonic() - attempt_started) * 1000, 3),
+                "sleep_seconds": 0.0,
+            }
             metadata["response_headers"] = {
                 key: response.headers.get(key)
                 for key in ("content-type", "date", "retry-after", "cache-control")
@@ -229,8 +254,11 @@ def _http_get_json(
                     if status == 429 and retry_after is None:
                         wait = max(wait, rate_fallback)
                     metadata["retry_delays"].append(wait)
+                    attempt_metric["sleep_seconds"] = wait
+                    metadata["attempt_metrics"].append(attempt_metric)
                     sleeper(wait)
                     continue
+                metadata["attempt_metrics"].append(attempt_metric)
                 return FetchResult(
                     records=[],
                     request_completed=False,
@@ -241,6 +269,7 @@ def _http_get_json(
                 )
 
             if status == 204:
+                metadata["attempt_metrics"].append(attempt_metric)
                 metadata["pagination"] = {
                     "totalRegistros": 0,
                     "totalPaginas": 0,
@@ -257,6 +286,7 @@ def _http_get_json(
                 )
 
             if status != 200:
+                metadata["attempt_metrics"].append(attempt_metric)
                 return FetchResult(
                     records=[],
                     request_completed=False,
@@ -268,6 +298,7 @@ def _http_get_json(
 
             content_type = response.headers.get("content-type", "")
             if "json" not in content_type.lower():
+                metadata["attempt_metrics"].append(attempt_metric)
                 return FetchResult(
                     records=[],
                     request_completed=False,
@@ -280,6 +311,7 @@ def _http_get_json(
             try:
                 payload = response.json()
             except requests.exceptions.JSONDecodeError as exc:
+                metadata["attempt_metrics"].append(attempt_metric)
                 return FetchResult(
                     records=[],
                     request_completed=False,
@@ -292,6 +324,7 @@ def _http_get_json(
             try:
                 records, pagination = _validate_publication_payload(payload)
             except ValueError as exc:
+                metadata["attempt_metrics"].append(attempt_metric)
                 return FetchResult(
                     records=[],
                     request_completed=False,
@@ -302,6 +335,7 @@ def _http_get_json(
                 )
 
             metadata["pagination"] = pagination
+            metadata["attempt_metrics"].append(attempt_metric)
             return FetchResult(
                 records=records,
                 request_completed=True,
@@ -791,7 +825,11 @@ def transform_contracts(raw_records: list[dict[str, Any]]) -> list[dict[str, Any
 
         numero_controle = raw.get("numeroControlePncpCompra")
         orgao_cnpj = digits_only(orgao.get("cnpj"))
-        fornecedor_cnpj = digits_only(raw.get("niFornecedor"))
+        supplier_identity = normalize_supplier_identity(
+            raw.get("niFornecedor"),
+            declared_type=raw.get("tipoPessoa"),
+            country=raw.get("codigoPaisFornecedor") or raw.get("paisFornecedor"),
+        )
         ano_contrato = raw.get("anoContrato")
         sequencial_contrato = raw.get("sequencialContrato")
 
@@ -808,7 +846,7 @@ def transform_contracts(raw_records: list[dict[str, Any]]) -> list[dict[str, Any
             [
                 str(numero_controle or ""),
                 orgao_cnpj,
-                fornecedor_cnpj,
+                supplier_identity.supplier_identifier_hash or "",
                 str(ano_contrato or ""),
                 str(sequencial_contrato or ""),
                 str(raw.get("dataPublicacaoPncp") or ""),
@@ -829,7 +867,7 @@ def transform_contracts(raw_records: list[dict[str, Any]]) -> list[dict[str, Any
                 "unidade_municipio": unidade.get("municipioNome"),
                 "unidade_codigo_ibge": digits_only(unidade.get("codigoIbge")),
                 "unidade_sub_rogada_nome": unidade_sub.get("nomeUnidadeSubRogada"),
-                "fornecedor_cnpj": fornecedor_cnpj,
+                **supplier_identity.to_record_fields(),
                 "fornecedor_tipo_pessoa": raw.get("tipoPessoa"),
                 "fornecedor_pais_codigo": raw.get("codigoPaisFornecedor"),
                 "ano_contrato": ano_contrato,

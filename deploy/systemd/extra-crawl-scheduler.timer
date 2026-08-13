@@ -1,0 +1,12 @@
+[Unit]
+Description=Timer for continuous entity/source crawl reconciliation
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=15min
+Persistent=true
+RandomizedDelaySec=2min
+Unit=extra-crawl-scheduler.service
+
+[Install]
+WantedBy=timers.target

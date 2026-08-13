@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import shutil
 import subprocess
 import sys
 from collections import defaultdict
@@ -18,6 +19,9 @@ from pathlib import Path
 from typing import Any
 
 SCRIPT_DIR = Path(__file__).resolve().parent
+GIT = shutil.which("git")
+if GIT is None:
+    raise RuntimeError("git executable not found")
 sys.path.insert(0, str(SCRIPT_DIR))
 
 from campaign import load_ledger, parse_items, save_ledger  # noqa: E402
@@ -33,7 +37,7 @@ HEAD: str = ""
 
 
 def run(cmd: list[str], cwd: Path, timeout: int = 120) -> tuple[int, str, str]:
-    p = subprocess.run(
+    p = subprocess.run(  # noqa: S603 - caller supplies controlled argv only
         cmd,
         cwd=cwd,
         capture_output=True,
@@ -44,7 +48,9 @@ def run(cmd: list[str], cwd: Path, timeout: int = 120) -> tuple[int, str, str]:
 
 
 def git_head(root: Path) -> str:
-    return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+    return subprocess.check_output(  # noqa: S603 - fixed resolved git executable
+        [GIT, "rev-parse", "HEAD"], cwd=root, text=True
+    ).strip()
 
 
 def uncheck_dod(root: Path, item_ids: set[str]) -> int:

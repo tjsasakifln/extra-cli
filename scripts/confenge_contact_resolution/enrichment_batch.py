@@ -9,6 +9,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import re
 import time
 import uuid
 from dataclasses import dataclass, field
@@ -16,6 +17,11 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from scripts.confenge_contact_resolution.discovery_state import (
+    classify_contact_terminal,
+    sources_cover_required_ladder,
+)
+from scripts.confenge_contact_resolution.mailbox_purpose import classify_mailbox_purpose
 from scripts.confenge_contact_resolution.models import (
     AccountContactResolution,
     CompanyProcessingState,
@@ -46,6 +52,8 @@ FULL_RESOLUTIONS = "confenge-contact-candidates-v1.jsonl"
 WARMBLY_FEED_DIR = "warmbly_feed"
 REGISTRY_FILENAME = "third_party_registry.json"
 REUSE_GRAPH_FILENAME = "reuse_graph.json"
+SOURCE_ATTEMPTS_FILENAME = "contact-source-attempts.jsonl"
+TERMINALS_FILENAME = "contact-discovery-terminals.jsonl"
 
 
 def _now() -> str:
@@ -54,6 +62,55 @@ def _now() -> str:
 
 def _digits(s: str) -> str:
     return "".join(ch for ch in (s or "") if ch.isdigit())[:14]
+
+
+def is_publishable_human_contact(candidate: Any) -> bool:
+    """Strict pre-feed contact gate independent of target/service/copy context."""
+    source = candidate.source
+    layers = candidate.email_layers
+    evidence_hash = str(candidate.evidence_sha256 or (source.evidence_sha256 if source else "") or "")
+    return bool(
+        candidate.email
+        and candidate.enrollable
+        and candidate.ownership_status in {OwnershipStatus.COMPANY_OWNED.value, OwnershipStatus.HUMAN_CONFIRMED.value}
+        and candidate.human_identity_evidence_valid
+        and candidate.email_explicitly_published
+        and candidate.name_explicitly_published
+        and candidate.role_explicitly_published
+        and candidate.name
+        and candidate.cargo
+        and candidate.identity_evidence_urls
+        and re.fullmatch(r"[0-9a-fA-F]{64}", evidence_hash)
+        and source
+        and (source.source_url or source.source_document)
+        and (source.source_published_at or source.observed_at or source.verified_at)
+        and layers.syntactic_ok is True
+        and layers.domain_ok is True
+        and layers.pattern_guessed is False
+        and layers.mx_checked is True
+        and layers.mx_ok is True
+        and not candidate.dnc
+        and not candidate.bounce
+        and candidate.freshness_class != "STALE"
+        and not classify_mailbox_purpose(candidate.email).send_blocked
+    )
+
+
+def principal_publishable_human_contacts(resolution: AccountContactResolution) -> list[Any]:
+    """Return exactly one deterministic principal when the account is publishable."""
+    ready = [candidate for candidate in resolution.candidates if is_publishable_human_contact(candidate)]
+    if not ready:
+        return []
+    ready.sort(
+        key=lambda candidate: (
+            candidate.candidate_id != resolution.recommended_candidate_id,
+            -float(candidate.confidence or 0),
+            str(candidate.evidence_sha256 or ""),
+            str(candidate.candidate_id or ""),
+            str(candidate.email or "").lower(),
+        )
+    )
+    return [ready[0]]
 
 
 @dataclass
@@ -254,7 +311,7 @@ def accumulate_metrics(
     for c in cands:
         if c.email:
             metrics.emails_found += 1
-            if c.enrollable:
+            if is_publishable_human_contact(c):
                 metrics.emails_verified += 1
                 has_enroll_email = True
             elif c.ownership_status == OwnershipStatus.LIKELY_COMPANY_OWNED.value:
@@ -267,7 +324,11 @@ def accumulate_metrics(
             if not c.enrollable:
                 is_guess = bool(c.email_layers and c.email_layers.pattern_guessed)
                 vreason = (c.verification_reason or "").upper()
-                if is_guess or vreason == "PATTERN_GUESS" or c.verification_status == VerificationStatus.PATTERN_GUESS.value:
+                if (
+                    is_guess
+                    or vreason == "PATTERN_GUESS"
+                    or c.verification_status == VerificationStatus.PATTERN_GUESS.value
+                ):
                     val = (c.email or "").lower()
                     if val and val not in counted_values:
                         counted_values.add(val)
@@ -361,12 +422,28 @@ def company_export_row(resolution: AccountContactResolution) -> dict[str, Any]:
                     "source_url": c.source.source_url if c.source else None,
                     "source_document": c.source.source_document if c.source else None,
                     "source_date": c.source.source_date if c.source else None,
+                    "source_published_at": c.source.source_published_at if c.source else None,
+                    "observed_at": c.source.observed_at if c.source else None,
+                    "verified_at": c.source.verified_at if c.source else None,
+                    "evidence_sha256": c.evidence_sha256,
+                    "email_explicitly_published": c.email_explicitly_published,
+                    "name_explicitly_published": c.name_explicitly_published,
+                    "role_explicitly_published": c.role_explicitly_published,
+                    "human_identity_evidence_valid": c.human_identity_evidence_valid,
+                    "identity_evidence_urls": list(c.identity_evidence_urls),
                     "source_urls": list(c.source_urls or []),
                     "source_types": list(c.source_types or []),
                 },
                 "name": c.name,
+                "cargo": c.cargo,
                 "phone_e164": c.phone_e164,
                 "email": c.email,
+                "email_explicitly_published": c.email_explicitly_published,
+                "name_explicitly_published": c.name_explicitly_published,
+                "role_explicitly_published": c.role_explicitly_published,
+                "human_identity_evidence_valid": c.human_identity_evidence_valid,
+                "identity_evidence_urls": list(c.identity_evidence_urls),
+                "evidence_sha256": c.evidence_sha256,
                 "whatsapp_consent_status": c.whatsapp.consent_status if c.whatsapp else "UNKNOWN",
             }
         )
@@ -396,7 +473,32 @@ def warmbly_contact_payload(resolution: AccountContactResolution) -> dict[str, A
                 "linkedin_url": c.linkedin_public or "",
                 "source_url": (c.source.source_url if c.source else "") or "",
                 "source_document": (c.source.source_document if c.source else "") or "",
-                "source_date": (c.source.source_date if c.source else "") or "",
+                "source_date": (
+                    (
+                        c.source.source_published_at
+                        or c.source.verified_at
+                        or c.source.observed_at
+                        or c.source.source_date
+                        or ""
+                    )
+                    if c.source
+                    else ""
+                )[:10],
+                "source_date_semantics": (
+                    "source_published_at"
+                    if c.source and c.source.source_published_at
+                    else "verified_at"
+                    if c.source and c.source.verified_at
+                    else "observed_at"
+                    if c.source and c.source.observed_at
+                    else "legacy_source_date"
+                    if c.source and c.source.source_date
+                    else "missing"
+                ),
+                "source_published_at": (c.source.source_published_at if c.source else "") or "",
+                "observed_at": (c.source.observed_at if c.source else "") or "",
+                "verified_at": (c.source.verified_at if c.source else "") or "",
+                "evidence_sha256": c.evidence_sha256 or "",
                 "verification_status": c.verification_status,
                 "ownership_status": c.ownership_status,
                 "ownership_reason": c.ownership_reason or "",
@@ -405,9 +507,20 @@ def warmbly_contact_payload(resolution: AccountContactResolution) -> dict[str, A
                 "confidence": str(c.confidence),
                 "enrollable": bool(c.enrollable),
                 "recommended": bool(c.recommended),
+                "email_explicitly_published": c.email_explicitly_published,
+                "name_explicitly_published": c.name_explicitly_published,
+                "role_explicitly_published": c.role_explicitly_published,
+                "human_identity_evidence_valid": c.human_identity_evidence_valid,
+                "identity_evidence_urls": list(c.identity_evidence_urls),
                 "provenance": {
                     "source_type": c.source.source_type if c.source else None,
                     "source_url": c.source.source_url if c.source else None,
+                    "source_document": c.source.source_document if c.source else None,
+                    "source_date": c.source.source_date if c.source else None,
+                    "source_published_at": c.source.source_published_at if c.source else None,
+                    "observed_at": c.source.observed_at if c.source else None,
+                    "verified_at": c.source.verified_at if c.source else None,
+                    "evidence_sha256": c.evidence_sha256,
                     "source_urls": list(c.source_urls or []),
                     "source_types": list(c.source_types or []),
                 },
@@ -542,6 +655,11 @@ class EnrichmentBatchRunner:
         max_companies: int | None = None,
     ) -> dict[str, Any]:
         ordered = sorted(jobs, key=priority_sort_key)
+        if not resume:
+            # A forced rerun replaces the run checkpoint just as it replaces
+            # the final artifacts. Do not accumulate duplicate completion
+            # entries that make an otherwise idempotent run look different.
+            self._checkpoint = {"completed_cnpjs": [], "failed_cnpjs": {}, "updated_at": None}
         done = set(self._checkpoint.get("completed_cnpjs") or []) if resume else set()
         todo = [j for j in ordered if j.cnpj14 not in done]
         if max_companies is not None:
@@ -591,7 +709,10 @@ class EnrichmentBatchRunner:
         # registry lookups with zero checkpoint progress before any terminal is written.
         prev_ownership = self.resolver.config.apply_ownership
         prev_cascade = self.resolver.config.discovery_cascade
-        skip_pass1 = len(todo) > 200
+        # A network-enabled shard is still a national drain. Repeating a
+        # registry lookup for every row before the real cascade adds no
+        # evidence and can delay the first checkpoint by hours.
+        skip_pass1 = len(todo) > 200 or (self.resolver.config.allow_network and len(todo) > 20)
         cached = None
         if not skip_pass1:
             self.resolver.config.apply_ownership = False
@@ -661,16 +782,7 @@ class EnrichmentBatchRunner:
             row = company_export_row(res)
             wb = warmbly_contact_payload(res)
 
-            enrollable_contacts = [
-                c
-                for c in res.candidates
-                if c.enrollable
-                and c.ownership_status
-                in {
-                    OwnershipStatus.COMPANY_OWNED.value,
-                    OwnershipStatus.HUMAN_CONFIRMED.value,
-                }
-            ]
+            enrollable_contacts = principal_publishable_human_contacts(res)
             likely = [c for c in res.candidates if c.ownership_status == OwnershipStatus.LIKELY_COMPANY_OWNED.value]
 
             if enrollable_contacts:
@@ -795,12 +907,49 @@ class EnrichmentBatchRunner:
 
         # Artifacts
         resolution_dicts = [r.as_dict() for r in resolutions]
+        source_attempt_rows: list[dict[str, Any]] = []
+        terminal_rows: list[dict[str, Any]] = []
+        for resolution in resolutions:
+            discovery = resolution.discovery_stats or {}
+            attempts = list(discovery.get("source_attempts") or [])
+            source_attempt_rows.extend(attempts)
+            sources = list(discovery.get("sources_attempted") or [])
+            external_blocker = any(a.get("outcome") == "EXTERNAL_BLOCKER" for a in attempts)
+            strict_contacts = [c for c in resolution.candidates if is_publishable_human_contact(c)]
+            principal_contacts = principal_publishable_human_contacts(resolution)
+            ladder_complete = bool(attempts) and sources_cover_required_ladder(sources) and not external_blocker
+            terminal = classify_contact_terminal(
+                cnpj_raiz=resolution.cnpj14[:8],
+                sources_attempted=sources,
+                network_discovery=bool(attempts),
+                ladder_complete=ladder_complete,
+                email_candidates=sum(1 for c in resolution.candidates if c.email),
+                email_send_ready=len(strict_contacts),
+                external_blocker=("public_source_access_or_document_validation_required" if external_blocker else None),
+                retryable_error=external_blocker
+                or resolution.investigation_outcome in {"BUDGET_EXHAUSTED", "RETRY_LATER", "ERROR"},
+                last_attempt_at=max(
+                    (str(a.get("observed_at")) for a in attempts if a.get("observed_at")),
+                    default=None,
+                ),
+                meta={
+                    "cnpj14": resolution.cnpj14,
+                    "strict_human_recipient_count": len(strict_contacts),
+                    "principal_recipient_count": len(principal_contacts),
+                    "attempt_evidence_sha256": [
+                        str(a.get("evidence_sha256")) for a in attempts if a.get("evidence_sha256")
+                    ],
+                },
+            )
+            terminal_rows.append(terminal.as_dict())
         write_jsonl(self.output_dir / FULL_RESOLUTIONS, resolution_dicts)
         write_jsonl(self.output_dir / CONTACTS_VERIFIED, verified_rows)
         write_jsonl(self.output_dir / CONTACTS_REVIEW, review_rows)
         write_jsonl(self.output_dir / CONTACTS_REJECTED, rejected_rows)
         write_jsonl(self.output_dir / ACCOUNTING_REJECTIONS, accounting_rows)
         write_jsonl(self.output_dir / NO_CONTACT, no_contact_rows)
+        write_jsonl(self.output_dir / SOURCE_ATTEMPTS_FILENAME, source_attempt_rows)
+        write_jsonl(self.output_dir / TERMINALS_FILENAME, terminal_rows)
 
         feed_dir = self.output_dir / WARMBLY_FEED_DIR
         feed_dir.mkdir(parents=True, exist_ok=True)
@@ -841,6 +990,8 @@ class EnrichmentBatchRunner:
                 "third_party_registry": REGISTRY_FILENAME,
                 "reuse_graph": REUSE_GRAPH_FILENAME,
                 "human_review": "human-review/",
+                "source_attempts": SOURCE_ATTEMPTS_FILENAME,
+                "contact_terminals": TERMINALS_FILENAME,
             },
             "finished_at": _now(),
             "ok": True,

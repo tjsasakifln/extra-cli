@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from scripts.confenge_contact_resolution.discovery_state import (
     CONTACT_EXHAUSTED,
+    CONTACT_EXTERNAL_BLOCKER,
     CONTACT_FOUND_NOT_SENDABLE,
     CONTACT_READY,
     CONTACT_RETRY_PENDING,
@@ -50,6 +51,17 @@ def test_full_required_ladder_no_contact_is_exhausted() -> None:
     assert sources_cover_required_ladder(st.sources_attempted)
 
 
+def test_source_ladder_matches_literal_audit_order() -> None:
+    assert DEFAULT_SOURCE_LADDER == (
+        "official_site",
+        "process_administrative_docs",
+        "pncp_transparency_compras",
+        "professional_councils_associations",
+        "company_public_pages",
+        "official_registry_corroboration",
+    )
+
+
 def test_send_ready_is_contact_ready() -> None:
     st = classify_contact_terminal(
         cnpj_raiz="12345678",
@@ -70,6 +82,21 @@ def test_found_not_sendable() -> None:
         email_send_ready=0,
     )
     assert st.terminal_state == CONTACT_FOUND_NOT_SENDABLE
+
+
+def test_external_blocker_precedes_generic_candidate_and_preserves_attempt_time() -> None:
+    observed = "2026-08-13T12:00:00Z"
+    st = classify_contact_terminal(
+        cnpj_raiz="12345678",
+        sources_attempted=list(DEFAULT_SOURCE_LADDER),
+        network_discovery=True,
+        email_candidates=1,
+        email_send_ready=0,
+        external_blocker="institutional_search_unavailable",
+        last_attempt_at=observed,
+    )
+    assert st.terminal_state == CONTACT_EXTERNAL_BLOCKER
+    assert st.last_attempt_at == observed
 
 
 def test_terminal_coverage_closed_sum() -> None:

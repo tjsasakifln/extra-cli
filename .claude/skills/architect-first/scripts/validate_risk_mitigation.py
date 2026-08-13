@@ -9,12 +9,11 @@ Usage:
     python validate_risk_mitigation.py [--path PROJECT_PATH] [--risks RISKS_FILE]
 """
 
-import os
-import sys
 import argparse
 import re
+import sys
 from pathlib import Path
-from typing import List, Dict, Tuple
+
 import yaml
 
 
@@ -44,10 +43,10 @@ class RiskMitigationValidator:
     def __init__(self, project_path: Path, risks_file: Path = None):
         self.project_path = project_path
         self.risks_file = risks_file
-        self.risks: List[Risk] = []
-        self.mitigation_docs: Dict[str, str] = {}
+        self.risks: list[Risk] = []
+        self.mitigation_docs: dict[str, str] = {}
 
-    def _find_risk_documents(self) -> List[Path]:
+    def _find_risk_documents(self) -> list[Path]:
         """Find all documents that might contain risks"""
         risk_doc_patterns = [
             "**/architecture/*.md",
@@ -66,7 +65,7 @@ class RiskMitigationValidator:
     def _extract_risks_from_doc(self, doc_path: Path):
         """Extract risks from a document"""
         try:
-            with open(doc_path, "r", encoding="utf-8") as f:
+            with open(doc_path, encoding="utf-8") as f:
                 content = f.read()
 
             # Look for risk sections
@@ -91,7 +90,7 @@ class RiskMitigationValidator:
     def _parse_risks_from_text(self, text: str, source: str):
         """Parse individual risks from text block"""
         # Simple heuristic: each line or paragraph is a risk
-        lines = [l.strip() for l in text.split("\n") if l.strip()]
+        lines = [line.strip() for line in text.split("\n") if line.strip()]
 
         for line in lines:
             # Skip table headers
@@ -137,7 +136,7 @@ class RiskMitigationValidator:
         else:
             return "medium"
 
-    def _find_mitigation_documents(self) -> List[Path]:
+    def _find_mitigation_documents(self) -> list[Path]:
         """Find documents that might contain mitigations"""
         mitigation_patterns = [
             "**/architecture/*.md",
@@ -156,7 +155,7 @@ class RiskMitigationValidator:
     def _extract_mitigations_from_doc(self, doc_path: Path):
         """Extract mitigations from document"""
         try:
-            with open(doc_path, "r", encoding="utf-8") as f:
+            with open(doc_path, encoding="utf-8") as f:
                 content = f.read()
 
             # Store entire content as potential mitigation source
@@ -200,7 +199,7 @@ class RiskMitigationValidator:
             return
 
         try:
-            with open(self.risks_file, "r") as f:
+            with open(self.risks_file) as f:
                 data = yaml.safe_load(f)
 
             if "risks" in data:

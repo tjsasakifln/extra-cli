@@ -429,6 +429,10 @@ def run_linkage(
                     pass
 
                 for ctr in contracts:
+                    cur.execute(
+                        "SELECT fn_refresh_contract_role_link(%s, %s, %s)",
+                        (ctr.get("contrato_id"), rid, snapshot_id),
+                    )
                     d_ctr = decide_contract_to_opportunity(
                         opp_organ_cnpj=opp.get("orgao_cnpj"),
                         opp_organ_name=opp.get("orgao_nome"),

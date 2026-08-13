@@ -157,8 +157,13 @@ def requeue_company(
     cnpj_raiz: str,
     reason: str = "manual_requeue",
     priority: int = 90,
-    source_watermark: str = "",
+    source_watermark: str | None = None,
 ) -> str:
+    resolved_watermark = str(source_watermark or "").strip()
+    if not resolved_watermark:
+        resolved_watermark = str(get_control(conn, "cdc_watermark").get("watermark") or "").strip()
+    if not resolved_watermark:
+        raise ValueError("manual requeue requires a non-empty canonical CDC source watermark")
     key = f"requeue:{company_key}:{uuid.uuid4().hex[:12]}"
     enqueue_dirty(
         conn,
@@ -168,7 +173,7 @@ def requeue_company(
         source_entity="manual",
         source_id=None,
         source_updated_at=_utcnow(),
-        source_watermark=source_watermark,
+        source_watermark=resolved_watermark,
         priority=priority,
         idempotency_key=key,
     )
@@ -226,6 +231,9 @@ def claim_batch(
             FROM confenge_target_fit_dirty
             WHERE status IN ('pending', 'retry')
               AND (next_retry_at IS NULL OR next_retry_at <= now())
+              AND pg_try_advisory_xact_lock(
+                    hashtext(confenge_target_fit_dirty.company_key)
+                  )
               AND NOT EXISTS (
                   SELECT 1
                   FROM confenge_target_fit_dirty p
@@ -241,7 +249,10 @@ def claim_batch(
             (max(batch_size * 4, batch_size),),
         )
         candidates = cur.fetchall() or []
-        # Step 2: keep first row per company_key (already priority-ordered)
+        # Step 2: keep first row per company_key (already priority-ordered).
+        # The transaction-scoped advisory lock above closes the cross-row race:
+        # concurrent workers may skip different row locks for the same company,
+        # but only one transaction can claim that company_key.
         seen: set[str] = set()
         selected_ids: list[int] = []
         for row in candidates:

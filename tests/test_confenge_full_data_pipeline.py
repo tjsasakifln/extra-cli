@@ -11,8 +11,6 @@ import json
 from datetime import date
 from pathlib import Path
 
-import pytest
-
 from scripts.confenge_activation.checkpoint import (
     load_checkpoint,
     new_checkpoint,
@@ -25,7 +23,7 @@ from scripts.confenge_activation.funnel import (
     load_commercial_memory_jsonl,
 )
 from scripts.confenge_activation.metrics import reconcile
-from scripts.confenge_activation.planner import run_activation_cycle, select_hot_set
+from scripts.confenge_activation.planner import run_activation_cycle
 from scripts.confenge_activation.policy import load_policy
 from scripts.confenge_outreach_pipeline.pipeline import PipelineConfig, run_pipeline
 from scripts.confenge_universe.source import build_keyset_query, iter_contract_rows

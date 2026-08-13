@@ -36,7 +36,7 @@ class TestCompetitiveIntelValidation:
         os.getenv("REQUIRE_TEST_DB") != "1",
         reason="Set REQUIRE_TEST_DB=1 to run database integration tests",
     )
-    def test_validate_all_queries_pass(self, db_conn):
+    def test_validate_all_queries_pass(self):
         """All 3 queries execute successfully against real PostgreSQL.
 
         Connects via ``db_conn`` fixture (conftest_db.py — session-scoped,
@@ -45,15 +45,55 @@ class TestCompetitiveIntelValidation:
             docker compose up -d test-db
             REQUIRE_TEST_DB=1 pytest tests/test_competitive_intel_validation.py -v
         """
-        mod = _competitive_intel_validation()
-        result = mod.validate_competitive_intel_schema(db_conn)
+        import psycopg2
 
-        assert result.market_share.status == "pass"
-        assert result.market_share.error_message == ""
-        assert result.hhi.status == "pass"
-        assert result.hhi.error_message == ""
-        assert result.supplier_ranking.status == "pass"
-        assert result.supplier_ranking.error_message == ""
+        mod = _competitive_intel_validation()
+        dsn = os.getenv(
+            "TEST_DSN", "postgresql://test:test@127.0.0.1:5433/extra_test"
+        )
+        conn = psycopg2.connect(dsn)
+        try:
+            result = mod.validate_competitive_intel_schema(conn)
+
+            assert result.market_share.status == "pass"
+            assert result.market_share.error_message == ""
+            assert result.hhi.status == "pass"
+            assert result.hhi.error_message == ""
+            assert result.supplier_ranking.status == "pass"
+            assert result.supplier_ranking.error_message == ""
+        finally:
+            conn.close()
+
+    @pytest.mark.database
+    @pytest.mark.integration
+    @pytest.mark.skipif(
+        os.getenv("REQUIRE_TEST_DB") != "1",
+        reason="Set REQUIRE_TEST_DB=1 to run database integration tests",
+    )
+    def test_missing_view_fallback_recovers_non_autocommit_transaction(self):
+        import psycopg2
+
+        mod = _competitive_intel_validation()
+        dsn = os.getenv(
+            "TEST_DSN", "postgresql://test:test@127.0.0.1:5433/extra_test"
+        )
+        conn = psycopg2.connect(dsn)
+        assert conn.autocommit is False
+        try:
+            result = mod._run_check(
+                conn,
+                "SELECT * FROM view_that_does_not_exist_pr325",
+                mod._MARKET_SHARE_FALLBACK,
+                "real_fallback_transaction_recovery",
+            )
+
+            assert result.status == "pass"
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT 1")
+                assert cursor.fetchone() == (1,)
+        finally:
+            conn.rollback()
+            conn.close()
 
     @pytest.mark.unit
     def test_validate_detects_column_mismatch(self):
@@ -68,6 +108,7 @@ class TestCompetitiveIntelValidation:
         mod = _competitive_intel_validation()
 
         mock_conn = MagicMock()
+        mock_conn.autocommit = True
         mock_cursor = MagicMock()
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 

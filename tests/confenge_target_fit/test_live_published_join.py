@@ -187,17 +187,13 @@ def test_map_lead_joins_live_current_without_embedded_fields(dsn):
                 }
             ],
             "messaging": {
-                "fact_to_mention": (
-                    "objeto: pavimentação asfáltica CBUQ em vias urbanas; "
-                    "órgão: Pref. Coxilha; UF RS"
-                ),
+                "fact_to_mention": ("objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. Coxilha; UF RS"),
                 "why_this_account": (
                     "LIVEJOIN com execução pública de pavimentação — "
                     "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. Coxilha"
                 ),
                 "why_now": (
-                    "aditivo recente no contrato de LIVEJOIN de pavimentação asfáltica CBUQ "
-                    "com a Pref. Coxilha"
+                    "aditivo recente no contrato de LIVEJOIN de pavimentação asfáltica CBUQ com a Pref. Coxilha"
                 ),
                 "cta": "Posso te mandar o recorte público que encontrei?",
                 "claims_to_avoid": [],
@@ -206,14 +202,8 @@ def test_map_lead_joins_live_current_without_embedded_fields(dsn):
                 "LIVEJOIN com execução pública de pavimentação — "
                 "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. Coxilha"
             ),
-            "why_now": (
-                "aditivo recente no contrato de LIVEJOIN de pavimentação asfáltica CBUQ "
-                "com a Pref. Coxilha"
-            ),
-            "observed_fact": (
-                "objeto: pavimentação asfáltica CBUQ em vias urbanas; "
-                "órgão: Pref. Coxilha; UF RS"
-            ),
+            "why_now": ("aditivo recente no contrato de LIVEJOIN de pavimentação asfáltica CBUQ com a Pref. Coxilha"),
+            "observed_fact": ("objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. Coxilha; UF RS"),
             "micro_offer_code": "REAJUSTE_CHECK",
             "evidence_ids": ["e1"],
             "evidence": [{"id": "e1", "epistemic_class": "CONFIRMED_FACT"}],
@@ -221,12 +211,22 @@ def test_map_lead_joins_live_current_without_embedded_fields(dsn):
         contacts = {
             "contacts": [
                 {
-                    "email": "engenharia@livejoin.com.br",
+                    "name": "Maria de Souza",
+                    "role": "Diretora Comercial",
+                    "email": "maria.souza@livejoin.com.br",
                     "ownership_status": "COMPANY_OWNED",
                     "verification_status": "OBSERVED",
+                    "email_explicitly_published": True,
+                    "name_explicitly_published": True,
+                    "role_explicitly_published": True,
+                    "human_identity_evidence_valid": True,
+                    "identity_evidence_urls": ["https://livejoin.com.br/equipe"],
+                    "evidence_sha256": "e" * 64,
                     "provenance": {
                         "source_type": "site",
-                        "source_url": "https://livejoin.com.br/contato",
+                        "source_url": "https://livejoin.com.br/equipe",
+                        "observed_at": "2026-08-13T12:00:00Z",
+                        "evidence_sha256": "e" * 64,
                     },
                 }
             ]
@@ -385,7 +385,6 @@ def test_published_path_exception_fails_closed_not_rescore():
         ]
     }
 
-    import scripts.warmbly_bridge.mapping as mapping_mod
     import scripts.confenge_target_fit.published as pub_mod
 
     real = pub_mod.published_from_row_or_db
@@ -402,9 +401,7 @@ def test_published_path_exception_fails_closed_not_rescore():
         assert lead.get("email_send_ready") is not True
         assert lead.get("target_fit_fresh") is False
         # Must not re-score into A_AUTOMATIC after exception
-        assert lead.get("target_fit_send_tier") != "A_AUTOMATIC" or lead.get(
-            "email_send_ready"
-        ) is False
+        assert lead.get("target_fit_send_tier") != "A_AUTOMATIC" and lead.get("email_send_ready") is False
         reasons = lead.get("target_fit_reasons") or []
         assert any("fail_closed" in str(r) or "error" in str(r).lower() for r in reasons) or (
             lead.get("email_send_ready") is False and lead.get("target_fit_class") is None
@@ -585,10 +582,7 @@ def test_no_published_no_conn_cannot_emit_confirmed_fresh_send():
             "relevant_contract_count": 5,
         },
         "portfolio": {
-            "recent_contracts": [
-                {"objeto_contrato": "Execucao de obras de pavimentacao", "valor_total": 1e6}
-            ]
-            * 3
+            "recent_contracts": [{"objeto_contrato": "Execucao de obras de pavimentacao", "valor_total": 1e6}] * 3
         },
     }
     intel = {

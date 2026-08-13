@@ -72,7 +72,8 @@ class WebSearchAdapter:
                     source=SourceProvenance(
                         source_type="web_search",
                         source_url=r.get("url"),
-                        source_date=str(r.get("source_date") or r.get("retrieved_at") or "")[:10] or None,
+                        source_date=str(r.get("source_published_at") or r.get("source_date") or "")[:10] or None,
+                        source_published_at=str(r.get("source_published_at") or r.get("source_date") or "") or None,
                         observed_at=str(r.get("retrieved_at") or "") or None,
                         notes="Public web search provider; no private social scrape",
                     ),

@@ -1,0 +1,13 @@
+# ExtraDeploySHA=@DEPLOY_SHA@
+# ExtraConfigSHA=@CONFIG_SHA@
+[Unit]
+Description=Timer — Extra process documents incremental (daily)
+
+[Timer]
+Unit=extra-process-documents-incremental.service
+OnCalendar=*-*-* 04:30:00
+Persistent=true
+RandomizedDelaySec=15m
+
+[Install]
+WantedBy=timers.target

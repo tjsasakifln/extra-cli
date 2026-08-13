@@ -1,0 +1,30 @@
+# ExtraDeploySHA=@DEPLOY_SHA@
+# ExtraConfigSHA=@CONFIG_SHA@
+[Unit]
+Description=Extra Consultoria — process documents incremental collection
+After=network-online.target
+Wants=network-online.target
+OnFailure=extra-onfailure@%n.service
+ConditionPathIsDirectory=@APP_DIR@
+ConditionPathIsDirectory=@STATE_DIR@
+
+[Service]
+Type=oneshot
+User=@APP_USER@
+Group=@APP_GROUP@
+WorkingDirectory=@APP_DIR@
+Environment=PYTHONPATH=@APP_DIR@
+Environment=EXTRA_DEPLOY_SHA=@DEPLOY_SHA@
+Environment=EXTRA_CONFIG_SHA=@CONFIG_SHA@
+EnvironmentFile=@ENV_FILE@
+Environment=PROCESS_DOCUMENTS_RAW_ROOT=@STATE_DIR@/raw/process_documents
+Environment=PROCESS_DOCUMENTS_META_ROOT=@STATE_DIR@/output/process_documents
+ExecStart=@PYTHON@ -m scripts.process_documents incremental --limit 100
+Nice=10
+TimeoutStartSec=6h
+Restart=no
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

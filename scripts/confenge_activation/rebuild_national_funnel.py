@@ -328,6 +328,19 @@ def _evaluate_harvest_esr(
             source_type=str(src_type),
             source_url=rec.get("source_url"),
             provenance_chain=rec.get("provenance_chain"),
+            contact={
+                **rec,
+                "email": str(email),
+                "source": {
+                    "source_type": str(src_type),
+                    "source_url": rec.get("source_url"),
+                    "source_document": rec.get("source_document"),
+                    "source_published_at": rec.get("source_published_at"),
+                    "observed_at": rec.get("observed_at"),
+                    "verified_at": rec.get("verified_at"),
+                    "evidence_sha256": rec.get("evidence_sha256"),
+                },
+            },
             published_index=published_index,
         )
         if result.email_send_ready:

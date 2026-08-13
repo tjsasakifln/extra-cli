@@ -13,18 +13,23 @@ import argparse
 import hashlib
 import json
 import re
+import shlex
+import shutil
 import sys
 import unicodedata
 from collections import Counter
+from collections.abc import Iterable
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 try:
     import yaml
 except ImportError:  # pragma: no cover
     yaml = None  # type: ignore[assignment]
+
+GIT = shutil.which("git")
 
 ROOT = Path(__file__).resolve().parents[1]
 DOD_PATH = ROOT / "DOD.md"
@@ -163,12 +168,12 @@ _FULL_SUITE_HINTS = (
 
 
 def utc_now() -> str:
-    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace(
+    return datetime.now(UTC).replace(microsecond=0).isoformat().replace(
         "+00:00", "Z"
     )
 
 
-class ControllerExit(Exception):
+class ControllerError(Exception):
     """Controlled non-zero exit for CLI commands (testable without SystemExit)."""
 
     def __init__(self, message: str, code: int = 1) -> None:
@@ -179,7 +184,7 @@ class ControllerExit(Exception):
 
 def die(msg: str, code: int = 1) -> None:
     print(f"ERROR: {msg}", file=sys.stderr)
-    raise ControllerExit(msg, code)
+    raise ControllerError(msg, code)
 
 
 def require_yaml() -> Any:
@@ -1244,6 +1249,10 @@ def cmd_verify(args: argparse.Namespace) -> int:
     if not item:
         die(f"unknown item: {item_id}", 2)
 
+    head = _git_head()
+    if head is None:
+        die("git HEAD unavailable; refusing to write verification evidence")
+
     pack = EVIDENCE_DIR / item_id
     pack.mkdir(parents=True, exist_ok=True)
     criteria_path = pack / "acceptance_criteria.md"
@@ -1254,7 +1263,6 @@ def cmd_verify(args: argparse.Namespace) -> int:
             "acceptance_criteria.md is rejected)"
         )
 
-    head = _git_head()
     results: dict[str, Any] = {
         "item_id": item_id,
         "commands": [],
@@ -1308,7 +1316,8 @@ def cmd_verify(args: argparse.Namespace) -> int:
             continue
         c0 = time.monotonic()
         try:
-            proc = subprocess.run(
+            # Acceptance commands are versioned shell contracts and may use pipes.
+            proc = subprocess.run(  # noqa: S602 - intentional command-contract executor
                 cmd,
                 shell=True,
                 cwd=str(ROOT),
@@ -1352,9 +1361,10 @@ def cmd_verify(args: argparse.Namespace) -> int:
 
     for test in raw_tests:
         c0 = time.monotonic()
+        test_argv = [sys.executable, "-m", "pytest", test, "-q", "--tb=line"]
         try:
-            proc = subprocess.run(
-                ["python3", "-m", "pytest", test, "-q", "--tb=line"],
+            proc = subprocess.run(  # noqa: S603 - fixed interpreter and pytest module
+                test_argv,
                 cwd=str(ROOT),
                 capture_output=True,
                 text=True,
@@ -1364,7 +1374,7 @@ def cmd_verify(args: argparse.Namespace) -> int:
             counts = parse_pytest_counts(proc.stdout, proc.stderr)
             entry = {
                 "test": test,
-                "cmd": f"python3 -m pytest {test} -q --tb=line",
+                "cmd": shlex.join(test_argv),
                 "exit_code": proc.returncode,
                 "duration_s": duration,
                 "stdout_tail": proc.stdout[-500:],
@@ -2070,9 +2080,11 @@ def cmd_report(args: argparse.Namespace) -> int:
 def _git_head() -> str | None:
     import subprocess
 
+    if GIT is None:
+        return None
     try:
-        return subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], cwd=str(ROOT), text=True
+        return subprocess.check_output(  # noqa: S603 - fixed resolved git executable
+            [GIT, "rev-parse", "HEAD"], cwd=str(ROOT), text=True
         ).strip()
     except (subprocess.CalledProcessError, FileNotFoundError):
         return None
@@ -2081,9 +2093,11 @@ def _git_head() -> str | None:
 def _git_branch() -> str:
     import subprocess
 
+    if GIT is None:
+        return "unknown"
     try:
-        return subprocess.check_output(
-            ["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=str(ROOT), text=True
+        return subprocess.check_output(  # noqa: S603 - fixed resolved git executable
+            [GIT, "rev-parse", "--abbrev-ref", "HEAD"], cwd=str(ROOT), text=True
         ).strip()
     except (subprocess.CalledProcessError, FileNotFoundError):
         return "unknown"
@@ -2239,7 +2253,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         args = parser.parse_args(argv)
         return int(args.func(args))
-    except ControllerExit as exc:
+    except ControllerError as exc:
         return int(exc.code)
 
 

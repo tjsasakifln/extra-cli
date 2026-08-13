@@ -13,6 +13,7 @@ from scripts.confenge_contact_resolution.send_readiness import (
     classify_target_fit_send_tier,
     evaluate_email_send_ready,
 )
+from scripts.confenge_target_fit.company_key import canonical_cnpj14
 from scripts.warmbly_bridge import EPISTEMIC_CLASSES, VERIFICATION_STATUSES
 from scripts.warmbly_bridge.constants import DEFAULT_CLAIMS_TO_AVOID, DOMINANT_COMMERCIAL_STATES
 
@@ -34,7 +35,7 @@ def digits_only(value: str | None) -> str:
 
 
 def normalize_cnpj14(value: str | None) -> str:
-    d = digits_only(value)
+    d = canonical_cnpj14(value)
     return d if _CNPJ_RE.match(d) else ""
 
 
@@ -133,7 +134,28 @@ def _map_contact(item: dict[str, Any], *, idx: int, cnpj: str) -> dict[str, Any]
             "source_url": _as_str(item.get("source_url")),
             "source_document": _as_str(item.get("source_document")),
             "source_date": _as_str(item.get("source_date")),
+            "source_published_at": _as_str(item.get("source_published_at")),
+            "observed_at": _as_str(item.get("observed_at")),
+            "verified_at": _as_str(item.get("verified_at")),
+            "evidence_sha256": _as_str(item.get("evidence_sha256")),
         }
+    source_published_at = _as_str(item.get("source_published_at") or prov.get("source_published_at"))
+    verified_at = _as_str(item.get("verified_at") or prov.get("verified_at"))
+    observed_at = _as_str(item.get("observed_at") or prov.get("observed_at"))
+    legacy_source_date = _as_str(item.get("source_date") or prov.get("source_date"))
+    if source_published_at:
+        evidence_date = source_published_at[:10]
+        evidence_date_semantics = "source_published_at"
+    elif verified_at:
+        evidence_date = verified_at[:10]
+        evidence_date_semantics = "verified_at"
+    elif observed_at:
+        evidence_date = observed_at[:10]
+        evidence_date_semantics = "observed_at"
+    else:
+        evidence_date = legacy_source_date[:10]
+        evidence_date_semantics = "legacy_source_date" if legacy_source_date else "missing"
+
     out = {
         "source_contact_id": _as_str(item.get("source_contact_id")) or f"ct-{cnpj}-{idx}",
         "name": _as_str(item.get("name")),
@@ -144,7 +166,15 @@ def _map_contact(item: dict[str, Any], *, idx: int, cnpj: str) -> dict[str, Any]
         "linkedin_url": _as_str(item.get("linkedin_url")),
         "source_url": _as_str(item.get("source_url") or prov.get("source_url")),
         "source_document": _as_str(item.get("source_document") or prov.get("source_document")),
-        "source_date": _as_str(item.get("source_date") or prov.get("source_date")),
+        # Warmbly v1 consumes source_date as the evidence timestamp. Preserve
+        # its actual semantics alongside it; observation is never rewritten as
+        # a publication timestamp.
+        "source_date": evidence_date,
+        "source_date_semantics": evidence_date_semantics,
+        "source_published_at": source_published_at,
+        "observed_at": observed_at,
+        "verified_at": verified_at,
+        "evidence_sha256": _as_str(item.get("evidence_sha256") or prov.get("evidence_sha256")),
         "verification_status": vs,
         "ownership_status": ownership,
         "ownership_reason": _as_str(item.get("ownership_reason")),
@@ -154,6 +184,11 @@ def _map_contact(item: dict[str, Any], *, idx: int, cnpj: str) -> dict[str, Any]
         "enrollable": enrollable,
         "recommended": recommended,
         "provenance": prov,
+        "email_explicitly_published": bool(item.get("email_explicitly_published")),
+        "name_explicitly_published": bool(item.get("name_explicitly_published")),
+        "role_explicitly_published": bool(item.get("role_explicitly_published")),
+        "human_identity_evidence_valid": bool(item.get("human_identity_evidence_valid")),
+        "identity_evidence_urls": [str(x) for x in (item.get("identity_evidence_urls") or []) if x],
     }
     # mailbox_purpose is independent of person role / ownership
     mp = classify_mailbox_purpose(email or None)
@@ -395,10 +430,7 @@ def map_lead(
         "why_this_account": intel.get("why_this_account")
         or intel_msg.get("why_this_account")
         or msg_ctx.get("why_this_account"),
-        "why_now": intel.get("why_now")
-        or intel_msg.get("why_now")
-        or msg_ctx.get("why_now")
-        or moment.get("summary"),
+        "why_now": intel.get("why_now") or intel_msg.get("why_now") or msg_ctx.get("why_now") or moment.get("summary"),
         "micro_offer_code": lead["offer"].get("micro_offer_code")
         or lead["offer"].get("entry_offer")
         or intel.get("micro_offer_code"),
@@ -407,9 +439,7 @@ def map_lead(
         or intel.get("evidence_ids")
         or [e.get("id") for e in evidence_items if isinstance(e, dict)],
         "canonical_universe_member": universe_row.get("canonical_universe_member", True),
-        "construction_evidence": universe_row.get("construction_evidence")
-        or intel.get("construction_evidence")
-        or {},
+        "construction_evidence": universe_row.get("construction_evidence") or intel.get("construction_evidence") or {},
         "portfolio": universe_row.get("portfolio")
         if isinstance(universe_row.get("portfolio"), dict)
         else (intel.get("portfolio") if isinstance(intel.get("portfolio"), dict) else {}),
@@ -452,18 +482,12 @@ def map_lead(
             resolve_suppressed,
         )
 
-        pub = published_from_row_or_db(
-            company_ctx, conn=conn, published_index=published_index
-        )
+        pub = published_from_row_or_db(company_ctx, conn=conn, published_index=published_index)
         if pub is not None:
             ck = (pub or {}).get("company_key") or company_key_from_row(company_ctx)
             suppressed = resolve_suppressed(conn, company_key=ck, row=company_ctx)
-            dl_wm = str(
-                company_ctx.get("datalake_watermark") or datalake_watermark or ""
-            )
-            company_ctx = enrich_row_with_published(
-                company_ctx, pub, suppressed=suppressed, datalake_watermark=dl_wm
-            )
+            dl_wm = str(company_ctx.get("datalake_watermark") or datalake_watermark or "")
+            company_ctx = enrich_row_with_published(company_ctx, pub, suppressed=suppressed, datalake_watermark=dl_wm)
             blocks, pub_reasons, fresh = evaluate_published_send_gate(
                 published=pub,
                 datalake_watermark=dl_wm,
@@ -483,9 +507,7 @@ def map_lead(
             lead = attach_published_fields(lead, published=pub, freshness=fresh)
             if blocks:
                 company_ctx["target_fit_send_suppressed"] = True
-            company_ctx["target_fit_fresh"] = bool(
-                fresh and fresh.target_fit_fresh and not fresh.blocks_send
-            )
+            company_ctx["target_fit_fresh"] = bool(fresh and fresh.target_fit_fresh)
         elif live_open:
             # Live path open but no store hit: fail closed (no sticky embed).
             fit = TargetFitResult(
@@ -548,7 +570,11 @@ def map_lead(
     best_suitability = ""
     best_own = ""
     best_ver = ""
+    ready_contacts: list[dict[str, Any]] = []
     for c in contacts:
+        # A recommendation is authorization-bearing at the feed boundary. Do
+        # not preserve a stale upstream rank until strict readiness is proven.
+        c["recommended"] = False
         email = c.get("email") or ""
         if not email:
             continue
@@ -578,10 +604,12 @@ def map_lead(
         c["provenance_trust"] = r.provenance_trust
         c["root_source_type"] = r.root_source_type
         c["derived_from_fixture"] = r.derived_from_fixture
+        c["human_recipient_evidence_valid"] = r.human_recipient_evidence_valid
         # EMAIL_ONLY: enrollable for auto send queue means email_send_ready, not phone
         if r.email_send_ready:
             c["enrollable"] = True
-            c["recommended"] = True
+            c["recommended"] = False
+            ready_contacts.append(c)
             best_ready = True
             best_purpose = r.mailbox_purpose
             best_suitability = r.recipient_commercial_suitability
@@ -598,6 +626,25 @@ def map_lead(
             if not r.provenance_chain_valid:
                 c["enrollable"] = False
                 c["recommended"] = False
+
+    # Exactly one principal recipient, selected deterministically. A rerun over
+    # identical inputs cannot flip the recommendation because observation time
+    # is excluded from the ordering and evidence hash.
+    if ready_contacts:
+        ready_contacts.sort(
+            key=lambda c: (
+                -float(c.get("confidence") or 0),
+                str(c.get("evidence_sha256") or ""),
+                str(c.get("source_contact_id") or ""),
+                str(c.get("email") or "").lower(),
+            )
+        )
+        principal = ready_contacts[0]
+        principal["recommended"] = True
+        best_purpose = _as_str(principal.get("mailbox_purpose"))
+        best_suitability = _as_str(principal.get("recipient_commercial_suitability"))
+        best_own = _as_str(principal.get("ownership_status"))
+        best_ver = _as_str(principal.get("verification_status"))
 
     lead["email_send_ready"] = best_ready
     if best_purpose:
@@ -688,5 +735,12 @@ def build_leads(
         )
         if lead is not None:
             leads.append(lead)
-    leads.sort(key=lambda lead: (lead["company"]["cnpj14"], lead["source_lead_id"]))
+    leads.sort(
+        key=lambda lead: (
+            str(lead.get("target_fit_source_watermark") or ""),
+            str(lead.get("target_fit_computed_at") or ""),
+            lead["company"]["cnpj14"],
+            lead["source_lead_id"],
+        )
+    )
     return leads

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import hashlib
 import re
-from datetime import UTC, datetime
 
 from scripts.confenge_contact_resolution.email_policy import assess_email
 from scripts.confenge_contact_resolution.freshness import freshness_score
@@ -16,10 +15,6 @@ from scripts.confenge_contact_resolution.models import (
 )
 from scripts.confenge_contact_resolution.phone_policy import assess_phone, default_whatsapp_block
 from scripts.confenge_contact_resolution.role_map import map_role_class
-
-
-def _now_iso() -> str:
-    return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
 def _norm_name(n: str | None) -> str:
@@ -53,6 +48,93 @@ def _source_priority(source_type: str | None) -> int:
         "unknown": 0,
     }
     return order.get(source_type or "unknown", 0)
+
+
+_FINAL_IDENTITY_SOURCE_TYPES = frozenset({"site", "contact_page", "public_docs", "human_outcome"})
+
+
+def _auditable_source(source: SourceProvenance | None) -> bool:
+    return bool(
+        source
+        and source.source_type in _FINAL_IDENTITY_SOURCE_TYPES
+        and (source.source_url or source.source_document)
+        and (source.source_published_at or source.observed_at or source.verified_at)
+    )
+
+
+def _auditable_identity_observation(observation: RawObservation) -> bool:
+    if not _auditable_source(observation.source):
+        return False
+    if observation.source and observation.source.source_type == "public_docs":
+        return observation.extra.get("evidence_strength") in {
+            "company_authored_document",
+            "official_cnpj_linked_document",
+        }
+    return True
+
+
+def _identity_evidence(
+    group: list[RawObservation],
+    *,
+    email: str | None,
+    name: str | None,
+    cargo: str | None,
+) -> tuple[bool, bool, bool, bool, list[str], str | None]:
+    """Prove a named human without deriving identity from an email pattern.
+
+    The email and name must coexist in an auditable raw observation. The role
+    must be in that observation or in an independently sourced observation for
+    the exact same named person. Aggregator/search snippets and registry rows
+    may corroborate but cannot be final email evidence.
+    """
+    email_norm = (email or "").strip().lower()
+    name_norm = _norm_name(name)
+    email_rows = [
+        o
+        for o in group
+        if email_norm
+        and (o.email or "").strip().lower() == email_norm
+        and not o.pattern_guessed_email
+        and _auditable_identity_observation(o)
+    ]
+    name_email_rows = [o for o in email_rows if _norm_name(o.name) == name_norm and name_norm]
+    role_rows = [
+        o
+        for o in group
+        if name_norm
+        and _norm_name(o.name) == name_norm
+        and bool((o.cargo or "").strip())
+        and _auditable_identity_observation(o)
+    ]
+    email_explicit = bool(email_rows)
+    name_explicit = bool(name_email_rows)
+    role_explicit = bool(role_rows)
+    valid = email_explicit and name_explicit and role_explicit and bool(cargo)
+
+    evidence_rows = list(dict.fromkeys(id(o) for o in (name_email_rows + role_rows)))
+    by_id = {id(o): o for o in group}
+    selected = [by_id[i] for i in evidence_rows]
+    urls = list(dict.fromkeys(str(o.source.source_url) for o in selected if o.source and o.source.source_url))
+    digest = None
+    if selected:
+        stable = "\n".join(
+            sorted(
+                "|".join(
+                    [
+                        o.source.source_type,
+                        o.source.source_url or "",
+                        o.source.source_document or "",
+                        o.source.source_published_at or o.source.source_date or "",
+                        (o.email or "").strip().lower(),
+                        _norm_name(o.name),
+                        _norm_name(o.cargo),
+                    ]
+                )
+                for o in selected
+            )
+        )
+        digest = hashlib.sha256(stable.encode("utf-8")).hexdigest()
+    return email_explicit, name_explicit, role_explicit, valid, urls, digest
 
 
 def account_block_from_observations(
@@ -147,8 +229,14 @@ def observations_to_candidates(
         cargo = next((o.cargo for o in group_sorted if o.cargo), None)
         role = map_role_class(cargo, name_hint=name)
 
-        # Source date: newest known for freshness
-        dates = [o.source.source_date for o in group if o.source and o.source.source_date]
+        # Observation proves that a source was reachable, not the age of its
+        # publication. Only a declared publication or active verification can
+        # drive freshness; an undated live observation remains UNKNOWN_DATE.
+        dates = [
+            o.source.source_published_at or o.source.source_date or o.source.verified_at
+            for o in group
+            if o.source and (o.source.source_published_at or o.source.source_date or o.source.verified_at)
+        ]
         source_date = max(dates) if dates else (primary.source.source_date if primary.source else None)
         fresh, age = freshness_score(source_date)
 
@@ -180,15 +268,6 @@ def observations_to_candidates(
 
         cid = hashlib.sha256(f"{cnpj14}|{key}".encode()).hexdigest()[:16]
         src = primary.source or SourceProvenance(source_type=primary.adapter)
-        if not src.observed_at:
-            src = SourceProvenance(
-                source_type=src.source_type,
-                source_url=src.source_url,
-                source_document=src.source_document,
-                source_date=src.source_date,
-                observed_at=_now_iso(),
-                notes=src.notes,
-            )
 
         epistemic = primary.epistemic_class
         if email_a.verification_status == VerificationStatus.CANDIDATE_UNVERIFIED.value:
@@ -212,6 +291,19 @@ def observations_to_candidates(
         art_only = any(getattr(o, "art_crea_only", False) for o in group)
         if art_only:
             limitations.append("art_crea_only")
+
+        (
+            email_explicit,
+            name_explicit,
+            role_explicit,
+            identity_valid,
+            identity_urls,
+            evidence_sha256,
+        ) = _identity_evidence(group, email=email_a.email, name=name, cargo=cargo)
+        if evidence_sha256 and not src.evidence_sha256:
+            src.evidence_sha256 = evidence_sha256
+        if email_a.email and not identity_valid:
+            limitations.append("human_identity_evidence_incomplete")
 
         cand = ContactCandidate(
             candidate_id=cid,
@@ -258,6 +350,12 @@ def observations_to_candidates(
                 else "UNKNOWN"
             ),
             limitations=limitations,
+            email_explicitly_published=email_explicit,
+            name_explicitly_published=name_explicit,
+            role_explicitly_published=role_explicit,
+            human_identity_evidence_valid=identity_valid,
+            identity_evidence_urls=identity_urls,
+            evidence_sha256=evidence_sha256,
         )
         candidates.append(cand)
 

@@ -34,6 +34,10 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
+from scripts.contracts_identity import (  # noqa: E402
+    normalize_cnpj_supplier,
+    normalize_supplier_identity,
+)
 from scripts.lib.value_semantics import VALOR_SEMANTICA_LABELS, ValorSemantica  # noqa: E402
 from scripts.ops import deliverable_d_prices as _d_prices  # noqa: E402
 from scripts.ops.deliverable_b_competitors import (  # noqa: E402
@@ -136,8 +140,7 @@ def git_sha() -> str:
 
 
 def normalize_cnpj(raw: str | None) -> str:
-    digits = "".join(ch for ch in str(raw or "") if ch.isdigit())
-    return digits.zfill(14) if digits else ""
+    return normalize_cnpj_supplier(raw) or ""
 
 
 def _conn(dsn: str) -> Any:
@@ -440,13 +443,13 @@ def seed_cmi_fixture(dsn: str) -> dict[str, Any]:
             ("CMI-C-002", "11111111000111", "Prefeitura Alpha", "22222222000191", "Fornecedor Alfa Eng", "manutenção predial", 80000.0, "2024-06-01", "2025-06-01", "SC", "Florianópolis", "pncp", True, "manutencao_predial", "municipal"),
             ("CMI-C-003", "33333333000155", "Camara Beta", "22222222000191", "Fornecedor Alfa Eng", "reforma predial anexos", 200000.0, "2025-01-15", "2026-01-15", "SC", "São José", "pncp", True, "reforma_predial", "legislativo"),
             # supplier B
-            ("CMI-C-004", "44444444000166", "Hospital Gamma", "55555555000177", "Construtora Beta SA", "obra civil hospitalar", 500000.0, "2023-08-01", "2024-08-01", "SC", "Blumenau", "pncp", True, "obra_civil", "autarquia"),
-            ("CMI-C-005", "44444444000166", "Hospital Gamma", "55555555000177", "Construtora Beta SA", "reforma predial UTI", 120000.0, "2024-11-01", "2025-11-01", "SC", "Blumenau", "pncp", True, "reforma_predial", "autarquia"),
+            ("CMI-C-004", "44444444000166", "Hospital Gamma", "55555555000191", "Construtora Beta SA", "obra civil hospitalar", 500000.0, "2023-08-01", "2024-08-01", "SC", "Blumenau", "pncp", True, "obra_civil", "autarquia"),
+            ("CMI-C-005", "44444444000166", "Hospital Gamma", "55555555000191", "Construtora Beta SA", "reforma predial UTI", 120000.0, "2024-11-01", "2025-11-01", "SC", "Blumenau", "pncp", True, "reforma_predial", "autarquia"),
             # supplier C — one contract, missing valor_total (null must stay null)
-            ("CMI-C-006", "66666666000188", "Prefeitura Delta", "77777777000199", "Servicos Gama Ltda", "manutenção predial escolas", None, "2024-02-01", "2025-02-01", "SC", "Joinville", "pncp", True, "manutencao_predial", "municipal"),
-            ("CMI-C-007", "66666666000188", "Prefeitura Delta", "77777777000199", "Servicos Gama Ltda", "limpeza predial", 45000.0, "2025-02-01", "2026-02-01", "SC", "Joinville", "pncp", True, "limpeza", "municipal"),
+            ("CMI-C-006", "66666666000188", "Prefeitura Delta", "77777777000191", "Servicos Gama Ltda", "manutenção predial escolas", None, "2024-02-01", "2025-02-01", "SC", "Joinville", "pncp", True, "manutencao_predial", "municipal"),
+            ("CMI-C-007", "66666666000188", "Prefeitura Delta", "77777777000191", "Servicos Gama Ltda", "limpeza predial", 45000.0, "2025-02-01", "2026-02-01", "SC", "Joinville", "pncp", True, "limpeza", "municipal"),
             # supplier D — PR (outside SC filter if applied)
-            ("CMI-C-008", "88888888000100", "Prefeitura Epsilon", "99999999000111", "Fora SC Corp", "obra civil", 90000.0, "2024-05-01", "2025-05-01", "PR", "Curitiba", "pncp", True, "obra_civil", "municipal"),
+            ("CMI-C-008", "88888888000100", "Prefeitura Epsilon", "99999999000191", "Fora SC Corp", "obra civil", 90000.0, "2024-05-01", "2025-05-01", "PR", "Curitiba", "pncp", True, "obra_civil", "municipal"),
         ]
         with conn.cursor() as cur:
             for r in rows:
@@ -467,26 +470,48 @@ def seed_cmi_fixture(dsn: str) -> dict[str, Any]:
                     _tipo,
                     _nat,
                 ) = r
+                supplier_identity = normalize_supplier_identity(
+                    fcnpj,
+                    declared_type="PJ",
+                    country="BR",
+                )
+                identity_fields = supplier_identity.to_record_fields()
                 cur.execute(
                     """
                     INSERT INTO pncp_supplier_contracts (
                         contrato_id, orgao_cnpj, orgao_nome, fornecedor_cnpj, fornecedor_nome,
+                        supplier_id_type, supplier_identifier, supplier_country,
+                        supplier_identifier_hash, supplier_identifier_export,
+                        supplier_identity_reason,
                         objeto_contrato, valor_total, data_inicio, data_fim, uf, municipio,
                         source, source_id, is_active
                     ) VALUES (
-                        %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
+                        %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
                     )
                     ON CONFLICT (contrato_id) DO UPDATE SET
                         valor_total = EXCLUDED.valor_total,
                         is_active = EXCLUDED.is_active,
-                        fornecedor_nome = EXCLUDED.fornecedor_nome
+                        fornecedor_nome = EXCLUDED.fornecedor_nome,
+                        fornecedor_cnpj = EXCLUDED.fornecedor_cnpj,
+                        supplier_id_type = EXCLUDED.supplier_id_type,
+                        supplier_identifier = EXCLUDED.supplier_identifier,
+                        supplier_country = EXCLUDED.supplier_country,
+                        supplier_identifier_hash = EXCLUDED.supplier_identifier_hash,
+                        supplier_identifier_export = EXCLUDED.supplier_identifier_export,
+                        supplier_identity_reason = EXCLUDED.supplier_identity_reason
                     """,
                     (
                         cid,
                         ocnpj,
                         onome,
-                        fcnpj,
+                        identity_fields["fornecedor_cnpj"],
                         fnome,
+                        identity_fields["supplier_id_type"],
+                        identity_fields["supplier_identifier"],
+                        identity_fields["supplier_country"],
+                        identity_fields["supplier_identifier_hash"],
+                        identity_fields["supplier_identifier_export"],
+                        identity_fields["supplier_identity_reason"],
                         obj,
                         valor,
                         di,

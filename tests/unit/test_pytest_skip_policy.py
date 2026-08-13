@@ -3,8 +3,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from scripts.ops.check_pytest_skip_policy import main, scan_file
 
 

@@ -6,6 +6,7 @@ set -euo pipefail
 
 APP_DIR="/opt/extra-consultoria"
 APP_USER="extra-consultoria"
+STATE_DIR="/var/lib/extra-consultoria"
 
 echo "============================================"
 echo " Extra Consultoria — Instalação VPS"
@@ -38,12 +39,17 @@ echo "📁 Setting up app directory..."
 mkdir -p "$APP_DIR"
 cp -r . "$APP_DIR"
 chown -R "$APP_USER:$APP_USER" "$APP_DIR"
+mkdir -p "$STATE_DIR/evidence"
+chown -R "$APP_USER:$APP_USER" "$STATE_DIR"
 
 # ---- Python ----
 echo ""
 echo "🐍 Installing Python dependencies..."
 cd "$APP_DIR"
-pip3 install -q -r requirements.txt
+if [[ ! -d "$APP_DIR/.venv" ]]; then
+    sudo -u "$APP_USER" python3 -m venv "$APP_DIR/.venv"
+fi
+sudo -u "$APP_USER" "$APP_DIR/.venv/bin/pip" install -q -r requirements.txt
 
 # ---- Database setup ----
 echo ""
@@ -54,8 +60,13 @@ bash "$APP_DIR/db/setup_db.sh" "${LOCAL_DATALAKE_DSN}"
 # ---- Systemd timers ----
 echo ""
 echo "⏰ Installing systemd timers..."
+"$APP_DIR/.venv/bin/python" -m scripts.ops.provision_process_documents_systemd
 cp "$APP_DIR/deploy/systemd/"*.service /etc/systemd/system/
 cp "$APP_DIR/deploy/systemd/"*.timer /etc/systemd/system/
+"$APP_DIR/.venv/bin/python" -m scripts.ops.provision_process_documents_systemd \
+    --install \
+    --no-daemon-reload \
+    --smoke-output "$STATE_DIR/evidence/process-documents-unit-smoke.json"
 systemctl daemon-reload
 
 # Enable and start all timers

@@ -54,7 +54,9 @@ class TestFetchPublicationPage:
         session = MagicMock()
         session.get.return_value = response
 
-        result = pca._http_get_json("https://pncp.test", session=session)
+        result = pca._http_get_json(
+            "https://pncp.test", session=session, resolve_initial_dns=False
+        )
 
         assert result.request_completed is True
         assert result.empty_confirmed is True
@@ -68,7 +70,9 @@ class TestFetchPublicationPage:
         session = MagicMock()
         session.get.return_value = response
 
-        result = pca._http_get_json("https://pncp.test", session=session)
+        result = pca._http_get_json(
+            "https://pncp.test", session=session, resolve_initial_dns=False
+        )
 
         assert result.request_completed is False
         assert result.empty_confirmed is False
@@ -90,6 +94,7 @@ class TestFetchPublicationPage:
             "https://pncp.test",
             session=session,
             sleeper=sleeps.append,
+            resolve_initial_dns=False,
         )
 
         assert result.request_completed is True
@@ -111,6 +116,7 @@ class TestFetchPublicationPage:
             "https://pncp.test",
             session=session,
             sleeper=sleeps.append,
+            resolve_initial_dns=False,
         )
 
         assert result.request_completed is True
@@ -123,7 +129,9 @@ class TestFetchPublicationPage:
         session = MagicMock()
         session.get.return_value = response
 
-        result = pca._http_get_json("https://pncp.test", session=session)
+        result = pca._http_get_json(
+            "https://pncp.test", session=session, resolve_initial_dns=False
+        )
 
         assert result.request_completed is False
         assert result.http_status == 422
@@ -137,7 +145,9 @@ class TestFetchPublicationPage:
         session = MagicMock()
         session.get.return_value = response
 
-        result = pca._http_get_json("https://pncp.test", session=session)
+        result = pca._http_get_json(
+            "https://pncp.test", session=session, resolve_initial_dns=False
+        )
 
         assert result.request_completed is False
         assert result.empty_confirmed is False

@@ -2,22 +2,21 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from scripts.predictive.claims import ClaimRegistry, load_registry
+from scripts.predictive.backtest import run_classification_backtest
+from scripts.predictive.claims import ClaimRegistry
 from scripts.predictive.dataset import (
     build_competitive_winner_dataset,
     build_demand_dataset,
     build_discount_dataset,
 )
-from scripts.predictive.labels import demand_label, is_aec_object, winning_discount, winner_label
+from scripts.predictive.labels import demand_label, is_aec_object, winner_label, winning_discount
 from scripts.predictive.leakage import assert_no_leakage, audit_examples
 from scripts.predictive.metrics import classification_report, evaluate_classification_gates
-from scripts.predictive.backtest import run_classification_backtest
-from scripts.predictive.profile_calibration import list_missing_critical, load_profile, personalization_blockers
-from scripts.lib.bid_simulator import simulate_bid
+from scripts.predictive.profile_calibration import personalization_blockers
 
 
 def test_claim_registry_seven_claims(tmp_path):
@@ -53,7 +52,7 @@ def test_fully_proven_requires_market_trio_production(tmp_path):
 
 
 def test_invalid_demand_negative_rejected():
-    as_of = datetime(2024, 1, 1, tzinfo=timezone.utc)
+    as_of = datetime(2024, 1, 1, tzinfo=UTC)
     lab = demand_label(
         as_of=as_of,
         horizon_days=30,
@@ -65,7 +64,7 @@ def test_invalid_demand_negative_rejected():
 
 
 def test_valid_demand_negative_with_coverage():
-    as_of = datetime(2024, 1, 1, tzinfo=timezone.utc)
+    as_of = datetime(2024, 1, 1, tzinfo=UTC)
     lab = demand_label(
         as_of=as_of,
         horizon_days=30,
@@ -93,7 +92,7 @@ def test_discount_semantics_reject_paid():
 
 
 def test_leakage_fail_closed_winner_feature():
-    as_of = datetime(2024, 6, 1, tzinfo=timezone.utc)
+    as_of = datetime(2024, 6, 1, tzinfo=UTC)
     bad = {
         "example_id": "x1",
         "as_of_at": as_of.isoformat(),
@@ -107,7 +106,7 @@ def test_leakage_fail_closed_winner_feature():
 
 
 def test_leakage_fail_closed_future_event():
-    as_of = datetime(2024, 6, 1, tzinfo=timezone.utc)
+    as_of = datetime(2024, 6, 1, tzinfo=UTC)
     bad = {
         "example_id": "x2",
         "as_of_at": as_of.isoformat(),
@@ -121,7 +120,7 @@ def test_leakage_fail_closed_future_event():
 
 
 def test_demand_dataset_pit_and_no_leak():
-    base = datetime(2022, 1, 1, tzinfo=timezone.utc)
+    base = datetime(2022, 1, 1, tzinfo=UTC)
     contracts = []
     for i in range(24):
         contracts.append(
@@ -156,7 +155,7 @@ def test_demand_dataset_pit_and_no_leak():
 
 
 def test_competitive_dataset_builds():
-    base = datetime(2021, 1, 1, tzinfo=timezone.utc)
+    base = datetime(2021, 1, 1, tzinfo=UTC)
     contracts = []
     for i in range(40):
         contracts.append(
@@ -183,7 +182,7 @@ def test_discount_dataset_data_blocked_when_empty():
 
 
 def test_backtest_runs_on_synthetic_demand():
-    base = datetime(2020, 1, 1, tzinfo=timezone.utc)
+    base = datetime(2020, 1, 1, tzinfo=UTC)
     contracts = []
     for ente in range(5):
         for i in range(36):

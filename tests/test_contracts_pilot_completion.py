@@ -5,7 +5,9 @@ Imports real functions from scripts.crawl.run_contracts_90d_pilot — no local r
 
 from __future__ import annotations
 
+import importlib
 import json
+import os
 from pathlib import Path
 
 import pytest
@@ -17,10 +19,49 @@ from scripts.crawl.run_contracts_90d_pilot import (
     evaluate_window_completion,
 )
 from scripts.crawl.run_evidence import bind_checkpoint_run_id
+from scripts.ops.run_contracts_pilot import evaluate_crawl_report_status
 
 # ---------------------------------------------------------------------------
 # evaluate_window_completion
 # ---------------------------------------------------------------------------
+
+
+def test_run_contracts_pilot_never_upgrades_partial_windows_to_success():
+    assert (
+        evaluate_crawl_report_status(
+            {
+                "total_windows_ok": 2,
+                "total_windows_failed": 1,
+                "total_windows_skipped": 0,
+            }
+        )
+        == "partial"
+    )
+
+
+def test_run_contracts_pilot_does_not_upgrade_skipped_only_run_to_success():
+    assert (
+        evaluate_crawl_report_status(
+            {
+                "total_windows_ok": 0,
+                "total_windows_failed": 0,
+                "total_windows_skipped": 3,
+            }
+        )
+        == "partial"
+    )
+
+
+def test_importing_pilot_runner_does_not_mutate_database_environment(monkeypatch):
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    monkeypatch.delenv("LOCAL_DATALAKE_DSN", raising=False)
+
+    import scripts.ops.run_contracts_pilot as pilot_runner
+
+    importlib.reload(pilot_runner)
+
+    assert "DATABASE_URL" not in os.environ
+    assert "LOCAL_DATALAKE_DSN" not in os.environ
 
 
 def test_max_pages_without_exhaustion_is_incomplete():

@@ -11,6 +11,8 @@ from argparse import Namespace
 from datetime import date, timedelta
 from pathlib import Path
 
+import pytest
+
 from scripts.confenge_account_intelligence.catalog import load_catalog
 from scripts.confenge_account_intelligence.pipeline import build_dossier
 from scripts.confenge_activation.strict_national_esr import (
@@ -133,7 +135,7 @@ def test_message_spine_makes_copy_context_ready() -> None:
     assert copy.copy_context_ready is True, copy
 
 
-def test_strict_esr_true_for_process_doc_company_email() -> None:
+def test_strict_esr_rejects_functional_process_doc_company_email() -> None:
     raw = _multi_contract_raw(n=5)
     account = {
         "account_cnpj": "00061493000170",
@@ -180,7 +182,8 @@ def test_strict_esr_true_for_process_doc_company_email() -> None:
             }
         ],
     )
-    assert result["email_send_ready"] is True, result
+    assert result["email_send_ready"] is False, result
+    assert "functional_mailbox_not_human_recipient" in result["best"]["reasons"]
     assert result["best"]["service_code"] == "gestao_monitoramento_contratual"
 
 
@@ -224,9 +227,7 @@ def test_jsonl_public_document_does_not_invent_company_authorship(tmp_path: Path
 
 def test_pilot_does_not_describe_future_start_as_recent_event() -> None:
     future = (date.today() + timedelta(days=90)).isoformat()
-    sanitized = _sanitize_pilot_contract_dates(
-        [{"data_inicio": future, "data_publicacao": future, "data_fim": future}]
-    )
+    sanitized = _sanitize_pilot_contract_dates([{"data_inicio": future, "data_publicacao": future, "data_fim": future}])
     assert sanitized[0]["data_inicio"] is None
     assert sanitized[0]["data_publicacao"] is None
     assert sanitized[0]["data_fim"] == future
@@ -242,12 +243,21 @@ def test_pilot_review_has_full_identity_evidence_message_and_human_gate(tmp_path
         "cnpj14": raw["cnpj14"],
         "root": raw["cnpj_root"],
         "razao_social": raw["razao_social"],
-        "email": "contato@construtoraalvorada.com.br",
+        "name": "Maria de Souza",
+        "role": "Diretora Comercial",
+        "email": "maria.souza@construtoraalvorada.com.br",
         "ownership_status": "COMPANY_OWNED",
         "verification_status": "VERIFIED",
         "source_type": "site",
         "source_url": "https://construtoraalvorada.com.br/contato",
         "provenance_chain_valid": True,
+        "email_explicitly_published": True,
+        "name_explicitly_published": True,
+        "role_explicitly_published": True,
+        "human_identity_evidence_valid": True,
+        "identity_evidence_urls": ["https://construtoraalvorada.com.br/equipe"],
+        "observed_at": "2026-08-13T12:00:00Z",
+        "evidence_sha256": "c" * 64,
         "provenance_chain": [
             {
                 "source_type": "site",
@@ -258,11 +268,12 @@ def test_pilot_review_has_full_identity_evidence_message_and_human_gate(tmp_path
         ],
     }
     review = build_pilot_review(
-        [seed],
+        [seed, {**seed, "email": "joao.lima@construtoraalvorada.com.br"}],
         contracts_by_root={raw["cnpj_root"]: raw["contracts"]},
         target_size=1,
     )
     assert review["n"] == 1, review
+    assert any(row["reason"] == "duplicate_company_candidate" for row in review["rejections"])
     lead = review["leads"][0]
     assert lead["cnpj14"] == raw["cnpj14"]
     assert lead["email_send_ready"] is True
@@ -275,11 +286,13 @@ def test_pilot_review_has_full_identity_evidence_message_and_human_gate(tmp_path
     assert lead["review_status"] == "HUMAN_REVIEW_PENDING"
     assert lead["review_decision"] is None
     assert review["approved"] == 0
-    feed = write_pilot_feed(review, tmp_path / "feed")
-    assert feed["lead_count"] == 1
-    chunk = json.loads((tmp_path / "feed" / "chunk_0000.json").read_text(encoding="utf-8"))
-    assert chunk["leads"][0]["email_send_ready"] is True
-    assert chunk["leads"][0]["offer"]["service_code"] == lead["recommended_service"]
+    with pytest.raises(ValueError, match="send-ready-only"):
+        write_pilot_feed(review, tmp_path / "feed")
+
+
+def test_empty_pilot_review_cannot_emit_feed(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="no leads"):
+        write_pilot_feed({"leads": []}, tmp_path / "empty-feed")
 
 
 def test_pattern_guess_never_send_ready() -> None:
@@ -374,7 +387,7 @@ def test_rebuild_strict_esr_from_fixture_harvest(tmp_path: Path) -> None:
         harvest_dir=harvest,
         confirmed_roots={"00061493"},
     )
-    assert report["EMAIL_SEND_READY_DISTINCT_COMPANIES"] == 1
+    assert report["EMAIL_SEND_READY_DISTINCT_COMPANIES"] == 0
     assert report["funnel"]["DISTINCT_COMPANIES_WITH_EMAIL"] == 1
     assert report["email_roots_upper_bound"] == 1
     # Must not use email count as ESR without gates
@@ -404,7 +417,8 @@ def test_gestao_not_silently_unsupported_when_package_present() -> None:
         canonical_universe_member=True,
     )
     assert "service_fit_unsupported" not in (r.reasons or [])
-    assert r.email_send_ready is True
+    assert r.email_send_ready is False
+    assert "functional_mailbox_not_human_recipient" in r.reasons
 
 
 def test_outcome_receptor_uses_dsn_from_environment_without_argv(
@@ -433,3 +447,13 @@ def test_outcome_receptor_uses_dsn_from_environment_without_argv(
 
     assert store is connection
     assert seen == {"dsn": "postgresql://local-env", "connection": connection}
+
+
+def test_outcome_receptor_fails_closed_without_store_dsn(monkeypatch) -> None:
+    import pytest
+
+    from scripts.warmbly_bridge import cli
+
+    monkeypatch.delenv("LOCAL_DATALAKE_DSN", raising=False)
+    with pytest.raises(ValueError, match="no outcome store DSN"):
+        cli._build_store(Namespace(memory_store=False, dsn=None))
