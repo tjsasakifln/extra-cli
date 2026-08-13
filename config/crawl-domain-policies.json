@@ -1,0 +1,44 @@
+{
+  "schema_version": "crawl-domain-policy/v1",
+  "policy_version": "2026-08-13.1",
+  "default": {
+    "connect_timeout": 10.0,
+    "read_timeout": 120.0,
+    "max_retries": 5,
+    "base_delay": 1.0,
+    "max_delay": 60.0,
+    "jitter": 0.2,
+    "retry_after_fallback": 60.0,
+    "request_delay": 0.5,
+    "circuit_breaker_threshold": 5,
+    "circuit_breaker_cooldown": 300.0,
+    "daily_request_budget": 5000
+  },
+  "domains": [
+    {
+      "name": "pncp",
+      "suffixes": ["pncp.gov.br"],
+      "read_timeout": 120.0,
+      "max_retries": 8,
+      "base_delay": 5.0,
+      "request_delay": 0.5,
+      "daily_request_budget": 5000
+    },
+    {
+      "name": "sc-compras",
+      "suffixes": ["compras.sc.gov.br", "sc.gov.br"],
+      "read_timeout": 90.0,
+      "max_retries": 5,
+      "request_delay": 1.0,
+      "daily_request_budget": 3000
+    },
+    {
+      "name": "ciga-dom",
+      "suffixes": ["diariomunicipal.sc.gov.br", "ciga.sc.gov.br"],
+      "read_timeout": 90.0,
+      "max_retries": 5,
+      "request_delay": 1.0,
+      "daily_request_budget": 3000
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": "crawl-schedule-policy/v1",
+  "policy_version": "2026-08-13.1",
+  "default": {
+    "sla_hours": 24,
+    "recheck_not_applicable_hours": 720,
+    "recheck_blocked_hours": 24,
+    "recheck_failed_hours": 6,
+    "jitter_seconds": 900,
+    "max_attempts": 5,
+    "domain_concurrency_limit": 1
+  },
+  "sources": {
+    "pncp": {
+      "domain": "pncp.gov.br",
+      "sla_hours": 6,
+      "domain_concurrency_limit": 2
+    },
+    "ciga_dom": {
+      "domain": "diariomunicipal.sc.gov.br",
+      "sla_hours": 12
+    },
+    "ciga_ckan": {
+      "domain": "dados.sc.gov.br",
+      "sla_hours": 24
+    },
+    "sc_compras": {
+      "domain": "compras.sc.gov.br",
+      "sla_hours": 12
+    },
+    "transparencia": {
+      "domain": "entity-public-surface",
+      "sla_hours": 24
+    }
+  }
+}

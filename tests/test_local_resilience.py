@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import replace
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
@@ -66,7 +67,17 @@ def config(tmp_path: Path, **overrides: Any) -> ResilienceConfig:
 
 @pytest.mark.parametrize(
     ("http_status", "expected"),
-    [(401, "auth_blocked"), (403, "auth_blocked"), (408, "error"), (425, "error"), (429, "rate_limited"), (500, "error"), (502, "error"), (503, "error"), (504, "error")],
+    [
+        (401, "auth_blocked"),
+        (403, "auth_blocked"),
+        (408, "error"),
+        (425, "error"),
+        (429, "rate_limited"),
+        (500, "error"),
+        (502, "error"),
+        (503, "error"),
+        (504, "error"),
+    ],
 )
 def test_http_failures_never_become_empty(http_status: int, expected: str) -> None:
     result = FetchResult(request_completed=False, http_status=http_status, errors=[f"HTTP {http_status}"])
@@ -83,13 +94,30 @@ def test_response_failures_are_error_not_empty(error: str) -> None:
 
 
 def test_partial_pagination_forces_fail_closed() -> None:
-    result = FetchResult(status="success", records=[{"id": 1}], request_completed=True, http_status=200, pages_fetched=1, pages_expected=2, provenance={"raw": "x"})
+    result = FetchResult(
+        status="success",
+        records=[{"id": 1}],
+        request_completed=True,
+        http_status=200,
+        pages_fetched=1,
+        pages_expected=2,
+        provenance={"raw": "x"},
+    )
     assert result.status == "partial"
     assert not result.coverage_satisfactory
 
 
 def test_204_empty_can_be_confirmed_only_with_complete_request() -> None:
-    result = FetchResult(status="empty_confirmed", records=[], request_completed=True, http_status=204, empty_confirmed=True, pages_fetched=1, pages_expected=1, provenance={"raw": "x"})
+    result = FetchResult(
+        status="empty_confirmed",
+        records=[],
+        request_completed=True,
+        http_status=204,
+        empty_confirmed=True,
+        pages_fetched=1,
+        pages_expected=1,
+        provenance={"raw": "x"},
+    )
     assert result.coverage_satisfactory
     with pytest.raises(ValueError):
         FetchResult(status="empty_confirmed", request_completed=False, empty_confirmed=True)
@@ -103,22 +131,138 @@ def test_zero_ambiguous_never_counts() -> None:
 
 def test_raw_hash_is_reproducible_and_deduplicated(tmp_path: Path) -> None:
     store = RawStore(tmp_path / "raw")
-    first, hash_a = store.persist(source="pncp", run_id="r1", request_scope="p1", payload={"b": 2, "a": 1}, provenance={"response_headers": {"Authorization": "secret", "ETag": "ok"}})
-    second, hash_b = store.persist(source="pncp", run_id="r2", request_scope="p1", payload={"a": 1, "b": 2}, provenance={})
-    assert first == second
+    first, hash_a = store.persist(
+        source="pncp",
+        run_id="r1",
+        request_scope="p1",
+        payload={"b": 2, "a": 1},
+        provenance={"response_headers": {"Authorization": "secret", "ETag": "ok"}},
+    )
+    second, hash_b = store.persist(
+        source="pncp", run_id="r2", request_scope="p1", payload={"a": 1, "b": 2}, provenance={}
+    )
+    assert first != second  # immutable envelope per run
     assert hash_a == hash_b
     saved = json.loads(first.read_text(encoding="utf-8"))
     assert "authorization" not in saved["provenance"]["response_headers"]
+    assert saved["body_uri"] == f"cas://raw-http/{hash_a}"
+    assert len(list((tmp_path / "raw" / "cas").glob("**/*.body"))) == 1
+    assert store.load_reference(first)["payload"] == {"a": 1, "b": 2}
+
+
+def test_raw_archive_preserves_equal_bodies_for_distinct_pages(tmp_path: Path) -> None:
+    store = RawStore(tmp_path / "raw")
+    first, first_hash = store.persist(
+        source="pncp",
+        run_id="same-run",
+        request_scope="same-scope",
+        payload=b"same body",
+        provenance={},
+        page=1,
+    )
+    second, second_hash = store.persist(
+        source="pncp",
+        run_id="same-run",
+        request_scope="same-scope",
+        payload=b"same body",
+        provenance={},
+        page=2,
+    )
+
+    assert first != second
+    assert first_hash == second_hash
+    assert json.loads(first.read_text(encoding="utf-8"))["page"] == 1
+    assert json.loads(second.read_text(encoding="utf-8"))["page"] == 2
+    assert len(list((tmp_path / "raw" / "cas").glob("**/*.body"))) == 1
+
+
+def test_raw_archive_same_request_identity_is_stable(tmp_path: Path) -> None:
+    store = RawStore(tmp_path / "raw")
+    first, _ = store.persist(
+        source="pncp",
+        run_id="same-run",
+        request_scope="same-scope",
+        payload=b"same body",
+        provenance={"fetched_at": "first", "response_headers": "invalid"},
+        page=1,
+    )
+    second, _ = store.persist(
+        source="pncp",
+        run_id="same-run",
+        request_scope="same-scope",
+        payload=b"same body",
+        provenance={"fetched_at": "second"},
+        page=1,
+    )
+
+    assert first == second
+    saved = json.loads(first.read_text(encoding="utf-8"))
+    assert saved["provenance"]["response_headers"] == {}
+
+
+@pytest.mark.database
+@pytest.mark.integration
+def test_raw_archive_database_preserves_equal_bodies_for_distinct_pages(tmp_path: Path) -> None:
+    if not (
+        os.getenv("REQUIRE_REAL_DB", "").lower() in {"1", "true", "yes"}
+        or os.getenv("RESILIENCE_REQUIRE_DB", "").lower() in {"1", "true", "yes"}
+    ):
+        pytest.skip("REQUIRE_REAL_DB=1 or RESILIENCE_REQUIRE_DB=1 required")
+    dsn = os.getenv("LOCAL_DATALAKE_DSN") or os.getenv("DATABASE_URL")
+    if not dsn:
+        pytest.skip("LOCAL_DATALAKE_DSN or DATABASE_URL not set")
+    from scripts.crawl.runtime_queue import connect
+
+    run_id = "test-raw-equal-page-bodies"
+    with connect(dsn) as connection, connection.cursor() as cursor:
+        cursor.execute("DELETE FROM raw_http_fetches WHERE run_id = %s", (run_id,))
+    try:
+        store = RawStore(tmp_path / "raw", dsn=dsn, require_db=True)
+        for page in (1, 2):
+            store.persist(
+                source="pncp",
+                run_id=run_id,
+                request_scope="same-scope",
+                payload=b"same body",
+                provenance={},
+                page=page,
+            )
+        with connect(dsn) as connection, connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT page FROM raw_http_fetches WHERE run_id = %s ORDER BY page",
+                (run_id,),
+            )
+            assert [row["page"] for row in cursor.fetchall()] == [1, 2]
+    finally:
+        with connect(dsn) as connection, connection.cursor() as cursor:
+            cursor.execute("DELETE FROM raw_http_fetches WHERE run_id = %s", (run_id,))
 
 
 def test_checkpoint_atomic_resume_and_no_reprocess(tmp_path: Path) -> None:
     calls = 0
-    payload = [{"numeroControlePNCP": "00000000000100-1-000001/2026", "orgaoEntidade": {"cnpj": "00000000000100"}, "unidadeOrgao": {}, "anoCompra": 2026, "sequencialCompra": 1}]
+    payload = [
+        {
+            "numeroControlePNCP": "00000000000100-1-000001/2026",
+            "orgaoEntidade": {"cnpj": "00000000000100"},
+            "unidadeOrgao": {},
+            "anoCompra": 2026,
+            "sequencialCompra": 1,
+        }
+    ]
 
     def fetcher(_request, _modalidade, _page):
         nonlocal calls
         calls += 1
-        return FetchResult(status="success", records=payload, request_completed=True, http_status=200, pages_fetched=1, pages_expected=1, provenance={"test": True}, metadata={"pagination": {"totalPaginas": 1, "paginasRestantes": 0}, "url": "fixture://pncp"})
+        return FetchResult(
+            status="success",
+            records=payload,
+            request_completed=True,
+            http_status=200,
+            pages_fetched=1,
+            pages_expected=1,
+            provenance={"test": True},
+            metadata={"pagination": {"totalPaginas": 1, "paginasRestantes": 0}, "url": "fixture://pncp"},
+        )
 
     adapter = PNCPAdapter(config(tmp_path), page_fetcher=fetcher)
     adapter.legacy.INGESTION_MODALIDADES = [1]
@@ -140,11 +284,19 @@ def test_checkpoint_atomic_resume_and_no_reprocess(tmp_path: Path) -> None:
 
 def test_rate_limit_checkpoint_no_watermark(tmp_path: Path) -> None:
     def fetcher(*_args):
-        return FetchResult(status="rate_limited", request_completed=False, http_status=429, errors=["HTTP 429"], provenance={"test": True})
+        return FetchResult(
+            status="rate_limited",
+            request_completed=False,
+            http_status=429,
+            errors=["HTTP 429"],
+            provenance={"test": True},
+        )
 
     adapter = PNCPAdapter(config(tmp_path), page_fetcher=fetcher)
     adapter.legacy.INGESTION_MODALIDADES = [1]
-    result = adapter.fetch(CrawlRequest(mode="incremental", date_from=date(2026, 7, 17), date_to=date(2026, 7, 17), run_id="r429"))
+    result = adapter.fetch(
+        CrawlRequest(mode="incremental", date_from=date(2026, 7, 17), date_to=date(2026, 7, 17), run_id="r429")
+    )
     assert result.status == "rate_limited"
     assert adapter.checkpoints.pending("pncp")
     assert not list((tmp_path / "ops" / "watermarks").glob("**/*.json"))
@@ -180,7 +332,13 @@ def test_daily_request_budget_blocks_new_slice(tmp_path: Path) -> None:
     def fetcher(*_args):
         nonlocal calls
         calls += 1
-        return FetchResult(status="success", records=[{"id": calls}], request_completed=True, http_status=200, metadata={"pagination": {"totalPaginas": 1, "paginasRestantes": 0}})
+        return FetchResult(
+            status="success",
+            records=[{"id": calls}],
+            request_completed=True,
+            http_status=200,
+            metadata={"pagination": {"totalPaginas": 1, "paginasRestantes": 0}},
+        )
 
     adapter = PNCPAdapter(config(tmp_path, daily_request_budget=1), page_fetcher=fetcher)
     adapter.legacy.INGESTION_MODALIDADES = [1]
@@ -197,7 +355,14 @@ def test_evidence_and_watermark_require_provenance_and_completeness(tmp_path: Pa
     ledger = EvidenceLedger(tmp_path / "evidence")
     wm = WatermarkStore(tmp_path / "watermarks")
     cp = CanonicalCheckpoint(source="pncp", run_id="r", request_scope="w", status="partial")
-    partial = FetchResult(status="partial", records=[{"id": 1}], request_completed=False, pages_fetched=1, pages_expected=2, provenance={"raw": "x"})
+    partial = FetchResult(
+        status="partial",
+        records=[{"id": 1}],
+        request_completed=False,
+        pages_fetched=1,
+        pages_expected=2,
+        provenance={"raw": "x"},
+    )
     path, evidence = ledger.write(
         source="pncp",
         run_id="r",
@@ -211,7 +376,14 @@ def test_evidence_and_watermark_require_provenance_and_completeness(tmp_path: Pa
     with pytest.raises(ValueError):
         wm.commit(cp, path, evidence)
 
-    complete = FetchResult(status="success", records=[{"id": 1}], request_completed=True, pages_fetched=2, pages_expected=2, provenance={"raw": "x"})
+    complete = FetchResult(
+        status="success",
+        records=[{"id": 1}],
+        request_completed=True,
+        pages_fetched=2,
+        pages_expected=2,
+        provenance={"raw": "x"},
+    )
     path, evidence = ledger.write(
         source="pncp",
         run_id="r",
@@ -231,7 +403,14 @@ def test_evidence_and_watermark_require_provenance_and_completeness(tmp_path: Pa
 def test_live_watermark_requires_db_committed(tmp_path: Path) -> None:
     ledger = EvidenceLedger(tmp_path / "evidence")
     wm = WatermarkStore(tmp_path / "watermarks")
-    complete = FetchResult(status="success", records=[{"id": 1}], request_completed=True, pages_fetched=1, pages_expected=1, provenance={"raw": "x"})
+    complete = FetchResult(
+        status="success",
+        records=[{"id": 1}],
+        request_completed=True,
+        pages_fetched=1,
+        pages_expected=1,
+        provenance={"raw": "x"},
+    )
     path, evidence = ledger.write(
         source="pncp",
         run_id="r",
@@ -268,10 +447,41 @@ def test_dlq_dedup_batch_continue_and_replay(tmp_path: Path) -> None:
 
 
 def test_sc_compras_zero_is_ambiguous(tmp_path: Path) -> None:
-    adapter = ScComprasAdapter(config(tmp_path), list_fetcher=lambda _year: ([], {"ok": True, "total_elementos": 0, "url": "fixture://sc"}))
+    adapter = ScComprasAdapter(
+        config(tmp_path), list_fetcher=lambda _year: ([], {"ok": True, "total_elementos": 0, "url": "fixture://sc"})
+    )
     result = adapter.fetch(CrawlRequest(mode="incremental", date_from=date.today(), date_to=date.today()))
     assert result.status == "partial"
     assert not result.empty_confirmed
+
+
+def test_sc_compras_failure_preserves_received_empty_body(tmp_path: Path) -> None:
+    adapter = ScComprasAdapter(
+        config(tmp_path),
+        list_fetcher=lambda _year: (
+            [],
+            {
+                "ok": False,
+                "http_status": 502,
+                "error": "upstream failure",
+                "url": "https://compras.example/api",
+                "raw_response_body": b"",
+            },
+        ),
+    )
+
+    result = adapter.fetch(
+        CrawlRequest(
+            mode="incremental",
+            date_from=date(2026, 7, 17),
+            date_to=date(2026, 7, 17),
+            run_id="sc-empty-body",
+        )
+    )
+
+    assert result.status == "error"
+    envelope = next((tmp_path / "raw" / "envelopes" / "sc_compras").glob("**/*.json"))
+    assert adapter.raw.load_reference(envelope)["payload"] == b""
 
 
 def test_sc_compras_snapshot_resume_without_http(tmp_path: Path) -> None:
@@ -370,7 +580,11 @@ def test_fixture_cycle_never_makes_live_health_green(tmp_path: Path, monkeypatch
     live_code, live_health = collect_health(env="development")
     assert live_code == 2
     assert live_health["status"] == "no_live_evidence"
-    assert not list((tmp_path / "development" / "ops" / "watermarks").glob("**/*.json")) if (tmp_path / "development").exists() else True
+    assert (
+        not list((tmp_path / "development" / "ops" / "watermarks").glob("**/*.json"))
+        if (tmp_path / "development").exists()
+        else True
+    )
 
 
 def test_checkpoint_invalid_schema_fails_explicitly() -> None:
@@ -392,21 +606,61 @@ def test_pncp_orchestrator_resume_after_429(tmp_path: Path) -> None:
         if page == 1:
             return FetchResult(
                 status="success",
-                records=[{"numeroControlePNCP": "1", "orgaoEntidade": {"cnpj": "1"}, "unidadeOrgao": {}, "anoCompra": 2026, "sequencialCompra": 1}],
+                records=[
+                    {
+                        "numeroControlePNCP": "1",
+                        "orgaoEntidade": {"cnpj": "1"},
+                        "unidadeOrgao": {},
+                        "anoCompra": 2026,
+                        "sequencialCompra": 1,
+                    }
+                ],
                 request_completed=True,
                 http_status=200,
                 provenance={"p": 1},
-                metadata={"pagination": {"totalPaginas": 2, "paginasRestantes": 1, "totalRegistros": 2, "numeroPagina": 1, "empty": False}, "url": "fixture://p1"},
+                metadata={
+                    "pagination": {
+                        "totalPaginas": 2,
+                        "paginasRestantes": 1,
+                        "totalRegistros": 2,
+                        "numeroPagina": 1,
+                        "empty": False,
+                    },
+                    "url": "fixture://p1",
+                },
             )
         if len([p for p in pages_hit if p == 2]) == 1:
-            return FetchResult(status="rate_limited", request_completed=False, http_status=429, errors=["HTTP 429"], provenance={"p": 2})
+            return FetchResult(
+                status="rate_limited",
+                request_completed=False,
+                http_status=429,
+                errors=["HTTP 429"],
+                provenance={"p": 2},
+            )
         return FetchResult(
             status="success",
-            records=[{"numeroControlePNCP": "2", "orgaoEntidade": {"cnpj": "1"}, "unidadeOrgao": {}, "anoCompra": 2026, "sequencialCompra": 2}],
+            records=[
+                {
+                    "numeroControlePNCP": "2",
+                    "orgaoEntidade": {"cnpj": "1"},
+                    "unidadeOrgao": {},
+                    "anoCompra": 2026,
+                    "sequencialCompra": 2,
+                }
+            ],
             request_completed=True,
             http_status=200,
             provenance={"p": 2},
-            metadata={"pagination": {"totalPaginas": 2, "paginasRestantes": 0, "totalRegistros": 2, "numeroPagina": 2, "empty": False}, "url": "fixture://p2"},
+            metadata={
+                "pagination": {
+                    "totalPaginas": 2,
+                    "paginasRestantes": 0,
+                    "totalRegistros": 2,
+                    "numeroPagina": 2,
+                    "empty": False,
+                },
+                "url": "fixture://p2",
+            },
         )
 
     cfg = config(tmp_path, environment="fixture", execution_mode="fixture", page_size=1, max_pages=10, request_delay=0)
@@ -417,7 +671,14 @@ def test_pncp_orchestrator_resume_after_429(tmp_path: Path) -> None:
 
     pipeline = OperationalPipeline(cfg, persistence=InMemoryPersistence())
     scope = "mode=incremental|date=2026-07-17"
-    req = CrawlRequest(mode="incremental", date_from=date(2026, 7, 17), date_to=date(2026, 7, 17), request_scope=scope, run_id="run1", source="pncp")
+    req = CrawlRequest(
+        mode="incremental",
+        date_from=date(2026, 7, 17),
+        date_to=date(2026, 7, 17),
+        request_scope=scope,
+        run_id="run1",
+        source="pncp",
+    )
 
     out1 = pipeline.run_source(adapter, req, run_id="run1")
     assert out1["status"] in {"rate_limited", "partial", "error"} or not out1.get("satisfactory")
@@ -481,12 +742,21 @@ def test_http_policy_respected_by_pncp_http(monkeypatch: pytest.MonkeyPatch) -> 
             assert kwargs["timeout"] == (1.0, 5.0)
             return FakeResp()
 
-    policy = HttpResiliencePolicy(connect_timeout=1.0, read_timeout=5.0, max_retries=2, base_delay=1, max_delay=10, jitter=0, retry_after_fallback=60)
+    policy = HttpResiliencePolicy(
+        connect_timeout=1.0,
+        read_timeout=5.0,
+        max_retries=2,
+        base_delay=1,
+        max_delay=10,
+        jitter=0,
+        retry_after_fallback=60,
+    )
     result = pncp._http_get_json(
         "https://example.test/x",
         session=FakeSession(),  # type: ignore[arg-type]
         sleeper=lambda s: sleeps.append(s),
         http_policy=policy,
+        resolve_initial_dns=False,
     )
     assert result.status == "rate_limited" or not result.request_completed
     assert attempts["n"] == 3  # initial + 2 retries
@@ -526,9 +796,28 @@ def test_freshness_recent_fetch_old_content(tmp_path: Path) -> None:
                 "environment": "development",
                 "execution_mode": "live",
                 "results": {
-                    "pncp": {"status": "success", "satisfactory": True, "operational_satisfactory": True, "db_committed": True, "db_records_committed": 1, "content_max_timestamp": old},
-                    "ciga_dom": {"status": "success", "satisfactory": True, "operational_satisfactory": True, "db_committed": True, "db_records_committed": 1},
-                    "sc_compras": {"status": "success", "satisfactory": True, "operational_satisfactory": True, "db_committed": True, "db_records_committed": 1},
+                    "pncp": {
+                        "status": "success",
+                        "satisfactory": True,
+                        "operational_satisfactory": True,
+                        "db_committed": True,
+                        "db_records_committed": 1,
+                        "content_max_timestamp": old,
+                    },
+                    "ciga_dom": {
+                        "status": "success",
+                        "satisfactory": True,
+                        "operational_satisfactory": True,
+                        "db_committed": True,
+                        "db_records_committed": 1,
+                    },
+                    "sc_compras": {
+                        "status": "success",
+                        "satisfactory": True,
+                        "operational_satisfactory": True,
+                        "db_committed": True,
+                        "db_records_committed": 1,
+                    },
                 },
             }
         ),
@@ -620,13 +909,18 @@ def test_last_success_preserved_after_failure(tmp_path: Path) -> None:
         encoding="utf-8",
     )
     (cfg.ops_path / "latest.json").write_text(
-        json.dumps({"run_id": "x", "mode": "live", "environment": "development", "execution_mode": "live", "results": {}}),
+        json.dumps(
+            {"run_id": "x", "mode": "live", "environment": "development", "execution_mode": "live", "results": {}}
+        ),
         encoding="utf-8",
     )
     for src in ("pncp", "ciga_dom", "sc_compras"):
         p = cfg.ops_path / "latest_sources" / f"{src}.json"
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(json.dumps({"environment": "development", "execution_mode": "live", "result": {"status": "error"}}), encoding="utf-8")
+        p.write_text(
+            json.dumps({"environment": "development", "execution_mode": "live", "result": {"status": "error"}}),
+            encoding="utf-8",
+        )
         if src != "pncp":
             h2 = cfg.ops_path / "run_history" / src
             h2.mkdir(parents=True, exist_ok=True)
@@ -682,7 +976,14 @@ def test_pipeline_crash_after_db_repairs_watermark(tmp_path: Path) -> None:
             return list(raw)
 
     scope = "mode=incremental|date=2026-07-17"
-    req = CrawlRequest(mode="incremental", date_from=date(2026, 7, 17), date_to=date(2026, 7, 17), request_scope=scope, run_id="crash1", source="pncp")
+    req = CrawlRequest(
+        mode="incremental",
+        date_from=date(2026, 7, 17),
+        date_to=date(2026, 7, 17),
+        request_scope=scope,
+        run_id="crash1",
+        source="pncp",
+    )
     p1 = OperationalPipeline(cfg, persistence=mem, crash_after="evidence_committed")
     out1 = p1.run_source(StubAdapter(), req, run_id="crash1")  # type: ignore[arg-type]
     assert out1["status"] == "error"
@@ -714,8 +1015,12 @@ def test_checkpoint_state_machine_happy_path() -> None:
 
 
 def test_breaker_fixture_isolated_from_live(tmp_path: Path) -> None:
-    live = PersistentCircuitBreaker(tmp_path / "breakers", environment="development", source="pncp", threshold=1, cooldown_seconds=1000)
-    fix = PersistentCircuitBreaker(tmp_path / "breakers", environment="fixture", source="pncp", threshold=1, cooldown_seconds=1000)
+    live = PersistentCircuitBreaker(
+        tmp_path / "breakers", environment="development", source="pncp", threshold=1, cooldown_seconds=1000
+    )
+    fix = PersistentCircuitBreaker(
+        tmp_path / "breakers", environment="fixture", source="pncp", threshold=1, cooldown_seconds=1000
+    )
     live.record_failure(http_status=429)
     assert not live.allow_request()
     assert fix.allow_request()

@@ -29,8 +29,11 @@ DEFAULT_META_ROOT = Path(
 MAX_DOCUMENT_BYTES = int(os.environ.get("PROCESS_DOCUMENTS_MAX_BYTES", str(80 * 1024 * 1024)))
 MAX_ZIP_MEMBERS = int(os.environ.get("PROCESS_DOCUMENTS_MAX_ZIP_MEMBERS", "500"))
 MAX_ZIP_UNCOMPRESSED = int(os.environ.get("PROCESS_DOCUMENTS_MAX_ZIP_UNCOMPRESSED", str(200 * 1024 * 1024)))
+MAX_PDF_BYTES = int(os.environ.get("PROCESS_DOCUMENTS_MAX_PDF_BYTES", str(80 * 1024 * 1024)))
+MAX_PDF_PAGES = int(os.environ.get("PROCESS_DOCUMENTS_MAX_PDF_PAGES", "2000"))
 
 _SAFE_NAME = re.compile(r"[^A-Za-z0-9._-]+")
+_PDF_PAGE_MARKER = re.compile(rb"/Type\s*/Page(?![s/\w])")
 
 
 @dataclass(frozen=True)
@@ -44,16 +47,8 @@ class StoredBlob:
 
 def ensure_roots(raw_root: Path | None = None, meta_root: Path | None = None) -> tuple[Path, Path]:
     # Re-read env on each call so tests/ops can override PROCESS_DOCUMENTS_* at runtime.
-    raw = Path(
-        raw_root
-        or os.environ.get("PROCESS_DOCUMENTS_RAW_ROOT")
-        or DEFAULT_RAW_ROOT
-    )
-    meta = Path(
-        meta_root
-        or os.environ.get("PROCESS_DOCUMENTS_META_ROOT")
-        or DEFAULT_META_ROOT
-    )
+    raw = Path(raw_root or os.environ.get("PROCESS_DOCUMENTS_RAW_ROOT") or DEFAULT_RAW_ROOT)
+    meta = Path(meta_root or os.environ.get("PROCESS_DOCUMENTS_META_ROOT") or DEFAULT_META_ROOT)
     raw.mkdir(parents=True, exist_ok=True)
     meta.mkdir(parents=True, exist_ok=True)
     return raw, meta
@@ -86,6 +81,8 @@ def store_blob(
         raise ValueError(f"document exceeds MAX_DOCUMENT_BYTES ({MAX_DOCUMENT_BYTES})")
     if not data:
         raise ValueError("refusing to store empty blob")
+    if data.startswith(b"%PDF"):
+        validate_pdf_limits(data)
     raw, _ = ensure_roots(raw_root=raw_root)
     digest = sha256_bytes(data)
     ext = extension
@@ -105,6 +102,15 @@ def store_blob(
         path=path,
         unchanged=unchanged,
     )
+
+
+def validate_pdf_limits(data: bytes) -> None:
+    """Fail closed on oversized or implausibly page-dense PDF payloads."""
+    if len(data) > MAX_PDF_BYTES:
+        raise ValueError(f"PDF exceeds MAX_PDF_BYTES ({MAX_PDF_BYTES})")
+    page_markers = len(_PDF_PAGE_MARKER.findall(data))
+    if page_markers > MAX_PDF_PAGES:
+        raise ValueError(f"PDF exceeds MAX_PDF_PAGES ({MAX_PDF_PAGES})")
 
 
 def detect_mime(data: bytes, declared: str | None = None) -> str:
@@ -144,7 +150,7 @@ def safe_extract_zip(zip_path: Path, dest_dir: Path) -> list[Path]:
             if name.startswith("/") or ".." in name.split("/"):
                 raise ValueError(f"ZIP path traversal blocked: {info.filename}")
             target = (dest_dir / name).resolve()
-            if not str(target).startswith(str(dest_resolved)):
+            if not target.is_relative_to(dest_resolved):
                 raise ValueError(f"ZIP path escapes dest: {info.filename}")
             target.parent.mkdir(parents=True, exist_ok=True)
             with zf.open(info, "r") as src, target.open("wb") as out:
