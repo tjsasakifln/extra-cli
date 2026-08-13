@@ -156,6 +156,7 @@ def test_queue_idempotency_concurrent_leases_restart_and_json_migration(
         "window_end": now + timedelta(hours=1),
         "freshness_deadline": now + timedelta(hours=1),
         "next_run_at": now,
+        "priority": 2_000_000,
         "domain_concurrency_limit": 4,
     }
     try:
@@ -171,9 +172,14 @@ def test_queue_idempotency_concurrent_leases_restart_and_json_migration(
                 domain_key="test-a.example",
                 **common,
             )
-            queue.enqueue(source="test_queue_b", domain_key="test-b.example", **common)
+            second_id, second_inserted = queue.enqueue(
+                source="test_queue_b",
+                domain_key="test-b.example",
+                **common,
+            )
         assert inserted is True
         assert repeated is False
+        assert second_inserted is True
         assert first_id == repeated_id
 
         barrier = threading.Barrier(2)
@@ -197,7 +203,7 @@ def test_queue_idempotency_concurrent_leases_restart_and_json_migration(
             thread.join(timeout=10)
         claimed_ids = [job_id for _, ids in claims for job_id in ids]
         assert len(claimed_ids) == 2
-        assert len(set(claimed_ids)) == 2
+        assert set(claimed_ids) == {first_id, second_id}
 
         with connect(dsn) as connection, connection.cursor() as cursor:
             cursor.execute(
@@ -255,6 +261,7 @@ def test_domain_concurrency_limit_serializes_workers(runtime_queue_dsn: str) -> 
                     window_end=now + timedelta(hours=1),
                     freshness_deadline=now + timedelta(hours=1),
                     next_run_at=now,
+                    priority=2_000_000,
                     domain_concurrency_limit=1,
                 )
         barrier = threading.Barrier(2)

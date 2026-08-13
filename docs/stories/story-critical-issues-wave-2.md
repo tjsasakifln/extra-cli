@@ -159,6 +159,16 @@ diagnostics contracts must agree atomically.
   a fresh database had the 1,093 seeded entities but no materialized
   `target_universe_entities` snapshot. The test now invokes the existing
   canonical materializer when and only when the active snapshot is empty.
+- Exact-HEAD CI pass 2: 27/28 checks passed, including one canonical full-suite
+  execution. The duplicate full-suite job exposed an intermittent queue claim:
+  PostgreSQL could evaluate the advisory-lock predicate before `LIMIT` and lock
+  a domain belonging to a row that worker never claimed. The short admission
+  transaction is now serialized, with materialized candidate selection and
+  per-domain capacity ranking; leased job execution remains concurrent.
+- Queue race regression after the fix: 200/200 concurrent repetitions passed
+  (100 distinct-domain claims and 100 shared-domain-limit claims); the 92-test
+  focused suite with all PostgreSQL proofs also passed. Draft generated-artifact
+  and reviewability policies remain green with zero violations.
 
 ### Completion Notes
 
@@ -223,3 +233,4 @@ diagnostics contracts must agree atomically.
 | 2026-08-13 | 0.3.0 | IN_PROGRESS | CodeRabbit findings fixed; fresh 001–083 migration and reverse 083–078 rollback passed; strict golden path preserved as PARTIAL |
 | 2026-08-13 | 0.4.0 | IN_PROGRESS | Rebased onto current main; retained upstream fail-closed provenance contract and dropped the superseded local wrapper change |
 | 2026-08-13 | 0.5.0 | IN_PROGRESS | Exact-HEAD CI setup gap fixed without weakening the 1,093/4,372 assertion; CI rerun pending |
+| 2026-08-13 | 0.6.0 | IN_PROGRESS | Exact-HEAD CI isolated an advisory-lock-before-limit race; the short claim admission transaction is now deterministic while leased execution stays concurrent |

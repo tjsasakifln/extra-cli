@@ -195,32 +195,58 @@ class CrawlQueue:
         if limit < 1 or lease_seconds < 1:
             raise ValueError("claim limit and lease_seconds must be positive")
         clock = now or utcnow()
-        self.reclaim_expired(now=clock)
         lease_expires = clock + timedelta(seconds=lease_seconds)
         with self.connection.cursor() as cursor:
+            # Serialize the short admission transaction, not job execution. This
+            # makes the active-domain count authoritative for every claimant;
+            # workers commit immediately after claim and then run concurrently.
+            cursor.execute(
+                "SELECT pg_advisory_xact_lock(hashtext('extra:crawl_queue:admission:v1'))"
+            )
+            self.reclaim_expired(now=clock)
             cursor.execute(
                 """
-                WITH candidates AS (
-                    SELECT candidate.id
+                WITH active_domains AS MATERIALIZED (
+                    SELECT domain_key, COUNT(*) AS active_count
+                    FROM crawl_jobs
+                    WHERE status = 'running'
+                      AND lease_expires_at >= %s
+                    GROUP BY domain_key
+                ),
+                ranked AS MATERIALIZED (
+                    SELECT candidate.id,
+                           candidate.domain_key,
+                           candidate.priority,
+                           candidate.freshness_deadline,
+                           candidate.next_run_at,
+                           ROW_NUMBER() OVER (
+                               PARTITION BY candidate.domain_key
+                               ORDER BY candidate.priority DESC,
+                                        candidate.freshness_deadline ASC,
+                                        candidate.next_run_at ASC,
+                                        candidate.id ASC
+                           ) AS domain_slot,
+                           GREATEST(
+                               candidate.domain_concurrency_limit
+                               - COALESCE(active.active_count, 0),
+                               0
+                           ) AS available_slots
                     FROM crawl_jobs candidate
+                    LEFT JOIN active_domains active USING (domain_key)
                     WHERE candidate.status = 'queued'
                       AND candidate.next_run_at <= %s
-                      AND pg_try_advisory_xact_lock(hashtext(candidate.domain_key))
-                      AND NOT EXISTS (
-                          SELECT 1
-                          FROM crawl_jobs active
-                          WHERE active.status = 'running'
-                            AND active.domain_key = candidate.domain_key
-                            AND active.lease_expires_at >= %s
-                          GROUP BY active.domain_key
-                          HAVING COUNT(*) >= candidate.domain_concurrency_limit
-                      )
-                    ORDER BY candidate.priority DESC,
-                             candidate.freshness_deadline ASC,
-                             candidate.next_run_at ASC,
-                             candidate.id ASC
+                ),
+                candidates AS MATERIALIZED (
+                    SELECT candidate.id, candidate.domain_key
+                    FROM crawl_jobs candidate
+                    JOIN ranked ON ranked.id = candidate.id
+                    WHERE ranked.domain_slot <= ranked.available_slots
+                    ORDER BY ranked.priority DESC,
+                             ranked.freshness_deadline ASC,
+                             ranked.next_run_at ASC,
+                             ranked.id ASC
                     LIMIT %s
-                    FOR UPDATE SKIP LOCKED
+                    FOR UPDATE OF candidate SKIP LOCKED
                 )
                 UPDATE crawl_jobs job
                 SET status = 'running', lease_owner = %s,
