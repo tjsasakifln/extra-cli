@@ -100,6 +100,15 @@ def runtime_queue_dsn() -> str:
 @pytest.mark.database
 @pytest.mark.integration
 def test_real_active_universe_dry_run_reconciles_1093_and_4372(runtime_queue_dsn: str) -> None:
+    from scripts.ops.materialize_canonical_spine import ensure_target_universe
+
+    with connect(runtime_queue_dsn) as connection, connection.cursor() as cursor:
+        cursor.execute("SELECT COUNT(*) AS count FROM v_target_universe_active")
+        active_count = int(cursor.fetchone()["count"])
+        if active_count == 0:
+            materialized = ensure_target_universe(connection, dsn=runtime_queue_dsn)
+            assert materialized["status"] == "ok", materialized
+
     with connect(runtime_queue_dsn) as connection:
         pairs = load_pairs_from_database(connection)
         result = reconcile_schedule(

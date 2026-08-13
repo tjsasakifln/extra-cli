@@ -154,6 +154,11 @@ diagnostics contracts must agree atomically.
   selected PostgreSQL proofs then passed with `RESILIENCE_REQUIRE_DB=1`.
 - PR policy preflight: generated-artifacts and draft reviewability both passed
   with zero violations. Scheduler and worker hardening both scored 1.0.
+- Exact-HEAD CI pass 1: every fast/quality/security/resilience gate passed;
+  both jobs containing the canonical full suite found the same test-setup gap:
+  a fresh database had the 1,093 seeded entities but no materialized
+  `target_universe_entities` snapshot. The test now invokes the existing
+  canonical materializer when and only when the active snapshot is empty.
 
 ### Completion Notes
 
@@ -217,3 +222,4 @@ diagnostics contracts must agree atomically.
 | 2026-08-13 | 0.2.0 | IN_PROGRESS | Waves A–D implemented; focused + PostgreSQL evidence passed; full gates pending |
 | 2026-08-13 | 0.3.0 | IN_PROGRESS | CodeRabbit findings fixed; fresh 001–083 migration and reverse 083–078 rollback passed; strict golden path preserved as PARTIAL |
 | 2026-08-13 | 0.4.0 | IN_PROGRESS | Rebased onto current main; retained upstream fail-closed provenance contract and dropped the superseded local wrapper change |
+| 2026-08-13 | 0.5.0 | IN_PROGRESS | Exact-HEAD CI setup gap fixed without weakening the 1,093/4,372 assertion; CI rerun pending |
