@@ -7,8 +7,7 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -66,7 +65,7 @@ ABORT = {
 
 
 def utcnow() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def cycle_path() -> Path:
@@ -153,7 +152,6 @@ def advance(cycle: dict[str, Any], to_phase: str, *, actor: str, evidence: dict[
         )
     cycle["phase"] = to_phase
     # next required
-    idx = PHASES.index(to_phase) if to_phase in PHASES else -1
     if to_phase == "DONE":
         cycle["next_phase_required"] = None
         cycle["status"] = "completed"

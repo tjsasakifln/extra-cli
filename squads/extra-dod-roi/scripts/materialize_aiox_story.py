@@ -9,8 +9,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -20,7 +19,7 @@ REPO = SQUAD_DIR.parent.parent
 
 
 def utcnow() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def slugify(s: str) -> str:
@@ -98,13 +97,13 @@ def build_story_md(
 
     return f"""# Story: {title}
 
-**Story ID:** `{story_id}`  
-**Epic:** EPIC-EXTRA-DOD-ROI (evergreen)  
-**Status:** Draft  
-**Risk level:** **{risk_for_candidate(cand)}**  
-**Source:** squad `extra-dod-roi` force-next (cycle `{cycle_id}`)  
-**Candidate ID:** `{cand.get("id")}`  
-**ROI:** `{cand.get("roi")}`  
+**Story ID:** `{story_id}`<br>
+**Epic:** EPIC-EXTRA-DOD-ROI (evergreen)<br>
+**Status:** Draft<br>
+**Risk level:** **{risk_for_candidate(cand)}**<br>
+**Source:** squad `extra-dod-roi` force-next (cycle `{cycle_id}`)<br>
+**Candidate ID:** `{cand.get("id")}`<br>
+**ROI:** `{cand.get("roi")}`<br>
 **DoD refs:** {dod_refs}
 
 > **FOOL-PROOF BINDING:** This story was materialized exclusively from ranking[0].
@@ -115,8 +114,8 @@ def build_story_md(
 
 ## Story
 
-As **Tiago (operator of Extra Consultoria B2G tooling)**,  
-I want **{cand.get("title")}**,  
+As **Tiago (operator of Extra Consultoria B2G tooling)**,<br>
+I want **{cand.get("title")}**,<br>
 so that **the project advances the highest-ROI unlocked DoD gate without false greens**.
 
 ---

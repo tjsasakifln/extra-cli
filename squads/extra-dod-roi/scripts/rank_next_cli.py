@@ -10,7 +10,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -19,14 +19,14 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 SQUAD_DIR = SCRIPT_DIR.parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
-from snapshot_state import collect_snapshot, repo_root_from  # noqa: E402
-from parse_dod import parse_dod  # noqa: E402
-from graph_build import build_default_graph  # noqa: E402
-from score_roi import load_weights, rank_candidates  # noqa: E402
 from generate_candidates import (  # noqa: E402
     generate_dynamic_candidates,
     load_campaign_accepted_ids,
 )
+from graph_build import build_default_graph  # noqa: E402
+from parse_dod import parse_dod  # noqa: E402
+from score_roi import load_weights, rank_candidates  # noqa: E402
+from snapshot_state import collect_snapshot, repo_root_from  # noqa: E402
 
 
 def _load_story_state(root: Path, story_id: str) -> dict[str, Any] | None:
@@ -133,7 +133,6 @@ def apply_completion_filters(
             divergences.append(f"Candidate {cand_id} marked COMPLETED: {reason}")
     # Demote dynamic slices whose dod_item_ids are all already accepted/checked
     accepted = load_campaign_accepted_ids(root)
-    matrix_done: set[str] = set()
     # Also demote if every item is already checkbox=true in live matrix (caller may pass)
     for c in candidates:
         if c.get("status") != "UNLOCKED":
@@ -745,7 +744,7 @@ def run_rank_next(
 
     result = {
         "version": "1.0.0",
-        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "generated_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "mode": "read-only",
         "command": "rank-next",
         "git": snapshot.get("git"),

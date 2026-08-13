@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -11,6 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 SCRIPTS = ROOT / "squads" / "extra-dod-roi" / "scripts"
 SQUAD = ROOT / "squads" / "extra-dod-roi"
+GIT = shutil.which("git")
 
 
 class MainDirectModeTests(unittest.TestCase):
@@ -26,7 +28,7 @@ class MainDirectModeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             squad = Path(td)
             (squad / "state" / "locks").mkdir(parents=True)
-            proc = subprocess.run(
+            proc = subprocess.run(  # noqa: S603 - sys.executable + in-repo script
                 [
                     sys.executable,
                     str(SCRIPTS / "main_writer_lock.py"),
@@ -48,7 +50,7 @@ class MainDirectModeTests(unittest.TestCase):
                 check=False,
             )
             self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
-            st = subprocess.run(
+            st = subprocess.run(  # noqa: S603 - sys.executable + in-repo script
                 [
                     sys.executable,
                     str(SCRIPTS / "main_writer_lock.py"),
@@ -67,7 +69,7 @@ class MainDirectModeTests(unittest.TestCase):
             self.assertEqual(data["lock"]["task"], "test-task")
             self.assertIn("intended_files", data["lock"])
             # second acquire without force fails
-            proc2 = subprocess.run(
+            proc2 = subprocess.run(  # noqa: S603 - sys.executable + in-repo script
                 [
                     sys.executable,
                     str(SCRIPTS / "main_writer_lock.py"),
@@ -87,7 +89,7 @@ class MainDirectModeTests(unittest.TestCase):
             self.assertEqual(proc2.returncode, 1)
             self.assertIn("LOCK_HELD", proc2.stdout)
             # release
-            rel = subprocess.run(
+            rel = subprocess.run(  # noqa: S603 - sys.executable + in-repo script
                 [
                     sys.executable,
                     str(SCRIPTS / "main_writer_lock.py"),
@@ -102,7 +104,7 @@ class MainDirectModeTests(unittest.TestCase):
                 check=False,
             )
             self.assertEqual(rel.returncode, 0, rel.stdout + rel.stderr)
-            st2 = subprocess.run(
+            st2 = subprocess.run(  # noqa: S603 - sys.executable + in-repo script
                 [
                     sys.executable,
                     str(SCRIPTS / "main_writer_lock.py"),
@@ -118,15 +120,17 @@ class MainDirectModeTests(unittest.TestCase):
             self.assertFalse(json.loads(st2.stdout).get("held"))
 
     def test_enforce_implement_on_main_requires_writer_lock(self):
-        branch = subprocess.check_output(
-            ["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=str(ROOT), text=True
+        if GIT is None:
+            self.skipTest("git executable unavailable")
+        branch = subprocess.check_output(  # noqa: S603 - fixed resolved git executable
+            [GIT, "rev-parse", "--abbrev-ref", "HEAD"], cwd=str(ROOT), text=True
         ).strip()
         if branch != "main":
             self.skipTest("main-direct implement gate tested on main only")
         lock = SQUAD / "state" / "locks" / "main-writer.lock"
         if lock.exists():
             lock.unlink()
-        proc = subprocess.run(
+        proc = subprocess.run(  # noqa: S603 - sys.executable + in-repo script
             [sys.executable, str(SCRIPTS / "enforce_aiox_path.py"), "implement"],
             cwd=str(ROOT),
             capture_output=True,

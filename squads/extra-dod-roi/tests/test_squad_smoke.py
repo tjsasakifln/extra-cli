@@ -91,7 +91,7 @@ class SquadSmoke(unittest.TestCase):
                 },
             ]
         }
-        proc = subprocess.run(
+        proc = subprocess.run(  # noqa: S603 - sys.executable + in-repo script
             [sys.executable, str(SCRIPTS / "score_roi.py"), "--input", "-", "--weights", str(SQUAD / "data" / "roi-weights.yaml")],
             input=json.dumps(payload),
             text=True,
@@ -105,7 +105,7 @@ class SquadSmoke(unittest.TestCase):
         self.assertGreater(data["candidates"][0]["roi"], data["candidates"][1]["roi"])
 
     def test_parse_dod_summary(self):
-        proc = subprocess.run(
+        proc = subprocess.run(  # noqa: S603 - sys.executable + in-repo script
             [sys.executable, str(SCRIPTS / "parse_dod.py"), "--summary-only"],
             cwd=str(ROOT),
             capture_output=True,
@@ -118,7 +118,7 @@ class SquadSmoke(unittest.TestCase):
         self.assertIn("dod_sha256", data)
 
     def test_snapshot_and_rank(self):
-        proc = subprocess.run(
+        proc = subprocess.run(  # noqa: S603 - sys.executable + in-repo script
             [sys.executable, str(SCRIPTS / "rank_next_cli.py"), "--top", "5", "--json"],
             cwd=str(ROOT),
             capture_output=True,
@@ -149,7 +149,7 @@ class FoolproofEnforcement(unittest.TestCase):
     def test_implement_gate_is_fail_closed_or_allows_active_cycle(self):
         # When a foolproof cycle is STORY_READY/IMPLEMENTING on a non-main branch,
         # implement is allowed. Otherwise the gate must fail closed with a known code.
-        proc = subprocess.run(
+        proc = subprocess.run(  # noqa: S603 - sys.executable + in-repo script
             [sys.executable, str(SCRIPTS / "enforce_aiox_path.py"), "implement"],
             cwd=str(ROOT),
             capture_output=True,
@@ -191,7 +191,8 @@ class FoolproofEnforcement(unittest.TestCase):
         from importlib.util import module_from_spec, spec_from_file_location
 
         spec = spec_from_file_location("cycle_state", SCRIPTS / "cycle_state.py")
-        assert spec and spec.loader
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
         mod = module_from_spec(spec)
         spec.loader.exec_module(mod)
         # INIT cannot jump to IMPLEMENTING

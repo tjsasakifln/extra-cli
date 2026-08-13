@@ -12,18 +12,21 @@ import argparse
 import hashlib
 import json
 import re
+import shutil
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 SQUAD_DIR = SCRIPT_DIR.parent
+GIT = shutil.which("git")
+if GIT is None:
+    raise RuntimeError("git executable not found")
 sys.path.insert(0, str(SCRIPT_DIR))
 
 from dod_ids import normalize_text, stable_dod_id  # noqa: E402
-from parse_dod import parse_dod  # noqa: E402
 from rank_next_cli import run_rank_next  # noqa: E402
 from snapshot_state import repo_root_from  # noqa: E402
 
@@ -32,7 +35,7 @@ DEFAULT_TARGET = 50
 
 
 def utcnow() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def ledger_path(root: Path) -> Path:
@@ -115,15 +118,17 @@ def ensure_baseline(root: Path, target: int) -> dict[str, Any]:
     items = parse_items(text)
     open_items = [x for x in items if not x["checked"]]
     done_items = [x for x in items if x["checked"]]
-    head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+    head = subprocess.check_output(  # noqa: S603 - fixed resolved git executable
+        [GIT, "rev-parse", "HEAD"], cwd=root, text=True
+    ).strip()
     try:
-        main = subprocess.check_output(
-            ["git", "rev-parse", "origin/main"], cwd=root, text=True
+        main = subprocess.check_output(  # noqa: S603 - fixed resolved git executable
+            [GIT, "rev-parse", "origin/main"], cwd=root, text=True
         ).strip()
     except subprocess.CalledProcessError:
         main = None
-    branch = subprocess.check_output(
-        ["git", "branch", "--show-current"], cwd=root, text=True
+    branch = subprocess.check_output(  # noqa: S603 - fixed resolved git executable
+        [GIT, "branch", "--show-current"], cwd=root, text=True
     ).strip()
     ledger = {
         "version": "1.0.0",
