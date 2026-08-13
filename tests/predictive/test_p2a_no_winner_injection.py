@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from scripts.predictive.dataset import build_competitive_winner_dataset
 
 
 def test_cold_start_winner_not_injected_and_outcome_dropped():
     """New supplier who never won before must not appear via force-include."""
-    base = datetime(2021, 1, 1, tzinfo=timezone.utc)
+    base = datetime(2021, 1, 1, tzinfo=UTC)
     contracts = []
     # Build history with suppliers 0-2 only
     for i in range(30):
@@ -47,7 +47,7 @@ def test_cold_start_winner_not_injected_and_outcome_dropped():
 
 
 def test_known_winner_in_history_still_labeled():
-    base = datetime(2021, 1, 1, tzinfo=timezone.utc)
+    base = datetime(2021, 1, 1, tzinfo=UTC)
     contracts = []
     for i in range(40):
         contracts.append(

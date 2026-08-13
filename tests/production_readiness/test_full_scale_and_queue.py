@@ -82,8 +82,7 @@ def test_process_stream_resume_midway(tmp_path: Path) -> None:
     assert b_partial["final_offset"] == 300
     # continue remaining
     def rest():
-        for row in stream_synthetic_contracts(n, start_offset=300):
-            yield row
+        yield from stream_synthetic_contracts(n, start_offset=300)
 
     b_full = process_stream(
         rest(),

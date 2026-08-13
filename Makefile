@@ -210,14 +210,20 @@ pre-vps-final-gate:
 
 .PHONY: lint
 lint:
-	@echo '==> [$(ENV)] Verificando lint e formatação'
-	ruff check $(SCRIPTS_DIR)/
-	ruff format --check $(SCRIPTS_DIR)/
+	@echo '==> [$(ENV)] Verificando lint repository-wide'
+	ruff check .
 
 .PHONY: lint-fix
 lint-fix:
-	@echo '==> [$(ENV)] Corrigindo lint e formatando'
-	ruff check --fix $(SCRIPTS_DIR)/
+	@echo '==> [$(ENV)] Aplicando correções seguras de lint repository-wide'
+	ruff check --fix .
+
+.PHONY: format-check
+format-check:
+	ruff format --check $(SCRIPTS_DIR)/
+
+.PHONY: format
+format:
 	ruff format $(SCRIPTS_DIR)/
 
 # ── Ambiente ────────────────────────────────────────────────────────────────

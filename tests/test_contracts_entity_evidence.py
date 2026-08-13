@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-from datetime import date, timedelta
 from pathlib import Path
 
 import pytest
@@ -16,8 +15,8 @@ from scripts.coverage.contracts_entity_evidence import (
     project_historical_contracts_evidence,
 )
 from scripts.coverage.dual_capability_coverage import (
-    contracts_backfill_ok,
     EvidenceObservation,
+    contracts_backfill_ok,
 )
 from scripts.lib.universe import load_canonical_universe, resolve_default_seed_path
 

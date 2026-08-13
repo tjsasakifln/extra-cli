@@ -19,7 +19,7 @@ commands:
     python3 -m scripts.ops.apply_migrations --dsn "$LOCAL_DATALAKE_DSN"
   validate: |
     python3 -m pytest tests/ -q --tb=no -x
-    ruff check scripts/
+    ruff check .
     python3 -m scripts.ops.source_contract_tests --json
   golden_path: |
     python3 -m scripts.golden_path --dsn "$LOCAL_DATALAKE_DSN"

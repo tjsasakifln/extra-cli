@@ -150,6 +150,7 @@ def test_profile_rejects_forbidden_language(tmp_path):
     )
     cat.write_text(f"catalog_version: '1'\nsignals:\n{sigs}", encoding="utf-8")
     import pytest
+
     from scripts.commercial_leads.profile import load_profile
 
     with pytest.raises(ValueError, match="forbidden"):

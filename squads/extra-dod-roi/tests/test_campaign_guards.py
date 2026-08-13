@@ -7,19 +7,17 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
-from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[3]
 SCRIPTS = ROOT / "squads" / "extra-dod-roi" / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 from campaign import (  # noqa: E402
-    ensure_baseline,
+    parse_items,
     reconstruct_accepted_from_diff,
     register_acceptance,
     validate_evidence_quality,
     validate_guards,
-    parse_items,
 )
 from dod_ids import stable_dod_id  # noqa: E402
 from generate_candidates import generate_dynamic_candidates  # noqa: E402
@@ -125,7 +123,6 @@ class CampaignGuards(unittest.TestCase):
             # broken on purpose: same text can't be both; use proper file
             (root / "DOD.md").write_text("# S\n- [x] Open item one.\n", encoding="utf-8")
             # build ledger manually with open baseline
-            from campaign import save_ledger, utcnow
 
             items = parse_items("# S\n- [ ] Open item one.\n")
             open_id = items[0]["id"]

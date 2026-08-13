@@ -10,9 +10,9 @@ import pytest
 from scripts.process_documents.entity_queue import (
     EntityQueueEntry,
     SourceQueueEntry,
+    append_dlq_record,
     apply_multi_source_attempt,
     apply_source_attempt_result,
-    append_dlq_record,
     backpressure_allows,
     compute_backoff_hours,
     ensure_entity_source_pairs,

@@ -4,8 +4,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 from scripts.integrations.smartlic_snapshot_import import (
     CONTRACTS_FIELD_MAP,
     content_hash_record,

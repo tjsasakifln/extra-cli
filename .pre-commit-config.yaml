@@ -9,11 +9,12 @@ repos:
   # RUFF — formato + linter
   # ────────────────────────────────────────────────────────────────────────────
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.9.5
+    rev: v0.15.12
     hooks:
       - id: ruff-format
         name: ruff-format
         description: "Auto-format Python code (ruff formatter)"
+        files: ^scripts/
       - id: ruff
         name: ruff-check
         description: "Lint Python code (ruff linter) with auto-fix"

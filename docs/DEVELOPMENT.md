@@ -49,7 +49,7 @@ python3 -m scripts.ops.apply_migrations --dsn "$LOCAL_DATALAKE_DSN"
 
 # Validação rápida
 python3 -m pytest tests/ -q --tb=no -x
-ruff check scripts/
+ruff check .
 python3 -m scripts.ops.source_contract_tests --json
 
 # Golden path (fail-closed — prova técnica de pipeline)

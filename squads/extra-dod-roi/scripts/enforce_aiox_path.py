@@ -9,22 +9,26 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import shutil
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 SQUAD_DIR = SCRIPT_DIR.parent
 REPO = SQUAD_DIR.parent.parent  # squads/extra-dod-roi -> repo root
+GIT = shutil.which("git")
+if GIT is None:
+    raise RuntimeError("git executable not found")
 
 sys.path.insert(0, str(SCRIPT_DIR))
 from integration_mode import is_main_direct, load_integration_mode  # noqa: E402
 
 
 def utcnow() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def fail(code: str, message: str, **extra: Any) -> int:
@@ -40,7 +44,9 @@ def ok(message: str, **extra: Any) -> int:
 
 def git(*args: str) -> str:
     try:
-        return subprocess.check_output(["git", *args], cwd=str(REPO), text=True).strip()
+        return subprocess.check_output(  # noqa: S603 - fixed resolved git executable
+            [GIT, *args], cwd=str(REPO), text=True
+        ).strip()
     except Exception:
         return ""
 
@@ -73,8 +79,8 @@ def writer_lock_valid() -> tuple[bool, dict[str, Any] | None, str]:
     exp = data.get("expires_at")
     if exp:
         try:
-            dt = datetime.strptime(exp, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
-            if datetime.now(timezone.utc) > dt:
+            dt = datetime.strptime(exp, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=UTC)
+            if datetime.now(UTC) > dt:
                 return False, data, "main-writer.lock expired"
         except ValueError:
             return False, data, "main-writer.lock expires_at invalid"
@@ -98,8 +104,8 @@ def check_stale_rank(rank: dict[str, Any]) -> list[str]:
     if gen:
         try:
             # 2026-07-17T21:34:02Z
-            dt = datetime.strptime(gen, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
-            age_h = (datetime.now(timezone.utc) - dt).total_seconds() / 3600.0
+            dt = datetime.strptime(gen, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=UTC)
+            age_h = (datetime.now(UTC) - dt).total_seconds() / 3600.0
             if age_h > 4:
                 reasons.append(f"ranking age {age_h:.1f}h > 4h")
         except ValueError:

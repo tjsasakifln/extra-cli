@@ -13,6 +13,7 @@ from scripts.confenge_outreach_pipeline.adapt import (
 from scripts.confenge_outreach_pipeline.cli import main as cli_main
 from scripts.confenge_outreach_pipeline.pipeline import (
     PipelineConfig,
+    _dedupe_decision_rows,
     _published_target_fit_snapshot,
     run_pipeline,
 )
@@ -74,6 +75,21 @@ def test_offline_snapshot_uses_embedded_decisions() -> None:
     assert snapshot == rows
     assert authority == "universe_embedded_snapshot"
     assert watermark is None
+
+
+def test_authoritative_decision_universe_dedupes_canonical_cnpj() -> None:
+    rows = [
+        {"cnpj14": "11.222.333/0001-81", "entity_key": "brand:first"},
+        {"cnpj14": "11222333000181", "entity_key": "brand:duplicate"},
+        {"cnpj14": "22.333.444/0001-72", "entity_key": "brand:other"},
+        {"cnpj14": "invalid", "entity_key": "unaddressable"},
+    ]
+
+    decisions, duplicates = _dedupe_decision_rows(rows)
+
+    assert duplicates == 1
+    assert [row["cnpj14"] for row in decisions] == ["11222333000181", "22333444000172"]
+    assert decisions[0]["entity_key"] == "brand:first"
 
 
 def test_production_snapshot_uses_published_store_and_canonicalizes_prevencao(

@@ -36,13 +36,15 @@ from rank_next_cli import run_rank_next  # noqa: E402
 
 def run(cmd: list[str], *, quiet: bool = False) -> int:
     if quiet:
-        return subprocess.call(
+        return subprocess.call(  # noqa: S603 - internal argv assembled by this CLI
             cmd,
             cwd=str(REPO),
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
-    return subprocess.call(cmd, cwd=str(REPO))
+    return subprocess.call(  # noqa: S603 - internal argv assembled by this CLI
+        cmd, cwd=str(REPO)
+    )
 
 
 def build_card(

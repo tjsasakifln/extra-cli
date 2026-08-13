@@ -8,10 +8,9 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import os
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -30,7 +29,7 @@ def repo_root_from(start: Path | None = None) -> Path:
 
 def run(cmd: list[str], cwd: Path, timeout: int = 60) -> tuple[int, str, str]:
     try:
-        proc = subprocess.run(
+        proc = subprocess.run(  # noqa: S603 - internal argv, always shell=False
             cmd,
             cwd=str(cwd),
             capture_output=True,
@@ -63,7 +62,7 @@ def list_dir_names(path: Path, limit: int = 200) -> list[str]:
 
 
 def collect_snapshot(root: Path, fetch_remote: bool = False) -> dict[str, Any]:
-    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    now = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     snap: dict[str, Any] = {
         "version": "1.0.0",
         "generated_at": now,

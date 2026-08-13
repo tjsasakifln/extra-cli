@@ -4,19 +4,19 @@ from __future__ import annotations
 
 from datetime import date, timedelta
 
+from scripts.commercial_leads.commercial_validity import evaluate_supplier_validity
+from scripts.commercial_leads.geography import classify_geography
 from scripts.commercial_leads.sector_fit import (
     CLASS_CONFIRMED,
+    CLASS_CONFLICTING,
     CLASS_OUT,
     CLASS_POSSIBLE,
     CLASS_STRONG,
     CLASS_UNKNOWN,
-    CLASS_CONFLICTING,
     PUBLISHABLE,
     assert_denominator_invariant,
     classify_supplier_sector_fit,
 )
-from scripts.commercial_leads.commercial_validity import evaluate_supplier_validity
-from scripts.commercial_leads.geography import classify_geography
 
 
 def _ctr(

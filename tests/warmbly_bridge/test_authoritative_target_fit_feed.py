@@ -273,6 +273,30 @@ def test_freshness_uses_canonical_datalake_watermark_not_export_clock(tmp_path: 
     assert manifest["source"]["datalake_watermark"] == source_watermark
 
 
+def test_database_datetime_strings_are_serialized_as_rfc3339(tmp_path: Path) -> None:
+    database_timestamp = "2026-08-12 12:00:00.123456+00:00"
+    universe = [
+        {"cnpj14": "11222333000181", "razao_social": "ALFA ENGENHARIA", "commercial_state": "NEW"}
+    ]
+    decision = _decision(
+        "11222333000181",
+        "TARGET_CONFIRMED",
+        watermark=database_timestamp,
+        evidence_ids=["e1"],
+    )
+
+    _, leads = _export(
+        tmp_path,
+        universe=universe,
+        target_fit=[decision],
+        suffix="rfc3339-database-timestamp",
+        datalake_watermark=database_timestamp,
+    )
+
+    assert leads[0]["target_fit_computed_at"] == "2026-08-12T12:00:00.123456Z"
+    assert leads[0]["target_fit_source_watermark"] == "2026-08-12T12:00:00.123456Z"
+
+
 def test_cli_exposes_canonical_datalake_watermark() -> None:
     from scripts.warmbly_bridge.cli import build_parser
 

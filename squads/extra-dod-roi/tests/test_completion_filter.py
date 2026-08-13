@@ -11,8 +11,8 @@ SCRIPTS = ROOT / "squads" / "extra-dod-roi" / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 from rank_next_cli import (  # noqa: E402
-    apply_completion_filters,
     _story_done,
+    apply_completion_filters,
 )
 
 

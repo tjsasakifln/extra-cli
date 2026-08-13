@@ -8,8 +8,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 from scripts.confenge_activation.emit_final_closure_pack import (
     assert_pack_postconditions,
     build_sha_binding,

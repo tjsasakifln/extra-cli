@@ -1,16 +1,15 @@
 {
   "schema_version": "1.1",
   "active": {
-    "reason": "PR #186 Command Center is a single product surface (backend + apps/command-center + adapters + tests). File/line counts exceed ready limits due to the full workbench surface already on the branch; scope cannot be split without breaking the local consulting UX. Binary product files are NOT waived here — only size/multi-cap. The official logo uses path_sha_exceptions.",
+    "reason": "PR #325 closes one coordinated fail-closed data-truth wave whose migrations, canonical runtime consumers, pilot gate, and commercial CNPJ-only consumers must change atomically. Splitting after adversarial validation would temporarily reintroduce incompatible supplier identity and pilot-coverage semantics. The human owner explicitly authorized the necessary exception on 2026-08-13. No file-count, line-count, binary, generated-artifact, lint, test, or CI gate is waived.",
     "owner": "tjsasakifln",
-    "deadline": "2026-09-30",
+    "deadline": "2026-08-20",
     "approved_by": "tjsasakifln",
     "waives": [
-      "too_many_files",
-      "too_many_textual_lines"
+      "multi_capability_mix"
     ],
-    "pr": 186,
-    "branch": "feat/extra-local-command-center"
+    "pr": 325,
+    "branch": "agent/critical-issues-wave-1"
   },
   "path_sha_exceptions": [
     {

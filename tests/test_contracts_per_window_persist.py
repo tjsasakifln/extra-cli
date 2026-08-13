@@ -1,8 +1,6 @@
 """Contracts crawler per-window persist helper."""
 from __future__ import annotations
 
-import os
-
 from scripts.crawl.contracts_crawler import _persist_window_if_enabled
 
 

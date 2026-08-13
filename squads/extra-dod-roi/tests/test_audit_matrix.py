@@ -375,8 +375,8 @@ class SkepticRemediationGuards(unittest.TestCase):
 
     def test_len_gt_100_rejected_for_semantic_claim(self) -> None:
         """validate_row_chain must reject len(t)>100 as sole proof of semantic claim."""
-        from canonical_count import validate_row_chain  # noqa: WPS433
         from campaign import load_ledger  # noqa: WPS433
+        from canonical_count import validate_row_chain  # noqa: WPS433
 
         ledger = load_ledger(ROOT)
         baseline_open = set((ledger.get("baseline") or {}).get("open_ids") or [])

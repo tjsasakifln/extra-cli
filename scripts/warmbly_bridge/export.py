@@ -106,6 +106,45 @@ def _encode_chunk(feed: dict[str, Any]) -> bytes:
     return text.encode("utf-8")
 
 
+def _encoded_lead_item_size(lead: dict[str, Any]) -> int:
+    """Exact byte contribution of one lead inside an indented ``leads`` array."""
+    raw = json.dumps(lead, ensure_ascii=False, indent=2, sort_keys=True, default=str).encode("utf-8")
+    # ``leads`` is a top-level value, so every line of each array item is
+    # shifted four spaces relative to the standalone representation.
+    return len(raw) + 4 * (raw.count(b"\n") + 1)
+
+
+def _provisional_chunk_size(
+    *,
+    lead_item_bytes: int,
+    lead_count: int,
+    source: dict[str, Any],
+    generated_at: str,
+    cursor: str,
+    chunk_index: int,
+) -> int:
+    """Measure a provisional chunk in O(1) after each lead is encoded once."""
+    envelope = {
+        "schema_version": SCHEMA_OUTREACH,
+        "generated_at": generated_at,
+        "source": source,
+        "pagination": {
+            "cursor": cursor,
+            "next_cursor": None,
+            "has_more": False,
+            "chunk_index": chunk_index,
+        },
+        "leads": [],
+    }
+    empty_size = len(_encode_chunk(envelope))
+    if lead_count == 0:
+        return empty_size
+    # Replace the two bytes of ``[]`` with the exact pretty-printed array:
+    # "[\n" + indented items joined by ",\n" + "\n  ]".
+    array_size = 2 + lead_item_bytes + (2 * (lead_count - 1)) + 4
+    return empty_size - 2 + array_size
+
+
 def _decision_cursor(lead: dict[str, Any]) -> str:
     return "|".join(
         (
@@ -125,6 +164,19 @@ def _parse_timestamp(value: Any, *, field: str, cnpj: str) -> datetime:
     if parsed.tzinfo is None:
         raise InputError(f"timezone required in {field} for {cnpj}: {text!r}")
     return parsed.astimezone(UTC)
+
+
+def _rfc3339_timestamp(value: Any, *, field: str, cnpj: str) -> str:
+    """Return the contract timestamp in canonical UTC RFC 3339 form."""
+    return _parse_timestamp(value, field=field, cnpj=cnpj).isoformat().replace("+00:00", "Z")
+
+
+def _normalize_authoritative_timestamps(leads: list[dict[str, Any]]) -> None:
+    """Normalize database datetime strings before schema serialization and hashing."""
+    for lead in leads:
+        cnpj = str((lead.get("company") or {}).get("cnpj14") or "")
+        for field in ("target_fit_source_watermark", "target_fit_computed_at"):
+            lead[field] = _rfc3339_timestamp(lead.get(field), field=field, cnpj=cnpj)
 
 
 def _decision_order_key(lead: dict[str, Any]) -> tuple[datetime, datetime, str, str]:
@@ -207,29 +259,27 @@ def _chunk_leads(
 
     chunks: list[list[dict[str, Any]]] = []
     current: list[dict[str, Any]] = []
+    current_item_bytes = 0
     for lead in leads:
-        trial = current + [lead]
-        # Measure size with a provisional feed envelope.
-        provisional = {
-            "schema_version": SCHEMA_OUTREACH,
-            "generated_at": generated_at,
-            "source": source,
-            "pagination": {
-                "cursor": _decision_cursor(current[0] if current else lead),
-                "next_cursor": None,
-                "has_more": False,
-                "chunk_index": len(chunks),
-            },
-            "leads": trial,
-        }
-        size = len(_encode_chunk(provisional))
-        over_count = len(trial) > max_leads
+        item_size = _encoded_lead_item_size(lead)
+        trial_count = len(current) + 1
+        size = _provisional_chunk_size(
+            lead_item_bytes=current_item_bytes + item_size,
+            lead_count=trial_count,
+            source=source,
+            generated_at=generated_at,
+            cursor=_decision_cursor(current[0] if current else lead),
+            chunk_index=len(chunks),
+        )
+        over_count = trial_count > max_leads
         over_bytes = size > max_bytes and len(current) >= 1
         if (over_count or over_bytes) and current:
             chunks.append(current)
             current = [lead]
+            current_item_bytes = item_size
         else:
-            current = trial
+            current.append(lead)
+            current_item_bytes += item_size
     if current:
         chunks.append(current)
 
@@ -340,6 +390,7 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
         published_index=published_index,
         datalake_watermark=datalake_watermark,
     )
+    _normalize_authoritative_timestamps(leads)
     leads.sort(key=_decision_order_key)
     if cfg.limit is not None:
         leads = leads[: cfg.limit]
