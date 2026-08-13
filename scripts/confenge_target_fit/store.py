@@ -376,6 +376,7 @@ def _normalize_shadow_row(row: dict[str, Any] | None) -> dict[str, Any] | None:
         "computed_at": d.get("computed_at"),
         "source_watermark": d.get("source_watermark"),
         "input_fingerprint": d.get("input_fingerprint"),
+        "classifier_sha": d.get("classifier_sha"),
         "operational_status": d.get("operational_status") or "ok",
         "materialization_mode": "SHADOW",
     }
@@ -463,12 +464,12 @@ def publish_materialization(
                 INSERT INTO confenge_target_fit_shadow (
                     company_key, cnpj_raiz, shadow_class, shadow_confidence,
                     current_class, current_confidence, target_fit_version,
-                    input_fingerprint, evidence, reason_codes, transition,
+                    classifier_sha, input_fingerprint, evidence, reason_codes, transition,
                     source_watermark, computed_at, updated_at
                 ) VALUES (
                     %s, %s, %s, %s,
                     %s, %s, %s,
-                    %s, %s::jsonb, %s::jsonb, %s,
+                    %s, %s, %s::jsonb, %s::jsonb, %s,
                     %s, %s, now()
                 )
                 ON CONFLICT (company_key) DO UPDATE SET
@@ -477,6 +478,7 @@ def publish_materialization(
                     current_class = EXCLUDED.current_class,
                     current_confidence = EXCLUDED.current_confidence,
                     target_fit_version = EXCLUDED.target_fit_version,
+                    classifier_sha = EXCLUDED.classifier_sha,
                     input_fingerprint = EXCLUDED.input_fingerprint,
                     evidence = EXCLUDED.evidence,
                     reason_codes = EXCLUDED.reason_codes,
@@ -493,6 +495,7 @@ def publish_materialization(
                     mat.previous_class,
                     mat.previous_confidence,
                     mat.target_fit_version,
+                    mat.classifier_sha,
                     mat.input_fingerprint,
                     _json(mat.target_fit_evidence),
                     _json(mat.target_fit_reason_codes),

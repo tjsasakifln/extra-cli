@@ -202,7 +202,7 @@ def rebuild(
         for t in terminals:
             fh.write(json.dumps(t, ensure_ascii=False) + "\n")
 
-    cov = measure_terminal_coverage(terminals, target_confirmed_total=len(confirmed_roots))
+    cov = measure_terminal_coverage(terminals, population_total=len(confirmed_roots))
     counts = Counter(t["terminal_state"] for t in terminals)
     full_n = sum(1 for t in terminals if t.get("ladder_complete"))
     # READY/FOUND may short-circuit before full ladder; EXHAUSTED must be full.

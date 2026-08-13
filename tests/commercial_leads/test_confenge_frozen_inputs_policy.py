@@ -403,6 +403,12 @@ def test_binding_allows_edital_fails_on_pipeline(tmp_path: Path, monkeypatch: py
     rep = check_artifact_binding(head_sha=tip, result_path=result)
     assert rep["ok"] is True, rep
 
+    # Establish the unchanged non-terminal artifact at the PR base.
+    blocked = json.loads(result.read_text(encoding="utf-8"))
+    blocked["status"] = "BLOCKED"
+    result.write_text(json.dumps(blocked) + "\n", encoding="utf-8")
+    checkpoint_base = _commit_all(repo, "blocked evidence baseline")
+
     # protected pipeline change
     (repo / "scripts/commercial_leads/pipeline.py").write_text(
         "PIPELINE_V9 = 9\n", encoding="utf-8"
@@ -411,6 +417,42 @@ def test_binding_allows_edital_fails_on_pipeline(tmp_path: Path, monkeypatch: py
     rep2 = check_artifact_binding(head_sha=tip2, result_path=result)
     assert rep2["ok"] is False, rep2
     assert any("protected_input_changed" in i for i in rep2["issues"])
+
+    # An architecture checkpoint may preserve an unchanged BLOCKED artifact as
+    # explicitly stale. It must not rebind evidence to code that was not run live.
+    stale = check_artifact_binding(
+        head_sha=tip2,
+        result_path=result,
+        allow_stale_non_terminal=True,
+        change_base_sha=checkpoint_base,
+    )
+    assert stale["ok"] is True, stale
+    assert stale["status"] == "STALE_EVIDENCE_NON_TERMINAL"
+    assert stale["bound_sha"] == freeze
+
+    # An artifact edit that is only in the worktree is still part of the
+    # checkpoint under review and must fail closed.
+    blocked["note"] = "edited after checkpoint"
+    result.write_text(json.dumps(blocked) + "\n", encoding="utf-8")
+    edited = check_artifact_binding(
+        head_sha=tip2,
+        result_path=result,
+        allow_stale_non_terminal=True,
+        change_base_sha=checkpoint_base,
+    )
+    assert edited["ok"] is False, edited
+    assert edited["details"]["stale_evidence"]["artifacts_changed_in_checkpoint"]
+
+    blocked["status"] = "GO_FOR_REAL_CONFENGE_EMAIL_PILOT"
+    result.write_text(json.dumps(blocked) + "\n", encoding="utf-8")
+    false_go = check_artifact_binding(
+        head_sha=tip2,
+        result_path=result,
+        allow_stale_non_terminal=True,
+        change_base_sha=checkpoint_base,
+    )
+    assert false_go["ok"] is False, false_go
+    assert any("protected_input_changed" in i for i in false_go["issues"])
 
 
 def test_manifest_includes_gates_and_section_keys(tmp_path: Path) -> None:

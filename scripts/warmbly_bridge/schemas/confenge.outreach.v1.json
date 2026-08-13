@@ -61,6 +61,7 @@
         "contracts",
         "evidence",
         "commercial_state",
+        "construction_universe_member",
         "target_fit_class",
         "target_fit_fresh",
         "target_fit_version",
@@ -171,6 +172,10 @@
             "RECOMPUTE_REQUIRED"
           ],
           "description": "Authoritative published ICP decision. TARGET_FIT_MISSING is an explicit fail-closed tombstone; Warmbly must not re-score or retain an older authorization."
+        },
+        "construction_universe_member": {
+          "type": "boolean",
+          "description": "Independent sector-membership fact supplied by extra-cli; target-fit downgrades do not rewrite it."
         },
         "target_fit_confidence": {
           "type": ["number", "null"],

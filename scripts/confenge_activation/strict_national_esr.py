@@ -22,9 +22,10 @@ from urllib.parse import urlparse
 
 from scripts.confenge_account_intelligence.pipeline import build_dossier
 from scripts.confenge_activation.operational_metrics import (
+    CONFENGE_BUSINESS_HOURS_PER_DAY,
+    CONFENGE_PILOT_EMAILS_PER_HOUR,
+    MIN_OPERATIONAL_RESERVE,
     build_capacity_metrics,
-    min_operational_reserve,
-    warmbly_ops_config_from_env,
 )
 from scripts.confenge_contact_resolution.mailbox_purpose import classify_mailbox_purpose
 from scripts.confenge_contact_resolution.models import (
@@ -1314,17 +1315,12 @@ def rebuild_strict_esr(
 
     terminal_counts = Counter(terminals.values())
     esr_n = funnel["EMAIL_SEND_READY_DISTINCT_COMPANIES"]
-    ops = warmbly_ops_config_from_env()
-    reserve = min_operational_reserve(
-        emails_per_hour=float(ops["emails_per_hour"]),
-        business_hours_per_day=float(ops["business_hours_per_day"]),
-        business_days=10,
-    )
+    reserve = MIN_OPERATIONAL_RESERVE
     capacity = build_capacity_metrics(
         email_send_ready_distinct_companies=esr_n,
         active_hot_set_size=min(50, esr_n),
-        emails_per_hour=float(ops["emails_per_hour"]),
-        business_hours_per_day=float(ops["business_hours_per_day"]),
+        emails_per_hour=CONFENGE_PILOT_EMAILS_PER_HOUR,
+        business_hours_per_day=CONFENGE_BUSINESS_HOURS_PER_DAY,
         business_days=10,
     )
 

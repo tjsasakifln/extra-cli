@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from datetime import date, datetime
 from typing import Any
 
+from scripts.commercial_leads.sector_fit import ContractHistoryAccumulator
 from scripts.confenge_universe.dedupe import (
     EntityKey,
     brand_tokens,
@@ -92,6 +93,9 @@ class EntityBucket:
     max_contracts_for_classify: int = 500
     independent_brand: bool = False
     input_contract_rows: int = 0
+    sector_history: ContractHistoryAccumulator = field(
+        default_factory=ContractHistoryAccumulator
+    )
 
     def sorted_aliases(self) -> list[str]:
         """Deterministic alias order (set iteration is PYTHONHASHSEED-sensitive)."""
@@ -125,6 +129,7 @@ class EntityBucket:
     ) -> None:
         self.input_contract_rows += 1
         self.contract_count += 1
+        self.sector_history.add(row)
         valor = _safe_float(row.get("valor_total"))
         self.value_total += valor
         c14 = identity.cnpj14 or ""

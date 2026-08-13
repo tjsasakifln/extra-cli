@@ -10,9 +10,12 @@ Rules (skeptic-proof):
 - Denominator labels: supplier roots ≠ construction-eligible.
 """
 
+# ruff: noqa: S608 -- dynamic identifiers are selected only from internal allowlists.
+
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -27,6 +30,7 @@ from scripts.confenge_account_intelligence.service_distribution import (
     build_service_distribution,
 )
 from scripts.confenge_activation.national_reservoir_report import write_artifact_pack
+from scripts.confenge_activation.pilot_go_policy import build_universe_manifest
 from scripts.confenge_contact_resolution.contact_coverage import (
     MINIMUM_PILOT_ACCEPTANCE_SAMPLE,
     measure_contact_coverage,
@@ -36,14 +40,26 @@ from scripts.confenge_contact_resolution.mailbox_purpose import (
     is_mailbox_send_allowed,
 )
 from scripts.confenge_contact_resolution.send_readiness import evaluate_email_send_ready
+from scripts.confenge_sector import (
+    CONSTRUCTION_CONFIRMED,
+    CONSTRUCTION_PROBABLE,
+    NON_CONSTRUCTION,
+    SECTOR_CLASSIFIER_VERSION,
+    SECTOR_INSUFFICIENT_EVIDENCE,
+)
+from scripts.confenge_sector.store import sector_classifier_sha256
 from scripts.confenge_target_fit import (
     TARGET_CONFIRMED,
+    TARGET_FIT_VERSION,
+    TARGET_INSUFFICIENT_EVIDENCE,
     TARGET_OUT_OF_SCOPE,
     TARGET_PROBABLE_RESEARCH,
 )
+from scripts.confenge_target_fit.compute import classifier_sha
 from scripts.confenge_target_fit.coverage import build_coverage_snapshot, load_coverage_control
 from scripts.confenge_target_fit.db import connect
-from scripts.confenge_target_fit.store import get_control, queue_counts, shadow_class_distribution
+from scripts.confenge_target_fit.store import get_control, queue_counts
+from scripts.linkage.keys import is_valid_cnpj14
 
 
 def _digits(s: Any) -> str:
@@ -61,6 +77,55 @@ def _q(conn: Any, sql: str, args: tuple = ()) -> list[dict[str, Any]]:
         return [dict(r) for r in (cur.fetchall() or [])]
 
 
+def _universe_closure_query(mode: str) -> str:
+    target_table = (
+        "confenge_target_fit_shadow" if mode == "SHADOW" else "confenge_company_target_fit_current"
+    )
+    target_class = "shadow_class" if mode == "SHADOW" else "target_fit_class"
+    return f"""
+        WITH supplier AS (
+            SELECT DISTINCT fornecedor_cnpj_8 AS cnpj_raiz
+            FROM pncp_supplier_contracts
+            WHERE fornecedor_cnpj_8 IS NOT NULL
+              AND length(fornecedor_cnpj_8) = 8
+              AND fornecedor_cnpj_8 <> '00000000'
+        ), sector AS (
+            SELECT cnpj_raiz::text, sector_class, sector_version,
+                   sector_classifier_sha256
+            FROM confenge_company_sector_current
+        ), target AS (
+            SELECT cnpj_raiz::text, {target_class} AS target_fit_class,
+                   target_fit_version, classifier_sha
+            FROM {target_table}
+        )
+        SELECT
+            (SELECT COUNT(*)::bigint FROM pncp_supplier_contracts) AS source_contract_rows,
+            (SELECT COUNT(*)::bigint FROM supplier) AS supplier_roots_observed,
+            (SELECT COUNT(*)::bigint FROM sector) AS sector_materialized_roots,
+            (SELECT COUNT(DISTINCT cnpj_raiz)::bigint FROM sector) AS sector_distinct_roots,
+            (SELECT COUNT(*)::bigint FROM target) AS target_fit_population,
+            (SELECT COUNT(DISTINCT cnpj_raiz)::bigint FROM target) AS target_distinct_roots,
+            (SELECT COUNT(*)::bigint FROM sector WHERE sector_class = 'CONSTRUCTION_CONFIRMED') AS sector_confirmed,
+            (SELECT COUNT(*)::bigint FROM sector WHERE sector_class = 'CONSTRUCTION_PROBABLE') AS sector_probable,
+            (SELECT COUNT(*)::bigint FROM sector WHERE sector_class = 'NON_CONSTRUCTION') AS sector_non_construction,
+            (SELECT COUNT(*)::bigint FROM sector WHERE sector_class = 'SECTOR_INSUFFICIENT_EVIDENCE') AS sector_insufficient,
+            (SELECT COUNT(*)::bigint FROM target WHERE target_fit_class = 'TARGET_CONFIRMED') AS target_confirmed,
+            (SELECT COUNT(*)::bigint FROM target WHERE target_fit_class = 'TARGET_PROBABLE_RESEARCH') AS target_probable,
+            (SELECT COUNT(*)::bigint FROM target WHERE target_fit_class = 'TARGET_INSUFFICIENT_EVIDENCE') AS target_insufficient,
+            (SELECT COUNT(*)::bigint FROM target WHERE target_fit_class = 'TARGET_OUT_OF_SCOPE') AS target_out,
+            (SELECT COUNT(*)::bigint FROM target WHERE target_fit_class = 'REFRESH_FAILED') AS target_refresh_failed,
+            (SELECT COUNT(*)::bigint FROM target WHERE target_fit_class = 'RECOMPUTE_REQUIRED') AS target_recompute_required,
+            (SELECT COUNT(*)::bigint FROM sector WHERE sector_version IS DISTINCT FROM %s) AS sector_version_mismatch,
+            (SELECT COUNT(*)::bigint FROM sector WHERE sector_classifier_sha256 IS DISTINCT FROM %s) AS sector_classifier_mismatch,
+            (SELECT COUNT(*)::bigint FROM target WHERE target_fit_version IS DISTINCT FROM %s) AS target_version_mismatch,
+            (SELECT COUNT(*)::bigint FROM target WHERE classifier_sha IS DISTINCT FROM %s) AS target_classifier_mismatch,
+            (SELECT COUNT(*)::bigint FROM supplier s LEFT JOIN sector d USING (cnpj_raiz) WHERE d.cnpj_raiz IS NULL) AS sector_missing,
+            (SELECT COUNT(*)::bigint FROM supplier s LEFT JOIN target d USING (cnpj_raiz) WHERE d.cnpj_raiz IS NULL) AS target_missing,
+            (SELECT COUNT(*)::bigint FROM sector d LEFT JOIN supplier s USING (cnpj_raiz) WHERE s.cnpj_raiz IS NULL) AS sector_orphans,
+            (SELECT COUNT(*)::bigint FROM target d LEFT JOIN supplier s USING (cnpj_raiz) WHERE s.cnpj_raiz IS NULL) AS target_orphans
+    """
+
+
 def _load_activation_counts(conn: Any) -> dict[str, int]:
     """Best-effort activation projection counts; zeros if table absent."""
     out = {
@@ -69,21 +134,21 @@ def _load_activation_counts(conn: Any) -> dict[str, int]:
         "ACTIONABLE_NOW": 0,
         "SUPPRESSED": 0,
     }
-    try:
-        rows = _q(
-            conn,
-            """
-            SELECT activation_state, COUNT(*)::int AS n
-            FROM confenge_activation_projections
-            GROUP BY activation_state
-            """,
-        )
-        for r in rows:
-            st = str(r.get("activation_state") or "").upper()
-            if st in out:
-                out[st] = int(r["n"])
-    except Exception:  # noqa: BLE001
-        conn.rollback()
+    relation = _q(conn, "SELECT to_regclass('confenge_activation_projections')::text AS name")
+    if not relation or not relation[0].get("name"):
+        return out
+    rows = _q(
+        conn,
+        """
+        SELECT activation_state, COUNT(*)::int AS n
+        FROM confenge_activation_projections
+        GROUP BY activation_state
+        """,
+    )
+    for r in rows:
+        st = str(r.get("activation_state") or "").upper()
+        if st in out:
+            out[st] = int(r["n"])
     return out
 
 
@@ -341,8 +406,18 @@ def _sample_service_distribution(
                 continue
             if not contracts:
                 continue
+            observed_cnpj14 = next(
+                (
+                    value
+                    for row in contracts
+                    if is_valid_cnpj14(
+                        value := _digits(row.get("fornecedor_cnpj"))
+                    )
+                ),
+                None,
+            )
             raw = {
-                "cnpj14": raiz + "000100",
+                "cnpj14": observed_cnpj14,
                 "cnpj_root": raiz,
                 "razao_social": contracts[0].get("fornecedor_nome"),
                 "contracts": contracts,
@@ -382,36 +457,75 @@ def gather_live_metrics(
 ) -> dict[str, Any]:
     conn = connect(dsn, readonly=False)
     try:
+        # Every denominator and class count below must come from the same
+        # repeatable-read snapshot; a concurrent ingest cannot create a false
+        # reconciliation gap (or conceal one).
+        conn.set_session(readonly=True, isolation_level="REPEATABLE READ")
+        snapshot_row = _q(
+            conn,
+            """
+            SELECT txid_current_snapshot()::text AS snapshot,
+                   transaction_timestamp()::text AS captured_at
+            """,
+        )[0]
+        database_snapshot = str(snapshot_row.get("snapshot") or "")
+        database_watermark = str(snapshot_row.get("captured_at") or "")
         mode = str(get_control(conn, "async_mode").get("mode") or "SHADOW").upper()
-        shadow = shadow_class_distribution(conn)
-        confirmed_n = int(shadow.get(TARGET_CONFIRMED, 0))
-        probable_n = int(shadow.get(TARGET_PROBABLE_RESEARCH, 0))
-        out_n = int(shadow.get(TARGET_OUT_OF_SCOPE, 0))
-        materialized = confirmed_n + probable_n + out_n
+        closure_sql = _universe_closure_query(mode)
+        closure = _q(
+            conn,
+            closure_sql,
+            (
+                SECTOR_CLASSIFIER_VERSION,
+                sector_classifier_sha256(),
+                TARGET_FIT_VERSION,
+                classifier_sha(),
+            ),
+        )[0]
+        confirmed_n = int(closure.get("target_confirmed") or 0)
+        probable_n = int(closure.get("target_probable") or 0)
+        out_n = int(closure.get("target_out") or 0)
+        insufficient_n = int(closure.get("target_insufficient") or 0)
+        target_classes = {
+            TARGET_CONFIRMED: confirmed_n,
+            TARGET_PROBABLE_RESEARCH: probable_n,
+            TARGET_OUT_OF_SCOPE: out_n,
+            TARGET_INSUFFICIENT_EVIDENCE: insufficient_n,
+        }
+        target_operational_states = {
+            "REFRESH_FAILED": int(closure.get("target_refresh_failed") or 0),
+            "RECOMPUTE_REQUIRED": int(closure.get("target_recompute_required") or 0),
+        }
+        # Every classified root is materialized.  Omitting INSUFFICIENT here used
+        # to make a fully classified 500k-root universe look only ~25% complete.
+        materialized = sum(target_classes.values())
         q = queue_counts(conn)
         pending = int(q.get("pending", 0)) + int(q.get("retry", 0))
         processing = int(q.get("processing", 0))
         done = int(q.get("done", 0)) + int(q.get("skipped_same_fingerprint", 0))
 
-        roots_row = _q(
-            conn,
-            """
-            SELECT COUNT(DISTINCT fornecedor_cnpj_8)::int AS n
-            FROM pncp_supplier_contracts
-            WHERE fornecedor_cnpj_8 IS NOT NULL
-              AND length(fornecedor_cnpj_8) = 8
-              AND fornecedor_cnpj_8 <> '00000000'
-            """,
-        )
-        supplier_roots = int((roots_row[0] or {}).get("n") or 0)
+        supplier_roots = int(closure.get("supplier_roots_observed") or 0)
+        source_contract_rows = int(closure.get("source_contract_rows") or 0)
+        sector_classes = {
+            CONSTRUCTION_CONFIRMED: int(closure.get("sector_confirmed") or 0),
+            CONSTRUCTION_PROBABLE: int(closure.get("sector_probable") or 0),
+            NON_CONSTRUCTION: int(closure.get("sector_non_construction") or 0),
+            SECTOR_INSUFFICIENT_EVIDENCE: int(closure.get("sector_insufficient") or 0),
+        }
+        sector_materialized = int(closure.get("sector_materialized_roots") or 0)
 
-        # CONFIRMED roots (real)
+        # CONFIRMED roots from the same canonical target-fit population selected
+        # for the closure above. SHADOW and ACTIVE must never be mixed.
+        target_table = (
+            "confenge_target_fit_shadow"
+            if mode == "SHADOW"
+            else "confenge_company_target_fit_current"
+        )
+        target_class_column = "shadow_class" if mode == "SHADOW" else "target_fit_class"
         conf_rows = _q(
             conn,
-            """
-            SELECT cnpj_raiz, company_key FROM confenge_target_fit_shadow
-            WHERE shadow_class = %s
-            """,
+            f"SELECT cnpj_raiz, company_key FROM {target_table} "
+            f"WHERE {target_class_column} = %s",
             (TARGET_CONFIRMED,),
         )
         confirmed_roots = {_root8(r.get("cnpj_raiz")) for r in conf_rows if _root8(r.get("cnpj_raiz"))}
@@ -430,6 +544,8 @@ def gather_live_metrics(
         last_full = cov_ctrl.get("last_full_reconcile_completed_at")
         unexplained = int(cov_ctrl.get("last_full_reconcile_unexplained_missing") or 0)
         pagination_ok = bool(cov_ctrl.get("pagination_exhausted_normally", False))
+        cdc_control = get_control(conn, "cdc_watermark")
+        source_cdc_watermark = str(cdc_control.get("watermark") or "")
 
         harvest = _harvest_contacts(artifact_root)
         evald = _evaluate_harvest_esr(confirmed_roots, harvest, published_index=published_index)
@@ -440,7 +556,7 @@ def gather_live_metrics(
         never = confirmed_roots - attempted
 
         contact = measure_contact_coverage(
-            target_confirmed_keys=sorted(confirmed_roots),
+            population_keys=sorted(confirmed_roots),
             attempted_keys=sorted(attempted),
             real_email_keys=sorted(evald["real_email"]),
             company_owned_keys=sorted(evald["company_owned"]),
@@ -477,9 +593,8 @@ def gather_live_metrics(
 
         service = _sample_service_distribution(conn, sorted(confirmed_roots), sample_size=200)
 
-        # Coverage: materialization vs supplier roots (full national materialize)
-        # Construction-relevant = CONFIRMED+PROBABLE (classifier), not hard-coded 48748
-        construction_relevant = confirmed_n + probable_n
+        # Sector membership is independent from target-fit.
+        construction_roots = sector_classes[CONSTRUCTION_CONFIRMED] + sector_classes[CONSTRUCTION_PROBABLE]
         cov = build_coverage_snapshot(
             canonical_company_count=supplier_roots or materialized,
             materialized_company_count=materialized,
@@ -489,27 +604,67 @@ def gather_live_metrics(
             pagination_exhausted_normally=pagination_ok,
             gap_breakdown={
                 "RETRY_PENDING": pending + processing,
-                "NO_CONSTRUCTION_EVIDENCE": out_n,  # OUT class includes non-construction
+                "SECTOR_MISSING": int(closure.get("sector_missing") or 0),
+                "TARGET_FIT_MISSING": int(closure.get("target_missing") or 0),
             },
             last_full_reconcile_completed_at=str(last_full) if last_full else None,
             async_mode=mode,
             population_source="shadow" if mode == "SHADOW" else "current",
             dead=int(q.get("dead", 0)),
         )
-        cov["construction_relevant_confirmed_plus_probable"] = construction_relevant
+        cov["construction_roots"] = construction_roots
         cov["supplier_roots_national"] = supplier_roots
         cov["label_note"] = (
             "canonical_company_count = DISTINCT supplier CNPJ roots in "
             "pncp_supplier_contracts (full lake materialization denominator). "
-            "Construction-relevant commercial ICP ≈ CONFIRMED+PROBABLE from "
-            "target-fit classifier (not the older ~48k universe JSON snapshot)."
+            "construction_roots comes only from the independent sector dimension; "
+            "target-fit classes close a separate population."
+        )
+
+        universe_manifest = build_universe_manifest(
+            supplier_roots_observed=supplier_roots,
+            sector_classes=sector_classes,
+            target_fit_population=int(closure.get("target_fit_population") or 0),
+            materialized_roots=materialized,
+            target_classes=target_classes,
+            target_operational_states=target_operational_states,
+            source_contract_rows=source_contract_rows,
+            datalake_watermark=database_watermark,
+            source_cdc_watermark=source_cdc_watermark,
+            database_snapshot=database_snapshot,
+            transaction_timestamp=database_watermark,
+            construction_universe_derivation="confenge_company_sector_current.sector_class IN (CONSTRUCTION_CONFIRMED,CONSTRUCTION_PROBABLE)",
+            construction_evidence_version=SECTOR_CLASSIFIER_VERSION,
+            query_sha256=hashlib.sha256(closure_sql.encode("utf-8")).hexdigest(),
+            construction_classifier_sha256=sector_classifier_sha256(),
+            target_fit_classifier_sha256=classifier_sha(),
+            target_fit_version=TARGET_FIT_VERSION,
+            sector_materialized_roots=sector_materialized,
+            full_scale=True,
+            truncated=False,
+            pagination_exhausted_normally=pagination_ok,
+            unexplained_missing=max(
+                unexplained,
+                int(closure.get("sector_missing") or 0),
+                int(closure.get("target_missing") or 0),
+            ),
+            orphan_materialized_roots=int(closure.get("sector_orphans") or 0)
+            + int(closure.get("target_orphans") or 0),
+            duplicate_cnpj_root=(sector_materialized - int(closure.get("sector_distinct_roots") or 0))
+            + (int(closure.get("target_fit_population") or 0) - int(closure.get("target_distinct_roots") or 0)),
+            invalid_cnpj_root=int(cov.get("invalid_cnpj_root") or 0),
+            sector_version_mismatch=int(closure.get("sector_version_mismatch") or 0),
+            sector_classifier_mismatch=int(closure.get("sector_classifier_mismatch") or 0),
+            target_version_mismatch=int(closure.get("target_version_mismatch") or 0),
+            target_classifier_mismatch=int(closure.get("target_classifier_mismatch") or 0),
         )
 
         esr_n = len(evald["email_send_ready"])
         metrics = {
             "national_universe": supplier_roots,
             "national_universe_label": "pncp_supplier_contract_roots",
-            "construction_relevant": construction_relevant,
+            "construction_roots": construction_roots,
+            "sector_classes": sector_classes,
             "target_fit_eligible": supplier_roots,
             "target_fit_dirty_enqueued": pending + processing + done,
             "target_fit_processed": done,
@@ -517,6 +672,13 @@ def gather_live_metrics(
             "target_confirmed": confirmed_n,
             "target_probable": probable_n,
             "target_out": out_n,
+            "target_insufficient": insufficient_n,
+            "source_contract_rows": source_contract_rows,
+            "database_watermark": database_watermark,
+            "database_snapshot": database_snapshot,
+            "source_cdc_watermark": source_cdc_watermark,
+            "target_fit_version": TARGET_FIT_VERSION,
+            "universe_manifest": universe_manifest,
             "activation_watch": activation["WATCH"],
             "activation_research": activation["RESEARCH_REQUIRED"],
             "activation_actionable": activation["ACTIONABLE_NOW"],
@@ -543,6 +705,7 @@ def gather_live_metrics(
                     "supplier_roots": supplier_roots,
                     "RETRY_PENDING": pending,
                     "OUT_includes_non_construction": out_n,
+                    "INSUFFICIENT_remains_reconsiderable": insufficient_n,
                 },
                 "contact_attempted": {
                     "never_attempted_of_confirmed": len(never),
@@ -569,8 +732,9 @@ def gather_live_metrics(
                 "processing": processing,
                 "coverage_ratio": cov.get("coverage_ratio"),
                 "supplier_roots": supplier_roots,
-                "construction_relevant_confirmed_plus_probable": construction_relevant,
+                "construction_roots": construction_roots,
                 "TARGET_CONFIRMED": confirmed_n,
+                "TARGET_INSUFFICIENT_EVIDENCE": insufficient_n,
                 "email_send_ready_reservoir": esr_n,
                 "hot_set_capacity_per_hour": 10,
             },
@@ -631,7 +795,7 @@ def main(argv: list[str] | None = None) -> int:
                 "out": str(out),
                 "headline": {
                     "supplier_roots": metrics["national_universe"],
-                    "construction_relevant": metrics["construction_relevant"],
+                    "construction_roots": metrics["construction_roots"],
                     "materialized": metrics["target_fit_materialized"],
                     "confirmed": metrics["target_confirmed"],
                     "contact_attempted_network": metrics["contact_attempted"],

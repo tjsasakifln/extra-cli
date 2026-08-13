@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Atomic closeout emitter for CONFENGE-OUTREACH-UNCONDITIONAL-GO-01.
+"""Deprecated closeout emitter for CONFENGE-OUTREACH-UNCONDITIONAL-GO-01.
 
 Sole writer of:
   SHA-BINDING.json, SECTION-21-BOOLEANS.json, CONTACT-PROVENANCE-AUDIT.json,
   CLEAN-COHORT-AUDIT.json (refresh), GO-NO-GO.md, FINAL-REPORT.md
 
-Fail-closed: exit non-zero if any live probe fails. Never hand-edit after run.
+Fail-closed: this legacy writer exits before any deploy/probe.  The only
+terminal authority is scripts.confenge_activation.emit_final_closure_pack with
+a valid confenge.universe_manifest.v3 and append-only human decisions.
 """
 
 from __future__ import annotations
@@ -453,6 +455,21 @@ def write_json(name: str, obj: Any) -> None:
 
 
 def main() -> int:
+    print(
+        "EMIT_FAIL: SUPERSEDED_NON_TERMINAL; use "
+        "python -m scripts.confenge_activation.emit_final_closure_pack "
+        "--universe-manifest <atomic-full-lake-manifest>",
+        file=sys.stderr,
+    )
+    return 2
+
+
+def _legacy_main_disabled() -> int:
+    """Preserved implementation for audit only; never a terminal entrypoint."""
+    raise RuntimeError(
+        "SUPERSEDED_NON_TERMINAL: historical implementation is not executable; "
+        "use scripts.confenge_activation.emit_final_closure_pack"
+    )
     PACK.mkdir(parents=True, exist_ok=True)
     now = _now()
     print(f"EMIT start {now}")
@@ -588,10 +605,9 @@ docker exec warmbly-confenge-postgres-1 psql -U warmbly -d warmbly_dev -t -A -c 
         _die(f"engineering §21 not fully true: {json.dumps(eng, indent=2)}")
 
     hr_blocks = hr_status != "HUMAN_REVIEW_COMPLETE"
-    if hr_blocks:
-        terminal = "EXTERNAL_BLOCKER_REQUIRES_TIAGO"
-    else:
-        terminal = "GO_FOR_REAL_CONFENGE_EMAIL_PILOT"
+    # Historical implementation is retained for audit but is no longer allowed
+    # to mint a terminal decision, even if called directly by an old integration.
+    terminal = "SUPERSEDED_NON_TERMINAL"
 
     # 6) Emit pack (sole writer)
     sha_binding = {
@@ -740,7 +756,7 @@ Emitter: `scripts/confenge/emit_unconditional_go_pack.py` (sole pack writer)
 ### `{terminal}`
 
 """
-    if terminal == "EXTERNAL_BLOCKER_REQUIRES_TIAGO":
+    if terminal == "SUPERSEDED_NON_TERMINAL":
         go_md += f"""All **controllable engineering** §21 booleans are true from live probes
 (origin/main == host `.deployed_sha` == runtime == `{extra_main[:12]}…`).
 
@@ -793,7 +809,7 @@ PY
 ### Comando de retomada
 
 ```text
-Resume CONFENGE-OUTREACH-UNCONDITIONAL-GO-01 after HUMAN_REVIEW_COMPLETE; run python3 -m scripts.confenge.emit_unconditional_go_pack and emit GO_FOR_REAL_CONFENGE_EMAIL_PILOT if eng still green.
+Use the canonical final-closure emitter after attributable human review; this historical emitter remains superseded.
 ```
 """
     else:

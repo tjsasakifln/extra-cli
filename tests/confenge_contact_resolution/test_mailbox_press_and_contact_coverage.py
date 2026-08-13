@@ -64,7 +64,7 @@ def test_contact_coverage_closed_sum() -> None:
     identity = [f"c{i}" for i in range(10)]
     esr = [f"c{i}" for i in range(8)]
     m = measure_contact_coverage(
-        target_confirmed_keys=confirmed,
+        population_keys=confirmed,
         attempted_keys=attempted,
         real_email_keys=real,
         company_owned_keys=owned,
@@ -81,6 +81,37 @@ def test_contact_coverage_closed_sum() -> None:
     assert m["pilot_sample_met"] is False
     # Honest rate: 8 of 40 attempted, not "8 of unknown"
     assert m["email_send_ready_of_attempted"] == 8 / 40
+
+
+def test_contact_coverage_can_close_construction_population_without_target_proxy() -> None:
+    construction = ["construction-insufficient", "construction-confirmed"]
+    m = measure_contact_coverage(
+        population_keys=construction,
+        attempted_keys=["construction-confirmed"],
+        real_email_keys=[],
+        company_owned_keys=[],
+        identity_safe_keys=[],
+        email_send_ready_keys=[],
+        rejection_reasons={},
+        population_name="CONSTRUCTION_UNIVERSE",
+    )
+
+    assert m["population_name"] == "CONSTRUCTION_UNIVERSE"
+    assert m["population_total"] == 2
+    assert m["contact_discovery_not_attempted"] == 1
+    assert "TARGET_CONFIRMED_total" not in m
+
+
+def test_contact_coverage_exposes_attempts_outside_population() -> None:
+    metrics = measure_contact_coverage(
+        population_keys=["inside"],
+        attempted_keys=["inside", "outside"],
+        rejection_reasons={},
+    )
+
+    assert metrics["contact_discovery_attempted"] == 1
+    assert metrics["closed_sum_check"]["attempted_subset_of_population"] is False
+    assert metrics["closed_sum_check"]["attempted_subset_of_confirmed"] is False
 
 
 def test_minimum_pilot_is_not_capacity() -> None:

@@ -1,7 +1,7 @@
-"""Emit artifacts/confenge/national-commercial-ready/* from live evidence.
+"""Legacy non-terminal artifact pack.
 
-Builds the production-ready pack required by
-CONFENGE-NATIONAL-COMMERCIAL-RESERVOIR-PRODUCTION-READY-01.
+This module remains readable for historical reproducibility but cannot emit a
+GO terminal. Use ``emit_final_closure_pack`` with universe-manifest v3.
 """
 
 from __future__ import annotations
@@ -239,21 +239,16 @@ def build_go_no_go(
         "whatsapp_off": whatsapp_off,
     }
     healthy = all(gates.values())
-    if healthy and human_review_accepted:
-        terminal = "GO_FOR_REAL_CONFENGE_EMAIL_PILOT"
-    elif healthy and human_review_pending:
-        terminal = "READY_FOR_TIAGO_HUMAN_REVIEW"
-    elif not capacity.get("reserve_gate_ok") and contact_terminals_complete:
-        terminal = "EXTERNAL_BLOCKER_REQUIRES_TIAGO"
-    else:
-        terminal = "EXTERNAL_BLOCKER_REQUIRES_TIAGO" if not healthy else "READY_FOR_TIAGO_HUMAN_REVIEW"
+    terminal = "SUPERSEDED_NON_TERMINAL"
 
     return {
         "schema": "confenge.go_no_go.v1",
         "as_of": _utcnow(),
         "NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY": healthy,
-        "GO_FOR_REAL_CONFENGE_EMAIL_PILOT": terminal == "GO_FOR_REAL_CONFENGE_EMAIL_PILOT",
+        "canonical_terminal_go": False,
         "terminal_state": terminal,
+        "superseded_by": "scripts.confenge_activation.emit_final_closure_pack",
+        "required_schema": "confenge.universe_manifest.v3",
         "gates": gates,
         "human_review_pending": human_review_pending,
         "human_review_accepted": human_review_accepted,
@@ -316,8 +311,7 @@ def emit_pack(
     contact_complete = (
         int(contact_terminals.get("CONTACT_NEVER_ATTEMPTED") or 0) == 0
         and tc > 0
-        and sum(int(v) for k, v in contact_terminals.items() if k != "CONTACT_NEVER_ATTEMPTED")
-        >= tc
+        and sum(int(v) for k, v in contact_terminals.items() if k != "CONTACT_NEVER_ATTEMPTED") >= tc
     )
 
     audit_zeros = all(
@@ -352,12 +346,8 @@ def emit_pack(
         copy_audit_zeros=audit_zeros,
         sha_bound=bool(sha_binding.get("triple_sha_equal")),
         whatsapp_off=bool(capacity.get("warmbly", {}).get("email_only")),
-        human_review_pending=any(
-            L.get("review_status") == HUMAN_REVIEW_PENDING for L in sample
-        )
-        or not sample,
-        human_review_accepted=bool(sample)
-        and all(L.get("review_status") == "HUMAN_REVIEW_APPROVED" for L in sample),
+        human_review_pending=any(L.get("review_status") == HUMAN_REVIEW_PENDING for L in sample) or not sample,
+        human_review_accepted=bool(sample) and all(L.get("review_status") == "HUMAN_REVIEW_APPROVED" for L in sample),
     )
 
     _write(out_dir / "FUNNEL.json", {"rows": rows, "capacity": capacity, "as_of": _utcnow()})

@@ -1,4 +1,4 @@
-"""Continuous contact enrichment over live TARGET_CONFIRMED reservoir.
+"""Continuous contact enrichment over the live construction universe.
 
 Pulls company roots from published target-fit (SHADOW or current), excludes
 companies already attempted (checkpoint), and feeds EnrichmentBatchRunner
@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import logging
+import shutil
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -41,7 +42,8 @@ from scripts.confenge_target_fit.store import get_control
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_OUT = Path("artifacts/confenge/contact-enrichment/continuous-confirmed")
+DEFAULT_OUT = Path("artifacts/confenge/contact-enrichment/continuous-construction")
+LEGACY_DEFAULT_OUT = Path("artifacts/confenge/contact-enrichment/continuous-confirmed")
 
 
 @dataclass
@@ -52,51 +54,67 @@ class ContinuousEnrichmentConfig:
     allow_network: bool = False
     fixtures_dir: Path | None = None
     resume: bool = True
-    # Prefer CONFIRMED only; optionally include PROBABLE for research path
-    include_probable: bool = False
+    # Deprecated compatibility flag. Sector membership, not target-fit, defines
+    # the enrichment population; all construction classes are always included.
+    include_probable: bool = True
 
 
 def _utcnow() -> str:
     return datetime.now(UTC).isoformat()
 
 
-def load_confirmed_jobs_from_dsn(
+def load_construction_jobs_from_dsn(
     dsn: str,
-    *,
-    include_probable: bool = False,
 ) -> list[CompanyJob]:
-    """Load TARGET_CONFIRMED (and optional PROBABLE) roots from live materialization."""
+    """Load every confirmed/probable construction root, regardless of target-fit."""
     conn = connect(dsn, readonly=True)
     try:
         mode_ctrl = get_control(conn, "async_mode")
         mode = str(mode_ctrl.get("mode") or MODE_SHADOW).upper()
-        classes = [TARGET_CONFIRMED]
-        if include_probable:
-            from scripts.confenge_target_fit import TARGET_PROBABLE_RESEARCH
-
-            classes.append(TARGET_PROBABLE_RESEARCH)
         with conn.cursor() as cur:
             if mode == MODE_SHADOW:
                 cur.execute(
                     """
-                    SELECT company_key, cnpj_raiz, shadow_class AS target_fit_class,
-                           shadow_confidence AS conf
-                    FROM confenge_target_fit_shadow
-                    WHERE shadow_class = ANY(%s)
-                    ORDER BY shadow_confidence DESC NULLS LAST, cnpj_raiz
-                    """,
-                    (classes,),
+                    SELECT s.company_key, s.cnpj_raiz, s.representative_cnpj14,
+                           s.sector_class,
+                           s.sector_confidence,
+                           t.shadow_class AS target_fit_class,
+                           t.shadow_confidence AS target_fit_confidence
+                    FROM confenge_company_sector_current s
+                    LEFT JOIN confenge_target_fit_shadow t USING (company_key)
+                    WHERE s.sector_class IN ('CONSTRUCTION_CONFIRMED', 'CONSTRUCTION_PROBABLE')
+                    ORDER BY
+                        CASE t.shadow_class
+                            WHEN 'TARGET_CONFIRMED' THEN 0
+                            WHEN 'TARGET_PROBABLE_RESEARCH' THEN 1
+                            WHEN 'TARGET_INSUFFICIENT_EVIDENCE' THEN 2
+                            ELSE 3
+                        END,
+                        s.sector_confidence DESC,
+                        s.cnpj_raiz
+                    """
                 )
             else:
                 cur.execute(
                     """
-                    SELECT company_key, cnpj_raiz, target_fit_class,
-                           target_fit_confidence AS conf
-                    FROM confenge_company_target_fit_current
-                    WHERE target_fit_class = ANY(%s)
-                    ORDER BY target_fit_confidence DESC NULLS LAST, cnpj_raiz
-                    """,
-                    (classes,),
+                    SELECT s.company_key, s.cnpj_raiz, s.representative_cnpj14,
+                           s.sector_class,
+                           s.sector_confidence,
+                           t.target_fit_class,
+                           t.target_fit_confidence
+                    FROM confenge_company_sector_current s
+                    LEFT JOIN confenge_company_target_fit_current t USING (company_key)
+                    WHERE s.sector_class IN ('CONSTRUCTION_CONFIRMED', 'CONSTRUCTION_PROBABLE')
+                    ORDER BY
+                        CASE t.target_fit_class
+                            WHEN 'TARGET_CONFIRMED' THEN 0
+                            WHEN 'TARGET_PROBABLE_RESEARCH' THEN 1
+                            WHEN 'TARGET_INSUFFICIENT_EVIDENCE' THEN 2
+                            ELSE 3
+                        END,
+                        s.sector_confidence DESC,
+                        s.cnpj_raiz
+                    """
                 )
             rows = list(cur.fetchall() or [])
 
@@ -105,15 +123,17 @@ def load_confirmed_jobs_from_dsn(
             raiz = str(r.get("cnpj_raiz") or "").strip()
             if len(raiz) != 8 or not raiz.isdigit():
                 continue
-            # Synthetic 14-digit for resolvers that need CNPJ14 (branch 0001)
-            cnpj14 = raiz + "0001" + "00"
-            # pad check digit-less stub is OK for root-keyed discovery offline
-            conf = float(r.get("conf") or 0.0)
-            # Higher confidence CONFIRMED first (A1), then A2, then universe
-            if conf >= 0.8:
+            # Never synthesize check digits. A missing observed establishment is
+            # an explicit pending identity state; it must not erase the root.
+            cnpj14 = str(r.get("representative_cnpj14") or "").strip() or raiz
+            target_class = str(r.get("target_fit_class") or "")
+            conf = float(r.get("target_fit_confidence") or 0.0)
+            if target_class == TARGET_CONFIRMED and conf >= 0.8:
                 tier, rank = "A1", int((1.0 - conf) * 1000)
-            elif conf >= 0.5:
+            elif target_class == TARGET_CONFIRMED:
                 tier, rank = "A2", int((1.0 - conf) * 1000)
+            elif target_class == "TARGET_PROBABLE_RESEARCH":
+                tier, rank = "strategic", int((1.0 - conf) * 1000)
             else:
                 tier, rank = "universe", int((1.0 - conf) * 1000)
             jobs.append(
@@ -125,15 +145,29 @@ def load_confirmed_jobs_from_dsn(
                     meta={
                         "company_key": r.get("company_key"),
                         "cnpj_raiz": raiz,
-                        "target_fit_class": r.get("target_fit_class"),
+                        "representative_cnpj14": cnpj14 if len(cnpj14) == 14 else None,
+                        "representative_establishment_observed": len(cnpj14) == 14,
+                        "sector_class": r.get("sector_class"),
+                        "sector_confidence": r.get("sector_confidence"),
+                        "target_fit_class": target_class,
                         "target_fit_confidence": conf,
-                        "source": "continuous_from_target_fit",
+                        "source": "continuous_construction_universe",
                     },
                 )
             )
         return jobs
     finally:
         conn.close()
+
+
+def load_confirmed_jobs_from_dsn(
+    dsn: str,
+    *,
+    include_probable: bool = True,
+) -> list[CompanyJob]:
+    """Compatibility alias; target-fit no longer limits enrichment scope."""
+    _ = include_probable
+    return load_construction_jobs_from_dsn(dsn)
 
 
 def load_attempted_keys(checkpoint_path: Path) -> set[str]:
@@ -152,13 +186,25 @@ def load_attempted_keys(checkpoint_path: Path) -> set[str]:
     return {str(x) for x in done}
 
 
+def migrate_legacy_checkpoint(output_dir: Path) -> bool:
+    """Carry the old default resume ledger forward without overwriting state."""
+    output_dir = Path(output_dir)
+    destination = output_dir / "checkpoint.json"
+    source = LEGACY_DEFAULT_OUT / "checkpoint.json"
+    if output_dir != DEFAULT_OUT or destination.exists() or not source.is_file():
+        return False
+    output_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(source, destination)
+    return True
+
+
 def run_continuous_enrichment(
     dsn: str,
     *,
     cfg: ContinuousEnrichmentConfig | None = None,
     resolver_config: ResolverConfig | None = None,
 ) -> dict[str, Any]:
-    """Advance contact enrichment over live CONFIRMED reservoir (resumable)."""
+    """Advance contact enrichment over the full construction universe (resumable)."""
     cfg = cfg or ContinuousEnrichmentConfig()
     # Enforce before any I/O: 50 is PILOT_ACCEPTANCE_SAMPLE / MINIMUM_PILOT_ACCEPTANCE_SAMPLE only.
     if cfg.max_companies == MINIMUM_PILOT_ACCEPTANCE_SAMPLE:
@@ -170,11 +216,15 @@ def run_continuous_enrichment(
     assert_not_pilot_as_capacity(cfg.max_companies, context="enrich-continuous")
     out = Path(cfg.output_dir)
     out.mkdir(parents=True, exist_ok=True)
+    if cfg.resume:
+        migrate_legacy_checkpoint(out)
 
-    jobs = load_confirmed_jobs_from_dsn(dsn, include_probable=cfg.include_probable)
-    confirmed_keys = [
-        str((j.meta or {}).get("cnpj_raiz") or j.cnpj14[:8]) for j in jobs
-    ]
+    jobs = load_construction_jobs_from_dsn(dsn)
+    construction_keys = list(
+        dict.fromkeys(
+            str((j.meta or {}).get("cnpj_raiz") or j.cnpj14[:8]) for j in jobs
+        )
+    )
 
     rcfg = resolver_config or ResolverConfig(
         allow_network=cfg.allow_network,
@@ -186,8 +236,13 @@ def run_continuous_enrichment(
         resolver_config=rcfg,
         run_id=f"continuous-{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}",
     )
+    runnable_jobs = [
+        job
+        for job in jobs
+        if bool((job.meta or {}).get("representative_establishment_observed"))
+    ]
     summary = runner.run(
-        jobs,
+        runnable_jobs,
         resume=cfg.resume,
         max_companies=cfg.max_companies,
     )
@@ -232,13 +287,14 @@ def run_continuous_enrichment(
     # Do NOT invent per-key real/owned/ESR from count slices — those require
     # evaluate_email_send_ready on real contact rows (see rebuild_national_funnel).
     coverage = measure_contact_coverage(
-        target_confirmed_keys=confirmed_keys,
+        population_keys=construction_keys,
         attempted_keys=discovery_attempted,
         real_email_keys=[],
         company_owned_keys=[],
         identity_safe_keys=[],
         email_send_ready_keys=[],
         rejection_reasons=rejection_reasons,
+        population_name="CONSTRUCTION_UNIVERSE",
     )
     coverage["network_discovery"] = network_discovery
     coverage["offline_structure_pass"] = not network_discovery
@@ -254,7 +310,7 @@ def run_continuous_enrichment(
     terminal_states = []
     # Do NOT stamp DEFAULT_SOURCE_LADDER without proof — only record adapters
     # actually used by the enrich batch (from summary / per-company files when present).
-    for root in confirmed_keys:
+    for root in construction_keys:
         did_attempt = root in attempted_roots and network_discovery
         if not did_attempt:
             continue
@@ -271,7 +327,9 @@ def run_continuous_enrichment(
         )
         terminal_states.append(st)
     terminal_cov = measure_terminal_coverage(
-        terminal_states, target_confirmed_total=len(confirmed_keys)
+        terminal_states,
+        population_total=len(construction_keys),
+        population_name="CONSTRUCTION_UNIVERSE",
     )
     terminals_path = out / "contact-discovery-terminals.jsonl"
     with terminals_path.open("w", encoding="utf-8") as fh:
@@ -281,7 +339,9 @@ def run_continuous_enrichment(
     report = {
         "schema": "confenge.continuous_contact_enrichment.v1",
         "as_of": _utcnow(),
-        "confirmed_jobs": len(jobs),
+        "construction_universe_jobs": len(construction_keys),
+        "representative_establishment_jobs": len(runnable_jobs),
+        "representative_establishment_pending": len(jobs) - len(runnable_jobs),
         "max_companies_bound": cfg.max_companies,
         "summary": summary,
         "contact_coverage": coverage,
@@ -289,7 +349,7 @@ def run_continuous_enrichment(
         "terminals_path": str(terminals_path),
         "output_dir": str(out),
         "note": (
-            "Continuous enrichment over TARGET_CONFIRMED; no pilot Top-50 capacity. "
+            "Continuous enrichment over CONSTRUCTION_UNIVERSE; target-fit controls priority/send, not inclusion. "
             f"PILOT_ACCEPTANCE_SAMPLE={MINIMUM_PILOT_ACCEPTANCE_SAMPLE} is quality-only."
         ),
     }
@@ -302,8 +362,8 @@ def run_continuous_enrichment(
         encoding="utf-8",
     )
     logger.info(
-        "continuous enrichment confirmed=%s attempted_rate=%s esr=%s",
-        coverage.get("TARGET_CONFIRMED_total"),
+        "continuous enrichment construction=%s attempted_rate=%s esr=%s",
+        coverage.get("population_total"),
         coverage.get("contact_discovery_attempt_rate"),
         coverage.get("email_send_ready"),
     )

@@ -114,7 +114,7 @@ def test_terminal_coverage_closed_sum() -> None:
             ladder_complete=True,
         ),
     ]
-    cov = measure_terminal_coverage(states, target_confirmed_total=5)
+    cov = measure_terminal_coverage(states, population_total=5)
     assert cov["closed_sum"] is True
     assert cov["never_attempted"] == 3
     assert cov["terminal_counts"][CONTACT_READY] == 1

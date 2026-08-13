@@ -401,6 +401,10 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 > **Regra de linguagem:** antes de validação com resultados comerciais reais, o sistema produz **sinais de necessidade/aderência** e um **score de priorização**. Não denomina esses resultados como desejo, intenção de compra, probabilidade de contratação ou propensão estatística.
 >
 > **Separação de universos:** o universo comercial é composto pelas empresas presentes no recorte versionado do dataset de contratos. Ele não altera o denominador canônico de 1.093 entes nem as métricas de cobertura de editais e contratos.
+>
+> **Invariante de universo comercial:** cada execução full-scale registra, no mesmo snapshot transacional `REPEATABLE READ`, contratos lidos, CNPJ-raiz fornecedores observados, universo comercial de construção, watermark CDC e distribuição exaustiva das classes de target-fit. A soma das classes deve fechar contra os roots observados, sem órfãos, duplicatas, truncamento ou lacunas inexplicadas.
+>
+> **Subsets não são universo:** Top-10/20/50/100, amostras de auditoria, hot set e a reserva operacional de 900 controlam validação ou velocidade de envio. Nunca limitam enumeração, materialização, ranking, enriquecimento ou reconsideração do universo histórico.
 
 #### Perfil comercial e unidade de análise
 
@@ -408,6 +412,7 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 - [ ] O perfil relaciona cada dor observável a uma oferta concreta: diagnóstico B2G, monitoramento, análise de edital, apoio à proposta ou acompanhamento administrativo de contrato.
 - [ ] A unidade primária de lead é a pessoa jurídica identificada por CNPJ; nomes semelhantes, filiais e grupos econômicos não são fundidos sem regra e evidência.
 - [ ] Cada execução registra versão do perfil, janela temporal, filtros, versão/hash do dataset, data de corte e quantidade de empresas elegíveis.
+- [ ] Cada execução full-scale publica `confenge.universe_manifest.v3` reconciliado no mesmo snapshot atômico do datalake, separando supplier universe, dimensão setorial e target-fit; números históricos não são constantes operacionais.
 - [ ] Empresas sem CNPJ defensável ou fora do perfil permanecem visíveis como excluídas, com motivo, e não entram silenciosamente no ranking.
 - [ ] Órgãos públicos, pessoas físicas e registros sem relação com uma oferta da CONFENGE não são tratados como leads.
 
@@ -451,6 +456,7 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 - [ ] Dados de contato, quando enriquecidos, possuem origem lícita e data de verificação; o ranking funciona mesmo sem esse enriquecimento.
 - [ ] A fila informa uma ação humana concreta e uma mensagem de valor compatível com o sinal, sem automatizar contato em nome da CONFENGE.
 - [ ] A rotina evita milhares de alertas: há limite configurável, supressão de repetição e indicação do que mudou desde a execução anterior.
+- [ ] Limites de fila, amostra e hot set controlam apresentação ou vazão, mas toda empresa do universo permanece materializada e reconsiderável conforme novos sinais.
 
 #### Validação, aprendizado comercial e claims
 
@@ -471,6 +477,7 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 - [ ] O pipeline lê o dataset canônico de contratos e gera a fila por um comando CLI reproduzível.
 - [ ] Pelo menos 12 sinais estão implementados, testados e explicáveis, ou os não computáveis estão explicitamente identificados sem falso-verde.
 - [ ] Os top-10 passam pela validação de evidência e os top-20 pela revisão humana inicial.
+- [ ] O GO do piloto exige pelo menos 10 leads explicitamente aprovados entre decisões humanas atribuíveis; a meta de reserva 900 é reportada separadamente e não bloqueia o piloto controlado.
 - [ ] A fila registra estado, próximo passo, feedback e outcomes comerciais.
 - [ ] Existe relatório de baseline, limitações, métricas de qualidade e comparação com ranking simples.
 - [ ] Tiago aceita formalmente a fila como utilizável para iniciar a prospecção da CONFENGE.

@@ -1043,12 +1043,21 @@ def _gate_from_published(
         tier = map_class_to_send_tier(str(published.get("target_fit_class") or ""))
         reasons = list(pub_reasons)
         reasons.append("published_target_fit")
+        member = canonical_universe_member
+        if member is None and target_fit is not None:
+            member = target_fit.canonical_universe_member
+        if member is None and company is not None:
+            member = company.get(
+                "construction_universe_member",
+                company.get("canonical_universe_member"),
+            )
         fit = TargetFitResult(
             tier=tier,
             reasons=reasons,
             sector_fit=str(published.get("sector_fit") or (company or {}).get("sector_fit") or ""),
-            canonical_universe_member=(True if canonical_universe_member is None else bool(canonical_universe_member))
-            and str(published.get("target_fit_class") or "") != "TARGET_OUT_OF_SCOPE",
+            # Sector membership is independent from the mutable target-fit class.
+            # An absent membership decision must not be promoted to true.
+            canonical_universe_member=member is True,
         )
         if blocks:
             extra.extend(pub_reasons)

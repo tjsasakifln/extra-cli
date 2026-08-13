@@ -43,7 +43,7 @@ def load_company_input(
     *,
     cnpj_raiz: str,
     source_watermark: str = "",
-    contract_limit: int = 200,
+    contract_limit: int | None = None,
 ) -> CompanyInput:
     raiz = digits_only(cnpj_raiz)[:8]
     if len(raiz) != 8:
@@ -93,7 +93,7 @@ def _load_contracts(
     conn: Any,
     *,
     raiz: str,
-    limit: int,
+    limit: int | None,
 ) -> tuple[list[dict[str, Any]], set[str], datetime | None, str | None, bool]:
     with conn.cursor() as cur:
         cols = _supplier_contract_columns(conn)
@@ -140,14 +140,20 @@ def _load_contracts(
         else:
             where_sql = f"left(regexp_replace({cnpj_col}, '\\D', '', 'g'), 8) = %s"
             where_arg = raiz
+        # Ordering is only semantic when choosing a newest-N subset. Full
+        # history has a deterministic fingerprint sort downstream and should
+        # not pay for an otherwise unbounded database sort.
+        order_sql = f" ORDER BY {order} DESC NULLS LAST" if limit is not None else ""
+        limit_sql = " LIMIT %s" if limit is not None else ""
         sql = f"""
             SELECT {", ".join(select_cols)}
             FROM pncp_supplier_contracts
             WHERE {where_sql}
-            ORDER BY {order} DESC NULLS LAST
-            LIMIT %s
+            {order_sql}
+            {limit_sql}
         """
-        cur.execute(sql, (where_arg, limit))
+        params = (where_arg, limit) if limit is not None else (where_arg,)
+        cur.execute(sql, params)
         rows = [dict(r) for r in (cur.fetchall() or [])]
 
     contracts: list[dict[str, Any]] = []
@@ -283,4 +289,5 @@ def company_input_from_dict(data: dict[str, Any]) -> CompanyInput:
         construction_evidence=ce,
         is_consortium_member=consortium,
         source_watermark=str(data.get("source_watermark") or ""),
+        branch_cnpjs=list(data.get("branch_cnpjs") or []),
     )

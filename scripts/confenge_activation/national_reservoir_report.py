@@ -43,8 +43,8 @@ def build_funnel_rows(metrics: dict[str, Any]) -> list[dict[str, Any]]:
             None,
         ),
         (
-            "construction-relevant (CONFIRMED+PROBABLE)",
-            "construction_relevant",
+            "construction universe (independent sector dimension)",
+            "construction_roots",
             "national_universe",
         ),
         ("target-fit eligible roots (supplier materialize set)", "target_fit_eligible", "national_universe"),
@@ -54,6 +54,11 @@ def build_funnel_rows(metrics: dict[str, Any]) -> list[dict[str, Any]]:
         ("TARGET_CONFIRMED", "target_confirmed", "target_fit_materialized"),
         ("TARGET_PROBABLE_RESEARCH", "target_probable", "target_fit_materialized"),
         ("TARGET_OUT_OF_SCOPE", "target_out", "target_fit_materialized"),
+        (
+            "TARGET_INSUFFICIENT_EVIDENCE (retained for reconsideration)",
+            "target_insufficient",
+            "target_fit_materialized",
+        ),
         ("activation WATCH", "activation_watch", "target_confirmed"),
         ("activation RESEARCH_REQUIRED", "activation_research", "target_confirmed"),
         ("activation ACTIONABLE_NOW", "activation_actionable", "target_confirmed"),
@@ -148,6 +153,7 @@ def build_artifact_pack(metrics: dict[str, Any]) -> dict[str, Any]:
         "LOSS-REASONS.json": loss,
         "SERVICE-DISTRIBUTION.json": service,
         "TARGET-FIT-COVERAGE.json": coverage,
+        "UNIVERSE-MANIFEST.json": metrics.get("universe_manifest") or {},
         "CONTACT-COVERAGE.json": contact,
         "RESERVOIR-HEALTH.json": {
             **reservoir,
@@ -245,6 +251,7 @@ def write_artifact_pack(metrics: dict[str, Any], out_dir: Path | str = DEFAULT_O
         "LOSS-REASONS.json",
         "SERVICE-DISTRIBUTION.json",
         "TARGET-FIT-COVERAGE.json",
+        "UNIVERSE-MANIFEST.json",
         "CONTACT-COVERAGE.json",
         "RESERVOIR-HEALTH.json",
     ):

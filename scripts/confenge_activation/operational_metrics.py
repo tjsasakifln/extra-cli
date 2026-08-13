@@ -17,6 +17,12 @@ from typing import Any
 PILOT_ACCEPTANCE_SAMPLE = 50
 MINIMUM_PILOT_ACCEPTANCE_SAMPLE = PILOT_ACCEPTANCE_SAMPLE  # alias for existing imports
 
+# Explicit operating policy, not a measured universe count.
+CONFENGE_PILOT_EMAILS_PER_HOUR = 10
+CONFENGE_BUSINESS_HOURS_PER_DAY = 9
+CONFENGE_RESERVE_BUSINESS_DAYS = 10
+MIN_OPERATIONAL_RESERVE = 900
+
 # Metric names (stable keys for artifacts / observability)
 METRIC_PILOT_ACCEPTANCE_SAMPLE = "PILOT_ACCEPTANCE_SAMPLE"
 METRIC_NATIONAL_EMAIL_SEND_READY_RESERVOIR = "NATIONAL_EMAIL_SEND_READY_RESERVOIR"
@@ -65,7 +71,12 @@ def warmbly_ops_config_from_env(env: dict[str, str] | None = None) -> dict[str, 
     e = env if env is not None else os.environ
     start = e.get("CONFENGE_SEND_WINDOW_START", "09:00")
     end = e.get("CONFENGE_SEND_WINDOW_END", "18:00")
-    eph = float(e.get("CONFENGE_GLOBAL_SENDS_PER_HOUR") or e.get("CONFENGE_RATE_START_PER_HOUR") or 10)
+    eph = float(
+        e.get("CONFENGE_RATE_MAX_PER_HOUR")
+        or e.get("CONFENGE_GLOBAL_SENDS_PER_HOUR")
+        or e.get("CONFENGE_RATE_START_PER_HOUR")
+        or CONFENGE_PILOT_EMAILS_PER_HOUR
+    )
     hours = business_hours_from_window(start, end)
     if hours <= 0:
         hours = 8.0  # last-resort default only if window unparsable

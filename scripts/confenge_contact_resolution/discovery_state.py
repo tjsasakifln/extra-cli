@@ -269,9 +269,10 @@ def classify_contact_terminal(
 def measure_terminal_coverage(
     states: list[ContactDiscoveryState] | list[dict[str, Any]],
     *,
-    target_confirmed_total: int,
+    population_total: int,
+    population_name: str = "TARGET_CONFIRMED",
 ) -> dict[str, Any]:
-    """Closed partition of CONFIRMED over contact terminal states."""
+    """Closed partition of a named population over contact terminal states."""
     counts = {s: 0 for s in TERMINAL_STATES}
     for st in states:
         d = st.as_dict() if isinstance(st, ContactDiscoveryState) else dict(st)
@@ -279,13 +280,19 @@ def measure_terminal_coverage(
         if term in counts:
             counts[term] += 1
     classified = sum(counts.values())
-    never = max(0, int(target_confirmed_total) - classified)
-    return {
+    never = max(0, int(population_total) - classified)
+    population_key = str(population_name or "TARGET_CONFIRMED").strip().upper()
+    result = {
         "schema": "confenge.contact_terminal_coverage.v1",
-        "TARGET_CONFIRMED_total": int(target_confirmed_total),
+        "population_name": population_key,
+        "population_total": int(population_total),
         "terminal_counts": counts,
         "classified": classified,
         "never_attempted": never,
-        "all_confirmed_have_terminal": never == 0 and classified == int(target_confirmed_total),
-        "closed_sum": classified + never == int(target_confirmed_total),
+        "all_population_has_terminal": never == 0 and classified == int(population_total),
+        "closed_sum": classified + never == int(population_total),
     }
+    if population_key == "TARGET_CONFIRMED":
+        result["TARGET_CONFIRMED_total"] = int(population_total)
+        result["all_confirmed_have_terminal"] = result["all_population_has_terminal"]
+    return result

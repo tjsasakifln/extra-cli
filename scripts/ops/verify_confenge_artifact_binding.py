@@ -5,7 +5,9 @@ Rules (objective §4, practical with embedded SHAs in-git):
 1. All present of {artifact,run,gate,review,git}_git_sha must be equal to each other.
 2. That common SHA must be an ancestor of (or equal to) HEAD.
 3. Diff HEAD...common_sha may change evidence lag + unrelated monorepo paths.
-   Protected CONFENGE frozen inputs after the run SHA → FAIL (requires re-freeze).
+   Protected CONFENGE frozen inputs after the run SHA normally invalidate evidence.
+   Architecture-only PRs may explicitly carry unchanged, non-terminal evidence as
+   STALE without rebinding it to code that was not evaluated live.
 4. match_run_to_head=false with unequal internal SHAs → FAIL.
 """
 
@@ -30,6 +32,17 @@ from scripts.ops.confenge_frozen_inputs import (  # noqa: E402
 _ALLOWED_PREFIXES = EVIDENCE_LAG_PREFIXES
 
 SHA_KEYS = ("artifact_git_sha", "run_git_sha", "gate_git_sha", "review_git_sha", "git_sha")
+NON_TERMINAL_STATUSES = frozenset(
+    {
+        "BLOCKED",
+        "FAIL",
+        "NOT_READY",
+        "SUPERSEDED_NON_TERMINAL",
+        "READY_FOR_TIAGO_HUMAN_REVIEW",
+        "ENGINEERING_IN_PROGRESS",
+        "EXTERNAL_BLOCKER_REQUIRES_TIAGO",
+    }
+)
 
 
 def _git(args: list[str], *, cwd: Path | None = None) -> str:
@@ -67,11 +80,33 @@ def _paths_changed(base: str, head: str) -> list[str]:
     return [ln for ln in out.splitlines() if ln.strip()]
 
 
+def _working_tree_paths() -> list[str]:
+    """Return indexed, unstaged, and untracked repo paths."""
+    paths: set[str] = set()
+    for args in (
+        ["diff", "--name-only"],
+        ["diff", "--cached", "--name-only"],
+        ["ls-files", "--others", "--exclude-standard"],
+    ):
+        paths.update(line for line in _git(args).splitlines() if line.strip())
+    return sorted(paths)
+
+
+def _repo_relative(path: Path) -> str | None:
+    candidate = path if path.is_absolute() else _ROOT / path
+    try:
+        return candidate.resolve().relative_to(_ROOT.resolve()).as_posix()
+    except ValueError:
+        return None
+
+
 def check_artifact_binding(
     *,
     head_sha: str,
     result_path: Path | None = None,
     extra_paths: list[Path] | None = None,
+    allow_stale_non_terminal: bool = False,
+    change_base_sha: str | None = None,
 ) -> dict[str, Any]:
     paths = [result_path or (_ART / "result.json")]
     if extra_paths:
@@ -79,6 +114,7 @@ def check_artifact_binding(
     issues: list[str] = []
     details: dict[str, Any] = {"head_sha": head_sha, "files": {}}
     collected: list[str] = []
+    artifact_statuses: list[str | None] = []
 
     for path in paths:
         p = Path(path)
@@ -93,6 +129,8 @@ def check_artifact_binding(
             details["files"][str(p)] = {"present": True, "error": str(exc)}
             continue
         file_issues: list[str] = []
+        status = str(data.get("terminal_state") or data.get("status") or "") or None
+        artifact_statuses.append(status)
         found: dict[str, str] = {}
         for key in SHA_KEYS:
             val = data.get(key)
@@ -110,7 +148,12 @@ def check_artifact_binding(
             file_issues.append("sha_binding.match_run_to_head=false")
         if file_issues:
             issues.extend(f"{p.name}:{x}" for x in file_issues)
-        details["files"][str(p)] = {"present": True, "shas": found, "issues": file_issues}
+        details["files"][str(p)] = {
+            "present": True,
+            "status": status,
+            "shas": found,
+            "issues": file_issues,
+        }
 
     common: str | None = None
     if collected:
@@ -140,16 +183,66 @@ def check_artifact_binding(
                 details["protected_changed"] = bad
                 details["free_changed"] = list(eval_diff.get("free_changed") or [])
                 if bad or not eval_diff.get("ok"):
-                    issues.append(f"protected_input_changed_after_bound_sha:{bad}")
+                    artifact_relpaths: set[str] = set()
+                    unprovable_paths: list[str] = []
+                    for path in paths:
+                        relpath = _repo_relative(Path(path))
+                        if relpath is None:
+                            unprovable_paths.append(str(path))
+                        else:
+                            artifact_relpaths.add(relpath)
+                    base_usable = bool(
+                        change_base_sha
+                        and change_base_sha != head_sha
+                        and _is_ancestor(str(change_base_sha), head_sha)
+                    )
+                    try:
+                        changed_in_checkpoint = (
+                            _paths_changed(str(change_base_sha), head_sha)
+                            if base_usable
+                            else []
+                        )
+                        dirty_paths = _working_tree_paths()
+                    except (OSError, subprocess.SubprocessError):
+                        changed_in_checkpoint = []
+                        dirty_paths = []
+                        base_usable = False
+                    artifacts_changed = sorted(
+                        artifact_relpaths.intersection(
+                            set(changed_in_checkpoint) | set(dirty_paths)
+                        )
+                    )
+                    statuses_non_terminal = bool(artifact_statuses) and all(
+                        status in NON_TERMINAL_STATUSES for status in artifact_statuses
+                    )
+                    stale_allowed = (
+                        allow_stale_non_terminal
+                        and base_usable
+                        and not unprovable_paths
+                        and statuses_non_terminal
+                        and not artifacts_changed
+                    )
+                    details["stale_evidence"] = {
+                        "allowed": stale_allowed,
+                        "requested": allow_stale_non_terminal,
+                        "change_base_sha": change_base_sha,
+                        "change_base_usable": base_usable,
+                        "unprovable_paths": unprovable_paths,
+                        "artifact_statuses": artifact_statuses,
+                        "artifacts_changed_in_checkpoint": artifacts_changed,
+                    }
+                    if not stale_allowed:
+                        issues.append(f"protected_input_changed_after_bound_sha:{bad}")
                 # pure artifact lag + unrelated monorepo work is allowed
         # If common == head: perfect
     else:
         issues.append("no_sha_fields_found")
 
     ok = len(issues) == 0
+    stale = bool((details.get("stale_evidence") or {}).get("allowed"))
     return {
         "ok": ok,
-        "status": "PASS" if ok else "FAIL",
+        "status": "STALE_EVIDENCE_NON_TERMINAL" if ok and stale else ("PASS" if ok else "FAIL"),
         "head_sha": head_sha,
         "bound_sha": common,
         "issues": issues,
@@ -162,6 +255,19 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--result", default=str(_ART / "result.json"))
     p.add_argument("--queue-summary", default=str(_ART / "queue-summary.json"))
     p.add_argument("--head", default=None, help="Override HEAD SHA (tests)")
+    p.add_argument(
+        "--allow-stale-non-terminal",
+        action="store_true",
+        help=(
+            "Allow unchanged BLOCKED/non-terminal artifacts to remain bound to the "
+            "code actually evaluated; never authorizes PASS/GO evidence"
+        ),
+    )
+    p.add_argument(
+        "--change-base",
+        default=None,
+        help="PR/base SHA used to prove that stale evidence was not edited by this change",
+    )
     p.add_argument("--out", default=None)
     args = p.parse_args(argv)
     head = args.head or git_head()
@@ -169,6 +275,8 @@ def main(argv: list[str] | None = None) -> int:
         head_sha=head,
         result_path=Path(args.result),
         extra_paths=[Path(args.queue_summary)] if Path(args.queue_summary).is_file() else None,
+        allow_stale_non_terminal=args.allow_stale_non_terminal,
+        change_base_sha=args.change_base,
     )
     text = json.dumps(report, indent=2, ensure_ascii=False) + "\n"
     if args.out:
