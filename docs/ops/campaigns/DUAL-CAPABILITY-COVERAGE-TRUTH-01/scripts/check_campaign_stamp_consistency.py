@@ -422,7 +422,8 @@ def main() -> int:
     print(report)
     log_path = args.log
     if log_path is None:
-        log_path = Path(tempfile.gettempdir()) / "extra-consistency-gate.log"
+        run_dir = Path(tempfile.mkdtemp(prefix="extra-consistency-gate-"))
+        log_path = run_dir / "consistency-gate.log"
     try:
         log_path.parent.mkdir(parents=True, exist_ok=True)
         log_path.write_text(report, encoding="utf-8")

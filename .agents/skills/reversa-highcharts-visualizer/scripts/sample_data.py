@@ -18,7 +18,7 @@ Saída:
 import argparse
 import json
 import sys
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from random import SystemRandom
 
 RNG = SystemRandom()
@@ -94,7 +94,7 @@ def sample_sankey() -> dict:
 
 def sample_gauge(value: float = None) -> dict:
     """Dados de exemplo para gauge/solid gauge."""
-    val = value or round(RNG.uniform(30, 95), 1)
+    val = value if value is not None else round(RNG.uniform(30, 95), 1)
     return {"series": [{"name": "Performance", "data": [val]}], "suggested_type": "solidgauge", "min": 0, "max": 100}
 
 
@@ -115,7 +115,7 @@ def sample_treemap() -> dict:
 
 def sample_stock(days: int = 365) -> dict:
     """Dados de exemplo para stock chart (OHLC)."""
-    start = datetime(2024, 1, 1)
+    start = datetime(2024, 1, 1, tzinfo=UTC)
     price = 150.0
     data = []
     for i in range(days):

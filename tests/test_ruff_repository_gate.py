@@ -37,7 +37,14 @@ def test_monitor_url_rejects_non_http_and_missing_hostname() -> None:
     assert module.validated_server_url("https://monitor.example/path/") == (
         "https://monitor.example/path"
     )
-    for unsafe in ("file:///etc/passwd", "data:text/plain,x", "http:///events", "//host/path"):
+    for unsafe in (
+        "file:///etc/passwd",
+        "data:text/plain,x",
+        "http:///events",
+        "//host/path",
+        "https://monitor.example/path?redirect=file:///etc/passwd",
+        "https://monitor.example/path#fragment",
+    ):
         assert module.validated_server_url(unsafe) is None
 
 

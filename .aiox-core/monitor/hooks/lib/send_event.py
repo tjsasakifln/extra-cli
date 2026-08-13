@@ -18,9 +18,16 @@ TIMEOUT_MS = int(os.environ.get("AIOX_MONITOR_TIMEOUT_MS", "500"))
 def validated_server_url(value: str) -> str | None:
     """Return a normalized HTTP(S) monitor URL, or None for unsafe input."""
     parsed = urllib.parse.urlsplit(value)
-    if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+    if (
+        parsed.scheme not in {"http", "https"}
+        or not parsed.hostname
+        or parsed.query
+        or parsed.fragment
+    ):
         return None
-    return value.rstrip("/")
+    return urllib.parse.urlunsplit(
+        (parsed.scheme, parsed.netloc, parsed.path.rstrip("/"), "", "")
+    )
 
 
 def send_event(event_type: str, data: dict[str, Any]) -> bool:
