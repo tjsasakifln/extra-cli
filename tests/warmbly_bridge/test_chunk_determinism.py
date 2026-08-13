@@ -6,7 +6,14 @@ import hashlib
 import json
 from pathlib import Path
 
-from scripts.warmbly_bridge.export import ExportConfig, export_outreach
+from scripts.warmbly_bridge.export import (
+    ExportConfig,
+    _decision_cursor,
+    _encode_chunk,
+    _encoded_lead_item_size,
+    _provisional_chunk_size,
+    export_outreach,
+)
 
 
 def _file_hashes(out: Path) -> dict[str, str]:
@@ -14,6 +21,44 @@ def _file_hashes(out: Path) -> dict[str, str]:
     for p in sorted(out.glob("chunk_*.json")):
         result[p.name] = hashlib.sha256(p.read_bytes()).hexdigest()
     return result
+
+
+def test_incremental_provisional_size_matches_canonical_encoding() -> None:
+    leads = [
+        {"source_lead_id": "a", "company": {"cnpj14": "00000000000001"}, "label": "ASCII"},
+        {
+            "source_lead_id": "b",
+            "company": {"cnpj14": "00000000000002"},
+            "label": "Construção çã 🚧",
+            "nested": {"items": [1, 2, {"ok": True}]},
+        },
+    ]
+    source = {"system": "extra-cli", "run_id": "run-size"}
+    generated_at = "2026-08-12T12:00:00Z"
+    pagination = {
+        "cursor": _decision_cursor(leads[0]),
+        "next_cursor": None,
+        "has_more": False,
+        "chunk_index": 7,
+    }
+    feed = {
+        "schema_version": "confenge.outreach.v1",
+        "generated_at": generated_at,
+        "source": source,
+        "pagination": pagination,
+        "leads": leads,
+    }
+
+    measured = _provisional_chunk_size(
+        lead_item_bytes=sum(_encoded_lead_item_size(lead) for lead in leads),
+        lead_count=len(leads),
+        source=source,
+        generated_at=generated_at,
+        cursor=pagination["cursor"],
+        chunk_index=pagination["chunk_index"],
+    )
+
+    assert measured == len(_encode_chunk(feed))
 
 
 def test_reexport_same_inputs_same_hashes(

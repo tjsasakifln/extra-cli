@@ -114,6 +114,23 @@ def _read_jsonl(path: Path) -> list[dict[str, Any]]:
     return rows
 
 
+def _dedupe_decision_rows(rows: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], int]:
+    """Return one deterministic authoritative decision row per canonical CNPJ."""
+    out: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    duplicate_count = 0
+    for row in rows:
+        cnpj = canonical_cnpj14(row.get("cnpj14") or row.get("cnpj"))
+        if not cnpj:
+            continue
+        if cnpj in seen:
+            duplicate_count += 1
+            continue
+        seen.add(cnpj)
+        out.append({**row, "cnpj14": cnpj})
+    return out, duplicate_count
+
+
 def _published_target_fit_snapshot(
     rows: list[dict[str, Any]],
     *,
@@ -337,9 +354,7 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
 
         universe_rows = _read_jsonl(universe_jsonl)
         exclusion_rows = _read_jsonl(exclusions_jsonl)
-        decision_rows = [
-            row for row in [*universe_rows, *exclusion_rows] if canonical_cnpj14(row.get("cnpj14") or row.get("cnpj"))
-        ]
+        decision_rows, duplicate_decision_rows = _dedupe_decision_rows([*universe_rows, *exclusion_rows])
         (
             target_fit_snapshot_rows,
             target_fit_authority,
@@ -351,6 +366,7 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
         stages["universe_row_count"] = len(universe_rows)
         stages["reservoir_count"] = len(universe_rows)
         stages["target_fit_decision_universe_count"] = len(decision_rows)
+        stages["target_fit_duplicate_cnpj_collapsed"] = duplicate_decision_rows
         stages["target_fit_unaddressable_exclusion_count"] = len(exclusion_rows) - (
             len(decision_rows) - len(universe_rows)
         )
