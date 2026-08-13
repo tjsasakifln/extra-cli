@@ -385,7 +385,6 @@ def test_published_path_exception_fails_closed_not_rescore():
         ]
     }
 
-    import scripts.warmbly_bridge.mapping as mapping_mod
     import scripts.confenge_target_fit.published as pub_mod
 
     real = pub_mod.published_from_row_or_db

@@ -511,8 +511,6 @@ def test_export_mapping_allows_real_provenance(tmp_path: Path) -> None:
     universe = [
         {
             "cnpj14": "12345678000199",
-            "company_name": "EMPRESA TARGET ENGENHARIA LTDA",
-            "official_domain": "empresa-target.com.br",
             "outreach_eligibility": "ELIGIBLE",
             "target_fit_class": "TARGET_CONFIRMED",
             "construction_evidence": {

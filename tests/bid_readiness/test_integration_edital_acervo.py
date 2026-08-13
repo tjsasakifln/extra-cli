@@ -213,7 +213,8 @@ def test_evaluate_technical_match_uses_acervo():
 
 def test_pipeline_source_imports_integration():
     import inspect
-    from scripts.bid_readiness import pipeline, match
+
+    from scripts.bid_readiness import match, pipeline
 
     assert "integrate_requirements" in inspect.getsource(pipeline)
     assert "match_technical_via_acervo" in inspect.getsource(match)

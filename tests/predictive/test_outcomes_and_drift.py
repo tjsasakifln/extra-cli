@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 import json
-
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from scripts.predictive.claims import ClaimRegistry
@@ -19,7 +18,7 @@ from scripts.predictive.weekly_section import build_weekly_predictive_section
 
 
 def test_resolve_demand_positive_with_event():
-    as_of = datetime(2024, 1, 1, tzinfo=timezone.utc)
+    as_of = datetime(2024, 1, 1, tzinfo=UTC)
     pred = {
         "prediction_id": "pred_test_1",
         "target_name": "demand_30d",
@@ -40,7 +39,7 @@ def test_resolve_demand_positive_with_event():
 
 def test_resolve_demand_negative_requires_coverage():
     """Empty events without coverage must NOT become label 0.0."""
-    as_of = datetime(2024, 1, 1, tzinfo=timezone.utc)
+    as_of = datetime(2024, 1, 1, tzinfo=UTC)
     pred = {
         "prediction_id": "pred_no_cov",
         "target_name": "demand_30d",
@@ -61,7 +60,7 @@ def test_resolve_demand_negative_requires_coverage():
 
 
 def test_resolve_demand_negative_with_explicit_coverage():
-    as_of = datetime(2024, 1, 1, tzinfo=timezone.utc)
+    as_of = datetime(2024, 1, 1, tzinfo=UTC)
     pred = {
         "prediction_id": "pred_cov",
         "target_name": "demand_30d",
@@ -80,7 +79,7 @@ def test_resolve_demand_negative_with_explicit_coverage():
 
 
 def test_resolve_demand_negative_with_weak_nearby_coverage():
-    as_of = datetime(2024, 1, 1, tzinfo=timezone.utc)
+    as_of = datetime(2024, 1, 1, tzinfo=UTC)
     pred = {
         "prediction_id": "pred_weak",
         "target_name": "demand_30d",
@@ -98,7 +97,7 @@ def test_resolve_demand_negative_with_weak_nearby_coverage():
 
 
 def test_resolve_immature_returns_none():
-    as_of = datetime.now(timezone.utc).replace(microsecond=0)
+    as_of = datetime.now(UTC).replace(microsecond=0)
     pred = {
         "prediction_id": "pred_immature",
         "target_name": "demand_30d",
@@ -113,7 +112,7 @@ def test_resolve_immature_returns_none():
 
 
 def test_p2a_resolve_winner_match():
-    as_of = datetime(2024, 6, 1, tzinfo=timezone.utc)
+    as_of = datetime(2024, 6, 1, tzinfo=UTC)
     pred = {
         "prediction_id": "p2a_1",
         "target_name": "competitive_winner_p2a",
@@ -139,7 +138,7 @@ def test_p2a_resolve_winner_match():
 
 
 def test_p2a_resolve_non_winner():
-    as_of = datetime(2024, 6, 1, tzinfo=timezone.utc)
+    as_of = datetime(2024, 6, 1, tzinfo=UTC)
     pred = {
         "prediction_id": "p2a_2",
         "target_name": "competitive_winner_p2a",
@@ -174,7 +173,7 @@ def test_p2a_immature_no_outcome():
 
 
 def test_p2a_rejects_outcome_before_as_of():
-    as_of = datetime(2024, 6, 10, tzinfo=timezone.utc)
+    as_of = datetime(2024, 6, 10, tzinfo=UTC)
     pred = {
         "prediction_id": "p2a_leak",
         "target_name": "competitive_winner_p2a",
@@ -196,7 +195,7 @@ def test_p2a_rejects_outcome_before_as_of():
 
 
 def test_resolve_predictions_routes_p2a_and_demand():
-    as_of = datetime(2024, 1, 1, tzinfo=timezone.utc)
+    as_of = datetime(2024, 1, 1, tzinfo=UTC)
     preds = [
         {
             "prediction_id": "d1",
@@ -238,7 +237,7 @@ def test_resolve_predictions_routes_p2a_and_demand():
 
 
 def test_build_winners_index():
-    as_of = datetime(2024, 1, 1, tzinfo=timezone.utc)
+    as_of = datetime(2024, 1, 1, tzinfo=UTC)
     contracts = [
         {
             "contrato_id": "X1",

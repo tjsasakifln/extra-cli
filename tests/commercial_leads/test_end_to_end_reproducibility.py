@@ -10,7 +10,7 @@ from scripts.commercial_leads.scoring import (
     diagnose_offer_distribution,
     score_supplier,
 )
-from scripts.commercial_leads.signals import SignalResult, SIGNAL_STATUS_FIRED
+from scripts.commercial_leads.signals import SIGNAL_STATUS_FIRED, SignalResult
 
 
 class _Prof:

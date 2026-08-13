@@ -1,5 +1,6 @@
 from scripts.crawl.transformer import transform_pncp_item
 
+
 def _item(esfera):
     return {
         "numeroControlePNCP": "12345678000199-1-000001/2026",

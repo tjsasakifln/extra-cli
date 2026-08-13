@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-from pathlib import Path
 
 from scripts.commercial_leads.snapshot import validate_snapshot_manifest, write_default_manifest
 
@@ -122,7 +121,6 @@ def test_manifest_missing_canonical_hash_blocked_for_independent_anchor(tmp_path
         ),
         encoding="utf-8",
     )
-    from scripts.commercial_leads.snapshot import bind_snapshot_to_database
 
     r = validate_snapshot_manifest(man, verify_file_hash=True)
     # File hash may validate, but bind without canonical is BLOCKED independent anchor
@@ -240,9 +238,6 @@ def test_post_restore_canonical_mint_not_accepted_as_anchor(tmp_path):
     original = snapmod.compute_canonical_table_hash
     snapmod.compute_canonical_table_hash = fake_compute  # type: ignore[assignment]
     try:
-        # fetch_all will fail without real conn — patch fetch_all too
-        import scripts.commercial_leads.dbutil as dbutil
-
         def fake_fetch(conn, sql, params=None):
             if "COUNT" in sql.upper():
                 return [{"n": 0}]
@@ -250,11 +245,7 @@ def test_post_restore_canonical_mint_not_accepted_as_anchor(tmp_path):
                 return [{"min_d": None, "max_d": None}]
             return []
 
-        orig_fetch = dbutil.fetch_all
-        # bind imports fetch_all inside function from dbutil
-        import scripts.commercial_leads.snapshot as s2
-
-        # Patch at usage site via monkey: replace bind's fetch by wrapping compute only
+        # Patch fetch_all at its usage site and replace bind's compute helper.
         # Use validate path: missing canon → BLOCKED
         class V:
             def as_dict(self):
