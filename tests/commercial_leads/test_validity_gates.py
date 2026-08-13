@@ -6,8 +6,6 @@ import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from scripts.commercial_leads import POPULATION_FULL, POPULATION_SAMPLE, SOURCE_STATE_RESTORED
 from scripts.commercial_leads.isolation import assert_source_state_isolation, mask_dsn
 

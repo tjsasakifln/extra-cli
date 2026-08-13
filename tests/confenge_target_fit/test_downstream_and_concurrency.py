@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import os
 import uuid
-from datetime import UTC, datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import UTC, datetime
 
 import pytest
 
@@ -22,7 +22,7 @@ from scripts.confenge_target_fit.config import TargetFitRefreshConfig
 from scripts.confenge_target_fit.db import connect
 from scripts.confenge_target_fit.feed import assert_warmbly_contract, enrich_outreach_row
 from scripts.confenge_target_fit.loader import company_input_from_dict
-from scripts.confenge_target_fit.models import MaterializedTargetFit, TransitionEvent
+from scripts.confenge_target_fit.models import MaterializedTargetFit
 from scripts.confenge_target_fit.store import (
     claim_batch,
     enqueue_dirty,
@@ -30,7 +30,6 @@ from scripts.confenge_target_fit.store import (
     get_current,
     is_send_suppressed,
     publish_materialization,
-    record_downstream_invalidation_soft,
 )
 from scripts.confenge_target_fit.worker import process_one
 from scripts.warmbly_bridge.mapping import map_lead

@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock
+from pathlib import Path
 
 import pytest
 
 from scripts.commercial_leads.pipeline import persist_run
 from scripts.commercial_leads.profile import load_profile
-from pathlib import Path
 
 
 class _BoomCursor:

@@ -5,13 +5,13 @@ from __future__ import annotations
 from datetime import date, timedelta
 
 from scripts.commercial_leads.sector_fit import (
-    CLASS_POSSIBLE,
-    CLASS_STRONG,
     CLASS_CONFIRMED,
     CLASS_OUT,
+    CLASS_POSSIBLE,
+    CLASS_STRONG,
     PUBLISHABLE,
-    classify_supplier_sector_fit,
     assert_denominator_invariant,
+    classify_supplier_sector_fit,
 )
 
 

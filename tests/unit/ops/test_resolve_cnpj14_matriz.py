@@ -1,5 +1,5 @@
 """Unit tests for CNPJ-14 matriz resolution (check digits + soft name)."""
-from scripts.ops.resolve_cnpj14_matriz import cnpj14_matriz, soft_name_match, cnpj_check_digits
+from scripts.ops.resolve_cnpj14_matriz import cnpj14_matriz, cnpj_check_digits, soft_name_match
 
 
 def test_known_public_entity_comcap():
