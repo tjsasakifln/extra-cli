@@ -119,8 +119,12 @@ def crawl_official_site(
             continue
 
         contacts = extract_contacts_from_html(page.html, source_url=page.url)
+        observed_at = _now()
         for c in contacts:
-            c["source_date"] = _now()[:10]
+            # HTTP observation proves that the page was present now; it does
+            # not prove when the page or address was published.
+            c["source_published_at"] = None
+            c["observed_at"] = observed_at
             c["site"] = f"https://{domain}"
         all_contacts.extend(contacts)
 
@@ -129,7 +133,8 @@ def crawl_official_site(
             "title": page.title,
             "contacts": contacts,
             "text_excerpt": strip_html(page.html)[:800] if page.html else "",
-            "source_date": _now()[:10],
+            "source_published_at": None,
+            "observed_at": observed_at,
         }
         result.pages.append(page_row)
 
@@ -163,7 +168,11 @@ def pages_for_site_adapter(crawl: SiteCrawlResult) -> list[dict[str, Any]]:
             {
                 "url": f"https://{crawl.domain}/",
                 "contacts": crawl.contacts,
-                "source_date": _now()[:10],
+                "source_published_at": None,
+                "observed_at": next(
+                    (str(c.get("observed_at")) for c in crawl.contacts if c.get("observed_at")),
+                    None,
+                ),
             }
         )
     return out

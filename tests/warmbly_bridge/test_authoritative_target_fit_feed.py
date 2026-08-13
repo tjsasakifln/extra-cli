@@ -110,14 +110,44 @@ def _export(
             "cnpj14": row["cnpj14"],
             "contacts": [
                 {
-                    "email": f"engenharia@{domains[index]}",
+                    "name": "Maria de Souza",
+                    "role": "Diretora Comercial",
+                    "email": f"maria.souza@{domains[index]}",
                     "ownership_status": "COMPANY_OWNED",
                     "verification_status": "OBSERVED",
+                    "email_explicitly_published": True,
+                    "name_explicitly_published": True,
+                    "role_explicitly_published": True,
+                    "human_identity_evidence_valid": True,
+                    "identity_evidence_urls": [f"https://{domains[index]}/equipe"],
+                    "evidence_sha256": f"{index + 1:064x}",
                     "provenance": {
                         "source_type": "site",
-                        "source_url": f"https://{domains[index]}/contato",
+                        "source_url": f"https://{domains[index]}/equipe",
+                        "observed_at": NOW,
+                        "evidence_sha256": f"{index + 1:064x}",
                     },
-                }
+                },
+                {
+                    "name": "Joao de Lima",
+                    "role": "Responsavel Tecnico",
+                    "email": f"joao.lima@{domains[index]}",
+                    "ownership_status": "COMPANY_OWNED",
+                    "verification_status": "OBSERVED",
+                    "confidence": "0.8",
+                    "email_explicitly_published": True,
+                    "name_explicitly_published": True,
+                    "role_explicitly_published": True,
+                    "human_identity_evidence_valid": True,
+                    "identity_evidence_urls": [f"https://{domains[index]}/equipe-tecnica"],
+                    "evidence_sha256": f"{index + 100:064x}",
+                    "provenance": {
+                        "source_type": "site",
+                        "source_url": f"https://{domains[index]}/equipe-tecnica",
+                        "observed_at": NOW,
+                        "evidence_sha256": f"{index + 100:064x}",
+                    },
+                },
             ],
         }
         for index, row in enumerate(universe)
@@ -177,6 +207,12 @@ def test_full_snapshot_publishes_negative_decisions_and_temporal_order(tmp_path:
     assert by_cnpj["11222333000181"]["target_fit_class"] == "TARGET_CONFIRMED"
     assert by_cnpj["11222333000181"]["target_fit_fresh"] is True
     assert by_cnpj["11222333000181"]["email_send_ready"] is True
+    ready_contacts = [c for c in by_cnpj["11222333000181"]["contacts"] if c.get("email_send_ready")]
+    assert len(ready_contacts) == 2
+    assert sum(bool(c.get("recommended")) for c in ready_contacts) == 1
+    assert all(c["source_date"] == "2026-08-12" for c in ready_contacts)
+    assert all(c["source_date_semantics"] == "observed_at" for c in ready_contacts)
+    assert all(not c.get("source_published_at") for c in ready_contacts)
     assert by_cnpj["22333444000155"]["email_send_ready"] is False
     assert by_cnpj["33444555000166"]["target_fit_fresh"] is False
     assert by_cnpj["33444555000166"]["email_send_ready"] is False
@@ -249,9 +285,7 @@ def test_explicit_decision_without_source_watermark_fails_closed(tmp_path: Path)
 
 def test_freshness_uses_canonical_datalake_watermark_not_export_clock(tmp_path: Path) -> None:
     source_watermark = "2026-08-12T08:00:00Z"
-    universe = [
-        {"cnpj14": "11222333000181", "razao_social": "ALFA ENGENHARIA", "commercial_state": "NEW"}
-    ]
+    universe = [{"cnpj14": "11222333000181", "razao_social": "ALFA ENGENHARIA", "commercial_state": "NEW"}]
     decision = _decision(
         "11222333000181",
         "TARGET_CONFIRMED",
@@ -275,9 +309,7 @@ def test_freshness_uses_canonical_datalake_watermark_not_export_clock(tmp_path: 
 
 def test_database_datetime_strings_are_serialized_as_rfc3339(tmp_path: Path) -> None:
     database_timestamp = "2026-08-12 12:00:00.123456+00:00"
-    universe = [
-        {"cnpj14": "11222333000181", "razao_social": "ALFA ENGENHARIA", "commercial_state": "NEW"}
-    ]
+    universe = [{"cnpj14": "11222333000181", "razao_social": "ALFA ENGENHARIA", "commercial_state": "NEW"}]
     decision = _decision(
         "11222333000181",
         "TARGET_CONFIRMED",

@@ -51,16 +51,13 @@ def _good_company(**overrides: object) -> dict:
         "service_code": "estruturacao_pleito_reajuste",
         "portfolio": {"pass_contract_count": 4},
         "factual_hook": "Contrato de engenharia PASS recente no órgão X.",
-        "observed_fact": (
-            "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. Coxilha; UF RS"
-        ),
+        "observed_fact": ("objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. Coxilha; UF RS"),
         "why_this_account": (
             "EMPRESA TARGET com execução pública de pavimentação — "
             "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. Coxilha"
         ),
         "why_now": (
-            "aditivo recente no contrato municipal de EMPRESA TARGET de "
-            "pavimentação asfáltica CBUQ com a Pref. Coxilha"
+            "aditivo recente no contrato municipal de EMPRESA TARGET de pavimentação asfáltica CBUQ com a Pref. Coxilha"
         ),
         "micro_offer_code": "REAJUSTE_CHECK",
         "evidence_ids": ["ev-contract-1"],
@@ -282,13 +279,8 @@ def test_foreign_provenance_host_blocks_send_ready() -> None:
             "CONNECTOR com execução pública de engenharia — objeto: obras de "
             "infraestrutura viária; órgão: Pref. de Florianópolis"
         ),
-        why_now=(
-            "aditivo recente no contrato de CONNECTOR de infraestrutura viária "
-            "com a Pref. de Florianópolis"
-        ),
-        observed_fact=(
-            "objeto: obras de infraestrutura viária; órgão: Pref. de Florianópolis; UF SC"
-        ),
+        why_now=("aditivo recente no contrato de CONNECTOR de infraestrutura viária com a Pref. de Florianópolis"),
+        observed_fact=("objeto: obras de infraestrutura viária; órgão: Pref. de Florianópolis; UF SC"),
     )
     r = evaluate_email_send_ready(
         company=company,
@@ -327,9 +319,7 @@ def test_foreign_provenance_host_blocks_send_ready() -> None:
     )
     assert r.email_send_ready is False
     assert r.provenance_chain_valid is False
-    assert any("provenance_host_mismatch" in x or "taint" in x or "provenance" in x for x in r.reasons), (
-        r.reasons
-    )
+    assert any("provenance_host_mismatch" in x or "taint" in x or "provenance" in x for x in r.reasons), r.reasons
 
 
 def test_hollow_identical_template_copy_blocks_send_ready() -> None:
@@ -338,8 +328,7 @@ def test_hollow_identical_template_copy_blocks_send_ready() -> None:
         razao_social="ENCOPAV ENGENHARIA LTDA",
         official_domain="encopav.com.br",
         why_this_account=(
-            "executora com contratos públicos recentes de engenharia e momento "
-            "de reajuste/aditivo observável"
+            "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável"
         ),
         why_now="aditivo ou medição recente no contrato principal de obra pública",
         observed_fact="objeto: obra de engenharia/pavimentação com execução pública recente",
@@ -368,7 +357,7 @@ def test_hollow_identical_template_copy_blocks_send_ready() -> None:
     assert any("copy_context" in x or "why_this_account" in x for x in r.reasons), r.reasons
 
 
-def test_official_company_email_with_real_provenance_can_send() -> None:
+def test_generic_official_company_email_is_not_a_human_recipient() -> None:
     r = _eval(
         "contato@empresa-target.com.br",
         ownership="COMPANY_OWNED",
@@ -376,13 +365,13 @@ def test_official_company_email_with_real_provenance_can_send() -> None:
         source_type="site",
         source_url="https://empresa-target.com.br/contato",
     )
-    assert r.email_send_ready is True
+    assert r.email_send_ready is False
     assert r.provenance_chain_valid is True
     assert r.root_source_type == RootSourceType.REAL_OFFICIAL_SITE.value
     assert r.derived_from_fixture is False
 
 
-def test_registry_provenance_can_send() -> None:
+def test_registry_provenance_cannot_infer_a_human_recipient() -> None:
     company = _good_company(
         razao_social="ENGENHARIA BETA OBRAS LTDA",
         official_domain="engenharia-beta.com.br",
@@ -390,13 +379,8 @@ def test_registry_provenance_can_send() -> None:
             "BETA com execução pública de engenharia — objeto: pavimentação asfáltica "
             "CBUQ; órgão: Pref. de Caxias do Sul"
         ),
-        why_now=(
-            "aditivo recente no contrato de BETA de pavimentação asfáltica CBUQ "
-            "com a Pref. de Caxias do Sul"
-        ),
-        observed_fact=(
-            "objeto: pavimentação asfáltica CBUQ; órgão: Pref. de Caxias do Sul; UF RS"
-        ),
+        why_now=("aditivo recente no contrato de BETA de pavimentação asfáltica CBUQ com a Pref. de Caxias do Sul"),
+        observed_fact=("objeto: pavimentação asfáltica CBUQ; órgão: Pref. de Caxias do Sul; UF RS"),
     )
     r = evaluate_email_send_ready(
         company=company,
@@ -409,7 +393,8 @@ def test_registry_provenance_can_send() -> None:
         source_type="registry",
         source_url="official_company_registry",
     )
-    assert r.email_send_ready is True, r.reasons
+    assert r.email_send_ready is False, r.reasons
+    assert "functional_mailbox_not_human_recipient" in r.reasons
     assert r.root_source_type == RootSourceType.REAL_REGISTRY.value
 
 
@@ -448,12 +433,9 @@ def test_export_mapping_blocks_tainted_demo_candidate(tmp_path: Path) -> None:
             },
             "messaging": {
                 "why_this_account": (
-                    "executora de pavimentação com contratos públicos recentes — "
-                    "objeto: pavimentação asfáltica CBUQ"
+                    "executora de pavimentação com contratos públicos recentes — objeto: pavimentação asfáltica CBUQ"
                 ),
-                "fact_to_mention": (
-                    "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. X"
-                ),
+                "fact_to_mention": ("objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. X"),
                 "cta": "Posso te mandar o recorte público?",
             },
             "primary_service": {
@@ -507,7 +489,7 @@ def test_export_mapping_blocks_tainted_demo_candidate(tmp_path: Path) -> None:
     }
 
 
-def test_export_mapping_allows_real_provenance(tmp_path: Path) -> None:
+def test_export_mapping_blocks_generic_even_with_real_provenance(tmp_path: Path) -> None:
     universe = [
         {
             "cnpj14": "12345678000199",
@@ -531,12 +513,10 @@ def test_export_mapping_allows_real_provenance(tmp_path: Path) -> None:
             "razao_social": "EMPRESA TARGET PAVIMENTACAO LTDA",
             "why_now": {
                 "summary": (
-                    "aditivo recente no contrato de EMPRESA TARGET de pavimentação "
-                    "asfáltica CBUQ com a Pref. Coxilha"
+                    "aditivo recente no contrato de EMPRESA TARGET de pavimentação asfáltica CBUQ com a Pref. Coxilha"
                 ),
                 "temporal_fact": (
-                    "aditivo recente no contrato de EMPRESA TARGET de pavimentação "
-                    "asfáltica CBUQ com a Pref. Coxilha"
+                    "aditivo recente no contrato de EMPRESA TARGET de pavimentação asfáltica CBUQ com a Pref. Coxilha"
                 ),
                 "evidence_ids": ["ev-1"],
             },
@@ -549,10 +529,7 @@ def test_export_mapping_allows_real_provenance(tmp_path: Path) -> None:
                     "EMPRESA TARGET com execução pública de pavimentação — "
                     "objeto: pavimentação asfáltica CBUQ; órgão: Pref. Coxilha"
                 ),
-                "fact_to_mention": (
-                    "objeto: pavimentação asfáltica CBUQ em vias urbanas; "
-                    "órgão: Pref. Coxilha; UF RS"
-                ),
+                "fact_to_mention": ("objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. Coxilha; UF RS"),
                 "cta": "Posso te mandar o recorte público?",
             },
             "primary_service": {
@@ -589,7 +566,7 @@ def test_export_mapping_allows_real_provenance(tmp_path: Path) -> None:
         }
     ]
     leads = build_leads(universe, intel, contacts)
-    assert leads[0].get("email_send_ready") is True
+    assert leads[0].get("email_send_ready") is False
     assert leads[0]["contacts"][0].get("provenance_chain_valid") is True
 
 
@@ -641,6 +618,4 @@ def test_evaluate_contact_provenance_demo_siemens_shape() -> None:
     res = evaluate_contact_provenance(contact)
     assert res.provenance_chain_valid is False
     assert res.root_source_type == RootSourceType.DEMO.value
-    assert "sticky_verification_ignored:VERIFIED" in res.taint_reasons or any(
-        "demo" in t for t in res.taint_reasons
-    )
+    assert "sticky_verification_ignored:VERIFIED" in res.taint_reasons or any("demo" in t for t in res.taint_reasons)

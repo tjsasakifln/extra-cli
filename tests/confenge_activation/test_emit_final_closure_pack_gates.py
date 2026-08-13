@@ -63,7 +63,8 @@ def test_ladder_incomplete_when_transparency_partial_public_probe() -> None:
     }
     ev = ladder_complete_from_source_yield(yield_doc, target_confirmed=8382)
     assert ev["full_source_ladder_complete"] is False
-    assert "transparency_compras" in ev["missing"]
+    assert "pncp_transparency_compras" in ev["missing"]
+    assert "professional_councils_associations" in ev["missing"]
 
 
 def test_ladder_complete_when_all_steps_at_target() -> None:
@@ -77,9 +78,7 @@ def test_ladder_complete_when_all_steps_at_target() -> None:
         "company_public_pages",
     )
     sources = {s: {"companies_attempted": 100} for s in steps}
-    ev = ladder_complete_from_source_yield(
-        {"sources": sources}, target_confirmed=100, ladder_steps=steps
-    )
+    ev = ladder_complete_from_source_yield({"sources": sources}, target_confirmed=100, ladder_steps=steps)
     assert ev["full_source_ladder_complete"] is True
     assert ev["missing"] == []
 
@@ -122,9 +121,7 @@ def test_emit_pack_forbids_external_on_partial_ladder(
         }
         for i in range(60)
     ]
-    (out / "EMAIL-SEND-READY-ROWS.jsonl").write_text(
-        "\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8"
-    )
+    (out / "EMAIL-SEND-READY-ROWS.jsonl").write_text("\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8")
     esr = {
         "EMAIL_SEND_READY_DISTINCT_COMPANIES": 60,
         "TARGET_CONFIRMED": 8382,
@@ -217,7 +214,7 @@ def test_emit_pack_forbids_external_on_partial_ladder(
     go = json.loads((out / "GO-NO-GO.json").read_text(encoding="utf-8"))
     assert go["terminal_state"] == "ENGINEERING_IN_PROGRESS"
     assert go["gates"]["full_source_ladder_complete"] is False
-    assert "transparency_compras" in go["gates"]["ladder_yield_missing"]
+    assert "pncp_transparency_compras" in go["gates"]["ladder_yield_missing"]
     assert man["terminal_state"] == go["terminal_state"]
     assert man["extra_cli_sha"] == tip
     violations = assert_pack_postconditions(out, expected_origin_tip=tip)
