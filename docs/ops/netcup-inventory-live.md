@@ -101,3 +101,37 @@ bash scripts/ops/export_backfill_for_vps.sh          # local
 bash scripts/ops/export_backfill_for_vps.sh --upload
 ssh ec-prod 'bash /opt/extra-consultoria/scripts/ops/restore_backfill_on_vps.sh /var/lib/extra-consultoria/incoming/pkg-…'
 ```
+
+## Unidade canônica de coleta documental
+
+Debian 13 é suportado diretamente; não há requisito de reimage. Reinstalar o
+SO para normalizar esta unit seria destrutivo e não faz parte do procedimento.
+
+O par `extra-process-documents-incremental.{service,timer}` é renderizado no
+provisionamento com uma única configuração:
+
+- usuário/grupo: `extra-consultoria`;
+- aplicação: `/opt/extra-consultoria` e Python da `.venv`;
+- estado: `/var/lib/extra-consultoria` (nenhuma árvore `/var/lib/extra-cli`);
+- ambiente: `/opt/extra-consultoria/.env`;
+- SHA do deploy e SHA-256 da configuração idênticos no timer e service.
+
+Preflight sem mutação:
+
+```bash
+sudo /opt/extra-consultoria/.venv/bin/python \
+  -m scripts.ops.provision_process_documents_systemd
+```
+
+Install/upgrade idempotente (não habilita nem inicia o timer):
+
+```bash
+sudo /opt/extra-consultoria/.venv/bin/python \
+  -m scripts.ops.provision_process_documents_systemd \
+  --install \
+  --smoke-output /var/lib/extra-consultoria/evidence/process-documents-unit-smoke.json
+```
+
+O smoke comprova somente renderização, `systemd-analyze verify`, import/CLI do
+runtime, binding e hashes. Seu claim é `UNIT_INSTALL_SMOKE_ONLY`, com
+`vps_operational=false`.

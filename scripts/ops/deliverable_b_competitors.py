@@ -15,6 +15,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from scripts.contracts_identity import normalize_cnpj_supplier
 from scripts.ops.diagnostic_profile import profile_stamp
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -98,8 +99,7 @@ def utc_now() -> str:
 
 
 def normalize_cnpj(raw: str | None) -> str:
-    digits = "".join(ch for ch in str(raw or "") if ch.isdigit())
-    return digits.zfill(14) if digits else ""
+    return normalize_cnpj_supplier(raw) or ""
 
 
 def ticket(total: float, n: int) -> tuple[float, str]:
@@ -288,9 +288,18 @@ def fixture_candidates(n: int = 18) -> list[dict[str, Any]]:
     """Deterministic synthetic winners for schema proof (not live market)."""
     out: list[dict[str, Any]] = []
     for i in range(1, n + 1):
-        cnpj = f"{i:08d}0001{i % 10}{ (i * 3) % 10 }"
-        # pad to 14
-        cnpj = (cnpj + "00")[:14]
+        base = f"{i:08d}0001"
+
+        def check_digit(value: str, weights: list[int]) -> str:
+            remainder = sum(
+                int(digit) * weight
+                for digit, weight in zip(value, weights, strict=True)
+            ) % 11
+            return str(0 if remainder < 2 else 11 - remainder)
+
+        first = check_digit(base, [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2])
+        cnpj = base + first
+        cnpj += check_digit(cnpj, [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2])
         out.append(
             {
                 "cnpj": cnpj,

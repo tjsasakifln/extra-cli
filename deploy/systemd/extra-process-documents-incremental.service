@@ -1,20 +1,32 @@
+# ExtraDeploySHA=PROVISION_AT_INSTALL
+# ExtraConfigSHA=PROVISION_AT_INSTALL
 [Unit]
 Description=Extra Consultoria — process documents incremental collection
 After=network-online.target
 Wants=network-online.target
+OnFailure=extra-onfailure@%n.service
+ConditionPathIsDirectory=/opt/extra-consultoria
+ConditionPathIsDirectory=/var/lib/extra-consultoria
 
 [Service]
 Type=oneshot
-User=extra
-WorkingDirectory=/opt/extra-cli
-EnvironmentFile=-/etc/extra-cli/extra-collector.env
-Environment=PROCESS_DOCUMENTS_RAW_ROOT=/var/lib/extra-cli/raw/process_documents
-Environment=PROCESS_DOCUMENTS_META_ROOT=/var/lib/extra-cli/output/process_documents
+User=extra-consultoria
+Group=extra-consultoria
+WorkingDirectory=/opt/extra-consultoria
+Environment=PYTHONPATH=/opt/extra-consultoria
+Environment=EXTRA_DEPLOY_SHA=PROVISION_AT_INSTALL
+Environment=EXTRA_CONFIG_SHA=PROVISION_AT_INSTALL
+EnvironmentFile=/opt/extra-consultoria/.env
+Environment=PROCESS_DOCUMENTS_RAW_ROOT=/var/lib/extra-consultoria/raw/process_documents
+Environment=PROCESS_DOCUMENTS_META_ROOT=/var/lib/extra-consultoria/output/process_documents
 # Drain success-lag queue in batches of 100 until lag cleared or capacity exhausted.
 # Multi-source + queue state are defaults in collect.incremental.
-ExecStart=/usr/bin/python3 -m scripts.process_documents incremental --limit 100
+ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.process_documents incremental --limit 100
 Nice=10
 TimeoutStartSec=6h
+Restart=no
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=multi-user.target

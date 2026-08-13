@@ -1,5 +1,5 @@
-# ExtraDeploySHA=PROVISION_AT_INSTALL
-# ExtraConfigSHA=PROVISION_AT_INSTALL
+# ExtraDeploySHA=@DEPLOY_SHA@
+# ExtraConfigSHA=@CONFIG_SHA@
 [Unit]
 Description=Timer — Extra process documents incremental (daily)
 

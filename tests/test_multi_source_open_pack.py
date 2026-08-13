@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import copy
 import csv
+import hashlib
 import json
 from datetime import date, datetime
 from pathlib import Path
@@ -14,7 +16,17 @@ from scripts.ops.multi_source_open_pack.consolidate import consolidate_observati
 from scripts.ops.multi_source_open_pack.decide import apply_decisions, select_shortlist
 from scripts.ops.multi_source_open_pack.events import classify_event
 from scripts.ops.multi_source_open_pack.models import SourceObservation
-from scripts.ops.multi_source_open_pack.pipeline import CLIENT_ARTIFACTS, build_pack
+from scripts.ops.multi_source_open_pack.pilot_gate import (
+    PilotScaleBlockedError,
+    require_pilot_approval,
+)
+from scripts.ops.multi_source_open_pack.pipeline import (
+    CLIENT_ARTIFACTS,
+    DEFAULT_PILOT_POLICY,
+    _finalize_blocking_reasons,
+    _set_delivery_gates,
+    build_pack,
+)
 from scripts.ops.multi_source_open_pack.reconcile import build_reconciliation
 from scripts.ops.multi_source_open_pack.textutil import BR_TZ, days_remaining, parse_datetime
 from scripts.ops.multi_source_open_pack.universe import annotate_observation_universe, build_indexes, load_universe
@@ -22,6 +34,297 @@ from scripts.ops.multi_source_open_pack.universe import annotate_observation_uni
 FIXTURES = Path(__file__).parent / "fixtures" / "multi_source_open_pack"
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 UNIVERSE = PROJECT_ROOT / "config" / "target_entities_200km.csv"
+
+
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _write_pilot_approval(tmp_path: Path) -> Path:
+    evidence = tmp_path / "pilot-source-evidence.json"
+    evidence.write_text('{"status":"complete"}\n', encoding="utf-8")
+    evidence_sha256 = _sha256(evidence)
+    rows = []
+    for index, entity in enumerate(load_universe(UNIVERSE)[:30]):
+        source_results = []
+        for source, records in (("pncp", 1), ("ciga_ckan", 0)):
+            source_results.append(
+                {
+                    "source": source,
+                    "request_completed": True,
+                    "scope_complete": True,
+                    "pagination": {
+                        "complete": True,
+                        "pages_fetched": 1,
+                        "pages_expected": 1,
+                    },
+                    "records": records,
+                    "zero_proof": "success_zero" if records == 0 else "not_zero",
+                    "deduplication": {
+                        "complete": True,
+                        "input_records": records,
+                        "output_records": records,
+                        "duplicates_removed": 0,
+                    },
+                    "evidence_path": evidence.name,
+                    "evidence_sha256": evidence_sha256,
+                }
+            )
+        rows.append(
+            {
+                "entity_id": entity.entity_key,
+                "stratum": "near" if index % 2 == 0 else "far",
+                "source_results": source_results,
+            }
+        )
+    approval = tmp_path / "pilot-approval.json"
+    approval.write_text(
+        json.dumps(
+            {
+                "schema_version": "pilot-scale-approval/v1",
+                "universe_sha256": _sha256(UNIVERSE),
+                "policy_sha256": _sha256(DEFAULT_PILOT_POLICY),
+                "sources": ["pncp", "ciga_ckan"],
+                "entities": rows,
+                "human_approval": {
+                    "status": "APPROVED",
+                    "approved_by": "product-owner",
+                    "approved_at": "2026-08-12T12:00:00Z",
+                },
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    return approval
+
+
+def _read_pilot_approval(approval: Path) -> dict:
+    return json.loads(approval.read_text(encoding="utf-8"))
+
+
+def _write_changed_pilot_approval(approval: Path, payload: dict) -> None:
+    approval.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+
+
+def _require_test_pilot_approval(approval: Path):
+    entities = load_universe(UNIVERSE)
+    return require_pilot_approval(
+        universe_path=UNIVERSE,
+        policy_path=DEFAULT_PILOT_POLICY,
+        universe_entity_count=len(entities),
+        universe_entity_ids={entity.entity_key for entity in entities},
+        approval_path=approval,
+    )
+
+
+class TestPilotScaleGate:
+    def test_fully_complete_entity_source_matrix_is_approved(self, tmp_path: Path) -> None:
+        decision = _require_test_pilot_approval(_write_pilot_approval(tmp_path))
+
+        assert decision.approved is True
+        assert decision.code == "PILOT_APPROVED"
+        assert decision.pilot_entities == 30
+
+    def test_sources_distributed_globally_but_incomplete_per_entity_fail(
+        self, tmp_path: Path
+    ) -> None:
+        approval = _write_pilot_approval(tmp_path)
+        payload = _read_pilot_approval(approval)
+        for index, entity in enumerate(payload["entities"]):
+            entity["source_results"] = [entity["source_results"][index % 2]]
+        _write_changed_pilot_approval(approval, payload)
+
+        with pytest.raises(PilotScaleBlockedError) as error:
+            _require_test_pilot_approval(approval)
+
+        assert error.value.decision.code == "PILOT_APPROVAL_INVALID"
+        assert "missing declared sources" in error.value.decision.evidence
+
+    def test_one_entity_missing_one_declared_source_fails(self, tmp_path: Path) -> None:
+        approval = _write_pilot_approval(tmp_path)
+        payload = _read_pilot_approval(approval)
+        payload["entities"][0]["source_results"].pop()
+        _write_changed_pilot_approval(approval, payload)
+
+        with pytest.raises(PilotScaleBlockedError, match="missing declared sources"):
+            _require_test_pilot_approval(approval)
+
+    def test_duplicate_source_result_fails(self, tmp_path: Path) -> None:
+        approval = _write_pilot_approval(tmp_path)
+        payload = _read_pilot_approval(approval)
+        duplicate = copy.deepcopy(payload["entities"][0]["source_results"][0])
+        payload["entities"][0]["source_results"].append(duplicate)
+        _write_changed_pilot_approval(approval, payload)
+
+        with pytest.raises(PilotScaleBlockedError, match="duplicate sources"):
+            _require_test_pilot_approval(approval)
+
+    def test_undeclared_extra_source_result_fails(self, tmp_path: Path) -> None:
+        approval = _write_pilot_approval(tmp_path)
+        payload = _read_pilot_approval(approval)
+        extra = copy.deepcopy(payload["entities"][0]["source_results"][0])
+        extra["source"] = "sc_compras"
+        payload["entities"][0]["source_results"].append(extra)
+        _write_changed_pilot_approval(approval, payload)
+
+        with pytest.raises(PilotScaleBlockedError, match="undeclared sources"):
+            _require_test_pilot_approval(approval)
+
+    @pytest.mark.parametrize(
+        ("pages_fetched", "pages_expected"),
+        [(0, 1), (2, 1)],
+        ids=["fewer-pages", "extra-pages"],
+    )
+    def test_complete_pagination_requires_exact_page_count(
+        self, tmp_path: Path, pages_fetched: int, pages_expected: int
+    ) -> None:
+        approval = _write_pilot_approval(tmp_path)
+        payload = _read_pilot_approval(approval)
+        pagination = payload["entities"][0]["source_results"][0]["pagination"]
+        pagination["pages_fetched"] = pages_fetched
+        pagination["pages_expected"] = pages_expected
+        _write_changed_pilot_approval(approval, payload)
+
+        with pytest.raises(PilotScaleBlockedError, match="pagination is incomplete"):
+            _require_test_pilot_approval(approval)
+
+    def test_output_records_must_equal_reported_records(self, tmp_path: Path) -> None:
+        approval = _write_pilot_approval(tmp_path)
+        payload = _read_pilot_approval(approval)
+        dedup = payload["entities"][0]["source_results"][0]["deduplication"]
+        dedup.update(input_records=0, output_records=0, duplicates_removed=0)
+        _write_changed_pilot_approval(approval, payload)
+
+        with pytest.raises(PilotScaleBlockedError, match="deduplication is invalid"):
+            _require_test_pilot_approval(approval)
+
+    def test_arithmetically_inconsistent_deduplication_fails(self, tmp_path: Path) -> None:
+        approval = _write_pilot_approval(tmp_path)
+        payload = _read_pilot_approval(approval)
+        payload["entities"][0]["source_results"][0]["deduplication"][
+            "duplicates_removed"
+        ] = 1
+        _write_changed_pilot_approval(approval, payload)
+
+        with pytest.raises(PilotScaleBlockedError, match="deduplication is invalid"):
+            _require_test_pilot_approval(approval)
+
+    def test_source_evidence_hash_divergence_fails(self, tmp_path: Path) -> None:
+        approval = _write_pilot_approval(tmp_path)
+        payload = _read_pilot_approval(approval)
+        payload["entities"][0]["source_results"][0]["evidence_sha256"] = "0" * 64
+        _write_changed_pilot_approval(approval, payload)
+
+        with pytest.raises(PilotScaleBlockedError) as error:
+            _require_test_pilot_approval(approval)
+
+        assert error.value.decision.code == "PILOT_APPROVAL_HASH_MISMATCH"
+        assert "evidence_sha256 mismatch" in error.value.decision.evidence
+
+    def test_zero_page_zero_result_is_valid(self, tmp_path: Path) -> None:
+        approval = _write_pilot_approval(tmp_path)
+        payload = _read_pilot_approval(approval)
+        zero_result = payload["entities"][0]["source_results"][1]
+        zero_result["pagination"].update(pages_fetched=0, pages_expected=0)
+        _write_changed_pilot_approval(approval, payload)
+
+        assert _require_test_pilot_approval(approval).approved is True
+
+    def test_zero_page_nonzero_result_is_impossible(self, tmp_path: Path) -> None:
+        approval = _write_pilot_approval(tmp_path)
+        payload = _read_pilot_approval(approval)
+        nonzero_result = payload["entities"][0]["source_results"][0]
+        nonzero_result["pagination"].update(pages_fetched=0, pages_expected=0)
+        _write_changed_pilot_approval(approval, payload)
+
+        with pytest.raises(PilotScaleBlockedError, match="zero-page pagination"):
+            _require_test_pilot_approval(approval)
+
+    def test_missing_approval_blocks_before_output_creation(self, tmp_path: Path) -> None:
+        out = tmp_path / "must-not-exist"
+
+        with pytest.raises(PilotScaleBlockedError) as error:
+            build_pack(out_dir=out, universe_path=UNIVERSE, skip_network=True)
+
+        assert error.value.decision.code == "PILOT_APPROVAL_MISSING"
+        assert out.exists() is False
+
+    def test_hash_divergence_invalidates_approval_before_scale(self, tmp_path: Path) -> None:
+        approval = _write_pilot_approval(tmp_path)
+        payload = json.loads(approval.read_text(encoding="utf-8"))
+        payload["universe_sha256"] = "0" * 64
+        approval.write_text(json.dumps(payload), encoding="utf-8")
+        out = tmp_path / "must-not-exist"
+
+        with pytest.raises(PilotScaleBlockedError) as error:
+            build_pack(
+                out_dir=out,
+                universe_path=UNIVERSE,
+                pilot_approval_path=approval,
+                skip_network=True,
+            )
+
+        assert error.value.decision.code == "PILOT_APPROVAL_HASH_MISMATCH"
+        assert out.exists() is False
+
+    def test_policy_change_invalidates_previous_approval(self, tmp_path: Path) -> None:
+        approval = _write_pilot_approval(tmp_path)
+        changed_policy = tmp_path / "source_applicability.yaml"
+        changed_policy.write_bytes(DEFAULT_PILOT_POLICY.read_bytes() + b"\n# changed\n")
+        entities = load_universe(UNIVERSE)
+
+        with pytest.raises(PilotScaleBlockedError) as error:
+            require_pilot_approval(
+                universe_path=UNIVERSE,
+                policy_path=changed_policy,
+                universe_entity_count=len(entities),
+                universe_entity_ids={entity.entity_key for entity in entities},
+                approval_path=approval,
+            )
+
+        assert error.value.decision.code == "PILOT_APPROVAL_HASH_MISMATCH"
+
+    def test_missing_policy_is_structured_blocker(self, tmp_path: Path) -> None:
+        entities = load_universe(UNIVERSE)
+
+        with pytest.raises(PilotScaleBlockedError) as error:
+            require_pilot_approval(
+                universe_path=UNIVERSE,
+                policy_path=tmp_path / "missing-policy.yaml",
+                universe_entity_count=len(entities),
+                universe_entity_ids={entity.entity_key for entity in entities},
+                approval_path=None,
+            )
+
+        assert error.value.decision.code == "PILOT_INPUT_MISSING"
+        assert "policy file missing" in error.value.decision.evidence
+
+    def test_evidence_path_cannot_escape_approval_directory(self, tmp_path: Path) -> None:
+        approval_dir = tmp_path / "approval"
+        approval_dir.mkdir()
+        approval = _write_pilot_approval(approval_dir)
+        outside = tmp_path / "outside.json"
+        outside.write_text('{"status":"complete"}\n', encoding="utf-8")
+        payload = json.loads(approval.read_text(encoding="utf-8"))
+        for entity in payload["entities"]:
+            for result in entity["source_results"]:
+                result["evidence_path"] = "../outside.json"
+                result["evidence_sha256"] = _sha256(outside)
+        approval.write_text(json.dumps(payload), encoding="utf-8")
+        entities = load_universe(UNIVERSE)
+
+        with pytest.raises(PilotScaleBlockedError) as error:
+            require_pilot_approval(
+                universe_path=UNIVERSE,
+                policy_path=DEFAULT_PILOT_POLICY,
+                universe_entity_count=len(entities),
+                universe_entity_ids={entity.entity_key for entity in entities},
+                approval_path=approval,
+            )
+
+        assert error.value.decision.code == "PILOT_APPROVAL_INVALID"
+        assert "must stay inside approval directory" in error.value.decision.evidence
 
 
 def _obs(**kwargs) -> SourceObservation:
@@ -369,6 +672,7 @@ class TestPackE2EFixture:
             pack_id="EXTRA-MS-OPEN-TEST-FIXTURE",
             shortlist_limit=10,
             skip_network=True,
+            pilot_approval_path=_write_pilot_approval(tmp_path),
         )
 
         assert set(CLIENT_ARTIFACTS) == set(CLIENT_ARTIFACTS)
@@ -413,6 +717,58 @@ class TestPackE2EFixture:
         # motor is in-repo
         assert "scripts.ops.multi_source_open_pack" in manifest.get("motor_module", "")
         assert result["motor_version"]
+
+        # #286: BLOCKED always carries the same ordered structured codes in
+        # manifest, README, XLSX and PDF.
+        assert manifest["terminal_state"] == "BLOCKED"
+        assert manifest["structural_qa"]["ok"] is True
+        assert manifest["delivery_readiness"]["ok"] is False
+        assert manifest["deliverable"] is False
+        assert result["structural_qa"]["ok"] is True
+        assert result["delivery_readiness"]["ok"] is False
+        assert result["deliverable"] is False
+        reasons = manifest["blocking_reasons"]
+        assert reasons
+        assert all(
+            set(reason) >= {"code", "evidence", "owner", "next_action"}
+            for reason in reasons
+        )
+        codes = [reason["code"] for reason in reasons]
+        assert len(codes) == len(set(codes))
+        assert "PILOT_APPROVAL_MISSING" not in codes
+        assert manifest["pilot_approval"]["approved"] is True
+        assert manifest["pilot_approval"]["pilot_entities"] == 30
+        observation_limit = manifest["presentation_limits"]["observations_sheet"]
+        assert observation_limit["purpose"] == "presentation_only"
+        assert observation_limit["eligible"] == result["observations_n"]
+        assert observation_limit["included"] == result["observations_n"]
+        assert observation_limit["truncated"] is False
+        assert "COVERAGE_EVIDENCE_MISSING" in codes
+        assert "PROFILE_CRITICAL_FIELDS_PENDING" in codes
+        for code in codes:
+            assert code in readme
+
+        openpyxl = pytest.importorskip("openpyxl")
+        workbook = openpyxl.load_workbook(out / "02-oportunidades-multifonte-dados.xlsx")
+        gate_rows = list(workbook["Gates"].iter_rows(min_row=2, values_only=True))
+        assert [row[4] for row in gate_rows if row[4]] == codes
+        assert {row[0] for row in gate_rows} == {"BLOCKED"}
+        assert {row[1] for row in gate_rows} == {True}
+        assert {row[2] for row in gate_rows} == {False}
+        assert {row[3] for row in gate_rows} == {False}
+
+        from pypdf import PdfReader
+
+        pdf_text = "\n".join(
+            page.extract_text() or ""
+            for page in PdfReader(out / "01-resumo-executivo-multifonte.pdf").pages
+        )
+        for code in codes:
+            assert code in pdf_text
+        assert "Structural QA: PASS" in pdf_text
+        assert "Delivery readiness: BLOCKED" in pdf_text
+        assert "Structural QA: **PASS**" in readme
+        assert "Delivery readiness: **BLOCKED**" in readme
 
         # checksums match
         checksums = json.loads((out / "checksums.json").read_text(encoding="utf-8"))
@@ -477,6 +833,7 @@ class TestPackE2EFixture:
             now=datetime(2026, 7, 31, 12, 0, tzinfo=BR_TZ),
             pack_id="EXTRA-MS-OPEN-TEST-XLSX",
             skip_network=True,
+            pilot_approval_path=_write_pilot_approval(tmp_path),
         )
         wb = openpyxl.load_workbook(out / "02-oportunidades-multifonte-dados.xlsx")
         names = set(wb.sheetnames)
@@ -491,6 +848,68 @@ class TestPackE2EFixture:
 
 
 class TestReconciliationInvariants:
+    def test_blocked_without_reason_fails_qa_contract(self):
+        meta = {"terminal_state": "BLOCKED", "blocking_reasons": [], "invariant_errors": []}
+        _finalize_blocking_reasons(meta)
+        assert meta["terminal_state"] == "FAIL"
+        assert any("requires blocking_reasons" in error for error in meta["invariant_errors"])
+
+    def test_pass_with_active_reason_fails_qa_contract(self):
+        meta = {
+            "terminal_state": "PASS",
+            "blocking_reasons": [
+                {
+                    "code": "ACTIVE_BLOCKER",
+                    "evidence": "evidence",
+                    "owner": "owner",
+                    "next_action": "act",
+                }
+            ],
+            "invariant_errors": [],
+        }
+        _finalize_blocking_reasons(meta)
+        assert meta["terminal_state"] == "FAIL"
+        assert any("forbids active" in error for error in meta["invariant_errors"])
+
+    def test_structural_green_can_remain_delivery_blocked(self):
+        meta = {
+            "terminal_state": "BLOCKED",
+            "blocking_reasons": [
+                {
+                    "code": "SOURCE_FRESHNESS_STALE",
+                    "evidence": "stale",
+                    "owner": "source_ops",
+                    "next_action": "refresh",
+                }
+            ],
+            "invariant_errors": [],
+        }
+        _set_delivery_gates(meta)
+        assert meta["structural_qa"]["ok"] is True
+        assert meta["delivery_readiness"]["ok"] is False
+        assert meta["deliverable"] is False
+        assert meta["terminal_state"] == "BLOCKED"
+
+    def test_package_is_deliverable_only_when_both_gates_pass(self):
+        meta = {"terminal_state": "PASS", "blocking_reasons": [], "invariant_errors": []}
+        _set_delivery_gates(meta)
+        assert meta["structural_qa"]["ok"] is True
+        assert meta["delivery_readiness"]["ok"] is True
+        assert meta["deliverable"] is True
+        assert meta["terminal_state"] == "PASS"
+
+    def test_artifact_invariant_recomputed_into_final_gates(self):
+        meta = {
+            "terminal_state": "BLOCKED",
+            "blocking_reasons": [],
+            "invariant_errors": ["client artifacts mismatch: []"],
+        }
+        _set_delivery_gates(meta)
+        assert meta["structural_qa"]["ok"] is False
+        assert meta["structural_qa"]["checks"]["artifact_shape"] is False
+        assert meta["deliverable"] is False
+        assert meta["terminal_state"] == "FAIL"
+
     def test_invariants_hold(self):
         entities = load_universe(UNIVERSE)
         obs = [
