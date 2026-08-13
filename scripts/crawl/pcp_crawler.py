@@ -35,6 +35,7 @@ from scripts.crawl.common import (
     parse_date as _parse_date,
 )
 from scripts.crawl.dlq_sync import dlq_write
+from scripts.crawl.ingestion._base.crawler import CrawlRequest, FetchResult
 from scripts.crawl.provenance_sync import provenance_complete, provenance_fail, provenance_start
 from scripts.crawl.security import USER_AGENT, sanitize_url_param
 from scripts.crawl.watermark_sync import watermark_commit, watermark_read
@@ -283,7 +284,7 @@ def _fetch_page(
                 time.sleep(delay)
                 continue
             _logger.warning("[PCP] HTTP %d after %d retries: %s", e.code, PCP_MAX_RETRIES, url)
-            return [], False
+            raise
 
         except (urllib.error.URLError, TimeoutError, OSError) as e:
             if attempt < PCP_MAX_RETRIES:
@@ -292,9 +293,9 @@ def _fetch_page(
                 time.sleep(delay)
                 continue
             _logger.warning("[PCP] Fetch error after %d retries: %s", PCP_MAX_RETRIES, e)
-            return [], False
+            raise
 
-    return [], False
+    raise RuntimeError(f"PCP fetch exhausted retries for page {pagina}")
 
 
 # ---------------------------------------------------------------------------
@@ -305,7 +306,14 @@ def _fetch_page(
 def _generate_content_hash(record: dict) -> str:
     """Deterministic MD5 hash over key fields (delegates to common)."""
     return _common_content_hash(
-        record, fields=["orgao_cnpj", "objeto_compra", "data_publicacao", "valor_total_estimado"]
+        record,
+        fields=[
+            "pncp_id",
+            "orgao_cnpj",
+            "objeto_compra",
+            "data_publicacao",
+            "valor_total_estimado",
+        ],
     )
 
 
@@ -398,7 +406,7 @@ def _transform_record(rec: dict) -> dict | None:
 # ---------------------------------------------------------------------------
 
 
-def crawl(mode: str = "full", resume: bool = False) -> list[dict]:
+def crawl(mode: str | CrawlRequest = "full", resume: bool = False) -> list[dict] | FetchResult:
     """Crawl PCP v2 API for procurement processes.
 
     Args:
@@ -409,14 +417,18 @@ def crawl(mode: str = "full", resume: bool = False) -> list[dict]:
         List of raw PCP API records (not yet transformed).
         Filtered by INGESTION_UFS (server-side when possible, client-side fallback).
     """
-    # Backward-compat: accept only str mode. CrawlRequest objects fall through to
-    # the TypeError handler in monitor.py, which calls crawl(mode_str).
-    if not isinstance(mode, str):
-        raise TypeError(f"pcp_crawler.crawl() expects str mode, got {type(mode).__name__}")
-
-    days = 365 if mode == "full" else 3
-    data_final = date.today()
-    data_inicial = data_final - timedelta(days=days)
+    # The structured monitor path defers the provenance terminal transition
+    # until transform + PostgreSQL upsert finish.  Plain-string callers retain
+    # the historical fetch-only list contract.
+    structured_request = mode if isinstance(mode, CrawlRequest) else None
+    mode_name = structured_request.mode if structured_request else mode
+    days = 365 if mode_name == "full" else 3
+    if structured_request:
+        data_final = structured_request.date_to or structured_request.date_from or date.today()
+        data_inicial = structured_request.date_from or (data_final - timedelta(days=days))
+    else:
+        data_final = date.today()
+        data_inicial = data_final - timedelta(days=days)
 
     data_inicial_str = data_inicial.strftime("%Y-%m-%d")
     data_final_str = data_final.strftime("%Y-%m-%d")
@@ -429,7 +441,15 @@ def crawl(mode: str = "full", resume: bool = False) -> list[dict]:
 
     # Provenance: start run
     provenance_started_at = time.monotonic()
-    run_id = provenance_start(source="pcp", mode=mode, params={"data_inicial": data_inicial_str, "data_final": data_final_str})
+    run_id = provenance_start(
+        source="pcp",
+        mode=str(mode_name),
+        params={
+            "data_inicial": data_inicial_str,
+            "data_final": data_final_str,
+            "terminal_owner": "monitor" if structured_request else "crawler",
+        },
+    )
 
     # Watermark: determine starting page
     start_page = 1
@@ -444,7 +464,7 @@ def crawl(mode: str = "full", resume: bool = False) -> list[dict]:
 
     _logger.info(
         "[PCP] Crawl [%s]: %s to %s, UF=%s, server_side=%s, max_pages=%d",
-        mode,
+        mode_name,
         data_inicial_str,
         data_final_str,
         INGESTION_UFS,
@@ -455,6 +475,9 @@ def crawl(mode: str = "full", resume: bool = False) -> list[dict]:
     all_records: list[dict] = []
     pagina = start_page
     dlq_errors = 0
+    pages_completed = 0
+    last_has_next = False
+    presentation_limited = False
 
     while pagina <= PCP_MAX_PAGES:
         page_start = time.time()
@@ -479,6 +502,9 @@ def crawl(mode: str = "full", resume: bool = False) -> list[dict]:
             time.sleep(PCP_REQUEST_DELAY)
             continue
 
+        pages_completed += 1
+        last_has_next = has_next
+
         elapsed_ms = int((time.time() - page_start) * 1000)
 
         if not records and pagina == 1:
@@ -502,6 +528,11 @@ def crawl(mode: str = "full", resume: bool = False) -> list[dict]:
         else:
             all_records.extend(records)
 
+        if structured_request and structured_request.limit and len(all_records) >= structured_request.limit:
+            all_records = all_records[: structured_request.limit]
+            presentation_limited = has_next
+            break
+
         # Watermark commit after successful page
         if resume:
             watermark_commit(source="pcp", scope_key="page", value=str(pagina), run_id=run_id)
@@ -514,8 +545,47 @@ def crawl(mode: str = "full", resume: bool = False) -> list[dict]:
 
     _logger.info("[PCP] Crawl complete: %d records (%d pages)", len(all_records), pagina)
 
-    # Provenance: complete or fail
+    # The monitor owns the structured path's terminal state because fetch-only
+    # success is not pipeline success.  In particular, an upsert failure must
+    # transition this same run to failed instead of leaving it completed.
     duration_ms = int((time.monotonic() - provenance_started_at) * 1000)
+    if structured_request:
+        errors: list[str] = []
+        if dlq_errors:
+            errors.append(f"{dlq_errors} DLQ errors")
+        page_cap_reached = bool(last_has_next and pagina >= PCP_MAX_PAGES)
+        if page_cap_reached:
+            errors.append("page_cap_reached")
+        if presentation_limited:
+            errors.append("presentation_limit_before_source_exhaustion")
+
+        status = "success" if all_records and not errors else "partial"
+        return FetchResult(
+            status=status,
+            records=all_records,
+            request_completed=not bool(dlq_errors),
+            empty_confirmed=False,
+            pages_fetched=pages_completed,
+            pages_expected=pages_completed + 1 if page_cap_reached or presentation_limited else pages_completed,
+            errors=errors,
+            provenance={
+                "run_id": run_id,
+                "source": "pcp",
+                "terminal_deferred": True,
+                "started_monotonic_ns": int(provenance_started_at * 1_000_000_000),
+                "records_dlq": dlq_errors,
+                "pages_completed": pages_completed,
+            },
+            metadata={
+                "run_id": run_id,
+                "date_from": data_inicial_str,
+                "date_to": data_final_str,
+                "pages_fetched": pages_completed,
+                "fetch_duration_ms": duration_ms,
+            },
+        )
+
+    # Legacy fetch-only callers terminalize at the crawler boundary.
     if dlq_errors > 0:
         provenance_fail(
             run_id=run_id,

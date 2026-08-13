@@ -182,7 +182,8 @@ class CrawlQueue:
                         updated_at = now()
                     WHERE status = 'running'
                       AND lease_expires_at < %s
-                    RETURNING id
+                    RETURNING id, source, capability, canonical_entity_key, cursor,
+                              status, attempt_count, max_attempts
                 )
                 , closed_attempts AS (
                     UPDATE crawl_job_attempts a
@@ -193,11 +194,62 @@ class CrawlQueue:
                     WHERE a.job_id = e.id AND a.status = 'running'
                     RETURNING a.id
                 )
-                SELECT COUNT(*) AS expired_count FROM expired
+                SELECT id, source, capability, canonical_entity_key, cursor,
+                       status, attempt_count, max_attempts
+                FROM expired
                 """,
                 (clock, clock),
             )
-            return int(cursor.fetchone()["expired_count"])
+            expired_rows = list(cursor.fetchall() or [])
+            for row in expired_rows:
+                if row["status"] != "failed":
+                    continue
+                pointer = {
+                    "kind": "crawl_job_cursor",
+                    "job_id": int(row["id"]),
+                    "cursor": row["cursor"] or {},
+                }
+                cursor.execute(
+                    """
+                    INSERT INTO dlq_entries (
+                        source, run_id, phase, payload, error_code, error_message,
+                        retry_count, max_retries, status, job_id,
+                        canonical_entity_key, error_class, payload_pointer,
+                        owner, next_action, terminal_at
+                    ) VALUES (
+                        %s, %s, %s, %s::jsonb, %s, %s,
+                        %s, %s, 'dead', %s,
+                        %s, %s, %s::jsonb, %s, %s, %s
+                    )
+                    ON CONFLICT (job_id) WHERE job_id IS NOT NULL AND status IN ('pending', 'dead')
+                    DO NOTHING
+                    RETURNING id
+                    """,
+                    (
+                        row["source"],
+                        f"lease-expired:{row['id']}",
+                        row["capability"],
+                        json.dumps({"cursor": row["cursor"] or {}}),
+                        "LEASE_EXPIRED",
+                        "worker lease expired before terminal result",
+                        row["attempt_count"],
+                        row["max_attempts"],
+                        row["id"],
+                        row["canonical_entity_key"],
+                        "LEASE_EXPIRED",
+                        json.dumps(pointer, sort_keys=True),
+                        "runtime_queue.reclaim_expired",
+                        "inspect_and_replay_or_resolve",
+                        clock,
+                    ),
+                )
+                inserted = cursor.fetchone()
+                if inserted:
+                    cursor.execute(
+                        "UPDATE crawl_jobs SET dlq_entry_id = %s WHERE id = %s",
+                        (int(inserted["id"]), row["id"]),
+                    )
+            return len(expired_rows)
 
     def claim(
         self,
@@ -381,6 +433,9 @@ class CrawlQueue:
         metrics: dict[str, Any] | None = None,
         error_class: str | None = None,
         error_message: str | None = None,
+        payload_pointer: dict[str, Any] | None = None,
+        dlq_owner: str | None = None,
+        next_action: str = "inspect_and_replay_or_resolve",
     ) -> bool:
         if outcome not in {"succeeded", "failed", "blocked", "interrupted"}:
             raise ValueError(f"invalid crawl job outcome: {outcome}")
@@ -440,6 +495,67 @@ class CrawlQueue:
                     job.attempt_id,
                 ),
             )
+            terminal_failure = outcome == "blocked" or (
+                outcome == "failed" and job.attempt_count >= job.max_attempts
+            )
+            if terminal_failure:
+                effective_class = error_class or "UNCLASSIFIED"
+                pointer = payload_pointer or {
+                    "kind": "crawl_job_cursor",
+                    "job_id": job.id,
+                    "cursor": cursor_state if cursor_state is not None else job.cursor,
+                }
+                cursor.execute(
+                    """
+                    INSERT INTO dlq_entries (
+                        source, run_id, phase, payload, error_code, error_message,
+                        retry_count, max_retries, status, job_id, attempt_id,
+                        canonical_entity_key, error_class, payload_pointer,
+                        owner, next_action, terminal_at
+                    ) VALUES (
+                        %s, %s, %s, %s::jsonb, %s, %s,
+                        %s, %s, 'dead', %s, %s,
+                        %s, %s, %s::jsonb, %s, %s, %s
+                    )
+                    ON CONFLICT (job_id) WHERE job_id IS NOT NULL AND status IN ('pending', 'dead')
+                    DO NOTHING
+                    RETURNING id
+                    """,
+                    (
+                        job.source,
+                        job.run_id,
+                        job.capability,
+                        json.dumps({"cursor": cursor_state if cursor_state is not None else job.cursor}),
+                        effective_class,
+                        error_message,
+                        job.attempt_count,
+                        job.max_attempts,
+                        job.id,
+                        job.attempt_id,
+                        job.canonical_entity_key,
+                        effective_class,
+                        json.dumps(pointer, sort_keys=True),
+                        dlq_owner,
+                        next_action,
+                        clock,
+                    ),
+                )
+                inserted = cursor.fetchone()
+                if inserted:
+                    dlq_id = int(inserted["id"])
+                else:
+                    cursor.execute(
+                        """
+                        SELECT id FROM dlq_entries
+                        WHERE job_id = %s AND status IN ('pending', 'dead')
+                        """,
+                        (job.id,),
+                    )
+                    dlq_id = int(cursor.fetchone()["id"])
+                cursor.execute(
+                    "UPDATE crawl_jobs SET dlq_entry_id = %s WHERE id = %s",
+                    (dlq_id, job.id),
+                )
             cursor.execute(
                 """
                 UPDATE crawl_entity_source_schedule
@@ -468,6 +584,126 @@ class CrawlQueue:
                 ),
             )
             return True
+
+    def inspect_dlq(
+        self,
+        *,
+        source: str | None = None,
+        canonical_entity_key: str | None = None,
+        error_class: str | None = None,
+        statuses: Iterable[str] = ("pending", "dead"),
+        limit: int = 100,
+    ) -> list[dict[str, Any]]:
+        """Inspect terminal failures without deleting or hiding history."""
+        with self.connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT * FROM dlq_entries
+                WHERE (%s IS NULL OR source = %s)
+                  AND (%s IS NULL OR canonical_entity_key = %s)
+                  AND (%s IS NULL OR error_class = %s)
+                  AND status = ANY(%s)
+                ORDER BY terminal_at, id
+                LIMIT %s
+                """,
+                (
+                    source,
+                    source,
+                    canonical_entity_key,
+                    canonical_entity_key,
+                    error_class,
+                    error_class,
+                    list(statuses),
+                    limit,
+                ),
+            )
+            return [dict(row) for row in cursor.fetchall() or []]
+
+    def replay_dlq(
+        self,
+        *,
+        actor: str,
+        source: str | None = None,
+        canonical_entity_key: str | None = None,
+        error_class: str | None = None,
+        limit: int = 100,
+    ) -> list[int]:
+        """Selectively schedule poison jobs with a fresh retry budget.
+
+        Existing ``crawl_job_attempts`` and the DLQ row remain immutable history.
+        The next worker claim creates a new attempt for the same durable job.
+        """
+        with self.connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT entry.id, entry.job_id
+                FROM dlq_entries entry
+                JOIN crawl_jobs job ON job.id = entry.job_id
+                WHERE entry.status IN ('pending', 'dead')
+                  AND job.status IN ('failed', 'blocked')
+                  AND (%s IS NULL OR entry.source = %s)
+                  AND (%s IS NULL OR entry.canonical_entity_key = %s)
+                  AND (%s IS NULL OR entry.error_class = %s)
+                ORDER BY entry.terminal_at, entry.id
+                LIMIT %s
+                FOR UPDATE OF entry, job SKIP LOCKED
+                """,
+                (
+                    source,
+                    source,
+                    canonical_entity_key,
+                    canonical_entity_key,
+                    error_class,
+                    error_class,
+                    limit,
+                ),
+            )
+            selected = list(cursor.fetchall() or [])
+            replayed: list[int] = []
+            for row in selected:
+                cursor.execute(
+                    """
+                    UPDATE crawl_jobs
+                    SET status = 'queued', next_run_at = now(), attempt_count = 0,
+                        lease_owner = NULL, lease_expires_at = NULL, heartbeat_at = NULL,
+                        dlq_entry_id = NULL, last_outcome = 'dlq_replay_scheduled',
+                        updated_at = now()
+                    WHERE id = %s AND status IN ('failed', 'blocked')
+                    """,
+                    (row["job_id"],),
+                )
+                if cursor.rowcount != 1:
+                    continue
+                cursor.execute(
+                    """
+                    UPDATE dlq_entries
+                    SET status = 'replayed', replayed_at = now(), replayed_by = %s,
+                        replay_count = replay_count + 1,
+                        next_action = 'monitor_replayed_attempt'
+                    WHERE id = %s AND status IN ('pending', 'dead')
+                    """,
+                    (actor, row["id"]),
+                )
+                replayed.append(int(row["id"]))
+            return replayed
+
+    def resolve_dlq(self, entry_ids: Iterable[int], *, actor: str, resolution: str) -> int:
+        """Resolve DLQ rows by audit transition; records are never deleted."""
+        ids = [int(value) for value in entry_ids]
+        if not ids or not resolution.strip():
+            return 0
+        with self.connection.cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE dlq_entries
+                SET status = 'archived', resolved_at = now(), resolved_by = %s,
+                    resolution = %s, next_action = 'none_resolved'
+                WHERE id = ANY(%s) AND status IN ('pending', 'dead', 'replayed')
+                  AND resolved_at IS NULL
+                """,
+                (actor, resolution.strip(), ids),
+            )
+            return cursor.rowcount or 0
 
     def inspect(self, *, statuses: Iterable[str] = (), limit: int = 100) -> list[dict[str, Any]]:
         selected = tuple(statuses)
@@ -577,6 +813,22 @@ def main(argv: list[str] | None = None) -> int:
     requeue_cmd.add_argument("job_ids", nargs="+", type=int)
     migrate_cmd = sub.add_parser("migrate-json")
     migrate_cmd.add_argument("path", type=Path)
+    dlq_inspect_cmd = sub.add_parser("dlq-inspect")
+    dlq_inspect_cmd.add_argument("--source")
+    dlq_inspect_cmd.add_argument("--entity")
+    dlq_inspect_cmd.add_argument("--error-class")
+    dlq_inspect_cmd.add_argument("--status", action="append", default=["pending", "dead"])
+    dlq_inspect_cmd.add_argument("--limit", type=int, default=100)
+    dlq_replay_cmd = sub.add_parser("dlq-replay")
+    dlq_replay_cmd.add_argument("--actor", required=True)
+    dlq_replay_cmd.add_argument("--source")
+    dlq_replay_cmd.add_argument("--entity")
+    dlq_replay_cmd.add_argument("--error-class")
+    dlq_replay_cmd.add_argument("--limit", type=int, default=100)
+    dlq_resolve_cmd = sub.add_parser("dlq-resolve")
+    dlq_resolve_cmd.add_argument("entry_ids", nargs="+", type=int)
+    dlq_resolve_cmd.add_argument("--actor", required=True)
+    dlq_resolve_cmd.add_argument("--resolution", required=True)
     args = parser.parse_args(argv)
 
     with connect(args.dsn) as connection:
@@ -599,8 +851,34 @@ def main(argv: list[str] | None = None) -> int:
             output = queue.inspect(statuses=args.status, limit=args.limit)
         elif args.command == "requeue":
             output = {"requeued": queue.requeue(args.job_ids)}
-        else:
+        elif args.command == "migrate-json":
             output = queue.migrate_json(args.path)
+        elif args.command == "dlq-inspect":
+            output = queue.inspect_dlq(
+                source=args.source,
+                canonical_entity_key=args.entity,
+                error_class=args.error_class,
+                statuses=args.status,
+                limit=args.limit,
+            )
+        elif args.command == "dlq-replay":
+            output = {
+                "replayed_dlq_ids": queue.replay_dlq(
+                    actor=args.actor,
+                    source=args.source,
+                    canonical_entity_key=args.entity,
+                    error_class=args.error_class,
+                    limit=args.limit,
+                )
+            }
+        else:
+            output = {
+                "resolved": queue.resolve_dlq(
+                    args.entry_ids,
+                    actor=args.actor,
+                    resolution=args.resolution,
+                )
+            }
     print(json.dumps(output, ensure_ascii=False, indent=2, default=_json_default))
     return 0
 

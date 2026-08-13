@@ -19,6 +19,7 @@ from scripts.crawl.scheduler import (
     reconcile_schedule,
 )
 from scripts.crawl.worker import AdmissionLimits, CrawlWorker, admission_blockers
+from scripts.ops.truth_plane_sli import observe, set_kill_switch
 
 
 def _pairs(entity_count: int = 1093) -> list[SchedulePair]:
@@ -111,6 +112,33 @@ def test_claim_commits_admission_transaction_before_return() -> None:
     connection.commit.assert_called_once()
 
 
+def test_truth_plane_sli_without_enabled_definitions_is_blocked_without_db_mutation() -> None:
+    connection = MagicMock()
+    cursor = MagicMock()
+    connection.cursor.return_value.__enter__.return_value = cursor
+    cursor.fetchall.return_value = []
+    cursor.fetchone.side_effect = [
+        {"singleton": True, "enabled": False},
+        {"id": 17},
+        None,
+        None,
+    ]
+    fixed_now = datetime(2026, 8, 13, 12, 0, tzinfo=UTC)
+
+    result = observe(connection, actor="test-sli-no-definitions", now=fixed_now)
+
+    assert result["status"] == "BLOCKED"
+    assert result["metric_count"] == 0
+    assert result["denominator_sum"] == 0
+    insert_call = next(
+        call
+        for call in cursor.execute.call_args_list
+        if "INSERT INTO truth_plane_sli_reviews" in call.args[0]
+    )
+    assert insert_call.args[1][0] == insert_call.args[1][1] == fixed_now
+    connection.commit.assert_called_once()
+
+
 def test_worker_loads_policy_before_claiming_job() -> None:
     worker = CrawlWorker(dsn="postgresql://example")
     with (
@@ -184,10 +212,320 @@ def _active_entity_id(dsn: str) -> int:
         return int(row["id"])
 
 
+def _dlq_test_entity_state(dsn: str) -> tuple[int, bool, bool]:
+    with connect(dsn) as connection, connection.cursor() as cursor:
+        cursor.execute(
+            """
+            INSERT INTO sc_public_entities (razao_social, cnpj_8, is_active)
+            VALUES ('Test runtime truth entity', '98765432', TRUE)
+            ON CONFLICT (cnpj_8) DO NOTHING
+            RETURNING id, is_active
+            """
+        )
+        created = cursor.fetchone()
+        if created:
+            return int(created["id"]), True, bool(created["is_active"])
+        cursor.execute(
+            "SELECT id, is_active FROM sc_public_entities WHERE cnpj_8 = '98765432' FOR UPDATE"
+        )
+        existing = cursor.fetchone()
+        cursor.execute("UPDATE sc_public_entities SET is_active = TRUE WHERE id = %s", (existing["id"],))
+        return int(existing["id"]), False, bool(existing["is_active"])
+
+
 def _clean_test_jobs(dsn: str) -> None:
     with connect(dsn) as connection, connection.cursor() as cursor:
+        cursor.execute("UPDATE crawl_jobs SET dlq_entry_id = NULL WHERE source LIKE 'test_queue_%'")
+        cursor.execute("DELETE FROM dlq_entries WHERE source LIKE 'test_queue_%'")
         cursor.execute("DELETE FROM crawl_jobs WHERE source LIKE 'test_queue_%'")
         cursor.execute("DELETE FROM crawl_entity_source_schedule WHERE source LIKE 'test_queue_%'")
+
+
+@pytest.mark.database
+@pytest.mark.integration
+def test_transactional_dlq_poison_blocked_selective_replay_and_resolve(runtime_queue_dsn: str) -> None:
+    dsn = runtime_queue_dsn
+    _clean_test_jobs(dsn)
+    entity_id, entity_created, entity_was_active = _dlq_test_entity_state(dsn)
+    now = datetime.now(UTC).replace(microsecond=0)
+    common = {
+        "entity_id": entity_id,
+        "capability": "open_tenders",
+        "binding_version": "test-dlq-v1",
+        "window_start": now,
+        "window_end": now + timedelta(minutes=5),
+        "freshness_deadline": now + timedelta(minutes=10),
+        "next_run_at": now,
+        "priority": 3_000_000,
+    }
+    try:
+        with connect(dsn) as connection:
+            queue = CrawlQueue(connection)
+            poison_id, _ = queue.enqueue(
+                source="test_queue_poison",
+                domain_key="poison.example",
+                max_attempts=1,
+                **common,
+            )
+            blocked_id, _ = queue.enqueue(
+                source="test_queue_blocked",
+                domain_key="blocked.example",
+                max_attempts=5,
+                **common,
+            )
+
+        with connect(dsn) as connection:
+            jobs = CrawlQueue(connection).claim(worker_id="poison-worker", limit=2, now=now)
+            by_id = {job.id: job for job in jobs}
+            queue = CrawlQueue(connection)
+            assert queue.finish(
+                by_id[poison_id],
+                worker_id="poison-worker",
+                outcome="failed",
+                next_run_at=now + timedelta(hours=1),
+                error_class="POISON_PAYLOAD",
+                error_message="deterministic poison",
+                payload_pointer={"raw_uri": "raw://sha256/poison"},
+                dlq_owner="data-ops",
+            )
+            assert queue.finish(
+                by_id[blocked_id],
+                worker_id="poison-worker",
+                outcome="blocked",
+                next_run_at=now + timedelta(hours=1),
+                error_class="AUTH_BLOCKED",
+                error_message="credential unavailable",
+            )
+            # The terminal transition is ownership-guarded and cannot duplicate.
+            assert not queue.finish(
+                by_id[poison_id],
+                worker_id="poison-worker",
+                outcome="failed",
+                next_run_at=now + timedelta(hours=1),
+                error_class="POISON_PAYLOAD",
+            )
+
+        with connect(dsn) as connection:
+            queue = CrawlQueue(connection)
+            assert queue.inspect_dlq(error_class="NOT_THE_POISON") == []
+            poison = queue.inspect_dlq(
+                source="test_queue_poison",
+                canonical_entity_key=f"db:{entity_id}",
+                error_class="POISON_PAYLOAD",
+            )
+            blocked = queue.inspect_dlq(source="test_queue_blocked", error_class="AUTH_BLOCKED")
+            assert len(poison) == len(blocked) == 1
+            assert poison[0]["payload_pointer"] == {"raw_uri": "raw://sha256/poison"}
+            assert poison[0]["owner"] == "data-ops"
+            assert queue.replay_dlq(actor="operator", error_class="SOME_OTHER_CLASS") == []
+            assert queue.replay_dlq(
+                actor="operator",
+                source="test_queue_poison",
+                error_class="POISON_PAYLOAD",
+            ) == [poison[0]["id"]]
+
+        with connect(dsn) as connection:
+            replayed = CrawlQueue(connection).claim(worker_id="replay-worker", limit=1)
+            assert [job.id for job in replayed] == [poison_id]
+            assert replayed[0].attempt_count == 1
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT count(*) AS count FROM crawl_job_attempts WHERE job_id = %s", (poison_id,))
+                assert int(cursor.fetchone()["count"]) == 2
+                cursor.execute("SELECT status, replay_count FROM dlq_entries WHERE id = %s", (poison[0]["id"],))
+                assert tuple(cursor.fetchone().values()) == ("replayed", 1)
+            assert CrawlQueue(connection).finish(
+                replayed[0],
+                worker_id="replay-worker",
+                outcome="succeeded",
+                next_run_at=now + timedelta(days=1),
+            )
+
+        with connect(dsn) as connection:
+            queue = CrawlQueue(connection)
+            assert queue.resolve_dlq(
+                [poison[0]["id"], blocked[0]["id"]],
+                actor="operator",
+                resolution="poison corrected; auth routed to owner",
+            ) == 2
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT count(*) AS count FROM dlq_entries WHERE id = ANY(%s) AND status = 'archived'",
+                    ([poison[0]["id"], blocked[0]["id"]],),
+                )
+                assert int(cursor.fetchone()["count"]) == 2
+                cursor.execute("SELECT status FROM crawl_jobs WHERE id = %s", (blocked_id,))
+                assert cursor.fetchone()["status"] == "blocked"
+    finally:
+        _clean_test_jobs(dsn)
+        with connect(dsn) as connection, connection.cursor() as cursor:
+            if entity_created:
+                cursor.execute("DELETE FROM sc_public_entities WHERE id = %s", (entity_id,))
+            else:
+                cursor.execute(
+                    "UPDATE sc_public_entities SET is_active = %s WHERE id = %s",
+                    (entity_was_active, entity_id),
+                )
+
+
+@pytest.mark.database
+@pytest.mark.integration
+def test_reclaim_expired_poison_writes_dlq(runtime_queue_dsn: str) -> None:
+    dsn = runtime_queue_dsn
+    _clean_test_jobs(dsn)
+    entity_id, entity_created, entity_was_active = _dlq_test_entity_state(dsn)
+    now = datetime.now(UTC).replace(microsecond=0)
+    try:
+        with connect(dsn) as connection:
+            queue = CrawlQueue(connection)
+            job_id, _ = queue.enqueue(
+                entity_id=entity_id,
+                source="test_queue_lease",
+                capability="open_tenders",
+                domain_key="lease.example",
+                binding_version="test-lease-v1",
+                window_start=now,
+                window_end=now + timedelta(minutes=5),
+                freshness_deadline=now + timedelta(minutes=10),
+                next_run_at=now,
+                priority=3_000_000,
+                max_attempts=1,
+            )
+            claimed = queue.claim(worker_id="dying-worker", limit=1, lease_seconds=1, now=now)
+            assert claimed and claimed[0].id == job_id
+            expired = queue.reclaim_expired(now=now + timedelta(seconds=2))
+            assert expired == 1
+            rows = queue.inspect_dlq(source="test_queue_lease")
+            assert len(rows) == 1
+            assert rows[0]["job_id"] == job_id
+            assert rows[0]["error_class"] == "LEASE_EXPIRED"
+    finally:
+        _clean_test_jobs(dsn)
+        with connect(dsn) as connection, connection.cursor() as cursor:
+            if entity_created:
+                cursor.execute("DELETE FROM sc_public_entities WHERE id = %s", (entity_id,))
+            else:
+                cursor.execute(
+                    "UPDATE sc_public_entities SET is_active = %s WHERE id = %s",
+                    (entity_was_active, entity_id),
+                )
+
+
+@pytest.mark.database
+@pytest.mark.integration
+def test_truth_plane_sli_missing_denominators_preserve_last_valid_and_route_alerts(
+    runtime_queue_dsn: str,
+) -> None:
+    dsn = runtime_queue_dsn
+    route_name = "000-test-ops"
+    marker_metric = f"test_sli_marker_{os.getpid()}"
+    observation_now = datetime(2099, 8, 13, 12, 0, tzinfo=UTC)
+    with connect(dsn) as connection, connection.cursor() as cursor:
+        cursor.execute("DELETE FROM truth_plane_alert_events WHERE route_name = %s", (route_name,))
+        cursor.execute("DELETE FROM truth_plane_alert_routes WHERE route_name = %s", (route_name,))
+        cursor.execute("DELETE FROM truth_plane_sli_reviews WHERE actor LIKE 'test-sli-%'")
+        cursor.execute("DELETE FROM truth_plane_cost_observations WHERE source = 'test-sli-source'")
+        cursor.execute("DELETE FROM truth_plane_slo_definitions WHERE metric_name = %s", (marker_metric,))
+        cursor.execute(
+            """
+            INSERT INTO truth_plane_slo_definitions (
+                metric_name, stage, window_seconds, denominator_contract,
+                objective_operator, objective_value, unit, alert_before_ratio
+            ) VALUES (%s, 'test_isolation', 60, 'test-only marker', 'lte', 0, 'records', 1)
+            """,
+            (marker_metric,),
+        )
+        cursor.execute(
+            """
+            INSERT INTO truth_plane_alert_routes (route_name, destination)
+            VALUES (%s, 'test://ops')
+            """,
+            (route_name,),
+        )
+        cursor.execute(
+            """
+            INSERT INTO truth_plane_sli_reviews (
+                window_start, window_end, status, metrics, metric_count,
+                unknown_count, breach_count, denominator_sum, definition_hash, actor
+            ) VALUES (NOW() - interval '1 hour', NOW(), 'VALID', '[{"state":"OK"}]', 1, 0, 0, 1, 'prior-valid', 'test-sli-prior')
+            RETURNING id
+            """
+        )
+        prior_valid_id = int(cursor.fetchone()["id"])
+        cursor.execute(
+            """
+            INSERT INTO truth_plane_cost_observations
+                (source, unit_type, unit_count, cost_brl, provenance, observed_at)
+            VALUES ('test-sli-source', 'document', 10, 5, '{"invoice":"fixture"}', %s)
+            """,
+            (observation_now - timedelta(days=1),),
+        )
+
+    try:
+        with connect(dsn) as connection:
+            set_kill_switch(connection, enabled=False, reason="test baseline", actor="test-sli-operator")
+            first = observe(connection, actor="test-sli-observe-1", now=observation_now)
+        assert first["status"] == "BLOCKED"
+        assert first["unknown_count"] > 0
+        assert first["denominator_sum"] > 0
+        assert first["last_valid_review"]["id"] == prior_valid_id
+        assert all(metric["window_seconds"] > 0 for metric in first["metrics"])
+        assert all("denominator" in metric and "denominator_contract" in metric for metric in first["metrics"])
+        public_metrics = [m for m in first["metrics"] if m["stage"] == "canonical_to_public_read_v1"]
+        assert public_metrics and all(metric["state"] == "UNKNOWN" for metric in public_metrics)
+        cost = next(m for m in first["metrics"] if m["metric_name"] == "operational_cost_per_public_unit")
+        assert cost["value"] == 0.5
+
+        with connect(dsn) as connection:
+            second = observe(connection, actor="test-sli-observe-2", now=observation_now)
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT min(occurrence_count) AS minimum,
+                           bool_and(delivery_status = 'PENDING') AS routed
+                    FROM truth_plane_alert_events
+                    WHERE route_name = %s
+                    """,
+                    (route_name,),
+                )
+                alert_state = cursor.fetchone()
+        assert second["status"] == "BLOCKED"
+        assert int(alert_state["minimum"]) >= 2
+        assert alert_state["routed"] is True
+
+        with connect(dsn) as connection:
+            enabled = set_kill_switch(
+                connection,
+                enabled=True,
+                reason="consumer isolation threshold exceeded",
+                actor="test-sli-operator",
+            )
+            assert enabled["enabled"] is True
+            blocked = observe(connection, actor="test-sli-killed", now=observation_now)
+            assert blocked["status"] == "BLOCKED"
+            assert blocked["kill_switch"]["enabled"] is True
+            set_kill_switch(connection, enabled=False, reason="test cleanup", actor="test-sli-operator")
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT count(*) AS count FROM truth_plane_kill_switch_history WHERE changed_by = 'test-sli-operator'"
+                )
+                assert int(cursor.fetchone()["count"]) >= 3
+    finally:
+        with connect(dsn) as connection:
+            set_kill_switch(
+                connection,
+                enabled=False,
+                reason="test finally cleanup",
+                actor="test-sli-operator",
+            )
+        with connect(dsn) as connection, connection.cursor() as cursor:
+            cursor.execute("DELETE FROM truth_plane_alert_events WHERE route_name = %s", (route_name,))
+            cursor.execute("DELETE FROM truth_plane_alert_routes WHERE route_name = %s", (route_name,))
+            cursor.execute("DELETE FROM truth_plane_sli_reviews WHERE actor LIKE 'test-sli-%'")
+            cursor.execute("DELETE FROM truth_plane_cost_observations WHERE source = 'test-sli-source'")
+            cursor.execute("DELETE FROM truth_plane_slo_definitions WHERE metric_name = %s", (marker_metric,))
+            cursor.execute(
+                "DELETE FROM truth_plane_kill_switch_history WHERE changed_by = 'test-sli-operator'"
+            )
 
 
 @pytest.mark.database
