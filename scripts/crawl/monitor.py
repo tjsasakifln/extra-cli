@@ -27,6 +27,7 @@ import argparse
 import logging
 import os
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -59,6 +60,58 @@ from datetime import UTC
 from config.settings import DEFAULT_DSN  # single source of truth (TD-3.2)
 
 COVERAGE_WINDOW_DAYS = int(os.getenv("COVERAGE_WINDOW_DAYS", "90"))
+
+
+def _terminalize_deferred_provenance(
+    fetch_result: Any,
+    *,
+    success: bool,
+    error_message: str = "",
+    records_fetched: int = 0,
+    records_deduplicated: int = 0,
+    records_upserted: int = 0,
+    records_failed: int = 0,
+) -> None:
+    """Finish a source run whose crawler delegated terminal ownership.
+
+    A fetch result is deliberately not enough to complete a pipeline run.  The
+    monitor calls this only after transform/persistence succeeds, or with a
+    failure when a downstream stage aborts.
+    """
+    provenance = getattr(fetch_result, "provenance", None)
+    if not isinstance(provenance, dict) or not provenance.get("terminal_deferred"):
+        return
+
+    run_id = str(provenance.get("run_id") or "")
+    source = str(provenance.get("source") or "")
+    if not run_id or not source:
+        raise RuntimeError("deferred provenance missing run_id/source")
+
+    started_ns = provenance.get("started_monotonic_ns")
+    duration_ms = 0
+    if isinstance(started_ns, int) and started_ns > 0:
+        duration_ms = max(0, int((time.monotonic_ns() - started_ns) / 1_000_000))
+
+    from scripts.crawl.provenance_sync import provenance_complete, provenance_fail
+
+    common = {
+        "run_id": run_id,
+        "source": source,
+        "records_fetched": records_fetched,
+        "records_deduplicated": records_deduplicated,
+        "records_upserted": records_upserted,
+        "records_dlq": int(provenance.get("records_dlq") or 0),
+        "records_failed": records_failed,
+        "pages_completed": int(provenance.get("pages_completed") or 0),
+        "duration_ms": duration_ms,
+    }
+    if success:
+        provenance_complete(**common)
+        provenance["terminal_state"] = "completed"
+    else:
+        provenance_fail(error_message=error_message or "pipeline_failed", **common)
+        provenance["terminal_state"] = "failed"
+    provenance["terminal_deferred"] = False
 
 
 # ---------------------------------------------------------------------------
@@ -797,6 +850,7 @@ def crawl_source(
 
     conn = _get_conn()
     run_id = _start_ingestion_run(conn, source, mode)
+    fetch_result = None
 
     try:
         # ── Load crawler module ───────────────────────────────────────
@@ -844,7 +898,6 @@ def crawl_source(
         )
 
         # Accept both CrawlRequest and plain str (backward-compatible)
-        fetch_result = None
         try:
             raw_response = crawler.crawl(crawl_req)
         except TypeError:
@@ -862,6 +915,13 @@ def crawl_source(
                 result.external_failures = 1
                 error = "; ".join(fetch_result.errors) or str(fetch_result.status)
                 semantic_status = str(fetch_result.status)
+                _terminalize_deferred_provenance(
+                    fetch_result,
+                    success=False,
+                    error_message=error,
+                    records_fetched=len(raw_records),
+                    records_failed=1,
+                )
                 _finish_ingestion_run(conn, run_id, len(raw_records), 0, 0, semantic_status, error)
                 _record_evidence(
                     conn,
@@ -897,6 +957,13 @@ def crawl_source(
             status = "partial"
             if fetch_result is not None:
                 status = "empty_confirmed" if fetch_result.coverage_satisfactory and fetch_result.empty_confirmed else str(fetch_result.status)
+                _terminalize_deferred_provenance(
+                    fetch_result,
+                    success=status == "empty_confirmed",
+                    error_message="zero_ambiguous" if status != "empty_confirmed" else "",
+                    records_fetched=0,
+                    records_failed=0 if status == "empty_confirmed" else 1,
+                )
             _finish_ingestion_run(conn, run_id, 0, 0, 0, status)
             error_code = None if status == "empty_confirmed" else "zero_ambiguous"
             _record_evidence(
@@ -952,6 +1019,13 @@ def crawl_source(
                 )
                 result.warnings.append(msg)
                 _logger.warning(msg)
+                _terminalize_deferred_provenance(
+                    fetch_result,
+                    success=False,
+                    error_message=msg,
+                    records_fetched=result.fetched,
+                    records_failed=result.fetched,
+                )
                 _finish_ingestion_run(conn, run_id, result.fetched, 0, 0, "degraded", msg)
                 _record_evidence(conn, run_id, source, "degraded", fetched=result.fetched, error_message=msg)
                 conn.close()
@@ -970,6 +1044,15 @@ def crawl_source(
             except Exception as e:
                 conn.rollback()
                 error = f"Upsert failed: {e}"
+                _terminalize_deferred_provenance(
+                    fetch_result,
+                    success=False,
+                    error_message=error,
+                    records_fetched=result.fetched,
+                    records_deduplicated=result.duplicates,
+                    records_upserted=0,
+                    records_failed=result.transformed,
+                )
                 _finish_ingestion_run(conn, run_id, result.fetched, result.transformed, 0, "failed", error)
                 _record_evidence(
                     conn,
@@ -1099,6 +1182,14 @@ def crawl_source(
         if within_200km_only:
             result.metadata["within_200km_only"] = True
 
+        _terminalize_deferred_provenance(
+            fetch_result,
+            success=True,
+            records_fetched=result.fetched,
+            records_deduplicated=result.duplicates,
+            records_upserted=result.inserted + result.updated,
+        )
+
         result.started_at = started_at.isoformat()
         result.completed_at = datetime.now(UTC).isoformat()
         result.duration_seconds = (datetime.now(UTC) - started_at).total_seconds()
@@ -1107,6 +1198,18 @@ def crawl_source(
 
     except Exception as e:
         error = str(e)
+        try:
+            _terminalize_deferred_provenance(
+                fetch_result,
+                success=False,
+                error_message=error,
+                records_fetched=result.fetched,
+                records_deduplicated=result.duplicates,
+                records_upserted=result.inserted + result.updated,
+                records_failed=max(1, result.transformed - result.inserted - result.updated),
+            )
+        except Exception:
+            _logger.exception("Failed to record deferred provenance failure")
         try:
             _finish_ingestion_run(conn, run_id, result.fetched, result.transformed, result.matched, "failed", error)
             _record_evidence(

@@ -56,6 +56,11 @@ from report_dedup import jaccard_similarity as _jaccard_similarity
 from report_dedup import normalize_for_dedup as _normalize_for_dedup
 from report_dedup import semantic_dedup as _semantic_dedup
 
+try:
+    from official_status_reconfirmation import reconfirm_shortlist
+except ImportError:  # package import used by tests and ``python -m``
+    from scripts.official_status_reconfirmation import reconfirm_shortlist
+
 # DataLake-first opt-in: stable since 2026-04-29 commit pricing-b2g pilot.
 # Quando DATALAKE_QUERY_ENABLED=true e --no-datalake ausente, o coletor pode
 # substituir 7 das 14 chamadas live por DataLake (enriched_entity, supplier_contracts,
@@ -1156,7 +1161,7 @@ def _collect_pncp_contratos_fornecedor_wide(
     return matched, raw_total
 
 
-def collect_pncp_contratos_fornecedor(
+def _collect_pncp_contratos_fornecedor_legacy_sample(
     api: ApiClient,
     cnpj14: str,
     razao_social: str = "",
@@ -1352,6 +1357,164 @@ def collect_pncp_contratos_fornecedor(
         pass  # see collect_pncp_contratos_fornecedor return value — caller checks
 
     return all_contracts, source
+
+
+def collect_pncp_contratos_fornecedor(
+    api: ApiClient,
+    cnpj14: str,
+    razao_social: str = "",
+    *,
+    datalake_client: Any | None = None,
+    date_start: str | None = None,
+    date_end: str | None = None,
+) -> tuple[list[dict], dict]:
+    """Load a complete supplier history from the canonical national lake.
+
+    The live PNCP endpoint does not reliably filter by supplier. It is therefore
+    forbidden for report history: without an indexed lake snapshot this function
+    fails closed instead of sampling national pages and presenting them as a
+    complete portfolio.
+    """
+    del api, razao_social  # Kept in the public signature for caller compatibility.
+    print("\n📋 Phase 1c: Histórico canônico de contratos do fornecedor (DataLake)")
+
+    if date_end is None:
+        date_end = _date_iso(_today())
+    if date_start is None:
+        date_start = _date_iso(_today() - timedelta(days=3 * 366))
+
+    blocked_base = {
+        **_source_tag("INCOMPLETE/BLOCKED", "Histórico requer snapshot indexado do DataLake"),
+        "completeness": "INCOMPLETE",
+        "blocked": True,
+        "window_start": date_start,
+        "window_end": date_end,
+        "date_semantics": "event_date=data_assinatura|data_publicacao_fonte|data_publicacao|data_inicio",
+    }
+    if datalake_client is None or not datalake_client.is_enabled:
+        print("  ⛔ DataLake indisponível — histórico bloqueado; amostragem live proibida")
+        return [], blocked_base
+
+    cursor: dict[str, Any] | None = None
+    snapshot_at: str | None = None
+    all_rows: list[dict] = []
+    seen_ids: set[int] = set()
+    final_meta: dict[str, Any] = {}
+
+    while True:
+        rows, meta = datalake_client.supplier_contracts(
+            supplier_id_type="CNPJ",
+            supplier_identifier=cnpj14,
+            date_start=date_start,
+            date_end=date_end,
+            limit=1000,
+            cursor=cursor,
+            snapshot_at=snapshot_at,
+        )
+        if rows is None or "datalake_error" in meta:
+            detail = meta.get("datalake_error", "consulta canônica sem resposta")
+            print(f"  ⛔ DataLake falhou — histórico bloqueado: {detail}")
+            return [], {**blocked_base, "detail": detail}
+
+        snapshot_at = snapshot_at or meta.get("snapshot_at")
+        try:
+            page_id_list = [int(row["record_id"]) for row in rows]
+        except (KeyError, TypeError, ValueError):
+            return [], {
+                **blocked_base,
+                "detail": "página canônica contém record_id ausente ou inválido",
+                "snapshot_at": snapshot_at,
+            }
+        page_ids = set(page_id_list)
+        if len(page_ids) != len(page_id_list) or seen_ids.intersection(page_ids):
+            return [], {**blocked_base, "detail": "cursor keyset repetiu registros", "snapshot_at": snapshot_at}
+        seen_ids.update(page_ids)
+        all_rows.extend(rows)
+        final_meta = meta
+
+        if not meta.get("has_more"):
+            break
+        next_cursor = meta.get("next_cursor")
+        if not next_cursor or next_cursor == cursor:
+            return [], {**blocked_base, "detail": "cursor keyset não avançou", "snapshot_at": snapshot_at}
+        cursor = next_cursor
+
+    expected_count = int(final_meta.get("total_count") or 0)
+    expected_sum = float(final_meta.get("sum_value") or 0)
+    detail_sum = sum(float(row.get("valor_global") or 0) for row in all_rows)
+    if len(all_rows) != expected_count or abs(detail_sum - expected_sum) > 0.01:
+        return [], {
+            **blocked_base,
+            "detail": "reconciliação agregado/detalhe falhou",
+            "snapshot_at": snapshot_at,
+            "expected_count": expected_count,
+            "detail_count": len(all_rows),
+            "expected_sum": expected_sum,
+            "detail_sum": detail_sum,
+        }
+
+    annual_detail: dict[int, dict[str, float | int]] = {}
+    for row in all_rows:
+        event_date = str(row.get("event_date") or "")
+        if len(event_date) < 4:
+            continue
+        year = int(event_date[:4])
+        bucket = annual_detail.setdefault(year, {"matched_contracts": 0, "sum_value": 0.0})
+        bucket["matched_contracts"] = int(bucket["matched_contracts"]) + 1
+        bucket["sum_value"] = float(bucket["sum_value"]) + float(row.get("valor_global") or 0)
+    annual_sql = {
+        int(item["year"]): {
+            "matched_contracts": int(item["matched_contracts"]),
+            "sum_value": float(item["sum_value"]),
+        }
+        for item in final_meta.get("annual_series") or []
+    }
+    annual_reconciled = annual_sql.keys() == annual_detail.keys() and all(
+        annual_sql[year]["matched_contracts"] == annual_detail[year]["matched_contracts"]
+        and abs(float(annual_sql[year]["sum_value"]) - float(annual_detail[year]["sum_value"])) <= 0.01
+        for year in annual_sql
+    )
+    if not annual_reconciled:
+        return [], {**blocked_base, "detail": "reconciliação anual SQL/detalhe falhou", "snapshot_at": snapshot_at}
+
+    contracts = [
+        {
+            "orgao": row.get("orgao_nome") or "",
+            "uf": row.get("uf") or "",
+            "municipio": row.get("municipio") or "",
+            "valor": float(row.get("valor_global") or 0),
+            "valor_contrato": float(row.get("valor_global") or 0),
+            "data": row.get("event_date") or "",
+            "data_assinatura": row.get("data_assinatura") or "",
+            "data_publicacao": row.get("data_publicacao") or "",
+            "objeto": row.get("objeto_contrato") or "",
+            "numero_contrato": row.get("numero_controle_pncp") or "",
+            "fonte": row.get("source") or "DataLake PNCP",
+            "supplier_id_type": row.get("supplier_id_type"),
+            "supplier_identifier": row.get("supplier_identifier"),
+            "snapshot_id": final_meta.get("snapshot_id"),
+        }
+        for row in all_rows
+    ]
+
+    completeness = final_meta.get("completeness") or "INCOMPLETE"
+    status = "DATALAKE" if completeness == "COMPLETE" else "INCOMPLETE/BLOCKED"
+    source = {
+        **_source_tag(status, f"{expected_count} contratos canônicos reconciliados"),
+        **final_meta,
+        "completeness": completeness,
+        "blocked": completeness != "COMPLETE",
+        "detail_reconciled": True,
+        "annual_reconciled": True,
+    }
+    print(
+        f"  ✓ DataLake: {expected_count:,} contratos, soma {_fmt_brl(expected_sum, 2)}, "
+        f"snapshot={final_meta.get('snapshot_id')} completude={completeness}"
+    )
+    if completeness != "COMPLETE":
+        print("  ⛔ Qualidade incompleta — detalhes e gráfico anual bloqueados")
+        return [], source
+    return contracts, source
 
 
 # ============================================================
@@ -4946,12 +5109,15 @@ def _parse_pncp_item(
         "modalidade": modalidade,
         "data_abertura": data_abertura,
         "data_encerramento": data_encerramento,
+        "data_abertura_oficial": item.get("dataAberturaProposta") or "",
+        "data_encerramento_oficial": item.get("dataEncerramentoProposta") or "",
         "dias_restantes": dias_restantes,
         "fonte": "PNCP",
         "link": link,
         "cnpj_orgao": cnpj_clean,
         "ano_compra": str(ano),
         "sequencial_compra": str(seq),
+        "situacao_compra_oficial": item.get("situacaoCompraNome") or "",
         "status_edital": (
             "ENCERRADO"
             if (dias_restantes is not None and dias_restantes < 0)
@@ -5003,7 +5169,7 @@ def collect_pcp(
             source_meta["errors"] += 1
             break
 
-        items = data if isinstance(data, list) else data.get("resultado", data.get("data", []))
+        items = data if isinstance(data, list) else data.get("result", data.get("resultado", data.get("data", [])))
         if not isinstance(items, list) or not items:
             break
 
@@ -5079,9 +5245,18 @@ def _parse_pcp_item(
         "modalidade": modalidade,
         "data_abertura": data_abertura,
         "data_encerramento": data_encerramento,
+        "data_abertura_oficial": item.get("dataHoraInicioPropostas") or "",
+        "data_encerramento_oficial": item.get("dataHoraFinalPropostas") or "",
+        "data_publicacao_oficial": item.get("dataHoraPublicacao") or "",
         "dias_restantes": dias_restantes,
         "fonte": "PCP",
         "link": link,
+        "codigo_licitacao": item.get("codigoLicitacao"),
+        "situacao_compra_oficial": (
+            (item.get("statusProcessoPublico") or {}).get("descricao")
+            or (item.get("status") or {}).get("descricao")
+            or ""
+        ),
         "status_edital": (
             "ENCERRADO"
             if (dias_restantes is not None and dias_restantes < 0)
@@ -5090,6 +5265,109 @@ def _parse_pcp_item(
             else "PRAZO_INDEFINIDO"
         ),
     }
+
+
+# ============================================================
+# PHASE 2c: OFFICIAL STATUS RECONFIRMATION
+# ============================================================
+
+
+class _OfficialStatusFetcher:
+    """Re-read a shortlisted opportunity from the source that published it."""
+
+    def __init__(self, api: ApiClient):
+        self.api = api
+        self._pcp_pages: dict[str, list[dict]] = {}
+
+    def __call__(self, edital: dict) -> dict:
+        source = str(edital.get("fonte") or edital.get("_source_name") or "").upper()
+        if source == "PNCP":
+            return self._pncp(edital)
+        if source == "PCP":
+            return self._pcp(edital)
+        raise RuntimeError(f"unsupported official source: {source or 'UNKNOWN'}")
+
+    def _pncp(self, edital: dict) -> dict:
+        cnpj = re.sub(r"[^0-9]", "", str(edital.get("cnpj_orgao") or ""))
+        ano = str(edital.get("ano_compra") or "").strip()
+        sequencial = str(edital.get("sequencial_compra") or "").strip()
+        if len(cnpj) != 14 or not ano or not sequencial:
+            raise ValueError("PNCP structural identity unavailable")
+
+        official_url = f"{PNCP_FILES_BASE}/orgaos/{cnpj}/compras/{ano}/{sequencial}"
+        payload, status = self.api.get(official_url, label=f"PNCP reconfirm {cnpj}/{ano}/{sequencial}")
+        if status != "API" or not isinstance(payload, dict):
+            raise RuntimeError(f"PNCP reconfirmation failed: {status}")
+        return {
+            "status_native": payload.get("situacaoCompraNome") or payload.get("situacaoCompra") or "",
+            "deadline_at": payload.get("dataEncerramentoProposta"),
+            "evidence_url": official_url,
+        }
+
+    def _pcp(self, edital: dict) -> dict:
+        code = edital.get("codigo_licitacao")
+        publication = str(
+            edital.get("data_publicacao_oficial")
+            or edital.get("data_abertura_oficial")
+            or ""
+        )[:10]
+        if not code or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", publication):
+            raise ValueError("PCP structural identity or publication date unavailable")
+
+        if publication not in self._pcp_pages:
+            rows: list[dict] = []
+            page = 1
+            page_count = 1
+            while page <= page_count:
+                if page > PCP_MAX_PAGES:
+                    raise RuntimeError(
+                        f"PCP reconfirmation exceeded the {PCP_MAX_PAGES}-page safety bound"
+                    )
+                payload, status = self.api.get(
+                    PCP_BASE,
+                    params={
+                        "pagina": page,
+                        "dataInicial": publication,
+                        "dataFinal": publication,
+                        "tipoData": 1,
+                    },
+                    label=f"PCP reconfirm {publication} p={page}",
+                )
+                if status != "API" or not isinstance(payload, dict):
+                    raise RuntimeError(f"PCP reconfirmation failed: {status}")
+                page_rows = payload.get("result", payload.get("resultado", payload.get("data", [])))
+                if not isinstance(page_rows, list):
+                    raise RuntimeError("PCP reconfirmation returned an invalid result")
+                rows.extend(row for row in page_rows if isinstance(row, dict))
+                page_count = max(1, int(payload.get("pageCount") or 1))
+                page += 1
+            self._pcp_pages[publication] = rows
+
+        match = next(
+            (row for row in self._pcp_pages[publication] if str(row.get("codigoLicitacao")) == str(code)),
+            None,
+        )
+        if match is None:
+            raise LookupError(f"PCP opportunity {code} absent from official publication-date query")
+        status_info = match.get("statusProcessoPublico") or match.get("status") or {}
+        status_native = status_info.get("descricao") if isinstance(status_info, dict) else str(status_info or "")
+        path = str(match.get("urlReferencia") or edital.get("link") or "")
+        evidence_url = (
+            f"https://www.portaldecompraspublicas.com.br{path}"
+            if path.startswith("/")
+            else path
+        )
+        return {
+            "status_native": status_native,
+            "deadline_at": match.get("dataHoraFinalPropostas"),
+            "evidence_url": evidence_url,
+        }
+
+
+def _preview_unexecuted_reconfirmation(editais: list[dict[str, Any]]) -> dict[str, Any]:
+    """Describe the re-enrichment gate without changing persisted decisions."""
+
+    return reconfirm_shortlist([dict(edital) for edital in editais], None)
 
 
 # ============================================================
@@ -10317,6 +10595,7 @@ Examples:
 
         # Assign recomendacao + justificativa after all scores are computed
         assign_recommendations(editais, empresa)
+        data["official_status_reconfirmation"] = _preview_unexecuted_reconfirmation(editais)
         compute_price_benchmark(editais)  # GAP-3
         build_alertas_criticos(editais, empresa)  # HARD-004
 
@@ -10442,7 +10721,11 @@ Examples:
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as g2_pool:
         future_transparencia = g2_pool.submit(collect_portal_transparencia, api, cnpj14, pt_key)
         future_contratos = g2_pool.submit(
-            collect_pncp_contratos_fornecedor, api, cnpj14, razao_social=_razao_social_for_contracts
+            collect_pncp_contratos_fornecedor,
+            api,
+            cnpj14,
+            razao_social=_razao_social_for_contracts,
+            datalake_client=_dl_client,
         )
 
         transparencia = future_transparencia.result()
@@ -10459,19 +10742,14 @@ Examples:
     # actual field of work, not just their registered CNAE.
     print("\n\U0001f4cb Phase 1b: Histórico de contratos (ANTES do mapeamento de setor)")
 
-    # Merge PT federal + PNCP all-spheres into empresa.historico_contratos
+    # Contract history is a single canonical population. Portal da Transparência
+    # remains available for sanctions, but its independently paged contract list
+    # cannot be merged into a reconciled lake snapshot.
     pt_contratos = transparencia.get("historico_contratos", [])
-    merged_contratos = list(pncp_contratos)  # PNCP as base (all spheres)
-    pncp_orgao_dates = {(c["orgao"][:30], c["data"][:10]) for c in pncp_contratos}
-    for c in pt_contratos:
-        key = (c.get("orgao", "")[:30], c.get("data", "")[:10])
-        if key not in pncp_orgao_dates:
-            c["esfera"] = "Federal"
-            c["fonte"] = "Portal da Transparência"
-            merged_contratos.append(c)
+    merged_contratos = list(pncp_contratos)
     transparencia["historico_contratos"] = merged_contratos
     n_pncp = len(pncp_contratos)
-    n_pt = len(pt_contratos)
+    n_pt = 0
 
     # AC4: Warn when no contracts found for an established company
     _merged_total = len(merged_contratos)
@@ -10499,11 +10777,12 @@ Examples:
                 f"0 contratos encontrados após 4 estratégias (capital R${_cap:,.0f}, {_anos} anos de operação)",
             )
     n_merged = len(merged_contratos)
-    transparencia["historico_source"] = _source_tag(
-        "API",
-        f"{n_merged} contrato(s): {n_pncp} via PNCP (todas as esferas) + {n_pt} via Portal da Transparência (federal)",
-    )
-    print(f"  Histórico consolidado: {n_merged} contratos ({n_pncp} PNCP + {n_pt} PT)")
+    transparencia["historico_source"] = pncp_contratos_source
+    transparencia["historico_portal_excluded"] = {
+        "count": len(pt_contratos),
+        "reason": "fora do snapshot canônico reconciliado",
+    }
+    print(f"  Histórico consolidado: {n_merged} contratos canônicos ({len(pt_contratos)} PT excluídos da população)")
 
     # F39: Filter cancelled contracts before clustering (keep all for risk flags)
     EXCLUDED_CONTRACT_STATUSES = {"CANCELADO", "RESCINDIDO", "ANULADO"}
@@ -10924,8 +11203,9 @@ Examples:
 
     # AC4: contract_search_exhaustive — distinguishes "no contracts found" from "search failed"
     _pncp_contratos_status = (pncp_contratos_source or {}).get("status", "MISSING")
-    _all_strategies_succeeded = _pncp_contratos_status != "API_FAILED"
-    data["_metadata"]["contract_search_exhaustive"] = len(merged_contratos) > 0 or _all_strategies_succeeded
+    _all_strategies_succeeded = _pncp_contratos_status == "DATALAKE"
+    data["_metadata"]["contract_search_exhaustive"] = _all_strategies_succeeded
+    data["_metadata"]["contract_history"] = pncp_contratos_source
 
     # ---- HARD-003: Acervo 3-Tier Classification (before deterministic scoring) ----
     classify_acervo_similarity(merged_contratos, data["editais"])
@@ -10947,6 +11227,20 @@ Examples:
 
     # Assign recomendacao + justificativa after all scores are computed
     assign_recommendations(data["editais"], data["empresa"])
+
+    # ---- P0 #244: source-of-record status gate before any shortlist consumer ----
+    print("\n🔐 Reconfirmando status oficial da shortlist...")
+    data["official_status_reconfirmation"] = reconfirm_shortlist(
+        data["editais"],
+        _OfficialStatusFetcher(api),
+    )
+    reconfirmed = data["official_status_reconfirmation"]
+    print(
+        "  Status oficial: "
+        f"{reconfirmed['shortlist_count']} GO, "
+        f"{reconfirmed['decisions']['REVIEW']} REVIEW, "
+        f"{reconfirmed['decisions']['NO_GO']} NO_GO"
+    )
 
     # ---- GAP-3: Price benchmark per edital ----
     compute_price_benchmark(data["editais"])

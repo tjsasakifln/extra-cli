@@ -1,8 +1,15 @@
-"""Unit tests for scripts/crawl/pcp_crawler.py."""
+"""Unit and opt-in PostgreSQL tests for the PCP ingestion boundary."""
 
+import json
+import os
+from datetime import date
+from types import SimpleNamespace
 from unittest.mock import patch
 
+import pytest
+
 from scripts.crawl import pcp_crawler as pcp
+from scripts.crawl.ingestion._base.crawler import CrawlRequest, FetchResult
 
 # ---------------------------------------------------------------------------
 # Mock data
@@ -85,6 +92,86 @@ class TestCrawl:
         result = pcp.crawl(mode="incremental")
         assert isinstance(result, list)
 
+    @patch("scripts.crawl.pcp_crawler.provenance_fail")
+    @patch("scripts.crawl.pcp_crawler.provenance_complete")
+    @patch("scripts.crawl.pcp_crawler.provenance_start", return_value="pcp-deferred-1")
+    @patch("scripts.crawl.pcp_crawler._fetch_page", return_value=([MOCK_RECORD], False))
+    def test_structured_crawl_defers_terminal_provenance(
+        self,
+        _mock_fetch,
+        _mock_start,
+        mock_complete,
+        mock_fail,
+    ):
+        result = pcp.crawl(
+            CrawlRequest(
+                mode="incremental",
+                date_from=date(2026, 8, 13),
+                date_to=date(2026, 8, 13),
+            )
+        )
+
+        assert isinstance(result, FetchResult)
+        assert result.status == "success"
+        assert result.provenance["run_id"] == "pcp-deferred-1"
+        assert result.provenance["terminal_deferred"] is True
+        assert result.pages_fetched == result.pages_expected == 1
+        mock_complete.assert_not_called()
+        mock_fail.assert_not_called()
+
+    def test_monitor_upsert_failure_fails_same_deferred_run(self, monkeypatch):
+        from scripts.crawl import monitor
+
+        fetch = FetchResult(
+            status="success",
+            records=[MOCK_RECORD],
+            request_completed=True,
+            pages_fetched=1,
+            pages_expected=1,
+            provenance={
+                "run_id": "pcp-monitor-upsert-fail",
+                "source": "pcp",
+                "terminal_deferred": True,
+                "pages_completed": 1,
+            },
+        )
+        crawler = SimpleNamespace(
+            crawl=lambda _request: fetch,
+            transform=lambda _records: [{"pncp_id": "pcp_12345", "content_hash": "same"}],
+            UPSERT_FUNCTION="upsert_pncp_raw_bids",
+        )
+        connection = SimpleNamespace(rollback=lambda: None, close=lambda: None)
+
+        monkeypatch.setattr(monitor, "_get_conn", lambda: connection)
+        monkeypatch.setattr(monitor, "_start_ingestion_run", lambda *_args: 91)
+        monkeypatch.setattr(monitor, "_load_crawler", lambda _source: crawler)
+        monkeypatch.setattr(monitor, "_finish_ingestion_run", lambda *_args, **_kwargs: None)
+        monkeypatch.setattr(monitor, "_record_evidence", lambda *_args, **_kwargs: None)
+        monkeypatch.setattr(
+            "scripts.crawl.credential_validator.validate_source_credentials",
+            lambda _source: (True, []),
+        )
+        monkeypatch.setattr(
+            monitor,
+            "_upsert_raw_records",
+            lambda *_args, **_kwargs: (_ for _ in ()).throw(RuntimeError("content hash collision")),
+        )
+
+        with (
+            patch("scripts.crawl.provenance_sync.provenance_complete") as complete,
+            patch("scripts.crawl.provenance_sync.provenance_fail") as fail,
+        ):
+            result = monitor.crawl_source("pcp", entities=[], mode="incremental")
+
+        assert result.status == "failed"
+        assert "content hash collision" in (result.error_message or "")
+        complete.assert_not_called()
+        fail.assert_called_once()
+        assert fail.call_args.kwargs["run_id"] == "pcp-monitor-upsert-fail"
+        assert fail.call_args.kwargs["records_fetched"] == 1
+        assert fail.call_args.kwargs["records_failed"] == 1
+        assert fetch.provenance["terminal_state"] == "failed"
+
 
 # ---------------------------------------------------------------------------
 # transform()
@@ -158,6 +245,110 @@ class TestTransform:
         """
         result = pcp.transform([MOCK_RECORD, MOCK_RECORD])
         assert len(result) == 2, f"Expected 2 records (no in-memory dedup), got {len(result)}"
+
+
+@pytest.mark.real_db
+@pytest.mark.skipif(
+    os.getenv("REQUIRE_REAL_DB") != "1",
+    reason="Set REQUIRE_REAL_DB=1 for the PostgreSQL content-hash proof",
+)
+def test_postgres_content_hash_collision_is_deterministic_and_reconciled():
+    import psycopg2
+
+    dsn = os.getenv("LOCAL_DATALAKE_DSN") or os.getenv("DATABASE_URL")
+    if not dsn:
+        pytest.fail("REQUIRE_REAL_DB=1 requires LOCAL_DATALAKE_DSN or DATABASE_URL")
+
+    prefix = f"test_pcp_hash_{os.getpid()}"
+    hash_one = f"{prefix}_hash_one"
+    hash_two = f"{prefix}_hash_two"
+    hash_three = f"{prefix}_hash_three"
+
+    def record(suffix: str, content_hash: str | None, *, synthetic: bool = False) -> dict:
+        return {
+            "pncp_id": f"{prefix}_{suffix}",
+            "numero_controle_pncp": f"{prefix}_{suffix}",
+            "objeto_compra": f"record {suffix}",
+            "content_hash": content_hash,
+            "source": "pcp",
+            "source_id": suffix,
+            "synthetic_id": synthetic,
+        }
+
+    connection = psycopg2.connect(dsn)
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SET LOCAL statement_timeout = '30s'")
+
+            batch = [record("b", hash_one), record("a", hash_one)]
+            cursor.execute("SELECT * FROM upsert_pncp_raw_bids(%s::jsonb)", (json.dumps(batch),))
+            assert cursor.fetchone() == (1, 0, 1)
+            cursor.execute(
+                "SELECT pncp_id FROM pncp_raw_bids WHERE content_hash = %s",
+                (hash_one,),
+            )
+            assert cursor.fetchone()[0] == f"{prefix}_a"
+
+            cursor.execute(
+                "SELECT * FROM upsert_pncp_raw_bids(%s::jsonb)",
+                (json.dumps(list(reversed(batch))),),
+            )
+            assert cursor.fetchone() == (0, 0, 2)
+
+            cursor.execute(
+                "SELECT * FROM upsert_pncp_raw_bids(%s::jsonb)",
+                (json.dumps([record("c", hash_one)]),),
+            )
+            assert cursor.fetchone() == (0, 0, 1)
+
+            cursor.execute(
+                "SELECT * FROM upsert_pncp_raw_bids(%s::jsonb)",
+                (json.dumps([record("d", hash_two)]),),
+            )
+            assert cursor.fetchone() == (1, 0, 0)
+            cursor.execute(
+                "SELECT * FROM upsert_pncp_raw_bids(%s::jsonb)",
+                (json.dumps([record("d", hash_three)]),),
+            )
+            assert cursor.fetchone() == (0, 1, 0)
+            cursor.execute(
+                "SELECT * FROM upsert_pncp_raw_bids(%s::jsonb)",
+                (json.dumps([record("d", hash_one)]),),
+            )
+            assert cursor.fetchone() == (0, 0, 1)
+            cursor.execute(
+                "SELECT content_hash FROM pncp_raw_bids WHERE pncp_id = %s",
+                (f"{prefix}_d",),
+            )
+            assert cursor.fetchone()[0] == hash_three
+
+            null_hash = record("e", None)
+            cursor.execute(
+                "SELECT * FROM upsert_pncp_raw_bids(%s::jsonb)",
+                (json.dumps([null_hash]),),
+            )
+            assert cursor.fetchone() == (1, 0, 0)
+            null_hash["objeto_compra"] = "record e updated without hash"
+            cursor.execute(
+                "SELECT * FROM upsert_pncp_raw_bids(%s::jsonb)",
+                (json.dumps([null_hash]),),
+            )
+            assert cursor.fetchone() == (0, 1, 0)
+            cursor.execute(
+                "SELECT objeto_compra FROM pncp_raw_bids WHERE pncp_id = %s",
+                (f"{prefix}_e",),
+            )
+            assert cursor.fetchone()[0] == "record e updated without hash"
+
+            cursor.execute(
+                "SELECT COUNT(*), COUNT(DISTINCT content_hash) "
+                "FROM pncp_raw_bids WHERE pncp_id = ANY(%s)",
+                ([f"{prefix}_a", f"{prefix}_d"],),
+            )
+            assert cursor.fetchone() == (2, 2)
+    finally:
+        connection.rollback()
+        connection.close()
 
 
 # ---------------------------------------------------------------------------

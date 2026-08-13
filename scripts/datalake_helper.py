@@ -389,6 +389,8 @@ class DatalakeClient:
     def supplier_contracts(
         self,
         ni_fornecedor: str | None = None,
+        supplier_id_type: str | None = None,
+        supplier_identifier: str | None = None,
         orgao_cnpj: str | None = None,
         ufs: list[str] | None = None,
         keywords: list[str] | None = None,
@@ -396,20 +398,24 @@ class DatalakeClient:
         date_end: date | str | None = None,
         meses: int | None = None,
         modalidade_keywords: list[str] | None = None,
+        value_min: float | None = None,
         limit: int = 1000,
         order_by_data_desc: bool = True,
+        cursor: dict[str, Any] | None = None,
+        snapshot_at: str | None = None,
     ) -> tuple[list[dict] | None, dict]:
         """SELECT em `pncp_supplier_contracts` com filtros compostos.
 
         Args:
-            ni_fornecedor: CNPJ 14d do fornecedor (lookup O(1) via idx_psc_ni_fornecedor)
+            ni_fornecedor: identificador BR legado; 14 dígitos=CNPJ, 11=CPF
+            supplier_id_type/supplier_identifier: identidade canônica explícita
             orgao_cnpj: CNPJ 14d do órgão comprador
             ufs: lista de UFs
             keywords: lista de termos para ILIKE em objeto_contrato (OR)
             date_start, date_end: bounds em data_assinatura
             meses: alternativa — janela [hoje - meses, hoje]
             modalidade_keywords: NÃO disponível (tabela não tem modalidade — ignored)
-            limit: cap por chamada (PostgREST max 1000 default)
+            limit: tamanho da página de apresentação (máximo 1000)
             order_by_data_desc: True (default) ordena por data_assinatura DESC
 
         Returns:
@@ -423,41 +429,53 @@ class DatalakeClient:
 
         ds, de = self._resolve_dates(meses_to_dias(meses), date_start, date_end)
 
+        canonical_type = supplier_id_type.upper() if supplier_id_type else None
+        canonical_identifier = supplier_identifier
+        if ni_fornecedor and not canonical_identifier:
+            digits = "".join(ch for ch in ni_fornecedor if ch.isdigit())
+            if len(digits) == 14:
+                canonical_type, canonical_identifier = "CNPJ", digits
+            elif len(digits) == 11:
+                canonical_type, canonical_identifier = "CPF", digits
+            else:
+                return None, {"datalake_error": "supplier identity must be canonical or a valid CNPJ/CPF length"}
+        if bool(canonical_type) != bool(canonical_identifier):
+            return None, {"datalake_error": "supplier_id_type and supplier_identifier must be provided together"}
+        if canonical_type not in (None, "CNPJ", "CPF", "FOREIGN", "UNKNOWN"):
+            return None, {"datalake_error": f"unsupported supplier_id_type: {canonical_type}"}
+
         try:
-            q = (
-                sb.table("pncp_supplier_contracts")
-                .select(
-                    "numero_controle_pncp,ni_fornecedor,nome_fornecedor,orgao_cnpj,"
-                    "orgao_nome,uf,municipio,esfera,valor_global,data_assinatura,"
-                    "objeto_contrato,ingested_at"
-                )
-                .eq("is_active", True)
-            )
-            if ni_fornecedor:
-                q = q.eq("ni_fornecedor", "".join(ch for ch in ni_fornecedor if ch.isdigit()))
-            if orgao_cnpj:
-                q = q.eq("orgao_cnpj", "".join(ch for ch in orgao_cnpj if ch.isdigit()))
-            if ufs:
-                q = q.in_("uf", [u.upper() for u in ufs])
-            if ds:
-                q = q.gte("data_assinatura", ds)
-            if de:
-                q = q.lte("data_assinatura", de)
-            if keywords:
-                # AND ILIKE chain — todos os tokens devem aparecer no objeto.
-                # Pricing exige matching restritivo: "limpeza hospitalar" deve casar
-                # contratos contendo AMBAS as palavras, não qualquer uma. OR resultava
-                # em mediana enviesada por contratos genéricos (ex: "produtos de limpeza"
-                # R$300 misturado com "limpeza hospitalar" R$200k).
-                for k in keywords:
-                    if k:
-                        q = q.ilike("objeto_contrato", f"%{k.lower()}%")
-            if order_by_data_desc:
-                q = q.order("data_assinatura", desc=True)
-            q = q.limit(min(limit, 1000))
-            r = q.execute()
-            rows = r.data or []
-            return rows, {"source": "datalake_contracts", "total": len(rows)}
+            if not order_by_data_desc:
+                return None, {"datalake_error": "v2 contract pagination requires deterministic descending order"}
+            r = sb.rpc(
+                "supplier_contracts_page_v2",
+                {
+                    "p_supplier_id_type": canonical_type,
+                    "p_supplier_identifier": canonical_identifier,
+                    "p_orgao_cnpj": orgao_cnpj,
+                    "p_ufs": [u.upper() for u in ufs] if ufs else None,
+                    "p_keywords": [k for k in (keywords or []) if k],
+                    "p_date_start": ds,
+                    "p_date_end": de,
+                    "p_value_min": value_min,
+                    "p_page_size": min(max(limit, 1), 1000),
+                    "p_cursor_date": (cursor or {}).get("date"),
+                    "p_cursor_id": (cursor or {}).get("id"),
+                    "p_snapshot_at": snapshot_at,
+                },
+            ).execute()
+            response_rows = r.data
+            if (
+                not isinstance(response_rows, list)
+                or not response_rows
+                or not isinstance(response_rows[0], dict)
+                or not isinstance(response_rows[0].get("supplier_contracts_page_v2"), dict)
+            ):
+                return None, {"datalake_error": "supplier_contracts returned an empty or invalid RPC payload"}
+            payload = response_rows[0]["supplier_contracts_page_v2"]
+            rows = payload.get("items") or []
+            meta = payload.get("meta") or {}
+            return rows, meta
         except Exception as e:
             return None, {"datalake_error": f"supplier_contracts query failed: {e}"}
 
@@ -487,45 +505,35 @@ class DatalakeClient:
             ufs=ufs,
             meses=meses,
             orgao_cnpj=orgao_cnpj,
-            limit=1000,
+            value_min=valor_min,
+            limit=200,
         )
         if rows is None:
             return None, meta
 
-        valid = [r for r in rows if r.get("valor_global") is not None and float(r["valor_global"]) >= valor_min]
-        if not valid:
+        if int(meta.get("total_count") or 0) == 0:
             return None, {**meta, "datalake_error": "0 contracts with valid valor_global"}
 
-        valores = sorted(float(r["valor_global"]) for r in valid)
-        n = len(valores)
-        media = sum(valores) / n
-        var = sum((v - media) ** 2 for v in valores) / n
-        dp = var**0.5
-        cv = (dp / media * 100) if media > 0 else 0.0
-
-        def percentile(p: float) -> float:
-            if n == 1:
-                return valores[0]
-            k = (n - 1) * p
-            f = int(k)
-            c = min(f + 1, n - 1)
-            if f == c:
-                return valores[f]
-            return valores[f] + (valores[c] - valores[f]) * (k - f)
+        # Aggregates come from SQL over the complete filtered set. ``rows`` is
+        # only a presentation sample and never changes the denominator.
+        n = int(meta["total_count"])
+        media = float(meta.get("average_value") or 0)
+        dp = float(meta.get("stddev_value") or 0)
+        sample = [r for r in rows if float(r.get("valor_global") or 0) >= valor_min]
 
         stats = {
             "n": n,
-            "p10": round(percentile(0.10), 2),
-            "p25": round(percentile(0.25), 2),
-            "mediana": round(percentile(0.50), 2),
-            "p75": round(percentile(0.75), 2),
-            "p90": round(percentile(0.90), 2),
+            "p10": round(float(meta.get("p10") or 0), 2),
+            "p25": round(float(meta.get("p25") or 0), 2),
+            "mediana": round(float(meta.get("p50") or 0), 2),
+            "p75": round(float(meta.get("p75") or 0), 2),
+            "p90": round(float(meta.get("p90") or 0), 2),
             "media": round(media, 2),
             "dp": round(dp, 2),
-            "cv": round(cv, 2),
-            "sample": valid[:200],
+            "cv": round((dp / media * 100) if media > 0 else 0.0, 2),
+            "sample": sample,
         }
-        return stats, {**meta, "n_valid": n, "n_filtered_out": len(rows) - n}
+        return stats, {**meta, "n_valid": n, "n_filtered_out": int(meta.get("quarantine_count") or 0)}
 
     # ------------------------------------------------------------------
     # enriched_entities (BrasilAPI cache, TTL lógico 30d)
@@ -684,10 +692,7 @@ class DatalakeClient:
         meses: int = 24,
         limit: int = 10,
     ) -> tuple[list[dict] | None, dict]:
-        """Top fornecedores agrupados por `ni_fornecedor`.
-
-        Wrapper sobre `supplier_contracts` + groupby em-memória. Ordena por
-        `n_contratos DESC, valor_total DESC`.
+        """Top fornecedores, agregado no PostgreSQL sobre o recorte completo.
 
         Args:
             orgao_cnpj: filtra por órgão comprador (opcional)
@@ -701,63 +706,43 @@ class DatalakeClient:
             `[{ni_fornecedor, nome_fornecedor, n_contratos, valor_total, ultimo_contrato_data, ufs}]`
             ou (None, error_meta).
         """
-        contratos, meta = self.supplier_contracts(
-            orgao_cnpj=orgao_cnpj,
-            keywords=setor_keywords,
-            ufs=ufs,
-            meses=meses,
-            limit=1000,
-        )
-        if contratos is None:
-            return None, meta
-        if not contratos:
-            return [], {**meta, "source": "datalake_top_competitors", "n_input": 0}
-
-        agg: dict[str, dict] = {}
-        for c in contratos:
-            ni = c.get("ni_fornecedor")
-            if not ni:
-                continue
-            slot = agg.setdefault(
-                ni,
+        if not self.is_enabled:
+            return None, {"datalake_error": self._init_error or "disabled"}
+        sb = self._client()
+        if sb is None:
+            return None, {"datalake_error": self._init_error or "client unavailable"}
+        ds, de = self._resolve_dates(meses_to_dias(meses), None, None)
+        try:
+            result = sb.rpc(
+                "supplier_contracts_grouped_v2",
                 {
-                    "ni_fornecedor": ni,
-                    "nome_fornecedor": c.get("nome_fornecedor"),
-                    "n_contratos": 0,
-                    "valor_total": 0.0,
-                    "ultimo_contrato_data": None,
-                    "ufs": set(),
+                    "p_group_by": "supplier",
+                    "p_orgao_cnpj": orgao_cnpj,
+                    "p_ufs": [u.upper() for u in ufs] if ufs else None,
+                    "p_keywords": [k for k in (setor_keywords or []) if k],
+                    "p_date_start": ds,
+                    "p_date_end": de,
+                    "p_limit": limit,
+                    "p_snapshot_at": None,
                 },
-            )
-            slot["n_contratos"] += 1
-            try:
-                slot["valor_total"] += float(c.get("valor_global") or 0)
-            except (ValueError, TypeError):
-                pass
-            data = c.get("data_assinatura")
-            if data and (slot["ultimo_contrato_data"] is None or data > slot["ultimo_contrato_data"]):
-                slot["ultimo_contrato_data"] = data
-            uf = c.get("uf")
-            if uf:
-                slot["ufs"].add(uf)
-            if not slot["nome_fornecedor"] and c.get("nome_fornecedor"):
-                slot["nome_fornecedor"] = c.get("nome_fornecedor")
-
-        ranked = sorted(
-            agg.values(),
-            key=lambda r: (r["n_contratos"], r["valor_total"]),
-            reverse=True,
-        )[:limit]
-        for r in ranked:
-            r["valor_total"] = round(r["valor_total"], 2)
-            r["ufs"] = sorted(r["ufs"])
-
-        return ranked, {
-            "source": "datalake_top_competitors",
-            "n_input": len(contratos),
-            "n_unique_suppliers": len(agg),
-            "limit": limit,
-        }
+            ).execute()
+            payload = (result.data or [{}])[0].get("supplier_contracts_grouped_v2") or {}
+            ranked = [
+                {
+                    "ni_fornecedor": row.get("group_identifier"),
+                    "supplier_id_type": row.get("group_type"),
+                    "nome_fornecedor": row.get("group_name"),
+                    "n_contratos": int(row.get("matched_contracts") or 0),
+                    "valor_total": round(float(row.get("sum_value") or 0), 2),
+                    "ultimo_contrato_data": row.get("latest_event_date"),
+                    "ufs": row.get("ufs") or [],
+                }
+                for row in payload.get("items") or []
+            ]
+            meta = payload.get("meta") or {}
+            return ranked, {**meta, "n_input": meta.get("total_count"), "n_unique_suppliers": meta.get("total_groups")}
+        except Exception as e:
+            return None, {"datalake_error": f"top_competitors query failed: {e}"}
 
     # ------------------------------------------------------------------
     # agg_by_orgao (groupby orgao_cnpj sobre supplier_contracts)
@@ -786,52 +771,47 @@ class DatalakeClient:
         if not setor_keywords:
             return None, {"datalake_error": "setor_keywords required"}
 
-        contratos, meta = self.supplier_contracts(
-            keywords=setor_keywords,
-            ufs=ufs,
-            meses=meses,
-            limit=1000,
-        )
-        if contratos is None:
-            return None, meta
-        if not contratos:
-            return [], {**meta, "source": "datalake_agg_by_orgao", "n_input": 0}
-
-        agg: dict[str, dict] = {}
-        for c in contratos:
-            cnpj = c.get("orgao_cnpj")
-            if not cnpj:
-                continue
-            slot = agg.setdefault(
-                cnpj,
+        if not self.is_enabled:
+            return None, {"datalake_error": self._init_error or "disabled"}
+        sb = self._client()
+        if sb is None:
+            return None, {"datalake_error": self._init_error or "client unavailable"}
+        ds, de = self._resolve_dates(meses_to_dias(meses), None, None)
+        try:
+            result = sb.rpc(
+                "supplier_contracts_grouped_v2",
                 {
-                    "orgao_cnpj": cnpj,
-                    "orgao_nome": c.get("orgao_nome"),
-                    "uf": c.get("uf"),
-                    "n_contratos": 0,
-                    "valor_total": 0.0,
+                    "p_group_by": "orgao",
+                    "p_orgao_cnpj": None,
+                    "p_ufs": [u.upper() for u in ufs] if ufs else None,
+                    "p_keywords": setor_keywords,
+                    "p_date_start": ds,
+                    "p_date_end": de,
+                    "p_limit": limit,
+                    "p_snapshot_at": None,
                 },
-            )
-            slot["n_contratos"] += 1
-            try:
-                slot["valor_total"] += float(c.get("valor_global") or 0)
-            except (ValueError, TypeError):
-                pass
-            if not slot["orgao_nome"] and c.get("orgao_nome"):
-                slot["orgao_nome"] = c.get("orgao_nome")
-
-        for r in agg.values():
-            r["valor_total"] = round(r["valor_total"], 2)
-            r["ticket_medio"] = round(r["valor_total"] / r["n_contratos"], 2) if r["n_contratos"] else 0.0
-
-        ranked = sorted(agg.values(), key=lambda r: r["valor_total"], reverse=True)[:limit]
-
-        return ranked, {
-            "source": "datalake_agg_by_orgao",
-            "n_input": len(contratos),
-            "n_unique_orgaos": len(agg),
-            "limit": limit,
-        }
+            ).execute()
+            payload = (result.data or [{}])[0].get("supplier_contracts_grouped_v2") or {}
+            ranked = []
+            for row in payload.get("items") or []:
+                n = int(row.get("matched_contracts") or 0)
+                value = round(float(row.get("sum_value") or 0), 2)
+                ufs_for_org = row.get("ufs") or []
+                ranked.append(
+                    {
+                        "orgao_cnpj": row.get("group_identifier"),
+                        "orgao_nome": row.get("group_name"),
+                        "uf": ufs_for_org[0] if len(ufs_for_org) == 1 else None,
+                        "ufs": ufs_for_org,
+                        "n_contratos": n,
+                        "valor_total": value,
+                        "ticket_medio": round(value / n, 2) if n else 0.0,
+                    }
+                )
+            meta = payload.get("meta") or {}
+            return ranked, {**meta, "n_input": meta.get("total_count"), "n_unique_orgaos": meta.get("total_groups")}
+        except Exception as e:
+            return None, {"datalake_error": f"agg_by_orgao query failed: {e}"}
 
     # ------------------------------------------------------------------
     # Date helpers

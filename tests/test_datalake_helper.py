@@ -10,7 +10,13 @@ Tests cover the non-DB-dependent helper classes and functions:
 from __future__ import annotations
 
 import os
+import sys
+from collections import defaultdict
+from decimal import Decimal
+from pathlib import Path
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 from scripts.datalake_helper import (
     _LocalPgQuery,
@@ -242,3 +248,161 @@ class TestDatalakeClient:
         rows, meta = client.search_bids()
         assert rows is None
         assert "datalake_error" in meta
+
+
+@pytest.mark.real_db
+@pytest.mark.skipif(
+    os.getenv("REQUIRE_REAL_DB") != "1",
+    reason="Set REQUIRE_REAL_DB=1 to run complete contract analytics proof",
+)
+def test_contract_analytics_are_complete_keyset_stable_and_page_size_invariant():
+    """1,503 rows prove SQL aggregates and annual/detail reconciliation (#355/#356)."""
+    import psycopg2
+    import psycopg2.extras
+
+    from scripts.datalake_helper import DatalakeClient
+
+    dsn = os.environ["LOCAL_DATALAKE_DSN"]
+    supplier = "11222333000181"
+    prefix = "test-355-356-"
+    conn = psycopg2.connect(dsn)
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("DELETE FROM pncp_supplier_contracts WHERE contrato_id LIKE %s", (prefix + "%",))
+            cursor.execute("DELETE FROM ingestion_runs WHERE source = 'test_complete_analytics'")
+            cursor.execute(
+                """
+                INSERT INTO ingestion_runs (source, status, started_at, finished_at, completed_at)
+                VALUES ('test_complete_analytics', 'completed', NOW(), NOW(), NOW())
+                """
+            )
+            psycopg2.extras.execute_values(
+                cursor,
+                """
+                INSERT INTO pncp_supplier_contracts (
+                    contrato_id, orgao_cnpj, orgao_nome, fornecedor_cnpj,
+                    fornecedor_nome, objeto_contrato, valor_total,
+                    data_assinatura, data_publicacao_fonte, data_publicacao,
+                    uf, source, is_active, supplier_id_type,
+                    supplier_identifier, supplier_identifier_export,
+                    supplier_identity_reason, ingested_at
+                ) VALUES %s
+                """,
+                [
+                    (
+                        f"{prefix}{i:04d}",
+                        f"{i % 7 + 1:014d}",
+                        f"Orgao {i % 7}",
+                        supplier,
+                        "Fornecedor completo",
+                        "servico tecnico nacional",
+                        Decimal(i),
+                        f"204{(i % 2)}-06-15",
+                        f"204{(i % 2)}-06-16",
+                        f"204{(i % 2)}-06-16",
+                        "SC",
+                        "test_complete_analytics",
+                        True,
+                        "CNPJ",
+                        supplier,
+                        supplier,
+                        "test_valid_cnpj",
+                        "2026-08-13T12:00:00Z",
+                    )
+                    for i in range(1, 1504)
+                ],
+                page_size=500,
+            )
+        conn.commit()
+
+        with patch.dict(
+            os.environ,
+            {"DATALAKE_QUERY_ENABLED": "true", "LOCAL_DATALAKE_DSN": dsn},
+        ):
+            small = DatalakeClient()
+            first_rows, first_meta = small.supplier_contracts(
+                ni_fornecedor=supplier,
+                date_start="2040-01-01",
+                date_end="2041-12-31",
+                limit=17,
+            )
+            assert first_rows is not None
+            assert len(first_rows) == 17
+            assert first_meta["completeness"] == "PRESENTATION_LIMITED"
+            assert first_meta["has_more"] is True
+            assert first_meta["total_count"] == 1503
+            assert Decimal(str(first_meta["sum_value"])) == sum(Decimal(i) for i in range(1, 1504))
+            assert Decimal(str(first_meta["p50"])) == Decimal("752")
+
+            large = DatalakeClient()
+            _, large_meta = large.supplier_contracts(
+                ni_fornecedor=supplier,
+                date_start="2040-01-01",
+                date_end="2041-12-31",
+                limit=1000,
+            )
+            for field in ("total_count", "sum_value", "average_value", "p10", "p25", "p50", "p75", "p90"):
+                assert large_meta[field] == first_meta[field]
+
+            rows = list(first_rows)
+            cursor = first_meta["next_cursor"]
+            snapshot = first_meta["snapshot_at"]
+            meta = first_meta
+            for _ in range(200):
+                if not meta["has_more"]:
+                    break
+                page, meta = small.supplier_contracts(
+                    ni_fornecedor=supplier,
+                    date_start="2040-01-01",
+                    date_end="2041-12-31",
+                    limit=17,
+                    cursor=cursor,
+                    snapshot_at=snapshot,
+                )
+                assert page is not None
+                rows.extend(page)
+                cursor = meta["next_cursor"]
+            else:
+                pytest.fail("keyset pagination exceeded the 200-page test bound")
+
+            assert meta["completeness"] == "COMPLETE"
+            assert len(rows) == 1503
+            assert len({row["record_id"] for row in rows}) == 1503
+            assert sum(Decimal(str(row["valor_global"])) for row in rows) == Decimal(str(meta["sum_value"]))
+
+            annual_detail: dict[int, dict[str, Decimal | int]] = defaultdict(
+                lambda: {"matched_contracts": 0, "sum_value": Decimal(0)}
+            )
+            for row in rows:
+                year = int(str(row["event_date"])[:4])
+                annual_detail[year]["matched_contracts"] += 1
+                annual_detail[year]["sum_value"] += Decimal(str(row["valor_global"]))
+            for sql_year in meta["annual_series"]:
+                detail = annual_detail[int(sql_year["year"])]
+                assert detail["matched_contracts"] == sql_year["matched_contracts"]
+                assert detail["sum_value"] == Decimal(str(sql_year["sum_value"]))
+
+            scripts_path = str(Path(__file__).resolve().parents[1] / "scripts")
+            sys.path.insert(0, scripts_path)
+            try:
+                from scripts.collect_report_data import collect_pncp_contratos_fornecedor
+
+                report_rows, report_meta = collect_pncp_contratos_fornecedor(
+                    MagicMock(),
+                    supplier,
+                    datalake_client=small,
+                    date_start="2040-01-01",
+                    date_end="2041-12-31",
+                )
+            finally:
+                sys.path.remove(scripts_path)
+            assert len(report_rows) == 1503
+            assert report_meta["status"] == "DATALAKE"
+            assert report_meta["detail_reconciled"] is True
+            assert report_meta["annual_reconciled"] is True
+    finally:
+        with conn.cursor() as cursor:
+            cursor.execute("DELETE FROM pncp_supplier_contracts WHERE contrato_id LIKE %s", (prefix + "%",))
+            cursor.execute("DELETE FROM ingestion_runs WHERE source = 'test_complete_analytics'")
+        conn.commit()
+        conn.close()
