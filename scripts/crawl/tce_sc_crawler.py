@@ -487,8 +487,6 @@ def crawl(mode: str = "full", resume: bool = False) -> list[dict]:
     days = TCE_SC_FULL_DAYS if mode == "full" else TCE_SC_INCREMENTAL_DAYS
     data_final = date.today()
     data_inicial = data_final - timedelta(days=days)
-    run_id = f"tce_sc-{int(time.time())}"
-
     _logger.info(
         "[TCE-SC] Crawling %s mode: %s to %s (%d days)",
         mode,
@@ -498,7 +496,12 @@ def crawl(mode: str = "full", resume: bool = False) -> list[dict]:
     )
 
     # Provenance: start run
-    provenance_start(source="tce_sc", mode=mode, params={"data_inicial": str(data_inicial), "data_final": str(data_final)})
+    provenance_started_at = time.monotonic()
+    run_id = provenance_start(
+        source="tce_sc",
+        mode=mode,
+        params={"data_inicial": str(data_inicial), "data_final": str(data_final)},
+    )
 
     all_records: list[dict] = []
     errors = 0
@@ -546,14 +549,27 @@ def crawl(mode: str = "full", resume: bool = False) -> list[dict]:
         errors += 1
 
     # Provenance: complete or fail
+    duration_ms = int((time.monotonic() - provenance_started_at) * 1000)
     if errors > 0:
-        provenance_fail(run_id, "tce_sc", error_message=f"{errors} phases failed", records_fetched=len(all_records))
+        provenance_fail(
+            run_id=run_id,
+            source="tce_sc",
+            error_message=f"{errors} phases failed",
+            records_fetched=len(all_records),
+            records_dlq=errors,
+            records_failed=errors,
+            duration_ms=duration_ms,
+        )
     else:
-        provenance_complete(run_id, "tce_sc", records_fetched=len(all_records))
-
-    # Watermark: commit date range
-    if resume:
-        watermark_commit(source="tce_sc", scope_key="date", value=str(data_final), run_id=run_id)
+        provenance_complete(
+            run_id=run_id,
+            source="tce_sc",
+            records_fetched=len(all_records),
+            duration_ms=duration_ms,
+        )
+        # Watermark: only a successful terminal run may advance the date range.
+        if resume:
+            watermark_commit(source="tce_sc", scope_key="date", value=str(data_final), run_id=run_id)
 
     _logger.info("[TCE-SC] Crawl complete: %d total records", len(all_records))
     return all_records

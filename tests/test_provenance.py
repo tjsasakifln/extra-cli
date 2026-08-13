@@ -80,8 +80,10 @@ class TestProvenanceTracker:
     @pytest.mark.asyncio
     async def test_complete_run(self, tracker, mock_cur):
         """Given complete_run called, UPDATE with stats."""
+        mock_cur.fetchone.return_value = ("run-001",)
         await tracker.complete_run(
             "run-001",
+            source="pncp",
             records_fetched=100,
             records_upserted=95,
             records_dlq=3,
@@ -95,7 +97,12 @@ class TestProvenanceTracker:
     @pytest.mark.asyncio
     async def test_fail_run(self, tracker, mock_cur):
         """Given fail_run called, UPDATE with error."""
-        await tracker.fail_run("run-001", error_message="Connection timeout")
+        mock_cur.fetchone.return_value = ("run-001",)
+        await tracker.fail_run(
+            "run-001",
+            source="pncp",
+            error_message="Connection timeout",
+        )
         call_sql = mock_cur.execute.call_args[0][0]
         assert "UPDATE pipeline_runs" in call_sql
         assert "failed" in call_sql

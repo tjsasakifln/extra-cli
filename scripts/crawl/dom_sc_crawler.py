@@ -436,8 +436,6 @@ def crawl(mode: str = "full", resume: bool = False) -> list[dict]:
     days = DOM_SC_FULL_DAYS if mode == "full" else DOM_SC_INCREMENTAL_DAYS
     data_final = date.today()
     data_inicial = data_final - timedelta(days=days)
-    run_id = f"dom_sc-{int(time.time())}"
-
     _logger.info(
         "[DOM-SC] Crawling %s mode: %s to %s (%d days)",
         mode,
@@ -447,18 +445,16 @@ def crawl(mode: str = "full", resume: bool = False) -> list[dict]:
     )
 
     # Provenance: start run
-    provenance_start(source="dom_sc", mode=mode, params={"data_inicial": str(data_inicial), "data_final": str(data_final)})
+    provenance_started_at = time.monotonic()
+    run_id = provenance_start(
+        source="dom_sc",
+        mode=mode,
+        params={"data_inicial": str(data_inicial), "data_final": str(data_final)},
+    )
 
     try:
         raw_records = _fetch_publications(data_inicial, data_final)
         _logger.info("[DOM-SC] Fetched %d raw records", len(raw_records))
-
-        # Provenance: complete run
-        provenance_complete(run_id, "dom_sc", records_fetched=len(raw_records))
-
-        # Watermark: commit date range
-        if resume:
-            watermark_commit(source="dom_sc", scope_key="date", value=str(data_final), run_id=run_id)
     except Exception as e:
         _logger.error("[DOM-SC] Crawl failed: %s", e)
         dlq_write(
@@ -469,8 +465,28 @@ def crawl(mode: str = "full", resume: bool = False) -> list[dict]:
             error_message=str(e)[:2000],
             payload={"mode": mode, "data_inicial": str(data_inicial), "data_final": str(data_final)},
         )
-        provenance_fail(run_id, "dom_sc", error_message=str(e))
+        provenance_fail(
+            run_id=run_id,
+            source="dom_sc",
+            error_message=str(e),
+            records_failed=1,
+            records_dlq=1,
+            duration_ms=int((time.monotonic() - provenance_started_at) * 1000),
+        )
         return []
+
+    # Terminal persistence is deliberately outside the collection handler:
+    # failure here must remain observable to the caller.
+    provenance_complete(
+        run_id=run_id,
+        source="dom_sc",
+        records_fetched=len(raw_records),
+        duration_ms=int((time.monotonic() - provenance_started_at) * 1000),
+    )
+
+    # Watermark: commit date range
+    if resume:
+        watermark_commit(source="dom_sc", scope_key="date", value=str(data_final), run_id=run_id)
 
     return raw_records
 

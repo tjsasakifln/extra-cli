@@ -2,9 +2,9 @@
 
 Provides sync entry points:
 
-    provenance_start(source, mode, params=None)
-    provenance_complete(run_id, records_fetched, records_upserted, error_count)
-    provenance_fail(run_id, error_message)
+    provenance_start(source=source, mode=mode, params=None)
+    provenance_complete(run_id=run_id, source=source, records_fetched=count)
+    provenance_fail(run_id=run_id, source=source, error_message=message)
 
 Uses ``config.settings.DEFAULT_DSN`` for DB connection.
 """
@@ -63,50 +63,82 @@ def _run_async(coro):
 
 
 def provenance_start(
+    *,
     source: str,
     mode: str = "full",
     params: dict[str, Any] | None = None,
-) -> str | None:
-    """Start a provenance run. Returns run_id string or None on failure."""
-    try:
-        tracker = _get_tracker()
-        run_id = f"{source}-{int(time.time())}"
-        _run_async(tracker.start_run(run_id, source, mode=mode, params=params))
-        logger.debug("provenance started: source=%s run_id=%s", source, run_id)
-        return run_id
-    except Exception as e:
-        logger.error("provenance_start failed for source=%s: %s", source, e)
-        return None
+) -> str:
+    """Start a provenance run or raise if the running row cannot be persisted."""
+    tracker = _get_tracker()
+    run_id = f"{source}-{time.time_ns()}"
+    _run_async(tracker.start_run(run_id, source, mode=mode, params=params))
+    logger.debug("provenance started: source=%s run_id=%s", source, run_id)
+    return run_id
 
 
 def provenance_complete(
+    *,
     run_id: str,
     source: str,
     records_fetched: int = 0,
+    records_deduplicated: int = 0,
     records_upserted: int = 0,
-    error_count: int = 0,
-) -> bool:
-    """Mark a provenance run as completed successfully."""
-    try:
-        tracker = _get_tracker()
-        _run_async(tracker.complete_run(run_id, source, records_fetched, records_upserted, error_count))
-        return True
-    except Exception as e:
-        logger.error("provenance_complete failed for run=%s: %s", run_id, e)
-        return False
+    records_dlq: int = 0,
+    records_failed: int = 0,
+    pages_planned: int = 0,
+    pages_completed: int = 0,
+    watermarks_committed: int = 0,
+    duration_ms: int = 0,
+) -> None:
+    """Persist a successful terminal state or propagate the persistence error."""
+    tracker = _get_tracker()
+    _run_async(
+        tracker.complete_run(
+            run_id,
+            source=source,
+            records_fetched=records_fetched,
+            records_deduplicated=records_deduplicated,
+            records_upserted=records_upserted,
+            records_dlq=records_dlq,
+            records_failed=records_failed,
+            pages_planned=pages_planned,
+            pages_completed=pages_completed,
+            watermarks_committed=watermarks_committed,
+            duration_ms=duration_ms,
+        )
+    )
 
 
 def provenance_fail(
+    *,
     run_id: str,
     source: str,
-    error_message: str = "",
+    error_message: str,
     records_fetched: int = 0,
-) -> bool:
-    """Mark a provenance run as failed."""
-    try:
-        tracker = _get_tracker()
-        _run_async(tracker.fail_run(run_id, source, error_message, records_fetched))
-        return True
-    except Exception as e:
-        logger.error("provenance_fail failed for run=%s: %s", run_id, e)
-        return False
+    records_deduplicated: int = 0,
+    records_upserted: int = 0,
+    records_dlq: int = 0,
+    records_failed: int = 0,
+    pages_planned: int = 0,
+    pages_completed: int = 0,
+    watermarks_committed: int = 0,
+    duration_ms: int = 0,
+) -> None:
+    """Persist a failed terminal state or propagate the persistence error."""
+    tracker = _get_tracker()
+    _run_async(
+        tracker.fail_run(
+            run_id,
+            source=source,
+            error_message=error_message,
+            records_fetched=records_fetched,
+            records_deduplicated=records_deduplicated,
+            records_upserted=records_upserted,
+            records_dlq=records_dlq,
+            records_failed=records_failed,
+            pages_planned=pages_planned,
+            pages_completed=pages_completed,
+            watermarks_committed=watermarks_committed,
+            duration_ms=duration_ms,
+        )
+    )
