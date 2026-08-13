@@ -10,13 +10,12 @@ import re
 import sys
 import time
 import traceback
-import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any
 
 from anthropic import Anthropic
-
 from connections import create_connection
+from safe_xml import parse_xml_safely
 
 EVALUATION_PROMPT = """You are an AI assistant with access to tools.
 
@@ -56,7 +55,7 @@ Response Requirements:
 def parse_evaluation_file(file_path: Path) -> list[dict[str, Any]]:
     """Parse XML evaluation file with qa_pair elements."""
     try:
-        tree = ET.parse(file_path)
+        tree = parse_xml_safely(file_path)
         root = tree.getroot()
         evaluations = []
 

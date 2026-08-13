@@ -17,9 +17,11 @@ Saída:
 
 import argparse
 import json
-import random
 import sys
 from datetime import datetime, timedelta
+from random import SystemRandom
+
+RNG = SystemRandom()
 
 
 def sample_line(months: int = 12, series_count: int = 2) -> dict:
@@ -27,8 +29,8 @@ def sample_line(months: int = 12, series_count: int = 2) -> dict:
     months_list = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"][:months]
     series = []
     for i in range(series_count):
-        base = random.randint(50, 200)
-        data = [round(base + random.gauss(0, 20) + j * random.uniform(-2, 5), 1) for j in range(months)]
+        base = RNG.randint(50, 200)
+        data = [round(base + RNG.gauss(0, 20) + j * RNG.uniform(-2, 5), 1) for j in range(months)]
         series.append({"name": f"Série {chr(65 + i)}", "data": data})
     return {"categories": months_list, "series": series, "suggested_type": "line"}
 
@@ -38,7 +40,7 @@ def sample_column(categories: int = 6, series_count: int = 2) -> dict:
     cats = [f"Categoria {chr(65 + i)}" for i in range(categories)]
     series = []
     for i in range(series_count):
-        data = [random.randint(20, 150) for _ in range(categories)]
+        data = [RNG.randint(20, 150) for _ in range(categories)]
         series.append({"name": f"Grupo {i + 1}", "data": data})
     return {"categories": cats, "series": series, "suggested_type": "column"}
 
@@ -46,7 +48,7 @@ def sample_column(categories: int = 6, series_count: int = 2) -> dict:
 def sample_pie(items: int = 6) -> dict:
     """Dados de exemplo para pie/donut chart."""
     names = ["Tecnologia", "Saúde", "Finanças", "Educação", "Varejo", "Indústria", "Energia", "Transporte"][:items]
-    values = [random.randint(5, 35) for _ in range(items)]
+    values = [RNG.randint(5, 35) for _ in range(items)]
     total = sum(values)
     data = [{"name": n, "y": round(v / total * 100, 1)} for n, v in zip(names, values)]
     # Destacar o maior
@@ -58,8 +60,8 @@ def sample_pie(items: int = 6) -> dict:
 
 def sample_scatter(points: int = 50) -> dict:
     """Dados de exemplo para scatter chart."""
-    data_a = [[round(random.gauss(5, 2), 1), round(random.gauss(5, 2), 1)] for _ in range(points)]
-    data_b = [[round(random.gauss(8, 1.5), 1), round(random.gauss(3, 1.5), 1)] for _ in range(points)]
+    data_a = [[round(RNG.gauss(5, 2), 1), round(RNG.gauss(5, 2), 1)] for _ in range(points)]
+    data_b = [[round(RNG.gauss(8, 1.5), 1), round(RNG.gauss(3, 1.5), 1)] for _ in range(points)]
     return {
         "series": [{"name": "Grupo A", "data": data_a}, {"name": "Grupo B", "data": data_b}],
         "suggested_type": "scatter",
@@ -70,7 +72,7 @@ def sample_heatmap(rows: int = 7, cols: int = 12) -> dict:
     """Dados de exemplo para heatmap."""
     row_cats = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"][:rows]
     col_cats = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"][:cols]
-    data = [[x, y, random.randint(0, 100)] for x in range(cols) for y in range(rows)]
+    data = [[x, y, RNG.randint(0, 100)] for x in range(cols) for y in range(rows)]
     return {"xCategories": col_cats, "yCategories": row_cats, "series": [{"data": data}], "suggested_type": "heatmap"}
 
 
@@ -92,7 +94,7 @@ def sample_sankey() -> dict:
 
 def sample_gauge(value: float = None) -> dict:
     """Dados de exemplo para gauge/solid gauge."""
-    val = value or round(random.uniform(30, 95), 1)
+    val = value or round(RNG.uniform(30, 95), 1)
     return {"series": [{"name": "Performance", "data": [val]}], "suggested_type": "solidgauge", "min": 0, "max": 100}
 
 
@@ -120,13 +122,13 @@ def sample_stock(days: int = 365) -> dict:
         date = start + timedelta(days=i)
         if date.weekday() >= 5:
             continue
-        o = round(price + random.gauss(0, 2), 2)
-        h = round(o + abs(random.gauss(0, 3)), 2)
-        l = round(o - abs(random.gauss(0, 3)), 2)
-        c = round(random.uniform(l, h), 2)
-        price = c
+        open_price = round(price + RNG.gauss(0, 2), 2)
+        high_price = round(open_price + abs(RNG.gauss(0, 3)), 2)
+        low_price = round(open_price - abs(RNG.gauss(0, 3)), 2)
+        close_price = round(RNG.uniform(low_price, high_price), 2)
+        price = close_price
         ts = int(date.timestamp() * 1000)
-        data.append([ts, o, h, l, c])
+        data.append([ts, open_price, high_price, low_price, close_price])
     return {"series": [{"type": "candlestick", "name": "ACME", "data": data}], "suggested_type": "stock"}
 
 

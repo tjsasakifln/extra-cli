@@ -49,12 +49,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install ruff
+          pip install ruff==0.15.12
 
       - name: Run ruff linter
-        # Framework/agent assets are vendored tooling. Product lint debt is
-        # tracked under TD-7.1, so the blocking gate targets production code.
-        run: ruff check scripts/
+        run: ruff check .
 
   # ============================================================================
   # TYPE CHECK — mypy
@@ -314,7 +312,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install ruff mypy pytest pytest-asyncio pytest-cov hypothesis psycopg2-binary prometheus_client
+          pip install ruff==0.15.12 mypy pytest pytest-asyncio pytest-cov hypothesis psycopg2-binary prometheus_client
 
       - name: Ruff resilience modules
         run: >
@@ -579,7 +577,7 @@ jobs:
         run: |
           python -m pip install -U pip
           pip install -r requirements.txt
-          pip install pytest ruff
+          pip install pytest ruff==0.15.12
       - name: Profile + catalog schema
         run: |
           python -c "from scripts.commercial_leads.profile import load_profile; p=load_profile('config/commercial_profiles/confenge.yaml'); assert p.profile_id=='confenge'; assert len(p.signal_ids)>=12"
@@ -1501,7 +1499,7 @@ jobs:
 
       - name: Lint + typecheck + targeted coverage tests
         run: |
-          python -m pip install ruff mypy types-requests
+          python -m pip install ruff==0.15.12 mypy types-requests
           ruff check scripts/coverage/edital_relevance_recall.py scripts/campaigns/edital_relevance/ tests/coverage/test_edital_relevance_recall.py tests/coverage/test_human_labeling.py
           python3 -m pytest tests/coverage/test_edital_relevance_recall.py tests/coverage/test_human_labeling.py -q --tb=short -o addopts=''
 

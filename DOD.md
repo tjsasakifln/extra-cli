@@ -2601,7 +2601,7 @@ O financiamento até esta data **não comprou** “plataforma 95% pronta e autô
 | 8 | **Reconciliação inicial multi-fonte** | 30 pares `compras_sc_id_crosswalk` (honesto: não é nº PNCP) | `official_acts_reconcile` |
 | 9 | **Métricas de cobertura com denominador** | 4,76% histórico preservado + métricas multi-fonte | `multi_source_coverage` |
 | 10 | **Relatório comercial com disclaimers** | JSON/HTML/CSV/XLSX amostra real | `docs/ops/session-2026-07-17/commercial-*` |
-| 11 | **Qualidade automatizada** | CI GitHub **verde** (lint, mypy, tests, bandit, pip-audit) | Actions em `main` |
+| 11 | **Qualidade automatizada** | CI GitHub **verde** (lint Ruff repository-wide, mypy, tests, bandit, pip-audit) | Actions em `main` |
 | 12 | **Governança DoD + HTML diretoria** | §38–§42; painel executivo atualizado | `DOD.md`, `extra-consultoria-plano-executivo.html` |
 
 ### 42.3 Resultados quantificados (mesma data de corte)

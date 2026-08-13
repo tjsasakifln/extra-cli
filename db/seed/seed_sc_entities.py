@@ -32,6 +32,7 @@ import openpyxl
 import psycopg2
 import psycopg2.extras
 import requests
+from psycopg2 import sql
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -543,15 +544,16 @@ def upsert_entities(
 
     # Pre-fetch existing CNPJ bases so we can distinguish INSERT from UPDATE.
     # (PostgreSQL 16 returns rowcount=1 for both paths in ON CONFLICT.)
-    cur.execute(f"SELECT cnpj_8 FROM {TABLE_NAME}")
+    table = sql.Identifier(TABLE_NAME)
+    cur.execute(sql.SQL("SELECT cnpj_8 FROM {}").format(table))
     existing_cnpjs: set[str] = {row[0] for row in cur.fetchall()}
     log.info("Existing entities in DB: %d", len(existing_cnpjs))
 
     for e in entities:
         was_update = e.cnpj_8 in existing_cnpjs
         cur.execute(
-            f"""
-            INSERT INTO {TABLE_NAME} (
+            sql.SQL("""
+            INSERT INTO {table} (
                 razao_social, cnpj_8, municipio, codigo_ibge,
                 natureza_juridica, cod_natureza,
                 latitude, longitude, distancia_fk, raio_200km,
@@ -565,18 +567,18 @@ def upsert_entities(
             ON CONFLICT (cnpj_8) DO UPDATE SET
                 razao_social        = EXCLUDED.razao_social,
                 municipio           = EXCLUDED.municipio,
-                codigo_ibge         = COALESCE({TABLE_NAME}.codigo_ibge,
+                codigo_ibge         = COALESCE({table}.codigo_ibge,
                                                EXCLUDED.codigo_ibge),
                 natureza_juridica   = EXCLUDED.natureza_juridica,
                 cod_natureza        = EXCLUDED.cod_natureza,
-                latitude            = COALESCE({TABLE_NAME}.latitude,
+                latitude            = COALESCE({table}.latitude,
                                                EXCLUDED.latitude),
-                longitude           = COALESCE({TABLE_NAME}.longitude,
+                longitude           = COALESCE({table}.longitude,
                                                EXCLUDED.longitude),
                 distancia_fk        = EXCLUDED.distancia_fk,
                 raio_200km          = EXCLUDED.raio_200km,
                 is_active           = TRUE
-            """,
+            """).format(table=table),
             {
                 "razao_social": e.razao_social,
                 "cnpj_8": e.cnpj_8,
@@ -610,25 +612,26 @@ def verify_import(conn) -> dict[str, Any]:
     """
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-    cur.execute(f"SELECT COUNT(*) AS total FROM {TABLE_NAME}")
+    table = sql.Identifier(TABLE_NAME)
+    cur.execute(sql.SQL("SELECT COUNT(*) AS total FROM {}").format(table))
     total = cur.fetchone()["total"]
 
-    cur.execute(f"SELECT COUNT(*) AS cnt FROM {TABLE_NAME} WHERE cnpj_8 IS NULL")
+    cur.execute(sql.SQL("SELECT COUNT(*) AS cnt FROM {} WHERE cnpj_8 IS NULL").format(table))
     null_cnpj = cur.fetchone()["cnt"]
 
-    cur.execute(f"SELECT COUNT(*) AS cnt FROM {TABLE_NAME} WHERE municipio IS NULL")
+    cur.execute(sql.SQL("SELECT COUNT(*) AS cnt FROM {} WHERE municipio IS NULL").format(table))
     null_municipio = cur.fetchone()["cnt"]
 
-    cur.execute(f"SELECT COUNT(*) AS cnt FROM {TABLE_NAME} WHERE is_active = TRUE")
+    cur.execute(sql.SQL("SELECT COUNT(*) AS cnt FROM {} WHERE is_active = TRUE").format(table))
     active = cur.fetchone()["cnt"]
 
-    cur.execute(f"SELECT COUNT(*) AS cnt FROM {TABLE_NAME} WHERE codigo_ibge IS NULL")
+    cur.execute(sql.SQL("SELECT COUNT(*) AS cnt FROM {} WHERE codigo_ibge IS NULL").format(table))
     pending_ibge = cur.fetchone()["cnt"]
 
-    cur.execute(f"SELECT COUNT(*) AS cnt FROM {TABLE_NAME} WHERE raio_200km = TRUE")
+    cur.execute(sql.SQL("SELECT COUNT(*) AS cnt FROM {} WHERE raio_200km = TRUE").format(table))
     raio_count = cur.fetchone()["cnt"]
 
-    cur.execute(f"SELECT COUNT(DISTINCT municipio) AS cnt FROM {TABLE_NAME}")
+    cur.execute(sql.SQL("SELECT COUNT(DISTINCT municipio) AS cnt FROM {}").format(table))
     distinct_municipios = cur.fetchone()["cnt"]
 
     cur.close()

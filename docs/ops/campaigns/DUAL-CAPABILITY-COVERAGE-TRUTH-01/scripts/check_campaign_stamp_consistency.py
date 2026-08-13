@@ -13,8 +13,10 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 try:
@@ -31,11 +33,14 @@ STAMP_DOCS = [
 DOD_PATH = Path("DOD.md")
 HISTORICAL_SUMMARY = CAMPAIGN / "evidence" / "dual-reproof-summary.json"
 CURRENT_SUMMARY = CAMPAIGN / "evidence" / "dual-reproof-summary-final-closure.json"
+GIT = shutil.which("git")
+if GIT is None:
+    raise RuntimeError("git executable not found")
 
 
 def _run_git(repo: Path, *args: str) -> str:
-    return subprocess.check_output(
-        ["git", "-C", str(repo), *args],
+    return subprocess.check_output(  # noqa: S603 - fixed resolved git executable
+        [GIT, "-C", str(repo), *args],
         text=True,
         stderr=subprocess.STDOUT,
     ).strip()
@@ -43,9 +48,9 @@ def _run_git(repo: Path, *args: str) -> str:
 
 def _is_ancestor(repo: Path, maybe_ancestor: str, descendant: str) -> bool:
     try:
-        subprocess.check_call(
+        subprocess.check_call(  # noqa: S603 - fixed resolved git executable
             [
-                "git",
+                GIT,
                 "-C",
                 str(repo),
                 "merge-base",
@@ -417,7 +422,7 @@ def main() -> int:
     print(report)
     log_path = args.log
     if log_path is None:
-        log_path = Path("/tmp/grok-goal-dd92ea509731/implementer/consistency-gate.log")
+        log_path = Path(tempfile.gettempdir()) / "extra-consistency-gate.log"
     try:
         log_path.parent.mkdir(parents=True, exist_ok=True)
         log_path.write_text(report, encoding="utf-8")
