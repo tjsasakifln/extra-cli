@@ -44,11 +44,17 @@ def _atomic_json(path: Path, payload: dict[str, Any]) -> None:
 
 
 def sanitize_headers(headers: dict[str, Any] | None) -> dict[str, str]:
-    return {
-        str(k).lower(): str(v)
-        for k, v in (headers or {}).items()
-        if str(k).lower() not in _SENSITIVE
-    }
+    return {str(k).lower(): str(v) for k, v in (headers or {}).items() if str(k).lower() not in _SENSITIVE}
+
+
+def _optional_positive_int(value: str | None) -> int | None:
+    if not value:
+        return None
+    try:
+        parsed = int(value)
+    except ValueError:
+        return None
+    return parsed if parsed > 0 else None
 
 
 def coerce_canonical_checkpoint(payload: dict[str, Any]) -> CanonicalCheckpoint:
@@ -156,31 +162,139 @@ class CheckpointStore:
 
 
 class RawStore:
-    """Immutable deterministic raw-zone storage using canonical JSON SHA-256."""
+    """Immutable HTTP envelope + globally deduplicated content-addressed body."""
 
-    def __init__(self, root: Path):
+    def __init__(self, root: Path, *, dsn: str | None = None, require_db: bool = False):
         self.root = root
+        self.dsn = dsn
+        self.require_db = require_db
 
-    def persist(self, *, source: str, run_id: str, request_scope: str, payload: Any, provenance: dict[str, Any]) -> tuple[Path, str]:
-        canonical = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"), default=str).encode()
-        digest = hashlib.sha256(canonical).hexdigest()
-        directory = self.root / _slug(source) / _slug(request_scope)
-        path = directory / f"{digest}.json"
+    def persist(
+        self,
+        *,
+        source: str,
+        run_id: str,
+        request_scope: str,
+        payload: Any,
+        provenance: dict[str, Any],
+        http_status: int | None = None,
+        request_succeeded: bool = True,
+        page: int | None = None,
+        crawl_job_attempt_id: int | None = None,
+    ) -> tuple[Path, str]:
+        from scripts.crawl.resilience.diagnostics import sanitize_mapping, sanitize_url
+
+        if isinstance(payload, bytes):
+            body = payload
+        elif isinstance(payload, bytearray):
+            body = bytes(payload)
+        elif isinstance(payload, str):
+            body = payload.encode()
+        else:
+            body = json.dumps(
+                payload,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+                default=str,
+            ).encode()
+        digest = hashlib.sha256(body).hexdigest()
+        body_path = self.root / "cas" / digest[:2] / digest[2:4] / f"{digest}.body"
+        if not body_path.exists():
+            body_path.parent.mkdir(parents=True, exist_ok=True)
+            tmp = body_path.with_suffix(f".body.{os.getpid()}.tmp")
+            with tmp.open("wb") as handle:
+                handle.write(body)
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(tmp, body_path)
+        elif body_path.read_bytes() != body:
+            raise RuntimeError(f"raw CAS collision for sha256={digest}")
+
+        safe_provenance = sanitize_mapping(dict(provenance))
+        safe_provenance["response_headers"] = sanitize_headers(safe_provenance.get("response_headers"))
+        endpoint = sanitize_url(str(safe_provenance.get("endpoint") or "")) or None
+        if endpoint:
+            safe_provenance["endpoint"] = endpoint
+        observed_at = datetime.now(UTC).isoformat()
+        envelope = {
+            "schema_version": "raw-http-envelope/v1",
+            "source": source,
+            "run_id": run_id,
+            "crawl_job_attempt_id": crawl_job_attempt_id or _optional_positive_int(os.getenv("CRAWL_JOB_ATTEMPT_ID")),
+            "request_scope": request_scope,
+            "page": page,
+            "sanitized_url": endpoint,
+            "http_status": http_status,
+            "request_succeeded": request_succeeded,
+            "observed_at": observed_at,
+            "body_sha256": digest,
+            "body_size_bytes": len(body),
+            "body_uri": f"cas://raw-http/{digest}",
+            "provenance": safe_provenance,
+        }
+        envelope_hash = sha256_json(envelope)
+        envelope["envelope_sha256"] = envelope_hash
+        scope_hash = hashlib.sha256(request_scope.encode()).hexdigest()[:16]
+        path = self.root / "envelopes" / _slug(source) / _slug(run_id) / f"{scope_hash}-{digest}.json"
         if not path.exists():
-            safe_provenance = dict(provenance)
-            safe_provenance["response_headers"] = sanitize_headers(safe_provenance.get("response_headers"))
-            _atomic_json(
-                path,
-                {
-                    "source": source,
-                    "run_id": run_id,
-                    "request_scope": request_scope,
-                    "content_hash": digest,
-                    "provenance": safe_provenance,
-                    "payload": payload,
-                },
-            )
+            _atomic_json(path, envelope)
+        if self.dsn:
+            self._record_postgres(envelope, path)
+        elif self.require_db:
+            raise RuntimeError("raw_http_archive_database_required_but_dsn_missing")
         return path, digest
+
+    def load_reference(self, envelope_path: Path | str) -> dict[str, Any]:
+        path = Path(envelope_path)
+        envelope = json.loads(path.read_text(encoding="utf-8"))
+        digest = str(envelope.get("body_sha256") or "")
+        body_path = self.root / "cas" / digest[:2] / digest[2:4] / f"{digest}.body"
+        body = body_path.read_bytes()
+        if hashlib.sha256(body).hexdigest() != digest:
+            raise ValueError(f"raw body hash mismatch: {digest}")
+        try:
+            payload: Any = json.loads(body)
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            payload = body
+        return {"envelope": envelope, "payload": payload, "provenance": envelope["provenance"]}
+
+    def _record_postgres(self, envelope: dict[str, Any], path: Path) -> None:
+        import psycopg2
+
+        with psycopg2.connect(self.dsn) as connection, connection.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO raw_http_fetches (
+                    run_id, crawl_job_attempt_id, source, request_scope, page,
+                    sanitized_url, http_status, request_succeeded,
+                    body_sha256, body_size_bytes, body_uri,
+                    envelope_uri, envelope_sha256, observed_at
+                ) VALUES (
+                    %s, %s, %s, %s, %s,
+                    %s, %s, %s,
+                    %s, %s, %s,
+                    %s, %s, %s
+                )
+                ON CONFLICT (run_id, source, request_scope, body_sha256) DO NOTHING
+                """,
+                (
+                    envelope["run_id"],
+                    envelope["crawl_job_attempt_id"],
+                    envelope["source"],
+                    envelope["request_scope"],
+                    envelope["page"],
+                    envelope["sanitized_url"],
+                    envelope["http_status"],
+                    envelope["request_succeeded"],
+                    envelope["body_sha256"],
+                    envelope["body_size_bytes"],
+                    envelope["body_uri"],
+                    str(path),
+                    envelope["envelope_sha256"],
+                    envelope["observed_at"],
+                ),
+            )
 
 
 class StageLedger:
@@ -440,7 +554,11 @@ class FileDLQ:
         existing: dict[str, Any] = {}
         if path.is_file():
             existing = json.loads(path.read_text(encoding="utf-8"))
-        summary = "" if isinstance(error, str) else "".join(traceback.format_exception(type(error), error, error.__traceback__, limit=5))
+        summary = (
+            ""
+            if isinstance(error, str)
+            else "".join(traceback.format_exception(type(error), error, error.__traceback__, limit=5))
+        )
         record = {
             "source": source,
             "run_id": run_id,

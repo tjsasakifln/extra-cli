@@ -11,12 +11,14 @@ import json
 import logging
 import re
 import unicodedata
-from datetime import UTC, datetime
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
+from urllib.request import HTTPRedirectHandler, Request, build_opener
+from zoneinfo import ZoneInfo
 
+from scripts.crawl.security import validate_public_url
 from scripts.source_registry.models import DiscoveryResult, EntitySourceRecord
 
 logger = logging.getLogger(__name__)
@@ -25,6 +27,18 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CANDIDATES_PATH = PROJECT_ROOT / "data" / "source_discovery_candidates.jsonl"
 
 HEAD_TIMEOUT_S = 5
+SAO_PAULO = ZoneInfo("America/Sao_Paulo")
+
+
+class _PublicRedirectHandler(HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):  # noqa: ANN001, ANN201
+        validate_public_url(newurl, allow_http=False, resolve_dns=True)
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+def _public_urlopen(request: Request, *, timeout: float):
+    validate_public_url(request.full_url, resolve_dns=True)
+    return build_opener(_PublicRedirectHandler()).open(request, timeout=timeout)
 
 
 def _slug_municipio(municipio: str) -> str:
@@ -190,7 +204,7 @@ def probe_url(url: str, *, timeout: float = HEAD_TIMEOUT_S) -> dict[str, Any]:
         "status_code": None,
         "ok": False,
         "error": None,
-        "probed_at": datetime.now(UTC).isoformat(),
+        "probed_at": datetime.now(SAO_PAULO).isoformat(),
     }
     try:
         req = Request(  # noqa: S310 — public portal HEAD probe
@@ -198,25 +212,33 @@ def probe_url(url: str, *, timeout: float = HEAD_TIMEOUT_S) -> dict[str, Any]:
             method="HEAD",
             headers={"User-Agent": "extra-consultoria-source-discovery/1.0"},
         )
-        with urlopen(req, timeout=timeout) as resp:  # noqa: S310 — intentional probe of public portals
+        with _public_urlopen(req, timeout=timeout) as resp:
             result["status_code"] = getattr(resp, "status", None) or resp.getcode()
             result["ok"] = 200 <= int(result["status_code"]) < 400
             return result
     except HTTPError as exc:
         result["status_code"] = exc.code
         result["ok"] = 200 <= int(exc.code) < 400
-        # Some portals reject HEAD — try GET lightly
-        if exc.code in {405, 403, 501}:
+        if exc.code in {401, 403}:
+            result["classification"] = "BLOCKED"
+            result["error"] = f"HTTP {exc.code}: authentication_or_access_block"
+        # Some portals reject HEAD — try GET lightly (never bypass auth blocks).
+        elif exc.code in {405, 501}:
             try:
                 req = Request(  # noqa: S310 — public portal GET fallback
                     url,
                     method="GET",
                     headers={"User-Agent": "extra-consultoria-source-discovery/1.0"},
                 )
-                with urlopen(req, timeout=timeout) as resp:  # noqa: S310
+                with _public_urlopen(req, timeout=timeout) as resp:
                     result["method"] = "GET"
                     result["status_code"] = getattr(resp, "status", None) or resp.getcode()
                     result["ok"] = 200 <= int(result["status_code"]) < 400
+                    snippet = resp.read(4096).decode("utf-8", errors="ignore").lower()
+                    if "captcha" in snippet or "login" in snippet:
+                        result["ok"] = False
+                        result["classification"] = "BLOCKED"
+                        result["error"] = "captcha_or_login_detected"
             except Exception as get_exc:  # noqa: BLE001
                 result["error"] = f"HEAD={exc.code}; GET={get_exc!s}"
         else:
@@ -288,7 +310,7 @@ def append_discovery_candidates(
     """Append discovery results to the review JSONL."""
     out = Path(path) if path else DEFAULT_CANDIDATES_PATH
     out.parent.mkdir(parents=True, exist_ok=True)
-    ts = datetime.now(UTC).isoformat()
+    ts = datetime.now(SAO_PAULO).isoformat()
     with out.open("a", encoding="utf-8") as fh:
         for r in results:
             payload = r.to_dict()

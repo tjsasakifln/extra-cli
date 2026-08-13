@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import os
 import time
 from collections.abc import Callable
 from dataclasses import asdict
@@ -45,7 +46,16 @@ class _AdapterBase:
     def __init__(self, config: ResilienceConfig | None = None):
         self.config = config or ResilienceConfig.from_env()
         self.checkpoints = CheckpointStore(self.config.checkpoint_path)
-        self.raw = RawStore(self.config.raw_path)
+        archive_dsn = (
+            os.getenv("DATABASE_URL") or os.getenv("LOCAL_DATALAKE_DSN")
+            if self.config.require_db
+            else None
+        )
+        self.raw = RawStore(
+            self.config.raw_path,
+            dsn=archive_dsn,
+            require_db=self.config.require_db,
+        )
         self.budget = RequestBudget(
             self.config.ops_path / "budgets" / f"{self.source_id}.json",
             self.config.daily_request_budget,
@@ -107,7 +117,7 @@ class PNCPAdapter(_AdapterBase):
         if page_fetcher is not None:
             self.page_fetcher = page_fetcher
         else:
-            policy = self.config.http_policy
+            policy = self.config.http_policy_for_url(self.legacy.PNCP_CONSULTA_BASE)
 
             def _bound_fetch(request: CrawlRequest, modalidade: int, page: int) -> FetchResult:
                 result = legacy._fetch_publication_page(request, modalidade, page, http_policy=policy)
@@ -148,8 +158,13 @@ class PNCPAdapter(_AdapterBase):
                         "success",
                         "empty_confirmed",
                     }
-                    if prior and prior.status in _reuse_statuses and prior.raw_reference and Path(prior.raw_reference).is_file():
-                        raw_doc = json.loads(Path(prior.raw_reference).read_text(encoding="utf-8"))
+                    if (
+                        prior
+                        and prior.status in _reuse_statuses
+                        and prior.raw_reference
+                        and Path(prior.raw_reference).is_file()
+                    ):
+                        raw_doc = self.raw.load_reference(prior.raw_reference)
                         page_records = raw_doc.get("payload", {}).get("data", [])
                         records.extend(page_records)
                         raw_refs.append(
@@ -218,6 +233,34 @@ class PNCPAdapter(_AdapterBase):
                     )
                     if fetched.status not in {"success", "empty_confirmed"}:
                         self.breaker.record_failure(http_status=fetched.http_status, error=str(fetched.status))
+                        failure_provenance = self._provenance(page_request, run_id)
+                        failure_provenance.update(
+                            {
+                                "endpoint": fetched.metadata.get("url"),
+                                "page": page,
+                                "http_status": fetched.http_status,
+                                "response_headers": fetched.metadata.get("response_headers", {}),
+                                "errors": fetched.errors,
+                            }
+                        )
+                        failure_body = fetched.metadata.get("raw_response_body")
+                        if not isinstance(failure_body, (bytes, bytearray, str)):
+                            failure_body = {
+                                "body_absent": True,
+                                "reason": "transport_or_unavailable_response_body",
+                            }
+                        raw_path, digest = self.raw.persist(
+                            source=self.source_id,
+                            run_id=run_id,
+                            request_scope=scope,
+                            payload=failure_body,
+                            provenance=failure_provenance,
+                            http_status=fetched.http_status,
+                            request_succeeded=False,
+                            page=page,
+                        )
+                        cp.content_hash = digest
+                        cp.raw_reference = str(raw_path)
                         # Failure terminals: keep pending-compatible status for resume.
                         if fetched.status in {"rate_limited", "auth_blocked", "error", "partial"}:
                             cp.status = fetched.status
@@ -227,7 +270,9 @@ class PNCPAdapter(_AdapterBase):
                         break
 
                     self.breaker.record_success()
-                    payload = {"data": fetched.records, "pagination": pagination}
+                    payload = fetched.metadata.get("raw_response_body")
+                    if not isinstance(payload, (bytes, bytearray, str)):
+                        payload = {"data": fetched.records, **pagination}
                     provenance = self._provenance(page_request, run_id)
                     provenance.update(
                         {
@@ -243,6 +288,9 @@ class PNCPAdapter(_AdapterBase):
                         request_scope=scope,
                         payload=payload,
                         provenance=provenance,
+                        http_status=fetched.http_status,
+                        request_succeeded=True,
+                        page=page,
                     )
                     cp.status = "raw_persisted"
                     cp.content_hash = digest
@@ -296,7 +344,9 @@ class PNCPAdapter(_AdapterBase):
             "source": self.source_id,
             "run_id": run_id,
             "request_scope": run_scope,
-            "status": "raw_persisted" if raw_refs else (status if status not in {"success", "empty_confirmed"} else "pending"),
+            "status": "raw_persisted"
+            if raw_refs
+            else (status if status not in {"success", "empty_confirmed"} else "pending"),
             "pages_fetched": pages_complete,
             "pages_expected": pages_expected,
             "environment": self.config.environment,
@@ -355,7 +405,9 @@ class CigaDomAdapter(_AdapterBase):
         counts = artifact.get("counts") or {}
         expected = int(counts.get("selected", 0))
         fetched = int(counts.get("resources_processed_ok", 0)) + int(counts.get("resources_skipped_checkpoint", 0))
-        status: FetchStatus = "success" if legacy_status == "success" and expected > 0 and fetched >= expected else "partial"
+        status: FetchStatus = (
+            "success" if legacy_status == "success" and expected > 0 and fetched >= expected else "partial"
+        )
         if legacy_status == "failed":
             status = "error"
         if not records and status == "success":
@@ -369,8 +421,10 @@ class CigaDomAdapter(_AdapterBase):
             }
         )
         # NEVER mark success here — only raw_persisted / failure terminals.
-        adapter_status = "raw_persisted" if status in {"success", "partial"} and path.is_file() else (
-            status if status in {"error", "rate_limited", "auth_blocked", "partial"} else "pending"
+        adapter_status = (
+            "raw_persisted"
+            if status in {"success", "partial"} and path.is_file()
+            else (status if status in {"error", "rate_limited", "auth_blocked", "partial"} else "pending")
         )
         if status == "success" and path.is_file():
             adapter_status = "raw_persisted"
@@ -401,7 +455,11 @@ class CigaDomAdapter(_AdapterBase):
             checkpoint=asdict(cp),
             errors=list(artifact.get("errors") or []),
             provenance=provenance,
-            metadata={"run_id": cp.run_id, "legacy_bridge": True, "raw": [{"path": str(path), "request_scope": scope}] if path else []},
+            metadata={
+                "run_id": cp.run_id,
+                "legacy_bridge": True,
+                "raw": [{"path": str(path), "request_scope": scope}] if path else [],
+            },
         )
 
     def normalize(self, raw: list[dict[str, Any]]) -> list[CanonicalRecord]:
@@ -444,7 +502,7 @@ class ScComprasAdapter(_AdapterBase):
             and prior_snapshot.snapshot_hash
             and Path(prior_snapshot.raw_reference).is_file()
         ):
-            raw_doc = json.loads(Path(prior_snapshot.raw_reference).read_text(encoding="utf-8"))
+            raw_doc = self.raw.load_reference(prior_snapshot.raw_reference)
             payload = raw_doc.get("payload") or {}
             items = list(payload.get("items") or [])
             meta = dict(payload.get("meta") or {})
@@ -476,6 +534,24 @@ class ScComprasAdapter(_AdapterBase):
                     else ("auth_blocked" if meta.get("http_status") in {401, 403} else "error")
                 )
                 self.breaker.record_failure(http_status=meta.get("http_status"), error=str(meta.get("error")))
+                failure_provenance = self._provenance(request, run_id)
+                failure_provenance.update(
+                    {
+                        "endpoint": meta.get("url") or self.legacy.BASE_URL,
+                        "http_status": meta.get("http_status"),
+                        "response_headers": meta.get("response_headers", {}),
+                        "errors": [str(meta.get("error") or "list_fetch_failed")],
+                    }
+                )
+                self.raw.persist(
+                    source=self.source_id,
+                    run_id=run_id,
+                    request_scope=snapshot_scope,
+                    payload=meta.get("raw_response_body") or {"body_absent": True, "reason": "list_fetch_failed"},
+                    provenance=failure_provenance,
+                    http_status=meta.get("http_status"),
+                    request_succeeded=False,
+                )
                 return FetchResult(
                     status=status,
                     request_completed=False,
@@ -501,13 +577,17 @@ class ScComprasAdapter(_AdapterBase):
                 "snapshot_hash": snapshot_hash,
             }
             provenance = self._provenance(request, run_id)
-            provenance.update({"endpoint": meta.get("url") or self.legacy.BASE_URL, "http_status": 200, "snapshot": True})
+            provenance.update(
+                {"endpoint": meta.get("url") or self.legacy.BASE_URL, "http_status": 200, "snapshot": True}
+            )
             raw_path, digest = self.raw.persist(
                 source=self.source_id,
                 run_id=run_id,
                 request_scope=snapshot_scope,
                 payload=snapshot_payload,
                 provenance=provenance,
+                http_status=200,
+                request_succeeded=True,
             )
             raw_snapshot_path = str(raw_path)
             self.checkpoints.save(
@@ -562,7 +642,7 @@ class ScComprasAdapter(_AdapterBase):
                 )
             if cp and (cp.completed or (cp.status == "raw_persisted" and cp.raw_reference)):
                 if cp.raw_reference and Path(cp.raw_reference).is_file():
-                    raw_doc = json.loads(Path(cp.raw_reference).read_text(encoding="utf-8"))
+                    raw_doc = self.raw.load_reference(cp.raw_reference)
                     payload = raw_doc.get("payload", {})
                     chunk_items = payload.get("items") if isinstance(payload, dict) else payload
                     if isinstance(chunk_items, list) and chunk_items:
@@ -605,6 +685,9 @@ class ScComprasAdapter(_AdapterBase):
                 request_scope=scope,
                 payload=chunk_payload,
                 provenance=provenance,
+                http_status=200,
+                request_succeeded=True,
+                page=index + 1,
             )
             raw_refs.append({"path": str(raw_path), "content_hash": digest, "request_scope": scope})
             records.extend(chunk_items)
@@ -632,9 +715,7 @@ class ScComprasAdapter(_AdapterBase):
                 )
             )
 
-        records_match_total = (
-            isinstance(total, int) and total > 0 and len(records) >= total and bulk_count >= total
-        )
+        records_match_total = isinstance(total, int) and total > 0 and len(records) >= total and bulk_count >= total
         chunks_complete_ok = chunks_expected > 0 and chunks_complete >= chunks_expected
         if chunks_expected > max_chunks:
             warnings.append("chunk_limit_prevents_completeness")

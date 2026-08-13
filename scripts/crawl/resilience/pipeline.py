@@ -12,6 +12,7 @@ from typing import Any
 
 from scripts.crawl.ingestion._base.crawler import CrawlRequest, FetchResult, SourceAdapter
 from scripts.crawl.resilience.config import ResilienceConfig
+from scripts.crawl.resilience.diagnostics import FailureRecorder, event_from_failure
 from scripts.crawl.resilience.persistence import (
     PersistenceBackend,
     PersistResult,
@@ -57,6 +58,11 @@ class OperationalPipeline:
         self.stages = StageLedger(config.ops_path / "stages")
         self.history = RunHistory(config.ops_path / "run_history")
         self.dlq = FileDLQ(config.dlq_path)
+        self.failures = FailureRecorder(
+            config.ops_path / "failures" / "events.jsonl",
+            dsn=os.getenv("DATABASE_URL") or os.getenv("LOCAL_DATALAKE_DSN"),
+            require_db=config.require_db,
+        )
         self.persistence = persistence or build_persistence_backend(require_db=config.require_db)
         self.crash_after = crash_after  # test hook: raise after named stage
 
@@ -84,9 +90,7 @@ class OperationalPipeline:
                 "status": "success",
                 "terminal_status": "success",
                 "satisfactory": True,
-                "operational_satisfactory": bool(
-                    db_committed and self.config.execution_mode != "fixture"
-                ),
+                "operational_satisfactory": bool(db_committed and self.config.execution_mode != "fixture"),
                 "resumed": True,
                 "watermark": existing_wm,
                 "records_fetched": 0,
@@ -113,12 +117,19 @@ class OperationalPipeline:
         persist_result = PersistResult()
         evidence_path: Path | None = None
         evidence: dict[str, Any] = {}
+        failure_projection: dict[str, Any] | None = None
 
         try:
             # Stage: fetch + raw (adapter owns raw_persisted page checkpoints)
             if last not in {"normalized", "db_committed", "evidence_committed", "watermark_committed"}:
                 fetched = adapter.fetch(request)
-                self.stages.advance(source=source, run_id=run_id, request_scope=scope, stage="raw_persisted", meta={"status": fetched.status})
+                self.stages.advance(
+                    source=source,
+                    run_id=run_id,
+                    request_scope=scope,
+                    stage="raw_persisted",
+                    meta={"status": fetched.status},
+                )
                 self._maybe_crash("raw_persisted")
             else:
                 # Re-fetch is skipped only when we have canonical artifact from this run.
@@ -138,6 +149,29 @@ class OperationalPipeline:
 
             if fetched is None:
                 raise RuntimeError("pipeline_missing_fetch_result")
+
+            if fetched.status not in {"success", "empty_confirmed"}:
+                error_message = "; ".join(fetched.errors) or f"fetch_status:{fetched.status}"
+                failure_projection = self.failures.record(
+                    event_from_failure(
+                        source=source,
+                        run_id=run_id,
+                        request_scope=scope,
+                        stage="fetch",
+                        error=error_message,
+                        http_status=fetched.http_status,
+                        url=str(fetched.metadata.get("url") or "") or None,
+                        page=request.page,
+                        cursor=request.cursor,
+                        attempt_no=max(1, int(fetched.metadata.get("retries") or 0) + 1),
+                        metadata={
+                            "status": fetched.status,
+                            "pages_fetched": fetched.pages_fetched,
+                            "pages_expected": fetched.pages_expected,
+                            "attempt_metrics": fetched.metadata.get("attempt_metrics") or [],
+                        },
+                    )
+                )
 
             # Promote page-level checkpoints only after full operational path.
             # Do not mark success inside adapter for CIGA; cycle owns completion.
@@ -363,6 +397,7 @@ class OperationalPipeline:
                 "environment": self.config.environment,
                 "execution_mode": self.config.execution_mode,
                 "started_at": started_at,
+                "failure_event": failure_projection,
             }
             self.history.append(
                 {
@@ -384,7 +419,26 @@ class OperationalPipeline:
             )
             return out
         except Exception as exc:
-            self.dlq.push(source=source, run_id=run_id, payload={"request_scope": scope}, error=exc, error_kind="systemic")
+            diagnostic_error: str | None = None
+            if failure_projection is None:
+                try:
+                    failure_projection = self.failures.record(
+                        event_from_failure(
+                            source=source,
+                            run_id=run_id,
+                            request_scope=scope,
+                            stage="pipeline",
+                            error=exc,
+                            page=request.page,
+                            cursor=request.cursor,
+                            metadata={"exception_type": type(exc).__name__},
+                        )
+                    )
+                except Exception as recorder_exc:
+                    diagnostic_error = f"failure_event_persist_failed:{recorder_exc}"
+            self.dlq.push(
+                source=source, run_id=run_id, payload={"request_scope": scope}, error=exc, error_kind="systemic"
+            )
             self.history.append(
                 {
                     "source": source,
@@ -407,7 +461,7 @@ class OperationalPipeline:
                 "satisfactory": False,
                 "mechanics_satisfactory": False,
                 "operational_satisfactory": False,
-                "errors": [str(exc)],
+                "errors": [str(exc)] + ([diagnostic_error] if diagnostic_error else []),
                 "db_committed": False,
                 "db_records_committed": 0,
                 "records_fetched": 0,
@@ -417,6 +471,7 @@ class OperationalPipeline:
                 "environment": self.config.environment,
                 "execution_mode": self.config.execution_mode,
                 "started_at": started_at,
+                "failure_event": failure_projection,
             }
 
     def _promote_page_checkpoints(self, adapter: SourceAdapter, fetched: FetchResult, *, to_status: str) -> None:

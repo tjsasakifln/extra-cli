@@ -19,6 +19,8 @@ Usage::
 
 from __future__ import annotations
 
+import ipaddress
+import socket
 import urllib.parse
 from typing import Any
 
@@ -98,6 +100,54 @@ def validate_url_scheme(url: str, *, allow_http: bool = False) -> str:
             f"Only {' or '.join('://' + s for s in allowed)} are permitted."
         )
     return url
+
+
+def validate_public_url(
+    url: str,
+    *,
+    allow_http: bool = False,
+    resolve_dns: bool = True,
+) -> str:
+    """Reject local/private targets and traversal before any crawler request."""
+    validate_url_scheme(url, allow_http=allow_http)
+    parsed = urllib.parse.urlsplit(url)
+    hostname = (parsed.hostname or "").lower().rstrip(".")
+    if not hostname or hostname == "localhost" or hostname.endswith(".localhost"):
+        raise ValueError("crawler URL requires a non-local hostname")
+    decoded_path = urllib.parse.unquote(parsed.path).replace("\\", "/")
+    if any(part == ".." for part in decoded_path.split("/")):
+        raise ValueError("crawler URL path traversal rejected")
+
+    addresses: set[str] = set()
+    try:
+        addresses.add(str(ipaddress.ip_address(hostname)))
+    except ValueError:
+        if resolve_dns:
+            try:
+                addresses.update(
+                    info[4][0]
+                    for info in socket.getaddrinfo(
+                        hostname,
+                        parsed.port or 443,
+                        type=socket.SOCK_STREAM,
+                    )
+                )
+            except socket.gaierror as exc:
+                raise ValueError(f"crawler hostname could not be resolved: {hostname}") from exc
+    for address in addresses:
+        ip = ipaddress.ip_address(address)
+        if not ip.is_global:
+            raise ValueError(f"crawler URL resolves to non-public address: {address}")
+    return url
+
+
+def validate_redirect_chain(response: Any, *, allow_http: bool = False) -> None:
+    """Validate every effective URL after redirects, including DNS resolution."""
+    chain = [*(getattr(response, "history", None) or []), response]
+    for item in chain:
+        effective = getattr(item, "url", None)
+        if isinstance(effective, str) and effective:
+            validate_public_url(effective, allow_http=allow_http, resolve_dns=True)
 
 
 def validate_url_scheme_optional(url: str | None, *, allow_http: bool = False) -> str | None:

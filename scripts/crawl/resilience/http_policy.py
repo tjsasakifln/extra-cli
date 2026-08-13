@@ -6,6 +6,9 @@ import os
 import random
 import warnings
 from dataclasses import dataclass
+from pathlib import Path
+
+from scripts.crawl.resilience.domain_policy import DomainPolicyRegistry
 
 
 def _num(name: str, default: str, cast: type[int] | type[float], minimum: float = 0) -> int | float:
@@ -39,28 +42,69 @@ class HttpResiliencePolicy:
     retry_after_fallback: float = 60.0
     request_delay: float = 0.5
     transient_statuses: frozenset[int] = frozenset({408, 425, 429, 500, 502, 503, 504})
+    circuit_breaker_threshold: int = 5
+    circuit_breaker_cooldown: float = 300.0
+    daily_request_budget: int = 5000
+    policy_version: str = "builtin-default"
+    policy_domain: str = "default"
+    policy_fingerprint: str = ""
 
     @classmethod
-    def from_env(cls) -> HttpResiliencePolicy:
+    def from_env(
+        cls,
+        *,
+        url: str | None = None,
+        registry_path: Path | None = None,
+    ) -> HttpResiliencePolicy:
         legacy_used: list[str] = []
+        resolved = DomainPolicyRegistry.load(registry_path).resolve(url)
+        defaults = resolved.values
 
-        def prefer(resilience_name: str, legacy_name: str, default: str, cast: type[int] | type[float], minimum: float = 0) -> int | float:
+        def prefer(
+            resilience_name: str,
+            legacy_name: str,
+            default: int | float,
+            cast: type[int] | type[float],
+            minimum: float = 0,
+        ) -> int | float:
             if os.getenv(resilience_name) is not None:
-                return _num(resilience_name, default, cast, minimum)
+                return _num(resilience_name, str(default), cast, minimum)
             if os.getenv(legacy_name) is not None:
                 legacy_used.append(legacy_name)
-                return _num(legacy_name, default, cast, minimum)
-            return _num(resilience_name, default, cast, minimum)
+                return _num(legacy_name, str(default), cast, minimum)
+            return cast(default)
 
         policy = cls(
-            connect_timeout=float(prefer("RESILIENCE_CONNECT_TIMEOUT", "PNCP_CONNECT_TIMEOUT", "10", float, 0.1)),
-            read_timeout=float(prefer("RESILIENCE_READ_TIMEOUT", "PNCP_READ_TIMEOUT", "120", float, 0.1)),
-            max_retries=int(prefer("RESILIENCE_MAX_RETRIES", "PNCP_MAX_RETRIES", "5", int, 0)),
-            base_delay=float(prefer("RESILIENCE_BASE_DELAY", "PNCP_RETRY_BASE_DELAY", "1", float, 0)),
-            max_delay=float(prefer("RESILIENCE_MAX_DELAY", "PNCP_RETRY_MAX_DELAY", "60", float, 0)),
-            jitter=float(prefer("RESILIENCE_JITTER", "PNCP_RETRY_JITTER", "0.2", float, 0)),
-            retry_after_fallback=float(prefer("RESILIENCE_RATE_LIMIT_FALLBACK", "PNCP_RATE_LIMIT_FALLBACK", "60", float, 0)),
-            request_delay=float(prefer("RESILIENCE_REQUEST_DELAY", "PNCP_REQUEST_DELAY", "0.5", float, 0)),
+            connect_timeout=float(
+                prefer("RESILIENCE_CONNECT_TIMEOUT", "PNCP_CONNECT_TIMEOUT", defaults["connect_timeout"], float, 0.1)
+            ),
+            read_timeout=float(
+                prefer("RESILIENCE_READ_TIMEOUT", "PNCP_READ_TIMEOUT", defaults["read_timeout"], float, 0.1)
+            ),
+            max_retries=int(prefer("RESILIENCE_MAX_RETRIES", "PNCP_MAX_RETRIES", defaults["max_retries"], int, 0)),
+            base_delay=float(
+                prefer("RESILIENCE_BASE_DELAY", "PNCP_RETRY_BASE_DELAY", defaults["base_delay"], float, 0)
+            ),
+            max_delay=float(prefer("RESILIENCE_MAX_DELAY", "PNCP_RETRY_MAX_DELAY", defaults["max_delay"], float, 0)),
+            jitter=float(prefer("RESILIENCE_JITTER", "PNCP_RETRY_JITTER", defaults["jitter"], float, 0)),
+            retry_after_fallback=float(
+                prefer(
+                    "RESILIENCE_RATE_LIMIT_FALLBACK",
+                    "PNCP_RATE_LIMIT_FALLBACK",
+                    defaults["retry_after_fallback"],
+                    float,
+                    0,
+                )
+            ),
+            request_delay=float(
+                prefer("RESILIENCE_REQUEST_DELAY", "PNCP_REQUEST_DELAY", defaults["request_delay"], float, 0)
+            ),
+            circuit_breaker_threshold=int(defaults["circuit_breaker_threshold"]),
+            circuit_breaker_cooldown=float(defaults["circuit_breaker_cooldown"]),
+            daily_request_budget=int(defaults["daily_request_budget"]),
+            policy_version=resolved.policy_version,
+            policy_domain=resolved.name,
+            policy_fingerprint=resolved.fingerprint,
         )
         if legacy_used:
             warnings.warn(

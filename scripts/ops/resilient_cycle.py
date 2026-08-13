@@ -26,9 +26,23 @@ from scripts.crawl.run_evidence import new_run_id
 
 class JsonLogger:
     fields = (
-        "timestamp", "level", "service", "source", "run_id", "request_scope",
-        "window", "page", "status", "http_status", "attempt", "duration",
-        "records_fetched", "records_persisted", "checkpoint", "error_code", "error_message",
+        "timestamp",
+        "level",
+        "service",
+        "source",
+        "run_id",
+        "request_scope",
+        "window",
+        "page",
+        "status",
+        "http_status",
+        "attempt",
+        "duration",
+        "records_fetched",
+        "records_persisted",
+        "checkpoint",
+        "error_code",
+        "error_message",
     )
 
     def __init__(self, path: Path):
@@ -58,7 +72,9 @@ def _fixture_adapters(config: ResilienceConfig, fixture_dir: Path) -> list[Sourc
         payload = dict(pncp_payload)
         payload["numeroPagina"] = page
         records = payload["data"] if page == 1 else []
-        pagination = {key: payload[key] for key in ("totalRegistros", "totalPaginas", "numeroPagina", "paginasRestantes", "empty")}
+        pagination = {
+            key: payload[key] for key in ("totalRegistros", "totalPaginas", "numeroPagina", "paginasRestantes", "empty")
+        }
         return FetchResult(
             status="success",
             records=records,
@@ -106,6 +122,10 @@ def run_cycle(
     *,
     live: bool = False,
     source: str | None = None,
+    target: str | None = None,
+    date_from: date | None = None,
+    date_to: date | None = None,
+    run_id: str | None = None,
     fixture_dir: Path | None = None,
     config: ResilienceConfig | None = None,
     persistence: Any | None = None,
@@ -129,17 +149,24 @@ def run_cycle(
     ):
         path.mkdir(parents=True, exist_ok=True)
 
-    run_id = new_run_id("resilient-local")
+    run_id = run_id or new_run_id("resilient-local")
     log_path = config.ops_path / "logs" / f"{run_id}.jsonl"
     logger = JsonLogger(log_path)
     started = time.monotonic()
     started_at = datetime.now(UTC).isoformat()
     pipeline = OperationalPipeline(config, persistence=persistence, crash_after=crash_after)
     steps: list[dict[str, Any]] = [
-        {"step": "pre-check", "status": "success", "environment": config.environment, "execution_mode": config.execution_mode},
+        {
+            "step": "pre-check",
+            "status": "success",
+            "environment": config.environment,
+            "execution_mode": config.execution_mode,
+        },
         {"step": "pipeline", "status": "canonical", "note": "single path including optional PostgreSQL persist"},
     ]
-    adapters = _live_adapters(config) if live else _fixture_adapters(config, fixture_dir or Path("tests/fixtures/resilience"))
+    adapters = (
+        _live_adapters(config) if live else _fixture_adapters(config, fixture_dir or Path("tests/fixtures/resilience"))
+    )
     if source:
         wanted = "ciga_dom" if source == "ciga_ckan" else source
         adapters = [adapter for adapter in adapters if adapter.source_id == wanted]
@@ -147,11 +174,14 @@ def run_cycle(
 
     for adapter in adapters:
         source_started = time.monotonic()
-        scope = f"mode=incremental|date={date.today().isoformat()}"
+        request_start = date_from or date.today()
+        request_end = date_to or request_start
+        scope = f"mode=incremental|date={request_start.isoformat()}:{request_end.isoformat()}|target={target or 'all'}"
         request = CrawlRequest(
             mode="incremental",
-            date_from=date.today(),
-            date_to=date.today(),
+            date_from=request_start,
+            date_to=request_end,
+            target=target,
             source=adapter.source_id,
             request_scope=scope,
             run_id=run_id,
@@ -164,7 +194,7 @@ def run_cycle(
             source=adapter.source_id,
             run_id=run_id,
             request_scope=scope,
-            window=str(date.today()),
+            window=f"{request_start}:{request_end}",
             status=out.get("status"),
             attempt=1,
             duration=round(time.monotonic() - source_started, 4),
@@ -209,7 +239,9 @@ def run_cycle(
     blocked = any(v.get("status") in {"error", "auth_blocked", "rate_limited"} for v in results.values())
     # Live operational path: missing DB commit is blocked.
     if live:
-        blocked = blocked or any(not v.get("db_committed") and v.get("status") in {"success", "empty_confirmed"} for v in results.values())
+        blocked = blocked or any(
+            not v.get("db_committed") and v.get("status") in {"success", "empty_confirmed"} for v in results.values()
+        )
     degraded = any(not v.get("satisfactory") for v in results.values()) or bool(pending)
     exit_code = 2 if blocked else (1 if degraded else 0)
 
@@ -267,7 +299,9 @@ def run_cycle(
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Ciclo local resiliente canônico (não provisiona VPS)")
-    parser.add_argument("--live", action="store_true", help="Consultar fontes públicas reais; padrão usa fixtures controladas")
+    parser.add_argument(
+        "--live", action="store_true", help="Consultar fontes públicas reais; padrão usa fixtures controladas"
+    )
     parser.add_argument("--source", choices=["pncp", "ciga_dom", "ciga_ckan", "sc_compras"])
     parser.add_argument("--fixture-dir", type=Path, default=Path("tests/fixtures/resilience"))
     parser.add_argument(

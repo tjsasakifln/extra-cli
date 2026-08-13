@@ -78,7 +78,15 @@ class ResilienceConfig:
             jitter=self.jitter,
             retry_after_fallback=self.rate_limit_fallback,
             request_delay=self.request_delay,
+            circuit_breaker_threshold=self.circuit_breaker_threshold,
+            circuit_breaker_cooldown=self.circuit_breaker_cooldown,
+            daily_request_budget=self.daily_request_budget,
+            policy_version="runtime-env",
         )
+
+    def http_policy_for_url(self, url: str) -> HttpResiliencePolicy:
+        """Resolve the checked-in per-domain policy with environment overrides."""
+        return HttpResiliencePolicy.from_env(url=url)
 
     def with_execution_mode(self, mode: ExecutionMode) -> ResilienceConfig:
         require_db = mode == "live" and is_live_environment(self.environment)
