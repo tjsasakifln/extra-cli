@@ -1,6 +1,6 @@
 # Story: CONFENGE human recipient evidence
 
-**Status:** InProgress
+**Status:** Ready for Review — NO_GO_CONTACT_EVIDENCE
 **Branch:** `feat/confenge-human-recipient-evidence-01`
 **Base:** `origin/main` at `1ffa079d3e45d06612be0e46c2574fa4b1314e88`
 **Capability:** Authoritative, auditable human-recipient resolution for the Warmbly pilot
@@ -68,13 +68,13 @@ Detailed CNPJ/contact matrices are intentionally outside Git under
 
 ### Evidence semantics and source ladder
 
-- [ ] Attempts record CNPJ, adapter, source URI/document, declared publication
+- [x] Attempts record CNPJ, adapter, source URI/document, declared publication
   date when present, observed time, active-verification time when actually
   performed, result, reason, limitations, content/evidence hash, terminal state,
   and next action.
 - [x] `source_published_at`, `observed_at`, and `verified_at` remain distinct;
   observation/import time never fabricates publication freshness.
-- [ ] For every unresolved eligible account, the ordered ladder covers official
+- [x] For every unresolved eligible account, the ordered ladder covers official
   company pages, CNPJ-linked administrative documents, PNCP/official procurement
   and transparency portals, professional councils/legitimate associations,
   complementary corporate pages, and registry/QSA corroboration only.
@@ -85,16 +85,16 @@ Detailed CNPJ/contact matrices are intentionally outside Git under
 
 - [x] Contact extraction, ranking, terminal states, reason codes, provenance
   preservation, invalidation, and reruns are deterministic and fail closed.
-- [ ] Reselection uses only currently eligible accounts with equivalent-or-better
+- [x] Reselection uses only currently eligible accounts with equivalent-or-better
   fit, unique CNPJ, and recorded replacement rationale; target fit is not
   reclassified to fill quota.
-- [ ] Two identical runs produce no duplicate contacts, recipient drift, hash
+- [x] Two identical runs produce no duplicate contacts, recipient drift, hash
   drift, or artificial evidence-date growth.
-- [ ] Publication occurs only if at least 30 accounts satisfy every criterion;
+- [x] Publication occurs only if at least 30 accounts satisfy every criterion;
   otherwise no snapshot may advertise READY.
 - [ ] Published manifest/chunks pass schema, hash, byte-size, timestamp, HTTPS,
   and Warmbly importer-contract validation against the unchanged Warmbly repo.
-- [ ] Final handoff records initial/final/deployed SHA, PR/commits, before/after
+- [x] Final handoff records initial/final/deployed SHA, PR/commits, before/after
   metrics, terminal distribution, substitutions, tests, protected matrix path,
   manifest URL/hash when published, and the terminal result.
 
@@ -103,7 +103,7 @@ Detailed CNPJ/contact matrices are intentionally outside Git under
 - [x] Warmbly source repository remains unchanged.
 - [x] No message has been sent in baseline reconciliation.
 - [x] No approval has been created in baseline reconciliation.
-- [ ] Zero sends, zero approvals, dispatch paused, and human approval required
+- [x] Zero sends, zero approvals, dispatch paused, and human approval required
   are reconfirmed at terminal handoff.
 
 ## Quality gates
@@ -139,3 +139,4 @@ Detailed CNPJ/contact matrices are intentionally outside Git under
 |---|---|---|
 | 2026-08-13 | IN_PROGRESS | origin/main, VPS, live manifest, Warmbly runtime and DB baseline reconciled; literal valid recipients 0/30 |
 | 2026-08-13 | IN_PROGRESS | strict human-recipient gate, semantic evidence dates, ordered attempt ledger, deterministic single-primary mapping, and downstream ESR propagation implemented; focused tests green |
+| 2026-08-13 | NO_GO_CONTACT_EVIDENCE | 303/303 eligible accounts examined; source ladder terminals READY=1, FOUND_NOT_SENDABLE=77, EXHAUSTED=173, EXTERNAL_BLOCKER=52; final artifact hashes identical across two complete reruns; no publication, approval or send |
