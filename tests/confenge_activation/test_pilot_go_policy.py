@@ -14,6 +14,12 @@ from scripts.confenge_activation.pilot_go_policy import (
     load_human_review_decisions,
     validate_universe_manifest,
 )
+from scripts.confenge_activation.operational_metrics import warmbly_ops_config_from_env
+
+
+def test_warmbly_rate_max_is_the_live_governor_key() -> None:
+    cfg = warmbly_ops_config_from_env({"CONFENGE_RATE_MAX_PER_HOUR": "10"})
+    assert cfg["emails_per_hour"] == 10
 
 
 def _classes() -> dict[str, int]:

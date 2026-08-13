@@ -10,7 +10,6 @@ from scripts.confenge_activation.operational_metrics import (
     build_capacity_metrics,
     business_hours_from_window,
     min_operational_reserve,
-    warmbly_ops_config_from_env,
 )
 
 
@@ -21,11 +20,6 @@ def test_pilot_sample_is_50_quality_only() -> None:
 def test_min_operational_reserve_warmbly_defaults() -> None:
     # 10/h × 9h (09:00-18:00) × 10 business days = 900
     assert min_operational_reserve(emails_per_hour=10, business_hours_per_day=9) == 900
-
-
-def test_warmbly_rate_max_is_the_live_governor_key() -> None:
-    cfg = warmbly_ops_config_from_env({"CONFENGE_RATE_MAX_PER_HOUR": "10"})
-    assert cfg["emails_per_hour"] == 10
 
 
 def test_business_hours_from_window() -> None:

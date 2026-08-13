@@ -5,6 +5,7 @@ from __future__ import annotations
 import inspect
 from types import SimpleNamespace
 
+from scripts.commercial_leads.sector_fit import ContractHistoryAccumulator
 from scripts.confenge_sector import (
     CONSTRUCTION_CONFIRMED,
     CONSTRUCTION_PROBABLE,
@@ -37,6 +38,24 @@ def test_sector_classification_is_explicit_and_independent() -> None:
     assert probable.sector_class == CONSTRUCTION_PROBABLE
     assert non_construction.sector_class == NON_CONSTRUCTION
     assert unresolved.sector_class == SECTOR_INSUFFICIENT_EVIDENCE
+
+
+def test_streaming_sector_history_keeps_the_full_denominator() -> None:
+    history = ContractHistoryAccumulator()
+    for i in range(5_000):
+        history.add(
+            {
+                "contrato_id": f"contract-{i}",
+                "objeto_contrato": "Execucao de obra de pavimentacao asfaltica",
+                "orgao_cnpj": f"{i % 100:014d}",
+                "data_publicacao": "2026-01-01",
+            }
+        )
+
+    stats = history.as_stats()
+    assert stats["total_contract_count_full_history"] == 5_000
+    assert stats["relevant_contract_count"] == 5_000
+    assert stats["denominator_invariant_ok"] is True
 
 
 def test_target_out_of_scope_cannot_remove_confirmed_construction(monkeypatch) -> None:  # noqa: ANN001

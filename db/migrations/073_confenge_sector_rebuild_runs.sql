@@ -28,4 +28,24 @@ CREATE INDEX IF NOT EXISTS confenge_sector_rebuild_runs_completed_idx
 COMMENT ON TABLE public.confenge_sector_rebuild_runs IS
 'Append-only audit ledger for full supplier-root sector materialization from one REPEATABLE READ source snapshot.';
 
+-- Shadow target-fit must carry the same classifier lineage as ACTIVE current.
+ALTER TABLE public.confenge_target_fit_shadow
+    ADD COLUMN IF NOT EXISTS classifier_sha TEXT NOT NULL DEFAULT '';
+
+CREATE INDEX IF NOT EXISTS confenge_tf_shadow_version_classifier_idx
+    ON public.confenge_target_fit_shadow (target_fit_version, classifier_sha);
+
+-- Preserve one observed, valid CNPJ-14 per sector root for contact enrichment.
+ALTER TABLE public.confenge_company_sector_current
+    ADD COLUMN IF NOT EXISTS representative_cnpj14 CHAR(14);
+
+ALTER TABLE public.confenge_company_sector_history
+    ADD COLUMN IF NOT EXISTS representative_cnpj14 CHAR(14);
+
+COMMENT ON COLUMN public.confenge_company_sector_current.representative_cnpj14 IS
+'Valid establishment CNPJ observed in canonical source data; NULL is honest and never synthesized.';
+
+COMMENT ON COLUMN public.confenge_company_sector_history.representative_cnpj14 IS
+'Append-only lineage for the establishment identity used by bounded enrichment workers.';
+
 COMMIT;
