@@ -39,6 +39,7 @@ from scripts.confenge_contact_resolution.discovery_state import (
 )
 from scripts.confenge_process_enrichment.models import TerminalState
 from scripts.confenge_process_enrichment.pipeline import ProcessFirstConfig, ProcessFirstEnricher
+from scripts.linkage.keys import is_valid_cnpj14
 
 logger = logging.getLogger(__name__)
 
@@ -49,19 +50,27 @@ def _utcnow() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
-def normalize_cnpj14(root: str, result: Any) -> str:
-    """Best-effort 14-digit CNPJ from harvest result contracts; else root stub."""
+def normalize_cnpj14(
+    root: str,
+    result: Any,
+    *,
+    observed_fallback: str | None = None,
+) -> str | None:
+    """Return only an observed valid establishment CNPJ; never synthesize one."""
     root = "".join(c for c in root if c.isdigit())[:8]
     graph = getattr(result, "process_graph", None)
     contracts = list(getattr(graph, "contracts", None) or [])
     for c in contracts:
         raw = getattr(c, "supplier_cnpj", None) or ""
         digits = "".join(ch for ch in str(raw) if ch.isdigit())
-        if len(digits) >= 14 and digits[:8] == root:
+        if is_valid_cnpj14(digits[:14]) and digits[:8] == root:
             return digits[:14]
         if len(digits) == 8 and digits == root:
             continue
-    return root + "000100"
+    fallback = "".join(ch for ch in str(observed_fallback or "") if ch.isdigit())[:14]
+    if is_valid_cnpj14(fallback) and fallback[:8] == root:
+        return fallback
+    return None
 
 
 @dataclass
@@ -476,15 +485,18 @@ def run_national_process_harvest(
             if cfg.max_companies is not None and processed >= cfg.max_companies:
                 break
 
-            # Pass root-padded key; load_contracts_for_supplier matches by root8.
-            cnpj14 = root + "000100"
+            cnpj14 = row.get("representative_cnpj14")
             try:
                 t0 = time.time()
                 result = enricher.enrich(
                     account_cnpj=root,  # root is enough for root-based contract lookup
                     razao_social=None,
                 )
-                cnpj14 = normalize_cnpj14(root, result)
+                cnpj14 = normalize_cnpj14(
+                    root,
+                    result,
+                    observed_fallback=str(cnpj14 or ""),
+                )
             except Exception as exc:  # noqa: BLE001
                 logger.warning("harvest failed root=%s err=%s", root, exc)
                 st = classify_contact_terminal(

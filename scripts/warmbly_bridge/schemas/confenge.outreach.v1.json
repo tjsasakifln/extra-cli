@@ -61,6 +61,7 @@
         "contracts",
         "evidence",
         "commercial_state",
+        "construction_universe_member",
         "target_fit_class",
         "target_fit_fresh",
         "target_fit_version",

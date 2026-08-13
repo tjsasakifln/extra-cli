@@ -31,6 +31,7 @@ from scripts.confenge_contact_resolution.discovery_state import DEFAULT_SOURCE_L
 from scripts.confenge_contact_resolution.human_review import HUMAN_REVIEW_PENDING
 
 DEFAULT_OUT = Path("artifacts/confenge/national-commercial-ready")
+_REPO_ROOT = Path(__file__).resolve().parents[2]
 ARTIFACT_NAMES = [
     "FINAL-REPORT.md",
     "GO-NO-GO.md",
@@ -118,6 +119,7 @@ def build_sha_binding(
     warmbly_host_deployed: str | None = None,
     warmbly_runtime: str | None = None,
     evidence_publication_sha: str | None = None,
+    evaluation_lineage_ok: bool | None = None,
     extra: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Build SHA-BINDING without defaulting host/runtime to local HEAD.
@@ -134,6 +136,7 @@ def build_sha_binding(
     tip = (expected_origin_tip or "").strip() or None
     triple = bool(evaluated and hd and rt and evaluated == hd == rt)
     tip_ok = True if tip is None else (om == tip)
+    lineage_ok = evaluated == om or evaluation_lineage_ok is True
     publication = str(evidence_publication_sha or "").strip() or om or None
     out: dict[str, Any] = {
         "origin_main": om or None,
@@ -145,15 +148,44 @@ def build_sha_binding(
         "triple_sha_equal": triple,
         "tip_matches_origin_main": tip_ok if tip is not None else None,
         "evaluated_deployment_runtime_equal": triple,
+        "evaluation_lineage_ok": lineage_ok,
         # Gate flag used by emit_pack terminals. Publication lineage is not a code gate.
-        "sha_bound": triple,
+        "sha_bound": triple and tip_ok and lineage_ok,
         "warmbly_origin_main": warmbly_origin_main,
         "warmbly_host_deployed": warmbly_host_deployed,
         "warmbly_runtime": warmbly_runtime,
     }
     if extra:
-        out.update(extra)
+        out.update({key: value for key, value in extra.items() if key not in out})
     return out
+
+
+def evaluation_lineage_preserved(evaluated_sha: str, tip_sha: str) -> bool:
+    """Prove that a prior evaluation remains valid at the publication tip."""
+    evaluated = str(evaluated_sha or "").strip()
+    tip = str(tip_sha or "").strip()
+    if not evaluated or not tip:
+        return False
+    if evaluated == tip:
+        return True
+    try:
+        subprocess.check_call(  # noqa: S603
+            ["/usr/bin/git", "merge-base", "--is-ancestor", evaluated, tip],
+            cwd=str(_REPO_ROOT),
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=10,
+        )
+        from scripts.ops.confenge_frozen_inputs import evaluate_post_freeze_diff
+
+        result = evaluate_post_freeze_diff(
+            root=_REPO_ROOT,
+            freeze_sha=evaluated,
+            tip=tip,
+        )
+        return bool(result.get("ok"))
+    except (OSError, subprocess.CalledProcessError):
+        return False
 
 
 def ladder_complete_from_source_yield(
@@ -172,7 +204,6 @@ def ladder_complete_from_source_yield(
 
     Historical regression fixtures with partial probes (for example 20/8382,
     never a live fallback) force complete=false.
-    force complete=false.
     """
     tc = max(0, int(target_confirmed))
     threshold = int(tc * float(min_ratio)) if tc else 0
@@ -1198,6 +1229,10 @@ def main(argv: list[str] | None = None) -> int:
         warmbly_host_deployed=args.warmbly_sha,
         warmbly_runtime=args.warmbly_sha,
         evidence_publication_sha=args.evidence_publication_sha,
+        evaluation_lineage_ok=evaluation_lineage_preserved(
+            args.evaluated_code_sha,
+            origin,
+        ),
         extra={"pr_222_merged": True, "pr_223_merged": True, "pr_226_merged": True, "pr_227_merged": True},
     )
     # Class counts come only from the atomic universe manifest.  Historical

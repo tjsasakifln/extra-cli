@@ -77,12 +77,44 @@ def test_evidence_publication_after_evaluation_does_not_invalidate_binding() -> 
         runtime=stale,
         evaluated_code_sha=stale,
         expected_origin_tip=tip,
+        evaluation_lineage_ok=True,
     )
     assert binding["triple_sha_equal"] is True
     assert binding["sha_bound"] is True
     assert binding["tip_matches_origin_main"] is True
     assert binding["evaluated_code_sha"] == stale
     assert binding["evidence_publication_sha"] == tip
+
+
+def test_prior_evaluation_without_lineage_proof_is_not_bound() -> None:
+    tip = "a" * 40
+    stale = "b" * 40
+
+    binding = build_sha_binding(
+        origin_main=tip,
+        host_deployed=stale,
+        runtime=stale,
+        evaluated_code_sha=stale,
+        expected_origin_tip=tip,
+    )
+
+    assert binding["evaluated_deployment_runtime_equal"] is True
+    assert binding["evaluation_lineage_ok"] is False
+    assert binding["sha_bound"] is False
+
+
+def test_extra_metadata_cannot_override_binding_gates() -> None:
+    binding = build_sha_binding(
+        origin_main="a" * 40,
+        host_deployed="b" * 40,
+        runtime="b" * 40,
+        evaluated_code_sha="b" * 40,
+        expected_origin_tip="a" * 40,
+        extra={"sha_bound": True, "evaluation_lineage_ok": True},
+    )
+
+    assert binding["sha_bound"] is False
+    assert binding["evaluation_lineage_ok"] is False
 
 
 def test_sha_bound_requires_evaluated_deployment_runtime_equality() -> None:

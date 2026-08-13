@@ -61,3 +61,22 @@ def test_continuous_enrichment_population_is_sector_not_target_fit() -> None:
     assert "WHERE target_fit_class" not in src
     assert 'raiz + "0001"' not in src
     assert "representative_cnpj14" in src
+
+
+def test_process_harvest_never_synthesizes_establishment_cnpj() -> None:
+    from scripts.confenge_process_enrichment.national_confirmed import (
+        normalize_cnpj14,
+    )
+
+    class EmptyResult:
+        process_graph = None
+
+    assert normalize_cnpj14("11222333", EmptyResult()) is None
+    assert (
+        normalize_cnpj14(
+            "11222333",
+            EmptyResult(),
+            observed_fallback="11222333000181",
+        )
+        == "11222333000181"
+    )

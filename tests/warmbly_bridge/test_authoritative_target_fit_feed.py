@@ -63,7 +63,17 @@ def _export(
     source = tmp_path / suffix
     source.mkdir()
     domains = [f"{str(row['razao_social']).split()[0].lower()}.com.br" for row in universe]
-    feed_universe = [{**row, "official_domain": domains[index]} for index, row in enumerate(universe)]
+    feed_universe = [
+        {
+            **row,
+            "official_domain": domains[index],
+            "construction_universe_member": row.get(
+                "construction_universe_member",
+                True,
+            ),
+        }
+        for index, row in enumerate(universe)
+    ]
     universe_path = _write_jsonl(source / "universe.jsonl", feed_universe)
     target_fit_path = _write_jsonl(source / "target-fit.jsonl", target_fit)
     intelligence = [
@@ -205,6 +215,7 @@ def test_full_snapshot_publishes_negative_decisions_and_temporal_order(tmp_path:
     for cnpj in ("14893700000105", "01607033000167", "01942594000112"):
         assert by_cnpj[cnpj]["email_send_ready"] is False
     assert by_cnpj["11222333000181"]["target_fit_class"] == "TARGET_CONFIRMED"
+    assert by_cnpj["11222333000181"]["construction_universe_member"] is True
     assert by_cnpj["11222333000181"]["target_fit_fresh"] is True
     assert by_cnpj["11222333000181"]["email_send_ready"] is True
     ready_contacts = [c for c in by_cnpj["11222333000181"]["contacts"] if c.get("email_send_ready")]
@@ -222,6 +233,7 @@ def test_full_snapshot_publishes_negative_decisions_and_temporal_order(tmp_path:
     assert missing["email_send_ready"] is False
 
     required = {
+        "construction_universe_member",
         "target_fit_class",
         "target_fit_fresh",
         "target_fit_version",
@@ -240,6 +252,36 @@ def test_full_snapshot_publishes_negative_decisions_and_temporal_order(tmp_path:
     assert authority["full_decision_count"] == len(universe)
     assert authority["ordering"]["watermarks_monotonic"] is True
     assert authority["omission_preserves_authorization"] is False
+
+
+def test_target_confirmed_does_not_override_explicit_non_construction(
+    tmp_path: Path,
+) -> None:
+    universe = [
+        {
+            "cnpj14": "11222333000181",
+            "razao_social": "ALFA ENGENHARIA",
+            "commercial_state": "NEW",
+            "construction_universe_member": False,
+        }
+    ]
+
+    _, leads = _export(
+        tmp_path,
+        universe=universe,
+        target_fit=[
+            _decision(
+                "11222333000181",
+                "TARGET_CONFIRMED",
+                evidence_ids=["eng-contract"],
+            )
+        ],
+        suffix="non-construction",
+    )
+
+    assert leads[0]["target_fit_class"] == "TARGET_CONFIRMED"
+    assert leads[0]["construction_universe_member"] is False
+    assert leads[0]["email_send_ready"] is False
 
 
 def test_downgrade_and_missing_snapshot_cannot_resurrect_prior_authorization(

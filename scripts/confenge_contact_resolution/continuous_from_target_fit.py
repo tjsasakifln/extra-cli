@@ -143,6 +143,7 @@ def load_construction_jobs_from_dsn(
                     meta={
                         "company_key": r.get("company_key"),
                         "cnpj_raiz": raiz,
+                        "representative_cnpj14": cnpj14 if len(cnpj14) == 14 else None,
                         "representative_establishment_observed": len(cnpj14) == 14,
                         "sector_class": r.get("sector_class"),
                         "sector_confidence": r.get("sector_confidence"),
@@ -217,8 +218,13 @@ def run_continuous_enrichment(
         resolver_config=rcfg,
         run_id=f"continuous-{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}",
     )
+    runnable_jobs = [
+        job
+        for job in jobs
+        if bool((job.meta or {}).get("representative_establishment_observed"))
+    ]
     summary = runner.run(
-        jobs,
+        runnable_jobs,
         resume=cfg.resume,
         max_companies=cfg.max_companies,
     )
@@ -316,6 +322,8 @@ def run_continuous_enrichment(
         "schema": "confenge.continuous_contact_enrichment.v1",
         "as_of": _utcnow(),
         "construction_universe_jobs": len(jobs),
+        "representative_establishment_jobs": len(runnable_jobs),
+        "representative_establishment_pending": len(jobs) - len(runnable_jobs),
         "max_companies_bound": cfg.max_companies,
         "summary": summary,
         "contact_coverage": coverage,

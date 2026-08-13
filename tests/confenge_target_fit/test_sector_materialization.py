@@ -5,6 +5,7 @@ from __future__ import annotations
 from scripts.confenge_sector import CONSTRUCTION_CONFIRMED
 from scripts.confenge_sector.store import materialize_sector
 from scripts.confenge_target_fit.loader import company_input_from_dict
+from scripts.confenge_target_fit.reconcile import archive_orphan_materializations
 
 
 def test_construction_with_insufficient_target_fit_has_own_materialization() -> None:
@@ -96,3 +97,45 @@ def test_sector_evidence_does_not_embed_target_fit_as_sector_proof() -> None:
     assert sector.sector_evidence == [
         {"source": "commercial_leads.sector_fit", "classification": "CONFIRMED"}
     ]
+
+
+def test_orphan_archive_reports_only_rows_actually_deleted() -> None:
+    statements: list[str] = []
+
+    class Cursor:
+        rowcount = 0
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def execute(self, sql, _params=None):  # noqa: ANN001
+            statements.append(str(sql))
+            self.rowcount = 0 if str(sql).lstrip().startswith("INSERT") else 1
+
+    class Connection:
+        def cursor(self):
+            return Cursor()
+
+    archived = archive_orphan_materializations(
+        Connection(),
+        mode="ACTIVE",
+        orphan_rows=[
+            {
+                "company_key": "cnpj_root:12345678",
+                "cnpj_raiz": "12345678",
+                "target_fit_class": "TARGET_OUT_OF_SCOPE",
+            },
+            {
+                "company_key": "invalid-root",
+                "cnpj_raiz": "123",
+                "target_fit_class": "TARGET_OUT_OF_SCOPE",
+            },
+        ],
+        source_watermark="wm-1",
+    )
+
+    assert archived == {"cnpj_root:12345678"}
+    assert any("DELETE FROM confenge_company_target_fit_current" in sql for sql in statements)

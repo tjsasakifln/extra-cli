@@ -176,20 +176,20 @@ def archive_orphan_materializations(
     mode: str,
     orphan_rows: list[dict[str, Any]],
     source_watermark: str,
-) -> int:
+) -> set[str]:
     """Remove stale current projections only after recording durable events.
 
     Target history remains append-only. This repairs the current denominator;
     it never erases historical classifications or decisions.
     """
     if not orphan_rows:
-        return 0
+        return set()
     table = (
         "confenge_target_fit_shadow"
         if str(mode).upper() == MODE_SHADOW
         else "confenge_company_target_fit_current"
     )
-    archived = 0
+    archived: set[str] = set()
     with conn.cursor() as cur:
         for row in orphan_rows:
             company_key = str(row.get("company_key") or "")
@@ -219,7 +219,8 @@ def archive_orphan_materializations(
                 ),
             )
             cur.execute(f"DELETE FROM {table} WHERE company_key = %s", (company_key,))
-            archived += cur.rowcount or 0
+            if cur.rowcount:
+                archived.add(company_key)
     return archived
 
 
@@ -373,15 +374,21 @@ def run_reconcile(
             r = digits_only(row.get("cnpj_raiz"))[:8]
             if r and r not in root_set:
                 orphan_rows.append({"company_key": ck, **row})
-        orphan_archived = archive_orphan_materializations(
-            conn,
-            mode=mode,
-            orphan_rows=orphan_rows,
-            source_watermark=wm,
-        )
-        for row in orphan_rows:
-            materialized_rows.pop(str(row["company_key"]), None)
-        orphan = 0
+        # In SHADOW mode an empty shadow table falls back to current only as a
+        # comparison baseline. Never mutate current through a shadow reconcile.
+        if mode == MODE_SHADOW and population_source == "current":
+            archived_orphan_keys: set[str] = set()
+        else:
+            archived_orphan_keys = archive_orphan_materializations(
+                conn,
+                mode=mode,
+                orphan_rows=orphan_rows,
+                source_watermark=wm,
+            )
+        for company_key in archived_orphan_keys:
+            materialized_rows.pop(company_key, None)
+        orphan_archived = len(archived_orphan_keys)
+        orphan = len(orphan_rows) - orphan_archived
 
         # Unexplained missing = roots not materialized and not yet enqueued under
         # a hard smoke max_enqueue bound. When max_enqueue is None, any remaining

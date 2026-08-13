@@ -70,3 +70,20 @@ def test_warmbly_mapping_never_uses_target_out_as_sector_membership_proxy() -> N
     source = inspect.getsource(mapping.map_lead)
     assert 'pub_class != "TARGET_OUT_OF_SCOPE"' not in source
     assert "construction_universe_member" in source
+
+
+def test_non_construction_is_sector_evidence_not_target_fit_inference() -> None:
+    evidence = construction_module.assess_construction(
+        razao_social="FARMACIA EXEMPLO LTDA",
+        cnae_principal="4771-7/01",
+        contracts=[
+            {
+                "contrato_id": "medicine-1",
+                "objeto_contrato": "aquisição de medicamentos hospitalares",
+            }
+        ],
+    )
+
+    assert evidence.sector_class == NON_CONSTRUCTION
+    assert evidence.is_construction is False
+    assert evidence.epistemic_class == "EVIDENCE"

@@ -21,6 +21,9 @@ Os pacotes de fechamento misturavam três populações distintas: todos os forne
 9. `evaluated_code_sha` identifica o código provado; `evidence_publication_sha` identifica somente a publicação de ponteiros. A segunda identidade não invalida a primeira.
 10. `scripts.confenge_activation.pilot_go_policy.evaluate_pilot_go` é a única autoridade de decisão terminal; o emissor de pacote apenas coleta gates e delega à política. Emissores anteriores são `SUPERSEDED_NON_TERMINAL`.
 11. O rebuild setorial integral lê contratos ordenados por CNPJ-raiz no snapshot, fecha cada raiz uma única vez e publica por staging bounded. `row_batch_size` e `root_batch_size` são controles de I/O/memória, nunca limites de população; checkpoints registram linhas e raízes processadas antes da troca atômica da materialização corrente.
+12. Reutilizar `evaluated_code_sha` anterior exige provar que ele é ancestral do tip publicado e que nenhum input protegido mudou no intervalo. Igualdade entre deploy e runtime, isoladamente, não autoriza `sha_bound`.
+13. O feed autoritativo para Warmbly transporta `construction_universe_member` explicitamente. Campo ausente ou falso bloqueia envio; target-fit não é proxy para pertencimento setorial.
+14. Enriquecimento process-first usa somente CNPJ de estabelecimento observado no datalake. CNPJ montado a partir da raiz não é identidade operacional e permanece pendente até existir representante válido.
 
 ## Consequences
 
@@ -29,6 +32,7 @@ Os pacotes de fechamento misturavam três populações distintas: todos os forne
 - Dumps e linhas completas permanecem fora do Git conforme ADR-020; o PR carrega somente código, testes e documentação leve.
 - Contagens históricas são exemplos auditáveis, nunca fallbacks operacionais. `MIN_OPERATIONAL_RESERVE=900` permanece meta configurada de escala nacional, não denominador nem gate do piloto controlado.
 - A memória residente do rebuild não cresce linearmente com centenas de milhares de raízes; cresce com o lote operacional configurado e com o histórico da raiz corrente.
+- Contagens negativas ou não inteiras são diagnóstico inválido; não são normalizadas para zero para produzir reconciliação aparente.
 
 ## Acceptance
 
@@ -37,3 +41,4 @@ Os pacotes de fechamento misturavam três populações distintas: todos os forne
 - Subsets não alteram nenhum denominador do manifesto.
 - Uma empresa `CONSTRUCTION_CONFIRMED + TARGET_INSUFFICIENT_EVIDENCE` permanece materializada, enriquecível e reconsiderável.
 - Linhagem de versão/hash divergente bloqueia o fechamento mesmo quando as contagens coincidem.
+- Ausência de pertencimento setorial explícito, quebra de linhagem do SHA avaliado ou falta de CNPJ observado bloqueiam seus respectivos caminhos operacionais.

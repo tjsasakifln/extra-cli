@@ -55,6 +55,11 @@ def _nonnegative(value: Any) -> int:
     return max(0, int(value or 0))
 
 
+def _integer(value: Any) -> int:
+    """Parse a count without laundering an invalid negative measurement."""
+    return int(value or 0)
+
+
 def build_universe_manifest(
     *,
     supplier_roots_observed: int,
@@ -91,12 +96,16 @@ def build_universe_manifest(
     Construction membership is computed only from ``sector_classes``. Target
     classes close their own population and never define the construction set.
     """
-    observed = _nonnegative(supplier_roots_observed)
-    materialized = _nonnegative(materialized_roots)
-    sector_materialized = _nonnegative(sector_materialized_roots if sector_materialized_roots is not None else sum(sector_classes.values()))
-    contracts = _nonnegative(source_contract_rows)
-    classes = {key: _nonnegative(target_classes.get(key)) for key in TARGET_CLASS_KEYS}
-    sectors = {key: _nonnegative(sector_classes.get(key)) for key in SECTOR_CLASS_KEYS}
+    observed = _integer(supplier_roots_observed)
+    materialized = _integer(materialized_roots)
+    sector_materialized = _integer(
+        sector_materialized_roots
+        if sector_materialized_roots is not None
+        else sum(sector_classes.values())
+    )
+    contracts = _integer(source_contract_rows)
+    classes = {key: _integer(target_classes.get(key)) for key in TARGET_CLASS_KEYS}
+    sectors = {key: _integer(sector_classes.get(key)) for key in SECTOR_CLASS_KEYS}
     unknown_classes = sorted(set(target_classes) - set(TARGET_CLASS_KEYS))
     unknown_sector_classes = sorted(set(sector_classes) - set(SECTOR_CLASS_KEYS))
     class_sum = sum(classes.values())
@@ -104,7 +113,7 @@ def build_universe_manifest(
     construction = sectors["CONSTRUCTION_CONFIRMED"] + sectors["CONSTRUCTION_PROBABLE"]
     non_construction = sectors["NON_CONSTRUCTION"]
     unresolved_sector = sectors["SECTOR_INSUFFICIENT_EVIDENCE"]
-    target_population = _nonnegative(target_fit_population)
+    target_population = _integer(target_fit_population)
     watermark = str(datalake_watermark or "").strip()
     snapshot = str(database_snapshot).strip()
     cdc_watermark = str(source_cdc_watermark).strip()
@@ -116,7 +125,27 @@ def build_universe_manifest(
     construction_hash = str(construction_classifier_sha256).removeprefix("sha256:").strip()
     target_hash = str(target_fit_classifier_sha256).removeprefix("sha256:").strip()
 
+    diagnostic_counts = {
+        "unexplained_missing": _integer(unexplained_missing),
+        "orphan_materialized_roots": _integer(orphan_materialized_roots),
+        "duplicate_cnpj_root": _integer(duplicate_cnpj_root),
+        "invalid_cnpj_root": _integer(invalid_cnpj_root),
+        "sector_version_mismatch": _integer(sector_version_mismatch),
+        "sector_classifier_mismatch": _integer(sector_classifier_mismatch),
+        "target_version_mismatch": _integer(target_version_mismatch),
+        "target_classifier_mismatch": _integer(target_classifier_mismatch),
+    }
+    all_counts = [
+        observed,
+        materialized,
+        sector_materialized,
+        contracts,
+        *classes.values(),
+        *sectors.values(),
+        *diagnostic_counts.values(),
+    ]
     invariants = {
+        "all_counts_nonnegative": all(value >= 0 for value in all_counts),
         "positive_observed_supplier_universe": observed > 0,
         "source_contract_rows_cover_roots": contracts >= observed > 0,
         "sector_sum_equals_observed_supplier_roots": sector_sum == observed,
@@ -129,14 +158,14 @@ def build_universe_manifest(
         "pagination_exhausted_normally": bool(pagination_exhausted_normally),
         "full_scale": bool(full_scale),
         "not_truncated": not bool(truncated),
-        "unexplained_missing_eq_0": _nonnegative(unexplained_missing) == 0,
-        "orphan_materialized_roots_eq_0": _nonnegative(orphan_materialized_roots) == 0,
-        "duplicate_cnpj_root_eq_0": _nonnegative(duplicate_cnpj_root) == 0,
-        "invalid_cnpj_root_eq_0": _nonnegative(invalid_cnpj_root) == 0,
-        "sector_version_mismatch_eq_0": _nonnegative(sector_version_mismatch) == 0,
-        "sector_classifier_mismatch_eq_0": _nonnegative(sector_classifier_mismatch) == 0,
-        "target_version_mismatch_eq_0": _nonnegative(target_version_mismatch) == 0,
-        "target_classifier_mismatch_eq_0": _nonnegative(target_classifier_mismatch) == 0,
+        "unexplained_missing_eq_0": diagnostic_counts["unexplained_missing"] == 0,
+        "orphan_materialized_roots_eq_0": diagnostic_counts["orphan_materialized_roots"] == 0,
+        "duplicate_cnpj_root_eq_0": diagnostic_counts["duplicate_cnpj_root"] == 0,
+        "invalid_cnpj_root_eq_0": diagnostic_counts["invalid_cnpj_root"] == 0,
+        "sector_version_mismatch_eq_0": diagnostic_counts["sector_version_mismatch"] == 0,
+        "sector_classifier_mismatch_eq_0": diagnostic_counts["sector_classifier_mismatch"] == 0,
+        "target_version_mismatch_eq_0": diagnostic_counts["target_version_mismatch"] == 0,
+        "target_classifier_mismatch_eq_0": diagnostic_counts["target_classifier_mismatch"] == 0,
         "single_watermark_present": bool(watermark and cdc_watermark and captured_at),
         "atomic_database_snapshot_present": bool(snapshot) if full_scale else True,
         "classifier_versions_present": bool(version and construction_version),
@@ -174,14 +203,7 @@ def build_universe_manifest(
         "full_scale": bool(full_scale),
         "truncated": bool(truncated),
         "pagination_exhausted_normally": bool(pagination_exhausted_normally),
-        "unexplained_missing": _nonnegative(unexplained_missing),
-        "orphan_materialized_roots": _nonnegative(orphan_materialized_roots),
-        "duplicate_cnpj_root": _nonnegative(duplicate_cnpj_root),
-        "invalid_cnpj_root": _nonnegative(invalid_cnpj_root),
-        "sector_version_mismatch": _nonnegative(sector_version_mismatch),
-        "sector_classifier_mismatch": _nonnegative(sector_classifier_mismatch),
-        "target_version_mismatch": _nonnegative(target_version_mismatch),
-        "target_classifier_mismatch": _nonnegative(target_classifier_mismatch),
+        **diagnostic_counts,
         "invariants": invariants,
         "FULLY_RECONCILED": all(invariants.values()),
         "subset_policy": {
@@ -275,9 +297,6 @@ def validate_universe_manifest(manifest: dict[str, Any] | None) -> list[str]:
     sector_counts = {
         key: count(sector_classes.get(key), f"sector_classes.{key}") for key in SECTOR_CLASS_KEYS
     }
-    if invalid_counts:
-        errors.extend(f"invalid_count:{field}" for field in sorted(set(invalid_counts)))
-
     if sum(target_counts.values()) != target_population:
         errors.append("target_class_sum_mismatch")
     if sum(sector_counts.values()) != observed:
@@ -319,6 +338,8 @@ def validate_universe_manifest(manifest: dict[str, Any] | None) -> list[str]:
     ):
         if count(manifest.get(field), field) != 0:
             errors.append(f"{field}_not_zero")
+    if invalid_counts:
+        errors.extend(f"invalid_count:{field}" for field in sorted(set(invalid_counts)))
     if "TARGET_" in str(manifest.get("construction_universe_derivation") or "").upper():
         errors.append("construction_derivation_uses_target_fit")
     hexdigits = set("0123456789abcdef")

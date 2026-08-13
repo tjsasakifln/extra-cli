@@ -106,9 +106,13 @@ def assess_construction(
         history_stats=history_stats,
     )
     is_member = sector.is_construction
-    epistemic = "EVIDENCE" if sector.sector_class == CONSTRUCTION_CONFIRMED else "INFERENCE"
-    if sector.sector_class == CONSTRUCTION_PROBABLE:
+    if sector.sector_class in {CONSTRUCTION_CONFIRMED, "NON_CONSTRUCTION"}:
+        epistemic = "EVIDENCE"
+    elif sector.sector_class == CONSTRUCTION_PROBABLE:
+        epistemic = "INFERENCE"
         reasons.append("sector_probable_retained_for_research")
+    else:
+        epistemic = "ABSENCE"
     reasons.append(f"canonical_sector_class:{sector.sector_class}")
 
     # Explicit ICP target-fit (stricter than universe membership).

@@ -74,6 +74,13 @@ _SEED_PATHS: tuple[str, ...] = (
     "scripts/ops/eval_contract_relevance_real_holdout.py",
     "scripts/ops/extract_confenge_real_holdout_corpus.py",
     "scripts/ops/verify_confenge_denominator_integrity.py",
+    # Canonical activation authority and full-universe classifiers.
+    "scripts/confenge_activation/emit_final_closure_pack.py",
+    "scripts/confenge_activation/pilot_go_policy.py",
+    "scripts/confenge_sector/rebuild.py",
+    "scripts/confenge_sector/store.py",
+    "scripts/confenge_target_fit/compute.py",
+    "scripts/warmbly_bridge/mapping.py",
     # Commercial package entrypoints (rest expanded via imports / package listing)
     "scripts/commercial_leads/__init__.py",
     "scripts/commercial_leads/__main__.py",

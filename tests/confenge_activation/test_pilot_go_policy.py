@@ -150,6 +150,45 @@ def test_unknown_target_class_and_malformed_counts_fail_closed() -> None:
     assert "invalid_count:source_contract_rows" in errors
 
 
+def test_negative_counts_are_not_laundered_to_zero() -> None:
+    manifest = build_universe_manifest(
+        supplier_roots_observed=1,
+        sector_classes={
+            "CONSTRUCTION_CONFIRMED": 1,
+            "CONSTRUCTION_PROBABLE": 0,
+            "NON_CONSTRUCTION": 0,
+            "SECTOR_INSUFFICIENT_EVIDENCE": 0,
+        },
+        target_fit_population=-1,
+        materialized_roots=1,
+        target_classes={
+            "TARGET_CONFIRMED": 1,
+            "TARGET_PROBABLE_RESEARCH": 0,
+            "TARGET_OUT_OF_SCOPE": 0,
+            "TARGET_INSUFFICIENT_EVIDENCE": 0,
+        },
+        source_contract_rows=1,
+        datalake_watermark="wm",
+        source_cdc_watermark="cdc",
+        database_snapshot="1:1:",
+        transaction_timestamp="2026-08-13T12:00:00Z",
+        construction_universe_derivation="sector classes",
+        construction_evidence_version="v1",
+        query_sha256="a" * 64,
+        construction_classifier_sha256="b" * 64,
+        target_fit_classifier_sha256="c" * 64,
+        target_fit_version="v1",
+        duplicate_cnpj_root=-1,
+    )
+
+    assert manifest["duplicate_cnpj_root"] == -1
+    assert manifest["target_fit_population"] == -1
+    assert manifest["FULLY_RECONCILED"] is False
+    errors = validate_universe_manifest(manifest)
+    assert "invalid_count:duplicate_cnpj_root" in errors
+    assert "invalid_count:target_fit_population" in errors
+
+
 def test_duplicate_or_orphan_materialization_fails_closed() -> None:
     manifest = deepcopy(_manifest())
     manifest["duplicate_cnpj_root"] = 1
