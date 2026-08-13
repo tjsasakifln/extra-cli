@@ -96,6 +96,23 @@ def is_publishable_human_contact(candidate: Any) -> bool:
     )
 
 
+def principal_publishable_human_contacts(resolution: AccountContactResolution) -> list[Any]:
+    """Return exactly one deterministic principal when the account is publishable."""
+    ready = [candidate for candidate in resolution.candidates if is_publishable_human_contact(candidate)]
+    if not ready:
+        return []
+    ready.sort(
+        key=lambda candidate: (
+            candidate.candidate_id != resolution.recommended_candidate_id,
+            -float(candidate.confidence or 0),
+            str(candidate.evidence_sha256 or ""),
+            str(candidate.candidate_id or ""),
+            str(candidate.email or "").lower(),
+        )
+    )
+    return [ready[0]]
+
+
 @dataclass
 class CompanyJob:
     cnpj14: str
@@ -638,6 +655,11 @@ class EnrichmentBatchRunner:
         max_companies: int | None = None,
     ) -> dict[str, Any]:
         ordered = sorted(jobs, key=priority_sort_key)
+        if not resume:
+            # A forced rerun replaces the run checkpoint just as it replaces
+            # the final artifacts. Do not accumulate duplicate completion
+            # entries that make an otherwise idempotent run look different.
+            self._checkpoint = {"completed_cnpjs": [], "failed_cnpjs": {}, "updated_at": None}
         done = set(self._checkpoint.get("completed_cnpjs") or []) if resume else set()
         todo = [j for j in ordered if j.cnpj14 not in done]
         if max_companies is not None:
@@ -760,7 +782,7 @@ class EnrichmentBatchRunner:
             row = company_export_row(res)
             wb = warmbly_contact_payload(res)
 
-            enrollable_contacts = [c for c in res.candidates if is_publishable_human_contact(c)]
+            enrollable_contacts = principal_publishable_human_contacts(res)
             likely = [c for c in res.candidates if c.ownership_status == OwnershipStatus.LIKELY_COMPANY_OWNED.value]
 
             if enrollable_contacts:
@@ -894,6 +916,7 @@ class EnrichmentBatchRunner:
             sources = list(discovery.get("sources_attempted") or [])
             external_blocker = any(a.get("outcome") == "EXTERNAL_BLOCKER" for a in attempts)
             strict_contacts = [c for c in resolution.candidates if is_publishable_human_contact(c)]
+            principal_contacts = principal_publishable_human_contacts(resolution)
             ladder_complete = bool(attempts) and sources_cover_required_ladder(sources) and not external_blocker
             terminal = classify_contact_terminal(
                 cnpj_raiz=resolution.cnpj14[:8],
@@ -912,6 +935,7 @@ class EnrichmentBatchRunner:
                 meta={
                     "cnpj14": resolution.cnpj14,
                     "strict_human_recipient_count": len(strict_contacts),
+                    "principal_recipient_count": len(principal_contacts),
                     "attempt_evidence_sha256": [
                         str(a.get("evidence_sha256")) for a in attempts if a.get("evidence_sha256")
                     ],
