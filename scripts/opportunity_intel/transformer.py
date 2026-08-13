@@ -54,12 +54,7 @@ def normalize_pncp(raw: dict[str, Any]) -> OpportunityRecord:
     # Never impute UF=SC: missing/blank stays unknown. Prefer nested unidadeOrgao
     # (PNCP API common shape: ufSigla / siglaUf) over invented territorial defaults.
     uf_raw = (
-        raw.get("uf")
-        or raw.get("UF")
-        or unidade.get("ufSigla")
-        or unidade.get("siglaUf")
-        or unidade.get("uf")
-        or ""
+        raw.get("uf") or raw.get("UF") or unidade.get("ufSigla") or unidade.get("siglaUf") or unidade.get("uf") or ""
     )
     uf = str(uf_raw).strip().upper() if uf_raw else ""
     municipio = raw.get("municipio", "") or raw.get("nomeMunicipio", "") or unidade.get("municipioNome", "")
@@ -97,14 +92,9 @@ def normalize_pncp(raw: dict[str, Any]) -> OpportunityRecord:
         # uq_oi_orgao_processo_edital (orgao, processo, edital) for multiple PNCP
         # controls that omit process number. Prefer NULL when absent.
         numero_processo=(
-            (str(raw.get("numeroProcesso")).strip() or None)
-            if raw.get("numeroProcesso") not in (None, "")
-            else None
+            (str(raw.get("numeroProcesso")).strip() or None) if raw.get("numeroProcesso") not in (None, "") else None
         ),
-        numero_edital=(
-            str(raw.get("numeroEdital") or raw.get("numeroCompra") or "").strip()
-            or None
-        ),
+        numero_edital=(str(raw.get("numeroEdital") or raw.get("numeroCompra") or "").strip() or None),
         modalidade=modalidade if modalidade else None,
         modalidade_id=modalidade_id if modalidade_id else None,
         objeto=objeto,
@@ -328,9 +318,48 @@ def normalize_generic(raw: dict[str, Any], source: str = "unknown") -> Opportuni
 # Normalizer dispatch
 # ---------------------------------------------------------------------------
 
+
+def _normalize_named(raw: dict[str, Any], source: str) -> OpportunityRecord:
+    """Keep the declared source name; never coerce non-PNCP rows to pncp."""
+    record = normalize_generic(raw, source=source)
+    if source != "pncp" and record.source == "pncp":
+        raise ValueError(f"normalizer must not relabel {source} as pncp")
+    return record
+
+
+def normalize_sc_compras(raw: dict[str, Any]) -> OpportunityRecord:
+    return _normalize_named(raw, "sc_compras")
+
+
+def normalize_compras_gov(raw: dict[str, Any]) -> OpportunityRecord:
+    return _normalize_named(raw, "compras_gov")
+
+
+def normalize_pcp(raw: dict[str, Any]) -> OpportunityRecord:
+    return _normalize_named(raw, "pcp")
+
+
+def normalize_tce_sc(raw: dict[str, Any]) -> OpportunityRecord:
+    return _normalize_named(raw, "tce_sc")
+
+
+def normalize_doe_sc(raw: dict[str, Any]) -> OpportunityRecord:
+    return _normalize_named(raw, "doe_sc")
+
+
+def normalize_transparencia(raw: dict[str, Any]) -> OpportunityRecord:
+    return _normalize_named(raw, "transparencia")
+
+
 NORMALIZERS = {
     "pncp": normalize_pncp,
     "dom_sc": normalize_dom_sc,
+    "sc_compras": normalize_sc_compras,
+    "compras_gov": normalize_compras_gov,
+    "pcp": normalize_pcp,
+    "tce_sc": normalize_tce_sc,
+    "doe_sc": normalize_doe_sc,
+    "transparencia": normalize_transparencia,
 }
 
 
