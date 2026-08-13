@@ -10,7 +10,11 @@ from scripts.confenge_contact_resolution.discovery.public_document_fetch import 
     _contains_exact_cnpj,
     _public_http_url,
 )
-from scripts.confenge_contact_resolution.enrichment_batch import is_publishable_human_contact
+from scripts.confenge_contact_resolution.enrichment_batch import (
+    EnrichmentBatchRunner,
+    is_publishable_human_contact,
+    principal_publishable_human_contacts,
+)
 from scripts.confenge_contact_resolution.merge import observations_to_candidates
 from scripts.confenge_contact_resolution.models import OwnershipStatus
 from scripts.confenge_contact_resolution.send_readiness import evaluate_email_send_ready
@@ -218,3 +222,49 @@ def test_human_gate_rejects_empty_reference_and_invalid_semantic_date() -> None:
     assert result.human_recipient_evidence_valid is False
     assert "recipient_evidence_reference_missing" in result.reasons
     assert "recipient_evidence_date_semantics_missing" in result.reasons
+
+
+def test_publishable_account_emits_exactly_one_deterministic_principal() -> None:
+    observations = _obs_from_page(
+        "12345678000199",
+        {
+            "url": "https://empresa.com.br/equipe",
+            "observed_at": "2026-08-13T12:00:00Z",
+            "contacts": [
+                {"name": "Maria de Souza", "cargo": "Diretora Comercial", "email": "maria@empresa.com.br"},
+                {"name": "Joao da Silva", "cargo": "Diretor Comercial", "email": "joao@empresa.com.br"},
+            ],
+        },
+    )
+    candidates = observations_to_candidates(
+        observations,
+        cnpj14="12345678000199",
+        check_mx=True,
+        mx_resolver=lambda _domain: True,
+    )
+    for candidate in candidates:
+        candidate.ownership_status = OwnershipStatus.COMPANY_OWNED.value
+        candidate.enrollable = True
+    from scripts.confenge_contact_resolution.models import AccountContactResolution
+
+    resolution = AccountContactResolution(
+        cnpj14="12345678000199",
+        account_key="12345678000199",
+        candidates=list(reversed(candidates)),
+        recommended_candidate_id=candidates[1].candidate_id,
+    )
+    principals = principal_publishable_human_contacts(resolution)
+    assert [candidate.candidate_id for candidate in principals] == [candidates[1].candidate_id]
+
+
+def test_no_resume_resets_checkpoint_before_processing(tmp_path) -> None:
+    runner = EnrichmentBatchRunner(output_dir=tmp_path)
+    runner._checkpoint = {
+        "completed_cnpjs": ["12345678000199", "12345678000199"],
+        "failed_cnpjs": {"12345678000199": "old"},
+        "updated_at": "2026-08-13T12:00:00Z",
+    }
+    manifest = runner.run([], resume=False)
+    assert manifest["resolved"] == 0
+    assert runner._checkpoint["completed_cnpjs"] == []
+    assert runner._checkpoint["failed_cnpjs"] == {}
