@@ -2,7 +2,7 @@
 
 **Status:** ReadyForReview
 **Branch:** `agent/critical-issues-wave-2`
-**Base:** `origin/main` at `2f89fb363abc2bc56568dd0ae11afe554cbcb4c4`
+**Base:** `origin/main` at `f06ffba05334755475efc40aa0b6739c5fb76cf9`
 **Capability:** Durable, secure and continuously scheduled public-source crawl runtime
 
 ## Goal
