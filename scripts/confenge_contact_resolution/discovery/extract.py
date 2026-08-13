@@ -3,16 +3,13 @@
 from __future__ import annotations
 
 import re
+from bisect import bisect_left
 from html import unescape
 from typing import Any
 from urllib.parse import urljoin, urlparse
 
-_EMAIL_RE = re.compile(
-    r"(?i)\b([a-z0-9][a-z0-9._%+\-]{0,63}@[a-z0-9][a-z0-9.\-]{1,63}\.[a-z]{2,24})\b"
-)
-_PHONE_RE = re.compile(
-    r"(?i)(?:\+?55\s*)?(?:\(?\d{2}\)?\s*)?(?:9\s*)?\d{4,5}[-\s]?\d{4}"
-)
+_EMAIL_RE = re.compile(r"(?i)\b([a-z0-9][a-z0-9._%+\-]{0,63}@[a-z0-9][a-z0-9.\-]{1,63}\.[a-z]{2,24})\b")
+_PHONE_RE = re.compile(r"(?i)(?:\+?55\s*)?(?:\(?\d{2}\)?\s*)?(?:9\s*)?\d{4,5}[-\s]?\d{4}")
 _WA_RE = re.compile(
     r"(?i)(?:https?://)?(?:api\.)?whatsapp\.com/send\?[^\s\"'<>]+|"
     r"(?:https?://)?wa\.me/\d{10,15}|"
@@ -24,6 +21,27 @@ _HREF_RE = re.compile(r"(?i)href=[\"']([^\"']+)[\"']")
 _TITLE_RE = re.compile(r"(?i)<title[^>]*>(.*?)</title>", re.DOTALL)
 _TAG_RE = re.compile(r"<[^>]+>")
 _WS_RE = re.compile(r"\s+")
+_PERSON_NAME_RE = re.compile(
+    r"^[A-ZÁÀÂÃÉÈÊÍÌÎÓÒÔÕÚÙÛÇ][A-Za-zÁÀÂÃÉÈÊÍÌÎÓÒÔÕÚÙÛÇáàâãéèêíìîóòôõúùûç'’-]+"
+    r"(?:\s+(?:da|de|do|das|dos|e)\s+|\s+)"
+    r"[A-ZÁÀÂÃÉÈÊÍÌÎÓÒÔÕÚÙÛÇ][A-Za-zÁÀÂÃÉÈÊÍÌÎÓÒÔÕÚÙÛÇáàâãéèêíìîóòôõúùûç'’-]+"
+    r"(?:\s+(?:[A-ZÁÀÂÃÉÈÊÍÌÎÓÒÔÕÚÙÛÇ][A-Za-zÁÀÂÃÉÈÊÍÌÎÓÒÔÕÚÙÛÇáàâãéèêíìîóòôõúùûç'’-]+|da|de|do|das|dos|e)){0,3}$"
+)
+_ROLE_RE = re.compile(
+    r"(?i)\b("
+    r"diretor(?:a)?(?:\s+(?:comercial|administrativ[oa]|técnic[oa]|de\s+contratos))?|"
+    r"gerente(?:\s+(?:comercial|administrativ[oa]|de\s+contratos|de\s+licitações))?|"
+    r"responsável\s+técnic[oa]|engenheir[oa](?:\s+civil)?|"
+    r"sóci[oa](?:[-\s]+administrador(?:a)?)?|administrador(?:a)?|"
+    r"proprietári[oa]|presidente|ceo|representante\s+legal|"
+    r"coordenador(?:a)?(?:\s+(?:comercial|de\s+contratos|de\s+licitações))?"
+    r")\b"
+)
+_NAME_TAG_RE = re.compile(r"(?is)<(?:h[1-6]|strong|b)[^>]*>(.*?)</(?:h[1-6]|strong|b)>")
+_CONTAINER_OPEN_RE = re.compile(r"(?is)<(section|article|li|tr|div)\b[^>]*>")
+_NON_PERSON_TOKENS = frozenset(
+    {"ltda", "eireli", "engenharia", "construtora", "empresa", "equipe", "contato", "comercial"}
+)
 
 # Paths that look like contact / about / commercial pages
 CONTACTISH_PATH_HINTS = (
@@ -146,6 +164,52 @@ def page_title(html: str) -> str | None:
     return t[:200] or None
 
 
+def _smallest_contact_container(html: str, email: str) -> str | None:
+    """Return a nearby explicit card/container; never use a page-wide window."""
+    positions = [m.start() for m in re.finditer(re.escape(email), html or "", flags=re.IGNORECASE)]
+    container_opens = list(_CONTAINER_OPEN_RE.finditer(html or ""))
+    open_offsets = [match.start() for match in container_opens]
+    for pos in positions:
+        boundary = bisect_left(open_offsets, pos)
+        for op in reversed(container_opens[max(0, boundary - 8) : boundary]):
+            tag = op.group(1).lower()
+            close = re.search(rf"(?is)</{tag}\s*>", html[pos : pos + 1800])
+            if close:
+                fragment = html[op.start() : pos + close.end()]
+                if len(fragment) <= 2400:
+                    return fragment
+    return None
+
+
+def _explicit_person_context(html: str, email: str) -> tuple[str | None, str | None]:
+    fragment = _smallest_contact_container(html, email)
+    if not fragment:
+        return None, None
+    text = strip_html(fragment)
+    role_match = _ROLE_RE.search(text)
+    if not role_match:
+        return None, None
+    role = _WS_RE.sub(" ", role_match.group(1)).strip()
+
+    candidates: list[str] = []
+    for raw in _NAME_TAG_RE.findall(fragment):
+        candidates.append(strip_html(raw))
+    for match in re.finditer(
+        r"(?i)\b(?:nome|responsável|representante)\s*[:\-]\s*([^|;,@<>]{5,80})",
+        text,
+    ):
+        candidates.append(match.group(1).strip())
+    for candidate in candidates:
+        candidate = _WS_RE.sub(" ", candidate).strip(" :-|,")
+        words = candidate.split()
+        if not (2 <= len(words) <= 6) or not _PERSON_NAME_RE.fullmatch(candidate):
+            continue
+        if any(w.lower().strip(".,") in _NON_PERSON_TOKENS for w in words):
+            continue
+        return candidate, role
+    return None, None
+
+
 def extract_contacts_from_html(
     html: str,
     *,
@@ -173,10 +237,13 @@ def extract_contacts_from_html(
         if not email and not phone:
             continue
         # Avoid duplicating the same email+phone pair
+        name, cargo = _explicit_person_context(html, email) if email else (None, None)
         contacts.append(
             {
                 "email": email,
                 "phone": phone,
+                "name": name,
+                "cargo": cargo,
                 "url": source_url,
                 "source_url": source_url,
                 "context_text": text[:500],
@@ -224,4 +291,47 @@ def extract_contacts_from_snippet(
                 }
             )
             break
+    return out
+
+
+def extract_contacts_from_text(
+    text: str,
+    *,
+    source_url: str,
+    max_contacts: int = 20,
+) -> list[dict[str, Any]]:
+    """Extract only explicitly labelled person/role/email blocks from plain text."""
+    normalized = _WS_RE.sub(" ", text or "").strip()
+    out: list[dict[str, Any]] = []
+    for email in extract_emails(normalized)[:max_contacts]:
+        pos = normalized.lower().find(email.lower())
+        if pos < 0:
+            continue
+        window = normalized[max(0, pos - 500) : pos + len(email) + 300]
+        role_match = _ROLE_RE.search(window)
+        if not role_match:
+            continue
+        name: str | None = None
+        for match in re.finditer(
+            r"(?i)\b(?:nome|responsável|representante(?:\s+legal)?|contato)\s*[:\-]\s*([^|;,@<>]{5,90})",
+            window,
+        ):
+            candidate = _WS_RE.sub(" ", match.group(1)).strip(" :-|,")
+            words = candidate.split()
+            if 2 <= len(words) <= 6 and _PERSON_NAME_RE.fullmatch(candidate):
+                if not any(word.lower().strip(".,") in _NON_PERSON_TOKENS for word in words):
+                    name = candidate
+                    break
+        if not name:
+            continue
+        out.append(
+            {
+                "email": email,
+                "name": name,
+                "cargo": _WS_RE.sub(" ", role_match.group(1)).strip(),
+                "url": source_url,
+                "source_url": source_url,
+                "context_text": window[:800],
+            }
+        )
     return out

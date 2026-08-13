@@ -135,7 +135,7 @@ def test_message_spine_makes_copy_context_ready() -> None:
     assert copy.copy_context_ready is True, copy
 
 
-def test_strict_esr_true_for_process_doc_company_email() -> None:
+def test_strict_esr_rejects_functional_process_doc_company_email() -> None:
     raw = _multi_contract_raw(n=5)
     account = {
         "account_cnpj": "00061493000170",
@@ -182,7 +182,8 @@ def test_strict_esr_true_for_process_doc_company_email() -> None:
             }
         ],
     )
-    assert result["email_send_ready"] is True, result
+    assert result["email_send_ready"] is False, result
+    assert "functional_mailbox_not_human_recipient" in result["best"]["reasons"]
     assert result["best"]["service_code"] == "gestao_monitoramento_contratual"
 
 
@@ -242,12 +243,21 @@ def test_pilot_review_has_full_identity_evidence_message_and_human_gate(tmp_path
         "cnpj14": raw["cnpj14"],
         "root": raw["cnpj_root"],
         "razao_social": raw["razao_social"],
-        "email": "contato@construtoraalvorada.com.br",
+        "name": "Maria de Souza",
+        "role": "Diretora Comercial",
+        "email": "maria.souza@construtoraalvorada.com.br",
         "ownership_status": "COMPANY_OWNED",
         "verification_status": "VERIFIED",
         "source_type": "site",
         "source_url": "https://construtoraalvorada.com.br/contato",
         "provenance_chain_valid": True,
+        "email_explicitly_published": True,
+        "name_explicitly_published": True,
+        "role_explicitly_published": True,
+        "human_identity_evidence_valid": True,
+        "identity_evidence_urls": ["https://construtoraalvorada.com.br/equipe"],
+        "observed_at": "2026-08-13T12:00:00Z",
+        "evidence_sha256": "c" * 64,
         "provenance_chain": [
             {
                 "source_type": "site",
@@ -258,7 +268,7 @@ def test_pilot_review_has_full_identity_evidence_message_and_human_gate(tmp_path
         ],
     }
     review = build_pilot_review(
-        [seed, {**seed, "email": "comercial@construtoraalvorada.com.br"}],
+        [seed, {**seed, "email": "joao.lima@construtoraalvorada.com.br"}],
         contracts_by_root={raw["cnpj_root"]: raw["contracts"]},
         target_size=1,
     )
@@ -377,7 +387,7 @@ def test_rebuild_strict_esr_from_fixture_harvest(tmp_path: Path) -> None:
         harvest_dir=harvest,
         confirmed_roots={"00061493"},
     )
-    assert report["EMAIL_SEND_READY_DISTINCT_COMPANIES"] == 1
+    assert report["EMAIL_SEND_READY_DISTINCT_COMPANIES"] == 0
     assert report["funnel"]["DISTINCT_COMPANIES_WITH_EMAIL"] == 1
     assert report["email_roots_upper_bound"] == 1
     # Must not use email count as ESR without gates
@@ -407,7 +417,8 @@ def test_gestao_not_silently_unsupported_when_package_present() -> None:
         canonical_universe_member=True,
     )
     assert "service_fit_unsupported" not in (r.reasons or [])
-    assert r.email_send_ready is True
+    assert r.email_send_ready is False
+    assert "functional_mailbox_not_human_recipient" in r.reasons
 
 
 def test_outcome_receptor_uses_dsn_from_environment_without_argv(

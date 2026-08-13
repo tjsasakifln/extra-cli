@@ -37,7 +37,8 @@ def _from_registry_dict(cnpj14: str, rec: dict[str, Any]) -> list[RawObservation
         source_url=rec.get("source_url") or "official_company_registry",
         source_document=rec.get("official_release_id") or rec.get("release_id"),
         source_date=str(source_date)[:10] if source_date else None,
-        observed_at=_now(),
+        source_published_at=str(source_date) if source_date else None,
+        observed_at=str(rec.get("observed_at") or _now()),
         notes="RFB/public cadastral fields only; not a personal scrape",
     )
     return [
@@ -124,7 +125,7 @@ class RegistryAdapter:
                     "legal_name": data.get("razao_social"),
                     "company_size": data.get("porte") or data.get("descricao_porte"),
                     "source_url": "https://brasilapi.com.br/api/cnpj/v1/",
-                    "source_date": datetime.now(UTC).date().isoformat(),
+                    "observed_at": _now(),
                     "official_match_status": "MATCHED",
                     "registration_status": data.get("descricao_situacao_cadastral"),
                 }

@@ -23,6 +23,7 @@ from scripts.confenge_contact_resolution.merge import (
     observations_to_candidates,
 )
 from scripts.confenge_contact_resolution.models import (
+    SCHEMA_VERSION,
     AccountContactResolution,
     CommercialContactState,
     CompanyProcessingState,
@@ -109,11 +110,28 @@ class ContactResolver:
         self.third_party_registry = self.config.third_party_registry or ThirdPartyRegistry()
 
     def _adapters_sig(self) -> str:
-        # Include network mode so offline empty results never poison online re-runs.
+        # Include every result-shaping input so stale evidence or a smaller
+        # discovery budget can never poison a later authoritative run.
         names = ",".join(getattr(a, "name", type(a).__name__) for a in self.config.adapters)
         net = "1" if self.config.allow_network else "0"
         prefer = "1" if any(getattr(a, "prefer_network", False) for a in self.config.adapters) else "0"
-        return f"{names}|net={net}|prefer={prefer}"
+        cascade = self.config.discovery_cascade
+        budget = getattr(cascade, "budget", None)
+        budget_sig = ",".join(
+            str(getattr(budget, key, ""))
+            for key in (
+                "max_search_queries",
+                "max_pages",
+                "max_total_requests",
+                "max_seconds",
+                "max_bytes_per_page",
+                "max_pages_per_domain",
+            )
+        )
+        return (
+            f"schema={SCHEMA_VERSION}|{names}|net={net}|prefer={prefer}"
+            f"|mx={int(self.config.check_mx)}|budget={budget_sig}"
+        )
 
     def resolve_one(
         self,
@@ -537,7 +555,17 @@ def _resolution_from_dict(d: dict[str, Any]) -> AccountContactResolution:
                 source=SourceProvenance(
                     **{
                         k: src.get(k)
-                        for k in ("source_type", "source_url", "source_document", "source_date", "observed_at", "notes")
+                        for k in (
+                            "source_type",
+                            "source_url",
+                            "source_document",
+                            "source_date",
+                            "source_published_at",
+                            "observed_at",
+                            "verified_at",
+                            "evidence_sha256",
+                            "notes",
+                        )
                         if k in src or k == "source_type"
                     }
                 ),
@@ -580,6 +608,12 @@ def _resolution_from_dict(d: dict[str, Any]) -> AccountContactResolution:
                 source_types=list(cd.get("source_types") or []),
                 contact_type=cd.get("contact_type") or "UNKNOWN",
                 limitations=list(cd.get("limitations") or []),
+                email_explicitly_published=bool(cd.get("email_explicitly_published")),
+                name_explicitly_published=bool(cd.get("name_explicitly_published")),
+                role_explicitly_published=bool(cd.get("role_explicitly_published")),
+                human_identity_evidence_valid=bool(cd.get("human_identity_evidence_valid")),
+                identity_evidence_urls=list(cd.get("identity_evidence_urls") or []),
+                evidence_sha256=cd.get("evidence_sha256"),
             )
         )
     # fix source default if empty
@@ -607,4 +641,8 @@ def _resolution_from_dict(d: dict[str, Any]) -> AccountContactResolution:
         cache_hit=bool(d.get("cache_hit")),
         resolved_at=d.get("resolved_at"),
         limitations=list(d.get("limitations") or []),
+        investigation_outcome=d.get("investigation_outcome"),
+        economic_group_id=d.get("economic_group_id"),
+        domain_class=d.get("domain_class"),
+        discovery_stats=dict(d.get("discovery_stats") or {}),
     )

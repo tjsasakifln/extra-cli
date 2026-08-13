@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Any
 
 from scripts.confenge_contact_resolution.email_policy import domain_of, is_freemail
@@ -132,6 +133,7 @@ UNSUITABLE_NO_EVIDENCE = "UNSUITABLE_NO_EVIDENCE"
 UNSUITABLE_STALE = "UNSUITABLE_STALE"
 UNSUITABLE_COPY_CONTEXT = "UNSUITABLE_COPY_CONTEXT"
 UNSUITABLE_PROVENANCE = "UNSUITABLE_PROVENANCE"
+UNSUITABLE_HUMAN_EVIDENCE = "UNSUITABLE_HUMAN_EVIDENCE"
 
 
 def company_identity_label(company: dict[str, Any] | None) -> str:
@@ -335,6 +337,7 @@ class EmailSendReadyResult:
     provenance_trust: str = ""
     root_source_type: str = ""
     derived_from_fixture: bool = False
+    human_recipient_evidence_valid: bool = False
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -355,6 +358,7 @@ class EmailSendReadyResult:
             "provenance_trust": self.provenance_trust,
             "root_source_type": self.root_source_type,
             "derived_from_fixture": self.derived_from_fixture,
+            "human_recipient_evidence_valid": self.human_recipient_evidence_valid,
         }
 
 
@@ -1203,7 +1207,75 @@ def evaluate_email_send_ready(
         channel_ok = False
     if mp.send_blocked or mp.purpose in BLOCKED_PURPOSES:
         reasons.append(mp.block_reason or f"mailbox_purpose:{mp.purpose}")
-        suitability = UNSUITABLE_MAILBOX
+        if suitability == SUITABLE:
+            suitability = UNSUITABLE_MAILBOX
+        channel_ok = False
+
+    # Literal recipient contract: a mailbox is not a person. A final recipient
+    # needs explicit, auditable person+role+email evidence and semantic dates.
+    c = contact if isinstance(contact, dict) else {}
+    c_source = c.get("source") if isinstance(c.get("source"), dict) else {}
+    c_prov = c.get("provenance") if isinstance(c.get("provenance"), dict) else {}
+    evidence_source = c_source or c_prov
+    recipient_name = str(c.get("name") or "").strip()
+    recipient_role = str(c.get("cargo") or c.get("role") or "").strip()
+    evidence_refs = c.get("identity_evidence_urls")
+    if not isinstance(evidence_refs, list):
+        evidence_refs = []
+    if evidence_source.get("source_url"):
+        evidence_refs = [*evidence_refs, str(evidence_source["source_url"])]
+    if evidence_source.get("source_document"):
+        evidence_refs = [*evidence_refs, str(evidence_source["source_document"])]
+    evidence_hash = str(c.get("evidence_sha256") or evidence_source.get("evidence_sha256") or "")
+    valid_evidence_refs = bool(evidence_refs) and all(
+        isinstance(ref, str) and bool(ref.strip()) for ref in evidence_refs
+    )
+    raw_evidence_date = (
+        evidence_source.get("source_published_at")
+        or evidence_source.get("observed_at")
+        or evidence_source.get("verified_at")
+    )
+    try:
+        semantic_date = (
+            bool(raw_evidence_date)
+            and datetime.fromisoformat(str(raw_evidence_date).replace("Z", "+00:00")) is not None
+        )
+    except (TypeError, ValueError):
+        semantic_date = False
+    human_evidence_ok = bool(
+        recipient_name
+        and recipient_role
+        and c.get("email_explicitly_published") is True
+        and c.get("name_explicitly_published") is True
+        and c.get("role_explicitly_published") is True
+        and c.get("human_identity_evidence_valid") is True
+        and valid_evidence_refs
+        and re.fullmatch(r"[0-9a-fA-F]{64}", evidence_hash)
+        and semantic_date
+        and mp.purpose == "UNKNOWN"
+    )
+    if human_evidence_ok:
+        reasons.append("human_recipient_evidence_valid")
+    else:
+        reasons.append("human_recipient_evidence_incomplete")
+        if not recipient_name:
+            reasons.append("recipient_name_missing")
+        if not recipient_role:
+            reasons.append("recipient_role_missing")
+        if c.get("email_explicitly_published") is not True:
+            reasons.append("email_not_explicitly_published")
+        if c.get("name_explicitly_published") is not True:
+            reasons.append("recipient_name_not_explicitly_published")
+        if c.get("role_explicitly_published") is not True:
+            reasons.append("recipient_role_not_explicitly_published")
+        if not valid_evidence_refs:
+            reasons.append("recipient_evidence_reference_missing")
+        if not re.fullmatch(r"[0-9a-fA-F]{64}", evidence_hash):
+            reasons.append("recipient_evidence_hash_missing_or_invalid")
+        if not semantic_date:
+            reasons.append("recipient_evidence_date_semantics_missing")
+        if suitability == SUITABLE:
+            suitability = UNSUITABLE_HUMAN_EVIDENCE
         channel_ok = False
     if own and own not in ENROLLABLE_OWNERSHIP and own != OwnershipStatus.HUMAN_CONFIRMED.value:
         if own not in {OwnershipStatus.COMPANY_OWNED.value, OwnershipStatus.HUMAN_CONFIRMED.value}:
@@ -1323,9 +1395,6 @@ def evaluate_email_send_ready(
         if suitability == SUITABLE:
             suitability = UNSUITABLE_COPY_CONTEXT
 
-    if suitability == SUITABLE and mp.purpose == "GENERIC_CONTACT":
-        suitability = SUITABLE_GENERIC
-
     contact_send_ready = (
         channel_ok
         and bool(email_norm)
@@ -1337,6 +1406,7 @@ def evaluate_email_send_ready(
         and not mp.send_blocked
         and not published_blocks_send
         and prov_ok
+        and human_evidence_ok
     )
 
     target_ok = (
@@ -1385,6 +1455,7 @@ def evaluate_email_send_ready(
         provenance_trust=prov_res.provenance_trust,
         root_source_type=prov_res.root_source_type,
         derived_from_fixture=prov_res.derived_from_fixture,
+        human_recipient_evidence_valid=human_evidence_ok,
     )
 
 

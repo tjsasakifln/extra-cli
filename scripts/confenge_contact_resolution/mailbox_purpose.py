@@ -296,15 +296,15 @@ _GENERIC = frozenset(
 
 # Preference rank for picking among several valid addresses (lower = better for CONFENGE).
 PURPOSE_RANK: dict[str, int] = {
-    PURPOSE_CONTRATOS: 10,
-    PURPOSE_LICITACOES: 20,
-    PURPOSE_ENGENHARIA: 30,
-    PURPOSE_ORCAMENTO: 40,
-    PURPOSE_COMERCIAL: 50,
-    PURPOSE_DIRETORIA: 60,
-    PURPOSE_FINANCEIRO: 70,
-    PURPOSE_GENERIC_CONTACT: 80,
-    PURPOSE_UNKNOWN: 90,
+    PURPOSE_UNKNOWN: 0,
+    PURPOSE_CONTRATOS: 900,
+    PURPOSE_LICITACOES: 901,
+    PURPOSE_ENGENHARIA: 902,
+    PURPOSE_ORCAMENTO: 903,
+    PURPOSE_COMERCIAL: 904,
+    PURPOSE_DIRETORIA: 905,
+    PURPOSE_FINANCEIRO: 906,
+    PURPOSE_GENERIC_CONTACT: 907,
     PURPOSE_HR_RECRUITING: 900,
     PURPOSE_SUPPORT_SAC: 910,
     PURPOSE_PRIVACY_DPO: 920,
@@ -313,31 +313,10 @@ PURPOSE_RANK: dict[str, int] = {
     PURPOSE_SOCIAL_PROGRAM: 950,
 }
 
-BLOCKED_PURPOSES = frozenset(
-    {
-        PURPOSE_HR_RECRUITING,
-        PURPOSE_SUPPORT_SAC,
-        PURPOSE_PRIVACY_DPO,
-        PURPOSE_NOREPLY,
-        PURPOSE_PRESS,
-        PURPOSE_SOCIAL_PROGRAM,
-    }
-)
+BLOCKED_PURPOSES = ALL_PURPOSES - {PURPOSE_UNKNOWN}
 
 # Allowed for commercial autorun when other gates pass.
-SEND_ALLOWED_PURPOSES = frozenset(
-    {
-        PURPOSE_CONTRATOS,
-        PURPOSE_LICITACOES,
-        PURPOSE_ENGENHARIA,
-        PURPOSE_ORCAMENTO,
-        PURPOSE_COMERCIAL,
-        PURPOSE_DIRETORIA,
-        PURPOSE_FINANCEIRO,
-        PURPOSE_GENERIC_CONTACT,
-        PURPOSE_UNKNOWN,  # unknown is not blocked; other gates still apply
-    }
-)
+SEND_ALLOWED_PURPOSES = frozenset({PURPOSE_UNKNOWN})
 
 _LOCAL_CLEAN_RE = re.compile(r"[^a-z0-9+\-_.]")
 
@@ -443,7 +422,7 @@ def classify_mailbox_purpose(email: str | None) -> MailboxPurposeResult:
         purpose = PURPOSE_UNKNOWN
 
     blocked = purpose in BLOCKED_PURPOSES
-    reason = f"mailbox_purpose_blocked:{purpose}" if blocked else None
+    reason = "functional_mailbox_not_human_recipient" if blocked else None
     return MailboxPurposeResult(
         purpose=purpose,
         local_part=local,

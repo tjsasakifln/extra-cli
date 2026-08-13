@@ -7,6 +7,7 @@ Never scrapes private social networks or bypasses CAPTCHA.
 
 from __future__ import annotations
 
+import base64
 import json
 import os
 import re
@@ -19,11 +20,11 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import parse_qs, quote_plus, unquote, urlparse
 from urllib.request import Request, urlopen
 
+from bs4 import BeautifulSoup
+
 from scripts.confenge_contact_resolution.discovery.extract import extract_contacts_from_snippet
 
-_USER_AGENT = (
-    "Mozilla/5.0 (compatible; extra-cli-confenge-contact/1.0; +https://github.com/tjsasakifln/extra-cli)"
-)
+_USER_AGENT = "Mozilla/5.0 (compatible; extra-cli-confenge-contact/1.0; +https://github.com/tjsasakifln/extra-cli)"
 
 
 def _now() -> str:
@@ -101,6 +102,30 @@ def build_company_queries(
     return out[: max(1, max_queries)]
 
 
+def build_source_ladder_queries(
+    *,
+    razao_social: str | None,
+    cnpj14: str | None,
+) -> list[tuple[str, str]]:
+    """One explicit query per institutional source-ladder stage.
+
+    Search results are discovery leads only. They still need an auditable page
+    or document before a recipient can pass the human-evidence gate.
+    """
+    razao = " ".join((razao_social or "").strip().split()[:8])
+    cnpj = re.sub(r"\D", "", cnpj14 or "")[:14]
+    key = f'"{razao}"' if razao else cnpj
+    return [
+        ("process_administrative_docs", f'{key} "representante legal" email proposta contrato'),
+        ("pncp_transparency_compras", f"{key} site:gov.br email contrato OR proposta"),
+        (
+            "professional_councils_associations",
+            f'{key} (CREA OR CAU OR associação) email "responsável técnico"',
+        ),
+        ("company_public_pages", f"{key} (diretor OR gerente OR responsável) email"),
+    ]
+
+
 class DuckDuckGoHTMLProvider:
     """Public HTML search — no API key. Rate-limit politely.
 
@@ -116,6 +141,12 @@ class DuckDuckGoHTMLProvider:
         self._last_call = 0.0
         self._cache: dict[str, list[dict[str, Any]]] = {}
         self._consecutive_failures = 0
+        self.last_error: str | None = None
+
+    @property
+    def available(self) -> bool:
+        """Whether this process can still query the provider honestly."""
+        return self._consecutive_failures < 3
 
     def _throttle(self) -> None:
         gap = time.monotonic() - self._last_call
@@ -128,9 +159,13 @@ class DuckDuckGoHTMLProvider:
         if not q:
             return []
         if q in self._cache:
-            return [SearchResult(**{**r, "retrieved_at": r.get("retrieved_at") or _now()}) for r in self._cache[q][:max_results]]
+            return [
+                SearchResult(**{**r, "retrieved_at": r.get("retrieved_at") or _now()})
+                for r in self._cache[q][:max_results]
+            ]
 
         if self._consecutive_failures >= 3:
+            self.last_error = "provider_circuit_open"
             return []  # provider unusable this process lifetime
         self._throttle()
         url = f"https://html.duckduckgo.com/html/?q={quote_plus(q)}"
@@ -138,15 +173,18 @@ class DuckDuckGoHTMLProvider:
         try:
             with urlopen(req, timeout=self.timeout) as resp:  # noqa: S310
                 html = resp.read().decode("utf-8", errors="replace")
-        except (HTTPError, URLError, TimeoutError, OSError):
+        except (HTTPError, URLError, TimeoutError, OSError) as exc:
             self._consecutive_failures += 1
+            self.last_error = type(exc).__name__
             return []
 
         results = parse_duckduckgo_html(html, source=self.name)
         if not results:
             self._consecutive_failures += 1
+            self.last_error = "unparseable_or_empty_response"
         else:
             self._consecutive_failures = 0
+            self.last_error = None
         self._cache[q] = [r.as_dict() for r in results]
         return results[:max_results]
 
@@ -212,8 +250,10 @@ _RESULT_BLOCK_RE = re.compile(
     r'(?is)<div[^>]+class="[^"]*result[^"]*"[^>]*>.*?</div>\s*(?=<div[^>]+class="[^"]*result|</div>\s*</div>\s*</div>|$)',
 )
 _A_RE = re.compile(r'(?is)<a[^>]+class="[^"]*result__a[^"]*"[^>]+href="([^"]+)"[^>]*>(.*?)</a>')
-_SNIP_RE = re.compile(r'(?is)<a[^>]+class="[^"]*result__snippet[^"]*"[^>]*>(.*?)</a>|'
-                      r'<td[^>]+class="[^"]*result-snippet[^"]*"[^>]*>(.*?)</td>')
+_SNIP_RE = re.compile(
+    r'(?is)<a[^>]+class="[^"]*result__snippet[^"]*"[^>]*>(.*?)</a>|'
+    r'<td[^>]+class="[^"]*result-snippet[^"]*"[^>]*>(.*?)</td>'
+)
 _HREF_UDDG = re.compile(r"[?&]uddg=([^&]+)")
 
 
@@ -258,9 +298,7 @@ def parse_duckduckgo_html(html: str, *, source: str = "duckduckgo_html") -> list
             window,
         )
         snippet = _clean_html_text(snip_m.group(1)) if snip_m else ""
-        results.append(
-            SearchResult(title=title, url=href, snippet=snippet, source=source, retrieved_at=_now())
-        )
+        results.append(SearchResult(title=title, url=href, snippet=snippet, source=source, retrieved_at=_now()))
     if results:
         return results
 
@@ -285,6 +323,11 @@ class BraveSearchProvider:
         self.api_key = api_key
         self.timeout = timeout
         self._cache: dict[str, list[dict[str, Any]]] = {}
+        self.last_error: str | None = None
+
+    @property
+    def available(self) -> bool:
+        return self.last_error is None
 
     def search(self, query: str, *, max_results: int = 8) -> list[SearchResult]:
         q = (query or "").strip()
@@ -304,7 +347,8 @@ class BraveSearchProvider:
         try:
             with urlopen(req, timeout=self.timeout) as resp:  # noqa: S310
                 data = json.loads(resp.read().decode("utf-8"))
-        except (HTTPError, URLError, TimeoutError, OSError, json.JSONDecodeError):
+        except (HTTPError, URLError, TimeoutError, OSError, json.JSONDecodeError) as exc:
+            self.last_error = type(exc).__name__
             return []
         results: list[SearchResult] = []
         for item in (data.get("web") or {}).get("results") or []:
@@ -318,6 +362,7 @@ class BraveSearchProvider:
                 )
             )
         self._cache[q] = [r.as_dict() for r in results]
+        self.last_error = None
         return results[:max_results]
 
     def search_business_contacts(self, cnpj14: str, **kwargs: Any) -> list[dict[str, Any]]:
@@ -355,11 +400,125 @@ class BraveSearchProvider:
         return out
 
 
+def _unwrap_bing_url(href: str) -> str:
+    """Decode Bing's `u=a1<base64url>` redirect without following trackers."""
+    value = (parse_qs(urlparse(unescape(href or "")).query).get("u") or [""])[0]
+    if value.startswith("a1"):
+        encoded = value[2:]
+        try:
+            return base64.urlsafe_b64decode(encoded + "=" * (-len(encoded) % 4)).decode("utf-8")
+        except (ValueError, UnicodeDecodeError):
+            return href
+    return href
+
+
+def parse_bing_html(html: str) -> list[SearchResult]:
+    """Parse Bing organic result blocks; tracking URLs are decoded locally."""
+    soup = BeautifulSoup(html or "", "html.parser")
+    out: list[SearchResult] = []
+    for item in soup.select("li.b_algo"):
+        anchor = item.select_one("h2 a[href]")
+        if anchor is None:
+            continue
+        href = _unwrap_bing_url(str(anchor.get("href") or ""))
+        if not href.startswith(("http://", "https://")) or "bing.com/ck/" in href:
+            continue
+        snippet_node = item.select_one(".b_caption p") or item.select_one("p")
+        out.append(
+            SearchResult(
+                title=anchor.get_text(" ", strip=True),
+                url=href,
+                snippet=snippet_node.get_text(" ", strip=True) if snippet_node else "",
+                source="bing_html",
+                retrieved_at=_now(),
+            )
+        )
+    return out
+
+
+class BingHTMLProvider:
+    """Public Bing HTML fallback with explicit circuit-breaker state."""
+
+    name = "bing_html"
+
+    def __init__(self, *, timeout: float = 8.0, min_interval: float = 0.5) -> None:
+        self.timeout = timeout
+        self.min_interval = min_interval
+        self._last_call = 0.0
+        self._cache: dict[str, list[dict[str, Any]]] = {}
+        self._consecutive_failures = 0
+        self.last_error: str | None = None
+
+    @property
+    def available(self) -> bool:
+        return self._consecutive_failures < 3
+
+    def search(self, query: str, *, max_results: int = 8) -> list[SearchResult]:
+        q = (query or "").strip()
+        if not q:
+            return []
+        if q in self._cache:
+            return [SearchResult(**row) for row in self._cache[q][:max_results]]
+        if not self.available:
+            self.last_error = "provider_circuit_open"
+            return []
+        gap = time.monotonic() - self._last_call
+        if gap < self.min_interval:
+            time.sleep(self.min_interval - gap)
+        self._last_call = time.monotonic()
+        url = f"https://www.bing.com/search?q={quote_plus(q)}&count={max_results}"
+        req = Request(url, headers={"User-Agent": _USER_AGENT, "Accept": "text/html"})  # noqa: S310
+        try:
+            with urlopen(req, timeout=self.timeout) as response:  # noqa: S310
+                html = response.read(1_500_000).decode("utf-8", errors="replace")
+        except (HTTPError, URLError, TimeoutError, OSError) as exc:
+            self._consecutive_failures += 1
+            self.last_error = type(exc).__name__
+            return []
+        results = parse_bing_html(html)
+        if results:
+            self._consecutive_failures = 0
+            self.last_error = None
+        else:
+            self._consecutive_failures += 1
+            self.last_error = "unparseable_or_empty_response"
+        self._cache[q] = [row.as_dict() for row in results]
+        return results[:max_results]
+
+    def search_business_contacts(self, cnpj14: str, **kwargs: Any) -> list[dict[str, Any]]:
+        if not kwargs.get("allow_network", True):
+            return []
+        out: list[dict[str, Any]] = []
+        for query in build_company_queries(
+            razao_social=kwargs.get("razao_social") or kwargs.get("company_name"),
+            nome_fantasia=kwargs.get("nome_fantasia"),
+            cnpj14=cnpj14,
+            max_queries=int(kwargs.get("max_queries") or 4),
+        ):
+            for result in self.search(query, max_results=6):
+                contacts = extract_contacts_from_snippet(
+                    title=result.title,
+                    snippet=result.snippet,
+                    url=result.url,
+                )
+                out.extend({**contact, **result.as_dict(), "site": result.url} for contact in (contacts or [{}]))
+        return out
+
+
 class CompositeWebSearchProvider:
     """Try providers in order; first that returns results wins per query."""
 
     def __init__(self, providers: list[Any]) -> None:
         self.providers = providers
+
+    @property
+    def available(self) -> bool:
+        return any(bool(getattr(p, "available", True)) for p in self.providers)
+
+    @property
+    def last_error(self) -> str | None:
+        errors = [str(getattr(p, "last_error")) for p in self.providers if getattr(p, "last_error", None)]
+        return ",".join(errors) or None
 
     def search(self, query: str, *, max_results: int = 8) -> list[SearchResult]:
         for p in self.providers:
@@ -386,6 +545,8 @@ def build_web_search_provider(*, prefer: str | None = None) -> Any:
         providers.append(BraveSearchProvider(brave_key))
     if prefer in {"duckduckgo", "ddg", "auto", "brave"}:
         providers.append(DuckDuckGoHTMLProvider())
+    if prefer in {"bing", "auto", "brave"}:
+        providers.append(BingHTMLProvider())
     if not providers:
         providers.append(DuckDuckGoHTMLProvider())
     if len(providers) == 1:

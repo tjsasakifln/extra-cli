@@ -239,6 +239,8 @@ def test_enrich_batch_human_review_pending(tmp_path: Path):
         resume=False,
     )
     assert summary["ok"]
+    assert (out / "contact-source-attempts.jsonl").is_file()
+    assert (out / "contact-discovery-terminals.jsonl").is_file()
     hr = out / "human-review"
     assert (hr / "review.md").is_file()
     assert (hr / "status.json").is_file()

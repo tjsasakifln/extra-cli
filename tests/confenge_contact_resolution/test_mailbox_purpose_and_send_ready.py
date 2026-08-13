@@ -50,7 +50,7 @@ def test_vagas_may_be_owned_but_not_email_send_ready() -> None:
     assert r.ownership_status == "COMPANY_OWNED"
     assert r.mailbox_purpose == PURPOSE_HR_RECRUITING
     assert r.email_send_ready is False
-    assert any("mailbox_purpose" in x or "HR" in x for x in r.reasons)
+    assert "functional_mailbox_not_human_recipient" in r.reasons
 
 
 def test_phone_only_never_email_send_ready() -> None:
@@ -94,7 +94,7 @@ def test_out_of_scope_verified_email_not_send_ready() -> None:
     assert r.email_send_ready is False
 
 
-def test_generic_contato_can_pass_when_all_gates_ok() -> None:
+def test_generic_contato_never_passes_even_when_other_gates_are_ok() -> None:
     company = {
         "razao_social": "EMPRESA TARGET PAVIMENTACAO LTDA",
         "official_domain": "empresa-target.com.br",
@@ -108,18 +108,12 @@ def test_generic_contato_can_pass_when_all_gates_ok() -> None:
         "service_code": "REAJUSTE_14133",
         "portfolio": {"pass_contract_count": 4},
         "factual_hook": "Contrato de engenharia PASS recente no órgão X.",
-        "observed_fact": (
-            "objeto: pavimentação asfáltica CBUQ em vias urbanas; "
-            "órgão: Pref. Coxilha; UF RS"
-        ),
+        "observed_fact": ("objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. Coxilha; UF RS"),
         "why_this_account": (
             "EMPRESA TARGET com execução pública de pavimentação — "
             "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. Coxilha"
         ),
-        "why_now": (
-            "aditivo recente no contrato de EMPRESA TARGET de pavimentação asfáltica CBUQ "
-            "com a Pref. Coxilha"
-        ),
+        "why_now": ("aditivo recente no contrato de EMPRESA TARGET de pavimentação asfáltica CBUQ com a Pref. Coxilha"),
         "micro_offer_code": "REAJUSTE_CHECK",
         "evidence_ids": ["ev-contract-1"],
         "cta": "Posso te mandar o recorte público que encontrei?",
@@ -140,7 +134,7 @@ def test_generic_contato_can_pass_when_all_gates_ok() -> None:
     email = "contato@empresa-target.com.br"
     mp = classify_mailbox_purpose(email)
     assert mp.purpose == PURPOSE_GENERIC_CONTACT
-    assert mp.send_blocked is False
+    assert mp.send_blocked is True
     r = evaluate_email_send_ready(
         company=company,
         email=email,
@@ -152,11 +146,50 @@ def test_generic_contato_can_pass_when_all_gates_ok() -> None:
         source_type="site",
         source_url="https://empresa-target.com.br/contato",
     )
-    assert r.email_send_ready is True
+    assert r.email_send_ready is False
     assert r.mailbox_purpose == PURPOSE_GENERIC_CONTACT
     assert r.copy_context_ready is True
     assert r.service_fit_supported is True
     assert r.provenance_chain_valid is True
+    assert "functional_mailbox_not_human_recipient" in r.reasons
+
+
+def test_nominal_published_human_recipient_can_pass_all_gates() -> None:
+    company = _send_ready_company(
+        razao_social="EMPRESA TARGET PAVIMENTACAO LTDA",
+        official_domain="empresa-target.com.br",
+    )
+    contact = {
+        "name": "Maria de Souza",
+        "cargo": "Diretora Comercial",
+        "email": "maria.souza@empresa-target.com.br",
+        "email_explicitly_published": True,
+        "name_explicitly_published": True,
+        "role_explicitly_published": True,
+        "human_identity_evidence_valid": True,
+        "identity_evidence_urls": ["https://empresa-target.com.br/equipe"],
+        "source": {
+            "source_type": "site",
+            "source_url": "https://empresa-target.com.br/equipe",
+            "source_published_at": None,
+            "observed_at": "2026-08-13T12:00:00Z",
+            "verified_at": "2026-08-13T12:01:00Z",
+            "evidence_sha256": "a" * 64,
+        },
+    }
+    r = evaluate_email_send_ready(
+        company=company,
+        email=contact["email"],
+        ownership_status="COMPANY_OWNED",
+        verification_status="VERIFIED",
+        service_code="estruturacao_pleito_reajuste",
+        factual_evidence=True,
+        evidence_ids=["ev-contract-1"],
+        contact=contact,
+    )
+    assert r.email_send_ready is True
+    assert r.mailbox_purpose == "UNKNOWN"
+    assert "human_recipient_evidence_valid" in r.reasons
 
 
 def test_comercial_preferred_over_generic_rank() -> None:
@@ -205,17 +238,13 @@ def _send_ready_company(
         "portfolio": {"pass_contract_count": 4},
         "factual_hook": "Contrato de engenharia PASS recente no órgão X.",
         "observed_fact": (
-            f"objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. Coxilha; "
-            f"empresa: {brand}; UF RS"
+            f"objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. Coxilha; empresa: {brand}; UF RS"
         ),
         "why_this_account": (
             f"{brand} com execução pública de pavimentação — "
             "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. Coxilha"
         ),
-        "why_now": (
-            f"aditivo recente no contrato de {brand} de pavimentação asfáltica CBUQ "
-            "com a Pref. Coxilha"
-        ),
+        "why_now": (f"aditivo recente no contrato de {brand} de pavimentação asfáltica CBUQ com a Pref. Coxilha"),
         "micro_offer_code": "REAJUSTE_CHECK",
         "evidence_ids": ["ev-contract-1"],
         "cta": "Posso te mandar o recorte público que encontrei?",
@@ -282,22 +311,37 @@ def test_sticky_company_owned_wrong_domain_never_email_send_ready() -> None:
         assert any("sticky_ownership_insufficient_for_identity" in x for x in r.reasons)
 
 
-def test_aligned_company_domain_still_email_send_ready() -> None:
-    """Positive control: residual-safe brand domain + sticky COMPANY_OWNED still passes."""
+def test_aligned_company_domain_and_explicit_human_evidence_can_send() -> None:
+    """Positive control: company alignment is necessary but not sufficient."""
     company = _send_ready_company(
         razao_social="ENCOPAV ENGENHARIA LTDA",
         official_domain="encopav.com.br",
     )
     r = evaluate_email_send_ready(
         company=company,
-        email="encopav@encopav.com.br",
+        email="maria.souza@encopav.com.br",
         ownership_status="COMPANY_OWNED",
         verification_status="VERIFIED",
         service_code="estruturacao_pleito_reajuste",
         factual_evidence=True,
         evidence_ids=["ev-contract-1"],
-        source_type="site",
-        source_url="https://encopav.com.br/contato",
+        contact={
+            "name": "Maria de Souza",
+            "cargo": "Diretora Comercial",
+            "email": "maria.souza@encopav.com.br",
+            "email_explicitly_published": True,
+            "name_explicitly_published": True,
+            "role_explicitly_published": True,
+            "human_identity_evidence_valid": True,
+            "identity_evidence_urls": ["https://encopav.com.br/equipe"],
+            "evidence_sha256": "b" * 64,
+            "source": {
+                "source_type": "site",
+                "source_url": "https://encopav.com.br/equipe",
+                "observed_at": "2026-08-13T12:00:00Z",
+                "evidence_sha256": "b" * 64,
+            },
+        },
     )
     assert r.email_send_ready is True, r.reasons
     assert r.contact_send_ready is True

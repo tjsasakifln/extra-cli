@@ -90,9 +90,7 @@ def _load_activation_counts(conn: Any) -> dict[str, int]:
 def _harvest_contacts(artifact_root: Path) -> dict[str, dict[str, Any]]:
     """Map cnpj_root → best observed contact record from on-disk network harvests."""
     by_root: dict[str, dict[str, Any]] = {}
-    paths = list(artifact_root.rglob("*.jsonl")) + list(
-        artifact_root.rglob("*send-ready*.json")
-    )
+    paths = list(artifact_root.rglob("*.jsonl")) + list(artifact_root.rglob("*send-ready*.json"))
 
     def observe(obj: dict[str, Any], path: Path) -> None:
         r = _root8(obj.get("cnpj") or obj.get("cnpj14") or obj.get("cnpj_raiz"))
@@ -124,11 +122,8 @@ def _harvest_contacts(artifact_root: Path) -> dict[str, dict[str, Any]]:
             "email": email,
             "razao_social": obj.get("razao_social") or obj.get("company_name"),
             "ownership_status": own or "UNKNOWN",
-            "verification_status": str(
-                obj.get("verification_status") or obj.get("verification") or ""
-            ).upper(),
-            "service_id": obj.get("service_id")
-            or (obj.get("primary_service") or {}).get("service_id"),
+            "verification_status": str(obj.get("verification_status") or obj.get("verification") or "").upper(),
+            "service_id": obj.get("service_id") or (obj.get("primary_service") or {}).get("service_id"),
             "source_url": obj.get("root_source_url") or obj.get("source_url"),
             "source_type": root_st,
             "root_source_type": root_st,
@@ -234,9 +229,7 @@ def _evaluate_harvest_esr(
             "service_id": rec.get("service_id"),
             # Pass through copy fields when present (clean cohort has them)
             "copy_context": {
-                "present": bool(
-                    rec.get("why_you") or rec.get("why_now") or rec.get("observed_fact")
-                ),
+                "present": bool(rec.get("why_you") or rec.get("why_now") or rec.get("observed_fact")),
                 "hollow": False,
                 "why_you": rec.get("why_you"),
                 "why_this_account": rec.get("why_you"),
@@ -255,16 +248,10 @@ def _evaluate_harvest_esr(
         ck = f"cnpj_root:{root}"
         if published_index and ck in published_index:
             pub = published_index[ck]
-            company["target_fit_class"] = pub.get("target_fit_class") or pub.get(
-                "shadow_class"
-            ) or TARGET_CONFIRMED
+            company["target_fit_class"] = pub.get("target_fit_class") or pub.get("shadow_class") or TARGET_CONFIRMED
             company["published_target_fit"] = pub
 
-        src_type = (
-            rec.get("root_source_type")
-            or rec.get("source_type")
-            or "REAL_OFFICIAL_SITE"
-        )
+        src_type = rec.get("root_source_type") or rec.get("source_type") or "REAL_OFFICIAL_SITE"
         result = evaluate_email_send_ready(
             company=company,
             email=str(email),
@@ -275,12 +262,23 @@ def _evaluate_harvest_esr(
             service_code=rec.get("service_id"),
             factual_evidence=True,
             evidence_ids=list(rec.get("evidence_ids") or ["harvest-ev"]),
-            require_copy_context=bool(
-                rec.get("why_you") or rec.get("why_now") or rec.get("observed_fact")
-            ),
+            require_copy_context=bool(rec.get("why_you") or rec.get("why_now") or rec.get("observed_fact")),
             source_type=str(src_type),
             source_url=rec.get("source_url"),
             provenance_chain=rec.get("provenance_chain"),
+            contact={
+                **rec,
+                "email": str(email),
+                "source": {
+                    "source_type": str(src_type),
+                    "source_url": rec.get("source_url"),
+                    "source_document": rec.get("source_document"),
+                    "source_published_at": rec.get("source_published_at"),
+                    "observed_at": rec.get("observed_at"),
+                    "verified_at": rec.get("verified_at"),
+                    "evidence_sha256": rec.get("evidence_sha256"),
+                },
+            },
             published_index=published_index,
         )
         if result.email_send_ready:
@@ -416,9 +414,7 @@ def gather_live_metrics(
             """,
             (TARGET_CONFIRMED,),
         )
-        confirmed_roots = {
-            _root8(r.get("cnpj_raiz")) for r in conf_rows if _root8(r.get("cnpj_raiz"))
-        }
+        confirmed_roots = {_root8(r.get("cnpj_raiz")) for r in conf_rows if _root8(r.get("cnpj_raiz"))}
         published_index = {
             str(r["company_key"]): {
                 "target_fit_class": TARGET_CONFIRMED,
@@ -436,9 +432,7 @@ def gather_live_metrics(
         pagination_ok = bool(cov_ctrl.get("pagination_exhausted_normally", False))
 
         harvest = _harvest_contacts(artifact_root)
-        evald = _evaluate_harvest_esr(
-            confirmed_roots, harvest, published_index=published_index
-        )
+        evald = _evaluate_harvest_esr(confirmed_roots, harvest, published_index=published_index)
 
         # Continuous offline checkpoint does NOT count as network discovery.
         # Only roots with real harvested email/source count as discovery attempted.
@@ -455,12 +449,8 @@ def gather_live_metrics(
             rejection_reasons={
                 "mailbox_purpose_rejected": len(evald["mailbox_blocked"]),
                 "no_email_found": max(0, len(attempted) - len(evald["real_email"])),
-                "identity_rejected": int(
-                    evald["send_ready_false_reasons"].get("ownership_not_company_owned", 0)
-                ),
-                "third_party_rejected": int(
-                    evald["send_ready_false_reasons"].get("third_party", 0)
-                ),
+                "identity_rejected": int(evald["send_ready_false_reasons"].get("ownership_not_company_owned", 0)),
+                "third_party_rejected": int(evald["send_ready_false_reasons"].get("third_party", 0)),
                 "provenance_rejected": sum(
                     v
                     for k, v in evald["send_ready_false_reasons"].items()
@@ -469,10 +459,7 @@ def gather_live_metrics(
                 "network_failure": 0,
                 "crawl_failure": 0,
                 "no_official_domain": 0,
-                **{
-                    f"send_ready:{k}": v
-                    for k, v in list(evald["send_ready_false_reasons"].items())[:12]
-                },
+                **{f"send_ready:{k}": v for k, v in list(evald["send_ready_false_reasons"].items())[:12]},
             },
         )
         # Annotate honesty
@@ -592,9 +579,7 @@ def gather_live_metrics(
             "zero_false_target": True,
             "zero_wrong_contact": len(evald["mailbox_blocked"]) == 0,
             "zero_tainted_provenance": True,
-            "zero_unsupported_service": not bool(
-                (service.get("SERVICE_MONOCULTURE") or {}).get("flagged")
-            ),
+            "zero_unsupported_service": not bool((service.get("SERVICE_MONOCULTURE") or {}).get("flagged")),
             "truncation_root_cause": (
                 "Historical ~1038 resolved: full materialization "
                 f"{materialized}/{supplier_roots}, unexplained_missing=0."
@@ -659,14 +644,9 @@ def main(argv: list[str] | None = None) -> int:
                         "ACTIONABLE_NOW": metrics["activation_actionable"],
                         "SUPPRESSED": metrics["activation_suppressed"],
                     },
-                    "coverage_mode": (metrics.get("target_fit_coverage") or {}).get(
-                        "coverage_mode"
-                    ),
+                    "coverage_mode": (metrics.get("target_fit_coverage") or {}).get("coverage_mode"),
                     "service_monoculture": (
-                        (metrics.get("service_distribution") or {}).get(
-                            "SERVICE_MONOCULTURE"
-                        )
-                        or {}
+                        (metrics.get("service_distribution") or {}).get("SERVICE_MONOCULTURE") or {}
                     ).get("flagged"),
                 },
             },

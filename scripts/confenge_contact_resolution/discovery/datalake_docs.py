@@ -7,16 +7,23 @@ import os
 import re
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 from scripts.confenge_contact_resolution.discovery.extract import extract_emails, extract_phones
 
-_EMAIL_IN_TEXT = re.compile(
-    r"(?i)\b([a-z0-9][a-z0-9._%+\-]{0,63}@[a-z0-9][a-z0-9.\-]{1,63}\.[a-z]{2,24})\b"
-)
+_EMAIL_IN_TEXT = re.compile(r"(?i)\b([a-z0-9][a-z0-9._%+\-]{0,63}@[a-z0-9][a-z0-9.\-]{1,63}\.[a-z]{2,24})\b")
 
 
 def _digits(s: str | None) -> str:
     return re.sub(r"\D", "", s or "")[:14]
+
+
+def _contains_exact_cnpj(value: str, target: str) -> bool:
+    digits = _digits(target)
+    if len(digits) != 14:
+        return False
+    pattern = r"(?<!\d)" + r"[.\-/\s]*".join(re.escape(digit) for digit in digits) + r"(?!\d)"
+    return re.search(pattern, value or "") is not None
 
 
 def lookup_public_docs_for_cnpj(
@@ -54,9 +61,7 @@ def _from_jsonl_artifacts(
             Path("artifacts/confenge/public-docs-contacts.jsonl"),
             Path("artifacts/confenge/process-first-national-confirmed/public_docs.jsonl"),
             Path("output/confenge_docs/document-contacts.jsonl"),
-            Path(os.environ["CONFENGE_PUBLIC_DOCS_JSONL"])
-            if os.environ.get("CONFENGE_PUBLIC_DOCS_JSONL")
-            else None,
+            Path(os.environ["CONFENGE_PUBLIC_DOCS_JSONL"]) if os.environ.get("CONFENGE_PUBLIC_DOCS_JSONL") else None,
         ]
         paths = [p for p in candidates if p is not None and p.is_file()]
 
@@ -77,13 +82,15 @@ def _from_jsonl_artifacts(
                         row.get("cnpj14")
                         or row.get("cnpj")
                         or row.get("supplier_cnpj")
+                        or row.get("company_cnpj")
                         or ""
                     )
                 )
                 row_root = _digits(str(row.get("cnpj_raiz") or ""))[:8]
-                if row_c and row_c != cnpj14 and row_c[:8] != root8:
-                    if row_root and row_root != root8:
-                        continue
+                if len(row_c) == 14 and row_c != cnpj14:
+                    continue
+                if row_c and row_c[:8] != root8:
+                    continue
                 elif row_root and row_root != root8 and (not row_c or row_c != cnpj14):
                     continue
                 docs = _normalize_doc_row(row, cnpj14)
@@ -118,11 +125,19 @@ def _normalize_doc_row(row: dict[str, Any], cnpj14: str) -> list[dict[str, Any]]
         return out
     if not email and not phone and not name:
         return []
-    # Strength: co-presence of CNPJ digits in text
+    # Exact CNPJ binding is necessary but does not by itself prove authorship.
     strength = "document_contact"
     blob = f"{text} {row.get('razao_social') or ''} {email or ''}"
-    if cnpj14 in re.sub(r"\D", "", blob) or cnpj14 in blob:
+    explicit_row_cnpj = _digits(
+        str(row.get("cnpj14") or row.get("cnpj") or row.get("supplier_cnpj") or row.get("company_cnpj") or "")
+    )
+    source_url = str(row.get("url") or row.get("source_url") or row.get("document_url") or "")
+    source_host = (urlparse(source_url).hostname or "").lower()
+    exact_cnpj = _contains_exact_cnpj(blob, cnpj14) or explicit_row_cnpj == cnpj14
+    if exact_cnpj and bool(row.get("company_authored") or row.get("company_authored_likely")):
         strength = "company_authored_document"
+    elif exact_cnpj and (source_host == "gov.br" or source_host.endswith(".gov.br")):
+        strength = "official_cnpj_linked_document"
     out.append(
         {
             "email": str(email).strip() if email else None,
@@ -133,7 +148,12 @@ def _normalize_doc_row(row: dict[str, Any], cnpj14: str) -> list[dict[str, Any]]
             "document_id": row.get("document_id") or row.get("id") or row.get("doc_id"),
             "document": row.get("document_type") or row.get("doc_type") or row.get("tipo"),
             "doc_type": row.get("doc_type") or row.get("tipo") or "public_doc",
-            "source_date": row.get("source_date") or row.get("document_date") or row.get("data"),
+            "source_published_at": row.get("source_published_at")
+            or row.get("source_date")
+            or row.get("document_date")
+            or row.get("data"),
+            "observed_at": row.get("observed_at"),
+            "verified_at": row.get("verified_at"),
             "evidence_strength": strength,
             "cnpj14": cnpj14,
         }
@@ -174,7 +194,8 @@ def _from_postgres(cnpj14: str, *, dsn: str | None, limit: int) -> list[dict[str
         """
         SELECT NULL AS email, NULL AS phone, NULL AS name, NULL AS cargo,
                source_url AS url, id::text AS document_id, 'extracted_text' AS doc_type,
-               created_at::text AS source_date, left(extracted_text, 4000) AS text,
+               NULL::text AS source_date, created_at::text AS observed_at,
+               left(extracted_text, 4000) AS text,
                razao_social
         FROM public.document_text_extracts
         WHERE regexp_replace(cnpj, '\\D', '', 'g') = %s
