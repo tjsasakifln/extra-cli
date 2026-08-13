@@ -7,6 +7,7 @@ import json
 from copy import deepcopy
 from pathlib import Path
 
+from scripts.confenge_activation.operational_metrics import warmbly_ops_config_from_env
 from scripts.confenge_activation.pilot_go_policy import (
     TERMINAL_AUTHORITY,
     build_universe_manifest,
@@ -14,7 +15,6 @@ from scripts.confenge_activation.pilot_go_policy import (
     load_human_review_decisions,
     validate_universe_manifest,
 )
-from scripts.confenge_activation.operational_metrics import warmbly_ops_config_from_env
 
 
 def test_warmbly_rate_max_is_the_live_governor_key() -> None:
