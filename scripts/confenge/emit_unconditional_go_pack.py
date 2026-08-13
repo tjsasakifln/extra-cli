@@ -116,10 +116,7 @@ def require_ci_green(repo_slug: str, sha: str) -> dict[str, Any]:
         for x in runs
         if x.get("status") == "completed"
         and x.get("conclusion") == "success"
-        and any(
-            tok in (x.get("name") or "")
-            for tok in ("CI Status", "Go CI", "CI", "Test All", "Lint", "CONFENGE")
-        )
+        and any(tok in (x.get("name") or "") for tok in ("CI Status", "Go CI", "CI", "Test All", "Lint", "CONFENGE"))
     ]
     wf_success = [x for x in workflow_runs if x.get("conclusion") == "success" and x.get("headSha") == sha]
     wf_failed = [
@@ -142,7 +139,7 @@ def require_ci_green(repo_slug: str, sha: str) -> dict[str, Any]:
         if rid and not url:
             url = f"https://github.com/{repo_slug}/actions/runs/{rid}"
     elif success_ci:
-        url = (success_ci[0].get("html_url") or success_ci[0].get("url") or "")
+        url = success_ci[0].get("html_url") or success_ci[0].get("url") or ""
 
     return {
         "ci_green": True,
@@ -240,9 +237,7 @@ def host_of(url: str) -> str:
     if not url:
         return ""
     try:
-        return (urlparse(url if "://" in url else f"https://{url}").hostname or "").lower().removeprefix(
-            "www."
-        )
+        return (urlparse(url if "://" in url else f"https://{url}").hostname or "").lower().removeprefix("www.")
     except Exception:
         return ""
 
@@ -382,6 +377,7 @@ def recompute_cohort_audit(rows: list[dict[str, Any]]) -> dict[str, Any]:
             "target_fit_version": "confenge-target-fit-v1",
             "target_fit_operational_status": "ok",
         }
+        source_type = str(r.get("root_source_type") or r.get("source_type") or "UNKNOWN")
         res = evaluate_email_send_ready(
             company=company,
             email=email,
@@ -390,15 +386,25 @@ def recompute_cohort_audit(rows: list[dict[str, Any]]) -> dict[str, Any]:
             service_code=svc,
             factual_evidence=True,
             evidence_ids=company["evidence_ids"],
-            source_type="site",
+            source_type=source_type,
             source_url=src,
             provenance_chain=chain,
             contact={
+                **r,
                 "email": email,
                 "ownership_status": "COMPANY_OWNED",
                 "verification_status": "VERIFIED",
-                "source_type": "site",
+                "source_type": source_type,
                 "source_url": src,
+                "source": {
+                    "source_type": source_type,
+                    "source_url": src,
+                    "source_document": r.get("source_document"),
+                    "source_published_at": r.get("source_published_at"),
+                    "observed_at": r.get("observed_at"),
+                    "verified_at": r.get("verified_at"),
+                    "evidence_sha256": r.get("evidence_sha256"),
+                },
                 "provenance_chain": chain,
             },
         )
@@ -475,14 +481,10 @@ def main() -> int:
     warmbly_host = probe_warmbly()
     print(f"warmbly host = {warmbly_host}")
     if warmbly_host["runtime"] != warmbly_main:
-        _die(
-            f"warmbly runtime {warmbly_host['runtime']} != origin/main {warmbly_main}"
-        )
+        _die(f"warmbly runtime {warmbly_host['runtime']} != origin/main {warmbly_main}")
     # if deployed marker differs but runtime matches main, rewrite marker for honesty
     if warmbly_host["host_deployed"] != warmbly_main:
-        host_cmd(
-            f"cd /opt/warmbly-confenge && echo '{warmbly_main}' > .deployed_sha && cat .deployed_sha"
-        )
+        host_cmd(f"cd /opt/warmbly-confenge && echo '{warmbly_main}' > .deployed_sha && cat .deployed_sha")
         warmbly_host["host_deployed"] = warmbly_main
 
     # 4) Triple equality

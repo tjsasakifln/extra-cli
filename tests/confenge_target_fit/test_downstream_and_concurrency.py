@@ -158,9 +158,7 @@ def test_process_one_active_downgrade_suppresses_send_ready(dsn):
             idempotency_key=key,
         )
         conn.commit()
-        items = claim_batch(
-            conn, worker_id="w-down", batch_size=5, lock_ttl_seconds=60
-        )
+        items = claim_batch(conn, worker_id="w-down", batch_size=5, lock_ttl_seconds=60)
         conn.commit()
         item = next(i for i in items if i.idempotency_key == key)
 
@@ -211,8 +209,7 @@ def test_process_one_active_downgrade_suppresses_send_ready(dsn):
         )
         assert ready.email_send_ready is False
         assert any(
-            "DOWNGRADE" in r or "target_fit" in r or "OUT" in r or "PROBABLE" in r
-            for r in ready.reasons
+            "DOWNGRADE" in r or "target_fit" in r or "OUT" in r or "PROBABLE" in r for r in ready.reasons
         ) or ready.target_fit_send_tier not in {"A_AUTOMATIC", "B_EVIDENCE_SUPPORTED"}
     finally:
         conn.close()
@@ -262,9 +259,7 @@ def test_claim_batch_one_per_company(dsn):
     try:
         ensure_control_defaults(conn)
         with conn.cursor() as cur:
-            cur.execute(
-                "DELETE FROM confenge_target_fit_dirty WHERE company_key = %s", (ck,)
-            )
+            cur.execute("DELETE FROM confenge_target_fit_dirty WHERE company_key = %s", (ck,))
         conn.commit()
         for i in range(3):
             enqueue_dirty(
@@ -281,9 +276,7 @@ def test_claim_batch_one_per_company(dsn):
             )
         conn.commit()
         reclaim_expired_locks(conn)
-        batch = claim_batch(
-            conn, worker_id="w-one", batch_size=10, lock_ttl_seconds=60
-        )
+        batch = claim_batch(conn, worker_id="w-one", batch_size=10, lock_ttl_seconds=60)
         conn.commit()
         same = [i for i in batch if i.company_key == ck]
         assert len(same) == 1, f"expected 1 claim, got {same!r} full={batch!r}"
@@ -299,9 +292,7 @@ def test_concurrent_claim_same_company_single_writer(dsn):
     try:
         ensure_control_defaults(conn)
         with conn.cursor() as cur:
-            cur.execute(
-                "DELETE FROM confenge_target_fit_dirty WHERE company_key = %s", (ck,)
-            )
+            cur.execute("DELETE FROM confenge_target_fit_dirty WHERE company_key = %s", (ck,))
         for i in range(5):
             enqueue_dirty(
                 conn,
@@ -322,9 +313,7 @@ def test_concurrent_claim_same_company_single_writer(dsn):
     def _claim(worker_id: str):
         c = connect(dsn, readonly=False)
         try:
-            items = claim_batch(
-                c, worker_id=worker_id, batch_size=5, lock_ttl_seconds=60
-            )
+            items = claim_batch(c, worker_id=worker_id, batch_size=5, lock_ttl_seconds=60)
             c.commit()
             return [i.id for i in items if i.company_key == ck]
         finally:
@@ -414,22 +403,13 @@ def test_confirmed_fresh_published_allows_tier_a():
         "target_fit_computed_at": "2026-08-09T12:00:00Z",
         "datalake_watermark": "2026-08-09T12:00:00Z",
         "service_code": "estruturacao_pleito_reajuste",
-        "factual_hook": (
-            "objeto: pavimentação asfáltica CBUQ em vias urbanas; "
-            "órgão: Pref. Coxilha; UF RS"
-        ),
-        "observed_fact": (
-            "objeto: pavimentação asfáltica CBUQ em vias urbanas; "
-            "órgão: Pref. Coxilha; UF RS"
-        ),
+        "factual_hook": ("objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. Coxilha; UF RS"),
+        "observed_fact": ("objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. Coxilha; UF RS"),
         "why_this_account": (
             "PAVIPLAN com execução pública de pavimentação — "
             "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. Coxilha"
         ),
-        "why_now": (
-            "aditivo recente no contrato de PAVIPLAN de pavimentação asfáltica CBUQ "
-            "com a Pref. Coxilha"
-        ),
+        "why_now": ("aditivo recente no contrato de PAVIPLAN de pavimentação asfáltica CBUQ com a Pref. Coxilha"),
         "micro_offer_code": "REAJUSTE_CHECK",
         "cta": "Posso te mandar o recorte público que encontrei?",
         "evidence_ids": ["c1"],
@@ -455,14 +435,29 @@ def test_confirmed_fresh_published_allows_tier_a():
     }
     ready = evaluate_email_send_ready(
         company=company,
-        email="engenharia@paviplan.com.br",
+        email="maria.souza@paviplan.com.br",
         ownership_status="COMPANY_OWNED",
         verification_status="OBSERVED",
         service_code="estruturacao_pleito_reajuste",
         factual_evidence=True,
         evidence_ids=["c1"],
-        source_type="site",
-        source_url="https://paviplan.com.br/contato",
+        contact={
+            "name": "Maria de Souza",
+            "cargo": "Diretora Comercial",
+            "email": "maria.souza@paviplan.com.br",
+            "email_explicitly_published": True,
+            "name_explicitly_published": True,
+            "role_explicitly_published": True,
+            "human_identity_evidence_valid": True,
+            "identity_evidence_urls": ["https://paviplan.com.br/equipe"],
+            "evidence_sha256": "d" * 64,
+            "source": {
+                "source_type": "site",
+                "source_url": "https://paviplan.com.br/equipe",
+                "observed_at": "2026-08-13T12:00:00Z",
+                "evidence_sha256": "d" * 64,
+            },
+        },
     )
     assert ready.target_fit_send_tier == "A_AUTOMATIC"
     assert ready.provenance_chain_valid is True

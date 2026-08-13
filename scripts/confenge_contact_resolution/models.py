@@ -135,9 +135,20 @@ class SourceProvenance:
     source_type: str  # registry | site | public_docs | contact_page | web_search | human_outcome
     source_url: str | None = None
     source_document: str | None = None
-    source_date: str | None = None  # ISO date when known
-    observed_at: str | None = None  # ISO datetime of observation run
+    # ``source_date`` remains as a compatibility alias. New producers must use
+    # the semantic fields below and must never copy observation time into it.
+    source_date: str | None = None
+    source_published_at: str | None = None  # date explicitly declared by source
+    observed_at: str | None = None  # when the public source was actually read
+    verified_at: str | None = None  # when an additional active check ran
+    evidence_sha256: str | None = None  # stable hash; excludes observation time
     notes: str | None = None
+
+    def __post_init__(self) -> None:
+        # Legacy adapters used source_date for a genuine document/publication
+        # date. Preserve that meaning while exposing it explicitly.
+        if self.source_date and not self.source_published_at:
+            self.source_published_at = self.source_date
 
     def as_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -214,6 +225,12 @@ class ContactCandidate:
     source_types: list[str] = field(default_factory=list)
     contact_type: str = "UNKNOWN"  # EMAIL | PHONE | BOTH
     limitations: list[str] = field(default_factory=list)
+    email_explicitly_published: bool = False
+    name_explicitly_published: bool = False
+    role_explicitly_published: bool = False
+    human_identity_evidence_valid: bool = False
+    identity_evidence_urls: list[str] = field(default_factory=list)
+    evidence_sha256: str | None = None
 
     def as_dict(self) -> dict[str, Any]:
         d = asdict(self)
