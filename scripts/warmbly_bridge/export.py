@@ -166,6 +166,19 @@ def _parse_timestamp(value: Any, *, field: str, cnpj: str) -> datetime:
     return parsed.astimezone(UTC)
 
 
+def _rfc3339_timestamp(value: Any, *, field: str, cnpj: str) -> str:
+    """Return the contract timestamp in canonical UTC RFC 3339 form."""
+    return _parse_timestamp(value, field=field, cnpj=cnpj).isoformat().replace("+00:00", "Z")
+
+
+def _normalize_authoritative_timestamps(leads: list[dict[str, Any]]) -> None:
+    """Normalize database datetime strings before schema serialization and hashing."""
+    for lead in leads:
+        cnpj = str((lead.get("company") or {}).get("cnpj14") or "")
+        for field in ("target_fit_source_watermark", "target_fit_computed_at"):
+            lead[field] = _rfc3339_timestamp(lead.get(field), field=field, cnpj=cnpj)
+
+
 def _decision_order_key(lead: dict[str, Any]) -> tuple[datetime, datetime, str, str]:
     cnpj = str((lead.get("company") or {}).get("cnpj14") or "")
     return (
@@ -377,6 +390,7 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
         published_index=published_index,
         datalake_watermark=datalake_watermark,
     )
+    _normalize_authoritative_timestamps(leads)
     leads.sort(key=_decision_order_key)
     if cfg.limit is not None:
         leads = leads[: cfg.limit]
