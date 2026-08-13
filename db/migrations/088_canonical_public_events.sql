@@ -249,7 +249,7 @@ DECLARE
     event_type_value TEXT := p_observation->>'event_type';
     policy TEXT := COALESCE(NULLIF(p_observation->>'policy_version', ''), 'canonical-events-v1');
     facts JSONB := COALESCE(p_observation->'facts', '{}'::JSONB);
-    match_state TEXT := upper(COALESCE(p_observation->>'match_state', 'EXACT'));
+    match_state TEXT := upper(COALESCE(NULLIF(btrim(p_observation->>'match_state'), ''), 'EXACT'));
     observation_id_value TEXT;
     process_entity_id TEXT;
     event_id_value TEXT;
@@ -269,6 +269,10 @@ BEGIN
     IF event_type_value IS NULL
        OR event_type_value NOT IN ('tender_publication', 'tender_status', 'tender_document_change', 'contract_lifecycle') THEN
         RAISE EXCEPTION 'unsupported event_type %', event_type_value USING ERRCODE = '22023';
+    END IF;
+    IF match_state NOT IN ('EXACT', 'AMBIGUOUS') THEN
+        RAISE EXCEPTION 'match_state % is not an identity authority (expected EXACT or AMBIGUOUS)', match_state
+            USING ERRCODE = '22023';
     END IF;
 
     observation_id_value := public.canonical_public_id(

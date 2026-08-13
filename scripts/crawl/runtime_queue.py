@@ -182,7 +182,8 @@ class CrawlQueue:
                         updated_at = now()
                     WHERE status = 'running'
                       AND lease_expires_at < %s
-                    RETURNING id
+                    RETURNING id, source, capability, canonical_entity_key, cursor,
+                              status, attempt_count, max_attempts
                 )
                 , closed_attempts AS (
                     UPDATE crawl_job_attempts a
@@ -193,11 +194,62 @@ class CrawlQueue:
                     WHERE a.job_id = e.id AND a.status = 'running'
                     RETURNING a.id
                 )
-                SELECT COUNT(*) AS expired_count FROM expired
+                SELECT id, source, capability, canonical_entity_key, cursor,
+                       status, attempt_count, max_attempts
+                FROM expired
                 """,
                 (clock, clock),
             )
-            return int(cursor.fetchone()["expired_count"])
+            expired_rows = list(cursor.fetchall() or [])
+            for row in expired_rows:
+                if row["status"] != "failed":
+                    continue
+                pointer = {
+                    "kind": "crawl_job_cursor",
+                    "job_id": int(row["id"]),
+                    "cursor": row["cursor"] or {},
+                }
+                cursor.execute(
+                    """
+                    INSERT INTO dlq_entries (
+                        source, run_id, phase, payload, error_code, error_message,
+                        retry_count, max_retries, status, job_id,
+                        canonical_entity_key, error_class, payload_pointer,
+                        owner, next_action, terminal_at
+                    ) VALUES (
+                        %s, %s, %s, %s::jsonb, %s, %s,
+                        %s, %s, 'dead', %s,
+                        %s, %s, %s::jsonb, %s, %s, %s
+                    )
+                    ON CONFLICT (job_id) WHERE job_id IS NOT NULL AND status IN ('pending', 'dead')
+                    DO NOTHING
+                    RETURNING id
+                    """,
+                    (
+                        row["source"],
+                        f"lease-expired:{row['id']}",
+                        row["capability"],
+                        json.dumps({"cursor": row["cursor"] or {}}),
+                        "LEASE_EXPIRED",
+                        "worker lease expired before terminal result",
+                        row["attempt_count"],
+                        row["max_attempts"],
+                        row["id"],
+                        row["canonical_entity_key"],
+                        "LEASE_EXPIRED",
+                        json.dumps(pointer, sort_keys=True),
+                        "runtime_queue.reclaim_expired",
+                        "inspect_and_replay_or_resolve",
+                        clock,
+                    ),
+                )
+                inserted = cursor.fetchone()
+                if inserted:
+                    cursor.execute(
+                        "UPDATE crawl_jobs SET dlq_entry_id = %s WHERE id = %s",
+                        (int(inserted["id"]), row["id"]),
+                    )
+            return len(expired_rows)
 
     def claim(
         self,

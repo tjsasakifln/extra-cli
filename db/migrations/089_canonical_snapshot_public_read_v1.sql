@@ -269,7 +269,13 @@ BEGIN
     WHERE snapshot_id = p_snapshot_id;
     UPDATE public.public_read_surface_health_internal
     SET refreshed_at = NOW(), last_refresh_status = 'VALID', last_error = NULL, updated_at = NOW()
-    WHERE enabled;
+    WHERE enabled
+      AND view_name IN ('snapshots', 'tenders', 'contracts', 'entities', 'suppliers', 'organs');
+    UPDATE public.public_read_surface_health_internal
+    SET refreshed_at = NOW(), last_refresh_status = 'STALE',
+        last_error = 'municipalities reserved until snapshot-bound municipality facts exist',
+        updated_at = NOW()
+    WHERE enabled AND view_name = 'municipalities';
     PERFORM set_config('app.canonical_snapshot_transition', 'off', TRUE);
     RETURN jsonb_build_object('snapshot_id', p_snapshot_id, 'state', 'READY_CANONICAL', 'content_hash', result_hash, 'blockers', '[]'::JSONB);
 END;
@@ -387,13 +393,26 @@ END $$;
 CREATE SCHEMA IF NOT EXISTS public_read_v1;
 
 CREATE OR REPLACE VIEW public_read_v1.current_snapshot AS
-SELECT snapshot_id, cutoff_at AS as_of, content_hash, universe_hash, policy_hash,
-       schema_hash, adapter_hash, data_hash, document_hash, dossier_hash,
-       closed_at, 'COMPLETE'::TEXT AS completeness,
-       jsonb_build_object('snapshot_id', snapshot_id, 'content_hash', content_hash) AS provenance
-FROM public.canonical_public_snapshots
-WHERE state = 'READY_CANONICAL'
-ORDER BY cutoff_at DESC, snapshot_id DESC
+SELECT snapshot.snapshot_id, snapshot.cutoff_at AS as_of, snapshot.content_hash,
+       snapshot.universe_hash, snapshot.policy_hash, snapshot.schema_hash,
+       snapshot.adapter_hash, snapshot.data_hash, snapshot.document_hash,
+       snapshot.dossier_hash, snapshot.closed_at,
+       CASE
+           WHEN EXISTS (
+               SELECT 1 FROM public.canonical_snapshot_source_watermarks watermark
+               WHERE watermark.snapshot_id = snapshot.snapshot_id
+                 AND (watermark.completeness_state <> 'COMPLETE' OR watermark.freshness_state <> 'FRESH')
+           ) THEN 'INCOMPLETE'
+           WHEN NOT EXISTS (
+               SELECT 1 FROM public.canonical_snapshot_source_watermarks watermark
+               WHERE watermark.snapshot_id = snapshot.snapshot_id
+           ) THEN 'UNKNOWN'
+           ELSE 'COMPLETE'
+       END AS completeness,
+       jsonb_build_object('snapshot_id', snapshot.snapshot_id, 'content_hash', snapshot.content_hash) AS provenance
+FROM public.canonical_public_snapshots snapshot
+WHERE snapshot.state = 'READY_CANONICAL'
+ORDER BY snapshot.cutoff_at DESC, snapshot.snapshot_id DESC
 LIMIT 1;
 
 CREATE OR REPLACE VIEW public_read_v1.access_gate AS
@@ -403,7 +422,10 @@ CREATE OR REPLACE VIEW public_read_v1.tenders AS
 SELECT event.event_id, event.process_key, event.event_type, revision.status_code,
        revision.title, revision.publication_at, revision.official_number,
        snapshot.as_of, revision.system_from AS source_updated_at,
-       'COMPLETE'::TEXT AS completeness, ARRAY[]::TEXT[] AS reason_codes,
+       snapshot.completeness,
+       CASE WHEN snapshot.completeness = 'COMPLETE' THEN ARRAY[]::TEXT[]
+            WHEN snapshot.completeness = 'UNKNOWN' THEN ARRAY['missing_source_watermarks']
+            ELSE ARRAY['source_watermark_incomplete'] END AS reason_codes,
        observation.source, observation.source_uri,
        jsonb_build_object('observation_id', observation.observation_id, 'raw_sha256', observation.raw_sha256, 'revision_id', revision.revision_id, 'snapshot_id', snapshot.snapshot_id) AS provenance
 FROM public_read_v1.current_snapshot snapshot
@@ -418,7 +440,10 @@ CREATE OR REPLACE VIEW public_read_v1.contracts AS
 SELECT event.event_id, event.process_key, revision.status_code, revision.title,
        revision.contract_value, revision.official_number,
        snapshot.as_of, revision.system_from AS source_updated_at,
-       'COMPLETE'::TEXT AS completeness, ARRAY[]::TEXT[] AS reason_codes,
+       snapshot.completeness,
+       CASE WHEN snapshot.completeness = 'COMPLETE' THEN ARRAY[]::TEXT[]
+            WHEN snapshot.completeness = 'UNKNOWN' THEN ARRAY['missing_source_watermarks']
+            ELSE ARRAY['source_watermark_incomplete'] END AS reason_codes,
        observation.source, observation.source_uri,
        jsonb_build_object('observation_id', observation.observation_id, 'raw_sha256', observation.raw_sha256, 'revision_id', revision.revision_id, 'snapshot_id', snapshot.snapshot_id) AS provenance
 FROM public_read_v1.current_snapshot snapshot
@@ -450,27 +475,35 @@ WITH entity_links AS (
 SELECT entity.entity_id, entity.entity_type, entity.display_name,
        entity.tax_identifier_type, entity.tax_identifier_export,
        provenance.as_of, entity.last_seen_at AS source_updated_at,
-       'COMPLETE'::TEXT AS completeness, ARRAY[]::TEXT[] AS reason_codes,
+       snapshot.completeness,
+       CASE WHEN snapshot.completeness = 'COMPLETE' THEN ARRAY[]::TEXT[]
+            WHEN snapshot.completeness = 'UNKNOWN' THEN ARRAY['missing_source_watermarks']
+            ELSE ARRAY['source_watermark_incomplete'] END AS reason_codes,
        jsonb_build_object('snapshot_id', provenance.snapshot_id, 'lineage', provenance.lineage) AS provenance
 FROM entity_provenance provenance
-JOIN public.canonical_public_entities_v2 entity USING (entity_id);
+JOIN public.canonical_public_entities_v2 entity USING (entity_id)
+JOIN public_read_v1.current_snapshot snapshot ON snapshot.snapshot_id = provenance.snapshot_id;
 
 CREATE OR REPLACE VIEW public_read_v1.suppliers AS
 SELECT * FROM public_read_v1.entities WHERE entity_type IN ('supplier', 'company');
 CREATE OR REPLACE VIEW public_read_v1.organs AS
 SELECT * FROM public_read_v1.entities WHERE entity_type IN ('organ', 'unit');
 
+-- Reserved family: do not join live canonical_organs (that table is outside
+-- the closed snapshot). Empty until municipality facts are snapshot-bound.
 CREATE OR REPLACE VIEW public_read_v1.municipalities AS
-SELECT DISTINCT public.canonical_public_id('mun', ARRAY[COALESCE(organ.ibge_code, ''), COALESCE(organ.uf, ''), COALESCE(organ.municipio, '')]) AS municipality_id,
-       organ.ibge_code, organ.uf, organ.municipio AS name,
-       snapshot.as_of, organ.updated_at AS source_updated_at,
-       'COMPLETE'::TEXT AS completeness, ARRAY[]::TEXT[] AS reason_codes,
-       jsonb_build_object('snapshot_id', snapshot.snapshot_id, 'organ_canonical_key', organ.canonical_key) AS provenance
+SELECT
+    NULL::TEXT AS municipality_id,
+    NULL::TEXT AS ibge_code,
+    NULL::TEXT AS uf,
+    NULL::TEXT AS name,
+    snapshot.as_of,
+    snapshot.as_of AS source_updated_at,
+    'UNKNOWN'::TEXT AS completeness,
+    ARRAY['municipality_facts_not_snapshot_bound']::TEXT[] AS reason_codes,
+    jsonb_build_object('snapshot_id', snapshot.snapshot_id) AS provenance
 FROM public_read_v1.current_snapshot snapshot
-JOIN public_read_v1.organs exposed ON TRUE
-JOIN public.canonical_public_entities_v2 entity ON entity.entity_id = exposed.entity_id
-JOIN public.canonical_organs organ ON organ.cnpj14 = regexp_replace(entity.strong_key, '\D', '', 'g')
-WHERE organ.municipio IS NOT NULL;
+WHERE FALSE;
 
 CREATE OR REPLACE VIEW public_read_v1.surface_health AS
 SELECT health.view_name, health.enabled,
@@ -551,5 +584,30 @@ REVOKE ALL ON ALL TABLES IN SCHEMA public FROM smartlic_public_reader;
 GRANT USAGE ON SCHEMA public_read_v1 TO smartlic_public_reader;
 GRANT SELECT ON ALL TABLES IN SCHEMA public_read_v1 TO smartlic_public_reader;
 REVOKE INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER ON ALL TABLES IN SCHEMA public_read_v1 FROM smartlic_public_reader;
+
+-- EXECUTE ON PUBLIC is the PostgreSQL default. REVOKE ALL ON SCHEMA public
+-- does not remove it. Writer RPCs must not be callable by the reader role.
+DO $$
+DECLARE
+    writer REGPROCEDURE;
+BEGIN
+    FOREACH writer IN ARRAY ARRAY[
+        'public.upsert_pncp_raw_bids(JSONB)'::REGPROCEDURE,
+        'public.ensure_canonical_public_entity_v2(TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT)'::REGPROCEDURE,
+        'public.ingest_canonical_public_observation_v1(JSONB)'::REGPROCEDURE,
+        'public.record_canonical_identity_decision_v1(TEXT, TEXT, TEXT, TEXT[], TEXT, TEXT[], TEXT, TEXT)'::REGPROCEDURE,
+        'public.begin_canonical_public_snapshot_v1(TIMESTAMPTZ, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, INTEGER, INTEGER, TEXT)'::REGPROCEDURE,
+        'public.put_canonical_snapshot_watermark_v1(TEXT, TEXT, TEXT, TIMESTAMPTZ, TEXT, TEXT, INTEGER, INTEGER, TEXT)'::REGPROCEDURE,
+        'public.close_canonical_public_snapshot_v1(TEXT)'::REGPROCEDURE,
+        'public.invalidate_consumer_projection_private_v1(TEXT, TEXT, TEXT)'::REGPROCEDURE
+    ]
+    LOOP
+        EXECUTE format('REVOKE ALL ON FUNCTION %s FROM PUBLIC', writer);
+        EXECUTE format('REVOKE ALL ON FUNCTION %s FROM smartlic_public_reader', writer);
+    END LOOP;
+END $$;
+REVOKE ALL ON ALL FUNCTIONS IN SCHEMA public FROM smartlic_public_reader;
+REVOKE ALL ON ALL TABLES IN SCHEMA public FROM smartlic_public_reader;
+REVOKE USAGE ON SCHEMA public FROM smartlic_public_reader;
 
 COMMIT;

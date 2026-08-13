@@ -157,6 +157,8 @@ reproducible evidence.
 - `db/rollback/088_canonical_public_events_rollback.sql`
 - `db/migrations/089_canonical_snapshot_public_read_v1.sql`
 - `db/rollback/089_canonical_snapshot_public_read_v1_rollback.sql`
+- `db/migrations/090_public_read_select_only_lock.sql`
+- `db/rollback/090_public_read_select_only_lock_rollback.sql`
 - `docs/contracts/public-read-v1.md`
 - `scripts/crawl/monitor.py`
 - `scripts/crawl/pcp_crawler.py`

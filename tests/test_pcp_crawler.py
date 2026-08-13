@@ -2,6 +2,7 @@
 
 import json
 import os
+import urllib.error
 from datetime import date
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -245,6 +246,34 @@ class TestTransform:
         """
         result = pcp.transform([MOCK_RECORD, MOCK_RECORD])
         assert len(result) == 2, f"Expected 2 records (no in-memory dedup), got {len(result)}"
+
+    def test_transform_hash_includes_process_identity(self):
+        first = pcp.transform([MOCK_RECORD])[0]
+        other = dict(MOCK_RECORD)
+        other["codigoLicitacao"] = "99999"
+        second = pcp.transform([other])[0]
+        assert first["content_hash"]
+        assert first["content_hash"] != ""
+        assert first["content_hash"] != second["content_hash"]
+        assert first["content_hash"] == pcp.transform([MOCK_RECORD])[0]["content_hash"]
+
+    def test_fetch_page_raises_after_exhausted_server_errors(self, monkeypatch):
+        monkeypatch.setattr(pcp, "PCP_MAX_RETRIES", 0)
+        monkeypatch.setattr(pcp.time, "sleep", lambda _seconds: None)
+
+        def boom(_req, timeout=None):
+            del timeout
+            raise urllib.error.HTTPError(
+                url="https://example.test/pcp",
+                code=500,
+                msg="server",
+                hdrs={},
+                fp=None,
+            )
+
+        monkeypatch.setattr(pcp.urllib.request, "urlopen", boom)
+        with pytest.raises(urllib.error.HTTPError):
+            pcp._fetch_page(1, "2026-08-13", "2026-08-13")
 
 
 @pytest.mark.real_db

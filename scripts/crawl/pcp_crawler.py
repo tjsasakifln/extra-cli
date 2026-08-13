@@ -284,7 +284,7 @@ def _fetch_page(
                 time.sleep(delay)
                 continue
             _logger.warning("[PCP] HTTP %d after %d retries: %s", e.code, PCP_MAX_RETRIES, url)
-            return [], False
+            raise
 
         except (urllib.error.URLError, TimeoutError, OSError) as e:
             if attempt < PCP_MAX_RETRIES:
@@ -293,9 +293,9 @@ def _fetch_page(
                 time.sleep(delay)
                 continue
             _logger.warning("[PCP] Fetch error after %d retries: %s", PCP_MAX_RETRIES, e)
-            return [], False
+            raise
 
-    return [], False
+    raise RuntimeError(f"PCP fetch exhausted retries for page {pagina}")
 
 
 # ---------------------------------------------------------------------------
@@ -306,7 +306,14 @@ def _fetch_page(
 def _generate_content_hash(record: dict) -> str:
     """Deterministic MD5 hash over key fields (delegates to common)."""
     return _common_content_hash(
-        record, fields=["orgao_cnpj", "objeto_compra", "data_publicacao", "valor_total_estimado"]
+        record,
+        fields=[
+            "pncp_id",
+            "orgao_cnpj",
+            "objeto_compra",
+            "data_publicacao",
+            "valor_total_estimado",
+        ],
     )
 
 

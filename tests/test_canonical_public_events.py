@@ -288,6 +288,12 @@ def test_bitemporal_asof_ambiguous_conflict_merge_split_and_immutability() -> No
             )
             conflict = _ingest(cursor, ambiguous)
             assert conflict["state"] == "CONFLICT" and conflict["event_id"] is None
+            weak = _observation(source="test_canonical_other", record="weak-001", raw="weak-body")
+            weak["match_state"] = "WEAK"
+            cursor.execute("SAVEPOINT match_state_rejected")
+            with pytest.raises(Exception, match="match_state"):
+                _ingest(cursor, weak)
+            cursor.execute("ROLLBACK TO SAVEPOINT match_state_rejected")
             cursor.execute(
                 "SELECT status FROM canonical_match_conflicts WHERE conflict_id = %s",
                 (conflict["conflict_id"],),
@@ -417,7 +423,14 @@ def test_snapshot_barrier_repeatable_read_projection_invalidation_and_public_rol
                 WHERE enabled AND last_refresh_status = 'VALID' AND refreshed_at IS NOT NULL
                 """
             )
-            assert int(cursor.fetchone()["count"]) == 7
+            assert int(cursor.fetchone()["count"]) == 6
+            cursor.execute(
+                """
+                SELECT last_refresh_status FROM public_read_surface_health_internal
+                WHERE view_name = 'municipalities'
+                """
+            )
+            assert cursor.fetchone()["last_refresh_status"] == "STALE"
 
             cursor.execute(
                 """
@@ -515,12 +528,19 @@ def test_snapshot_barrier_repeatable_read_projection_invalidation_and_public_rol
             for statement in (
                 "SELECT count(*) FROM public.canonical_public_snapshots",
                 "INSERT INTO public_read_v1.query_budgets VALUES ('attack', 1, 1, 1, 1, 'attack')",
+                "UPDATE public_read_v1.query_budgets SET max_rows = 1 WHERE query_family = 'surface_health'",
+                "DELETE FROM public_read_v1.query_budgets WHERE query_family = 'surface_health'",
                 "CREATE TABLE public_read_v1.attack(id integer)",
+                "SELECT ingest_canonical_public_observation_v1('{}'::jsonb)",
+                "SELECT upsert_pncp_raw_bids('[]'::jsonb)",
+                "SELECT begin_canonical_public_snapshot_v1(NOW(), repeat('a', 64), repeat('b', 64), repeat('c', 64), repeat('d', 64), repeat('e', 64), repeat('f', 64), repeat('0', 64), 0, 0, 'attacker')",
             ):
                 cursor.execute("SAVEPOINT permission_denied")
                 with pytest.raises(psycopg2.errors.InsufficientPrivilege):
                     cursor.execute(statement)
                 cursor.execute("ROLLBACK TO SAVEPOINT permission_denied")
+            cursor.execute("SELECT count(*) AS count FROM public_read_v1.municipalities")
+            assert int(cursor.fetchone()["count"]) == 0
             cursor.execute("EXPLAIN (FORMAT JSON) SELECT * FROM public_read_v1.tenders WHERE process_key = 'test-canonical:process:001' LIMIT 100")
             assert cursor.fetchone() is not None
             cursor.execute("RESET ROLE")

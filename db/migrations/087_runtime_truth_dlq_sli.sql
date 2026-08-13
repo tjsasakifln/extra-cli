@@ -21,6 +21,13 @@ UPDATE public.dlq_entries
 SET error_class = COALESCE(error_class, error_code, 'UNCLASSIFIED')
 WHERE error_class IS NULL;
 
+-- Preserve original terminal time for rows that predate this column.
+-- ADD COLUMN … DEFAULT NOW() otherwise stamps apply-time on the whole table.
+UPDATE public.dlq_entries
+SET terminal_at = COALESCE(failed_at, terminal_at)
+WHERE failed_at IS NOT NULL
+  AND (terminal_at IS NULL OR terminal_at > failed_at);
+
 ALTER TABLE public.dlq_entries
     ALTER COLUMN error_class SET NOT NULL,
     DROP CONSTRAINT IF EXISTS ck_dlq_replay_count,

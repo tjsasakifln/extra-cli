@@ -369,6 +369,49 @@ def test_transactional_dlq_poison_blocked_selective_replay_and_resolve(runtime_q
 
 @pytest.mark.database
 @pytest.mark.integration
+def test_reclaim_expired_poison_writes_dlq(runtime_queue_dsn: str) -> None:
+    dsn = runtime_queue_dsn
+    _clean_test_jobs(dsn)
+    entity_id, entity_created, entity_was_active = _dlq_test_entity_state(dsn)
+    now = datetime.now(UTC).replace(microsecond=0)
+    try:
+        with connect(dsn) as connection:
+            queue = CrawlQueue(connection)
+            job_id, _ = queue.enqueue(
+                entity_id=entity_id,
+                source="test_queue_lease",
+                capability="open_tenders",
+                domain_key="lease.example",
+                binding_version="test-lease-v1",
+                window_start=now,
+                window_end=now + timedelta(minutes=5),
+                freshness_deadline=now + timedelta(minutes=10),
+                next_run_at=now,
+                priority=3_000_000,
+                max_attempts=1,
+            )
+            claimed = queue.claim(worker_id="dying-worker", limit=1, lease_seconds=1, now=now)
+            assert claimed and claimed[0].id == job_id
+            expired = queue.reclaim_expired(now=now + timedelta(seconds=2))
+            assert expired == 1
+            rows = queue.inspect_dlq(source="test_queue_lease")
+            assert len(rows) == 1
+            assert rows[0]["job_id"] == job_id
+            assert rows[0]["error_class"] == "LEASE_EXPIRED"
+    finally:
+        _clean_test_jobs(dsn)
+        with connect(dsn) as connection, connection.cursor() as cursor:
+            if entity_created:
+                cursor.execute("DELETE FROM sc_public_entities WHERE id = %s", (entity_id,))
+            else:
+                cursor.execute(
+                    "UPDATE sc_public_entities SET is_active = %s WHERE id = %s",
+                    (entity_was_active, entity_id),
+                )
+
+
+@pytest.mark.database
+@pytest.mark.integration
 def test_truth_plane_sli_missing_denominators_preserve_last_valid_and_route_alerts(
     runtime_queue_dsn: str,
 ) -> None:

@@ -25,7 +25,12 @@ BEGIN
         WHERE role.rolname = 'smartlic_public_reader'
           AND shobj_description(role.oid, 'pg_authid') = 'managed-by-extra-migration-089'
     ) THEN
+        EXECUTE format('REVOKE CONNECT ON DATABASE %I FROM smartlic_public_reader', current_database());
         EXECUTE format('REVOKE smartlic_public_reader FROM %I', current_user);
+        ALTER ROLE smartlic_public_reader RESET statement_timeout;
+        ALTER ROLE smartlic_public_reader RESET lock_timeout;
+        ALTER ROLE smartlic_public_reader RESET idle_in_transaction_session_timeout;
+        ALTER ROLE smartlic_public_reader RESET default_transaction_read_only;
         DROP OWNED BY smartlic_public_reader;
         BEGIN
             DROP ROLE smartlic_public_reader;
