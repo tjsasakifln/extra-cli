@@ -7,7 +7,7 @@ import hashlib
 import json
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -105,7 +105,7 @@ def parse_dod(path: Path) -> dict[str, Any]:
 
     return {
         "version": "1.0.0",
-        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "generated_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "dod_path": str(path),
         "dod_sha256": sha256_file(path),
         "item_count": len(items),

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
 
@@ -69,7 +69,7 @@ def build_default_graph(context: dict[str, Any] | None = None) -> dict[str, Any]
 
     return {
         "version": "1.0.0",
-        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "generated_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "nodes": nodes,
         "edges": edge_objs,
         "critical_path": critical_path,
@@ -84,7 +84,6 @@ def main(argv: list[str] | None = None) -> int:
     graph = build_default_graph()
     text = json.dumps(graph, indent=2, ensure_ascii=False)
     if args.output:
-        Path = __import__("pathlib").Path
         out = Path(args.output)
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(text + "\n", encoding="utf-8")

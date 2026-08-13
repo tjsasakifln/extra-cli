@@ -9,7 +9,6 @@ import hashlib
 import re
 from typing import Any
 
-
 _EVIDENCE_SPLIT = re.compile(
     r"\s*(?:Evid[eê]ncia\s*:|Evidence\s*:|`PARTIAL`|PARTIAL\s*[—\-])",
     re.IGNORECASE,
@@ -37,13 +36,13 @@ def normalize_text(body: str) -> str:
 
 def stable_dod_id(section: str, body: str) -> str:
     key = f"{(section or '').strip()}|{normalize_text(body)}"
-    return f"dod:{hashlib.sha1(key.encode('utf-8')).hexdigest()[:12]}"
+    return f"dod:{hashlib.sha1(key.encode('utf-8'), usedforsecurity=False).hexdigest()[:12]}"
 
 
 def slice_id_for_section(section: str, open_ids: list[str]) -> str:
     """Deterministic slice id from section + sorted open item ids."""
     payload = f"{section}|{'|'.join(sorted(open_ids))}"
-    return f"slice:{hashlib.sha1(payload.encode('utf-8')).hexdigest()[:12]}"
+    return f"slice:{hashlib.sha1(payload.encode('utf-8'), usedforsecurity=False).hexdigest()[:12]}"
 
 
 def classify_truth_state(

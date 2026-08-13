@@ -20,7 +20,9 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import shutil
 import subprocess
+import tempfile
 from collections import Counter
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
@@ -29,6 +31,10 @@ from typing import Any
 
 from campaign import parse_items
 from dod_ids import core_requirement_text, normalize_text
+
+GIT = shutil.which("git")
+if GIT is None:
+    raise RuntimeError("git executable not found")
 
 # Evidence types that may support a PASS count
 ACCEPTABLE_EVIDENCE_TYPES = frozenset(
@@ -141,8 +147,8 @@ def utcnow() -> str:
 
 
 def git_head(root: Path) -> str:
-    return subprocess.check_output(
-        ["git", "rev-parse", "HEAD"], cwd=root, text=True
+    return subprocess.check_output(  # noqa: S603 - fixed resolved git executable
+        [GIT, "rev-parse", "HEAD"], cwd=root, text=True
     ).strip()
 
 
@@ -161,15 +167,15 @@ def _review_head_ok(root: Path, reviewed: str, final_head: str) -> bool:
     if reviewed == final_head:
         return True
     try:
-        merge_base = subprocess.check_output(
-            ["git", "merge-base", reviewed, final_head],
+        merge_base = subprocess.check_output(  # noqa: S603 - git argv, no shell
+            [GIT, "merge-base", reviewed, final_head],
             cwd=root,
             text=True,
         ).strip()
         if merge_base != reviewed:
             return False
-        diff = subprocess.check_output(
-            ["git", "diff", "--name-only", reviewed, final_head],
+        diff = subprocess.check_output(  # noqa: S603 - git argv, no shell
+            [GIT, "diff", "--name-only", reviewed, final_head],
             cwd=root,
             text=True,
         ).strip()
@@ -466,7 +472,13 @@ def validate_row_chain(
     # Artifact existence (repo-relative paths only)
     for ap in item.artifact_paths:
         rel = ap.split(":")[0].strip().strip("`")
-        if not rel or rel.startswith("/tmp") or rel.startswith("/var"):
+        candidate = Path(rel)
+        excluded_roots = (Path(tempfile.gettempdir()).resolve(), Path("/var"))
+        excluded = candidate.is_absolute() and any(
+            candidate == excluded_root or excluded_root in candidate.parents
+            for excluded_root in excluded_roots
+        )
+        if not rel or excluded:
             continue
         if re.match(r"^[\w./-]+$", rel) and ("/" in rel or rel.endswith((".md", ".py", ".json", ".txt", ".sh", ".yml"))):
             p = root / rel

@@ -12,14 +12,20 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 from collections import Counter, defaultdict
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 SCRIPT_DIR = Path(__file__).resolve().parent
+GIT = shutil.which("git")
+GH = shutil.which("gh")
+if GIT is None:
+    raise RuntimeError("git executable not found")
 sys.path.insert(0, str(SCRIPT_DIR))
 
 from campaign import load_ledger, parse_items, save_ledger  # noqa: E402
@@ -156,11 +162,13 @@ REPLACEMENTS = [
 
 
 def utcnow() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def git_head(root: Path) -> str:
-    return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+    return subprocess.check_output(  # noqa: S603 - fixed resolved git executable
+        [GIT, "rev-parse", "HEAD"], cwd=root, text=True
+    ).strip()
 
 
 def check_line(root: Path, item_id: str, evidence: str) -> bool:
@@ -179,7 +187,7 @@ def check_line(root: Path, item_id: str, evidence: str) -> bool:
         if not m:
             out.append(line)
             continue
-        indent, mark, body = m.group(1), m.group(2), m.group(3).strip()
+        indent, body = m.group(1), m.group(3).strip()
         sid = stable_dod_id(section, body)
         if sid == item_id:
             core = core_requirement_text(body)
@@ -193,7 +201,10 @@ def check_line(root: Path, item_id: str, evidence: str) -> bool:
 
 
 def run_cmd(cmd: str, root: Path) -> int:
-    r = subprocess.run(cmd, shell=True, cwd=root, capture_output=True, text=True)
+    # Commands are versioned acceptance contracts and intentionally use shell syntax.
+    r = subprocess.run(  # noqa: S602 - intentional versioned command executor
+        cmd, shell=True, cwd=root, capture_output=True, text=True
+    )
     return r.returncode
 
 
@@ -381,16 +392,10 @@ def independent_qa(root: Path, rows: list[dict[str, Any]], head: str) -> dict[st
                 reasons.append("PDF claim proven only via README output/")
         if "constantes de domínio" in text.lower():
             # scan scatter
-            hits = subprocess.run(
-                ["bash", "-lc", "grep -rn 'REQUEST_TIMEOUT\\s*=' scripts/ --include='*.py' | wc -l"],
-                cwd=root,
-                capture_output=True,
-                text=True,
+            n = sum(
+                len(re.findall(r"^\s*REQUEST_TIMEOUT\s*=", path.read_text(encoding="utf-8"), re.MULTILINE))
+                for path in (root / "scripts").rglob("*.py")
             )
-            try:
-                n = int((hits.stdout or "0").strip())
-            except ValueError:
-                n = 0
             if n > 1:
                 verdict = "FAIL"
                 reasons.append(f"REQUEST_TIMEOUT defined in {n} places — not centralized")
@@ -409,7 +414,12 @@ def independent_qa(root: Path, rows: list[dict[str, Any]], head: str) -> dict[st
         # Artifact existence
         for ap in r.get("artifact_paths") or []:
             rel = ap.split(":")[0]
-            if rel and not rel.startswith("/tmp") and "/" in rel:
+            candidate = Path(rel)
+            temp_root = Path(tempfile.gettempdir()).resolve()
+            in_temp = candidate.is_absolute() and (
+                candidate == temp_root or temp_root in candidate.parents
+            )
+            if rel and not in_temp and "/" in rel:
                 if not (root / rel).exists() and not rel.endswith("/"):
                     # dirs may be listed without trailing content
                     if not (root / rel).exists():
@@ -434,8 +444,10 @@ def independent_qa(root: Path, rows: list[dict[str, Any]], head: str) -> dict[st
     # PR body count if available via gh
     pr_body_n = None
     try:
-        out = subprocess.check_output(
-            ["gh", "pr", "view", "24", "--json", "body,title"],
+        if GH is None:
+            raise FileNotFoundError("gh executable not found")
+        out = subprocess.check_output(  # noqa: S603 - fixed resolved gh executable
+            [GH, "pr", "view", "24", "--json", "body,title"],
             cwd=root,
             text=True,
         )
@@ -581,9 +593,6 @@ def main() -> int:
 
     print("== flip replacements ==")
     items = parse_items((root / "DOD.md").read_text(encoding="utf-8"))
-    items_by_norm_section = {
-        (normalize_text(i["text"]), i["section"]): i for i in items
-    }
     new_rows = list(by_id.values())
     existing_ids = {r["dod_item_id"] for r in new_rows}
 

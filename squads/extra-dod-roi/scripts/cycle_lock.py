@@ -6,8 +6,7 @@ import argparse
 import json
 import os
 import sys
-import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 
@@ -25,7 +24,7 @@ def acquire(squad_root: Path, owner: str, force: bool = False) -> int:
     payload = {
         "owner": owner,
         "pid": os.getpid(),
-        "acquired_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "acquired_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
     lp.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     # stderr so force-next --json stays pure on stdout

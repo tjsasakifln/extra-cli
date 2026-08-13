@@ -5,9 +5,13 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import shutil
 import subprocess
-import sys
 from pathlib import Path
+
+GIT = shutil.which("git")
+if GIT is None:
+    raise RuntimeError("git executable not found")
 
 
 def sha256_file(path: Path) -> str | None:
@@ -18,7 +22,9 @@ def sha256_file(path: Path) -> str | None:
 
 def git(root: Path, *args: str) -> str:
     try:
-        return subprocess.check_output(["git", *args], cwd=str(root), text=True).strip()
+        return subprocess.check_output(  # noqa: S603 - fixed resolved git executable
+            [GIT, *args], cwd=str(root), text=True
+        ).strip()
     except Exception:
         return ""
 
