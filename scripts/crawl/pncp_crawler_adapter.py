@@ -32,7 +32,7 @@ from scripts.crawl.pncp_contract import (
     parse_modalidades_from_env,
     parse_target,
 )
-from scripts.crawl.security import USER_AGENT, validate_public_url, validate_redirect_chain
+from scripts.crawl.security import USER_AGENT, public_get
 from scripts.crawl.watermark_sync import watermark_commit, watermark_read
 
 _logger = logging.getLogger(__name__)
@@ -164,8 +164,8 @@ def _http_get_json(
     session: requests.Session | None = None,
     sleeper: Any = time.sleep,
     http_policy: Any | None = None,
+    resolve_initial_dns: bool = True,
 ) -> FetchResult:
-    validate_public_url(url, resolve_dns=False)
     # Policy is resolved at call time so env changes apply without module reload.
     if http_policy is None:
         from scripts.crawl.resilience.http_policy import HttpResiliencePolicy
@@ -199,19 +199,22 @@ def _http_get_json(
             metadata["retries"] = attempt
             attempt_started = time.monotonic()
             try:
-                response = http.get(
+                response = public_get(
+                    http,
                     url,
+                    resolve_initial_dns=resolve_initial_dns,
                     headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
                     timeout=(connect_timeout, read_timeout),
                 )
-            except (requests.Timeout, requests.ConnectionError) as exc:
+            except (requests.Timeout, requests.ConnectionError, ValueError) as exc:
                 attempt_metric = {
                     "attempt": attempt + 1,
                     "outcome": type(exc).__name__,
                     "latency_ms": round((time.monotonic() - attempt_started) * 1000, 3),
                     "sleep_seconds": 0.0,
                 }
-                if attempt < max_retries:
+                unsafe_target = isinstance(exc, ValueError)
+                if attempt < max_retries and not unsafe_target:
                     wait = _retry_delay(attempt, http_policy=http_policy)
                     metadata["retry_delays"].append(wait)
                     attempt_metric["sleep_seconds"] = wait
@@ -229,7 +232,6 @@ def _http_get_json(
                 )
 
             status = response.status_code
-            validate_redirect_chain(response)
             raw_response_body = getattr(response, "content", None)
             if isinstance(raw_response_body, (bytes, bytearray)):
                 metadata["raw_response_body"] = bytes(raw_response_body)

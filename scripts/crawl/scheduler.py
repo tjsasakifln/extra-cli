@@ -286,7 +286,7 @@ def reconcile_schedule(
             result["invalidated"] += cursor.rowcount or 0
             cursor.execute(
                 """
-                INSERT INTO crawl_entity_source_schedule (
+                INSERT INTO crawl_entity_source_schedule AS schedule (
                     canonical_entity_key, entity_id, source, capability, applicability,
                     applicability_reason, policy_version, binding_version,
                     canonical_url, domain_key, next_run_at, freshness_deadline
@@ -298,9 +298,22 @@ def reconcile_schedule(
                     binding_version = EXCLUDED.binding_version,
                     canonical_url = EXCLUDED.canonical_url,
                     domain_key = EXCLUDED.domain_key,
-                    next_run_at = EXCLUDED.next_run_at,
-                    freshness_deadline = EXCLUDED.freshness_deadline,
+                    next_run_at = CASE
+                        WHEN schedule.binding_version IS DISTINCT FROM EXCLUDED.binding_version
+                          OR schedule.policy_version IS DISTINCT FROM EXCLUDED.policy_version
+                          OR schedule.applicability IS DISTINCT FROM EXCLUDED.applicability
+                        THEN EXCLUDED.next_run_at
+                        ELSE schedule.next_run_at
+                    END,
+                    freshness_deadline = CASE
+                        WHEN schedule.binding_version IS DISTINCT FROM EXCLUDED.binding_version
+                          OR schedule.policy_version IS DISTINCT FROM EXCLUDED.policy_version
+                          OR schedule.applicability IS DISTINCT FROM EXCLUDED.applicability
+                        THEN EXCLUDED.freshness_deadline
+                        ELSE schedule.freshness_deadline
+                    END,
                     updated_at = now()
+                RETURNING next_run_at
                 """,
                 (
                     pair.canonical_entity_key or f"db:{pair.entity_id}",
@@ -317,7 +330,11 @@ def reconcile_schedule(
                     freshness_deadline,
                 ),
             )
+            scheduled_next_run = cursor.fetchone()["next_run_at"]
         if pair.applicability != "APPLICABLE":
+            result["deferred"] += 1
+            continue
+        if scheduled_next_run > clock:
             result["deferred"] += 1
             continue
         window_start = clock.replace(minute=0, second=0, microsecond=0)
@@ -332,13 +349,15 @@ def reconcile_schedule(
             window_start=window_start,
             window_end=window_end,
             freshness_deadline=freshness_deadline,
-            next_run_at=next_run,
+            next_run_at=scheduled_next_run,
             max_attempts=int(policy["max_attempts"]),
             domain_concurrency_limit=int(policy["domain_concurrency_limit"]),
         )
         result["queued" if inserted else "existing"] += 1
 
-    result["fully_reconciled"] = result["pair_count"] == sum(result["states"].values())
+    result["fully_reconciled"] = result["pair_count"] == (
+        result["queued"] + result["existing"] + result["deferred"]
+    )
     return result
 
 

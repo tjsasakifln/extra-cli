@@ -543,11 +543,14 @@ class ScComprasAdapter(_AdapterBase):
                         "errors": [str(meta.get("error") or "list_fetch_failed")],
                     }
                 )
+                failure_body = meta.get("raw_response_body")
+                if not isinstance(failure_body, (bytes, bytearray, str)):
+                    failure_body = {"body_absent": True, "reason": "list_fetch_failed"}
                 self.raw.persist(
                     source=self.source_id,
                     run_id=run_id,
                     request_scope=snapshot_scope,
-                    payload=meta.get("raw_response_body") or {"body_absent": True, "reason": "list_fetch_failed"},
+                    payload=failure_body,
                     provenance=failure_provenance,
                     http_status=meta.get("http_status"),
                     request_succeeded=False,

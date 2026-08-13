@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import replace
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
@@ -147,6 +148,94 @@ def test_raw_hash_is_reproducible_and_deduplicated(tmp_path: Path) -> None:
     assert saved["body_uri"] == f"cas://raw-http/{hash_a}"
     assert len(list((tmp_path / "raw" / "cas").glob("**/*.body"))) == 1
     assert store.load_reference(first)["payload"] == {"a": 1, "b": 2}
+
+
+def test_raw_archive_preserves_equal_bodies_for_distinct_pages(tmp_path: Path) -> None:
+    store = RawStore(tmp_path / "raw")
+    first, first_hash = store.persist(
+        source="pncp",
+        run_id="same-run",
+        request_scope="same-scope",
+        payload=b"same body",
+        provenance={},
+        page=1,
+    )
+    second, second_hash = store.persist(
+        source="pncp",
+        run_id="same-run",
+        request_scope="same-scope",
+        payload=b"same body",
+        provenance={},
+        page=2,
+    )
+
+    assert first != second
+    assert first_hash == second_hash
+    assert json.loads(first.read_text(encoding="utf-8"))["page"] == 1
+    assert json.loads(second.read_text(encoding="utf-8"))["page"] == 2
+    assert len(list((tmp_path / "raw" / "cas").glob("**/*.body"))) == 1
+
+
+def test_raw_archive_same_request_identity_is_stable(tmp_path: Path) -> None:
+    store = RawStore(tmp_path / "raw")
+    first, _ = store.persist(
+        source="pncp",
+        run_id="same-run",
+        request_scope="same-scope",
+        payload=b"same body",
+        provenance={"fetched_at": "first", "response_headers": "invalid"},
+        page=1,
+    )
+    second, _ = store.persist(
+        source="pncp",
+        run_id="same-run",
+        request_scope="same-scope",
+        payload=b"same body",
+        provenance={"fetched_at": "second"},
+        page=1,
+    )
+
+    assert first == second
+    saved = json.loads(first.read_text(encoding="utf-8"))
+    assert saved["provenance"]["response_headers"] == {}
+
+
+@pytest.mark.database
+@pytest.mark.integration
+def test_raw_archive_database_preserves_equal_bodies_for_distinct_pages(tmp_path: Path) -> None:
+    if not (
+        os.getenv("REQUIRE_REAL_DB", "").lower() in {"1", "true", "yes"}
+        or os.getenv("RESILIENCE_REQUIRE_DB", "").lower() in {"1", "true", "yes"}
+    ):
+        pytest.skip("REQUIRE_REAL_DB=1 or RESILIENCE_REQUIRE_DB=1 required")
+    dsn = os.getenv("LOCAL_DATALAKE_DSN") or os.getenv("DATABASE_URL")
+    if not dsn:
+        pytest.skip("LOCAL_DATALAKE_DSN or DATABASE_URL not set")
+    from scripts.crawl.runtime_queue import connect
+
+    run_id = "test-raw-equal-page-bodies"
+    with connect(dsn) as connection, connection.cursor() as cursor:
+        cursor.execute("DELETE FROM raw_http_fetches WHERE run_id = %s", (run_id,))
+    try:
+        store = RawStore(tmp_path / "raw", dsn=dsn, require_db=True)
+        for page in (1, 2):
+            store.persist(
+                source="pncp",
+                run_id=run_id,
+                request_scope="same-scope",
+                payload=b"same body",
+                provenance={},
+                page=page,
+            )
+        with connect(dsn) as connection, connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT page FROM raw_http_fetches WHERE run_id = %s ORDER BY page",
+                (run_id,),
+            )
+            assert [row["page"] for row in cursor.fetchall()] == [1, 2]
+    finally:
+        with connect(dsn) as connection, connection.cursor() as cursor:
+            cursor.execute("DELETE FROM raw_http_fetches WHERE run_id = %s", (run_id,))
 
 
 def test_checkpoint_atomic_resume_and_no_reprocess(tmp_path: Path) -> None:
@@ -364,6 +453,35 @@ def test_sc_compras_zero_is_ambiguous(tmp_path: Path) -> None:
     result = adapter.fetch(CrawlRequest(mode="incremental", date_from=date.today(), date_to=date.today()))
     assert result.status == "partial"
     assert not result.empty_confirmed
+
+
+def test_sc_compras_failure_preserves_received_empty_body(tmp_path: Path) -> None:
+    adapter = ScComprasAdapter(
+        config(tmp_path),
+        list_fetcher=lambda _year: (
+            [],
+            {
+                "ok": False,
+                "http_status": 502,
+                "error": "upstream failure",
+                "url": "https://compras.example/api",
+                "raw_response_body": b"",
+            },
+        ),
+    )
+
+    result = adapter.fetch(
+        CrawlRequest(
+            mode="incremental",
+            date_from=date(2026, 7, 17),
+            date_to=date(2026, 7, 17),
+            run_id="sc-empty-body",
+        )
+    )
+
+    assert result.status == "error"
+    envelope = next((tmp_path / "raw" / "envelopes" / "sc_compras").glob("**/*.json"))
+    assert adapter.raw.load_reference(envelope)["payload"] == b""
 
 
 def test_sc_compras_snapshot_resume_without_http(tmp_path: Path) -> None:
@@ -638,6 +756,7 @@ def test_http_policy_respected_by_pncp_http(monkeypatch: pytest.MonkeyPatch) -> 
         session=FakeSession(),  # type: ignore[arg-type]
         sleeper=lambda s: sleeps.append(s),
         http_policy=policy,
+        resolve_initial_dns=False,
     )
     assert result.status == "rate_limited" or not result.request_completed
     assert attempts["n"] == 3  # initial + 2 retries

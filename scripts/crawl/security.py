@@ -24,6 +24,10 @@ import socket
 import urllib.parse
 from typing import Any
 
+import requests
+from requests.adapters import HTTPAdapter
+from urllib3 import HTTPSConnectionPool
+
 # ---------------------------------------------------------------------------
 # Standardized User-Agent
 # ---------------------------------------------------------------------------
@@ -114,31 +118,89 @@ def validate_public_url(
     hostname = (parsed.hostname or "").lower().rstrip(".")
     if not hostname or hostname == "localhost" or hostname.endswith(".localhost"):
         raise ValueError("crawler URL requires a non-local hostname")
+    if parsed.username is not None or parsed.password is not None:
+        raise ValueError("crawler URL must not contain userinfo credentials")
+    try:
+        literal_ip = ipaddress.ip_address(hostname)
+    except ValueError:
+        literal_ip = None
+    if literal_ip is not None and not literal_ip.is_global:
+        raise ValueError(f"crawler URL resolves to non-public address: {literal_ip}")
     decoded_path = urllib.parse.unquote(parsed.path).replace("\\", "/")
     if any(part == ".." for part in decoded_path.split("/")):
         raise ValueError("crawler URL path traversal rejected")
 
+    if resolve_dns:
+        _resolve_public_addresses(hostname, parsed.port or 443)
+    return url
+
+
+def _resolve_public_addresses(hostname: str, port: int) -> tuple[str, ...]:
+    """Resolve a host once and return only globally routable addresses."""
     addresses: set[str] = set()
     try:
         addresses.add(str(ipaddress.ip_address(hostname)))
     except ValueError:
-        if resolve_dns:
-            try:
-                addresses.update(
-                    info[4][0]
-                    for info in socket.getaddrinfo(
-                        hostname,
-                        parsed.port or 443,
-                        type=socket.SOCK_STREAM,
-                    )
+        try:
+            addresses.update(
+                info[4][0]
+                for info in socket.getaddrinfo(
+                    hostname,
+                    port,
+                    type=socket.SOCK_STREAM,
                 )
-            except socket.gaierror as exc:
-                raise ValueError(f"crawler hostname could not be resolved: {hostname}") from exc
+            )
+        except socket.gaierror as exc:
+            raise ValueError(f"crawler hostname could not be resolved: {hostname}") from exc
+    if not addresses:
+        raise ValueError(f"crawler hostname resolved without addresses: {hostname}")
     for address in addresses:
         ip = ipaddress.ip_address(address)
         if not ip.is_global:
             raise ValueError(f"crawler URL resolves to non-public address: {address}")
-    return url
+    return tuple(sorted(addresses, key=lambda value: (ipaddress.ip_address(value).version, value)))
+
+
+class _PinnedHTTPSAdapter(HTTPAdapter):
+    """Connect to a validated IP while retaining hostname TLS verification."""
+
+    def __init__(self, *, address: str, hostname: str, port: int):
+        self.address = address
+        self.hostname = hostname
+        self.port = port
+        super().__init__()
+
+    def get_connection(self, url: str, proxies: Any = None) -> HTTPSConnectionPool:
+        if proxies and any(proxies.values()):
+            raise ValueError("crawler pinned transport does not permit ambient proxies")
+        return HTTPSConnectionPool(
+            self.address,
+            self.port,
+            assert_hostname=self.hostname,
+            server_hostname=self.hostname,
+        )
+
+
+def _pinned_get(session: requests.Session, url: str, addresses: tuple[str, ...], **kwargs: Any) -> Any:
+    parsed = urllib.parse.urlsplit(url)
+    hostname = (parsed.hostname or "").lower().rstrip(".")
+    port = parsed.port or 443
+    origin = f"https://{parsed.netloc}/"
+    original_adapter = session.get_adapter(origin)
+    pinned_adapter = _PinnedHTTPSAdapter(address=addresses[0], hostname=hostname, port=port)
+    if kwargs.get("stream"):
+        raise ValueError("crawler pinned transport does not support streamed responses")
+    headers = dict(kwargs.pop("headers", {}) or {})
+    host_header = hostname if ":" not in hostname else f"[{hostname}]"
+    if parsed.port is not None and parsed.port != 443:
+        host_header = f"{host_header}:{parsed.port}"
+    headers["Host"] = host_header
+    session.mount(origin, pinned_adapter)
+    try:
+        return session.get(url, allow_redirects=False, headers=headers, **kwargs)
+    finally:
+        session.mount(origin, original_adapter)
+        pinned_adapter.close()
 
 
 def validate_redirect_chain(response: Any, *, allow_http: bool = False) -> None:
@@ -148,6 +210,58 @@ def validate_redirect_chain(response: Any, *, allow_http: bool = False) -> None:
         effective = getattr(item, "url", None)
         if isinstance(effective, str) and effective:
             validate_public_url(effective, allow_http=allow_http, resolve_dns=True)
+
+
+def public_get(
+    session: Any,
+    url: str,
+    *,
+    allow_http: bool = False,
+    resolve_initial_dns: bool = True,
+    max_redirects: int = 10,
+    **kwargs: Any,
+) -> Any:
+    """Issue a GET while validating every redirect target before it is fetched."""
+    current = url
+    for redirect_count in range(max_redirects + 1):
+        resolve_current = resolve_initial_dns if redirect_count == 0 else True
+        validate_public_url(
+            current,
+            allow_http=allow_http,
+            resolve_dns=False,
+        )
+        if resolve_current:
+            if allow_http or urllib.parse.urlsplit(current).scheme != "https":
+                raise ValueError("crawler pinned transport requires HTTPS")
+            if not isinstance(session, requests.Session):
+                raise ValueError("crawler DNS pinning requires requests.Session transport")
+            parsed = urllib.parse.urlsplit(current)
+            hostname = (parsed.hostname or "").lower().rstrip(".")
+            addresses = _resolve_public_addresses(hostname, parsed.port or 443)
+            response = _pinned_get(session, current, addresses, **kwargs)
+        else:
+            if isinstance(session, requests.Session):
+                raise ValueError("real crawler transport cannot disable DNS pinning")
+            response = session.get(current, allow_redirects=False, **kwargs)
+        status = int(getattr(response, "status_code", 0) or 0)
+        if status not in {301, 302, 303, 307, 308}:
+            validate_redirect_chain(response, allow_http=allow_http)
+            return response
+        location = (getattr(response, "headers", None) or {}).get("Location")
+        if not location:
+            return response
+        if redirect_count >= max_redirects:
+            close = getattr(response, "close", None)
+            if callable(close):
+                close()
+            raise ValueError(f"crawler redirect limit exceeded ({max_redirects})")
+        next_url = urllib.parse.urljoin(current, str(location))
+        validate_public_url(next_url, allow_http=allow_http, resolve_dns=True)
+        close = getattr(response, "close", None)
+        if callable(close):
+            close()
+        current = next_url
+    raise AssertionError("unreachable redirect loop guard")
 
 
 def validate_url_scheme_optional(url: str | None, *, allow_http: bool = False) -> str | None:

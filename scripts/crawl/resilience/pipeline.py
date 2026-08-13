@@ -152,6 +152,11 @@ class OperationalPipeline:
 
             if fetched.status not in {"success", "empty_confirmed"}:
                 error_message = "; ".join(fetched.errors) or f"fetch_status:{fetched.status}"
+                fetch_meta = fetched.metadata or {}
+                try:
+                    retries = int(fetch_meta.get("retries") or 0)
+                except (TypeError, ValueError):
+                    retries = 0
                 failure_projection = self.failures.record(
                     event_from_failure(
                         source=source,
@@ -160,15 +165,15 @@ class OperationalPipeline:
                         stage="fetch",
                         error=error_message,
                         http_status=fetched.http_status,
-                        url=str(fetched.metadata.get("url") or "") or None,
+                        url=str(fetch_meta.get("url") or "") or None,
                         page=request.page,
                         cursor=request.cursor,
-                        attempt_no=max(1, int(fetched.metadata.get("retries") or 0) + 1),
+                        attempt_no=max(1, retries + 1),
                         metadata={
                             "status": fetched.status,
                             "pages_fetched": fetched.pages_fetched,
                             "pages_expected": fetched.pages_expected,
-                            "attempt_metrics": fetched.metadata.get("attempt_metrics") or [],
+                            "attempt_metrics": fetch_meta.get("attempt_metrics") or [],
                         },
                     )
                 )

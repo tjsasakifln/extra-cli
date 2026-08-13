@@ -174,7 +174,7 @@ def run_cycle(
 
     for adapter in adapters:
         source_started = time.monotonic()
-        request_start = date_from or date.today()
+        request_start = date_from or datetime.now(UTC).date()
         request_end = date_to or request_start
         scope = f"mode=incremental|date={request_start.isoformat()}:{request_end.isoformat()}|target={target or 'all'}"
         request = CrawlRequest(

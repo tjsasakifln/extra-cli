@@ -33,6 +33,7 @@ MAX_PDF_BYTES = int(os.environ.get("PROCESS_DOCUMENTS_MAX_PDF_BYTES", str(80 * 1
 MAX_PDF_PAGES = int(os.environ.get("PROCESS_DOCUMENTS_MAX_PDF_PAGES", "2000"))
 
 _SAFE_NAME = re.compile(r"[^A-Za-z0-9._-]+")
+_PDF_PAGE_MARKER = re.compile(rb"/Type\s*/Page(?![s/\w])")
 
 
 @dataclass(frozen=True)
@@ -107,7 +108,7 @@ def validate_pdf_limits(data: bytes) -> None:
     """Fail closed on oversized or implausibly page-dense PDF payloads."""
     if len(data) > MAX_PDF_BYTES:
         raise ValueError(f"PDF exceeds MAX_PDF_BYTES ({MAX_PDF_BYTES})")
-    page_markers = data.count(b"/Type /Page") - data.count(b"/Type /Pages")
+    page_markers = len(_PDF_PAGE_MARKER.findall(data))
     if page_markers > MAX_PDF_PAGES:
         raise ValueError(f"PDF exceeds MAX_PDF_PAGES ({MAX_PDF_PAGES})")
 

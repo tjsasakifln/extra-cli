@@ -146,7 +146,10 @@ def classify_surface(
     safe_url = sanitize_url(observation.canonical_url)
     if not safe_url or safe_url == "<invalid-url>":
         return "FAILED", None, None
-    validate_public_url(safe_url, resolve_dns=False)
+    try:
+        validate_public_url(safe_url, resolve_dns=False)
+    except ValueError:
+        return "FAILED", None, None
     domain = (urlsplit(safe_url).hostname or "").lower()
     known = any(domain == value or domain.endswith(f".{value}") for value in known_domains)
     return ("FOUND" if known else "UNCLASSIFIED"), safe_url, domain
@@ -561,5 +564,6 @@ def write_coverage_artifacts(
         "xlsx": str(workbook_path),
         "manifest": str(manifest_path),
         "kpi": str(kpi_path),
-        "reconciled": authority["row_count"] == sum(status_counts.values()),
+        "reconciled": len({str(row["canonical_entity_key"]) for row in rows})
+        == authority["entity_count"],
     }

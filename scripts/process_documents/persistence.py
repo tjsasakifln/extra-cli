@@ -92,6 +92,7 @@ def persist_document_version(
                 title = COALESCE(EXCLUDED.title, documents.title),
                 official_url = EXCLUDED.official_url,
                 updated_at = now()
+            WHERE documents.entity_id = EXCLUDED.entity_id
             RETURNING id
             """,
             (
@@ -105,7 +106,13 @@ def persist_document_version(
                 safe_url,
             ),
         )
-        document_id = str(cursor.fetchone()["id"])
+        document_row = cursor.fetchone()
+        if not document_row:
+            raise ValueError(
+                "document canonical key already belongs to a different entity: "
+                f"source={source} canonical_key={canonical_key}"
+            )
+        document_id = str(document_row["id"])
         cursor.execute("SELECT current_version FROM documents WHERE id = %s FOR UPDATE", (document_id,))
         current_version = int(cursor.fetchone()["current_version"])
         cursor.execute(

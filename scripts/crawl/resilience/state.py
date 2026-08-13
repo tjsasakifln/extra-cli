@@ -8,6 +8,7 @@ import os
 import re
 import traceback
 from collections.abc import Callable
+from contextlib import closing
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, date, datetime
 from pathlib import Path
@@ -212,11 +213,13 @@ class RawStore:
             raise RuntimeError(f"raw CAS collision for sha256={digest}")
 
         safe_provenance = sanitize_mapping(dict(provenance))
-        safe_provenance["response_headers"] = sanitize_headers(safe_provenance.get("response_headers"))
+        raw_headers = safe_provenance.get("response_headers")
+        safe_provenance["response_headers"] = sanitize_headers(
+            raw_headers if isinstance(raw_headers, dict) else {}
+        )
         endpoint = sanitize_url(str(safe_provenance.get("endpoint") or "")) or None
         if endpoint:
             safe_provenance["endpoint"] = endpoint
-        observed_at = datetime.now(UTC).isoformat()
         envelope = {
             "schema_version": "raw-http-envelope/v1",
             "source": source,
@@ -227,16 +230,24 @@ class RawStore:
             "sanitized_url": endpoint,
             "http_status": http_status,
             "request_succeeded": request_succeeded,
-            "observed_at": observed_at,
             "body_sha256": digest,
             "body_size_bytes": len(body),
             "body_uri": f"cas://raw-http/{digest}",
             "provenance": safe_provenance,
         }
-        envelope_hash = sha256_json(envelope)
+        stable_identity = {key: value for key, value in envelope.items() if key != "provenance"}
+        envelope_hash = sha256_json(stable_identity)
+        envelope["observed_at"] = datetime.now(UTC).isoformat()
         envelope["envelope_sha256"] = envelope_hash
         scope_hash = hashlib.sha256(request_scope.encode()).hexdigest()[:16]
-        path = self.root / "envelopes" / _slug(source) / _slug(run_id) / f"{scope_hash}-{digest}.json"
+        page_token = f"page-{page}" if page is not None else "page-none"
+        path = (
+            self.root
+            / "envelopes"
+            / _slug(source)
+            / _slug(run_id)
+            / f"{scope_hash}-{page_token}-{envelope_hash}.json"
+        )
         if not path.exists():
             _atomic_json(path, envelope)
         if self.dsn:
@@ -262,7 +273,7 @@ class RawStore:
     def _record_postgres(self, envelope: dict[str, Any], path: Path) -> None:
         import psycopg2
 
-        with psycopg2.connect(self.dsn) as connection, connection.cursor() as cursor:
+        with closing(psycopg2.connect(self.dsn, connect_timeout=10)) as connection, connection, connection.cursor() as cursor:
             cursor.execute(
                 """
                 INSERT INTO raw_http_fetches (
@@ -276,7 +287,7 @@ class RawStore:
                     %s, %s, %s,
                     %s, %s, %s
                 )
-                ON CONFLICT (run_id, source, request_scope, body_sha256) DO NOTHING
+                ON CONFLICT (envelope_sha256) DO NOTHING
                 """,
                 (
                     envelope["run_id"],

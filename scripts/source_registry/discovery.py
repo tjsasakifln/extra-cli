@@ -37,7 +37,7 @@ class _PublicRedirectHandler(HTTPRedirectHandler):
 
 
 def _public_urlopen(request: Request, *, timeout: float):
-    validate_public_url(request.full_url, resolve_dns=True)
+    validate_public_url(request.full_url, allow_http=False, resolve_dns=True)
     return build_opener(_PublicRedirectHandler()).open(request, timeout=timeout)
 
 

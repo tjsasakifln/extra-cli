@@ -7,12 +7,18 @@ import os
 import threading
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 from scripts.crawl.runtime_queue import CrawlQueue, connect
-from scripts.crawl.scheduler import SchedulePair, load_pairs_from_database, reconcile_schedule
-from scripts.crawl.worker import AdmissionLimits, admission_blockers
+from scripts.crawl.scheduler import (
+    SchedulePair,
+    SchedulePolicyRegistry,
+    load_pairs_from_database,
+    reconcile_schedule,
+)
+from scripts.crawl.worker import AdmissionLimits, CrawlWorker, admission_blockers
 
 
 def _pairs(entity_count: int = 1093) -> list[SchedulePair]:
@@ -82,6 +88,52 @@ def test_queue_migration_rejects_invalid_legacy_shape(tmp_path: Path) -> None:
     path.write_text(json.dumps({"jobs": {"not": "a list"}}), encoding="utf-8")
     with pytest.raises(ValueError, match="must be a list"):
         CrawlQueue(object()).migrate_json(path)
+
+
+def test_runtime_queue_connection_always_closes() -> None:
+    connection = MagicMock()
+    connection.__enter__.return_value = connection
+    with patch("psycopg2.connect", return_value=connection):
+        with connect("postgresql://example") as yielded:
+            assert yielded is connection
+    connection.close.assert_called_once()
+
+
+def test_claim_commits_admission_transaction_before_return() -> None:
+    connection = MagicMock()
+    cursor = MagicMock()
+    connection.cursor.return_value.__enter__.return_value = cursor
+    cursor.fetchone.return_value = {"expired_count": 0}
+    cursor.fetchall.return_value = []
+
+    assert CrawlQueue(connection).claim(worker_id="test-worker") == []
+
+    connection.commit.assert_called_once()
+
+
+def test_worker_loads_policy_before_claiming_job() -> None:
+    worker = CrawlWorker(dsn="postgresql://example")
+    with (
+        patch("scripts.crawl.worker.admission_blockers", return_value=[]),
+        patch(
+            "scripts.crawl.worker.SchedulePolicyRegistry.load",
+            side_effect=ValueError("invalid policy"),
+        ),
+        patch("scripts.crawl.worker.connect") as queue_connect,
+        pytest.raises(ValueError, match="invalid policy"),
+    ):
+        worker.run_once()
+    queue_connect.assert_not_called()
+
+
+def test_canonical_queue_migration_is_constraint_name_independent() -> None:
+    sql = Path("db/migrations/083_crawl_queue_canonical_entity.sql").read_text(encoding="utf-8")
+    assert "constraint_row.contype = 'p'" in sql
+    assert "constraint_row.conrelid = 'crawl_entity_source_schedule'::regclass" in sql
+    assert "pkey_columns IS DISTINCT FROM" in sql
+    assert "OR (status <> 'running' AND finished_at IS NOT NULL)" in Path(
+        "db/migrations/079_crawl_runtime_queue.sql"
+    ).read_text(encoding="utf-8")
 
 
 @pytest.fixture
@@ -242,6 +294,46 @@ def test_queue_idempotency_concurrent_leases_restart_and_json_migration(
 
 @pytest.mark.database
 @pytest.mark.integration
+def test_reclaim_expired_counts_jobs_even_without_attempt_row(runtime_queue_dsn: str) -> None:
+    dsn = runtime_queue_dsn
+    _clean_test_jobs(dsn)
+    entity_id = _active_entity_id(dsn)
+    now = datetime.now(UTC).replace(microsecond=0)
+    try:
+        with connect(dsn) as connection:
+            job_id, inserted = CrawlQueue(connection).enqueue(
+                entity_id=entity_id,
+                source="test_queue_orphan_attempt",
+                capability="open_tenders",
+                domain_key="orphan-attempt.example",
+                binding_version="test-v1",
+                window_start=now,
+                window_end=now + timedelta(hours=1),
+                freshness_deadline=now + timedelta(hours=1),
+                next_run_at=now,
+            )
+            assert inserted is True
+        with connect(dsn) as connection, connection.cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE crawl_jobs
+                SET status = 'running', lease_owner = 'missing-attempt-worker',
+                    lease_expires_at = %s, attempt_count = 1
+                WHERE id = %s
+                """,
+                (now - timedelta(seconds=1), job_id),
+            )
+        with connect(dsn) as connection:
+            assert CrawlQueue(connection).reclaim_expired(now=now) == 1
+        with connect(dsn) as connection, connection.cursor() as cursor:
+            cursor.execute("SELECT status FROM crawl_jobs WHERE id = %s", (job_id,))
+            assert cursor.fetchone()["status"] == "queued"
+    finally:
+        _clean_test_jobs(dsn)
+
+
+@pytest.mark.database
+@pytest.mark.integration
 def test_domain_concurrency_limit_serializes_workers(runtime_queue_dsn: str) -> None:
     dsn = runtime_queue_dsn
     _clean_test_jobs(dsn)
@@ -340,5 +432,152 @@ def test_failed_attempt_retries_with_cursor_and_metrics(runtime_queue_dsn: str) 
         assert attempt["run_id"] == job.run_id
         assert attempt["cursor"] == {"page": 7}
         assert attempt["metrics"] == {"latency_ms": 123, "pages": 6}
+    finally:
+        _clean_test_jobs(dsn)
+
+
+@pytest.mark.database
+@pytest.mark.integration
+def test_successful_job_stays_terminal_until_schedule_is_due(runtime_queue_dsn: str) -> None:
+    dsn = runtime_queue_dsn
+    _clean_test_jobs(dsn)
+    entity_id = _active_entity_id(dsn)
+    now = datetime.now(UTC).replace(minute=0, second=0, microsecond=0)
+    next_run = now + timedelta(hours=1)
+    source = "test_queue_recurring"
+    pair = SchedulePair(
+        entity_id=entity_id,
+        source=source,
+        reason="recurrence_regression",
+        binding_version="test-v1",
+    )
+    registry = SchedulePolicyRegistry(
+        {
+            "schema_version": "crawl-schedule-policy/v1",
+            "policy_version": "test-v1",
+            "default": {
+                "sla_hours": 1,
+                "recheck_not_applicable_hours": 1,
+                "recheck_blocked_hours": 1,
+                "recheck_failed_hours": 1,
+                "jitter_seconds": 0,
+                "max_attempts": 3,
+                "domain_concurrency_limit": 1,
+            },
+            "sources": {source: {"domain": "recurring.example"}},
+        }
+    )
+    try:
+        with connect(dsn) as connection:
+            first = reconcile_schedule(
+                connection,
+                [pair],
+                expected_entities=1,
+                now=now,
+                policy_registry=registry,
+            )
+            assert first["queued"] == 1
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "UPDATE crawl_jobs SET priority = 2000000 WHERE source = %s",
+                    (source,),
+                )
+        with connect(dsn) as connection:
+            job = CrawlQueue(connection).claim(
+                worker_id="recurring-worker",
+                lease_seconds=60,
+                now=now + timedelta(seconds=1),
+            )[0]
+            assert job.source == source
+        with connect(dsn) as connection:
+            assert CrawlQueue(connection).finish(
+                job,
+                worker_id="recurring-worker",
+                outcome="succeeded",
+                next_run_at=next_run,
+            )
+        with connect(dsn) as connection:
+            early = reconcile_schedule(
+                connection,
+                [pair],
+                expected_entities=1,
+                now=next_run - timedelta(minutes=1),
+                policy_registry=registry,
+            )
+            assert early["deferred"] == 1
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT status, attempt_count FROM crawl_jobs WHERE id = %s",
+                    (job.id,),
+                )
+                assert cursor.fetchone() == {"status": "succeeded", "attempt_count": 0}
+                cursor.execute("SELECT COUNT(*) AS count FROM crawl_jobs WHERE source = %s", (source,))
+                assert cursor.fetchone()["count"] == 1
+        with connect(dsn) as connection:
+            due = reconcile_schedule(
+                connection,
+                [pair],
+                expected_entities=1,
+                now=next_run,
+                policy_registry=registry,
+            )
+            assert due["queued"] == 1
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT status, COUNT(*) AS count FROM crawl_jobs WHERE source = %s GROUP BY status",
+                    (source,),
+                )
+                assert {row["status"]: row["count"] for row in cursor.fetchall()} == {
+                    "queued": 1,
+                    "succeeded": 1,
+                }
+    finally:
+        _clean_test_jobs(dsn)
+
+
+@pytest.mark.database
+@pytest.mark.integration
+def test_rollback_083_refuses_legacy_identity_collisions(runtime_queue_dsn: str) -> None:
+    import psycopg2
+
+    dsn = runtime_queue_dsn
+    source = "test_queue_rollback_guard"
+    _clean_test_jobs(dsn)
+    entity_id = _active_entity_id(dsn)
+    now = datetime.now(UTC).replace(microsecond=0)
+    try:
+        with connect(dsn) as connection, connection.cursor() as cursor:
+            for canonical_key in ("test:rollback:a", "test:rollback:b"):
+                cursor.execute(
+                    """
+                    INSERT INTO crawl_entity_source_schedule (
+                        canonical_entity_key, entity_id, source, capability,
+                        applicability, applicability_reason, policy_version,
+                        binding_version, domain_key, next_run_at, freshness_deadline
+                    ) VALUES (%s, %s, %s, 'open_tenders', 'APPLICABLE',
+                              'rollback_guard_test', 'test-v1', 'test-v1',
+                              'rollback.example', %s, %s)
+                    """,
+                    (canonical_key, entity_id, source, now, now + timedelta(hours=1)),
+                )
+
+        rollback_sql = Path("db/rollback/083_crawl_queue_canonical_entity_rollback.sql").read_text(
+            encoding="utf-8"
+        )
+        with pytest.raises(psycopg2.DatabaseError, match="canonical rows collide"):
+            with connect(dsn) as connection, connection.cursor() as cursor:
+                cursor.execute(rollback_sql)
+
+        with connect(dsn) as connection, connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT COUNT(*) AS count
+                FROM information_schema.columns
+                WHERE table_schema = 'public'
+                  AND table_name IN ('crawl_jobs', 'crawl_entity_source_schedule')
+                  AND column_name = 'canonical_entity_key'
+                """
+            )
+            assert cursor.fetchone()["count"] == 2
     finally:
         _clean_test_jobs(dsn)

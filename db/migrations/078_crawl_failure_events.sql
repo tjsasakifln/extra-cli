@@ -20,6 +20,11 @@ BEGIN
             IF lower(item_key) = ANY (ARRAY[
                 'authorization', 'proxy-authorization', 'cookie', 'set-cookie',
                 'x-api-key', 'password', 'passwd', 'token', 'secret', 'dsn'
+            ]) OR lower(item_key) LIKE ANY (ARRAY[
+                '%authorization%', '%cookie%', '%api-key%', '%api_key%',
+                '%apikey%', '%password%', '%passwd%', '%token%',
+                '%secret%', '%credential%', '%dsn%', '%private-key%',
+                '%private_key%'
             ]) OR crawl_metadata_has_secret_key(item_value) THEN
                 RETURN TRUE;
             END IF;

@@ -24,8 +24,38 @@ UPDATE crawl_entity_source_schedule
 SET canonical_entity_key = 'db:' || entity_id::text
 WHERE canonical_entity_key IS NULL;
 ALTER TABLE crawl_entity_source_schedule ALTER COLUMN canonical_entity_key SET NOT NULL;
-ALTER TABLE crawl_entity_source_schedule DROP CONSTRAINT IF EXISTS crawl_entity_source_schedule_pkey;
-ALTER TABLE crawl_entity_source_schedule
-    ADD PRIMARY KEY (canonical_entity_key, source, capability);
+DO $migration$
+DECLARE
+    pkey_name TEXT;
+    pkey_columns TEXT[];
+BEGIN
+    SELECT constraint_row.conname,
+           array_agg(attribute_row.attname ORDER BY key_column.ordinality)
+    INTO pkey_name, pkey_columns
+    FROM pg_constraint AS constraint_row
+    CROSS JOIN LATERAL unnest(constraint_row.conkey)
+        WITH ORDINALITY AS key_column(attnum, ordinality)
+    JOIN pg_attribute AS attribute_row
+      ON attribute_row.attrelid = constraint_row.conrelid
+     AND attribute_row.attnum = key_column.attnum
+    WHERE constraint_row.conrelid = 'crawl_entity_source_schedule'::regclass
+      AND constraint_row.contype = 'p'
+    GROUP BY constraint_row.conname;
+
+    IF pkey_name IS NULL THEN
+        ALTER TABLE crawl_entity_source_schedule
+            ADD PRIMARY KEY (canonical_entity_key, source, capability);
+    ELSIF pkey_columns IS DISTINCT FROM ARRAY[
+        'canonical_entity_key', 'source', 'capability'
+    ]::TEXT[] THEN
+        EXECUTE format(
+            'ALTER TABLE crawl_entity_source_schedule DROP CONSTRAINT %I',
+            pkey_name
+        );
+        ALTER TABLE crawl_entity_source_schedule
+            ADD PRIMARY KEY (canonical_entity_key, source, capability);
+    END IF;
+END
+$migration$;
 
 COMMIT;

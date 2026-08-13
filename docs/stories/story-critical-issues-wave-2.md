@@ -3,13 +3,13 @@
 **Status:** ReadyForReview
 **Branch:** `agent/critical-issues-wave-2`
 **Base:** `origin/main` at `f06ffba05334755475efc40aa0b6739c5fb76cf9`
-**Capability:** Durable, secure and continuously scheduled public-source crawl runtime
+**Capability:** Durable, secure and continuously scheduled public-source crawl runtime foundation
 
 ## Goal
 
-Resolve the next ten open `priority:p0` + `risk:high` issues that form one
-operational capability, have no assignee or open treatment PR, and can be
-verified without claiming live coverage or `VPS_OPERATIONAL`:
+Deliver one bounded runtime foundation toward the next ten open
+`priority:p0` + `risk:high` issues that form one operational capability,
+without claiming their full closure, live coverage or `VPS_OPERATIONAL`:
 
 1. #235 — discover and revalidate public surfaces for 1,093 entities
 2. #236 — maintain the entity × applicable-source coverage matrix
@@ -22,10 +22,11 @@ verified without claiming live coverage or `VPS_OPERATIONAL`:
 9. #276 — harden crawler sandbox and secret handling
 10. #279 — persist sanitized request/page failure diagnostics
 
-The issues and their GitHub acceptance criteria are authoritative. This story
-groups them because #268 directly depends on #235, #236 and #246, while the
-queue, worker, raw evidence, resilience, document lineage, security and
-diagnostics contracts must agree atomically.
+The issues and their GitHub acceptance criteria are authoritative. Unchecked
+criteria below remain open and this PR must not auto-close the issues. This
+story groups the implementation slice because #268 directly depends on #235,
+#236 and #246, while the queue, worker, raw evidence, resilience, document
+lineage, security and diagnostics contracts must agree atomically.
 
 ## Acceptance criteria
 
@@ -105,10 +106,10 @@ diagnostics contracts must agree atomically.
 
 ## Tasks
 
-- [x] Wave A: central resilience policy and sanitized structured diagnostics (#270, #279).
-- [x] Wave B: durable queue, leased workers and continuous scheduler (#246, #268, #269).
-- [x] Wave C: immutable raw evidence and canonical document lineage (#247, #272).
-- [x] Wave D: discovery, applicability/coverage and crawler sandbox (#235, #236, #276).
+- [x] Wave A foundation: central resilience policy and sanitized structured diagnostics (#270, #279).
+- [x] Wave B foundation: crawl queue, leased workers and continuous scheduler (#246, #268, #269).
+- [x] Wave C foundation: immutable raw evidence and canonical document lineage (#247, #272).
+- [x] Wave D foundation: discovery, applicability/coverage and crawler sandbox (#235, #236, #276).
 - [x] Apply and rollback migrations on disposable PostgreSQL 16 + pgvector.
 - [x] Run focused tests after every wave and the canonical full suite at completion.
 - [x] Run strict golden path and preserve any external failure as `PARTIAL`/`BLOCKED`.
@@ -119,7 +120,7 @@ diagnostics contracts must agree atomically.
 
 - No dashboard control plane; CLI remains authoritative.
 - No claim of 95% coverage, `LOCAL_READY`, live freshness or `VPS_OPERATIONAL` from fixtures/unit tests.
-- No DOD checkbox becomes accepted before exact-HEAD CI and merge to `main`.
+- No linked issue or DOD checkbox becomes accepted from this foundation alone.
 - Unrelated user work in the original checkout is not part of this branch.
 
 ## Dev Agent Record
@@ -175,12 +176,20 @@ diagnostics contracts must agree atomically.
 - Final CodeRabbit review of the corrective delta completed with zero findings;
   generated-artifact and ready-mode reviewability policies passed locally and
   on GitHub with zero violations.
-- Disposable PostgreSQL 16 + pgvector 0.8.5 proof applied all 83 migrations,
+- Disposable PostgreSQL 16 + pgvector 0.8.5 proof applied migrations through 083,
   rolled back 083 through 078 with `ON_ERROR_STOP=1`, and confirmed zero
   remaining wave-2 tables. The disposable container was removed after proof.
+- The adversarial corrective proof applied 001–084 on a separate disposable
+  database, rolled back 084 through 078 with `ON_ERROR_STOP=1`, reapplied
+  078 through 084, verified the new constraints, and proved migration 083
+  preserves an already-canonical primary key regardless of its constraint name.
 
 ### Completion Notes
 
+- The linked issues remain open. In particular, this slice does not yet provide
+  the generic cross-stage queue dependencies/fan-out required by #246, the
+  idempotent process trigger and trigger-lag export required by #268, or a live
+  full-universe discovery execution required by #235.
 - The implementation preserves the 1,093 canonical IDs even though they map to
   1,090 distinct legacy database roots; queue uniqueness is canonical-ID based.
 - Entity-wide `ZERO_CONFIRMED` remains fail-closed when an adapter only proves a
@@ -197,12 +206,14 @@ diagnostics contracts must agree atomically.
 - `db/migrations/081_canonical_document_lineage.sql`
 - `db/migrations/082_public_surface_coverage.sql`
 - `db/migrations/083_crawl_queue_canonical_entity.sql`
+- `db/migrations/084_raw_http_fetch_page_identity.sql`
 - `db/rollback/078_crawl_failure_events_rollback.sql`
 - `db/rollback/079_crawl_runtime_queue_rollback.sql`
 - `db/rollback/080_raw_http_archive_rollback.sql`
 - `db/rollback/081_canonical_document_lineage_rollback.sql`
 - `db/rollback/082_public_surface_coverage_rollback.sql`
 - `db/rollback/083_crawl_queue_canonical_entity_rollback.sql`
+- `db/rollback/084_raw_http_fetch_page_identity_rollback.sql`
 - `deploy/systemd/extra-crawl-scheduler.service`
 - `deploy/systemd/extra-crawl-scheduler.timer`
 - `deploy/systemd/extra-crawl-worker@.service`
@@ -229,6 +240,7 @@ diagnostics contracts must agree atomically.
 - `tests/test_crawl_failure_diagnostics.py`
 - `tests/test_crawl_runtime_queue.py`
 - `tests/test_crawl_security_wave2.py`
+- `tests/test_crawler_pncp.py`
 - `tests/test_document_lineage.py`
 - `tests/test_local_resilience.py`
 
@@ -244,3 +256,4 @@ diagnostics contracts must agree atomically.
 | 2026-08-13 | 0.5.0 | IN_PROGRESS | Exact-HEAD CI setup gap fixed without weakening the 1,093/4,372 assertion; CI rerun pending |
 | 2026-08-13 | 0.6.0 | IN_PROGRESS | Exact-HEAD CI isolated an advisory-lock-before-limit race; the short claim admission transaction is now deterministic while leased execution stays concurrent |
 | 2026-08-13 | 0.7.0 | READY_FOR_REVIEW | PostgreSQL 16 + pgvector apply/rollback, CodeRabbit, policy gates and 30/30 exact-HEAD GitHub checks verified; acceptance remains subject to merge/main per DOD |
+| 2026-08-13 | 0.8.0 | READY_FOR_REVIEW | Adversarial follow-up fixed recurring-window admission, equal-body page evidence loss and pre-fetch redirect validation; issue auto-closure removed because full acceptance criteria remain open |

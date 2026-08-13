@@ -137,6 +137,7 @@ class CrawlWorker:
         blockers = admission_blockers(self.limits)
         if blockers:
             return {"status": "backpressure", "worker_id": self.worker_id, "blockers": blockers}
+        policy_registry = SchedulePolicyRegistry.load()
         with connect(self.dsn) as connection:
             queue = CrawlQueue(connection)
             claimed = queue.claim(
@@ -147,6 +148,7 @@ class CrawlWorker:
         if not claimed:
             return {"status": "idle", "worker_id": self.worker_id}
         job = claimed[0]
+        policy = policy_registry.for_source(job.source)
         heartbeat = Heartbeat(
             dsn=self.dsn,
             job=job,
@@ -180,7 +182,6 @@ class CrawlWorker:
         finally:
             heartbeat.stop()
 
-        policy = SchedulePolicyRegistry.load().for_source(job.source)
         if outcome == "succeeded":
             delay = timedelta(hours=float(policy["sla_hours"]))
         elif outcome == "blocked":

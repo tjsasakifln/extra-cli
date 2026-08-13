@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from unittest.mock import MagicMock
 from uuid import uuid4
 
 import pytest
@@ -50,6 +51,36 @@ def test_document_persistence_rejects_unverified_blob(tmp_path: Path) -> None:
             body_uri="cas://process_documents/" + "0" * 64,
             blob_path=blob,
         )
+
+
+def test_document_persistence_rejects_cross_entity_canonical_conflict(tmp_path: Path) -> None:
+    blob = store_blob(b"verified", raw_root=tmp_path / "raw")
+    connection = MagicMock()
+    cursor = MagicMock()
+    connection.cursor.return_value.__enter__.return_value = cursor
+    cursor.fetchone.side_effect = [{"id": 10}, None]
+
+    with pytest.raises(ValueError, match="different entity"):
+        persist_document_version(
+            connection,
+            entity_id=2,
+            source="pncp",
+            official_id="doc-1",
+            canonical_key="pncp:shared-doc",
+            category="notice",
+            title="Edital",
+            official_url="https://example.test/doc.pdf",
+            process_official_id="process-1",
+            process_url="https://example.test/process/1",
+            source_version="v1",
+            sha256=blob.sha256,
+            size_bytes=blob.size_bytes,
+            body_uri=blob.raw_uri,
+            blob_path=blob.path,
+        )
+
+    document_sql = cursor.execute.call_args_list[1].args[0]
+    assert "WHERE documents.entity_id = EXCLUDED.entity_id" in document_sql
 
 
 @pytest.mark.database

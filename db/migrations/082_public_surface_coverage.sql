@@ -129,7 +129,10 @@ CREATE TABLE IF NOT EXISTS entity_source_coverage_current (
     source                TEXT NOT NULL,
     capability            TEXT NOT NULL,
     latest_attempt_id     BIGINT NOT NULL REFERENCES entity_source_coverage_attempts(id) ON DELETE RESTRICT,
-    status                TEXT NOT NULL,
+    status                TEXT NOT NULL CHECK (status IN (
+        'FOUND', 'ZERO_CONFIRMED', 'NOT_APPLICABLE', 'BLOCKED',
+        'FAILED', 'DISCOVERY_EXHAUSTED_NO_SURFACE'
+    )),
     applicability         BOOLEAN NOT NULL,
     applicability_reason  TEXT NOT NULL,
     canonical_url         TEXT,

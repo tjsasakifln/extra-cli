@@ -23,24 +23,60 @@ REQUIRED_DIRECTIVES = (
     "RestrictSUIDSGID=true",
 )
 MINIMUM_SCORE = 0.9
+MANDATORY_DIRECTIVES = ("User=extra-consultoria", "NoNewPrivileges=true")
+_TRUE_VALUES = {"true", "yes", "on", "1"}
+
+
+def _directives(text: str) -> dict[str, str]:
+    parsed: dict[str, str] = {}
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith(("#", ";")) or "=" not in stripped:
+            continue
+        key, _, value = stripped.partition("=")
+        parsed[key.strip()] = value.strip()
+    return parsed
 
 
 def unit_hardening_score(path: Path) -> dict[str, Any]:
-    text = path.read_text(encoding="utf-8")
-    present = [directive for directive in REQUIRED_DIRECTIVES if directive in text]
-    missing = [directive for directive in REQUIRED_DIRECTIVES if directive not in text]
-    score = len(present) / len(REQUIRED_DIRECTIVES)
+    parsed = _directives(path.read_text(encoding="utf-8"))
+
+    def satisfied(directive: str) -> bool:
+        key, _, expected = directive.partition("=")
+        actual = parsed.get(key)
+        if actual is None:
+            return False
+        if expected.lower() in _TRUE_VALUES:
+            return actual.lower() in _TRUE_VALUES
+        return actual == expected
+
+    missing = [directive for directive in REQUIRED_DIRECTIVES if not satisfied(directive)]
+    scored = [directive for directive in REQUIRED_DIRECTIVES if directive not in MANDATORY_DIRECTIVES]
+    scored_present = [directive for directive in scored if satisfied(directive)]
+    score = len(scored_present) / len(scored)
+    mandatory_missing = [directive for directive in MANDATORY_DIRECTIVES if not satisfied(directive)]
     return {
         "unit": str(path),
         "score": score,
         "minimum": MINIMUM_SCORE,
-        "passed": score >= MINIMUM_SCORE,
+        "passed": not mandatory_missing and score >= MINIMUM_SCORE,
         "missing": missing,
+        "mandatory_missing": mandatory_missing,
     }
 
 
 def validate_environment_file(path: Path, *, expected_uid: int | None = None) -> dict[str, Any]:
-    info = path.stat()
+    try:
+        info = path.stat()
+    except FileNotFoundError:
+        return {
+            "path": str(path),
+            "mode": None,
+            "owner_uid": None,
+            "expected_uid": expected_uid,
+            "passed": False,
+            "error": "not_found",
+        }
     mode = stat.S_IMODE(info.st_mode)
     owner_ok = expected_uid is None or info.st_uid == expected_uid
     return {

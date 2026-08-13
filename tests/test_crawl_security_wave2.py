@@ -9,8 +9,15 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+import requests
+from requests import Response
 
-from scripts.crawl.security import validate_public_url, validate_redirect_chain
+from scripts.crawl.security import (
+    _PinnedHTTPSAdapter,
+    public_get,
+    validate_public_url,
+    validate_redirect_chain,
+)
 from scripts.ops.validate_crawler_runtime_security import (
     MINIMUM_SCORE,
     unit_hardening_score,
@@ -57,6 +64,77 @@ def test_public_url_guard_rejects_private_dns_and_redirect() -> None:
         validate_redirect_chain(Redirect())
 
 
+def test_public_get_blocks_private_redirect_before_following_it() -> None:
+    first = MagicMock(status_code=302, headers={"Location": "https://127.0.0.1/internal"})
+    session = MagicMock()
+    session.get.return_value = first
+
+    with pytest.raises(ValueError, match="non-public"):
+        public_get(
+            session,
+            "https://public.example/start",
+            resolve_initial_dns=False,
+        )
+
+    session.get.assert_called_once()
+
+
+def test_pinned_https_adapter_uses_validated_ip_and_original_tls_hostname() -> None:
+    adapter = _PinnedHTTPSAdapter(
+        address="93.184.216.34",
+        hostname="public.example",
+        port=443,
+    )
+
+    pool = adapter.get_connection("https://public.example/data", proxies={})
+
+    assert pool.host == "93.184.216.34"
+    assert pool.conn_kw["server_hostname"] == "public.example"
+    assert pool.assert_hostname == "public.example"
+
+
+def test_real_session_cannot_disable_dns_pinning() -> None:
+    with requests.Session() as session, pytest.raises(ValueError, match="cannot disable"):
+        public_get(
+            session,
+            "https://public.example/start",
+            resolve_initial_dns=False,
+        )
+
+
+def test_public_get_pins_validated_address_and_preserves_host_header() -> None:
+    captured: dict[str, object] = {}
+
+    def fake_send(adapter, request, **_kwargs):
+        captured["address"] = adapter.address
+        captured["hostname"] = adapter.hostname
+        captured["host_header"] = request.headers["Host"]
+        response = Response()
+        response.status_code = 200
+        response.url = request.url
+        response._content = b"{}"  # noqa: SLF001 - deterministic transport double
+        response.request = request
+        return response
+
+    with (
+        requests.Session() as session,
+        patch(
+            "scripts.crawl.security._resolve_public_addresses",
+            return_value=("93.184.216.34",),
+        ),
+        patch.object(_PinnedHTTPSAdapter, "send", autospec=True, side_effect=fake_send),
+    ):
+        session.trust_env = False
+        response = public_get(session, "https://public.example/data")
+
+    assert response.status_code == 200
+    assert captured == {
+        "address": "93.184.216.34",
+        "hostname": "public.example",
+        "host_header": "public.example",
+    }
+
+
 def test_pdf_limits_fail_closed(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(storage, "MAX_PDF_BYTES", 32)
     with pytest.raises(ValueError, match="MAX_PDF_BYTES"):
@@ -66,6 +144,8 @@ def test_pdf_limits_fail_closed(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(storage, "MAX_PDF_PAGES", 2)
     with pytest.raises(ValueError, match="MAX_PDF_PAGES"):
         storage.validate_pdf_limits(b"%PDF /Type /Page /Type /Page /Type /Page")
+    with pytest.raises(ValueError, match="MAX_PDF_PAGES"):
+        storage.validate_pdf_limits(b"%PDF /Type\n/Page /Type\t/Page /Type  /Page")
 
 
 def test_crawler_units_meet_documented_static_threshold() -> None:
@@ -75,6 +155,32 @@ def test_crawler_units_meet_documented_static_threshold() -> None:
         assert result["passed"] is True
 
 
+def test_crawler_unit_mandatory_directives_cannot_be_scored_away(tmp_path: Path) -> None:
+    unit = tmp_path / "unsafe.service"
+    unit.write_text(
+        """
+[Service]
+# User=extra-consultoria
+NoNewPrivileges = yes
+PrivateTmp = on
+PrivateDevices = 1
+ProtectSystem = strict
+ProtectHome = true
+ProtectKernelTunables = true
+ProtectKernelModules = true
+ProtectControlGroups = true
+RestrictSUIDSGID = true
+""".strip(),
+        encoding="utf-8",
+    )
+
+    result = unit_hardening_score(unit)
+
+    assert result["score"] == 1.0
+    assert result["passed"] is False
+    assert result["mandatory_missing"] == ["User=extra-consultoria"]
+
+
 def test_environment_file_must_be_mode_0600(tmp_path: Path) -> None:
     path = tmp_path / "crawler.env"
     path.write_text("LOCAL_DATALAKE_DSN=postgresql://redacted\n", encoding="utf-8")
@@ -82,6 +188,9 @@ def test_environment_file_must_be_mode_0600(tmp_path: Path) -> None:
     assert validate_environment_file(path, expected_uid=os.geteuid())["passed"] is False
     path.chmod(0o600)
     assert validate_environment_file(path, expected_uid=os.geteuid())["passed"] is True
+    missing = validate_environment_file(tmp_path / "missing.env", expected_uid=os.geteuid())
+    assert missing["passed"] is False
+    assert missing["error"] == "not_found"
 
 
 def test_discovery_classifies_new_domain_block_and_exhaustion() -> None:
@@ -117,9 +226,21 @@ def test_discovery_classifies_new_domain_block_and_exhaustion() -> None:
         ),
         known_domains=set(),
     )
+    private = classify_surface(
+        SurfaceObservation(
+            kind="procurement",
+            canonical_url="https://127.0.0.1/internal",
+            platform=None,
+            anchor_url=None,
+            method="probe",
+            http_status=200,
+        ),
+        known_domains=set(),
+    )
     assert unknown[0] == "UNCLASSIFIED"
     assert blocked[0] == "BLOCKED"
     assert exhausted[0] == "DISCOVERY_EXHAUSTED_NO_SURFACE"
+    assert private == ("FAILED", None, None)
 
 
 def test_zero_confirmed_never_accepts_absence_of_execution() -> None:

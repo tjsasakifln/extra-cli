@@ -15,6 +15,7 @@ from scripts.crawl.resilience.diagnostics import (
     FailureRecorder,
     classify_failure,
     event_from_failure,
+    sanitize_mapping,
     sanitize_url,
 )
 from scripts.crawl.resilience.domain_policy import DomainPolicyRegistry
@@ -33,6 +34,7 @@ def test_domain_policy_resolves_checked_in_domain_and_default() -> None:
     assert len(pncp_policy.fingerprint) == 64
     assert fallback.name == "default"
     assert fallback.values["max_retries"] == 5
+    assert registry.resolve("https://consulta.pncp.gov.br./api").name == "pncp"
 
 
 def test_domain_policy_rejects_invalid_registry(tmp_path: Path) -> None:
@@ -96,6 +98,7 @@ def test_failure_event_redacts_url_message_and_nested_metadata(tmp_path: Path) -
             },
             "raw_reference": "cas://failure/body-sha",
             "raw_response_body": b"secret response body",
+            "response_body": "plain-text response body",
         },
     )
 
@@ -107,19 +110,61 @@ def test_failure_event_redacts_url_message_and_nested_metadata(tmp_path: Path) -
     assert saved["url"] == "https://example.test/path?token=%3Credacted%3E&safe=yes"
     assert saved["metadata"]["headers"]["_redacted_keys"] == ["Authorization", "Cookie"]
     assert saved["metadata"]["raw_response_body"]["binary_redacted"] is True
+    assert saved["metadata"]["response_body"]["binary_redacted"] is True
     assert saved["metadata"]["raw_response_body"]["raw_archive_reference"] == "cas://failure/body-sha"
     assert "top-secret" not in serialized
     assert "db-password" not in serialized
     assert "abc.def" not in serialized
     assert "dXNlcjpwYXNz" not in serialized
     assert "secret response body" not in serialized
+    assert "plain-text response body" not in serialized
+
+
+def test_failure_fingerprint_uses_sanitized_message() -> None:
+    first = event_from_failure(
+        source="pncp",
+        run_id="run-1",
+        request_scope="page=1",
+        stage="fetch",
+        error="Bearer first-secret-token",
+        http_status=403,
+    )
+    second = event_from_failure(
+        source="pncp",
+        run_id="run-2",
+        request_scope="page=1",
+        stage="fetch",
+        error="Bearer second-secret-token",
+        http_status=403,
+    )
+
+    assert first.fingerprint == second.fingerprint
 
 
 def test_failure_schema_rejects_secret_keys_recursively() -> None:
     sql = Path("db/migrations/078_crawl_failure_events.sql").read_text(encoding="utf-8")
     assert "crawl_metadata_has_secret_key(item_value)" in sql
     assert "lower(item_key) = ANY" in sql
+    assert "lower(item_key) LIKE ANY" in sql
     assert "NOT crawl_metadata_has_secret_key(metadata)" in sql
+
+
+def test_failure_metadata_redacts_embedded_credential_key_names() -> None:
+    sanitized = sanitize_mapping(
+        {
+            "nested": {
+                "client_credential_backup": "must-not-survive",
+                "private_key_pem": "must-not-survive",
+                "safe": "retained",
+            }
+        }
+    )
+
+    assert sanitized["nested"]["safe"] == "retained"
+    assert sanitized["nested"]["_redacted_keys"] == [
+        "client_credential_backup",
+        "private_key_pem",
+    ]
 
 
 @pytest.mark.parametrize("url", ["http://host:bad/path", "http://[invalid/path"])
@@ -148,8 +193,12 @@ def test_failure_recorder_uses_postgresql_projection(tmp_path: Path) -> None:
             require_db=True,
         ).record(event)
 
-    connect.assert_called_once()
+    connect.assert_called_once_with(
+        "postgresql://test:test@127.0.0.1:5433/extra_test",
+        connect_timeout=10,
+    )
     cursor.execute.assert_called_once()
+    connection.close.assert_called_once()
     assert "INSERT INTO crawl_failure_events" in cursor.execute.call_args.args[0]
     assert projection["db_persisted"] is True
 
@@ -178,6 +227,11 @@ def test_failure_recorder_real_postgresql(tmp_path: Path) -> None:
     )
     FailureRecorder(tmp_path / "failures.jsonl", dsn=dsn, require_db=True).record(event)
     with psycopg2.connect(dsn) as connection, connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT crawl_metadata_has_secret_key(%s::jsonb)",
+            (json.dumps({"nested": {"client_credential_backup": "secret"}}),),
+        )
+        assert cursor.fetchone()[0] is True
         cursor.execute(
             """
             SELECT error_class, transient, next_action
@@ -225,6 +279,7 @@ def test_http_policy_failure_matrix_does_not_loop_permanent_auth(
         session=session,
         sleeper=lambda _seconds: None,
         http_policy=policy,
+        resolve_initial_dns=False,
     )
 
     assert result.status == expected_status

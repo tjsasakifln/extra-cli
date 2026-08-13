@@ -64,7 +64,11 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_documents_source_canonical
 
 DO $migration$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'ck_documents_metadata_complete') THEN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint
+        WHERE conrelid = 'documents'::regclass
+          AND conname = 'ck_documents_metadata_complete'
+    ) THEN
         ALTER TABLE documents ADD CONSTRAINT ck_documents_metadata_complete CHECK (
             NOT metadata_complete OR (
                 entity_id IS NOT NULL AND source IS NOT NULL AND canonical_key IS NOT NULL
@@ -160,7 +164,11 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_document_versions_source_sha
 
 DO $migration$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'ck_document_versions_metadata_complete') THEN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint
+        WHERE conrelid = 'document_versions'::regclass
+          AND conname = 'ck_document_versions_metadata_complete'
+    ) THEN
         ALTER TABLE document_versions ADD CONSTRAINT ck_document_versions_metadata_complete CHECK (
             NOT metadata_complete OR (
                 sha256 ~ '^[0-9a-f]{64}$' AND size_bytes > 0

@@ -9,6 +9,7 @@ import os
 import sys
 import uuid
 from collections.abc import Iterable
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -60,14 +61,24 @@ class ClaimedJob:
     max_attempts: int
 
 
-def connect(dsn: str | None = None) -> Any:
+@contextmanager
+def connect(dsn: str | None = None):
     import psycopg2
     from psycopg2.extras import RealDictCursor
 
     resolved = dsn or os.getenv("LOCAL_DATALAKE_DSN") or os.getenv("DATABASE_URL")
     if not resolved:
         raise RuntimeError("LOCAL_DATALAKE_DSN or DATABASE_URL is required")
-    return psycopg2.connect(resolved, cursor_factory=RealDictCursor)
+    connection = psycopg2.connect(
+        resolved,
+        cursor_factory=RealDictCursor,
+        connect_timeout=10,
+    )
+    try:
+        with connection:
+            yield connection
+    finally:
+        connection.close()
 
 
 class CrawlQueue:
@@ -173,16 +184,20 @@ class CrawlQueue:
                       AND lease_expires_at < %s
                     RETURNING id
                 )
-                UPDATE crawl_job_attempts a
-                SET status = 'lease_expired', finished_at = %s,
-                    error_class = 'LEASE_EXPIRED',
-                    error_message = 'worker lease expired before terminal result'
-                FROM expired e
-                WHERE a.job_id = e.id AND a.status = 'running'
+                , closed_attempts AS (
+                    UPDATE crawl_job_attempts a
+                    SET status = 'lease_expired', finished_at = %s,
+                        error_class = 'LEASE_EXPIRED',
+                        error_message = 'worker lease expired before terminal result'
+                    FROM expired e
+                    WHERE a.job_id = e.id AND a.status = 'running'
+                    RETURNING a.id
+                )
+                SELECT COUNT(*) AS expired_count FROM expired
                 """,
                 (clock, clock),
             )
-            return cursor.rowcount or 0
+            return int(cursor.fetchone()["expired_count"])
 
     def claim(
         self,
@@ -301,6 +316,10 @@ class CrawlQueue:
                         max_attempts=int(row["max_attempts"]),
                     )
                 )
+            # Claim admission is its own short transaction. This releases the
+            # transaction-scoped advisory lock before any page fetch begins,
+            # even when a caller keeps the connection context open.
+            self.connection.commit()
             return claimed
 
     def heartbeat(
@@ -365,7 +384,7 @@ class CrawlQueue:
     ) -> bool:
         if outcome not in {"succeeded", "failed", "blocked", "interrupted"}:
             raise ValueError(f"invalid crawl job outcome: {outcome}")
-        job_status = "queued" if outcome == "succeeded" else outcome
+        job_status = outcome
         if outcome == "failed" and job.attempt_count < job.max_attempts:
             job_status = "queued"
         if outcome == "interrupted":
@@ -378,6 +397,10 @@ class CrawlQueue:
                 SET status = %s, next_run_at = %s,
                     cursor = %s::jsonb, last_outcome = %s,
                     last_error_class = %s, last_error = %s,
+                    attempt_count = CASE
+                        WHEN %s = 'succeeded' THEN 0
+                        ELSE attempt_count
+                    END,
                     lease_owner = NULL, lease_expires_at = NULL,
                     heartbeat_at = NULL, updated_at = %s
                 WHERE id = %s AND status = 'running' AND lease_owner = %s
@@ -389,6 +412,7 @@ class CrawlQueue:
                     outcome,
                     error_class,
                     error_message,
+                    outcome,
                     clock,
                     job.id,
                     worker_id,

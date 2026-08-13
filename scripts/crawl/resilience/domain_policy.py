@@ -96,7 +96,7 @@ class DomainPolicyRegistry:
 
     def resolve(self, url_or_host: str | None) -> ResolvedDomainPolicy:
         raw = (url_or_host or "").strip().lower()
-        hostname = (urlsplit(raw).hostname if "://" in raw else raw.split(":", 1)[0]) or ""
+        hostname = ((urlsplit(raw).hostname if "://" in raw else raw.split(":", 1)[0]) or "").rstrip(".")
         name = "default"
         matched: str | None = None
         values = self.default

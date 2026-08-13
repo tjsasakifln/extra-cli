@@ -92,7 +92,10 @@ CREATE TABLE IF NOT EXISTS crawl_job_attempts (
     error_class        TEXT,
     error_message      TEXT,
     created_at         TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    CHECK ((status = 'running' AND finished_at IS NULL) OR status <> 'running')
+    CHECK (
+        (status = 'running' AND finished_at IS NULL)
+        OR (status <> 'running' AND finished_at IS NOT NULL)
+    )
 );
 
 CREATE INDEX IF NOT EXISTS idx_crawl_attempts_job_started

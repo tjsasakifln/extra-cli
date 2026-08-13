@@ -6,13 +6,16 @@ import hashlib
 import json
 import os
 import re
+from contextlib import closing
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
-_SENSITIVE_KEYS = re.compile(r"(?i)(token|secret|password|passwd|authorization|cookie|api[-_]?key|dsn)")
+_SENSITIVE_KEYS = re.compile(
+    r"(?i)(token|secret|password|passwd|authorization|cookie|api[-_]?key|credential|dsn|private[-_]?key)"
+)
 _BEARER = re.compile(r"(?i)bearer\s+[A-Za-z0-9._~+/=-]+")
 _BASIC_AUTH = re.compile(r"(?i)basic\s+[A-Za-z0-9+/=]+")
 _CREDENTIAL_HEADER = re.compile(
@@ -100,7 +103,14 @@ class FailureEvent:
     @property
     def fingerprint(self) -> str:
         canonical = "|".join(
-            [self.source, self.request_scope, self.stage, self.error_class, str(self.http_status), self.message]
+            [
+                self.source,
+                self.request_scope,
+                self.stage,
+                self.error_class,
+                str(self.http_status),
+                sanitize_text(self.message),
+            ]
         )
         return hashlib.sha256(canonical.encode()).hexdigest()
 
@@ -123,8 +133,9 @@ def sanitize_mapping(value: Any) -> Any:
             if _SENSITIVE_KEYS.search(name):
                 redacted_keys.append(name)
                 continue
-            if _BODY_KEYS.search(name) and isinstance(item, (bytes, bytearray, memoryview)):
-                marker = _binary_marker(bytes(item))
+            if _BODY_KEYS.search(name) and isinstance(item, (str, bytes, bytearray, memoryview)):
+                raw = item.encode("utf-8", "replace") if isinstance(item, str) else bytes(item)
+                marker = _binary_marker(raw)
                 marker["raw_archive_reference"] = (
                     sanitize_text(raw_reference) if raw_reference else "<required-outside-diagnostics>"
                 )
@@ -178,7 +189,7 @@ class FailureRecorder:
     def _record_postgres(self, record: dict[str, Any]) -> None:
         import psycopg2
 
-        with psycopg2.connect(self.dsn) as conn, conn.cursor() as cur:
+        with closing(psycopg2.connect(self.dsn, connect_timeout=10)) as conn, conn, conn.cursor() as cur:
             cur.execute(
                 """
                 INSERT INTO crawl_failure_events (
