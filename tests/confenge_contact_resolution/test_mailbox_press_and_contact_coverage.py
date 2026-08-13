@@ -102,6 +102,18 @@ def test_contact_coverage_can_close_construction_population_without_target_proxy
     assert "TARGET_CONFIRMED_total" not in m
 
 
+def test_contact_coverage_exposes_attempts_outside_population() -> None:
+    metrics = measure_contact_coverage(
+        population_keys=["inside"],
+        attempted_keys=["inside", "outside"],
+        rejection_reasons={},
+    )
+
+    assert metrics["contact_discovery_attempted"] == 1
+    assert metrics["closed_sum_check"]["attempted_subset_of_population"] is False
+    assert metrics["closed_sum_check"]["attempted_subset_of_confirmed"] is False
+
+
 def test_minimum_pilot_is_not_capacity() -> None:
     assert MINIMUM_PILOT_ACCEPTANCE_SAMPLE == 50
     assert_no_send_ready_hard_cap(None)

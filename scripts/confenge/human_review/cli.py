@@ -149,18 +149,29 @@ def run_interactive(
         return 2
 
     leads = load_sample(sample_path)
+    actionable = [lead for lead in leads if _lead_identity(lead)[2]]
+    unreviewable = [lead for lead in leads if not _lead_identity(lead)[2]]
+    if unreviewable:
+        print(
+            f"UNREVIEWABLE: {len(unreviewable)} lead(s) lack valid CNPJ root "
+            "and email; excluded from pending work.",
+            file=sys.stderr,
+        )
     if only_pending:
         completed = _completed_decision_keys(decisions_path)
         pending = [
             L
-            for L in leads
+            for L in actionable
             if _lead_identity(L)[2] not in completed
         ]
     else:
-        pending = leads
+        pending = actionable
 
     if not pending:
-        print(f"No pending leads in {sample_path} ({len(leads)} total).")
+        print(
+            f"No actionable pending leads in {sample_path} "
+            f"({len(leads)} total, {len(unreviewable)} unreviewable)."
+        )
         return 0
 
     print(

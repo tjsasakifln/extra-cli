@@ -40,6 +40,7 @@ TARGET_CLASS_KEYS = (
     TARGET_OUT_OF_SCOPE,
     TARGET_INSUFFICIENT_EVIDENCE,
 )
+TARGET_OPERATIONAL_STATE_KEYS = ("REFRESH_FAILED", "RECOMPUTE_REQUIRED")
 SECTOR_CLASS_KEYS = (
     "CONSTRUCTION_CONFIRMED",
     "CONSTRUCTION_PROBABLE",
@@ -78,6 +79,7 @@ def build_universe_manifest(
     construction_classifier_sha256: str,
     target_fit_classifier_sha256: str,
     target_fit_version: str,
+    target_operational_states: dict[str, int] | None = None,
     sector_materialized_roots: int | None = None,
     full_scale: bool = True,
     truncated: bool = False,
@@ -105,6 +107,10 @@ def build_universe_manifest(
     )
     contracts = _integer(source_contract_rows)
     classes = {key: _integer(target_classes.get(key)) for key in TARGET_CLASS_KEYS}
+    operational_states = {
+        key: _integer((target_operational_states or {}).get(key))
+        for key in TARGET_OPERATIONAL_STATE_KEYS
+    }
     sectors = {key: _integer(sector_classes.get(key)) for key in SECTOR_CLASS_KEYS}
     unknown_classes = sorted(set(target_classes) - set(TARGET_CLASS_KEYS))
     unknown_sector_classes = sorted(set(sector_classes) - set(SECTOR_CLASS_KEYS))
@@ -141,6 +147,7 @@ def build_universe_manifest(
         sector_materialized,
         contracts,
         *classes.values(),
+        *operational_states.values(),
         *sectors.values(),
         *diagnostic_counts.values(),
     ]
@@ -151,6 +158,7 @@ def build_universe_manifest(
         "sector_sum_equals_observed_supplier_roots": sector_sum == observed,
         "construction_partition_is_sector_derived": construction + non_construction + unresolved_sector == observed,
         "target_class_sum_equals_target_fit_population": class_sum == target_population,
+        "target_operational_states_eq_0": not any(operational_states.values()),
         "target_fit_population_equals_observed_supplier_roots": target_population == observed,
         "materialized_equals_observed_supplier_roots": materialized == observed,
         "sector_materialized_equals_observed_supplier_roots": sector_materialized == observed,
@@ -185,6 +193,7 @@ def build_universe_manifest(
         "construction_evidence_version": construction_version,
         "target_fit_population": target_population,
         "target_classes": classes,
+        "target_operational_states": operational_states,
         "sector_classes": sectors,
         "materialized_roots": materialized,
         "sector_materialized_roots": sector_materialized,
@@ -238,6 +247,7 @@ def validate_universe_manifest(manifest: dict[str, Any] | None) -> list[str]:
         "construction_evidence_version",
         "target_fit_population",
         "target_classes",
+        "target_operational_states",
         "sector_classes",
         "materialized_roots",
         "sector_materialized_roots",
@@ -256,15 +266,21 @@ def validate_universe_manifest(manifest: dict[str, Any] | None) -> list[str]:
     )
     errors.extend(f"required_field_missing:{key}" for key in required if manifest.get(key) in (None, ""))
     target_classes = manifest.get("target_classes") or {}
+    target_operational_states = manifest.get("target_operational_states") or {}
     sector_classes = manifest.get("sector_classes") or {}
     if not isinstance(target_classes, dict):
         errors.append("target_classes_not_object")
         target_classes = {}
+    if not isinstance(target_operational_states, dict):
+        errors.append("target_operational_states_not_object")
+        target_operational_states = {}
     if not isinstance(sector_classes, dict):
         errors.append("sector_classes_not_object")
         sector_classes = {}
     if set(target_classes) != set(TARGET_CLASS_KEYS):
         errors.append("target_class_keys_not_closed")
+    if set(target_operational_states) != set(TARGET_OPERATIONAL_STATE_KEYS):
+        errors.append("target_operational_state_keys_not_closed")
     if set(sector_classes) != set(SECTOR_CLASS_KEYS):
         errors.append("sector_class_keys_not_closed")
 
@@ -294,11 +310,20 @@ def validate_universe_manifest(manifest: dict[str, Any] | None) -> list[str]:
     target_counts = {
         key: count(target_classes.get(key), f"target_classes.{key}") for key in TARGET_CLASS_KEYS
     }
+    operational_counts = {
+        key: count(
+            target_operational_states.get(key),
+            f"target_operational_states.{key}",
+        )
+        for key in TARGET_OPERATIONAL_STATE_KEYS
+    }
     sector_counts = {
         key: count(sector_classes.get(key), f"sector_classes.{key}") for key in SECTOR_CLASS_KEYS
     }
     if sum(target_counts.values()) != target_population:
         errors.append("target_class_sum_mismatch")
+    if any(operational_counts.values()):
+        errors.append("target_operational_states_not_zero")
     if sum(sector_counts.values()) != observed:
         errors.append("sector_class_sum_mismatch")
     expected_construction = (
@@ -361,7 +386,7 @@ def lead_key(row: dict[str, Any]) -> str:
         if ch.isdigit()
     )[:8]
     email = str(row.get("email") or "").strip().lower()
-    return f"{root}|{email}" if root else ""
+    return f"{root}|{email}" if root and email else ""
 
 
 def load_human_review_decisions(
@@ -379,6 +404,15 @@ def load_human_review_decisions(
     eligible = set(eligible_order)
     latest: dict[str, dict[str, Any]] = {}
     errors: list[str] = []
+    blocking_errors: list[str] = []
+
+    def record_error(message: str, *, key: str | None = None) -> None:
+        errors.append(message)
+        # Structurally corrupt rows cannot be scoped and therefore remain
+        # blocking. Attributable errors block only the active ESR lead.
+        if key is None or key in eligible:
+            blocking_errors.append(message)
+
     historical_rows = 0
     if path and path.is_file():
         for line_no, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
@@ -388,25 +422,28 @@ def load_human_review_decisions(
             try:
                 row = json.loads(raw)
             except json.JSONDecodeError:
-                errors.append(f"line_{line_no}:invalid_json")
+                record_error(f"line_{line_no}:invalid_json")
                 continue
             if not isinstance(row, dict):
-                errors.append(f"line_{line_no}:not_object")
+                record_error(f"line_{line_no}:not_object")
                 continue
             key = lead_key(row)
             status = str(row.get("review_status") or row.get("status") or "").upper()
             reviewer = str(row.get("reviewer") or "").strip()
             if not key:
-                errors.append(f"line_{line_no}:lead_key_missing")
+                record_error(f"line_{line_no}:lead_key_missing")
                 continue
             if status not in {HUMAN_REVIEW_APPROVED, HUMAN_REVIEW_REJECTED}:
                 # SKIP/PENDING is useful history but never a completed review.
                 continue
             if is_forbidden_reviewer(reviewer):
-                errors.append(f"line_{line_no}:forbidden_or_missing_reviewer")
+                record_error(
+                    f"line_{line_no}:forbidden_or_missing_reviewer",
+                    key=key,
+                )
                 continue
             if not row.get("reviewed_at") or not row.get("evidence_inspected"):
-                errors.append(f"line_{line_no}:attribution_incomplete")
+                record_error(f"line_{line_no}:attribution_incomplete", key=key)
                 continue
             latest[key] = row
 
@@ -431,6 +468,7 @@ def load_human_review_decisions(
         "rejected_keys": rejected_keys,
         "latest_by_key": current,
         "errors": errors,
+        "blocking_errors": blocking_errors,
         "top20_review_complete": len(reviewed_keys) >= MINIMUM_HUMAN_REVIEWED,
         "hot_set_10_approved": len(approved_keys) >= MINIMUM_HUMAN_APPROVED,
     }
@@ -452,7 +490,7 @@ def evaluate_pilot_go(
     human_ok = (
         bool(human_review.get("top20_review_complete"))
         and bool(human_review.get("hot_set_10_approved"))
-        and not bool(human_review.get("errors"))
+        and not bool(human_review.get("blocking_errors", human_review.get("errors")))
     )
     pilot_go = technical_ok and human_ok
     national_reserve_healthy = technical_ok and _nonnegative(email_send_ready) >= _nonnegative(
@@ -492,6 +530,7 @@ __all__ = [
     "MINIMUM_HUMAN_APPROVED",
     "MINIMUM_HUMAN_REVIEWED",
     "TARGET_CLASS_KEYS",
+    "TARGET_OPERATIONAL_STATE_KEYS",
     "TERMINAL_AUTHORITY",
     "UNIVERSE_SCHEMA",
     "build_universe_manifest",

@@ -6,6 +6,7 @@ Drives shipped pure functions — no reimplementation of terminal rules.
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -14,6 +15,7 @@ from scripts.confenge_activation.emit_final_closure_pack import (
     assert_pack_postconditions,
     build_sha_binding,
     emit_pack,
+    evaluation_lineage_preserved,
     ladder_complete_from_source_yield,
     main,
     warmbly_behavioral_pass,
@@ -101,6 +103,14 @@ def test_prior_evaluation_without_lineage_proof_is_not_bound() -> None:
     assert binding["evaluated_deployment_runtime_equal"] is True
     assert binding["evaluation_lineage_ok"] is False
     assert binding["sha_bound"] is False
+
+
+def test_evaluation_lineage_timeout_fails_closed(monkeypatch) -> None:  # noqa: ANN001
+    def timeout(*_args, **_kwargs):
+        raise subprocess.TimeoutExpired(cmd="git", timeout=10)
+
+    monkeypatch.setattr(subprocess, "check_call", timeout)
+    assert evaluation_lineage_preserved("a" * 40, "b" * 40) is False
 
 
 def test_extra_metadata_cannot_override_binding_gates() -> None:

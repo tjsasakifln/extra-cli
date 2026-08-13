@@ -88,7 +88,7 @@ def measure_contact_coverage(
         ),
         "closed_sum_check": {
             "population_eq_attempted_plus_never": n_population == n_att + n_never,
-            "attempted_subset_of_population": attempted_in_population <= population,
+            "attempted_subset_of_population": attempted <= population,
         },
     }
     if population_key == "TARGET_CONFIRMED":
@@ -99,7 +99,7 @@ def measure_contact_coverage(
         result["closed_sum_check"].update(
             {
                 "confirmed_eq_attempted_plus_never": n_population == n_att + n_never,
-                "attempted_subset_of_confirmed": attempted_in_population <= population,
+                "attempted_subset_of_confirmed": attempted <= population,
             }
         )
     return result

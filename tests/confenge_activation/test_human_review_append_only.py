@@ -55,3 +55,28 @@ def test_review_appends_attributed_decision_and_never_rewrites_sample(
         )
         == 0
     )
+
+
+def test_invalid_identity_is_reported_and_never_presented_as_pending(
+    tmp_path, monkeypatch, capsys
+) -> None:  # noqa: ANN001
+    sample = tmp_path / "sample.json"
+    decisions = tmp_path / "decisions.jsonl"
+    sample.write_text(
+        json.dumps({"leads": [{"cnpj_raiz": "12345678", "email": ""}]}) + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        "builtins.input",
+        lambda _prompt="": (_ for _ in ()).throw(AssertionError("must not prompt")),
+    )
+
+    assert run_interactive(
+        sample_path=sample,
+        decisions_path=decisions,
+        reviewer="tiago",
+    ) == 0
+    captured = capsys.readouterr()
+    assert "UNREVIEWABLE: 1" in captured.err
+    assert "No actionable pending leads" in captured.out
+    assert not decisions.exists()

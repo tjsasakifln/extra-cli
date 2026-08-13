@@ -284,6 +284,35 @@ def test_target_confirmed_does_not_override_explicit_non_construction(
     assert leads[0]["email_send_ready"] is False
 
 
+def test_null_new_membership_field_falls_back_to_explicit_canonical_value(
+    tmp_path: Path,
+) -> None:
+    universe = [
+        {
+            "cnpj14": "11222333000181",
+            "razao_social": "ALFA ENGENHARIA",
+            "commercial_state": "NEW",
+            "construction_universe_member": None,
+            "canonical_universe_member": True,
+        }
+    ]
+
+    _, leads = _export(
+        tmp_path,
+        universe=universe,
+        target_fit=[
+            _decision(
+                "11222333000181",
+                "TARGET_CONFIRMED",
+                evidence_ids=["eng-contract"],
+            )
+        ],
+        suffix="canonical-fallback",
+    )
+
+    assert leads[0]["construction_universe_member"] is True
+
+
 def test_downgrade_and_missing_snapshot_cannot_resurrect_prior_authorization(
     tmp_path: Path,
 ) -> None:

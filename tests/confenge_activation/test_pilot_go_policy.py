@@ -131,6 +131,33 @@ def test_class_gap_fails_universe_reconciliation() -> None:
     assert "invariant_false:materialized_equals_observed_supplier_roots" in errors
 
 
+def test_operational_target_states_are_reported_outside_closed_partition() -> None:
+    classes = _classes()
+    classes["TARGET_INSUFFICIENT_EVIDENCE"] -= 1
+    manifest = build_universe_manifest(
+        supplier_roots_observed=513_650,
+        sector_classes=_sector_classes(),
+        target_fit_population=513_650,
+        materialized_roots=513_649,
+        target_classes=classes,
+        target_operational_states={"REFRESH_FAILED": 1, "RECOMPUTE_REQUIRED": 0},
+        source_contract_rows=4_400_000,
+        datalake_watermark="wm",
+        source_cdc_watermark="cdc",
+        database_snapshot="1:1:",
+        transaction_timestamp="2026-08-13T12:00:00Z",
+        construction_universe_derivation="sector classes",
+        construction_evidence_version="v1",
+        query_sha256="a" * 64,
+        construction_classifier_sha256="b" * 64,
+        target_fit_classifier_sha256="c" * 64,
+        target_fit_version="v1",
+    )
+
+    assert manifest["target_operational_states"]["REFRESH_FAILED"] == 1
+    assert "target_operational_states_not_zero" in validate_universe_manifest(manifest)
+
+
 def test_manifest_validation_recomputes_closure_instead_of_trusting_flags() -> None:
     manifest = deepcopy(_manifest())
     manifest["materialized_roots"] -= 1
@@ -278,6 +305,34 @@ def test_automation_review_decisions_never_unlock_go(tmp_path: Path) -> None:
     review = load_human_review_decisions(decisions, eligible_rows=rows)
     assert review["approved_current_esr"] == 0
     assert review["errors"]
+    assert review["blocking_errors"]
+
+
+def test_invalid_attribution_for_ineligible_history_is_observable_not_blocking(
+    tmp_path: Path,
+) -> None:
+    decisions = tmp_path / "decisions.jsonl"
+    decisions.write_text(
+        json.dumps(
+            {
+                "cnpj_raiz": "99999999",
+                "email": "old@example.com",
+                "review_status": "HUMAN_REVIEW_APPROVED",
+                "reviewer": "automation",
+                "reviewed_at": "2026-08-10T13:00:00Z",
+                "evidence_inspected": ["company"],
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    review = load_human_review_decisions(
+        decisions,
+        eligible_rows=[{"cnpj_raiz": "11111111", "email": "current@example.com"}],
+    )
+    assert review["errors"]
+    assert review["blocking_errors"] == []
 
 
 def test_duplicate_esr_rows_cannot_inflate_human_review_thresholds(tmp_path: Path) -> None:

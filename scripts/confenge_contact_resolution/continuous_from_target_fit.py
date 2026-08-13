@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import logging
+import shutil
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -42,6 +43,7 @@ from scripts.confenge_target_fit.store import get_control
 logger = logging.getLogger(__name__)
 
 DEFAULT_OUT = Path("artifacts/confenge/contact-enrichment/continuous-construction")
+LEGACY_DEFAULT_OUT = Path("artifacts/confenge/contact-enrichment/continuous-confirmed")
 
 
 @dataclass
@@ -184,6 +186,18 @@ def load_attempted_keys(checkpoint_path: Path) -> set[str]:
     return {str(x) for x in done}
 
 
+def migrate_legacy_checkpoint(output_dir: Path) -> bool:
+    """Carry the old default resume ledger forward without overwriting state."""
+    output_dir = Path(output_dir)
+    destination = output_dir / "checkpoint.json"
+    source = LEGACY_DEFAULT_OUT / "checkpoint.json"
+    if output_dir != DEFAULT_OUT or destination.exists() or not source.is_file():
+        return False
+    output_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(source, destination)
+    return True
+
+
 def run_continuous_enrichment(
     dsn: str,
     *,
@@ -202,11 +216,15 @@ def run_continuous_enrichment(
     assert_not_pilot_as_capacity(cfg.max_companies, context="enrich-continuous")
     out = Path(cfg.output_dir)
     out.mkdir(parents=True, exist_ok=True)
+    if cfg.resume:
+        migrate_legacy_checkpoint(out)
 
     jobs = load_construction_jobs_from_dsn(dsn)
-    construction_keys = [
-        str((j.meta or {}).get("cnpj_raiz") or j.cnpj14[:8]) for j in jobs
-    ]
+    construction_keys = list(
+        dict.fromkeys(
+            str((j.meta or {}).get("cnpj_raiz") or j.cnpj14[:8]) for j in jobs
+        )
+    )
 
     rcfg = resolver_config or ResolverConfig(
         allow_network=cfg.allow_network,
@@ -321,7 +339,7 @@ def run_continuous_enrichment(
     report = {
         "schema": "confenge.continuous_contact_enrichment.v1",
         "as_of": _utcnow(),
-        "construction_universe_jobs": len(jobs),
+        "construction_universe_jobs": len(construction_keys),
         "representative_establishment_jobs": len(runnable_jobs),
         "representative_establishment_pending": len(jobs) - len(runnable_jobs),
         "max_companies_bound": cfg.max_companies,

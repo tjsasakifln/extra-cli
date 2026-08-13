@@ -80,6 +80,26 @@ def _paths_changed(base: str, head: str) -> list[str]:
     return [ln for ln in out.splitlines() if ln.strip()]
 
 
+def _working_tree_paths() -> list[str]:
+    """Return indexed, unstaged, and untracked repo paths."""
+    paths: set[str] = set()
+    for args in (
+        ["diff", "--name-only"],
+        ["diff", "--cached", "--name-only"],
+        ["ls-files", "--others", "--exclude-standard"],
+    ):
+        paths.update(line for line in _git(args).splitlines() if line.strip())
+    return sorted(paths)
+
+
+def _repo_relative(path: Path) -> str | None:
+    candidate = path if path.is_absolute() else _ROOT / path
+    try:
+        return candidate.resolve().relative_to(_ROOT.resolve()).as_posix()
+    except ValueError:
+        return None
+
+
 def check_artifact_binding(
     *,
     head_sha: str,
@@ -164,26 +184,41 @@ def check_artifact_binding(
                 details["free_changed"] = list(eval_diff.get("free_changed") or [])
                 if bad or not eval_diff.get("ok"):
                     artifact_relpaths: set[str] = set()
+                    unprovable_paths: list[str] = []
                     for path in paths:
-                        try:
-                            artifact_relpaths.add(
-                                Path(path).resolve().relative_to(_ROOT.resolve()).as_posix()
-                            )
-                        except ValueError:
-                            # External test paths cannot prove unchanged in this repo.
-                            artifact_relpaths.add(str(Path(path)))
-                    changed_in_checkpoint = (
-                        _paths_changed(change_base_sha, head_sha) if change_base_sha else []
+                        relpath = _repo_relative(Path(path))
+                        if relpath is None:
+                            unprovable_paths.append(str(path))
+                        else:
+                            artifact_relpaths.add(relpath)
+                    base_usable = bool(
+                        change_base_sha
+                        and change_base_sha != head_sha
+                        and _is_ancestor(str(change_base_sha), head_sha)
                     )
+                    try:
+                        changed_in_checkpoint = (
+                            _paths_changed(str(change_base_sha), head_sha)
+                            if base_usable
+                            else []
+                        )
+                        dirty_paths = _working_tree_paths()
+                    except (OSError, subprocess.SubprocessError):
+                        changed_in_checkpoint = []
+                        dirty_paths = []
+                        base_usable = False
                     artifacts_changed = sorted(
-                        artifact_relpaths.intersection(changed_in_checkpoint)
+                        artifact_relpaths.intersection(
+                            set(changed_in_checkpoint) | set(dirty_paths)
+                        )
                     )
                     statuses_non_terminal = bool(artifact_statuses) and all(
                         status in NON_TERMINAL_STATUSES for status in artifact_statuses
                     )
                     stale_allowed = (
                         allow_stale_non_terminal
-                        and bool(change_base_sha)
+                        and base_usable
+                        and not unprovable_paths
                         and statuses_non_terminal
                         and not artifacts_changed
                     )
@@ -191,6 +226,8 @@ def check_artifact_binding(
                         "allowed": stale_allowed,
                         "requested": allow_stale_non_terminal,
                         "change_base_sha": change_base_sha,
+                        "change_base_usable": base_usable,
+                        "unprovable_paths": unprovable_paths,
                         "artifact_statuses": artifact_statuses,
                         "artifacts_changed_in_checkpoint": artifacts_changed,
                     }

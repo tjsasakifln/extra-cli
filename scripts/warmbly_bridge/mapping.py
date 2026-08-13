@@ -438,9 +438,10 @@ def map_lead(
         "evidence_ids": moment.get("evidence_ids")
         or intel.get("evidence_ids")
         or [e.get("id") for e in evidence_items if isinstance(e, dict)],
-        "canonical_universe_member": universe_row.get(
-            "construction_universe_member",
-            universe_row.get("canonical_universe_member"),
+        "canonical_universe_member": (
+            universe_row.get("construction_universe_member")
+            if universe_row.get("construction_universe_member") is not None
+            else universe_row.get("canonical_universe_member")
         ),
         "construction_evidence": universe_row.get("construction_evidence") or intel.get("construction_evidence") or {},
         "portfolio": universe_row.get("portfolio")

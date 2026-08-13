@@ -140,12 +140,16 @@ def _load_contracts(
         else:
             where_sql = f"left(regexp_replace({cnpj_col}, '\\D', '', 'g'), 8) = %s"
             where_arg = raiz
+        # Ordering is only semantic when choosing a newest-N subset. Full
+        # history has a deterministic fingerprint sort downstream and should
+        # not pay for an otherwise unbounded database sort.
+        order_sql = f" ORDER BY {order} DESC NULLS LAST" if limit is not None else ""
         limit_sql = " LIMIT %s" if limit is not None else ""
         sql = f"""
             SELECT {", ".join(select_cols)}
             FROM pncp_supplier_contracts
             WHERE {where_sql}
-            ORDER BY {order} DESC NULLS LAST
+            {order_sql}
             {limit_sql}
         """
         params = (where_arg, limit) if limit is not None else (where_arg,)

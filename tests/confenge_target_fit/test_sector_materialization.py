@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 from scripts.confenge_sector import CONSTRUCTION_CONFIRMED
-from scripts.confenge_sector.store import materialize_sector
+from scripts.confenge_sector import store as sector_store
+from scripts.confenge_sector.store import materialize_sector, publish_sector_materialization
 from scripts.confenge_target_fit.loader import company_input_from_dict
 from scripts.confenge_target_fit.reconcile import archive_orphan_materializations
 
@@ -65,6 +66,38 @@ def test_sector_materialization_uses_only_observed_valid_establishment() -> None
     assert sector.representative_cnpj14 == "11222333000181"
 
 
+def test_sector_materialization_preserves_classifier_version_from_evidence() -> None:
+    company = company_input_from_dict(
+        {
+            "cnpj_raiz": "11222333",
+            "construction_evidence": {
+                "sector_class": "CONSTRUCTION_CONFIRMED",
+                "classifier_version": "custom-sector-v2",
+            },
+        }
+    )
+
+    assert materialize_sector(company).sector_version == "custom-sector-v2"
+
+
+def test_sector_classifier_hash_is_cached(monkeypatch) -> None:  # noqa: ANN001
+    calls = 0
+    original = sector_store.inspect.getsource
+
+    def counted(value):  # noqa: ANN001
+        nonlocal calls
+        calls += 1
+        return original(value)
+
+    sector_store.sector_classifier_sha256.cache_clear()
+    monkeypatch.setattr(sector_store.inspect, "getsource", counted)
+    first = sector_store.sector_classifier_sha256()
+    second = sector_store.sector_classifier_sha256()
+    assert first == second
+    assert calls == 3
+    sector_store.sector_classifier_sha256.cache_clear()
+
+
 def test_sector_materialization_does_not_invent_establishment() -> None:
     company = company_input_from_dict(
         {
@@ -97,6 +130,57 @@ def test_sector_evidence_does_not_embed_target_fit_as_sector_proof() -> None:
     assert sector.sector_evidence == [
         {"source": "commercial_leads.sector_fit", "classification": "CONFIRMED"}
     ]
+
+
+def test_sector_publish_recomputes_when_classifier_hash_changes() -> None:
+    sector = materialize_sector(
+        company_input_from_dict(
+            {
+                "cnpj_raiz": "12345678",
+                "razao_social": "ENGENHARIA EXEMPLO LTDA",
+                "cnae_principal": "7112-0/00",
+            }
+        )
+    )
+
+    class Cursor:
+        def __init__(self, prior):  # noqa: ANN001
+            self.prior = prior
+            self.statements: list[str] = []
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def execute(self, sql, _params=None):  # noqa: ANN001
+            self.statements.append(str(sql))
+
+        def fetchone(self):
+            return self.prior
+
+    class Connection:
+        def __init__(self, prior):  # noqa: ANN001
+            self.cursor_instance = Cursor(prior)
+
+        def cursor(self):
+            return self.cursor_instance
+
+    common = {
+        "sector_class": sector.sector_class,
+        "input_fingerprint": sector.input_fingerprint,
+        "sector_version": sector.sector_version,
+    }
+    unchanged = Connection(
+        {**common, "sector_classifier_sha256": sector.sector_classifier_sha256}
+    )
+    assert publish_sector_materialization(unchanged, sector) is False
+    assert len(unchanged.cursor_instance.statements) == 1
+
+    stale = Connection({**common, "sector_classifier_sha256": "stale"})
+    assert publish_sector_materialization(stale, sector) is True
+    assert len(stale.cursor_instance.statements) == 3
 
 
 def test_orphan_archive_reports_only_rows_actually_deleted() -> None:

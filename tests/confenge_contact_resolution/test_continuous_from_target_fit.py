@@ -80,3 +80,18 @@ def test_process_harvest_never_synthesizes_establishment_cnpj() -> None:
         )
         == "11222333000181"
     )
+
+
+def test_legacy_default_checkpoint_is_migrated_once(tmp_path, monkeypatch) -> None:  # noqa: ANN001
+    old = tmp_path / "continuous-confirmed"
+    new = tmp_path / "continuous-construction"
+    old.mkdir()
+    (old / "checkpoint.json").write_text('{"completed_cnpjs":["123"]}\n', encoding="utf-8")
+    monkeypatch.setattr(continuous_from_target_fit, "LEGACY_DEFAULT_OUT", old)
+    monkeypatch.setattr(continuous_from_target_fit, "DEFAULT_OUT", new)
+
+    assert continuous_from_target_fit.migrate_legacy_checkpoint(new) is True
+    assert (new / "checkpoint.json").read_text(encoding="utf-8") == '{"completed_cnpjs":["123"]}\n'
+    (new / "checkpoint.json").write_text("keep\n", encoding="utf-8")
+    assert continuous_from_target_fit.migrate_legacy_checkpoint(new) is False
+    assert (new / "checkpoint.json").read_text(encoding="utf-8") == "keep\n"

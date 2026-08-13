@@ -59,6 +59,7 @@ from scripts.confenge_target_fit.compute import classifier_sha
 from scripts.confenge_target_fit.coverage import build_coverage_snapshot, load_coverage_control
 from scripts.confenge_target_fit.db import connect
 from scripts.confenge_target_fit.store import get_control, queue_counts
+from scripts.linkage.keys import is_valid_cnpj14
 
 
 def _digits(s: Any) -> str:
@@ -112,10 +113,12 @@ def _universe_closure_query(mode: str) -> str:
             (SELECT COUNT(*)::bigint FROM target WHERE target_fit_class = 'TARGET_PROBABLE_RESEARCH') AS target_probable,
             (SELECT COUNT(*)::bigint FROM target WHERE target_fit_class = 'TARGET_INSUFFICIENT_EVIDENCE') AS target_insufficient,
             (SELECT COUNT(*)::bigint FROM target WHERE target_fit_class = 'TARGET_OUT_OF_SCOPE') AS target_out,
-            (SELECT COUNT(*)::bigint FROM sector WHERE sector_version <> %s) AS sector_version_mismatch,
-            (SELECT COUNT(*)::bigint FROM sector WHERE sector_classifier_sha256 <> %s) AS sector_classifier_mismatch,
-            (SELECT COUNT(*)::bigint FROM target WHERE target_fit_version <> %s) AS target_version_mismatch,
-            (SELECT COUNT(*)::bigint FROM target WHERE classifier_sha <> %s) AS target_classifier_mismatch,
+            (SELECT COUNT(*)::bigint FROM target WHERE target_fit_class = 'REFRESH_FAILED') AS target_refresh_failed,
+            (SELECT COUNT(*)::bigint FROM target WHERE target_fit_class = 'RECOMPUTE_REQUIRED') AS target_recompute_required,
+            (SELECT COUNT(*)::bigint FROM sector WHERE sector_version IS DISTINCT FROM %s) AS sector_version_mismatch,
+            (SELECT COUNT(*)::bigint FROM sector WHERE sector_classifier_sha256 IS DISTINCT FROM %s) AS sector_classifier_mismatch,
+            (SELECT COUNT(*)::bigint FROM target WHERE target_fit_version IS DISTINCT FROM %s) AS target_version_mismatch,
+            (SELECT COUNT(*)::bigint FROM target WHERE classifier_sha IS DISTINCT FROM %s) AS target_classifier_mismatch,
             (SELECT COUNT(*)::bigint FROM supplier s LEFT JOIN sector d USING (cnpj_raiz) WHERE d.cnpj_raiz IS NULL) AS sector_missing,
             (SELECT COUNT(*)::bigint FROM supplier s LEFT JOIN target d USING (cnpj_raiz) WHERE d.cnpj_raiz IS NULL) AS target_missing,
             (SELECT COUNT(*)::bigint FROM sector d LEFT JOIN supplier s USING (cnpj_raiz) WHERE s.cnpj_raiz IS NULL) AS sector_orphans,
@@ -403,8 +406,18 @@ def _sample_service_distribution(
                 continue
             if not contracts:
                 continue
+            observed_cnpj14 = next(
+                (
+                    value
+                    for row in contracts
+                    if is_valid_cnpj14(
+                        value := _digits(row.get("fornecedor_cnpj"))
+                    )
+                ),
+                None,
+            )
             raw = {
-                "cnpj14": raiz + "000100",
+                "cnpj14": observed_cnpj14,
                 "cnpj_root": raiz,
                 "razao_social": contracts[0].get("fornecedor_nome"),
                 "contracts": contracts,
@@ -478,6 +491,10 @@ def gather_live_metrics(
             TARGET_PROBABLE_RESEARCH: probable_n,
             TARGET_OUT_OF_SCOPE: out_n,
             TARGET_INSUFFICIENT_EVIDENCE: insufficient_n,
+        }
+        target_operational_states = {
+            "REFRESH_FAILED": int(closure.get("target_refresh_failed") or 0),
+            "RECOMPUTE_REQUIRED": int(closure.get("target_recompute_required") or 0),
         }
         # Every classified root is materialized.  Omitting INSUFFICIENT here used
         # to make a fully classified 500k-root universe look only ~25% complete.
@@ -610,6 +627,7 @@ def gather_live_metrics(
             target_fit_population=int(closure.get("target_fit_population") or 0),
             materialized_roots=materialized,
             target_classes=target_classes,
+            target_operational_states=target_operational_states,
             source_contract_rows=source_contract_rows,
             datalake_watermark=database_watermark,
             source_cdc_watermark=source_cdc_watermark,

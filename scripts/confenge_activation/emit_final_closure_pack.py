@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import shutil
 import subprocess
 from datetime import UTC, datetime
 from pathlib import Path
@@ -168,9 +169,12 @@ def evaluation_lineage_preserved(evaluated_sha: str, tip_sha: str) -> bool:
         return False
     if evaluated == tip:
         return True
+    git = shutil.which("git")
+    if not git:
+        return False
     try:
         subprocess.check_call(  # noqa: S603
-            ["/usr/bin/git", "merge-base", "--is-ancestor", evaluated, tip],
+            [git, "merge-base", "--is-ancestor", evaluated, tip],
             cwd=str(_REPO_ROOT),
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
@@ -184,7 +188,7 @@ def evaluation_lineage_preserved(evaluated_sha: str, tip_sha: str) -> bool:
             tip=tip,
         )
         return bool(result.get("ok"))
-    except (OSError, subprocess.CalledProcessError):
+    except (OSError, subprocess.SubprocessError):
         return False
 
 

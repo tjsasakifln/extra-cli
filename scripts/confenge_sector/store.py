@@ -7,6 +7,7 @@ import inspect
 import json
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from functools import lru_cache
 from typing import Any
 
 from scripts.confenge_sector.classification import (
@@ -40,6 +41,7 @@ class SectorMaterialization:
     computed_at: datetime
 
 
+@lru_cache(maxsize=1)
 def sector_classifier_sha256() -> str:
     try:
         from scripts.commercial_leads import contract_relevance as relevance_module
@@ -97,7 +99,11 @@ def materialize_sector(company: CompanyInput, *, now: datetime | None = None) ->
         representative_cnpj14=observed_branches[0] if observed_branches else None,
         sector_class=sector_class,
         sector_confidence=float(evidence.get("confidence") or 0.0),
-        sector_version=str(evidence.get("sector_classifier_version") or SECTOR_CLASSIFIER_VERSION),
+        sector_version=str(
+            evidence.get("sector_classifier_version")
+            or evidence.get("classifier_version")
+            or SECTOR_CLASSIFIER_VERSION
+        ),
         sector_classifier_sha256=sector_classifier_sha256(),
         sector_reason_codes=list(evidence.get("reason_codes") or []),
         sector_evidence=sector_evidence,
@@ -129,7 +135,8 @@ def publish_sector_materialization(conn: Any, sector: SectorMaterialization) -> 
     with conn.cursor() as cur:
         cur.execute(
             """
-            SELECT sector_class, input_fingerprint, sector_version
+            SELECT sector_class, input_fingerprint, sector_version,
+                   sector_classifier_sha256
             FROM confenge_company_sector_current
             WHERE company_key = %s
             """,
@@ -140,6 +147,7 @@ def publish_sector_materialization(conn: Any, sector: SectorMaterialization) -> 
             prior
             and prior.get("input_fingerprint") == sector.input_fingerprint
             and prior.get("sector_version") == sector.sector_version
+            and prior.get("sector_classifier_sha256") == sector.sector_classifier_sha256
         ):
             return False
         previous_class = prior.get("sector_class") if prior else None

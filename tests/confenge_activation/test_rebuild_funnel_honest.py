@@ -31,6 +31,14 @@ def test_rebuild_source_has_no_synthetic_c_keys() -> None:
     assert "c0" not in src
     assert "min(confirmed, 41)" not in src
     assert "attempted_est" not in src
+    assert 'raiz + "000100"' not in inspect.getsource(rnf)
+
+
+def test_universe_query_counts_null_lineage_as_mismatch() -> None:
+    sql = rnf._universe_closure_query("ACTIVE")
+    assert sql.count("IS DISTINCT FROM %s") == 4
+    assert "target_refresh_failed" in sql
+    assert "target_recompute_required" in sql
 
 
 def test_rebuild_source_calls_evaluate_email_send_ready() -> None:
