@@ -1,8 +1,8 @@
 # Story: Critical Issues Wave 1
 
-**Status:** InProgress
+**Status:** VerifiedLocal
 **Branch:** `agent/critical-issues-wave-1`
-**Base:** `origin/main` at `fffdd3ff5d08702013fe2e2f405b945be2d7ba39`
+**Base:** `origin/main` at `7c25ea5741996691cfa234038907e0309421f41e`
 **Capability:** Fail-closed multifonte collection, packaging, and national-contract truth
 
 ## Goal
@@ -148,3 +148,5 @@ then by critical-path unlocks. The resulting scope is:
 | 2026-08-12 | #313 | VERIFIED_LOCAL | 24 focused tests pass; adversarial DB test and four EXPLAIN plans prove role separation and indexes |
 | 2026-08-12 | Wave | VERIFIED_LOCAL | Fresh PostgreSQL schema: 76 migrations applied, 2,085 entities seeded (1,093 in canonical radius); full suite: 4,279 passed, 126 skipped, 11 deselected; 49.6% coverage |
 | 2026-08-12 | Wave | PARTIAL_EXTERNAL | Strict golden path exited 2: PCP fetched 147/inserted 135, ComprasGov success-zero, PNCP HTTP 504 after 413 s; freshness remained stale for PNCP/contracts; no readiness claim |
+| 2026-08-13 | Wave | VERIFIED_LOCAL | Integrated the Ruff-zero main baseline; fresh migrations through 077; focused adversarial tests pass; canonical full suite is 4,313 passed/136 skipped at 49.75% coverage; repository-wide Ruff, artifact policy, and Ready reviewability gate pass. Exact-HEAD CI remains required before PR readiness. |
+| 2026-08-13 | Wave | PARTIAL_EXTERNAL | Final golden path `gp-20260813-021754` exited 2: PNCP HTTP 504, PCP failed after three attempts, ComprasGov success-zero, freshness/snapshot gates failed. Pre-existing provenance wrapper defect tracked in #342; no readiness claim. |

@@ -24,12 +24,18 @@ acceptance require exact-HEAD CI and the repository's human/main gates.
 
 ```text
 python3 -m scripts.ops.run_full_suite
-4296 passed, 136 skipped, coverage 49.69%, exit 0
+4313 passed, 136 skipped, coverage 49.75%, exit 0
 
 python3 -m scripts.ops.apply_migrations --mode fresh ...
 migrations_ok mode=fresh applied=77 skipped=0 repaired=0
 
-python3 -m ruff check scripts/
+focused adversarial matrix (unit/integration)
+82 passed, 6 skipped
+
+focused PostgreSQL 16 + pgvector matrix (REQUIRE_REAL_DB=1)
+220 passed, 2 skipped
+
+python3 -m ruff check .
 All checks passed!
 
 git diff --check
@@ -42,7 +48,7 @@ python3 -m scripts.ops.check_pr_reviewability --base origin/main --draft
 pr-reviewability: draft=True violations=0 PASS
 
 python3 -m scripts.ops.check_pr_reviewability --base origin/main
-FAIL multi_capability_mix (human-approved exception or decomposition required)
+pr-reviewability: draft=False violations=0 PASS
 ```
 
 The full suite ran against disposable PostgreSQL 16 with pgvector after a
@@ -51,26 +57,34 @@ real-PostgreSQL tests additionally exercised two valid CNPJs, CPF, FOREIGN and
 UNKNOWN identities, different buyer/supplier roots, v2/fallback population
 equality, fallback transaction recovery, and selected-run lineage isolation.
 
-The explicitly requested `python3 -m ruff check .` is not green repository-wide:
-it reports 294 findings on this branch versus 298 on
-`origin/main@0b19503a`. The PR introduces zero Ruff findings in its 59 changed
-files and removes four pre-existing F401 findings. The remaining debt is tracked
-by TD-7.1 and GitHub issue #327. The blocking project/CI boundary is
-`ruff check scripts/`, which is green; no lint rule, scope, exclusion, or
-threshold was weakened in this PR.
+The repository-wide Ruff debt tracked by #327 was resolved on
+`origin/main@7c25ea5741996691cfa234038907e0309421f41e` and integrated into this
+branch. `ruff check .` is now the enforced project boundary and is green; no
+lint rule, scope, exclusion, or threshold was weakened in this PR.
 
-The draft reviewability boundary is green, but the Ready-mode policy remains
-fail-closed because this ten-issue wave mixes migrations, CI, runtime,
-commercial and test buckets. The policy permits readiness only after scope
-decomposition or a human-approved, owned and time-bounded exception in
-`docs/pr-reviewability-exceptions.json`; this branch does not invent that
-approval and must remain Draft until the gate is satisfied.
+Both draft and Ready-mode reviewability boundaries are green. The human owner
+authorized a narrow, owned, one-week exception for `multi_capability_mix`
+because the migration contracts, canonical consumers, and adversarial gates
+must remain atomic. The exception in `docs/pr-reviewability-exceptions.json`
+does not waive file/line limits, binaries, generated artifacts, lint, tests, or
+exact-HEAD CI. Branch evidence remains `VERIFIED` until the published exact HEAD
+is green; DOD acceptance still requires main.
 
-Golden path `gp-20260812-195814` remained `PARTIAL` (exit 2): PNCP exhausted
-retries after HTTP 504, PCP fetched 147, ComprasGov proved `success_zero`, the
-contracts freshness gate was stale, and coverage reported one evidence row
-outside the identity map. This is external/operational evidence, not a local
-success claim; it does not establish `GO`, `LOCAL_READY`, live coverage, or
+An independent test-infrastructure finding discovered during this validation is
+tracked in #341: the optional `national_intel` DSN fixture needs an explicit
+schema preflight and short connection timeout. It does not change product
+semantics or expand this PR. For the final local full-suite proof, those five
+real tests ran against the same fully migrated disposable PostgreSQL database,
+which is stronger than treating the optional database as unavailable.
+
+Final golden path `gp-20260813-021754` remained honestly `PARTIAL` (exit 2):
+PNCP exhausted retries after HTTP 504, PCP's adapter exited after three
+attempts, ComprasGov proved `success_zero`, freshness was stale for PNCP and
+contracts, and both coverage domains had zero active rows. The run also exposed
+a pre-existing positional-argument defect in `provenance_sync`, tracked as
+P1/high issue #342; the affected files are unchanged by this PR. This is
+external/operational and independent-defect evidence, not a local success
+claim; it does not establish `GO`, `LOCAL_READY`, live coverage, or
 `VPS_OPERATIONAL`.
 
 ## #303 verification
