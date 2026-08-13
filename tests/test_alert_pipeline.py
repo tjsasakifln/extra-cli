@@ -10,9 +10,9 @@ from scripts.ops.alert_pipeline import (
     AlertEvent,
     destinations_configured,
     dispatch_alert,
+    probe_webhook_detectable,
     should_suppress,
     status_report,
-    probe_webhook_detectable,
 )
 
 

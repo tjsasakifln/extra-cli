@@ -520,6 +520,7 @@ def test_workflow_yml_no_fail_open():
     """Workflow must not swallow audit/verify failures with || true."""
     pytest.importorskip("yaml")
     import re
+
     import yaml
 
     path = ROOT / ".specify" / "workflows" / "dod-convergence" / "workflow.yml"

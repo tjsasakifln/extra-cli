@@ -4,7 +4,6 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
-from pathlib import Path
 
 from scripts.ops.ops_gate_monitor import (
     collect_report,

@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import os
-from unittest.mock import MagicMock, patch
 
 from scripts.freshness_gate import CRITICAL_SOURCES, _selected_critical_sources
 from scripts.golden_path import run_coverage_calculation, run_snapshot_reconciliation

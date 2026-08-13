@@ -8,12 +8,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
-from scripts.confenge_process_enrichment.attribution import classify_observation, is_exportable_to_warmbly
 from scripts.confenge_process_enrichment.contact_extract import (
     extract_contacts_from_text,
-    is_functional_mailbox,
     pattern_guess_email,
 )
 from scripts.confenge_process_enrichment.contact_graph import build_account_contact_graph, select_best_for_service
@@ -25,14 +21,14 @@ from scripts.confenge_process_enrichment.models import (
 )
 from scripts.confenge_process_enrichment.outreach_export import (
     assert_no_forbidden_pii,
-    graph_to_outreach_contacts,
     observation_to_outreach,
 )
 from scripts.confenge_process_enrichment.pipeline import ProcessFirstConfig, ProcessFirstEnricher, enrich_account
-from scripts.confenge_process_enrichment.process_graph import build_process_graph
-from scripts.confenge_process_enrichment.states import can_declare_no_contact, derive_terminal
-from scripts.confenge_process_enrichment.states import InvestigationState, TerminalState
-
+from scripts.confenge_process_enrichment.states import (
+    InvestigationState,
+    TerminalState,
+    can_declare_no_contact,
+)
 
 FIXTURES = Path(__file__).parent / "fixtures" / "confenge_process_enrichment"
 
