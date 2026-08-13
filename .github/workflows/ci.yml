@@ -1422,9 +1422,11 @@ jobs:
           # or commercial freeze policy.  Do not make those files globally
           # immutable: a CONFENGE policy change remains valid only after the
           # normal re-freeze below proves the new policy and protected inputs.
+          edital_foundation_changed=0
           if git diff --name-only origin/main...HEAD | grep -Eq \
             '^(evals/edital_relevance/|scripts/campaigns/edital_relevance/|scripts/coverage/edital_relevance_recall\.py$|tests/coverage/)'
           then
+            edital_foundation_changed=1
             for f in \
               scripts/ops/sector_classifier.py \
               scripts/ops/confenge_code_freeze.py \
@@ -1439,6 +1441,7 @@ jobs:
           else
             echo "No EDITAL foundation paths changed; enforcing the canonical CONFENGE re-freeze gate"
           fi
+          export EDITAL_FOUNDATION_CHANGED="${edital_foundation_changed}"
           # Frozen-inputs policy must be active; foundation free paths must not protect-fail.
           python3 - <<'PY'
           import os
@@ -1464,7 +1467,8 @@ jobs:
           assert rep.get("ok") is True, rep
           assert not rep.get("protected_changed"), rep.get("protected_changed")
           free = rep.get("free_changed") or []
-          assert any("edital_relevance" in p or "coverage/edital" in p for p in free) or free, free
+          if os.environ.get("EDITAL_FOUNDATION_CHANGED") == "1":
+              assert any("edital_relevance" in p or "coverage/edital" in p for p in free), free
           print("sector_classifier+confenge policy isolation OK; freeze free-path PASS")
           PY
 
