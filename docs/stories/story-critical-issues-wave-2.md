@@ -1,6 +1,6 @@
 # Story: Critical Issues Wave 2
 
-**Status:** InProgress
+**Status:** ReadyForReview
 **Branch:** `agent/critical-issues-wave-2`
 **Base:** `origin/main` at `2f89fb363abc2bc56568dd0ae11afe554cbcb4c4`
 **Capability:** Durable, secure and continuously scheduled public-source crawl runtime
@@ -109,11 +109,11 @@ diagnostics contracts must agree atomically.
 - [x] Wave B: durable queue, leased workers and continuous scheduler (#246, #268, #269).
 - [x] Wave C: immutable raw evidence and canonical document lineage (#247, #272).
 - [x] Wave D: discovery, applicability/coverage and crawler sandbox (#235, #236, #276).
-- [ ] Apply and rollback migrations on disposable PostgreSQL 16 + pgvector.
-- [ ] Run focused tests after every wave and the canonical full suite at completion.
+- [x] Apply and rollback migrations on disposable PostgreSQL 16 + pgvector.
+- [x] Run focused tests after every wave and the canonical full suite at completion.
 - [x] Run strict golden path and preserve any external failure as `PARTIAL`/`BLOCKED`.
-- [ ] Run CodeRabbit, generated-artifact and Ready reviewability policies.
-- [ ] Publish one draft PR, then make the exact PR HEAD fully green.
+- [x] Run CodeRabbit, generated-artifact and Ready reviewability policies.
+- [x] Publish one draft PR, then make the exact PR HEAD fully green.
 
 ## Non-goals and truth ceiling
 
@@ -169,6 +169,15 @@ diagnostics contracts must agree atomically.
   (100 distinct-domain claims and 100 shared-domain-limit claims); the 92-test
   focused suite with all PostgreSQL proofs also passed. Draft generated-artifact
   and reviewability policies remain green with zero violations.
+- Implementation HEAD `1215993b055a2efe5d7e0425f6c7aebe89a3ffea` passed
+  all 30 GitHub checks, including two canonical full-suite executions; the
+  primary suite reported 4,371 passed / 143 skipped on PostgreSQL 16 + pgvector.
+- Final CodeRabbit review of the corrective delta completed with zero findings;
+  generated-artifact and ready-mode reviewability policies passed locally and
+  on GitHub with zero violations.
+- Disposable PostgreSQL 16 + pgvector 0.8.5 proof applied all 83 migrations,
+  rolled back 083 through 078 with `ON_ERROR_STOP=1`, and confirmed zero
+  remaining wave-2 tables. The disposable container was removed after proof.
 
 ### Completion Notes
 
@@ -234,3 +243,4 @@ diagnostics contracts must agree atomically.
 | 2026-08-13 | 0.4.0 | IN_PROGRESS | Rebased onto current main; retained upstream fail-closed provenance contract and dropped the superseded local wrapper change |
 | 2026-08-13 | 0.5.0 | IN_PROGRESS | Exact-HEAD CI setup gap fixed without weakening the 1,093/4,372 assertion; CI rerun pending |
 | 2026-08-13 | 0.6.0 | IN_PROGRESS | Exact-HEAD CI isolated an advisory-lock-before-limit race; the short claim admission transaction is now deterministic while leased execution stays concurrent |
+| 2026-08-13 | 0.7.0 | READY_FOR_REVIEW | PostgreSQL 16 + pgvector apply/rollback, CodeRabbit, policy gates and 30/30 exact-HEAD GitHub checks verified; acceptance remains subject to merge/main per DOD |
