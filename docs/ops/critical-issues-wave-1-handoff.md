@@ -52,10 +52,12 @@ UNKNOWN identities, different buyer/supplier roots, v2/fallback population
 equality, fallback transaction recovery, and selected-run lineage isolation.
 
 The explicitly requested `python3 -m ruff check .` is not green repository-wide:
-it reports 296 findings on this branch versus 300 on `origin/main`, concentrated
-in vendored framework assets and pre-existing test debt tracked by TD-7.1. The
-blocking project/CI boundary is `ruff check scripts/`, which is green; no lint
-rule or threshold was weakened in this PR.
+it reports 294 findings on this branch versus 298 on
+`origin/main@0b19503a`. The PR introduces zero Ruff findings in its 59 changed
+files and removes four pre-existing F401 findings. The remaining debt is tracked
+by TD-7.1 and GitHub issue #327. The blocking project/CI boundary is
+`ruff check scripts/`, which is green; no lint rule, scope, exclusion, or
+threshold was weakened in this PR.
 
 The draft reviewability boundary is green, but the Ready-mode policy remains
 fail-closed because this ten-issue wave mixes migrations, CI, runtime,
