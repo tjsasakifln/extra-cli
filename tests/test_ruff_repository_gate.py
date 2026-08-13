@@ -24,6 +24,10 @@ def test_ci_and_make_lint_are_repository_wide() -> None:
     lint_job = ci[ci.index("  lint:\n") : ci.index("  type-check:\n")]
     assert "run: ruff check ." in lint_job
     assert "ruff check scripts/" not in lint_job
+    assert "PIP_CONSTRAINT: .github/pip-constraints.txt" in ci
+
+    constraints = (ROOT / ".github/pip-constraints.txt").read_text(encoding="utf-8")
+    assert "ruff==0.15.12" in constraints.splitlines()
 
     makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
     lint_target = makefile[makefile.index("lint:\n") : makefile.index("lint-fix:\n")]

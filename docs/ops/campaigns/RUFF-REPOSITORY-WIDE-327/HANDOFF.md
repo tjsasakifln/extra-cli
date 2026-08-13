@@ -6,6 +6,8 @@
 - Base da onda final: `main@5c233b351edf6c8d9ed2a76001957f2e9c071461`.
 - Implementação do gate final: `23aca324` (o SHA exato de merge em `main` fica registrado na issue #327 após a CI).
 - Ruff: **0 findings** com `ruff==0.15.12` e `ruff check .`.
+- A CI aplica o pin por `.github/pip-constraints.txt`, inclusive nos jobs de
+  campanha congelados, sem alterar o conteúdo protegido desses jobs.
 - Nenhum `lint.select`, `lint.ignore`, threshold ou exclusão ampla foi reduzido.
 - TD-7.1 permanece `InProgress`: mypy e cobertura continuam fora do escopo da #327.
 

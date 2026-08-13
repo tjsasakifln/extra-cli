@@ -321,7 +321,7 @@ Top-10 modulos por trafego de codigo (alvo para 50% reducao de mypy):
 - `scripts/generate_consultoria_pdf.py` (modificado) — help text atualizado
 - `docs/ops/campaigns/RUFF-REPOSITORY-WIDE-327/HANDOFF.md` (novo) — campanha da issue #327, baseline e evidência reproduzível
 - `docs/ops/campaigns/RUFF-REPOSITORY-WIDE-327/SUPPRESSIONS.md` (novo) — ledger das suppressions locais
-- `.github/workflows/ci.yml`, `.pre-commit-config.yaml`, `Makefile` — Ruff 0.15.12 e gate repository-wide
+- `.github/workflows/ci.yml`, `.github/pip-constraints.txt`, `.pre-commit-config.yaml`, `Makefile` — Ruff 0.15.12 e gate repository-wide
 - `tests/test_ruff_repository_gate.py` (novo) — regressão do escopo do gate e casos adversariais URL/XML/SQL
 
 ## PO Validation Report

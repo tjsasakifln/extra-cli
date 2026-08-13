@@ -1,0 +1,2 @@
+# Shared CI tooling pins. PIP_CONSTRAINT in ci.yml applies these to every job.
+ruff==0.15.12
