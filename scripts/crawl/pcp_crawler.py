@@ -428,9 +428,8 @@ def crawl(mode: str = "full", resume: bool = False) -> list[dict]:
     server_side_uf = codigo_uf is not None
 
     # Provenance: start run
+    provenance_started_at = time.monotonic()
     run_id = provenance_start(source="pcp", mode=mode, params={"data_inicial": data_inicial_str, "data_final": data_final_str})
-    if run_id is None:
-        run_id = f"pcp-{int(time.time())}"
 
     # Watermark: determine starting page
     start_page = 1
@@ -516,10 +515,24 @@ def crawl(mode: str = "full", resume: bool = False) -> list[dict]:
     _logger.info("[PCP] Crawl complete: %d records (%d pages)", len(all_records), pagina)
 
     # Provenance: complete or fail
+    duration_ms = int((time.monotonic() - provenance_started_at) * 1000)
     if dlq_errors > 0:
-        provenance_fail(run_id, "pcp", error_message=f"{dlq_errors} DLQ errors", records_fetched=len(all_records))
+        provenance_fail(
+            run_id=run_id,
+            source="pcp",
+            error_message=f"{dlq_errors} DLQ errors",
+            records_fetched=len(all_records),
+            records_dlq=dlq_errors,
+            records_failed=dlq_errors,
+            duration_ms=duration_ms,
+        )
     else:
-        provenance_complete(run_id, "pcp", records_fetched=len(all_records))
+        provenance_complete(
+            run_id=run_id,
+            source="pcp",
+            records_fetched=len(all_records),
+            duration_ms=duration_ms,
+        )
 
     return all_records
 

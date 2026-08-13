@@ -36,6 +36,22 @@ SOURCE_SLA: dict[str, int] = {
 }
 
 
+class ProvenanceTerminalPersistenceError(RuntimeError):
+    """Base error for a terminal provenance transition that was not persisted."""
+
+
+class ProvenanceRunNotFoundError(ProvenanceTerminalPersistenceError):
+    """Raised when a terminal transition targets an unknown run."""
+
+
+class ProvenanceSourceMismatchError(ProvenanceTerminalPersistenceError):
+    """Raised when a run exists but belongs to another source."""
+
+
+class ProvenanceRunStateError(ProvenanceTerminalPersistenceError):
+    """Raised when a run has already left the running state."""
+
+
 class ProvenanceTracker:
     """Tracks crawl pipeline runs with full provenance.
 
@@ -65,6 +81,27 @@ class ProvenanceTracker:
             self._pool.putconn(conn)
         else:
             conn.close()
+
+    @staticmethod
+    def _raise_terminal_transition_error(cur, run_id: str, source: str) -> None:
+        """Classify a failed terminal update without weakening its atomic guard."""
+        cur.execute(
+            "SELECT source, status FROM pipeline_runs WHERE run_id = %s",
+            (run_id,),
+        )
+        row = cur.fetchone()
+        if row is None:
+            raise ProvenanceRunNotFoundError(f"provenance run not found: run_id={run_id}")
+
+        actual_source, status = row
+        if actual_source != source:
+            raise ProvenanceSourceMismatchError(
+                "provenance source mismatch: "
+                f"run_id={run_id} expected={source} actual={actual_source}"
+            )
+        raise ProvenanceRunStateError(
+            f"provenance run is not running: run_id={run_id} source={source} status={status}"
+        )
 
     async def start_run(
         self,
@@ -106,6 +143,8 @@ class ProvenanceTracker:
     async def complete_run(
         self,
         run_id: str,
+        *,
+        source: str,
         records_fetched: int = 0,
         records_deduplicated: int = 0,
         records_upserted: int = 0,
@@ -135,6 +174,9 @@ class ProvenanceTracker:
                         watermarks_committed = %s,
                         duration_ms = %s
                     WHERE run_id = %s
+                      AND source = %s
+                      AND status = 'running'
+                    RETURNING run_id
                     """,
                     (
                         records_fetched,
@@ -147,8 +189,11 @@ class ProvenanceTracker:
                         watermarks_committed,
                         duration_ms,
                         run_id,
+                        source,
                     ),
                 )
+                if cur.fetchone() is None:
+                    self._raise_terminal_transition_error(cur, run_id, source)
             conn.commit()
             logger.info(
                 "Run completed: %s fetched=%d upserted=%d dlq=%d in %dms",
@@ -164,8 +209,17 @@ class ProvenanceTracker:
     async def fail_run(
         self,
         run_id: str,
+        *,
+        source: str,
         error_message: str,
         records_fetched: int = 0,
+        records_deduplicated: int = 0,
+        records_upserted: int = 0,
+        records_dlq: int = 0,
+        records_failed: int = 0,
+        pages_planned: int = 0,
+        pages_completed: int = 0,
+        watermarks_committed: int = 0,
         duration_ms: int = 0,
     ) -> None:
         """Mark a pipeline run as failed."""
@@ -179,11 +233,36 @@ class ProvenanceTracker:
                         completed_at = NOW(),
                         error_message = %s,
                         records_fetched = %s,
+                        records_deduplicated = %s,
+                        records_upserted = %s,
+                        records_dlq = %s,
+                        records_failed = %s,
+                        pages_planned = %s,
+                        pages_completed = %s,
+                        watermarks_committed = %s,
                         duration_ms = %s
                     WHERE run_id = %s
+                      AND source = %s
+                      AND status = 'running'
+                    RETURNING run_id
                     """,
-                    (error_message[:2000], records_fetched, duration_ms, run_id),
+                    (
+                        error_message[:2000],
+                        records_fetched,
+                        records_deduplicated,
+                        records_upserted,
+                        records_dlq,
+                        records_failed,
+                        pages_planned,
+                        pages_completed,
+                        watermarks_committed,
+                        duration_ms,
+                        run_id,
+                        source,
+                    ),
                 )
+                if cur.fetchone() is None:
+                    self._raise_terminal_transition_error(cur, run_id, source)
             conn.commit()
             logger.error("Run failed: %s — %s", run_id, error_message[:200])
         except Exception as e:

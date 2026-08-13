@@ -773,9 +773,10 @@ class TestCrawl:
 
     @patch("scripts.crawl.ciga_ckan_crawler.list_domsc_months")
     def test_crawl_no_data(self, mock_list):
-        """No datasets returns empty list."""
+        """Missing source datasets is observable, not implicit success_zero."""
         mock_list.return_value = []
-        assert ciga.crawl() == []
+        with pytest.raises(RuntimeError, match="No DOM-SC datasets"):
+            ciga.crawl()
 
 
 class TestTransform:
