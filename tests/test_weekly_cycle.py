@@ -905,8 +905,8 @@ def test_stage_materialize_spine_ok(monkeypatch) -> None:
 
 
 def test_stage_materialize_spine_warn_on_error(monkeypatch) -> None:
-    from scripts.ops import weekly_cycle as wc
     import scripts.ops.materialize_canonical_spine as mat
+    from scripts.ops import weekly_cycle as wc
 
     def _boom(conn, *, dsn=None):
         raise RuntimeError("no dsn")

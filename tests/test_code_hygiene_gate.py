@@ -1,7 +1,7 @@
 """Tests for DoD §27 code hygiene gate."""
 from __future__ import annotations
 
-from scripts.ops.code_hygiene_gate import run_gate, inventory_dry_run, check_metric_definitions
+from scripts.ops.code_hygiene_gate import check_metric_definitions, inventory_dry_run, run_gate
 
 
 def test_run_gate_ok():

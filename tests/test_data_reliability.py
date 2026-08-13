@@ -7,6 +7,7 @@ import sys
 
 import pytest
 
+from scripts.lib.claim_language import report_has_limitations, score_is_not_probability
 from scripts.lib.data_reliability import (
     TrustLevel,
     assess_data_reliability,
@@ -14,7 +15,6 @@ from scripts.lib.data_reliability import (
     bare_percentage_is_forbidden,
     format_percentage_with_context,
 )
-from scripts.lib.claim_language import score_is_not_probability, report_has_limitations
 
 
 def test_trusted_when_signals_ok() -> None:

@@ -1,4 +1,4 @@
-from scripts.entity_identity.pncp_orgao_resolve import normalize_name, pick_match, digits
+from scripts.entity_identity.pncp_orgao_resolve import digits, normalize_name, pick_match
 
 
 def test_normalize_strips_accents():

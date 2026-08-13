@@ -7,7 +7,6 @@ from pathlib import Path
 from scripts.ops.campaign_open_tenders_gate import CAMPAIGN, run_gate
 from scripts.ops.snapshot_integrity import measure_snapshot_integrity
 
-
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -70,7 +69,6 @@ def test_snapshot_integrity_fail_closed_without_dsn_shape() -> None:
 
 def test_membership_keys_accept_raw_pncp_fields() -> None:
     """Raw PNCP API keys must map to membership keys that match intel rows."""
-    from scripts.opportunity_intel.reconciliation import SourceSnapshotReconciler
 
     # Exercise pure payload-building logic via a thin local copy of the rules
     # used by _record_memberships (no DB): ship the same field preference.
@@ -95,7 +93,6 @@ def test_membership_keys_accept_raw_pncp_fields() -> None:
     assert source_record_id == "11360515000119-1-000013/2026"
     assert canonical_key == "11360515000119-1-000013/2026"
     # Guard: source must still document the dual-key acceptance
-    src = Path(SourceSnapshotReconciler.__module__.replace(".", "/") + ".py")
     # module path via package
     text = (ROOT / "scripts/opportunity_intel/reconciliation.py").read_text(encoding="utf-8")
     assert "numeroControlePNCP" in text

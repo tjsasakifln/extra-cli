@@ -4,7 +4,6 @@ from __future__ import annotations
 from scripts.coverage.applicability_matrix import (
     MANDATORY_SOURCES,
     MIN_SOURCE_COMBINATION,
-    ApplicabilityDecision,
     build_matrix,
     decide_for_entity_source,
     write_matrix,
