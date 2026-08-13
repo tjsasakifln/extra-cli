@@ -414,17 +414,25 @@ def independent_qa(root: Path, rows: list[dict[str, Any]], head: str) -> dict[st
         # Artifact existence
         for ap in r.get("artifact_paths") or []:
             rel = ap.split(":")[0]
+            if not rel or (not Path(rel).is_absolute() and "/" not in rel):
+                reasons.append(f"invalid artifact path {rel!r}")
+                verdict = "FAIL"
+                continue
             candidate = Path(rel)
+            repo_root = root.resolve()
             temp_root = Path(tempfile.gettempdir()).resolve()
-            in_temp = candidate.is_absolute() and (
-                candidate == temp_root or temp_root in candidate.parents
-            )
-            if rel and not in_temp and "/" in rel:
-                if not (root / rel).exists() and not rel.endswith("/"):
-                    # dirs may be listed without trailing content
-                    if not (root / rel).exists():
-                        reasons.append(f"missing artifact {rel}")
-                        verdict = "FAIL"
+            if candidate.is_absolute():
+                resolved = candidate.resolve()
+                allowed = resolved == temp_root or temp_root in resolved.parents
+            else:
+                resolved = (repo_root / candidate).resolve()
+                allowed = resolved == repo_root or repo_root in resolved.parents
+            if not allowed:
+                reasons.append(f"artifact outside allowed roots {rel}")
+                verdict = "FAIL"
+            elif not resolved.exists() and not rel.endswith("/"):
+                reasons.append(f"missing artifact {rel}")
+                verdict = "FAIL"
 
         entry = {
             "dod_item_id": did,

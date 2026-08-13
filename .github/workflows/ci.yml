@@ -24,6 +24,8 @@ concurrency:
 
 env:
   PYTHON_VERSION: "3.12"
+  # Pin shared developer tooling without modifying frozen campaign job bodies.
+  PIP_CONSTRAINT: .github/pip-constraints.txt
   # Distinct SHA roles for CONFENGE truth (PR head ≠ merge ref on pull_request)
   CONFENGE_PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
   CONFENGE_WORKFLOW_MERGE_SHA: ${{ github.sha }}
@@ -52,9 +54,7 @@ jobs:
           pip install ruff
 
       - name: Run ruff linter
-        # Framework/agent assets are vendored tooling. Product lint debt is
-        # tracked under TD-7.1, so the blocking gate targets production code.
-        run: ruff check scripts/
+        run: ruff check .
 
   # ============================================================================
   # TYPE CHECK — mypy

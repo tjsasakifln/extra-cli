@@ -319,6 +319,10 @@ Top-10 modulos por trafego de codigo (alvo para 50% reducao de mypy):
 - `pyproject.toml` (modificado) — configuracao de ruff, mypy, coverage
 - `docs/td-002/coverage-targets.md` (novo) — documento de governanca de cobertura
 - `scripts/generate_consultoria_pdf.py` (modificado) — help text atualizado
+- `docs/ops/campaigns/RUFF-REPOSITORY-WIDE-327/HANDOFF.md` (novo) — campanha da issue #327, baseline e evidência reproduzível
+- `docs/ops/campaigns/RUFF-REPOSITORY-WIDE-327/SUPPRESSIONS.md` (novo) — ledger das suppressions locais
+- `.github/workflows/ci.yml`, `.github/pip-constraints.txt`, `.pre-commit-config.yaml`, `Makefile` — Ruff 0.15.12 e gate repository-wide
+- `tests/test_ruff_repository_gate.py` (novo) — regressão do escopo do gate e casos adversariais URL/XML/SQL
 
 ## PO Validation Report
 
@@ -403,6 +407,18 @@ Top-10 modulos por trafego de codigo (alvo para 50% reducao de mypy):
 - O script `local_datalake stats` apresentou erro pre-existente em `search_results_cache` (tabela inexistente no banco local) — nao relacionado a esta fase
 - Phase 1 completa conforme AC1 e AC2
 
+## Dev Agent Record (Issue #327: repository-wide)
+
+**Executor:** @dev (Dex)<br>
+**Data:** 2026-08-12<br>
+**Status da story:** permanece `InProgress` (mypy e cobertura não foram alterados)
+
+- Quatro ondas sequenciais reduziram o baseline Ruff repository-wide de 298 para 0 findings.
+- CI, pre-commit e Make usam Ruff 0.15.12; o job principal executa `ruff check .`.
+- `lint.select`, `lint.ignore`, thresholds e exclusões foram preservados.
+- Hardening focado: URL HTTP(S), XML sem entidades/rede e SQL com identificadores compostos.
+- Evidência, riscos, comandos e suppressions: `docs/ops/campaigns/RUFF-REPOSITORY-WIDE-327/`.
+
 ## Change Log
 
 | Data | Mudanca | Autor |
@@ -410,3 +426,4 @@ Top-10 modulos por trafego de codigo (alvo para 50% reducao de mypy):
 | 2026-07-11 | Story criada (Draft) | @sm |
 | 2026-07-11 | PO Validation: 10/10 GO -- status Draft -> Ready | @po |
 | 2026-07-11 | 1.0.1 | Phase 1: Auto-fix completo (AC1, AC2) — 932→222 lint, 87→0 unformatted, 439 testes passando — Status: Ready → InProgress | @dev |
+| 2026-08-12 | 1.1.0 | Issue #327: Ruff repository-wide 298→0, gate CI/Make/pre-commit e hardening URL/XML/SQL; story permanece InProgress | @dev |
