@@ -103,18 +103,30 @@ class CoverageValidator:
     # ------------------------------------------------------------------ #
 
     def fetch_uncovered_entities(self):
-        """Fetch all uncovered entities from the database."""
+        """Fetch all uncovered entities from the shared covered-entity formula."""
+        kpis = published_coverage_kpis(self.conn)
+        covered = list(kpis.covered_entity_ids)
         cur = self.conn.cursor()
-        cur.execute("""
-            SELECT e.id, e.razao_social, e.cnpj_8, e.municipio,
-                   e.codigo_ibge, e.natureza_juridica
-            FROM sc_public_entities e
-            WHERE NOT EXISTS (
-                SELECT 1 FROM entity_coverage ec
-                WHERE ec.entity_id = e.id AND ec.is_covered = TRUE
+        if covered:
+            cur.execute(
+                """
+                SELECT e.id, e.razao_social, e.cnpj_8, e.municipio,
+                       e.codigo_ibge, e.natureza_juridica
+                FROM sc_public_entities e
+                WHERE e.id::text <> ALL(%s)
+                ORDER BY e.municipio, e.razao_social
+                """,
+                (covered,),
             )
-            ORDER BY e.municipio, e.razao_social
-        """)
+        else:
+            cur.execute(
+                """
+                SELECT e.id, e.razao_social, e.cnpj_8, e.municipio,
+                       e.codigo_ibge, e.natureza_juridica
+                FROM sc_public_entities e
+                ORDER BY e.municipio, e.razao_social
+                """
+            )
         rows = cur.fetchall()
         cur.close()
         return rows
@@ -225,67 +237,93 @@ class CoverageValidator:
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         cur = self.conn.cursor()
 
-        # Total coverage
-        cur.execute("""
-            SELECT
-                   (SELECT COUNT(*) FROM sc_public_entities) as total,
-                   COUNT(DISTINCT entity_id) as covered
-            FROM entity_coverage
-            WHERE is_covered = TRUE
-        """)
-        row = cur.fetchone()
-        total = row[0]
-        covered = row[1] or 0
-        uncovered = total - covered
+        kpis = published_coverage_kpis(self.conn)
+        covered_ids = list(kpis.covered_entity_ids)
+        cur.execute("SELECT COUNT(*) FROM sc_public_entities")
+        total = cur.fetchone()[0] or 0
+        covered = kpis.covered_count
+        uncovered = max(0, total - covered)
         pct = round(100.0 * covered / total, 1) if total > 0 else 0
 
-        # Coverage by source
-        cur.execute("""
+        # Coverage by source — latest evidence state, never is_covered.
+        cur.execute(
+            """
             SELECT source, COUNT(DISTINCT entity_id) as entes
-            FROM entity_coverage
-            WHERE is_covered = TRUE
+            FROM v_latest_evidence
+            WHERE state IN ('success_with_data', 'success_zero')
+              AND entity_id::text = ANY(%s)
             GROUP BY source
             ORDER BY entes DESC
-        """)
+            """,
+            (covered_ids or ["__none__"],),
+        )
         por_fonte = {r[0]: r[1] for r in cur.fetchall()}
 
         # Coverage by natureza_juridica
-        cur.execute("""
-            SELECT e.natureza_juridica,
-                   COUNT(*) as total,
-                   SUM(CASE WHEN ec.is_covered THEN 1 ELSE 0 END) as covered
-            FROM sc_public_entities e
-            LEFT JOIN entity_coverage ec ON ec.entity_id = e.id AND ec.is_covered = TRUE
-            GROUP BY e.natureza_juridica
-            ORDER BY COUNT(*) DESC
-        """)
+        if covered_ids:
+            cur.execute(
+                """
+                SELECT e.natureza_juridica,
+                       COUNT(*) as total,
+                       SUM(CASE WHEN e.id::text = ANY(%s) THEN 1 ELSE 0 END) as covered
+                FROM sc_public_entities e
+                GROUP BY e.natureza_juridica
+                ORDER BY COUNT(*) DESC
+                """,
+                (covered_ids,),
+            )
+        else:
+            cur.execute(
+                """
+                SELECT e.natureza_juridica, COUNT(*) as total, 0 as covered
+                FROM sc_public_entities e
+                GROUP BY e.natureza_juridica
+                ORDER BY COUNT(*) DESC
+                """
+            )
         por_natureza = cur.fetchall()
 
         # Coverage by municipio (top 10 worst)
-        cur.execute("""
-            SELECT e.municipio, COUNT(*) as total,
-                   SUM(CASE WHEN ec.is_covered THEN 1 ELSE 0 END) as covered
-            FROM sc_public_entities e
-            LEFT JOIN entity_coverage ec ON ec.entity_id = e.id AND ec.is_covered = TRUE
-            GROUP BY e.municipio
-            HAVING COUNT(*) - SUM(CASE WHEN ec.is_covered THEN 1 ELSE 0 END) > 0
-            ORDER BY (COUNT(*) - SUM(CASE WHEN ec.is_covered THEN 1 ELSE 0 END)) DESC
-            LIMIT 10
-        """)
+        if covered_ids:
+            cur.execute(
+                """
+                SELECT e.municipio, COUNT(*) as total,
+                       SUM(CASE WHEN e.id::text = ANY(%s) THEN 1 ELSE 0 END) as covered
+                FROM sc_public_entities e
+                GROUP BY e.municipio
+                HAVING COUNT(*) - SUM(CASE WHEN e.id::text = ANY(%s) THEN 1 ELSE 0 END) > 0
+                ORDER BY (COUNT(*) - SUM(CASE WHEN e.id::text = ANY(%s) THEN 1 ELSE 0 END)) DESC
+                LIMIT 10
+                """,
+                (covered_ids, covered_ids, covered_ids),
+            )
+        else:
+            cur.execute(
+                """
+                SELECT e.municipio, COUNT(*) as total, 0 as covered
+                FROM sc_public_entities e
+                GROUP BY e.municipio
+                ORDER BY COUNT(*) DESC
+                LIMIT 10
+                """
+            )
         top_municipios = cur.fetchall()
 
         # Total municipios stats
         cur.execute("SELECT COUNT(DISTINCT municipio) FROM sc_public_entities")
         total_municipios = cur.fetchone()[0]
 
-        cur.execute("""
-            SELECT COUNT(DISTINCT e.municipio)
-            FROM sc_public_entities e
-            WHERE NOT EXISTS (
-                SELECT 1 FROM entity_coverage ec
-                WHERE ec.entity_id = e.id AND ec.is_covered = TRUE
+        if covered_ids:
+            cur.execute(
+                """
+                SELECT COUNT(DISTINCT e.municipio)
+                FROM sc_public_entities e
+                WHERE e.id::text <> ALL(%s)
+                """,
+                (covered_ids,),
             )
-        """)
+        else:
+            cur.execute("SELECT COUNT(DISTINCT municipio) FROM sc_public_entities")
         mun_com_descobertos = cur.fetchone()[0]
         cur.close()
 
@@ -564,21 +602,34 @@ class CoverageValidator:
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         cur = self.conn.cursor()
 
-        # Municipio-level data
-        cur.execute("""
-            SELECT e.municipio, e.codigo_ibge,
-                   COUNT(*) as total,
-                   SUM(CASE WHEN ec.is_covered THEN 1 ELSE 0 END) as covered
-            FROM sc_public_entities e
-            LEFT JOIN entity_coverage ec ON ec.entity_id = e.id AND ec.is_covered = TRUE
-            GROUP BY e.municipio, e.codigo_ibge
-            ORDER BY e.municipio
-        """)
-        municipios = cur.fetchall()
-
         # Total stats — single covered-entity formula, never is_covered boolean.
         kpis = published_coverage_kpis(self.conn)
         total_covered = kpis.covered_count
+        covered_ids = list(kpis.covered_entity_ids)
+
+        # Municipio-level data from the same formula set.
+        if covered_ids:
+            cur.execute(
+                """
+                SELECT e.municipio, e.codigo_ibge,
+                       COUNT(*) as total,
+                       SUM(CASE WHEN e.id::text = ANY(%s) THEN 1 ELSE 0 END) as covered
+                FROM sc_public_entities e
+                GROUP BY e.municipio, e.codigo_ibge
+                ORDER BY e.municipio
+                """,
+                (covered_ids,),
+            )
+        else:
+            cur.execute(
+                """
+                SELECT e.municipio, e.codigo_ibge, COUNT(*) as total, 0 as covered
+                FROM sc_public_entities e
+                GROUP BY e.municipio, e.codigo_ibge
+                ORDER BY e.municipio
+                """
+            )
+        municipios = cur.fetchall()
 
         cur.execute("SELECT COUNT(*) FROM sc_public_entities")
         total_entities = cur.fetchone()[0] or 1
@@ -783,16 +834,11 @@ def verify_coverage_sync(csv_path: str):
     conn = psycopg2.connect(DSN)
     cur = conn.cursor()
 
-    # Count uncovered in DB
-    cur.execute("""
-        SELECT COUNT(*)
-        FROM sc_public_entities e
-        WHERE NOT EXISTS (
-            SELECT 1 FROM entity_coverage ec
-            WHERE ec.entity_id = e.id AND ec.is_covered = TRUE
-        )
-    """)
-    db_uncovered = cur.fetchone()[0]
+    # Count uncovered from the shared formula, never is_covered.
+    kpis = published_coverage_kpis(conn)
+    cur.execute("SELECT COUNT(*) FROM sc_public_entities")
+    total_entities = cur.fetchone()[0] or 0
+    db_uncovered = max(0, total_entities - kpis.covered_count)
 
     # Count in CSV
     with open(csv_path, encoding="utf-8-sig") as f:

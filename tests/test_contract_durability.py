@@ -240,6 +240,77 @@ def test_production_default_checkpoint_refuses_worktree_and_release_tree(tmp_pat
     assert "resolve_checkpoint_dir" in Path(crawler.__file__).read_text(encoding="utf-8")
 
 
+def test_stamp_contract_truth_labels_writes_quality_not_null_valid() -> None:
+    from scripts.contracts_truth import stamp_contract_truth_labels
+
+    statements: list[str] = []
+
+    class _Conn:
+        def cursor(self):
+            return self
+
+        def execute(self, sql, params=None):
+            statements.append(sql)
+            self.rowcount = 1
+            assert "quality_state = stamp.quality_state" in sql
+            assert "COALESCE(quality_state, 'VALID')" not in sql
+            payload = __import__("json").loads(params[0])
+            assert payload[0]["quality_state"] == "QUARANTINED"
+            assert payload[0]["status_normalized"] == "UNKNOWN"
+
+        def close(self) -> None:
+            return None
+
+    stamped = stamp_contract_truth_labels(
+        _Conn(),
+        [
+            {
+                "contrato_id": "11111111000191-1-000001/2026",
+                "status_normalized": "UNKNOWN",
+                "quality_state": "QUARANTINED",
+                "canonical_contract_id": "pncp:11111111000191-1-000001/2026",
+            }
+        ],
+    )
+    assert stamped == 1
+    assert statements
+
+
+def test_purchase_id_is_not_official_contract_id() -> None:
+    ident = canonical_contract_identity(
+        source="pncp",
+        official_id=None,
+        parent_procurement_id="12345678000199-1-000010/2026",
+        fallback_parts=["12345678000199", "2026", "10"],
+    )
+    assert ident.method == "fallback"
+    assert not ident.canonical_contract_id.endswith("12345678000199-1-000010/2026")
+    assert ident.parent_procurement_id == "12345678000199-1-000010/2026"
+
+
+def test_pilot_window_drift_is_not_complete() -> None:
+    from scripts.crawl.run_contracts_90d_pilot import evaluate_window_completion
+
+    fully_ok, errors = evaluate_window_completion(
+        [],
+        pages_exhausted=True,
+        last_total_pages=2,
+        page=2,
+        max_pages=10,
+        first_total_registros=80,
+        last_total_registros=95,
+    )
+    assert fully_ok is False
+    assert any("source_population_drift" in err for err in errors)
+
+
+def test_report_ready_view_does_not_treat_null_quality_as_valid() -> None:
+    sql = Path("db/migrations/091_contract_truth_durability.sql").read_text(encoding="utf-8")
+    assert "COALESCE(quality_state, 'VALID')" not in sql
+    assert "quality_state IS NOT NULL" in sql
+    assert "status_normalized IS NOT NULL" in sql
+
+
 def test_pagination_reconciles_and_drift_is_not_success() -> None:
     ok = PaginationReconcile()
     ok.observe_page(

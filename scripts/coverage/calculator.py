@@ -26,7 +26,7 @@ def report_coverage(conn: Any) -> dict[str, Any]:
     ``entity_coverage.is_covered``.
     """
     rows = load_coverage_state_rows(conn)
-    kpis = compute_coverage_kpis(rows)
+    kpis = published_coverage_kpis(conn)
     by_source_map: dict[str, list[dict[str, Any]]] = {}
     for row in rows:
         source = str(row.get("source") or "unknown")

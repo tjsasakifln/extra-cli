@@ -839,11 +839,7 @@ def transform_contracts(raw_records: list[dict[str, Any]]) -> list[dict[str, Any
             str(ano_contrato or ""),
             str(sequencial_contrato or ""),
         ]
-        official_id = (
-            raw.get("numeroControlePNCP")
-            or raw.get("numeroControlePncp")
-            or numero_controle
-        )
+        official_id = raw.get("numeroControlePNCP") or raw.get("numeroControlePncp")
         ident = canonical_contract_identity(
             source="pncp",
             official_id=str(official_id).strip() if official_id else None,

@@ -15,6 +15,8 @@ from typing import Any
 
 from scripts.confenge_contact_resolution.mailbox_purpose import (
     PURPOSE_GENERIC_CONTACT,
+    PURPOSE_UNKNOWN,
+    SEND_ALLOWED_PURPOSES,
     classify_mailbox_purpose,
 )
 
@@ -120,14 +122,19 @@ def evaluate_observed_recipient(record: Mapping[str, Any]) -> PilotRecipient:
             "email": email,
             "inferred": record.get("inferred"),
             "invented": record.get("invented"),
-            "name_explicitly_published": record.get("name_explicitly_published", True),
-            "email_explicitly_published": record.get("email_explicitly_published", True),
-            "role_explicitly_published": record.get("role_explicitly_published", True),
+            "name_explicitly_published": record.get("name_explicitly_published", False),
+            "email_explicitly_published": record.get("email_explicitly_published", False),
+            "role_explicitly_published": record.get("role_explicitly_published", False),
         }
     )
     purpose = classify_mailbox_purpose(email)
     local = _local_part(email)
-    if purpose.purpose in GENERIC_PURPOSES or local in _GENERIC_LOCALS:
+    if (
+        purpose.purpose in GENERIC_PURPOSES
+        or purpose.purpose not in SEND_ALLOWED_PURPOSES
+        or purpose.purpose != PURPOSE_UNKNOWN
+        or local in _GENERIC_LOCALS
+    ):
         reasons.append("functional_mailbox_not_human_recipient")
     if " " not in name and name.count(".") == 0:
         # A single token is not a published human name.
@@ -185,7 +192,8 @@ def publish_pilot_recipients(
         "rejected": [item.to_dict() for item in rejected],
         "validated_count": len(selected),
         "reason_codes": fail_reasons,
-        "warmbly_ready": not fail_reasons,
+        # Recipient list is not a Warmbly send-ready claim.
+        "warmbly_ready": False,
     }
 
 

@@ -44,7 +44,9 @@ WHERE status_normalized = 'ACTIVE_PROVEN';
 CREATE OR REPLACE VIEW public.v_contracts_report_ready AS
 SELECT *
 FROM public.pncp_supplier_contracts
-WHERE COALESCE(quality_state, 'VALID') <> 'QUARANTINED'
-  AND COALESCE(status_normalized, 'UNKNOWN') <> 'UNKNOWN';
+WHERE quality_state IS NOT NULL
+  AND quality_state <> 'QUARANTINED'
+  AND status_normalized IS NOT NULL
+  AND status_normalized <> 'UNKNOWN';
 
 COMMIT;

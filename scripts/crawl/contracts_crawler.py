@@ -39,6 +39,7 @@ from scripts.contracts_truth import (
     PaginationReconcile,
     annotate_transformed_contract,
     resolve_checkpoint_dir,
+    stamp_contract_truth_labels,
 )
 from scripts.crawl.common import (
     digits_only as _digits_only,
@@ -370,6 +371,7 @@ def _persist_window_if_enabled(raw_items: list[dict]) -> int:
                 (json.dumps(transformed, default=str),),
             )
             rows = cur.fetchall()
+            stamped = stamp_contract_truth_labels(conn, transformed)
             conn.commit()
         finally:
             conn.close()
@@ -377,8 +379,16 @@ def _persist_window_if_enabled(raw_items: list[dict]) -> int:
             return 0
         first = rows[0]
         if len(rows) == 1 and len(first) >= 3 and all(isinstance(v, int) for v in first[:3]):
-            return int(first[0]) + int(first[1])
-        return len(rows)
+            persisted = int(first[0]) + int(first[1])
+        else:
+            persisted = len(rows)
+        if stamped < persisted:
+            logger.warning(
+                "Truth stamp undercount: stamped=%s persisted=%s",
+                stamped,
+                persisted,
+            )
+        return persisted
     except Exception as exc:  # noqa: BLE001 — window crawl must continue
         logger.warning("Per-window persist failed (non-fatal): %s", exc)
         return 0
@@ -859,14 +869,18 @@ def _crawl_date_range(
                     pagination.record_persisted(int(persisted))
                     leftover = max(0, pagination.fetched - pagination.persisted)
                     if leftover:
-                        pagination.record_rejected(leftover)
+                        fully_ok = False
+                        window_errors.append(
+                            f"persist_undercount:fetched={pagination.fetched}:persisted={persisted}"
+                        )
                     logger.info(
                         "Window %s persisted %d rows to DB (per-window upsert)",
                         window_key,
                         persisted,
                     )
                 elif window_items:
-                    pagination.record_rejected(len(window_items))
+                    fully_ok = False
+                    window_errors.append("persist_zero")
                 page_report = pagination.finish()
                 if not page_report.ok:
                     window_errors.append(page_report.status)

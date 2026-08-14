@@ -108,71 +108,77 @@ def fetch_coverage_data(report_date: date) -> dict[str, Any]:
     data["total_uncovered"] = max(0, int(data["total_entities"] or 0) - kpis.covered_count)
     data["covered_entity_formula"] = f"{COVERED_ENTITY_FORMULA.__module__}.{COVERED_ENTITY_FORMULA.__name__}"
     data["covered_entity_ids"] = sorted(kpis.covered_entity_ids)
+    covered_ids = data["covered_entity_ids"] or ["__none__"]
 
-    # --- Coverage by source ---
-    data["summary"] = query("""
+    # --- Coverage by source (latest evidence, formula-covered set) ---
+    data["summary"] = query(
+        """
         SELECT
-            ec.source,
+            ev.source,
             COUNT(*) AS total_tracked,
-            SUM(CASE WHEN ec.is_covered THEN 1 ELSE 0 END) AS covered,
-            ROUND(100.0 * SUM(CASE WHEN ec.is_covered THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 1) AS pct
-        FROM entity_coverage ec
-        WHERE EXISTS (
-            SELECT 1 FROM sc_public_entities e WHERE e.id = ec.entity_id AND e.is_active = TRUE
-        )
-        GROUP BY ec.source
+            SUM(CASE WHEN e.id::text = ANY(%s) THEN 1 ELSE 0 END) AS covered,
+            ROUND(
+                100.0 * SUM(CASE WHEN e.id::text = ANY(%s) THEN 1 ELSE 0 END)
+                / NULLIF(COUNT(*), 0),
+                1
+            ) AS pct
+        FROM v_latest_evidence ev
+        JOIN sc_public_entities e ON e.id = ev.entity_id AND e.is_active = TRUE
+        GROUP BY ev.source
         ORDER BY pct DESC
-    """)
+        """,
+        (covered_ids, covered_ids),
+    )
 
     # --- Gaps (uncovered entities) ---
-    data["gaps"] = query("""
+    data["gaps"] = query(
+        """
         SELECT e.razao_social, e.municipio, e.natureza_juridica, e.cnpj_8, e.uf
         FROM sc_public_entities e
         WHERE e.is_active = TRUE
-          AND NOT EXISTS (
-              SELECT 1 FROM entity_coverage ec
-              WHERE ec.entity_id = e.id AND ec.is_covered = TRUE
-          )
+          AND e.id::text <> ALL(%s)
         ORDER BY e.municipio, e.razao_social
-    """)
+        """,
+        (covered_ids,),
+    )
 
     # --- Gaps by municipio ---
-    data["gaps_by_municipio"] = query("""
+    data["gaps_by_municipio"] = query(
+        """
         SELECT
             e.municipio,
             COUNT(*) AS total_entes,
-            COUNT(*) FILTER (WHERE NOT EXISTS (
-                SELECT 1 FROM entity_coverage ec
-                WHERE ec.entity_id = e.id AND ec.is_covered = TRUE
-            )) AS entes_descobertos,
-            ROUND(100.0 * COUNT(*) FILTER (WHERE NOT EXISTS (
-                SELECT 1 FROM entity_coverage ec
-                WHERE ec.entity_id = e.id AND ec.is_covered = TRUE
-            )) / NULLIF(COUNT(*), 0), 1) AS pct_gap
+            COUNT(*) FILTER (WHERE e.id::text <> ALL(%s)) AS entes_descobertos,
+            ROUND(
+                100.0 * COUNT(*) FILTER (WHERE e.id::text <> ALL(%s)) / NULLIF(COUNT(*), 0),
+                1
+            ) AS pct_gap
         FROM sc_public_entities e
         WHERE e.is_active = TRUE
         GROUP BY e.municipio
         ORDER BY entes_descobertos DESC
-    """)
+        """,
+        (covered_ids, covered_ids),
+    )
 
     # --- Gaps by natureza juridica ---
-    data["gaps_by_natureza"] = query("""
+    data["gaps_by_natureza"] = query(
+        """
         SELECT
             e.natureza_juridica,
             COUNT(*) AS total_entes,
-            COUNT(*) FILTER (WHERE NOT EXISTS (
-                SELECT 1 FROM entity_coverage ec
-                WHERE ec.entity_id = e.id AND ec.is_covered = TRUE
-            )) AS entes_descobertos,
-            ROUND(100.0 * COUNT(*) FILTER (WHERE NOT EXISTS (
-                SELECT 1 FROM entity_coverage ec
-                WHERE ec.entity_id = e.id AND ec.is_covered = TRUE
-            )) / NULLIF(COUNT(*), 0), 1) AS pct_gap
+            COUNT(*) FILTER (WHERE e.id::text <> ALL(%s)) AS entes_descobertos,
+            ROUND(
+                100.0 * COUNT(*) FILTER (WHERE e.id::text <> ALL(%s)) / NULLIF(COUNT(*), 0),
+                1
+            ) AS pct_gap
         FROM sc_public_entities e
         WHERE e.is_active = TRUE
         GROUP BY e.natureza_juridica
         ORDER BY entes_descobertos DESC
-    """)
+        """,
+        (covered_ids, covered_ids),
+    )
 
     # --- Trend (last 4 weeks) ---
     data["trend"] = query(

@@ -65,3 +65,35 @@ def test_publish_fails_closed_without_inventing_pii() -> None:
     assert "insufficient_validated_humans" in result["reason_codes"]
     assert "generic_mailbox_not_promoted" in result["reason_codes"]
     assert "refused_to_invent_pii" in result["reason_codes"]
+
+
+def test_publish_requires_explicit_publication_flags() -> None:
+    unattested = {
+        "account_id": "cnpj:11222333000181",
+        "name": "Maria de Souza",
+        "role": "Diretora Comercial",
+        "email": "maria.souza@empresa-target.com.br",
+        "source_url": "https://empresa-target.com.br/equipe",
+        "observed_at": "2026-08-13T12:00:00Z",
+    }
+    result = publish_pilot_recipients([unattested])
+    assert result["ok"] is False
+    assert result["validated"] == []
+    assert "refused_to_invent_pii" in result["reason_codes"]
+
+
+def test_publish_rejects_role_mailbox_and_never_claims_warmbly() -> None:
+    role_box = {
+        **OBSERVED_HUMAN,
+        "email": "vendas@empresa-target.com.br",
+    }
+    result = publish_pilot_recipients([role_box])
+    assert result["ok"] is False
+    assert result["warmbly_ready"] is False
+    assert any(
+        "functional_mailbox_not_human_recipient" in item["reasons"]
+        for item in result["rejected"]
+    )
+    ok = publish_pilot_recipients([OBSERVED_HUMAN])
+    assert ok["ok"] is True
+    assert ok["warmbly_ready"] is False

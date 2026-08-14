@@ -8,6 +8,7 @@ PostgreSQL advisory fence; checkpoints refuse the git/release worktree.
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 import re
 from collections.abc import Iterable, Mapping
@@ -339,8 +340,10 @@ def canonical_contract_identity(
             rule_version=IDENTITY_RULE_VERSION,
         )
     parts = [str(part).strip() for part in fallback_parts if part not in (None, "")]
+    if parent:
+        parts.append(f"parent:{parent}")
     if not parts:
-        digest = hashlib.sha256(f"{src}:empty".encode()).hexdigest()[:16]
+        digest = hashlib.sha256(f"{src}:empty:{parent or ''}".encode()).hexdigest()[:16]
         return CanonicalContract(
             canonical_contract_id=f"{src}:fallback:{digest}",
             source=src,
@@ -659,3 +662,90 @@ def annotate_transformed_contract(record: dict[str, Any], *, raw: Mapping[str, A
     record["source_contract_id"] = ident.source_contract_id
     record["parent_procurement_id"] = ident.parent_procurement_id
     return record
+
+
+TRUTH_STAMP_FIELDS = (
+    "status_raw",
+    "status_normalized",
+    "status_rule_version",
+    "status_source",
+    "quality_state",
+    "quality_reasons",
+    "quality_rule_version",
+    "report_ready",
+    "canonical_contract_id",
+    "source_contract_id",
+    "parent_procurement_id",
+)
+
+
+def stamp_contract_truth_labels(conn: Any, records: Iterable[Mapping[str, Any]]) -> int:
+    """Write activity/quality/identity labels after the legacy upsert.
+
+    The historical RPC does not persist these columns. Callers must stamp
+    them or the lake stays unlabeled (NULL quality is not report-ready).
+    """
+    payload = []
+    for raw in records:
+        contrato_id = str(raw.get("contrato_id") or "").strip()
+        if not contrato_id:
+            continue
+        payload.append(
+            {
+                "contrato_id": contrato_id,
+                "status_raw": raw.get("status_raw"),
+                "status_normalized": raw.get("status_normalized"),
+                "status_rule_version": raw.get("status_rule_version"),
+                "status_source": raw.get("status_source"),
+                "quality_state": raw.get("quality_state"),
+                "quality_reasons": raw.get("quality_reasons") or [],
+                "quality_rule_version": raw.get("quality_rule_version"),
+                "report_ready": bool(raw.get("report_ready")),
+                "canonical_contract_id": raw.get("canonical_contract_id"),
+                "source": raw.get("source"),
+                "source_contract_id": raw.get("source_contract_id"),
+                "parent_procurement_id": raw.get("parent_procurement_id"),
+            }
+        )
+    if not payload:
+        return 0
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            """
+            UPDATE public.pncp_supplier_contracts AS target
+            SET status_raw = stamp.status_raw,
+                status_normalized = stamp.status_normalized,
+                status_rule_version = stamp.status_rule_version,
+                status_source = stamp.status_source,
+                quality_state = stamp.quality_state,
+                quality_reasons = stamp.quality_reasons::jsonb,
+                quality_rule_version = stamp.quality_rule_version,
+                canonical_contract_id = stamp.canonical_contract_id,
+                source = COALESCE(stamp.source, target.source),
+                source_contract_id = stamp.source_contract_id,
+                parent_procurement_id = stamp.parent_procurement_id
+            FROM jsonb_to_recordset(%s::jsonb) AS stamp(
+                contrato_id TEXT,
+                status_raw TEXT,
+                status_normalized TEXT,
+                status_rule_version TEXT,
+                status_source TEXT,
+                quality_state TEXT,
+                quality_reasons JSONB,
+                quality_rule_version TEXT,
+                report_ready BOOLEAN,
+                canonical_contract_id TEXT,
+                source TEXT,
+                source_contract_id TEXT,
+                parent_procurement_id TEXT
+            )
+            WHERE target.contrato_id = stamp.contrato_id
+            """,
+            (json.dumps(payload, default=str),),
+        )
+        return int(cur.rowcount or 0)
+    finally:
+        close = getattr(cur, "close", None)
+        if callable(close):
+            close()

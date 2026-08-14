@@ -177,25 +177,41 @@ def test_published_surfaces_call_formula_not_is_covered() -> None:
 
 
 def test_unmappable_identity_bearing_row_is_not_silently_dropped() -> None:
-    # A row with a key that classify treats as mapped stays in identified;
-    # residual without identity and without aggregate markers is source-wide.
-    # True drop-protection is the fail-closed unmapped path when identity is
-    # present but cannot join the universe — exercised via dual_coverage gate
-    # when we force UNMAPPABLE by monkeypatch.
-    from scripts.coverage import covered_entity as ce
+    gate = dual_coverage_evidence_gate(
+        [
+            {
+                "entity_id": "ghost",
+                "state": "success_with_data",
+                "metadata": {"identity_status": "unmappable"},
+            }
+        ]
+    )
+    assert classify_evidence_identity(
+        entity_id="ghost",
+        metadata={"identity_status": "unmappable"},
+    ) == "UNMAPPABLE"
+    assert gate["classification"] == MISSING_EVIDENCE
+    assert gate["reason"] == "unmappable_evidence_cannot_drop"
+    assert gate["numerator_rows"] == []
 
-    original = ce.classify_evidence_identity
 
-    def _force_unmappable(**kwargs):
-        if kwargs.get("entity_id") == "ghost":
-            return ce.UNMAPPABLE
-        return original(**kwargs)
+def test_latest_state_not_historical_success_keeps_entity_covered() -> None:
+    kpis = compute_coverage_kpis(
+        [
+            {"entity_id": "e1", "state": "success_with_data"},
+            {"entity_id": "e1", "state": "failed"},
+        ]
+    )
+    assert "e1" not in kpis.covered_entity_ids
+    assert kpis.covered_count == 0
 
-    ce.classify_evidence_identity = _force_unmappable  # type: ignore[method-assign]
-    try:
-        gate = dual_coverage_evidence_gate([{"entity_id": "ghost", "state": "success_with_data"}])
-        assert gate["classification"] == MISSING_EVIDENCE
-        assert gate["reason"] == "unmappable_evidence_cannot_drop"
-        assert gate["numerator_rows"] == []
-    finally:
-        ce.classify_evidence_identity = original  # type: ignore[method-assign]
+
+def test_universe_members_without_evidence_stay_in_denominator() -> None:
+    kpis = compute_coverage_kpis(
+        [{"entity_id": "e-ok", "state": "success_with_data"}],
+        universe_entity_ids=["e-ok", "e-never", "e-also-never"],
+    )
+    assert kpis.covered_count == 1
+    assert kpis.total_entities == 3
+    assert kpis.covered_count / kpis.total_entities < 0.95
+    assert "e-never" in kpis.excluded_entity_ids

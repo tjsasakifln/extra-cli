@@ -103,17 +103,21 @@ def classify_evidence_identity(
 ) -> str:
     """Classify whether evidence can enter a dual-coverage numerator.
 
-    IDENTITY_MAPPED: has entity_id or canonical_entity_key.
+    IDENTITY_MAPPED: has entity_id or canonical_entity_key and can join.
     SOURCE_WIDE_AGGREGATE: source-level rollup with no entity identity.
-    UNMAPPABLE: residual without identity and without aggregate markers.
+    UNMAPPABLE: identity present (or declared) that cannot join the universe.
     """
+    meta = metadata or {}
+    identity_status = str(meta.get("identity_status") or meta.get("unmappable") or "").strip().lower()
+    if identity_status in {"unmappable", "unmapped", "cannot_join", "true", "1"}:
+        return UNMAPPABLE
+
     key = str(canonical_entity_key or "").strip()
     if key:
         return IDENTITY_MAPPED
     if entity_id is not None and str(entity_id).strip() not in {"", "None", "null"}:
         return IDENTITY_MAPPED
 
-    meta = metadata or {}
     aggregate_markers = (
         str(meta.get("pipeline") or ""),
         str(meta.get("scope") or ""),
@@ -125,8 +129,8 @@ def classify_evidence_identity(
         for token in aggregate_markers
     ):
         return SOURCE_WIDE_AGGREGATE
-    # NULL identity with counts is a source-wide rollup, not an entity fact.
-    return SOURCE_WIDE_AGGREGATE if not key else UNMAPPABLE
+    # NULL identity is a source-wide rollup, not an entity fact.
+    return SOURCE_WIDE_AGGREGATE
 
 
 def numerator_row_has_identity(row: Mapping[str, Any]) -> bool:
@@ -145,8 +149,17 @@ def _entity_key(row: Mapping[str, Any]) -> str:
     return ""
 
 
-def compute_coverage_kpis(rows: Iterable[Mapping[str, Any]]) -> CoverageKpis:
-    """Canonical covered-entity KPI. All surfaces must call this function."""
+def compute_coverage_kpis(
+    rows: Iterable[Mapping[str, Any]],
+    *,
+    universe_entity_ids: Iterable[Any] | None = None,
+) -> CoverageKpis:
+    """Canonical covered-entity KPI. All surfaces must call this function.
+
+    Latest observed state wins. A historical success does not keep an entity
+    covered after a later failed/blocked/error/partial. Universe members
+    without evidence stay in the denominator as uncovered.
+    """
     by_entity: dict[str, list[str]] = defaultdict(list)
     rejected: list[str] = []
     for raw in rows:
@@ -171,13 +184,21 @@ def compute_coverage_kpis(rows: Iterable[Mapping[str, Any]]) -> CoverageKpis:
         if normalized in NON_COVERED_STATE_VALUES and not is_covered_state(normalized):
             rejected.append(f"{entity}:{normalized}")
 
+    if universe_entity_ids is not None:
+        for raw_id in universe_entity_ids:
+            uid = str(raw_id).strip()
+            if uid and uid not in by_entity:
+                by_entity[uid].append("never_checked")
+                rejected.append(f"{uid}:never_checked")
+
     covered: set[str] = set()
     excluded: set[str] = set()
     state_counts: dict[str, int] = defaultdict(int)
     for entity, states in by_entity.items():
         for state in states:
             state_counts[state or "unknown"] += 1
-        if any(is_covered_state(state) for state in states):
+        latest = states[-1] if states else "unknown"
+        if is_covered_state(latest):
             covered.add(entity)
         else:
             excluded.add(entity)
@@ -271,29 +292,60 @@ def dual_coverage_evidence_gate(
     }
 
 
-def load_coverage_state_rows(conn: Any) -> list[dict[str, Any]]:
-    """Load state-bearing rows that every published coverage surface must use."""
-    cur = conn.cursor()
-    try:
-        cur.execute(
-            """
-            SELECT COALESCE(canonical_entity_key, entity_id::text) AS entity_id,
-                   state::text AS state,
-                   source,
-                   metadata
-            FROM coverage_evidence
-            """
-        )
-        fetched = list(cur.fetchall() or [])
-        return [
+def _rows_from_fetch(fetched: list[Any]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for row in fetched:
+        rows.append(
             {
                 "entity_id": row[0],
                 "state": row[1],
                 "source": row[2] if len(row) > 2 else "",
                 "metadata": row[3] if len(row) > 3 and isinstance(row[3], Mapping) else {},
             }
-            for row in fetched
-        ]
+        )
+    return rows
+
+
+def load_universe_entity_ids(conn: Any) -> list[str]:
+    """Active planilha universe. Empty when the table is unavailable — never invented."""
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            """
+            SELECT id::text
+            FROM sc_public_entities
+            WHERE COALESCE(is_active, TRUE) = TRUE
+            """
+        )
+        return [str(row[0]).strip() for row in (cur.fetchall() or []) if row and row[0] is not None]
+    except Exception:
+        rollback = getattr(conn, "rollback", None)
+        if callable(rollback):
+            rollback()
+        return []
+    finally:
+        close = getattr(cur, "close", None)
+        if callable(close):
+            close()
+
+
+def load_coverage_state_rows(conn: Any) -> list[dict[str, Any]]:
+    """Load the latest state-bearing row per entity×source.
+
+    Prefer ``v_latest_evidence``. Never treat the full historical ledger as
+    the current coverage state.
+    """
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            """
+            SELECT entity_id::text AS entity_id,
+                   state::text AS state,
+                   source
+            FROM v_latest_evidence
+            """
+        )
+        return _rows_from_fetch(list(cur.fetchall() or []))
     except Exception:
         rollback = getattr(conn, "rollback", None)
         if callable(rollback):
@@ -301,19 +353,33 @@ def load_coverage_state_rows(conn: Any) -> list[dict[str, Any]]:
         try:
             cur.execute(
                 """
-                SELECT entity_id::text, NULL::text AS state, source
-                FROM entity_coverage
+                SELECT DISTINCT ON (COALESCE(canonical_entity_key, entity_id::text), source)
+                       COALESCE(canonical_entity_key, entity_id::text) AS entity_id,
+                       state::text AS state,
+                       source,
+                       metadata
+                FROM coverage_evidence
+                ORDER BY COALESCE(canonical_entity_key, entity_id::text),
+                         source,
+                         completed_at DESC NULLS LAST
                 """
             )
-            fetched = list(cur.fetchall() or [])
-            return [
-                {"entity_id": row[0], "state": row[1], "source": row[2] if len(row) > 2 else ""}
-                for row in fetched
-            ]
+            return _rows_from_fetch(list(cur.fetchall() or []))
         except Exception:
             if callable(rollback):
                 rollback()
-            return []
+            try:
+                cur.execute(
+                    """
+                    SELECT entity_id::text, state::text, source
+                    FROM coverage_evidence
+                    """
+                )
+                return _rows_from_fetch(list(cur.fetchall() or []))
+            except Exception:
+                if callable(rollback):
+                    rollback()
+                return []
     finally:
         close = getattr(cur, "close", None)
         if callable(close):
@@ -322,7 +388,10 @@ def load_coverage_state_rows(conn: Any) -> list[dict[str, Any]]:
 
 def published_coverage_kpis(conn: Any) -> CoverageKpis:
     """Single published KPI entry point for panel, PDF, Excel, manifest and QA."""
-    return compute_coverage_kpis(load_coverage_state_rows(conn))
+    return compute_coverage_kpis(
+        load_coverage_state_rows(conn),
+        universe_entity_ids=load_universe_entity_ids(conn) or None,
+    )
 
 
 # Surfaces must bind this exact function so QA can prove they share a formula.
@@ -342,6 +411,7 @@ __all__ = [
     "classify_evidence_identity",
     "compute_coverage_kpis",
     "load_coverage_state_rows",
+    "load_universe_entity_ids",
     "published_coverage_kpis",
     "dual_coverage_evidence_gate",
     "is_covered_state",
