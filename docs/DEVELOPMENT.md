@@ -47,10 +47,17 @@ pip install -r requirements.txt
 # Migrations
 python3 -m scripts.ops.apply_migrations --dsn "$LOCAL_DATALAKE_DSN"
 
-# Validação rápida
+# Validação rápida (modo canônico: sem REQUIRE_REAL_DB)
 python3 -m pytest tests/ -q --tb=no -x
 ruff check .
 python3 -m scripts.ops.source_contract_tests --json
+
+# Testes @pytest.mark.real_db — NUNCA recebem MagicMock (#285)
+# Sem opt-in: skip explícito. Com opt-in e DSN fora do ar: erro de configuração.
+# Com opt-in e DSN canônico no ar: conexão real (psycopg2, não mock).
+export REQUIRE_REAL_DB=1
+export LOCAL_DATALAKE_DSN="${LOCAL_DATALAKE_DSN:-postgresql://test:test@127.0.0.1:5433/extra_test}"
+python3 -m pytest tests/ -m real_db -q --tb=short
 
 # Golden path (fail-closed — prova técnica de pipeline)
 python3 -m scripts.golden_path --dsn "$LOCAL_DATALAKE_DSN"
