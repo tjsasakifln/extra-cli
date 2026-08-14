@@ -360,6 +360,13 @@ def _persist_window_if_enabled(raw_items: list[dict]) -> int:
         transformed = transform(raw_items)
         if not transformed:
             return 0
+        from scripts.crawl.observation_lineage import LineageError, assert_persisted_lineage
+
+        try:
+            assert_persisted_lineage(transformed)
+        except LineageError:
+            logger.error("Refusing persist: observation lineage is incomplete")
+            raise
         # monitor adds source=pncp_contracts; match that for consistency
         for row in transformed:
             row.setdefault("source", "pncp_contracts")
@@ -390,6 +397,10 @@ def _persist_window_if_enabled(raw_items: list[dict]) -> int:
             )
         return persisted
     except Exception as exc:  # noqa: BLE001 — window crawl must continue
+        from scripts.crawl.observation_lineage import LineageError
+
+        if isinstance(exc, LineageError):
+            raise
         logger.warning("Per-window persist failed (non-fatal): %s", exc)
         return 0
 
@@ -399,12 +410,48 @@ def _persist_window_if_enabled(raw_items: list[dict]) -> int:
 # ---------------------------------------------------------------------------
 
 
-def _fetch_page(data_ini: str, data_fim: str, page: int) -> FetchResult:
+def _stamp_success_items(
+    items: list,
+    *,
+    data_ini: str,
+    data_fim: str,
+    page: int,
+    url: str,
+    raw_bytes: bytes,
+    attempt_no: int,
+    run_id: str | None,
+) -> list[dict]:
+    """Attach the immutable HTTP envelope to every item from this page."""
+    from scripts.crawl.observation_lineage import stamp_fetch_items
+
+    resolved_run = run_id or os.getenv("CONTRACTS_RUN_ID") or f"pncp-contracts:{data_ini}:{data_fim}"
+    attempt_id = f"{resolved_run}:p{page}:a{attempt_no}"
+    typed = [item if isinstance(item, dict) else {"value": item} for item in items]
+    return stamp_fetch_items(
+        typed,
+        window_start=data_ini,
+        window_end=data_fim,
+        page=page,
+        official_url=url,
+        raw_bytes=raw_bytes,
+        run_id=resolved_run,
+        attempt_id=attempt_id,
+    )
+
+
+def _fetch_page(
+    data_ini: str,
+    data_fim: str,
+    page: int,
+    *,
+    run_id: str | None = None,
+) -> FetchResult:
     """Fetch one page of contracts synchronously via urllib.
 
     Returns ``FetchResult`` with explicit status discrimination.
     NEVER returns ``SUCCESS_ZERO`` for a failure — callers can distinguish
     "API said zero" from "we couldn't reach the API".
+    Successful items are stamped with run/attempt/window/page/url/raw SHA.
     """
     import urllib.error
     import urllib.request
@@ -426,7 +473,8 @@ def _fetch_page(data_ini: str, data_fim: str, page: int) -> FetchResult:
             req.add_header("Accept", "application/json")
 
             with urllib.request.urlopen(req, timeout=CONTRACTS_READ_TIMEOUT) as resp:  # noqa: S310 — validated above
-                body = resp.read().decode("utf-8")
+                raw_bytes = resp.read()
+                body = raw_bytes.decode("utf-8")
                 try:
                     data = json.loads(body)
                 except json.JSONDecodeError as e:
@@ -446,9 +494,19 @@ def _fetch_page(data_ini: str, data_fim: str, page: int) -> FetchResult:
                     items = []
 
                 status = FetchStatus.SUCCESS_ZERO if len(items) == 0 else FetchStatus.SUCCESS_DATA
+                stamped = _stamp_success_items(
+                    items,
+                    data_ini=data_ini,
+                    data_fim=data_fim,
+                    page=page,
+                    url=url,
+                    raw_bytes=raw_bytes,
+                    attempt_no=attempt,
+                    run_id=run_id,
+                )
                 return FetchResult(
                     status=status,
-                    items=items,
+                    items=stamped,
                     total_records=total_records,
                     total_pages=total_pages,
                     current_page=page,
@@ -457,9 +515,19 @@ def _fetch_page(data_ini: str, data_fim: str, page: int) -> FetchResult:
 
             if isinstance(data, list):
                 status = FetchStatus.SUCCESS_ZERO if len(data) == 0 else FetchStatus.SUCCESS_DATA
+                stamped = _stamp_success_items(
+                    data,
+                    data_ini=data_ini,
+                    data_fim=data_fim,
+                    page=page,
+                    url=url,
+                    raw_bytes=raw_bytes,
+                    attempt_no=attempt,
+                    run_id=run_id,
+                )
                 return FetchResult(
                     status=status,
-                    items=data,
+                    items=stamped,
                     total_records=len(data),
                     total_pages=1,
                     current_page=page,
@@ -779,6 +847,13 @@ def _crawl_date_range(
     """
     all_records: list[dict] = []
     checkpoint = load_checkpoint(mode) if mode in _CHECKPOINT_MODES else None
+    run_id = (checkpoint.meta.get("run_id") if checkpoint and checkpoint.meta else None) or (
+        os.getenv("CONTRACTS_RUN_ID") or f"pncp-contracts:{mode}:{_fmt(start)}:{_fmt(end)}"
+    )
+    if checkpoint is not None:
+        checkpoint.meta = dict(checkpoint.meta or {})
+        checkpoint.meta.setdefault("run_id", run_id)
+    os.environ.setdefault("CONTRACTS_RUN_ID", run_id)
 
     cur = start
     while cur < end:
@@ -930,6 +1005,13 @@ def crawl_with_evidence(mode: str = "backfill_3y") -> CrawlResult:
     result = CrawlResult(mode=mode)
     checkpoint = load_checkpoint(mode) if mode in _CHECKPOINT_MODES else None
     result.checkpoint = checkpoint
+    run_id = (checkpoint.meta.get("run_id") if checkpoint and checkpoint.meta else None) or (
+        os.getenv("CONTRACTS_RUN_ID") or f"pncp-contracts:{mode}:{_fmt(start)}:{_fmt(today)}"
+    )
+    if checkpoint is not None:
+        checkpoint.meta = dict(checkpoint.meta or {})
+        checkpoint.meta.setdefault("run_id", run_id)
+    os.environ.setdefault("CONTRACTS_RUN_ID", run_id)
 
     cur = start
     while cur < today:
