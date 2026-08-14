@@ -131,7 +131,12 @@ class InMemoryPersistence:
 
         inserted = updated = unchanged = 0
         for record in records:
-            key = str(record.get("pncp_id") or record.get("source_id") or record.get("id") or json.dumps(record, sort_keys=True, default=str))
+            key = str(
+                record.get("pncp_id")
+                or record.get("source_id")
+                or record.get("id")
+                or json.dumps(record, sort_keys=True, default=str)
+            )
             full_key = f"{source}:{key}"
             if full_key in self.rows:
                 if self.rows[full_key] == record:
@@ -215,7 +220,9 @@ class PostgresPersistence:
 
             if source in {"ciga_dom", "ciga_ckan"} and records:
                 try:
-                    committed = self._persist_official_acts(conn, source=source, records=records, run_id=str(db_run_id), provenance=provenance)
+                    committed = self._persist_official_acts(
+                        conn, source=source, records=records, run_id=str(db_run_id), provenance=provenance
+                    )
                     result.inserted = committed
                     result.db_records_committed = committed
                 except Exception as exc:
@@ -267,7 +274,9 @@ class PostgresPersistence:
             entities = _load_entities(conn, within_200km_only=False)
             pncp_ids = [r.get("pncp_id") for r in records if r.get("pncp_id")]
             match_stats = match_entities_cascade(conn, source, entities, pncp_ids)
-            result.matched = match_stats.get("cnpj", 0) + match_stats.get("name_normalized", 0) + match_stats.get("fuzzy", 0)
+            result.matched = (
+                match_stats.get("cnpj", 0) + match_stats.get("name_normalized", 0) + match_stats.get("fuzzy", 0)
+            )
             result.unmatched = match_stats.get("unmatched", 0)
 
             if source == "pncp" and records:
@@ -282,6 +291,11 @@ class PostgresPersistence:
                     within_200km_only=False,
                 )
                 result.opportunities_persisted = _persist_engineering_opportunities(conn, opportunities)
+            elif records:
+                # Non-PNCP sources keep their own source_id. Never rewrite as PNCP.
+                from scripts.opportunity_intel.source_projection import attach_projection
+
+                attach_projection(result, records, source)
 
             # Project resilience-aware source evidence (migration 054 columns when present).
             self._project_resilience_evidence(
@@ -343,11 +357,7 @@ class PostgresPersistence:
         for row in records:
             body = dict(row)
             external_id = str(
-                body.get("external_id")
-                or body.get("id")
-                or body.get("resource_id")
-                or body.get("url")
-                or "unknown"
+                body.get("external_id") or body.get("id") or body.get("resource_id") or body.get("url") or "unknown"
             )
             title = body.get("title") or body.get("titulo") or body.get("assunto")
             pub = body.get("data_publicacao") or body.get("dataPublicacao") or body.get("publication_date")
@@ -360,7 +370,9 @@ class PostgresPersistence:
                     "publication_date": pub,
                     "source_url": body.get("url") or body.get("source_url") or provenance.get("endpoint"),
                     "run_id": run_id,
-                    "record_hash": compute_record_hash(source, external_id, title=str(title) if title else None, publication_date=pub),
+                    "record_hash": compute_record_hash(
+                        source, external_id, title=str(title) if title else None, publication_date=pub
+                    ),
                 }
             )
         if not payload:
@@ -402,12 +414,12 @@ class PostgresPersistence:
 
         cur = conn.cursor()
         try:
-            cur.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'coverage_evidence')")
+            cur.execute(
+                "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'coverage_evidence')"
+            )
             if not cur.fetchone()[0]:
                 return
-            cur.execute(
-                "SELECT column_name FROM information_schema.columns WHERE table_name = 'coverage_evidence'"
-            )
+            cur.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'coverage_evidence'")
             cols = {row[0] for row in cur.fetchall()}
             state = {
                 "success": "success_with_data" if fetched > 0 else "success_zero",
@@ -476,7 +488,9 @@ class PostgresPersistence:
                         fetched,
                         persisted,
                         state,
-                        _json.dumps({"pipeline": "resilient_cycle", "request_scope": request_scope}, ensure_ascii=False),
+                        _json.dumps(
+                            {"pipeline": "resilient_cycle", "request_scope": request_scope}, ensure_ascii=False
+                        ),
                     ),
                 )
         finally:
