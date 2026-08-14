@@ -2,7 +2,10 @@
 
 from unittest.mock import patch
 
+import pytest
+
 from scripts.crawl import compras_gov_crawler as cgc
+from scripts.national_contract_truth.compras_gov_feeder import ComprasGovIngestError
 
 # ---------------------------------------------------------------------------
 # Mock data
@@ -52,10 +55,11 @@ class TestCrawl:
     """Tests for crawl()."""
 
     @patch("scripts.crawl.compras_gov_crawler._make_request", return_value=None)
-    def test_crawl_incremental_returns_list(self, mock_request):
-        """crawl('incremental') returns a list even when API returns no data."""
-        result = cgc.crawl(mode="incremental")
-        assert isinstance(result, list)
+    def test_crawl_incremental_fails_closed_on_fetch_error(self, mock_request):
+        """HTTP/fetch error is FAILED, never a successful empty crawl (#251)."""
+        with pytest.raises(ComprasGovIngestError) as exc:
+            cgc.crawl(mode="incremental")
+        assert exc.value.status == "FAILED"
 
 
 # ---------------------------------------------------------------------------
