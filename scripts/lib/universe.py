@@ -222,6 +222,7 @@ def load_canonical_universe(
     seed_path: str | Path = DEFAULT_SEED_PATH,
     radius_km: float = DEFAULT_RADIUS_KM,
     conn: Any | None = None,
+    apply_ibge_overlay: bool = True,
 ) -> CanonicalUniverse:
     """Load and validate the authoritative seed, preserving every data row."""
     path = Path(seed_path).resolve()
@@ -292,6 +293,10 @@ def load_canonical_universe(
         duplicate_roots=sorted(root for root, count in root_counts.items() if count > 1),
         suspicious_duplicate_keys=sorted(suspicious_keys),
     )
+    if apply_ibge_overlay:
+        from scripts.universe.ibge_fill import apply_overlay_to_universe
+
+        universe = apply_overlay_to_universe(universe)
     _validate_universe(universe)
     return universe
 

@@ -1,0 +1,200 @@
+{
+  "schema_version": "ibge-fill/1.0",
+  "catalog_version": "ibge-municipios-br-2024-sc-overlay",
+  "catalog_hash": "c250539fdc6a92aae79132c892d424b267784248b4c77b6fc746dd0746e8d6f1",
+  "source": "IBGE-DTB-municipios",
+  "method": "exact_municipio_uf",
+  "as_of": "2026-08-14",
+  "fills": [
+    {
+      "canonical_entity_key": "extra-4c34362272260ebb388b",
+      "cnpj8": "43171298",
+      "municipio": "FLORIANOPOLIS",
+      "uf": "SC",
+      "codigo_ibge": "4205407",
+      "source": "IBGE-DTB-municipios",
+      "method": "exact_municipio_uf",
+      "razao_social": "CONSORCIO INTERMUNICIPAL MULTIFINALITARIO DA GRANDE FLORIANOPOLIS  CIM  GRANFPOLIS"
+    },
+    {
+      "canonical_entity_key": "extra-05f273c571de53a7a77c",
+      "cnpj8": "53335860",
+      "municipio": "FLORIANOPOLIS",
+      "uf": "SC",
+      "codigo_ibge": "4205407",
+      "source": "IBGE-DTB-municipios",
+      "method": "exact_municipio_uf",
+      "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO"
+    },
+    {
+      "canonical_entity_key": "extra-37dbcf278797f5a5368f",
+      "cnpj8": "79887261",
+      "municipio": "FLORIANOPOLIS",
+      "uf": "SC",
+      "codigo_ibge": "4205407",
+      "source": "IBGE-DTB-municipios",
+      "method": "exact_municipio_uf",
+      "razao_social": "FUNDACAO MUNICIPAL DE ESPORTES"
+    },
+    {
+      "canonical_entity_key": "extra-9fbfb572f1b68694bf75",
+      "cnpj8": "80152051",
+      "municipio": "FLORIANOPOLIS",
+      "uf": "SC",
+      "codigo_ibge": "4205407",
+      "source": "IBGE-DTB-municipios",
+      "method": "exact_municipio_uf",
+      "razao_social": "FUNDACAO CULTURAL DE FLORIANOPOLIS FRANKLIN CASCAES"
+    },
+    {
+      "canonical_entity_key": "extra-622fd75d5e7514faa1bf",
+      "cnpj8": "80675374",
+      "municipio": "FLORIANOPOLIS",
+      "uf": "SC",
+      "codigo_ibge": "4205407",
+      "source": "IBGE-DTB-municipios",
+      "method": "exact_municipio_uf",
+      "razao_social": "SECRETARIA MUNICIPAL DE PLANEJAMENTO"
+    },
+    {
+      "canonical_entity_key": "extra-606f921ddc3d946da2bc",
+      "cnpj8": "82511825",
+      "municipio": "FLORIANOPOLIS",
+      "uf": "SC",
+      "codigo_ibge": "4205407",
+      "source": "IBGE-DTB-municipios",
+      "method": "exact_municipio_uf",
+      "razao_social": "AUTARQUIA DE MELHORAMENTOS DA CAPITAL - COMCAP"
+    },
+    {
+      "canonical_entity_key": "extra-d676c6b1962d85b97857",
+      "cnpj8": "82892282",
+      "municipio": "FLORIANOPOLIS",
+      "uf": "SC",
+      "codigo_ibge": "4205407",
+      "source": "IBGE-DTB-municipios",
+      "method": "exact_municipio_uf",
+      "razao_social": "MUNICIPIO DE FLORIANOPOLIS"
+    },
+    {
+      "canonical_entity_key": "extra-9387140361fa29f8fc93",
+      "cnpj8": "82953225",
+      "municipio": "FLORIANOPOLIS",
+      "uf": "SC",
+      "codigo_ibge": "4205407",
+      "source": "IBGE-DTB-municipios",
+      "method": "exact_municipio_uf",
+      "razao_social": "FLORIANOPOLIS SECRETARIA MUNICIPAL DOS TRANS E OBRAS"
+    },
+    {
+      "canonical_entity_key": "extra-dd68f78b36a8d8788ae4",
+      "cnpj8": "82953241",
+      "municipio": "FLORIANOPOLIS",
+      "uf": "SC",
+      "codigo_ibge": "4205407",
+      "source": "IBGE-DTB-municipios",
+      "method": "exact_municipio_uf",
+      "razao_social": "FLORIANOPOLIS SECRETARIA MUNICIPAL ASSUNTOS NO ESTREITO"
+    },
+    {
+      "canonical_entity_key": "extra-7e44aa498275023f947e",
+      "cnpj8": "82953258",
+      "municipio": "FLORIANOPOLIS",
+      "uf": "SC",
+      "codigo_ibge": "4205407",
+      "source": "IBGE-DTB-municipios",
+      "method": "exact_municipio_uf",
+      "razao_social": "FLORIANOPOLIS SECRETARIA MUNICIPAL DE FINANCAS"
+    },
+    {
+      "canonical_entity_key": "extra-70f1d744391c1da06d7c",
+      "cnpj8": "82953266",
+      "municipio": "FLORIANOPOLIS",
+      "uf": "SC",
+      "codigo_ibge": "4205407",
+      "source": "IBGE-DTB-municipios",
+      "method": "exact_municipio_uf",
+      "razao_social": "FLORIANOPOLIS SECRETARIA EDUCACAO SAUDE ASSIT SOCIAL"
+    },
+    {
+      "canonical_entity_key": "extra-e27d1fa07e0f812c92fe",
+      "cnpj8": "83469965",
+      "municipio": "FLORIANOPOLIS",
+      "uf": "SC",
+      "codigo_ibge": "4205407",
+      "source": "IBGE-DTB-municipios",
+      "method": "exact_municipio_uf",
+      "razao_social": "INSTITUTO DE PLANEJAMENTO URBANO DE FLORIANOPOLIS"
+    },
+    {
+      "canonical_entity_key": "extra-d96145f607273e7ec35a",
+      "cnpj8": "83841338",
+      "municipio": "FLORIANOPOLIS",
+      "uf": "SC",
+      "codigo_ibge": "4205407",
+      "source": "IBGE-DTB-municipios",
+      "method": "exact_municipio_uf",
+      "razao_social": "FLORIANOPOLIS CAMARA DE VEREADORES"
+    },
+    {
+      "canonical_entity_key": "extra-7574c6eefa64090955d5",
+      "cnpj8": "00909972",
+      "municipio": "FLORIANOPOLIS",
+      "uf": "SC",
+      "codigo_ibge": "4205407",
+      "source": "IBGE-DTB-municipios",
+      "method": "exact_municipio_uf",
+      "razao_social": "FUNDACAO MUNICIPAL DO MEIO AMBIENTE DE FLORIANOPOLIS"
+    },
+    {
+      "canonical_entity_key": "extra-2f2842aac4154a6924bc",
+      "cnpj8": "06091085",
+      "municipio": "FLORIANOPOLIS",
+      "uf": "SC",
+      "codigo_ibge": "4205407",
+      "source": "IBGE-DTB-municipios",
+      "method": "exact_municipio_uf",
+      "razao_social": "INSTITUTO DE GERACAO DE OPORTUNIDADES DE FLORIANOPOLIS"
+    },
+    {
+      "canonical_entity_key": "extra-744f8122d19360a2d4d7",
+      "cnpj8": "06259891",
+      "municipio": "FLORIANOPOLIS",
+      "uf": "SC",
+      "codigo_ibge": "4205407",
+      "source": "IBGE-DTB-municipios",
+      "method": "exact_municipio_uf",
+      "razao_social": "SECRETARIA MUN. DE DEFESA DO CIDADAO"
+    },
+    {
+      "canonical_entity_key": "extra-4035020ffadaa1b679a8",
+      "cnpj8": "10255572",
+      "municipio": "FLORIANOPOLIS",
+      "uf": "SC",
+      "codigo_ibge": "4205407",
+      "source": "IBGE-DTB-municipios",
+      "method": "exact_municipio_uf",
+      "razao_social": "CONTROLADORIA GERAL DE CONTROLE INTERNO"
+    },
+    {
+      "canonical_entity_key": "extra-5968403b45b36559c78f",
+      "cnpj8": "18600539",
+      "municipio": "FLORIANOPOLIS",
+      "uf": "SC",
+      "codigo_ibge": "4205407",
+      "source": "IBGE-DTB-municipios",
+      "method": "exact_municipio_uf",
+      "razao_social": "INSTITUTO DE PREVIDENCIA SOCIAL DOS SERVIDORES PUBLICOS DO MUNICIPIO DE FLORIANOPOLIS"
+    },
+    {
+      "canonical_entity_key": "extra-38332fd46994acd144bd",
+      "cnpj8": "41178772",
+      "municipio": "FLORIANOPOLIS",
+      "uf": "SC",
+      "codigo_ibge": "4205407",
+      "source": "IBGE-DTB-municipios",
+      "method": "exact_municipio_uf",
+      "razao_social": "FUNDACAO REDE SOLIDARIA SOMAR FLORIPA"
+    }
+  ]
+}
