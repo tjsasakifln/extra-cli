@@ -265,7 +265,9 @@ def _fetch_page_with_retry(
 
 def _configure_checkpoint_dir(ckpt_dir: str | None) -> str:
     """Point contracts_crawler checkpoint I/O at an isolated directory."""
-    path = ckpt_dir or os.getenv("CONTRACTS_CHECKPOINT_DIR") or DEFAULT_PILOT_CKPT_DIR
+    from scripts.contracts_truth import resolve_checkpoint_dir
+
+    path = str(resolve_checkpoint_dir(ckpt_dir or os.getenv("CONTRACTS_CHECKPOINT_DIR")))
     os.makedirs(path, exist_ok=True)
     os.environ["CONTRACTS_CHECKPOINT_DIR"] = path
     _cc.CONTRACTS_CHECKPOINT_DIR = path

@@ -36,7 +36,10 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
-from scripts.coverage.covered_entity import COVERED_ENTITY_FORMULA as COVERED_ENTITY_FORMULA  # noqa: E402
+from scripts.coverage.covered_entity import (  # noqa: E402
+    COVERED_ENTITY_FORMULA as COVERED_ENTITY_FORMULA,
+)
+from scripts.coverage.covered_entity import published_coverage_kpis  # noqa: E402
 
 DSN = os.getenv(
     "LOCAL_DATALAKE_DSN",
@@ -100,15 +103,11 @@ def fetch_coverage_data(report_date: date) -> dict[str, Any]:
     rows = query("SELECT COUNT(*) AS total FROM sc_public_entities WHERE is_active = TRUE")
     data["total_entities"] = rows[0]["total"] if rows else 0
 
-    # --- Total covered (at least one source) ---
-    rows = query("""
-        SELECT COUNT(DISTINCT entity_id) AS covered
-        FROM entity_coverage ec
-        WHERE ec.is_covered = TRUE
-          AND EXISTS (SELECT 1 FROM sc_public_entities e WHERE e.id = ec.entity_id AND e.is_active = TRUE)
-    """)
-    data["total_covered"] = rows[0]["covered"] if rows else 0
-    data["total_uncovered"] = data["total_entities"] - data["total_covered"]
+    kpis = published_coverage_kpis(get_conn())
+    data["total_covered"] = kpis.covered_count
+    data["total_uncovered"] = max(0, int(data["total_entities"] or 0) - kpis.covered_count)
+    data["covered_entity_formula"] = f"{COVERED_ENTITY_FORMULA.__module__}.{COVERED_ENTITY_FORMULA.__name__}"
+    data["covered_entity_ids"] = sorted(kpis.covered_entity_ids)
 
     # --- Coverage by source ---
     data["summary"] = query("""

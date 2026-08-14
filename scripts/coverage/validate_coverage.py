@@ -24,6 +24,7 @@ from pathlib import Path
 import psycopg2
 
 from scripts.coverage.covered_entity import COVERED_ENTITY_FORMULA as COVERED_ENTITY_FORMULA
+from scripts.coverage.covered_entity import published_coverage_kpis
 
 DSN = os.getenv("LOCAL_DATALAKE_DSN", "postgresql://postgres@127.0.0.1:5433/pncp_datalake")
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -575,9 +576,9 @@ class CoverageValidator:
         """)
         municipios = cur.fetchall()
 
-        # Total stats
-        cur.execute("SELECT COUNT(DISTINCT entity_id) FROM entity_coverage WHERE is_covered = TRUE")
-        total_covered = cur.fetchone()[0] or 0
+        # Total stats — single covered-entity formula, never is_covered boolean.
+        kpis = published_coverage_kpis(self.conn)
+        total_covered = kpis.covered_count
 
         cur.execute("SELECT COUNT(*) FROM sc_public_entities")
         total_entities = cur.fetchone()[0] or 1

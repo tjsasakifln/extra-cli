@@ -9,85 +9,65 @@ from __future__ import annotations
 from typing import Any
 
 from config.logging_config import get_logger
-from scripts.coverage.covered_entity import COVERED_ENTITY_FORMULA
+from scripts.coverage.covered_entity import (
+    COVERED_ENTITY_FORMULA,
+    compute_coverage_kpis,
+    load_coverage_state_rows,
+    published_coverage_kpis,
+)
 
 logger = get_logger(__name__)
 
 
 def report_coverage(conn: Any) -> dict[str, Any]:
-    """Generate coverage report for all entities across all sources.
+    """Generate coverage report from the single covered-entity formula.
 
-    Args:
-        conn: Database connection.
-
-    Returns:
-        Dict with keys ``groups`` (list per raio_200km group),
-        ``total_entities``, ``total_covered``, ``total_uncovered``,
-        ``pct`` (overall), ``by_source`` (per-source breakdown),
-        ``uncovered_entities_200km`` (critical gaps list).
+    Published ``total_covered`` is ``compute_coverage_kpis`` — never
+    ``entity_coverage.is_covered``.
     """
-    cur = conn.cursor()
-
-    # Overall coverage
-    cur.execute(
-        """SELECT
-            e.raio_200km,
-            COUNT(DISTINCT e.id) AS total,
-            COUNT(DISTINCT CASE WHEN ec.is_covered THEN e.id END) AS covered,
-            COUNT(DISTINCT CASE WHEN NOT ec.is_covered OR ec.is_covered IS NULL THEN e.id END) AS uncovered
-         FROM sc_public_entities e
-         LEFT JOIN entity_coverage ec ON e.id = ec.entity_id
-         WHERE e.is_active = TRUE
-         GROUP BY e.raio_200km
-         ORDER BY e.raio_200km DESC"""
-    )
-    rows = cur.fetchall()
-
-    result: dict[str, Any] = {"groups": [], "total_entities": 0, "total_covered": 0, "total_uncovered": 0}
-    for raio, total, covered, uncovered in rows:
-        group = {
-            "within_200km": raio,
-            "total": total,
-            "covered": covered or 0,
-            "uncovered": uncovered or 0,
-            "pct": round((covered or 0) / total * 100, 1) if total > 0 else 0,
-        }
-        result["groups"].append(group)
-        result["total_entities"] += total
-        result["total_covered"] += covered or 0
-        result["total_uncovered"] += uncovered or 0
-
-    result["pct"] = (
-        round(result["total_covered"] / result["total_entities"] * 100, 1) if result["total_entities"] > 0 else 0
-    )
-
-    # Per-source breakdown
-    cur.execute(
-        """SELECT source, COUNT(*) AS entity_count, COUNT(*) FILTER (WHERE is_covered) AS covered
-           FROM entity_coverage
-           WHERE within_200km = TRUE
-           GROUP BY source
-           ORDER BY source"""
-    )
-    result["by_source"] = [{"source": r[0], "entities": r[1], "covered": r[2]} for r in cur.fetchall()]
-
-    # Uncovered entities within 200km (critical gap)
-    cur.execute(
-        """SELECT e.razao_social, e.cnpj_8, e.municipio, e.natureza_juridica
-           FROM sc_public_entities e
-           WHERE e.is_active = TRUE
-             AND e.raio_200km = TRUE
-             AND e.id NOT IN (
-                 SELECT entity_id FROM entity_coverage WHERE is_covered = TRUE
-             )
-           ORDER BY e.municipio, e.razao_social"""
-    )
-    result["uncovered_entities_200km"] = [
-        {"razao_social": r[0], "cnpj_8": r[1], "municipio": r[2], "natureza": r[3]} for r in cur.fetchall()
-    ]
-
-    cur.close()
-    result["covered_entity_formula"] = f"{COVERED_ENTITY_FORMULA.__module__}.{COVERED_ENTITY_FORMULA.__name__}"
+    rows = load_coverage_state_rows(conn)
+    kpis = compute_coverage_kpis(rows)
+    by_source_map: dict[str, list[dict[str, Any]]] = {}
+    for row in rows:
+        source = str(row.get("source") or "unknown")
+        by_source_map.setdefault(source, []).append(row)
+    by_source = []
+    for source in sorted(by_source_map):
+        source_kpis = compute_coverage_kpis(by_source_map[source])
+        by_source.append(
+            {
+                "source": source,
+                "entities": source_kpis.total_entities,
+                "covered": source_kpis.covered_count,
+            }
+        )
+    result: dict[str, Any] = {
+        "groups": [
+            {
+                "within_200km": True,
+                "total": kpis.total_entities,
+                "covered": kpis.covered_count,
+                "uncovered": len(kpis.excluded_entity_ids),
+                "pct": (
+                    round(kpis.covered_count / kpis.total_entities * 100, 1) if kpis.total_entities else 0
+                ),
+            }
+        ]
+        if kpis.total_entities
+        else [],
+        "total_entities": kpis.total_entities,
+        "total_covered": kpis.covered_count,
+        "total_uncovered": len(kpis.excluded_entity_ids),
+        "pct": round(kpis.covered_count / kpis.total_entities * 100, 1) if kpis.total_entities else 0,
+        "by_source": by_source,
+        "uncovered_entities_200km": [
+            {"razao_social": entity_id, "cnpj_8": "", "municipio": "", "natureza": ""}
+            for entity_id in sorted(kpis.excluded_entity_ids)
+        ],
+        "covered_entity_ids": sorted(kpis.covered_entity_ids),
+        "covered_entity_formula": f"{COVERED_ENTITY_FORMULA.__module__}.{COVERED_ENTITY_FORMULA.__name__}",
+        "published_via": published_coverage_kpis.__name__,
+    }
     return result
 
 

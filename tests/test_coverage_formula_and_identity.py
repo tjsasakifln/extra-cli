@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from unittest.mock import MagicMock
+
 import pytest
 
 import scripts.coverage.calculator as coverage_calculator
@@ -9,6 +11,7 @@ import scripts.coverage.manifest as coverage_manifest
 import scripts.coverage.validate_coverage as coverage_panel
 import scripts.coverage_truth as coverage_qa
 import scripts.reports.coverage_weekly as coverage_weekly
+from scripts.coverage.calculator import report_coverage
 from scripts.coverage.covered_entity import (
     COVERED_ENTITY_FORMULA,
     MISSING_EVIDENCE,
@@ -19,6 +22,7 @@ from scripts.coverage.covered_entity import (
     dual_coverage_evidence_gate,
     is_covered_state,
 )
+from scripts.coverage_truth import compute_metrics
 
 FIXTURE_ROWS = [
     {"entity_id": "e-ok-data", "state": "success_with_data"},
@@ -118,6 +122,58 @@ def test_identified_rows_enter_numerators_source_wide_does_not() -> None:
     assert gate["identified_count"] == 1
     assert len(gate["numerator_rows"]) == 1
     assert gate["numerator_rows"][0]["canonical_entity_key"] == "ent-10"
+
+
+def test_published_surfaces_call_formula_not_is_covered() -> None:
+    state_rows = [
+        ("ok", "success_with_data", "pncp", {}),
+        ("blk", "blocked", "pncp", {}),
+        ("fail", "failed", "pncp", {}),
+    ]
+    conn = MagicMock()
+    conn.cursor.return_value.fetchall.return_value = state_rows
+    published = report_coverage(conn)
+    expected = compute_coverage_kpis(
+        [{"entity_id": r[0], "state": r[1], "source": r[2]} for r in state_rows]
+    )
+    assert published["total_covered"] == expected.covered_count == 1
+    assert published["covered_entity_ids"] == ["ok"]
+
+    qa = compute_metrics(
+        entities=[
+            {"id": 1, "razao_social": "A"},
+            {"id": 2, "razao_social": "B"},
+            {"id": 3, "razao_social": "C"},
+        ],
+        coverage=[],
+        evidence=[
+            {"entity_id": 1, "source": "pncp", "state": "success_with_data"},
+            {"entity_id": 2, "source": "pncp", "state": "blocked"},
+            {"entity_id": 3, "source": "pncp", "state": "failed"},
+        ],
+        source_health=[],
+        contract_presence={},
+        radius_km=200,
+    )
+    assert qa["monitoring_coverage"]["entities_monitored"] == 1
+    assert "1" in qa["monitoring_coverage"]["covered_entity_ids"]
+
+    kpis = compute_coverage_kpis(
+        [{"entity_id": r[0], "state": r[1], "source": r[2]} for r in state_rows]
+    )
+
+    def _fake_query(sql, params=None):
+        if "COUNT(*) AS total" in sql:
+            return [{"total": 3}]
+        return []
+
+    monkeypatch = pytest.MonkeyPatch()
+    monkeypatch.setattr(coverage_weekly, "query", _fake_query)
+    monkeypatch.setattr(coverage_weekly, "published_coverage_kpis", lambda _conn: kpis)
+    monkeypatch.setattr(coverage_weekly, "get_conn", lambda: conn)
+    weekly = coverage_weekly.fetch_coverage_data(__import__("datetime").date(2026, 8, 13))
+    monkeypatch.undo()
+    assert weekly["total_covered"] == 1
 
 
 def test_unmappable_identity_bearing_row_is_not_silently_dropped() -> None:

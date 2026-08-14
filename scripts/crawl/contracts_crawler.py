@@ -35,7 +35,11 @@ from pathlib import Path
 from typing import Any
 
 from scripts.contracts_identity import normalize_supplier_identity
-from scripts.contracts_truth import PaginationReconcile, annotate_transformed_contract
+from scripts.contracts_truth import (
+    PaginationReconcile,
+    annotate_transformed_contract,
+    resolve_checkpoint_dir,
+)
 from scripts.crawl.common import (
     digits_only as _digits_only,
 )
@@ -72,9 +76,11 @@ CONTRACTS_JANELA_DELAY = float(os.getenv("CONTRACTS_JANELA_DELAY", "5.0"))
 CONTRACTS_FULL_DAYS = int(os.getenv("CONTRACTS_FULL_DAYS", "90"))
 CONTRACTS_INCREMENTAL_DAYS = int(os.getenv("CONTRACTS_INCREMENTAL_DAYS", "3"))
 CONTRACTS_BACKFILL_YEARS = int(os.getenv("CONTRACTS_BACKFILL_YEARS", "3"))
-CONTRACTS_CHECKPOINT_DIR = os.getenv(
-    "CONTRACTS_CHECKPOINT_DIR",
-    str(_PROJECT_ROOT / "data" / "contracts_checkpoints"),
+CONTRACTS_CHECKPOINT_DIR = str(
+    resolve_checkpoint_dir(
+        os.getenv("CONTRACTS_CHECKPOINT_DIR"),
+        repo_root=_PROJECT_ROOT,
+    )
 )
 
 _ESFERA_MAP = {"F": 1, "E": 2, "M": 3, "D": 4}

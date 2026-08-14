@@ -126,7 +126,8 @@ def test_incremental_uses_logical_job_contract_and_reset(tmp_path: Path) -> None
     assert "logical_job_id" in src or "LOGICAL_JOB_INCREMENTAL" in src
     assert "--reset-checkpoint" in src
     assert "archive_checkpoint" in src
-    assert "acquire_or_exit" in src or "contracts_writer_lock" in src
+    assert "acquire_national_writer_fence" in src
+    assert "acquire_or_exit" not in src
     # campaign mismatch still fail-closed via migrate_meta
     contract = Path("scripts/crawl/contracts_checkpoint_contract.py").read_text(
         encoding="utf-8"

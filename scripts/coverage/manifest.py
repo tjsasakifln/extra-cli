@@ -21,6 +21,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from scripts.coverage.covered_entity import COVERED_ENTITY_FORMULA as COVERED_ENTITY_FORMULA
+from scripts.coverage.covered_entity import compute_coverage_kpis, load_coverage_state_rows
 
 
 @dataclass
@@ -257,11 +258,23 @@ def build_manifest_from_db(
         manifest.total_capabilities = len(set(e.capability for e in manifest.entries))
         manifest.total_sources = len(set(e.source for e in manifest.entries))
 
-        # Aggregate metrics
-        total_covered = sum(e.covered_pairs for e in manifest.entries)
+        # Published covered count comes from the shared formula, not the view.
+        state_rows = load_coverage_state_rows(conn)
+        kpis = compute_coverage_kpis(state_rows)
+        for entry in manifest.entries:
+            source_rows = [row for row in state_rows if str(row.get("source") or "") == entry.source]
+            if source_rows:
+                source_kpis = compute_coverage_kpis(source_rows)
+                entry.covered_pairs = source_kpis.covered_count
+                entry.pct_covered = (
+                    round(100.0 * source_kpis.covered_count / entry.total_pairs, 1)
+                    if entry.total_pairs
+                    else 0.0
+                )
         total_all = sum(e.total_pairs for e in manifest.entries)
         if total_all > 0:
-            manifest.capability_monitoring_coverage_pct = round(total_covered / total_all * 100, 1)
+            manifest.capability_monitoring_coverage_pct = round(kpis.covered_count / total_all * 100, 1)
+        manifest.formula_id = COVERED_ENTITY_FORMULA.__name__
 
     except psycopg2.Error as e:
         manifest.entries = []

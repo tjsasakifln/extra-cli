@@ -7,16 +7,19 @@ from pathlib import Path
 import pytest
 
 from scripts.contracts_truth import (
+    PG_FENCE_KEY,
     CheckpointLocationError,
     PaginationReconcile,
     PostgresWriterFence,
     WriterFenceBusyError,
     WriterFenceBypassError,
+    acquire_national_writer_fence,
     canonical_contract_identity,
     refuse_writer_bypass,
     replay_adapters_to_canonical,
     resolve_checkpoint_dir,
 )
+from scripts.crawl.contracts_writer_lock import EXIT_LOCK_BUSY
 
 
 class _FakeAdvisoryConn:
@@ -155,6 +158,86 @@ def test_two_adapters_replay_to_one_canonical_and_two_observations() -> None:
     assert replayed["observation_count"] == 2
     other_source = canonical_contract_identity(source="compras_gov", official_id=official)
     assert other_source.canonical_contract_id != crawler.canonical_contract_id
+
+
+def test_incremental_writer_uses_pg_fence_before_mutation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from scripts.crawl import run_contracts_incremental as inc
+
+    monkeypatch.delenv("CONTRACTS_SKIP_WRITER_LOCK", raising=False)
+    ran: list[str] = []
+    monkeypatch.setattr(inc, "_run_incremental", lambda args: ran.append("ran") or 0)
+
+    def _connect(_dsn: str) -> _FakeAdvisoryConn:
+        return _FakeAdvisoryConn()
+
+    monkeypatch.setattr("psycopg2.connect", _connect)
+    _FakeAdvisoryConn.held.clear()
+    out = tmp_path / "out.json"
+    rc = inc.main(
+        [
+            "--dsn",
+            "postgresql://fence/test",
+            "--days",
+            "7",
+            "--checkpoint-dir",
+            str(tmp_path / "ckpt"),
+            "--output-json",
+            str(out),
+        ]
+    )
+    assert rc == 0
+    assert ran == ["ran"]
+    assert PG_FENCE_KEY not in _FakeAdvisoryConn.held
+
+    ran.clear()
+    _FakeAdvisoryConn.held.add(PG_FENCE_KEY)
+    rc_busy = inc.main(
+        [
+            "--dsn",
+            "postgresql://fence/test",
+            "--days",
+            "7",
+            "--checkpoint-dir",
+            str(tmp_path / "ckpt"),
+            "--output-json",
+            str(out),
+        ]
+    )
+    assert rc_busy == EXIT_LOCK_BUSY
+    assert ran == []
+
+
+def test_acquire_national_writer_fence_is_the_shipped_lock() -> None:
+    _FakeAdvisoryConn.held.clear()
+    fence = acquire_national_writer_fence("postgresql://x", connect=lambda _dsn: _FakeAdvisoryConn())
+    assert fence is not None
+    assert fence.owned is True
+    fence.release()
+
+
+def test_production_default_checkpoint_refuses_worktree_and_release_tree(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "data" / "contracts_checkpoints").mkdir(parents=True)
+    with pytest.raises(CheckpointLocationError, match="worktree"):
+        resolve_checkpoint_dir(
+            repo / "data" / "contracts_checkpoints",
+            production=True,
+            repo_root=repo,
+        )
+    with pytest.raises(CheckpointLocationError, match="release tree"):
+        resolve_checkpoint_dir(
+            "/opt/extra-consultoria/data/contracts_checkpoints",
+            production=True,
+            repo_root=repo,
+        )
+    production_default = resolve_checkpoint_dir(None, production=True, repo_root=repo)
+    assert str(production_default).startswith("/var/lib/extra-consultoria")
+    from scripts.crawl import contracts_crawler as crawler
+
+    assert "resolve_checkpoint_dir" in Path(crawler.__file__).read_text(encoding="utf-8")
 
 
 def test_pagination_reconciles_and_drift_is_not_success() -> None:

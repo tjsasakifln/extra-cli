@@ -164,13 +164,14 @@ class TestBuildManifestFromDb:
             ("errored", None, None, None, None, None, None),
             ("last_check_at", None, None, None, None, None, None),
         ]
-        cursor.fetchall.return_value = [
-            ("open_tenders", "pncp", 100, 90, 90.0, 80, 10, 5, 0, 2, 1, 2, None),
+        cursor.fetchall.side_effect = [
+            [("open_tenders", "pncp", 100, 90, 90.0, 80, 10, 5, 0, 2, 1, 2, None)],
+            [("e1", "success_with_data", "pncp", {}), ("e2", "blocked", "pncp", {})],
         ]
 
         manifest = build_manifest_from_db(conn)
         assert len(manifest.entries) == 1
         assert manifest.entries[0].capability == "open_tenders"
-        assert manifest.entries[0].pct_covered == 90.0
+        assert manifest.entries[0].covered_pairs == 1
         assert manifest.entries[0].with_data == 80
         assert manifest.entries[0].blocked == 2

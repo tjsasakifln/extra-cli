@@ -487,6 +487,13 @@ def isolated_test_environment() -> bool:
     return bool(os.getenv("PYTEST_CURRENT_TEST") or os.getenv("EXTRA_ISOLATED_TEST") == "1")
 
 
+def is_production_contracts() -> bool:
+    if os.getenv("EXTRA_CONTRACTS_PRODUCTION", "0") == "1":
+        return True
+    cwd = Path.cwd().as_posix()
+    return cwd == "/opt/extra-consultoria" or cwd.startswith("/opt/extra-consultoria/")
+
+
 def refuse_writer_bypass(*, skip_lock: bool = False, env_skip: str | None = None) -> None:
     """Production units must not skip the fence."""
     env_requested = (env_skip if env_skip is not None else os.getenv("CONTRACTS_SKIP_WRITER_LOCK", "0")) == "1"
@@ -543,6 +550,36 @@ class PostgresWriterFence:
             self.release()
 
 
+def acquire_national_writer_fence(
+    dsn: str,
+    *,
+    skip: bool = False,
+    connect: Any = None,
+) -> PostgresWriterFence | None:
+    """Acquire the PostgreSQL fence used by every national contracts writer.
+
+    Host-local flock is not sufficient. A second writer is refused before
+    ``connect`` returns a session that can mutate.
+    """
+    refuse_writer_bypass(skip_lock=skip)
+    if skip or os.getenv("CONTRACTS_SKIP_WRITER_LOCK", "0") == "1":
+        return None
+    if not dsn:
+        raise WriterFenceBypassError("national writer fence requires a DSN")
+    if connect is None:
+        import psycopg2
+
+        connect = psycopg2.connect
+    conn = connect(dsn)
+    fence = PostgresWriterFence()
+    if not fence.acquire(conn):
+        close = getattr(conn, "close", None)
+        if callable(close):
+            close()
+        raise WriterFenceBusyError("national writer fence busy")
+    return fence
+
+
 def _is_relative_to(path: Path, root: Path) -> bool:
     try:
         path.resolve().relative_to(root.resolve())
@@ -560,12 +597,17 @@ def resolve_checkpoint_dir(
 ) -> Path:
     """Production checkpoints live under /var/lib/extra-consultoria, never the worktree."""
     if production is None:
-        production = os.getenv("EXTRA_CONTRACTS_PRODUCTION", "0") == "1"
+        production = is_production_contracts()
     repo = Path(repo_root) if repo_root else Path(__file__).resolve().parents[1]
     durable = Path(state_root) if state_root else Path(
         os.getenv("EXTRA_CONTRACTS_STATE_DIR") or str(PRODUCTION_STATE_ROOT)
     )
-    raw = Path(requested) if requested else durable / "checkpoints" / "contracts"
+    if requested:
+        raw = Path(requested)
+    elif production:
+        raw = durable / "checkpoints" / "contracts"
+    else:
+        raw = repo / "data" / "contracts_checkpoints"
     path = raw.expanduser()
     if not path.is_absolute():
         path = (durable / path) if production else (repo / path)

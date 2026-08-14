@@ -271,6 +271,60 @@ def dual_coverage_evidence_gate(
     }
 
 
+def load_coverage_state_rows(conn: Any) -> list[dict[str, Any]]:
+    """Load state-bearing rows that every published coverage surface must use."""
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            """
+            SELECT COALESCE(canonical_entity_key, entity_id::text) AS entity_id,
+                   state::text AS state,
+                   source,
+                   metadata
+            FROM coverage_evidence
+            """
+        )
+        fetched = list(cur.fetchall() or [])
+        return [
+            {
+                "entity_id": row[0],
+                "state": row[1],
+                "source": row[2] if len(row) > 2 else "",
+                "metadata": row[3] if len(row) > 3 and isinstance(row[3], Mapping) else {},
+            }
+            for row in fetched
+        ]
+    except Exception:
+        rollback = getattr(conn, "rollback", None)
+        if callable(rollback):
+            rollback()
+        try:
+            cur.execute(
+                """
+                SELECT entity_id::text, NULL::text AS state, source
+                FROM entity_coverage
+                """
+            )
+            fetched = list(cur.fetchall() or [])
+            return [
+                {"entity_id": row[0], "state": row[1], "source": row[2] if len(row) > 2 else ""}
+                for row in fetched
+            ]
+        except Exception:
+            if callable(rollback):
+                rollback()
+            return []
+    finally:
+        close = getattr(cur, "close", None)
+        if callable(close):
+            close()
+
+
+def published_coverage_kpis(conn: Any) -> CoverageKpis:
+    """Single published KPI entry point for panel, PDF, Excel, manifest and QA."""
+    return compute_coverage_kpis(load_coverage_state_rows(conn))
+
+
 # Surfaces must bind this exact function so QA can prove they share a formula.
 COVERED_ENTITY_FORMULA = compute_coverage_kpis
 
@@ -287,6 +341,8 @@ __all__ = [
     "assert_surfaces_agree",
     "classify_evidence_identity",
     "compute_coverage_kpis",
+    "load_coverage_state_rows",
+    "published_coverage_kpis",
     "dual_coverage_evidence_gate",
     "is_covered_state",
     "numerator_row_has_identity",
