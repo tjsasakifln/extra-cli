@@ -36,7 +36,7 @@ def test_cli_plan_and_run_track_a(tmp_path: Path):
     funnel = json.loads((run_dir / "funnel.json").read_text(encoding="utf-8"))
     assert funnel["accounts"] == 30
     assert "decision_unit_reachability_rate" in funnel
-    assert funnel["blocked_excluded_from_rate"] == funnel["classes"].get("BLOCKED", 0) or True
+    assert funnel["blocked_excluded_from_rate"] == funnel["classes"].get("BLOCKED", 0)
     cards = json.loads((operator / "cards.json").read_text(encoding="utf-8"))
     assert cards["n"] == 30
     md = (operator / "cards.md").read_text(encoding="utf-8")
