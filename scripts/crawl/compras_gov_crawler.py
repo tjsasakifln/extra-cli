@@ -43,6 +43,16 @@ from scripts.crawl.common import (
 from scripts.crawl.dlq_sync import dlq_write
 from scripts.crawl.security import USER_AGENT, sanitize_url_param, validate_url_scheme
 from scripts.crawl.watermark_sync import watermark_commit, watermark_read
+from scripts.national_contract_truth.compras_gov_feeder import (
+    SCOPE_14133,
+    SCOPE_LEGADO,
+    ComprasGovIngestError,
+    classify_fetch,
+    classify_legacy_record,
+    default_open_window,
+    ingest_scope,
+    reconcile_pagination,
+)
 
 # Add project root to path
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -209,30 +219,26 @@ def _make_request(url: str) -> dict | None:
     return None
 
 
-def _fetch_page(url: str) -> tuple[list[dict], bool]:
+def _fetch_page(url: str) -> tuple[list[dict], bool, int | None, int | None]:
     """Busca uma pagina de um endpoint ComprasGov v3.
 
     Response schema (v3):
       { "resultado": [...], "totalRegistros": N, "totalPaginas": N, "paginasRestantes": N }
 
-    Args:
-        url: URL completa com query params
-
     Returns:
-        (records_list, has_more_pages)
+        (records_list, has_more_pages, total_paginas, http_status_or_none)
     """
     data = _make_request(url)
     if data is None:
-        return [], False
+        return [], False, None, None
 
     records = data.get("resultado", [])
     if not isinstance(records, list):
-        return [], False
+        return [], False, data.get("totalPaginas"), 200
 
     paginas_restantes = data.get("paginasRestantes", 0)
     has_more = paginas_restantes > 0
-
-    return records, has_more
+    return records, has_more, data.get("totalPaginas"), 200
 
 
 def _paginate(
@@ -255,6 +261,9 @@ def _paginate(
 
     all_records: list[dict] = []
     pagina = 1
+    pages_expected: int | None = None
+    last_fetch = classify_fetch(http_status=200, records=[], error=None)
+    has_more = False
 
     while pagina <= max_pages:
         params = dict(base_params)
@@ -262,8 +271,14 @@ def _paginate(
         query = "&".join(f"{k}={sanitize_url_param(v)}" for k, v in params.items())
         url = f"{BASE_URL}{endpoint}?{query}"
 
-        records, has_more = _fetch_page(url)
-
+        records, has_more, total_paginas, http_status = _fetch_page(url)
+        if total_paginas is not None:
+            pages_expected = int(total_paginas)
+        last_fetch = classify_fetch(
+            http_status=http_status, records=records, error=None if http_status else "fetch_failed"
+        )
+        if last_fetch.status == "FAILED":
+            break
         if not records:
             if pagina == 1:
                 _logger.debug(f"[COMPRAS_GOV] {endpoint}: sem resultados pagina 1")
@@ -275,11 +290,20 @@ def _paginate(
             break
 
         if pagina >= max_pages:
-            _logger.warning(f"[COMPRAS_GOV] {endpoint}: atingiu max_pages ({max_pages})")
             break
 
         pagina += 1
         time.sleep(REQUEST_DELAY)  # Rate limiting
+
+    verdict = reconcile_pagination(
+        pages_fetched=pagina if all_records or last_fetch.status != "ZERO" else 1,
+        pages_expected=pages_expected,
+        max_pages=max_pages,
+        last_fetch=last_fetch,
+        has_more=has_more,
+    )
+    if not verdict.is_success:
+        raise ComprasGovIngestError(verdict.status, verdict.reason)
 
     if all_records:
         _logger.info(f"[COMPRAS_GOV] {endpoint}: {len(all_records)} registros ({pagina} paginas)")
@@ -567,9 +591,13 @@ def crawl(mode: str = "full", resume: bool = False) -> list[dict]:
     Returns:
         Lista de registros brutos da API (ambos endpoints mergeados)
     """
-    days = INGESTION_DATE_RANGE_DAYS if mode == "full" else INGESTION_INCREMENTAL_DAYS
     data_final = date.today()
-    data_inicial = data_final - timedelta(days=days)
+    if mode == "full":
+        window = default_open_window(data_final, has_native_open_status=False)
+        data_inicial = window[0] if window else data_final - timedelta(days=INGESTION_DATE_RANGE_DAYS)
+        data_final = window[1] if window else data_final
+    else:
+        data_inicial = data_final - timedelta(days=INGESTION_INCREMENTAL_DAYS)
     data_inicial_str = data_inicial.isoformat()
     data_final_str = data_final.isoformat()
 
@@ -669,3 +697,18 @@ def transform(raw_records: list[dict]) -> list[dict]:
         normalized.append(result)
 
     return normalized
+
+
+def identity_disposition(record: dict) -> str:
+    """Fail-closed identity for a normalized Compras.gov record (#251)."""
+    pncp_id = str(record.get("pncp_id") or "")
+    if pncp_id.startswith("cg_leg_"):
+        return classify_legacy_record(record)
+    return "ACCEPT" if record.get("orgao_cnpj") else "REJECT"
+
+
+def finalize_scope(scope: str, records: list[dict], pagination) -> object:
+    """Public wrapper so tests drive the shipped ingest contract."""
+    if scope not in {SCOPE_14133, SCOPE_LEGADO}:
+        raise ComprasGovIngestError("UNKNOWN_SCOPE", scope)
+    return ingest_scope(scope, pagination, records)

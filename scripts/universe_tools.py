@@ -303,6 +303,15 @@ def list_snapshots(conn=None, limit: int = 10) -> list[dict[str, Any]]:
 # ---------------------------------------------------------------------------
 
 
+def link_included_to_datalake(rows, lake, *, active_run_keys):
+    """Shipped #300 entry: resolve included universe keys to datalake entities."""
+    from scripts.national_contract_truth.universe_linkage import (
+        link_included_to_datalake as _link,
+    )
+
+    return _link(rows, lake, active_run_keys=active_run_keys)
+
+
 def compute_divergence(seed_path: str | Path = DEFAULT_SEED_PATH) -> dict[str, Any]:
     """Compare seed entities with sc_public_entities to find divergences.
 
