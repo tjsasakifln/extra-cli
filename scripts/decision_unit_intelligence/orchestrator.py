@@ -266,12 +266,6 @@ def maybe_infer_emails(
     for cand in candidates:
         if not person_is_suitable(cand) or not cand.person_name:
             continue
-        has_direct = any(
-            r.channel_type == ChannelType.DIRECT_EMAIL and r.decision_unit_candidate_id == cand.candidate_id
-            for r in []
-        )
-        if has_direct:
-            continue
         inferences = generate_inferred_emails(
             person_name=cand.person_name,
             domain=domain,

@@ -186,7 +186,8 @@ def detect_pattern(email: str, person_name: str | None) -> str | None:
         return None
     first, last = pair
     for pid, fn in KNOWN_PATTERNS:
-        if fn(first, last, domain).split("@", 1)[0] == local:
+        built = fn(first, last, domain)
+        if built and built.split("@", 1)[0] == local:
             return pid
     # compound last name: try last two tokens as last
     if len(tokens) >= 3:
@@ -237,10 +238,12 @@ def generate_inferred_emails(
     corroborations = independent_corroborations or []
     results: list[EmailInference] = []
 
+    def _compound(first_n: str, _last: str, domain_n: str, *, c: str = "".join(tokens[-2:])) -> str:
+        return f"{first_n}.{c}@{domain_n}"
+
     candidates: list[tuple[str, PatternFn]] = list(KNOWN_PATTERNS)
     if len(tokens) >= 3:
-        compound = "".join(tokens[-2:])
-        candidates.append(("first.compoundlast", lambda f, _l, d, c=compound: f"{f}.{c}@{d}"))
+        candidates.append(("first.compoundlast", _compound))
 
     for pid, fn in candidates:
         addr = normalize_email(fn(first, last, domain))

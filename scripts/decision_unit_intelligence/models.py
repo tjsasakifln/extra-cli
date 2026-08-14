@@ -9,9 +9,10 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from dataclasses import asdict, dataclass, field, fields
+from dataclasses import asdict, dataclass, fields
+from dataclasses import field as dc_field
 from datetime import UTC, datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 POLICY_VERSION = "dui.policy.v1"
@@ -64,7 +65,7 @@ def normalize_name(value: str | None) -> str | None:
     return n if len(n) >= 3 else None
 
 
-class EpistemicClass(str, Enum):
+class EpistemicClass(StrEnum):
     OBSERVED = "OBSERVED"
     INFERRED = "INFERRED"
     CORROBORATED = "CORROBORATED"
@@ -74,7 +75,7 @@ class EpistemicClass(str, Enum):
     UNKNOWN = "UNKNOWN"
 
 
-class ConfidenceLevel(str, Enum):
+class ConfidenceLevel(StrEnum):
     HIGH = "HIGH"
     MEDIUM = "MEDIUM"
     LOW = "LOW"
@@ -82,7 +83,7 @@ class ConfidenceLevel(str, Enum):
     NONE = "NONE"
 
 
-class DecisionRoleClass(str, Enum):
+class DecisionRoleClass(StrEnum):
     SOCIO_ADMINISTRADOR = "socio_administrador"
     PROPRIETARIO = "proprietario"
     PRESIDENTE = "presidente"
@@ -111,7 +112,7 @@ class DecisionRoleClass(str, Enum):
     UNKNOWN = "unknown"
 
 
-class ChannelType(str, Enum):
+class ChannelType(StrEnum):
     DIRECT_EMAIL = "DIRECT_EMAIL"
     INFERRED_DIRECT_EMAIL = "INFERRED_DIRECT_EMAIL"
     DIRECT_PHONE = "DIRECT_PHONE"
@@ -124,7 +125,7 @@ class ChannelType(str, Enum):
     OTHER_PUBLIC_BUSINESS_ROUTE = "OTHER_PUBLIC_BUSINESS_ROUTE"
 
 
-class RouteRelation(str, Enum):
+class RouteRelation(StrEnum):
     PERSON_OWNS_CHANNEL = "PERSON_OWNS_CHANNEL"
     ROUTES_TO_NAMED_PERSON = "ROUTES_TO_NAMED_PERSON"
     ROUTES_TO_ROLE = "ROUTES_TO_ROLE"
@@ -133,7 +134,7 @@ class RouteRelation(str, Enum):
     CONTRADICTED = "CONTRADICTED"
 
 
-class ReachabilityClass(str, Enum):
+class ReachabilityClass(StrEnum):
     R1_DIRECT = "R1_DIRECT"
     R2_HIGH_CONFIDENCE_DIRECT = "R2_HIGH_CONFIDENCE_DIRECT"
     INFERRED_UNVERIFIED = "INFERRED_UNVERIFIED"
@@ -144,7 +145,7 @@ class ReachabilityClass(str, Enum):
     BLOCKED = "BLOCKED"
 
 
-class ActionMode(str, Enum):
+class ActionMode(StrEnum):
     HUMAN_REVIEW_EMAIL = "HUMAN_REVIEW_EMAIL"
     MANUAL_CALL = "MANUAL_CALL"
     MANUAL_WHATSAPP = "MANUAL_WHATSAPP"
@@ -158,7 +159,7 @@ class ActionMode(str, Enum):
     NO_ACTIONABLE_ROUTE = "NO_ACTIONABLE_ROUTE"
 
 
-class AccountTerminal(str, Enum):
+class AccountTerminal(StrEnum):
     ACTIONABLE_ROUTE = "ACTIONABLE_ROUTE"
     DECISION_UNIT_IDENTIFIED_REACHABILITY_UNRESOLVED = (
         "DECISION_UNIT_IDENTIFIED_REACHABILITY_UNRESOLVED"
@@ -168,7 +169,7 @@ class AccountTerminal(str, Enum):
     NEEDS_ENRICHMENT = "NEEDS_ENRICHMENT"
 
 
-class PersonRelation(str, Enum):
+class PersonRelation(StrEnum):
     COMPANY_MEMBER = "COMPANY_MEMBER"
     THIRD_PARTY = "THIRD_PARTY"
     PUBLIC_OFFICIAL = "PUBLIC_OFFICIAL"
@@ -176,7 +177,7 @@ class PersonRelation(str, Enum):
     UNKNOWN = "UNKNOWN"
 
 
-class OwnershipStatus(str, Enum):
+class OwnershipStatus(StrEnum):
     COMPANY_OWNED = "COMPANY_OWNED"
     PERSON_PROFESSIONAL = "PERSON_PROFESSIONAL"
     THIRD_PARTY = "THIRD_PARTY"
@@ -184,7 +185,7 @@ class OwnershipStatus(str, Enum):
     REJECTED = "REJECTED"
 
 
-class SuppressionState(str, Enum):
+class SuppressionState(StrEnum):
     NONE = "NONE"
     DNC = "DNC"
     OPT_OUT = "OPT_OUT"
@@ -192,14 +193,14 @@ class SuppressionState(str, Enum):
     BLOCKED = "BLOCKED"
 
 
-class FreshnessState(str, Enum):
+class FreshnessState(StrEnum):
     FRESH = "FRESH"
     AGING = "AGING"
     STALE = "STALE"
     UNKNOWN = "UNKNOWN"
 
 
-class StopReason(str, Enum):
+class StopReason(StrEnum):
     POSITIVE_ROUTE = "POSITIVE_ROUTE"
     BUDGET_EXHAUSTED = "BUDGET_EXHAUSTED"
     SOURCE_BLOCKED = "SOURCE_BLOCKED"
@@ -249,8 +250,8 @@ class FieldEvidence:
     extractor_version: str | None = None
     contract_id: str | None = None
     process_id: str | None = None
-    aspects: list[FieldAspect] = field(default_factory=list)
-    extra: dict[str, Any] = field(default_factory=dict)
+    aspects: list[FieldAspect] = dc_field(default_factory=list)
+    extra: dict[str, Any] = dc_field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         d = asdict(self)
@@ -280,7 +281,7 @@ class PersonObservation:
     process_role: str | None = None
     epistemic_class: EpistemicClass = EpistemicClass.OBSERVED
     evidence_id: str | None = None
-    extra: dict[str, Any] = field(default_factory=dict)
+    extra: dict[str, Any] = dc_field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         d = asdict(self)
@@ -307,7 +308,7 @@ class ChannelObservation:
     epistemic_class: EpistemicClass = EpistemicClass.OBSERVED
     ownership: OwnershipStatus = OwnershipStatus.UNKNOWN
     evidence_id: str | None = None
-    extra: dict[str, Any] = field(default_factory=dict)
+    extra: dict[str, Any] = dc_field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         d = asdict(self)
@@ -327,13 +328,13 @@ class SearchAttempt:
     status: str
     reason: str | None = None
     documents_checked: int = 0
-    queries: list[str] = field(default_factory=list)
+    queries: list[str] = dc_field(default_factory=list)
     bytes_touched: int = 0
     duration_ms: int = 0
     cost_brl: float = 0.0
     blocked: bool = False
     stop_reason: str | None = None
-    extra: dict[str, Any] = field(default_factory=dict)
+    extra: dict[str, Any] = dc_field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -363,7 +364,7 @@ class ConflictRecord:
     left: str
     right: str
     resolution: str
-    reason_codes: list[str] = field(default_factory=list)
+    reason_codes: list[str] = dc_field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -375,7 +376,7 @@ class DecisionUnitCandidate:
     company_entity_id: str
     person_id: str
     person_name: str | None
-    observed_roles: list[str] = field(default_factory=list)
+    observed_roles: list[str] = dc_field(default_factory=list)
     decision_role_class: DecisionRoleClass = DecisionRoleClass.UNKNOWN
     decision_relevance: ConfidenceLevel = ConfidenceLevel.UNKNOWN
     authority_signal: ConfidenceLevel = ConfidenceLevel.UNKNOWN
@@ -387,17 +388,17 @@ class DecisionUnitCandidate:
     suitability: ConfidenceLevel = ConfidenceLevel.UNKNOWN
     service_fit: ConfidenceLevel = ConfidenceLevel.UNKNOWN
     evidence_quality: ConfidenceLevel = ConfidenceLevel.UNKNOWN
-    evidence_ids: list[str] = field(default_factory=list)
-    conflicts: list[str] = field(default_factory=list)
-    reason_codes: list[str] = field(default_factory=list)
+    evidence_ids: list[str] = dc_field(default_factory=list)
+    conflicts: list[str] = dc_field(default_factory=list)
+    reason_codes: list[str] = dc_field(default_factory=list)
     relation: PersonRelation = PersonRelation.COMPANY_MEMBER
     representation_signal: ConfidenceLevel = ConfidenceLevel.NONE
     inferred_decision_relevance: str | None = None
     observation_count: int = 0
     signature_count: int = 0
     source_count: int = 0
-    aspects: list[FieldAspect] = field(default_factory=list)
-    extra: dict[str, Any] = field(default_factory=dict)
+    aspects: list[FieldAspect] = dc_field(default_factory=list)
+    extra: dict[str, Any] = dc_field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         d = asdict(self)
@@ -430,15 +431,15 @@ class ReachabilityRoute:
     epistemic_class: EpistemicClass = EpistemicClass.UNKNOWN
     source_type: str | None = None
     source_url: str | None = None
-    evidence_ids: list[str] = field(default_factory=list)
+    evidence_ids: list[str] = dc_field(default_factory=list)
     route_confidence: ConfidenceLevel = ConfidenceLevel.UNKNOWN
     freshness: FreshnessState = FreshnessState.UNKNOWN
     ownership: OwnershipStatus = OwnershipStatus.UNKNOWN
     suppression: SuppressionState = SuppressionState.NONE
-    reason_codes: list[str] = field(default_factory=list)
+    reason_codes: list[str] = dc_field(default_factory=list)
     next_action: str | None = None
-    aspects: list[FieldAspect] = field(default_factory=list)
-    extra: dict[str, Any] = field(default_factory=dict)
+    aspects: list[FieldAspect] = dc_field(default_factory=list)
+    extra: dict[str, Any] = dc_field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         d = asdict(self)
@@ -459,17 +460,17 @@ class ReachabilityRoute:
 class Recommendation:
     primary_target_id: str | None
     primary_route_id: str | None
-    secondary_target_ids: list[str] = field(default_factory=list)
-    alternative_route_ids: list[str] = field(default_factory=list)
-    why_this_person: list[str] = field(default_factory=list)
-    why_this_route: list[str] = field(default_factory=list)
-    evidence_ids: list[str] = field(default_factory=list)
+    secondary_target_ids: list[str] = dc_field(default_factory=list)
+    alternative_route_ids: list[str] = dc_field(default_factory=list)
+    why_this_person: list[str] = dc_field(default_factory=list)
+    why_this_route: list[str] = dc_field(default_factory=list)
+    evidence_ids: list[str] = dc_field(default_factory=list)
     next_action: str | None = None
     action_mode: ActionMode = ActionMode.NEEDS_ENRICHMENT
     reachability_class: ReachabilityClass | None = None
     policy_version: str = POLICY_VERSION
-    warnings: list[str] = field(default_factory=list)
-    dimensions: dict[str, str] = field(default_factory=dict)
+    warnings: list[str] = dc_field(default_factory=list)
+    dimensions: dict[str, str] = dc_field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         d = asdict(self)
@@ -487,16 +488,16 @@ class SearchLedger:
     processes_checked: int = 0
     documents_checked: int = 0
     company_site_checked: bool = False
-    search_queries: list[str] = field(default_factory=list)
+    search_queries: list[str] = dc_field(default_factory=list)
     provider_attempts: int = 0
-    blocked_sources: list[str] = field(default_factory=list)
-    tiers_completed: list[int] = field(default_factory=list)
+    blocked_sources: list[str] = dc_field(default_factory=list)
+    tiers_completed: list[int] = dc_field(default_factory=list)
     duration_ms: int = 0
     cost_brl: float = 0.0
     bytes_touched: int = 0
     stop_reason: str | None = None
     next_action: str | None = None
-    attempts: list[SearchAttempt] = field(default_factory=list)
+    attempts: list[SearchAttempt] = dc_field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         d = asdict(self)
@@ -511,19 +512,19 @@ class AccountInvestigation:
     legal_name: str | None
     service_context: str
     why_now: str | None
-    candidates: list[DecisionUnitCandidate] = field(default_factory=list)
-    routes: list[ReachabilityRoute] = field(default_factory=list)
+    candidates: list[DecisionUnitCandidate] = dc_field(default_factory=list)
+    routes: list[ReachabilityRoute] = dc_field(default_factory=list)
     recommendation: Recommendation | None = None
-    ledger: SearchLedger = field(default_factory=SearchLedger)
+    ledger: SearchLedger = dc_field(default_factory=SearchLedger)
     terminal: AccountTerminal = AccountTerminal.NEEDS_ENRICHMENT
-    evidence: list[FieldEvidence] = field(default_factory=list)
-    conflicts: list[ConflictRecord] = field(default_factory=list)
-    reason_codes: list[str] = field(default_factory=list)
-    warnings: list[str] = field(default_factory=list)
+    evidence: list[FieldEvidence] = dc_field(default_factory=list)
+    conflicts: list[ConflictRecord] = dc_field(default_factory=list)
+    reason_codes: list[str] = dc_field(default_factory=list)
+    warnings: list[str] = dc_field(default_factory=list)
     policy_version: str = POLICY_VERSION
     provider_version: str = "dui.providers.v1"
-    built_at: str = field(default_factory=now_iso)
-    extra: dict[str, Any] = field(default_factory=dict)
+    built_at: str = dc_field(default_factory=now_iso)
+    extra: dict[str, Any] = dc_field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
