@@ -16,6 +16,7 @@ from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 SLA_HOURS = 4
 SLA_HARD_HOURS = 24
 SECRET_QUERY_KEYS = frozenset({"token", "access_token", "api_key", "apikey", "authorization", "sig"})
+RETRYABLE_STATUS = frozenset({408, 429, 500, 502, 503, 504})
 
 EntityVerdict = Literal["FOUND", "ZERO_CONFIRMED", "SCOPE_INCOMPLETE"]
 
@@ -62,7 +63,7 @@ class ScopeProof:
 
     @property
     def verdict(self) -> EntityVerdict:
-        if not self.query_complete or not self.pages_match:
+        if not self.query_complete or not self.pages_match or page_anomalies(self.pages, self.pages_expected):
             return "SCOPE_INCOMPLETE"
         if self.found_count > 0:
             return "FOUND"
@@ -90,6 +91,38 @@ def record_page(
     )
 
 
+def classify_http(status: int) -> str:
+    if status == 200:
+        return "ok"
+    if status == 404:
+        return "not_found"
+    if status == 408:
+        return "timeout"
+    if status in RETRYABLE_STATUS:
+        return "retryable"
+    if status == 0:
+        return "malformed"
+    return "http_error"
+
+
+def page_anomalies(pages: tuple[PageRecord, ...] | list[PageRecord], pages_expected: int) -> list[str]:
+    """Missing, duplicate, non-200, timeout and malformed pages keep scope incomplete."""
+    flags: list[str] = []
+    numbers = [p.page for p in pages]
+    if len(numbers) != len(set(numbers)):
+        flags.append("duplicate_page")
+    expected = set(range(1, pages_expected + 1)) if pages_expected else set()
+    if expected - set(numbers):
+        flags.append("missing_page")
+    for page in pages:
+        kind = classify_http(page.status)
+        if kind != "ok":
+            flags.append(kind)
+        if page.status == 200 and page.records > 0 and page.sha256 == sha256_bytes(b""):
+            flags.append("malformed")
+    return flags
+
+
 def prove_scope(
     *,
     ente_id: str,
@@ -102,6 +135,8 @@ def prove_scope(
 ) -> ScopeProof:
     if pages_expected < 0:
         raise ValueError("pages_expected must be >= 0")
+    anomalies = page_anomalies(pages, pages_expected)
+    complete = bool(query_complete) and not anomalies
     return ScopeProof(
         ente_id=ente_id,
         window=window,
@@ -110,7 +145,7 @@ def prove_scope(
         pages_fetched=len(pages),
         pages=tuple(pages),
         found_count=found_count,
-        query_complete=query_complete,
+        query_complete=complete,
     )
 
 

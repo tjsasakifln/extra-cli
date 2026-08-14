@@ -5,8 +5,10 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 
 from scripts.crawl.pncp_entity_pagination import (
+    classify_http,
     closing_requery,
     expected_pages,
+    page_anomalies,
     proof_report,
     prove_scope,
     record_page,
@@ -86,6 +88,45 @@ def test_sla_and_closing_requery() -> None:
     assert requery["complete"] is True
     missing = closing_requery(["a", "b"], {"a"})
     assert missing["missing"] == ["b"]
+
+
+def test_missing_duplicate_timeout_and_retryable_pages_are_incomplete() -> None:
+    assert classify_http(429) == "retryable"
+    assert classify_http(500) == "retryable"
+    assert classify_http(408) == "timeout"
+    assert classify_http(0) == "malformed"
+    missing = prove_scope(
+        ente_id="cnpj-3",
+        window="2026-07",
+        modalidade="6",
+        pages_expected=3,
+        pages=[_page(1), _page(3)],
+        found_count=2,
+        query_complete=True,
+    )
+    assert missing.verdict == "SCOPE_INCOMPLETE"
+    assert "missing_page" in page_anomalies(missing.pages, 3)
+    duplicate = prove_scope(
+        ente_id="cnpj-3",
+        window="2026-07",
+        modalidade="6",
+        pages_expected=2,
+        pages=[_page(1), _page(1)],
+        found_count=2,
+        query_complete=True,
+    )
+    assert duplicate.verdict == "SCOPE_INCOMPLETE"
+    retryable = prove_scope(
+        ente_id="cnpj-3",
+        window="2026-07",
+        modalidade="6",
+        pages_expected=1,
+        pages=[record_page(url="https://pncp.gov.br/x?pagina=1", status=429, body=b"", page=1, records=0)],
+        found_count=0,
+        query_complete=True,
+    )
+    assert retryable.verdict == "SCOPE_INCOMPLETE"
+    assert retryable.query_complete is False
 
 
 def test_report_relates_issues_34_and_40() -> None:
