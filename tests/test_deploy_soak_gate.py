@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from scripts.ops.deploy_soak_gate import (
+    EVIDENCE_TIERS,
     FORBIDDEN_CLAIMS,
     PENDING_HUMAN,
     command_is_masked,
@@ -82,3 +83,25 @@ def test_state_stays_pending_human_and_never_claims_vps_operational() -> None:
     payload = clean.as_dict()
     assert payload["state"] == PENDING_HUMAN
     assert "VPS_OPERATIONAL" not in payload["claims"]
+    assert "VPS_OPERATIONAL" not in payload["achieved_tiers"]
+    assert payload["ceiling"] == "SOAK_PASSED"
+    assert payload["achieved_tiers"] == ["CODE_READY", "DEPLOYED", "SOAK_PASSED"]
+
+
+def test_evidence_tiers_are_distinct_and_never_auto_vps() -> None:
+    assert EVIDENCE_TIERS == (
+        "CODE_READY",
+        "LOCAL_READY",
+        "DEPLOYED",
+        "SOAK_PASSED",
+        "VPS_OPERATIONAL",
+    )
+    code_only = decide_deploy(**_ok_kwargs(test_exit=1))
+    assert code_only.ceiling == "NONE"
+    assert code_only.achieved_tiers == []
+    local = decide_deploy(**_ok_kwargs(local_ready_evidence=True, soak_days=1))
+    assert "CODE_READY" in local.achieved_tiers
+    assert "LOCAL_READY" in local.achieved_tiers
+    assert local.ceiling == "DEPLOYED"
+    assert "SOAK_PASSED" not in local.achieved_tiers
+    assert "VPS_OPERATIONAL" not in local.achieved_tiers
