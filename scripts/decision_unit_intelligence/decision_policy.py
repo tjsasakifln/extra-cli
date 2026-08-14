@@ -214,6 +214,32 @@ _SERVICE_HINTS: list[tuple[str, re.Pattern[str]]] = [
 ]
 
 
+_LEGAL_ENTITY_MARKERS = (
+    "ltda",
+    "eireli",
+    "participacoes",
+    "participacao",
+    "holding",
+    "administradora de bens",
+    "s.a",
+    "s/a",
+    "sociedade anonima",
+    "representacoes",
+)
+_LEGAL_ENTITY_TAIL = frozenset({"sa", "me", "epp", "mei", "cia", "companhia"})
+
+
+def is_legal_entity_name(name: str | None) -> bool:
+    """True for PJ/holding QSA strings. Those are not human decision-unit members."""
+    text = fold_text(name)
+    if not text:
+        return False
+    if any(marker in text for marker in _LEGAL_ENTITY_MARKERS):
+        return True
+    tokens = text.split()
+    return bool(tokens) and tokens[-1] in _LEGAL_ENTITY_TAIL
+
+
 def canonicalize_service(code: str | None) -> str:
     raw = (code or SERVICE_GENERIC).strip().lower()
     return SERVICE_ALIASES.get(raw, raw if raw in CANONICAL_SERVICES else SERVICE_GENERIC)

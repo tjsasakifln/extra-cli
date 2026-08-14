@@ -28,12 +28,48 @@ def _strip_accents(value: str) -> str:
     return "".join(c for c in s if not unicodedata.combining(c))
 
 
+LEGAL_FORM_TOKENS = frozenset(
+    {
+        "ltda",
+        "sa",
+        "eireli",
+        "mei",
+        "me",
+        "epp",
+        "participacoes",
+        "participacao",
+        "holding",
+        "cia",
+        "companhia",
+        "administradora",
+        "bens",
+        "representacoes",
+    }
+)
+
+THIRD_PARTY_DOMAIN_MARKERS = (
+    "contabil",
+    "contador",
+    "contabilidade",
+    "advocacia",
+    "advogados",
+    "despachante",
+)
+
+
+def is_third_party_professional_domain(domain: str | None) -> bool:
+    if not domain:
+        return False
+    folded = fold_text(domain)
+    return any(marker in folded for marker in THIRD_PARTY_DOMAIN_MARKERS)
+
+
 def name_tokens(person_name: str | None) -> list[str]:
     raw = normalize_name(person_name) or ""
     folded = _strip_accents(raw).lower()
     folded = re.sub(r"[^a-z\s\-']", " ", folded)
     parts = [p for p in re.split(r"[\s\-]+", folded) if p]
-    stop = {"da", "de", "do", "das", "dos", "e", "di", "du"}
+    stop = {"da", "de", "do", "das", "dos", "e", "di", "du"} | LEGAL_FORM_TOKENS
     return [p for p in parts if p not in stop]
 
 
@@ -123,6 +159,10 @@ def official_domain_from_emails(emails: list[str], *, company_site: str | None =
         d = email_domain(e)
         if d and d not in FREEMAIL_DOMAINS:
             corp.append(d)
+    if site_domain and is_third_party_professional_domain(site_domain):
+        reasons.append("THIRD_PARTY_PROFESSIONAL_SITE_DOMAIN")
+        site_domain = None
+    corp = [d for d in corp if not is_third_party_professional_domain(d)]
     if site_domain and site_domain not in FREEMAIL_DOMAINS:
         if corp and site_domain not in corp:
             reasons.append("DOMAIN_CONFLICT_SITE_VS_EMAIL")
@@ -163,6 +203,8 @@ def derive_org_patterns(observed: list[ObservedOrgEmail]) -> dict[str, list[str]
         email = normalize_email(item.email)
         if not email or is_role_mailbox(email) or is_generic_mailbox(email):
             continue
+        if is_third_party_professional_domain(email_domain(email)):
+            continue
         pid = detect_pattern(email, item.person_name)
         if pid:
             hits.setdefault(pid, []).append(email)
@@ -179,6 +221,12 @@ def generate_inferred_emails(
     public_hits: list[str] | None = None,
     independent_corroborations: list[str] | None = None,
 ) -> list[EmailInference]:
+    if is_third_party_professional_domain(domain):
+        return []
+    from scripts.decision_unit_intelligence.decision_policy import is_legal_entity_name
+
+    if is_legal_entity_name(person_name):
+        return []
     tokens = name_tokens(person_name)
     pair = first_last(tokens)
     if not pair or not domain or domain in FREEMAIL_DOMAINS:

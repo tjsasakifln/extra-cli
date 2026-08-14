@@ -94,6 +94,7 @@ _CLASS_RANK = {
     ReachabilityClass.R2_HIGH_CONFIDENCE_DIRECT: 34,
     ReachabilityClass.R4_ROLE_ROUTE: 25,
     ReachabilityClass.R5_CORPORATE_ONLY: 10,
+    ReachabilityClass.INFERRED_UNVERIFIED: 6,
     ReachabilityClass.BLOCKED: 1,
     ReachabilityClass.R0_NO_ACTIONABLE_ROUTE: 0,
 }
@@ -235,16 +236,18 @@ def classify_channel_observation(
             if epistemic == EpistemicClass.OBSERVED:
                 raise ValueError("inferred email cannot carry epistemic_class=OBSERVED")
             verified = bool(extra.get("technically_validated") and extra.get("corroborated"))
+            if verified and suitable_person:
+                inferred_class = ReachabilityClass.R2_HIGH_CONFIDENCE_DIRECT
+            elif suitable_person:
+                inferred_class = ReachabilityClass.INFERRED_UNVERIFIED
+            else:
+                inferred_class = ReachabilityClass.R5_CORPORATE_ONLY
             return RouteDraft(
                 channel_type=ChannelType.INFERRED_DIRECT_EMAIL,
                 channel_value=value,
                 relation=RouteRelation.INFERRED_ASSOCIATION,
                 epistemic=EpistemicClass.INFERRED,
-                reachability=ReachabilityClass.R2_HIGH_CONFIDENCE_DIRECT
-                if verified and suitable_person
-                else ReachabilityClass.R2_HIGH_CONFIDENCE_DIRECT
-                if suitable_person
-                else ReachabilityClass.R5_CORPORATE_ONLY,
+                reachability=inferred_class,
                 action=ActionMode.HUMAN_REVIEW_EMAIL,
                 candidate_id=candidate_id if suitable_person else None,
                 target_role=target_role,
@@ -561,6 +564,10 @@ def person_is_suitable(candidate: DecisionUnitCandidate | None) -> bool:
     if candidate.relation != PersonRelation.COMPANY_MEMBER:
         return False
     if candidate.suitability in {ConfidenceLevel.NONE}:
+        return False
+    from scripts.decision_unit_intelligence.decision_policy import is_legal_entity_name
+
+    if is_legal_entity_name(candidate.person_name):
         return False
     return True
 

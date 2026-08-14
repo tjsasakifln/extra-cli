@@ -11,12 +11,15 @@ from scripts.decision_unit_intelligence.cohort import TRACK_A_CNPJS
 from scripts.decision_unit_intelligence.decision_policy import (
     SERVICE_REAJUSTE_14133,
     assess_role_for_service,
+    is_legal_entity_name,
     normalize_observed_role,
 )
 from scripts.decision_unit_intelligence.email_resolution import (
     ObservedOrgEmail,
     generate_inferred_emails,
+    is_third_party_professional_domain,
     mx_never_proves_mailbox,
+    name_tokens,
     official_domain_from_emails,
 )
 from scripts.decision_unit_intelligence.models import (
@@ -24,7 +27,9 @@ from scripts.decision_unit_intelligence.models import (
     ActionMode,
     ChannelObservation,
     ChannelType,
+    ConfidenceLevel,
     DecisionRoleClass,
+    DecisionUnitCandidate,
     EpistemicClass,
     PersonObservation,
     PersonRelation,
@@ -34,7 +39,13 @@ from scripts.decision_unit_intelligence.models import (
     StopReason,
 )
 from scripts.decision_unit_intelligence.orchestrator import investigate_account
-from scripts.decision_unit_intelligence.reachability import assert_no_auto_send, classify_observed_email_channel
+from scripts.decision_unit_intelligence.providers.historical_campaign import parse_qsa_blob
+from scripts.decision_unit_intelligence.reachability import (
+    assert_no_auto_send,
+    classify_channel_observation,
+    classify_observed_email_channel,
+    draft_to_route,
+)
 
 
 def _person(
@@ -232,6 +243,7 @@ def test_inferred_email_never_observed_never_auto_send():
         assert route.epistemic_class == EpistemicClass.INFERRED
         assert route.action_mode == ActionMode.HUMAN_REVIEW_EMAIL
         assert route.reachability_class != ReachabilityClass.R1_DIRECT
+        assert route.reachability_class != ReachabilityClass.R2_HIGH_CONFIDENCE_DIRECT
         assert "AUTO_SEND" not in route.reason_codes
         with pytest.raises(ValueError):
             assert_no_auto_send("AUTO_SEND")
@@ -434,6 +446,133 @@ def test_no_auto_send_constant():
     assert "AUTO_SEND" in FORBIDDEN_ACTION_MODES
     with pytest.raises(ValueError):
         assert_no_auto_send(ActionMode.HUMAN_REVIEW_EMAIL.value) if False else assert_no_auto_send("AUTO_SEND")
+
+
+def _candidate(name: str = "JOAO SILVA") -> DecisionUnitCandidate:
+    return DecisionUnitCandidate(
+        candidate_id="cand-test",
+        company_entity_id="12345678000190",
+        person_id="person-test",
+        person_name=name,
+        observed_roles=["Diretor"],
+        decision_role_class=DecisionRoleClass.DIRETOR,
+        decision_relevance=ConfidenceLevel.MEDIUM,
+        suitability=ConfidenceLevel.MEDIUM,
+    )
+
+
+def test_unverified_single_sample_inferred_email_is_not_r2():
+    inf = generate_inferred_emails(
+        person_name="João da Silva",
+        domain="empresa.com.br",
+        observed=[ObservedOrgEmail("contato@empresa.com.br", "site")],
+        mx_valid=False,
+    )
+    guess = next(i for i in inf if i.pattern_id == "first.last")
+    assert guess.epistemic_class == EpistemicClass.INFERRED
+    assert "PATTERN_NOT_OBSERVED_IN_ORG" in guess.reason_codes
+    assert not guess.corroborated
+    obs = ChannelObservation(
+        observation_id="inf-1",
+        company_entity_id="12345678000190",
+        channel_type=ChannelType.INFERRED_DIRECT_EMAIL,
+        channel_value=guess.email,
+        person_name="João da Silva",
+        source_type="email_pattern_inference",
+        epistemic_class=EpistemicClass.INFERRED,
+        extra={
+            "technically_validated": guess.technically_validated,
+            "corroborated": guess.corroborated,
+            "pattern_id": guess.pattern_id,
+            "reason_codes": guess.reason_codes,
+        },
+    )
+    draft = classify_channel_observation(obs, candidate=_candidate("João da Silva"), suitable_person=True)
+    route = draft_to_route(draft, company_entity_id="12345678000190")
+    assert route.reachability_class != ReachabilityClass.R2_HIGH_CONFIDENCE_DIRECT
+    assert route.epistemic_class == EpistemicClass.INFERRED
+    assert route.action_mode == ActionMode.HUMAN_REVIEW_EMAIL
+    assert route.route_confidence == ConfidenceLevel.LOW
+
+
+def test_verified_inferred_email_is_r2_and_still_inferred():
+    obs = ChannelObservation(
+        observation_id="inf-ok",
+        company_entity_id="12345678000190",
+        channel_type=ChannelType.INFERRED_DIRECT_EMAIL,
+        channel_value="joao.silva@empresa.com.br",
+        person_name="JOAO SILVA",
+        source_type="email_pattern_inference",
+        epistemic_class=EpistemicClass.INFERRED,
+        extra={"technically_validated": True, "corroborated": True},
+    )
+    draft = classify_channel_observation(obs, candidate=_candidate(), suitable_person=True)
+    assert draft.reachability == ReachabilityClass.R2_HIGH_CONFIDENCE_DIRECT
+    assert draft.epistemic == EpistemicClass.INFERRED
+    assert draft.action == ActionMode.HUMAN_REVIEW_EMAIL
+
+
+def test_legal_entity_qsa_never_outranks_natural_person():
+    parsed = parse_qsa_blob("TIT PARTICIPACOES LTDA (Sócio); CRISTIAN TICIANI (Sócio-Administrador)")
+    assert parsed == [("CRISTIAN TICIANI", "Sócio-Administrador")]
+    assert is_legal_entity_name("TIT PARTICIPACOES LTDA")
+    assert not is_legal_entity_name("CRISTIAN TICIANI")
+    acc = investigate_account(
+        cnpj="12345678000190",
+        legal_name="EXEMPLO",
+        service=SERVICE_REAJUSTE_14133,
+        why_now=None,
+        people=[
+            _person("TIT PARTICIPACOES LTDA", "Sócio", source="qsa_rfb"),
+            _person("CRISTIAN TICIANI", "Sócio-Administrador", source="qsa_rfb"),
+        ],
+        channels=[
+            _channel(ChannelType.COMPANY_SWITCHBOARD, "4933330000", extra={"person_owns_phone": False}),
+        ],
+        infer_email=False,
+    )
+    names = [c.person_name for c in acc.candidates]
+    assert names == ["CRISTIAN TICIANI"]
+    primary = next(c for c in acc.candidates if c.candidate_id == acc.recommendation.primary_target_id)
+    assert primary.person_name == "CRISTIAN TICIANI"
+
+
+def test_accountant_domain_and_legal_form_tokens_not_minted_as_r2():
+    assert is_third_party_professional_domain("fiscallcontabilidade.com.br")
+    assert generate_inferred_emails(
+        person_name="Lilian Maahs",
+        domain="fiscallcontabilidade.com.br",
+        observed=[ObservedOrgEmail("contato@fiscallcontabilidade.com.br", "site", person_name="LILIAN MAAHS")],
+    ) == []
+    assert generate_inferred_emails(
+        person_name="ANM PARTICIPACOES LTDA",
+        domain="empresa.com.br",
+        observed=[ObservedOrgEmail("contato@empresa.com.br", "site")],
+    ) == []
+    assert generate_inferred_emails(
+        person_name="INFRA ENGENHARIA HOLDING LTDA",
+        domain="infrasul.com.br",
+        observed=[ObservedOrgEmail("contato@infrasul.com.br", "site")],
+    ) == []
+    tokens = name_tokens("ANM PARTICIPACOES LTDA")
+    assert "ltda" not in tokens
+    assert "participacoes" not in tokens
+    domain, _ep, _reasons = official_domain_from_emails(
+        ["lilian.maahs@fiscallcontabilidade.com.br", "anm.ltda@fiscallcontabilidade.com.br"]
+    )
+    assert domain is None
+    obs = ChannelObservation(
+        observation_id="inf-acct",
+        company_entity_id="12345678000190",
+        channel_type=ChannelType.INFERRED_DIRECT_EMAIL,
+        channel_value="lilian.maahs@fiscallcontabilidade.com.br",
+        person_name="Lilian Maahs",
+        source_type="email_pattern_inference",
+        epistemic_class=EpistemicClass.INFERRED,
+        extra={"technically_validated": False, "corroborated": False},
+    )
+    draft = classify_channel_observation(obs, candidate=_candidate("Lilian Maahs"), suitable_person=True)
+    assert draft.reachability != ReachabilityClass.R2_HIGH_CONFIDENCE_DIRECT
 
 
 def test_track_a_manifest_has_thirty_real_cnpjs():

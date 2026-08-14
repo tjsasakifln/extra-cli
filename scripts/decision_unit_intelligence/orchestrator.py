@@ -15,6 +15,7 @@ from scripts.decision_unit_intelligence.decision_policy import (
     canonicalize_service,
     identity_confidence,
     is_excluded_observation,
+    is_legal_entity_name,
     normalize_observed_role,
     role_confidence,
 )
@@ -97,6 +98,8 @@ def build_candidates(
         if not usable:
             continue
         name = normalize_name(usable[0].person_name)
+        if is_legal_entity_name(name):
+            continue
         pid = person_id_for(company_entity_id, name)
         observed_roles = sorted({o.observed_role for o in usable if o.observed_role})
         role_classes = [o.normalized_role_class for o in usable if o.normalized_role_class != DecisionRoleClass.UNKNOWN]

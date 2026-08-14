@@ -14,6 +14,7 @@ from typing import Any
 from scripts.decision_unit_intelligence.decision_policy import (
     classify_person_relation,
     infer_service_from_text,
+    is_legal_entity_name,
     normalize_observed_role,
 )
 from scripts.decision_unit_intelligence.evidence import make_evidence
@@ -55,7 +56,7 @@ def parse_qsa_blob(blob: str | None) -> list[tuple[str, str | None]]:
             continue
         name = re.sub(r"\s+", " ", m.group(1)).strip(" ,")
         role = (m.group(2) or "").strip() or None
-        if len(name) >= 5 and not name.lower().startswith("nao "):
+        if len(name) >= 5 and not name.lower().startswith("nao ") and not is_legal_entity_name(name):
             people.append((name, role))
     return people
 
