@@ -90,6 +90,29 @@ def test_zero_proof_and_freshness_require_complete_window() -> None:
     assert zero_proof(incomplete)["verdict"] == "SCOPE_INCOMPLETE"
 
 
+def test_zero_proof_does_not_confirm_zero_when_all_rows_rejected() -> None:
+    job = WindowJob(ente_id="e3b", window_start="2025-01-01", window_end="2025-01-31")
+    ingest_window(
+        job,
+        pages=[_page(1)],
+        rows=[
+            {"contract_id": "bad", "value_kind": "foo", "amount": 1, "raw_uri": "x", "sha256": "y"},
+            {"contract_id": "nope", "value_kind": "pago", "amount": 1, "raw_uri": "", "sha256": ""},
+        ],
+        query_complete=True,
+        persist_ok=True,
+    )
+    assert job.status == "complete"
+    assert job.fetched == 2
+    assert job.persisted == []
+    assert len(job.rejected) == 2
+    proof = zero_proof(job)
+    assert proof["verdict"] == "REJECTED_ALL"
+    assert proof["verdict"] != "ZERO_CONFIRMED"
+    assert proof["fetched"] == 2
+    assert proof["rejected"] == 2
+
+
 def test_buyer_intel_uses_only_rows_with_provenance() -> None:
     job = WindowJob(ente_id="e4", window_start="2025-01-01", window_end="2025-12-31")
     ingest_window(

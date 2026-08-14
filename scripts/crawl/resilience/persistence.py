@@ -32,6 +32,26 @@ class PersistResult:
         return not self.errors
 
 
+def finalize_persist_provenance(
+    result: PersistResult,
+    *,
+    request_scope: str,
+    ingestion_run_id: Any,
+    inbound: dict[str, Any],
+) -> PersistResult:
+    """Keep source_projection when persist() rebuilds provenance."""
+    projected = (result.provenance or {}).get("source_projection")
+    merged: dict[str, Any] = {
+        "request_scope": request_scope,
+        "ingestion_run_id": ingestion_run_id,
+        **dict(inbound or {}),
+    }
+    if projected:
+        merged["source_projection"] = projected
+    result.provenance = merged
+    return result
+
+
 class PersistenceBackend(Protocol):
     def persist_canonical(
         self,
@@ -105,6 +125,7 @@ class InMemoryPersistence:
 
     def __init__(self) -> None:
         self.rows: dict[str, dict[str, Any]] = {}
+        self.observations: dict[tuple[str, str], Any] = {}
         self.runs: list[dict[str, Any]] = []
         self.fail_mode: str | None = None
         self.call_count = 0
@@ -161,6 +182,16 @@ class InMemoryPersistence:
             content_max_timestamp=extract_content_max_timestamp(source, records),
             provenance={"request_scope": request_scope, "run_id": run_id, **provenance},
         )
+        if source != "pncp" and records:
+            from scripts.opportunity_intel.source_projection import apply_source_projection
+
+            apply_source_projection(result, records, source, store=self.observations)
+            finalize_persist_provenance(
+                result,
+                request_scope=request_scope,
+                ingestion_run_id=result.ingestion_run_id,
+                inbound={"run_id": run_id, **provenance},
+            )
         self.runs.append(
             {
                 "source": source,
@@ -293,9 +324,9 @@ class PostgresPersistence:
                 result.opportunities_persisted = _persist_engineering_opportunities(conn, opportunities)
             elif records:
                 # Non-PNCP sources keep their own source_id. Never rewrite as PNCP.
-                from scripts.opportunity_intel.source_projection import attach_projection
+                from scripts.opportunity_intel.source_projection import apply_source_projection
 
-                attach_projection(result, records, source)
+                apply_source_projection(result, records, source)
 
             # Project resilience-aware source evidence (migration 054 columns when present).
             self._project_resilience_evidence(
@@ -324,7 +355,12 @@ class PostgresPersistence:
             )
             conn.commit()
             result.content_max_timestamp = extract_content_max_timestamp(source, records)
-            result.provenance = {"request_scope": request_scope, "ingestion_run_id": db_run_id, **provenance}
+            finalize_persist_provenance(
+                result,
+                request_scope=request_scope,
+                ingestion_run_id=db_run_id,
+                inbound=provenance,
+            )
             return result
         except Exception as exc:
             try:

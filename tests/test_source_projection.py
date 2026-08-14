@@ -94,6 +94,53 @@ def test_unsupported_source_is_rejected() -> None:
     assert result.reason == "unsupported_source"
 
 
+def test_persist_canonical_keeps_source_projection_on_the_returned_result() -> None:
+    from scripts.crawl.resilience.persistence import (
+        InMemoryPersistence,
+        PersistResult,
+        finalize_persist_provenance,
+    )
+
+    backend = InMemoryPersistence()
+    kwargs = {
+        "source": "sc_compras",
+        "records": [_sc_raw()],
+        "run_id": "run-1",
+        "request_scope": "sc:test",
+        "date_from": None,
+        "date_to": None,
+        "provenance": {"endpoint": "https://example.test/sc"},
+        "fetch_status": "success",
+        "pages_fetched": 1,
+        "pages_expected": 1,
+    }
+    first = backend.persist_canonical(**kwargs)
+    assert first.opportunities_persisted == 1
+    assert first.provenance["source_projection"]["source"] == "sc_compras"
+    assert first.provenance["source_projection"]["persisted"] == 1
+    assert ("sc_compras", "sc-2025/00001") in backend.observations
+    assert backend.observations[("sc_compras", "sc-2025/00001")].source != "pncp"
+    second = backend.persist_canonical(**kwargs)
+    assert second.provenance.get("source_projection", {}).get("source") == "sc_compras"
+    assert len(backend.observations) == 1
+    overwritten = PersistResult(provenance={"source_projection": {"source": "sc_compras", "persisted": 1}})
+    finalize_persist_provenance(
+        overwritten,
+        request_scope="sc:test",
+        ingestion_run_id=99,
+        inbound={"endpoint": "https://example.test/sc"},
+    )
+    assert overwritten.provenance["source_projection"]["source"] == "sc_compras"
+    assert overwritten.provenance["ingestion_run_id"] == 99
+    import inspect
+
+    from scripts.crawl.resilience.persistence import PostgresPersistence
+
+    postgres_src = inspect.getsource(PostgresPersistence.persist_canonical)
+    assert "finalize_persist_provenance" in postgres_src
+    assert "apply_source_projection" in postgres_src
+
+
 def test_persistence_hook_projects_non_pncp() -> None:
     from types import SimpleNamespace
 
