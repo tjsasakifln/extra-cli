@@ -99,6 +99,11 @@ def test_pii_is_tokenized() -> None:
     assert token.startswith("pii_")
     assert "123" not in token
     assert tokenize_pii("123.456.789-00") == token
+    case = _candidate(payload={"identity": "PNCP-1", "cpf": "123.456.789-00", "email": "a@b.com"})
+    assert case.payload["cpf"] == tokenize_pii("123.456.789-00")
+    assert case.payload["email"] == tokenize_pii("a@b.com")
+    assert "123.456.789-00" not in str(case.payload)
+    assert "a@b.com" not in str(case.payload)
 
 
 def test_replay_and_material_regression_blocks_promotion() -> None:

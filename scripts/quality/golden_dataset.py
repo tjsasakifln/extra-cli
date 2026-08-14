@@ -18,6 +18,7 @@ STAGE_CANDIDATE: Stage = "candidate"
 STAGE_ADJUDICATED: Stage = "adjudicated"
 STAGE_GOLDEN: Stage = "golden"
 FORBIDDEN_AUTHORITY_FIELDS = frozenset({"client", "action", "outcome", "crm", "label_model"})
+PII_KEYS = frozenset({"cpf", "email", "telefone", "phone", "nome", "nome_pessoa", "rg", "endereco", "address"})
 CRITICAL_STAGES = (
     "source_miss",
     "pagination_miss",
@@ -48,6 +49,16 @@ def tokenize_pii(value: str) -> str:
     """Deterministic tokenization — never store raw PII in the golden case."""
     digest = hashlib.sha256(value.encode("utf-8")).hexdigest()[:16]
     return f"pii_{digest}"
+
+
+def _tokenize_mapping(payload: dict[str, Any]) -> dict[str, Any]:
+    out: dict[str, Any] = {}
+    for key, value in payload.items():
+        if key.lower() in PII_KEYS and isinstance(value, str) and value:
+            out[key] = tokenize_pii(value)
+        else:
+            out[key] = value
+    return out
 
 
 @dataclass(frozen=True)
@@ -131,12 +142,14 @@ def ingest_candidate(
         raise ValueError(f"unknown public stage: {public_stage}")
     _reject_authority_fields(payload)
     _reject_authority_fields(expected)
+    safe_payload = _tokenize_mapping(payload)
+    safe_expected = _tokenize_mapping(expected)
     body = {
         "case_id": case_id,
         "public_stage": public_stage,
         "origin": origin,
-        "payload": payload,
-        "expected": expected,
+        "payload": safe_payload,
+        "expected": safe_expected,
         "published_at": published_at,
     }
     return GoldenCase(
@@ -149,8 +162,8 @@ def ingest_candidate(
         snapshot_at=snapshot_at,
         published_at=published_at,
         split=assign_split(published_at, cutoff=split_cutoff),
-        payload=dict(payload),
-        expected=dict(expected),
+        payload=safe_payload,
+        expected=safe_expected,
         license=license_name,
         content_hash=sha256_payload(body),
         version=version,
@@ -162,7 +175,7 @@ def adjudicate(case: GoldenCase, *, adjudicator: str, expected: dict[str, Any] |
     if not adjudicator.strip():
         raise ValueError("adjudicator is required")
     _reject_authority_fields(expected or {})
-    new_expected = dict(expected) if expected is not None else dict(case.expected)
+    new_expected = _tokenize_mapping(expected) if expected is not None else dict(case.expected)
     body = {
         "case_id": case.case_id,
         "public_stage": case.public_stage,
