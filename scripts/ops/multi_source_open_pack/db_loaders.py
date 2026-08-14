@@ -61,7 +61,7 @@ class JsonlSpool(Sequence):
     def __len__(self) -> int:
         return self._count
 
-    def __iter__(self):
+    def __iter__(self) -> Any:
         self._cache = []
         self._cache_start = -1
         batch: list[Any] = []
@@ -80,7 +80,7 @@ class JsonlSpool(Sequence):
                 self.peak_retained = max(self.peak_retained, len(batch))
                 yield from batch
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int | slice) -> Any:
         if isinstance(index, slice):
             return [self[i] for i in range(*index.indices(self._count))]
         if index < 0:
@@ -105,7 +105,10 @@ class JsonlSpool(Sequence):
 
 
 def _row_from_json(line: str) -> dict[str, Any]:
-    return json.loads(line)
+    payload = json.loads(line)
+    if not isinstance(payload, dict):
+        raise TypeError("spool row must be a JSON object")
+    return payload
 
 
 def _observation_from_json(line: str) -> SourceObservation:
@@ -283,7 +286,7 @@ def _stream_snapshot_rows(
         if hasattr(cur, "itersize"):
             cur.itersize = page_size
         cur.execute(sql, params)
-        with spool_path.open("w", encoding="utf-8") as spool:
+        with spool_path.open("w", encoding="utf-8") as spool_fh:
             while True:
                 batch = cur.fetchmany(page_size)
                 if not batch:
@@ -330,8 +333,8 @@ def _stream_snapshot_rows(
                             f"{source}: estimated memory {estimated_memory_bytes} exceeds "
                             f"budget {memory_budget_bytes}; use a report-ready projection"
                         )
-                    spool.write(encoded)
-                    spool.write("\n")
+                    spool_fh.write(encoded)
+                    spool_fh.write("\n")
                     rows_read += 1
     finally:
         close = getattr(cur, "close", None)
@@ -549,7 +552,7 @@ def load_opportunity_intel_observations(
     statuses: tuple[str, ...] = ("open", "upcoming"),
     page_size: int = DEFAULT_SNAPSHOT_PAGE_SIZE,
     memory_budget_bytes: int | None = None,
-) -> list[SourceObservation]:
+) -> Sequence[SourceObservation]:
     observations, _snapshot = load_opportunity_intel_snapshot(
         conn,
         statuses=statuses,
@@ -649,7 +652,7 @@ def load_official_acts_observations(
     lookback_days: int = 45,
     page_size: int = DEFAULT_SNAPSHOT_PAGE_SIZE,
     memory_budget_bytes: int | None = None,
-) -> list[SourceObservation]:
+) -> Sequence[SourceObservation]:
     observations, _snapshot = load_official_acts_snapshot(
         conn,
         lookback_days=lookback_days,
@@ -767,7 +770,7 @@ def load_all_lake_observations(
     peak_retained = 0
     effective_memory_budget = memory_budget_bytes or _memory_budget_bytes()
 
-    def _append_obs(handle, items) -> int:
+    def _append_obs(handle: Any, items: Any) -> int:
         count = 0
         batch_peak = 0
         batch = 0
