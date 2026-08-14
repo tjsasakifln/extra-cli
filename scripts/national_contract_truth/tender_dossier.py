@@ -120,6 +120,22 @@ def build_dossier(inputs: DossierInputs, *, previous: TenderDossier | None = Non
             claims=inputs.claims,
             next_action="locate_claim",
         )
+    unobserved = [
+        claim.claim_id
+        for claim in inputs.claims
+        if str(claim.evidence_state or "").casefold() not in {"observed", "verified"}
+    ]
+    if unobserved:
+        return TenderDossier(
+            tender_id=inputs.tender_id,
+            dossier_version=(previous.dossier_version + 1) if previous else 1,
+            snapshot_id=inputs.snapshot_id,
+            state="BLOCKED",
+            reason_code="CLAIM_WITHOUT_EVIDENCE",
+            input_hash=digest,
+            claims=inputs.claims,
+            next_action="observe_claim_evidence",
+        )
     version = 1
     if previous is not None:
         superseded_state: DossierState = "SUPERSEDED"

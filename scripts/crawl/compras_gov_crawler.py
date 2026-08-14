@@ -233,13 +233,18 @@ def _fetch_page(url: str) -> tuple[list[dict], bool, int | None, int | None]:
     data = _make_request(url)
     if data is None:
         return [], False, None, None
+    if not isinstance(data, dict) or "resultado" not in data:
+        return [], False, None, None
 
-    records = data.get("resultado", [])
+    records = data.get("resultado")
     if not isinstance(records, list):
-        return [], False, data.get("totalPaginas"), 200
+        return [], False, None, None
 
-    paginas_restantes = data.get("paginasRestantes", 0)
-    has_more = paginas_restantes > 0
+    if "paginasRestantes" not in data:
+        # Unknown remaining pages cannot be treated as exhaustion.
+        has_more = True
+    else:
+        has_more = bool(data.get("paginasRestantes"))
     return records, has_more, data.get("totalPaginas"), 200
 
 

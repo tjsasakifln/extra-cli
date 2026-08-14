@@ -254,6 +254,33 @@ class TestIssue251ComprasGov:
         empty_ok = classify_fetch(http_status=200, records=[], error=None)
         assert empty_ok.status == "ZERO"
 
+    def test_malformed_200_body_is_failed_not_zero(self):
+        monkey = pytest.MonkeyPatch()
+        monkey.setattr(cgc, "_make_request", lambda _url: {"erro": "indisponivel"})
+        monkey.setattr(cgc, "REQUEST_DELAY", 0)
+        try:
+            with pytest.raises(ComprasGovIngestError) as exc:
+                cgc._paginate("/modulo-contratacoes/x", {"tamanhoPagina": 1}, max_pages=2)
+            assert exc.value.status == "FAILED"
+        finally:
+            monkey.undo()
+
+    def test_missing_pagination_metadata_at_cap_is_truncated(self):
+        payload = {"resultado": [{"numeroControlePNCP": "1", "objetoCompra": "x"}]}
+
+        def fake_request(_url: str):
+            return payload
+
+        monkey = pytest.MonkeyPatch()
+        monkey.setattr(cgc, "_make_request", fake_request)
+        monkey.setattr(cgc, "REQUEST_DELAY", 0)
+        try:
+            with pytest.raises(ComprasGovIngestError) as exc:
+                cgc._paginate("/modulo-contratacoes/x", {"tamanhoPagina": 1}, max_pages=1)
+            assert exc.value.status == "PAGINATION_TRUNCATED"
+        finally:
+            monkey.undo()
+
     def test_max_pages_truncation_fails_closed_through_crawler(self):
         payload = {
             "resultado": [{"numeroControlePNCP": "1", "objetoCompra": "x"}],
@@ -494,6 +521,12 @@ class TestIssue345TenderDossier:
         dossier = build_dossier(self._inputs(document_hashes=(), required_document_hashes=("doc-edital",)))
         assert dossier.state == "BLOCKED"
         assert dossier.reason_code == "MISSING_REQUIRED_DOCUMENT"
+
+    def test_claim_without_observed_evidence_cannot_complete(self):
+        claims = (DossierClaim("objeto", "reforma", "pncp", "doc-edital", "p.3", "ext-1", "pol-1", "missing"),)
+        dossier = build_dossier(self._inputs(claims=claims))
+        assert dossier.state == "BLOCKED"
+        assert dossier.reason_code == "CLAIM_WITHOUT_EVIDENCE"
 
     def test_claim_without_locator_cannot_complete(self):
         claims = (DossierClaim("valor", 10, "pncp", "doc-edital", None, "ext-1", "pol-1", "observed"),)
