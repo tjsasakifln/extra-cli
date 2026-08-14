@@ -36,6 +36,8 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
+from scripts.coverage.covered_entity import COVERED_ENTITY_FORMULA as COVERED_ENTITY_FORMULA  # noqa: E402
+
 DSN = os.getenv(
     "LOCAL_DATALAKE_DSN",
     "postgresql://postgres@127.0.0.1:5433/pncp_datalake",

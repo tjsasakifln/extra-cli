@@ -23,6 +23,8 @@ from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
+from scripts.coverage.covered_entity import COVERED_ENTITY_FORMULA as COVERED_ENTITY_FORMULA
+
 _logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------

@@ -16,6 +16,7 @@ from typing import Any
 import requests
 
 from scripts.contracts_identity import normalize_supplier_identity
+from scripts.contracts_truth import canonical_contract_identity
 from scripts.crawl.common import safe_float, safe_int
 from scripts.crawl.dlq_sync import dlq_write
 from scripts.crawl.ingestion._base.crawler import CrawlRequest, FetchResult
@@ -838,7 +839,20 @@ def transform_contracts(raw_records: list[dict[str, Any]]) -> list[dict[str, Any
             str(ano_contrato or ""),
             str(sequencial_contrato or ""),
         ]
-        contrato_id = "|".join(contrato_id_parts) if all(contrato_id_parts) else None
+        official_id = (
+            raw.get("numeroControlePNCP")
+            or raw.get("numeroControlePncp")
+            or numero_controle
+        )
+        ident = canonical_contract_identity(
+            source="pncp",
+            official_id=str(official_id).strip() if official_id else None,
+            parent_procurement_id=str(numero_controle).strip() if numero_controle else None,
+            fallback_parts=contrato_id_parts,
+        )
+        contrato_id = ident.source_contract_id if ident.method == "official" else (
+            "|".join(contrato_id_parts) if all(contrato_id_parts) else ident.source_contract_id
+        )
 
         import hashlib
 
@@ -887,8 +901,11 @@ def transform_contracts(raw_records: list[dict[str, Any]]) -> list[dict[str, Any
                 "valor_parcela": safe_float(raw.get("valorParcela")),
                 "valor_acumulado": safe_float(raw.get("valorAcumulado")),
                 "content_hash": content_hash,
-                "source": "pncp",
-                "source_id": numero_controle or contrato_id,
+                "source": ident.source,
+                "source_id": ident.source_contract_id,
+                "canonical_contract_id": ident.canonical_contract_id,
+                "source_contract_id": ident.source_contract_id,
+                "parent_procurement_id": ident.parent_procurement_id,
             }
         )
     return transformed

@@ -107,8 +107,9 @@ def test_more_than_ten_thousand_rows_are_read_exactly_once(
     assert snapshot["complete"] is True
     assert snapshot["presentation_truncated"] is False
     assert snapshot["estimated_memory_bytes"] < snapshot["memory_budget_bytes"]
-    assert snapshot["memory_accounting"] == "estimated_payload_guard_not_physical_bound"
-    assert snapshot["physical_memory_bounded"] is False
+    assert snapshot["memory_accounting"] == "chunk_spool_physical_bound"
+    assert snapshot["physical_memory_bounded"] is True
+    assert snapshot["peak_retained_items"] <= page_size
     assert peak_memory < snapshot["memory_budget_bytes"]
     assert connection.cursor_name.startswith("extra_opportunity_intel_")
     assert "LIMIT" not in connection.sql.upper()

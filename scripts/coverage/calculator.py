@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import Any
 
 from config.logging_config import get_logger
+from scripts.coverage.covered_entity import COVERED_ENTITY_FORMULA
 
 logger = get_logger(__name__)
 
@@ -86,6 +87,7 @@ def report_coverage(conn: Any) -> dict[str, Any]:
     ]
 
     cur.close()
+    result["covered_entity_formula"] = f"{COVERED_ENTITY_FORMULA.__module__}.{COVERED_ENTITY_FORMULA.__name__}"
     return result
 
 

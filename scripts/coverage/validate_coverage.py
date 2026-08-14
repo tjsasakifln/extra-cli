@@ -23,6 +23,8 @@ from pathlib import Path
 
 import psycopg2
 
+from scripts.coverage.covered_entity import COVERED_ENTITY_FORMULA as COVERED_ENTITY_FORMULA
+
 DSN = os.getenv("LOCAL_DATALAKE_DSN", "postgresql://postgres@127.0.0.1:5433/pncp_datalake")
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 OUTPUT_DIR = BASE_DIR / "docs" / "epic-coverage"

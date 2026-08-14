@@ -33,6 +33,10 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
+from scripts.contracts_truth import (  # noqa: E402
+    refuse_writer_bypass,
+    resolve_checkpoint_dir,
+)
 from scripts.crawl.contracts_checkpoint_contract import (  # noqa: E402
     LOGICAL_JOB_INCREMENTAL,
     archive_checkpoint,
@@ -103,6 +107,17 @@ def main(argv: list[str] | None = None) -> int:
         print("ERROR: --days must be in 1..90 for incremental path", file=sys.stderr)
         return 2
 
+    refuse_writer_bypass(
+        skip_lock=args.skip_lock,
+        env_skip=os.getenv("CONTRACTS_SKIP_WRITER_LOCK", "0"),
+    )
+    if args.checkpoint_dir:
+        args.checkpoint_dir = str(
+            resolve_checkpoint_dir(
+                args.checkpoint_dir,
+                production=os.getenv("EXTRA_CONTRACTS_PRODUCTION", "0") == "1",
+            )
+        )
     lock = None
     if not args.skip_lock and os.getenv("CONTRACTS_SKIP_WRITER_LOCK", "0") != "1":
         lock = acquire_or_exit(owner_note="run_contracts_incremental")

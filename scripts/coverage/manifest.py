@@ -20,6 +20,8 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any
 
+from scripts.coverage.covered_entity import COVERED_ENTITY_FORMULA as COVERED_ENTITY_FORMULA
+
 
 @dataclass
 class CoverageManifestEntry:
