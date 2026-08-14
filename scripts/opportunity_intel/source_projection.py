@@ -7,6 +7,8 @@ an external platform becomes an observation that keeps ``source`` and
 
 from __future__ import annotations
 
+import hashlib
+import json
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from typing import Any
@@ -47,6 +49,8 @@ REASON_SOURCE_RENAMED_PNCP = "source_renamed_as_pncp"
 REASON_MISSING_IDENTITY = "missing_identity"
 REASON_EMPTY_OBJECT = "empty_object"
 REASON_UNSUPPORTED_SOURCE = "unsupported_source"
+REASON_CLIENT_AUTHORITY = "client_id_not_authority"
+FORBIDDEN_TRUTH_KEYS = frozenset({"client_id", "client", "action", "outcome"})
 
 
 def _utc_now() -> str:
@@ -66,6 +70,7 @@ class Observation:
     identity: str
     payload: dict[str, Any]
     projected_at: str
+    history: tuple[dict[str, Any], ...] = ()
 
     def upsert_key(self) -> tuple[str, str]:
         return self.source, self.source_id
@@ -114,6 +119,16 @@ def _as_text(value: Any) -> str:
     return str(value).strip()
 
 
+def _payload_fingerprint(payload: dict[str, Any]) -> str:
+    encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, default=str).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _truth_payload(raw: dict[str, Any]) -> dict[str, Any]:
+    """Copy the raw body without CRM/client authority fields."""
+    return {key: value for key, value in raw.items() if key not in FORBIDDEN_TRUTH_KEYS}
+
+
 def _extract_source_id(raw: dict[str, Any], source: str) -> str:
     for key in (
         "source_id",
@@ -158,6 +173,13 @@ def project_raw(raw: dict[str, Any], *, source: str) -> Observation | Rejection:
             reason=REASON_SOURCE_RENAMED_PNCP,
             detail="projeção recusou rebatizar a fonte como PNCP",
         )
+    if any(key in raw for key in FORBIDDEN_TRUTH_KEYS) and not _extract_source_id(raw, declared):
+        return Rejection(
+            source=declared,
+            source_id=None,
+            reason=REASON_CLIENT_AUTHORITY,
+            detail="client_id/action/outcome não são identidade no truth plane",
+        )
     source_id = _extract_source_id(raw, declared)
     if not source_id:
         return Rejection(source=declared, source_id=None, reason=REASON_MISSING_IDENTITY, detail="source_id ausente")
@@ -187,18 +209,26 @@ def project_raw(raw: dict[str, Any], *, source: str) -> Observation | Rejection:
         uf=_as_text(raw.get("uf") or raw.get("UF")).upper() or None,
         status=_extract_status(raw),
         identity=f"{declared}:{source_id}",
-        payload=dict(raw),
+        payload=_truth_payload(raw),
         projected_at=_utc_now(),
+        history=(),
     )
 
 
 def apply_terminal(existing: Observation, incoming: Observation) -> Observation:
-    """Terminal events update state; identity stays the original source."""
+    """Terminal events update state; identity and prior observations stay."""
     if incoming.upsert_key() != existing.upsert_key():
         raise ValueError("terminal update requires the same upsert key")
+    same_payload = _payload_fingerprint(existing.payload) == _payload_fingerprint(incoming.payload)
+    if existing.status == incoming.status and existing.objeto == (incoming.objeto or existing.objeto) and same_payload:
+        return existing
+    snapshot = {
+        "status": existing.status,
+        "payload_sha256": _payload_fingerprint(existing.payload),
+        "projected_at": existing.projected_at,
+        "objeto": existing.objeto,
+    }
     status = incoming.status if incoming.status in TERMINAL_STATUSES else existing.status
-    if incoming.status in TERMINAL_STATUSES:
-        status = incoming.status
     return Observation(
         source=existing.source,
         source_id=existing.source_id,
@@ -211,6 +241,7 @@ def apply_terminal(existing: Observation, incoming: Observation) -> Observation:
         identity=existing.identity,
         payload=dict(incoming.payload),
         projected_at=_utc_now(),
+        history=existing.history + (snapshot,),
     )
 
 

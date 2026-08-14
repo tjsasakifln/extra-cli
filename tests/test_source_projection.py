@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from scripts.opportunity_intel.source_projection import (
+    REASON_CLIENT_AUTHORITY,
     REASON_SOURCE_RENAMED_PNCP,
     Observation,
     Rejection,
@@ -122,3 +123,31 @@ def test_projection_invariant_holds_for_mixed_batch() -> None:
     assert batch.fetched == 2
     assert len(batch.persisted) == 1
     assert len(batch.rejected) == 1
+
+
+def test_replay_same_snapshot_is_idempotent_and_keeps_history() -> None:
+    store: dict[tuple[str, str], Observation] = {}
+    first = project_source_batch([_sc_raw(status="aberto")], source="sc_compras", store=store)
+    second = project_source_batch([_sc_raw(status="aberto")], source="sc_compras", store=store)
+    assert first.balanced and second.balanced
+    assert len(store) == 1
+    assert store[("sc_compras", "sc-2025/00001")] is second.persisted[0]
+    assert second.persisted[0].history == ()
+    project_source_batch([_sc_raw(status="revogado")], source="sc_compras", store=store)
+    observed = store[("sc_compras", "sc-2025/00001")]
+    assert observed.status == "revogado"
+    assert observed.history[0]["status"] == "aberto"
+    assert observed.history[0]["payload_sha256"]
+    assert len(observed.history) == 1
+
+
+def test_client_id_is_not_truth_plane_authority() -> None:
+    rejected = project_raw({"client_id": "crm-99", "objeto": "obra"}, source="sc_compras")
+    assert isinstance(rejected, Rejection)
+    assert rejected.reason == REASON_CLIENT_AUTHORITY
+    obs = project_raw(_sc_raw(client_id="crm-99", action="bid", outcome="won"), source="sc_compras")
+    assert isinstance(obs, Observation)
+    assert "client_id" not in obs.payload
+    assert "action" not in obs.payload
+    assert "outcome" not in obs.payload
+    assert obs.source_id == "sc-2025/00001"
