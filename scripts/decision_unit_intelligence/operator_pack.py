@@ -1,0 +1,104 @@
+"""Operator-friendly cards. One account per card. Immediately usable."""
+
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Any
+
+from scripts.decision_unit_intelligence.models import AccountInvestigation
+from scripts.decision_unit_intelligence.repository import write_json
+
+
+def build_card(account: AccountInvestigation) -> dict[str, Any]:
+    people = {c.candidate_id: c for c in account.candidates}
+    routes = {r.route_id: r for r in account.routes}
+    rec = account.recommendation
+    primary = people.get(rec.primary_target_id) if rec and rec.primary_target_id else None
+    route = routes.get(rec.primary_route_id) if rec and rec.primary_route_id else None
+    secondary = [people[i] for i in (rec.secondary_target_ids if rec else []) if i in people]
+    alts = [routes[i] for i in (rec.alternative_route_ids if rec else []) if i in routes]
+    action = ""
+    do_not_claim = []
+    if route and primary and route.channel_type.value == "COMPANY_SWITCHBOARD":
+        action = (
+            f"Ligar para {route.channel_value} e pedir por {primary.person_name}."
+        )
+        do_not_claim.append("Não alegar que o telefone pertence à pessoa.")
+    elif route:
+        action = route.next_action or ""
+    return {
+        "empresa": account.legal_name,
+        "cnpj": account.cnpj,
+        "why_now": account.why_now,
+        "oferta_recomendada": account.service_context,
+        "primary_decision_unit_target": primary.person_name if primary else None,
+        "role_evidence": {
+            "observed_roles": primary.observed_roles if primary else [],
+            "decision_role_class": primary.decision_role_class.value if primary else None,
+            "reason_codes": primary.reason_codes if primary else [],
+            "inferred_decision_relevance": primary.inferred_decision_relevance if primary else None,
+        },
+        "primary_route": route.channel_type.value if route else None,
+        "route_class": route.reachability_class.value if route else account.extra.get("account_reachability_class"),
+        "action_mode": rec.action_mode.value if rec else None,
+        "channel": route.channel_value if route else None,
+        "exact_next_action": action or (rec.next_action if rec else None),
+        "secondary_target": secondary[0].person_name if secondary else None,
+        "alternative_routes": [
+            {
+                "class": a.reachability_class.value,
+                "channel_type": a.channel_type.value,
+                "channel": a.channel_value,
+                "action": a.action_mode.value,
+            }
+            for a in alts
+        ],
+        "confidence_dimensions": rec.dimensions if rec else {},
+        "evidence_links": [r.source_url for r in account.routes if r.source_url],
+        "warnings": account.warnings + (rec.warnings if rec else []),
+        "do_not_claim": do_not_claim,
+        "terminal": account.terminal.value,
+    }
+
+
+def render_markdown(cards: list[dict[str, Any]]) -> str:
+    lines = [
+        "# Decision-Unit Reachability — pack operacional",
+        "",
+        "Cada card é uma próxima ação humana. E-mail não é o produto.",
+        "",
+    ]
+    for card in cards:
+        lines.extend(
+            [
+                f"## {card.get('empresa') or card.get('cnpj')}",
+                f"- CNPJ: `{card.get('cnpj')}`",
+                f"- Why now: {card.get('why_now') or 'n/d'}",
+                f"- Oferta: `{card.get('oferta_recomendada')}`",
+                f"- Primary target: **{card.get('primary_decision_unit_target') or '—'}**",
+                f"- Papel/evidência: {card.get('role_evidence')}",
+                f"- Primary route: `{card.get('primary_route')}` / `{card.get('route_class')}`",
+                f"- Action mode: `{card.get('action_mode')}`",
+                f"- Canal: `{card.get('channel')}`",
+                f"- **AÇÃO:** {card.get('exact_next_action')}",
+                f"- Secondary: {card.get('secondary_target') or '—'}",
+                f"- Alternativas: {card.get('alternative_routes')}",
+                f"- Dimensões: {card.get('confidence_dimensions')}",
+                f"- Evidence: {card.get('evidence_links')}",
+                f"- Warnings: {card.get('warnings')}",
+                f"- Terminal: `{card.get('terminal')}`",
+            ]
+        )
+        for w in card.get("do_not_claim") or []:
+            lines.append(f"- **NÃO ALEGAR:** {w}")
+        lines.append("")
+    return "\n".join(lines) + "\n"
+
+
+def write_operator_pack(cards: list[dict[str, Any]], directory: Path) -> dict[str, str]:
+    directory.mkdir(parents=True, exist_ok=True)
+    json_path = directory / "cards.json"
+    md_path = directory / "cards.md"
+    write_json(json_path, {"n": len(cards), "cards": cards})
+    md_path.write_text(render_markdown(cards), encoding="utf-8")
+    return {"json": str(json_path), "md": str(md_path)}
