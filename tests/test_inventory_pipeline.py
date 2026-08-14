@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import io
 import zipfile
-
 from types import SimpleNamespace
 
 from scripts.process_documents.inventory_pipeline import (
