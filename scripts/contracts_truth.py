@@ -661,6 +661,17 @@ def annotate_transformed_contract(record: dict[str, Any], *, raw: Mapping[str, A
     record["source"] = ident.source
     record["source_contract_id"] = ident.source_contract_id
     record["parent_procurement_id"] = ident.parent_procurement_id
+    lineage_keys = ("run_id", "_run_id", "attempt_id", "_attempt_id", "page", "_page")
+    if payload is not None and any(payload.get(k) not in (None, "") for k in lineage_keys):
+        from scripts.crawl.observation_lineage import attach_lineage, lineage_from_envelope
+
+        official = str(
+            record.get("source_url")
+            or payload.get("official_url")
+            or payload.get("url")
+            or ""
+        )
+        attach_lineage(record, lineage_from_envelope(dict(payload), default_url=official or None))
     return record
 
 
