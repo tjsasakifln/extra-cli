@@ -3,14 +3,14 @@
 Version: `v1.0.0`
 
 Owner: Extra canonical truth plane
-Consumer tracked separately: `tjsasakifln/SmartLic#2108`
+Canonical consumer: `tjsasakifln/web-cfg#60` at `confenge.com.br`
 
 ## Boundary
 
 `public_read_v1` is a server-side, versioned, SELECT-only projection over the
 latest `READY_CANONICAL` public snapshot. It is not a second DataLake, browser
 API, synchronization feed, or place for client scores. The PostgreSQL role
-`smartlic_public_reader` has no password in this repository, no access to the
+`smartlic_public_reader` is a legacy implementation name retained for v1 compatibility; it has no password in this repository, no access to the
 `public` schema and no write/DDL privileges. Runtime credentials must remain in
 server-side secret storage and must never enter JS bundles, HTML, source maps or
 browser requests.
@@ -25,7 +25,7 @@ show staleness and kill-switch state.
 
 ## MVP families and representative queries
 
-| Family | Required fields | SmartLic query |
+| Family | Required fields | Public web query |
 |---|---|---|
 | `current_snapshot` | snapshot/content and seven input hashes, `as_of`, completeness, provenance | current public revision and cache key |
 | `tenders` | event/process/type/status/title/publication/official number, origin metadata | tender detail/status/document history by `process_key` |
@@ -54,7 +54,7 @@ Role defaults: read-only transactions, 2 s statement timeout, 500 ms lock
 timeout and 5 s idle-in-transaction timeout. Rollout is shadow → fixture
 reconciliation → no-traffic soak → bounded canary → continuous gate. Local
 PostgreSQL tests prove permissions, schema shape, repeatable reads and query
-plans; they do not prove Netcup readiness, live SmartLic cutover, combined-load
+plans; they do not prove Netcup readiness, live canonical web-consumer cutover, combined-load
 soak, or `VPS_OPERATIONAL`.
 
 ## Changelog
