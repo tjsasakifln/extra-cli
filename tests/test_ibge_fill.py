@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from scripts.lib.universe import normalize_codigo_ibge
+from scripts.lib.universe import load_canonical_universe, normalize_codigo_ibge, resolve_default_seed_path
 from scripts.universe.ibge_fill import (
     FLORIANOPOLIS_IBGE,
     IbgeFillError,
@@ -12,6 +12,7 @@ from scripts.universe.ibge_fill import (
     apply_ibge_fill,
     catalog_hash,
     list_missing_included,
+    load_overlay,
     lookup_official_ibge,
     rows_from_canonical_universe,
 )
@@ -90,8 +91,8 @@ def test_fill_writes_only_ibge_and_preserves_1093_identity() -> None:
 
 
 def test_seed_has_exactly_19_included_missing_and_fills_florianopolis() -> None:
-    rows = rows_from_canonical_universe()
-    included = [r for r in rows if r.included]
+    raw = rows_from_canonical_universe(apply_overlay=False)
+    included = [r for r in raw if r.included]
     assert len(included) == 1093
     missing = list_missing_included(tuple(included))
     municipal = [r for r in missing if r.municipio.upper() != "SANTA CATARINA"]
@@ -102,10 +103,34 @@ def test_seed_has_exactly_19_included_missing_and_fills_florianopolis() -> None:
     assert report.included_before == 1093
     assert {f.codigo_ibge for f in report.filled} == {FLORIANOPOLIS_IBGE}
     assert {r.identity_tuple() for r in included} == {r.identity_tuple() for r in enriched}
-    # State-level rows with UF-only "42" stay untouched (not among the 19).
-    state_missing = [r for r in missing if r.municipio.upper() == "SANTA CATARINA"]
-    assert state_missing
-    state_keys = {r.canonical_entity_key for r in state_missing}
-    after_by_key = {r.canonical_entity_key: r for r in enriched}
-    for key in list(state_keys)[:3]:
-        assert after_by_key[key].codigo_ibge == next(r.codigo_ibge for r in included if r.canonical_entity_key == key)
+
+
+def test_product_load_persists_19_florianopolis_codes() -> None:
+    """The universe the product loads must show the 19 fills, not the raw seed gap."""
+    seed = resolve_default_seed_path()
+    before = load_canonical_universe(seed_path=seed, apply_ibge_overlay=False)
+    after = load_canonical_universe(seed_path=seed)
+    assert len(before.included) == len(after.included) == 1093
+    overlay = load_overlay()
+    assert len(overlay["fills"]) == 19
+    assert {row["codigo_ibge"] for row in overlay["fills"]} == {FLORIANOPOLIS_IBGE}
+    filled_cnpj = {row["cnpj8"] for row in overlay["fills"]}
+    before_ids = {(e.entity_id, e.cnpj8, e.distancia_km, e.radius_decision, e.within_radius) for e in before.included}
+    after_ids = {(e.entity_id, e.cnpj8, e.distancia_km, e.radius_decision, e.within_radius) for e in after.included}
+    assert before_ids == after_ids
+    loaded = [e for e in after.included if e.cnpj8 in filled_cnpj]
+    assert len(loaded) == 19
+    assert {e.codigo_ibge for e in loaded} == {FLORIANOPOLIS_IBGE}
+    assert {e.municipio.upper() for e in loaded} == {"FLORIANOPOLIS"}
+    raw_missing = [
+        e
+        for e in before.included
+        if not normalize_codigo_ibge(e.codigo_ibge) and e.municipio.upper() != "SANTA CATARINA"
+    ]
+    assert len(raw_missing) == 19
+    still_missing_municipal = [
+        e
+        for e in after.included
+        if not normalize_codigo_ibge(e.codigo_ibge) and e.municipio.upper() != "SANTA CATARINA"
+    ]
+    assert still_missing_municipal == []

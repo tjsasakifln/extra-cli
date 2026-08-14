@@ -12,6 +12,7 @@ import json
 import unicodedata
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
 from scripts.lib.universe import normalize_codigo_ibge
@@ -208,11 +209,55 @@ def apply_ibge_fill(
     return enriched, report
 
 
-def rows_from_canonical_universe() -> tuple[UniverseIbgeRow, ...]:
+OVERLAY_PATH = Path(__file__).resolve().parent / "data" / "ibge_fill_overlay.json"
+
+
+def load_overlay(path: Path | None = None) -> dict[str, Any]:
+    overlay_path = path or OVERLAY_PATH
+    payload = json.loads(overlay_path.read_text(encoding="utf-8"))
+    fills = payload.get("fills") or []
+    if not fills:
+        raise IbgeFillError("overlay has no fills")
+    for row in fills:
+        code = normalize_codigo_ibge(row.get("codigo_ibge"))
+        if code != str(row.get("codigo_ibge") or ""):
+            raise IbgeFillError(f"overlay_invalid_code:{row.get('canonical_entity_key')}")
+    return payload
+
+
+def apply_overlay_to_universe(universe: Any, *, overlay: dict[str, Any] | None = None) -> Any:
+    """Write overlay codes onto the loaded seed. Only codigo_ibge changes."""
+    from dataclasses import replace
+
+    payload = overlay if overlay is not None else load_overlay()
+    by_cnpj = {str(row["cnpj8"]): row for row in payload["fills"]}
+    updated = []
+    applied = 0
+    for entity in universe.entities:
+        fill = by_cnpj.get(entity.cnpj8)
+        if fill is None or normalize_codigo_ibge(entity.codigo_ibge):
+            updated.append(entity)
+            continue
+        if _fold(entity.municipio) != _fold(fill.get("municipio")):
+            raise IbgeFillError(f"overlay_municipio_mismatch:{entity.entity_id}")
+        if entity.within_radius is not True:
+            updated.append(entity)
+            continue
+        updated.append(replace(entity, codigo_ibge=str(fill["codigo_ibge"])))
+        applied += 1
+    if applied != len(by_cnpj):
+        raise IbgeFillError(f"overlay_apply_count:{applied}!={len(by_cnpj)}")
+    return replace(universe, entities=updated)
+
+
+def rows_from_canonical_universe(*, apply_overlay: bool = True) -> tuple[UniverseIbgeRow, ...]:
     """Adapter over the shipped seed. Fill logic does not depend on openpyxl internals."""
     from scripts.lib.universe import load_canonical_universe, resolve_default_seed_path
 
-    universe = load_canonical_universe(seed_path=resolve_default_seed_path())
+    universe = load_canonical_universe(
+        seed_path=resolve_default_seed_path(),
+        apply_ibge_overlay=apply_overlay,
+    )
     rows: list[UniverseIbgeRow] = []
     for entity in universe.entities:
         rows.append(
