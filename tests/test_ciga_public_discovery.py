@@ -9,8 +9,10 @@ import pytest
 
 from scripts.crawl.ciga_public_discovery import (
     classify_http,
+    detect_mime,
     discovery_report,
     fetch_public,
+    invalidate_checkpoint,
     page_evidence,
     period_covers,
     reconcile_municipalities,
@@ -77,6 +79,9 @@ def test_zip_slip_and_bomb_fail_closed() -> None:
             archive.writestr(f"f{i}.txt", "x" * 10)
     with pytest.raises(ValueError, match="zip_bomb_too_many_members"):
         safe_extract_zip(bomb.getvalue(), max_members=2)
+    with pytest.raises(ValueError, match="mime_mismatch"):
+        safe_extract_zip(b"%PDF-1.4 not-a-zip", declared_mime="application/zip")
+    assert detect_mime(bomb.getvalue()) == "application/zip"
 
 
 def test_page_evidence_has_raw_uri_and_sha256() -> None:
@@ -101,3 +106,12 @@ def test_period_covers_2025_and_report_forbids_silent_zero() -> None:
     assert report["silent_zero_forbidden"] is False
     assert report["municipalities"][0]["status"] == "SCOPE_INCOMPLETE"
     assert report["sla_hours"] == 24
+    assert invalidate_checkpoint("aaa", "bbb") == "invalidate"
+    drifted = discovery_report(
+        resolved={"ok": True},
+        verdicts=[],
+        pages=[],
+        previous_snapshot_hash="old",
+        current_snapshot_hash="new",
+    )
+    assert drifted["checkpoint"] == "invalidate"

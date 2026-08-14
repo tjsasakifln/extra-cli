@@ -146,8 +146,39 @@ def period_covers(start: str, snapshot: str) -> bool:
     return start <= PERIOD_START and snapshot >= PERIOD_START
 
 
-def safe_extract_zip(data: bytes, *, max_members: int = 200, max_uncompressed: int = 50_000_000) -> list[ZipMember]:
-    """Extract ZIP members. Zip-slip, bombs and traversal fail closed."""
+def detect_mime(data: bytes, declared: str | None = None) -> str:
+    if data.startswith(b"%PDF"):
+        return "application/pdf"
+    if data.startswith(b"PK"):
+        return "application/zip"
+    return (declared or "application/octet-stream").lower()
+
+
+def assert_zip_mime(data: bytes, declared: str | None = None) -> None:
+    mime = detect_mime(data, declared)
+    if mime != "application/zip":
+        raise ValueError(f"mime_mismatch:{declared or 'unknown'}->{mime}")
+
+
+def checkpoint_compatible(previous_snapshot_hash: str, current_snapshot_hash: str) -> bool:
+    if not previous_snapshot_hash or not current_snapshot_hash:
+        return False
+    return previous_snapshot_hash == current_snapshot_hash
+
+
+def invalidate_checkpoint(previous_snapshot_hash: str, current_snapshot_hash: str) -> str:
+    return "keep" if checkpoint_compatible(previous_snapshot_hash, current_snapshot_hash) else "invalidate"
+
+
+def safe_extract_zip(
+    data: bytes,
+    *,
+    max_members: int = 200,
+    max_uncompressed: int = 50_000_000,
+    declared_mime: str | None = None,
+) -> list[ZipMember]:
+    """Extract ZIP members. Zip-slip, bombs, MIME mismatch and traversal fail closed."""
+    assert_zip_mime(data, declared_mime)
     try:
         archive = zipfile.ZipFile(io.BytesIO(data))
     except zipfile.BadZipFile as exc:
@@ -196,9 +227,12 @@ def discovery_report(
     resolved: dict[str, Any],
     verdicts: list[MunicipalityVerdict],
     pages: list[PageEvidence],
+    previous_snapshot_hash: str | None = None,
+    current_snapshot_hash: str | None = None,
 ) -> dict[str, Any]:
     statuses = {v.status for v in verdicts}
     silent_zero = "ZERO_CONFIRMED" in statuses and not any(v.status == "FOUND" for v in verdicts)
+    snapshot = current_snapshot_hash or ""
     return {
         "resolved": resolved,
         "municipalities": [asdict(v) for v in verdicts],
@@ -206,5 +240,6 @@ def discovery_report(
         "universe": MUNICIPAL_UNIVERSE,
         "sla_hours": SLA_HOURS,
         "silent_zero_forbidden": silent_zero and not resolved.get("ok"),
+        "checkpoint": invalidate_checkpoint(previous_snapshot_hash or "", snapshot),
         "generated_at": _utc_now(),
     }
