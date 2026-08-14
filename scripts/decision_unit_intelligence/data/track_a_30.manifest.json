@@ -1,0 +1,12 @@
+{
+  "schema_id": "confenge.dui.cohort.v1",
+  "n": 30,
+  "selection": {
+    "seed": "dui-track-a-30-2026-08-14",
+    "n": 30,
+    "rule": "Take the 30 accounts of artifacts/outreach/reajuste-2026-08-05-full-datalake-pr200/ai_assisted_evidence_review_top30.json in listed order.",
+    "justification": "Commercially prioritized construction suppliers of the 2026-08-05 national reajuste scan. Not selected by presence of a named email.",
+    "source_run": "reajuste_14133-2026-08-05-56dc6c48",
+    "policy_version": "dui.policy.v1"
+  }
+}
