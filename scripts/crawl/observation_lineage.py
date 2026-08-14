@@ -110,6 +110,55 @@ def attach_lineage(record: dict[str, Any], lineage: Lineage) -> dict[str, Any]:
     return record
 
 
+def stamp_fetch_items(
+    items: list[dict[str, Any]],
+    *,
+    window_start: str,
+    window_end: str,
+    page: int,
+    official_url: str,
+    raw_bytes: bytes,
+    run_id: str,
+    attempt_id: str,
+) -> list[dict[str, Any]]:
+    """Stamp live API items with the HTTP envelope that revealed them."""
+    digest = sha256_bytes(raw_bytes)
+    raw_uri = f"cas://pncp-contratos/{digest}"
+    stamped: list[dict[str, Any]] = []
+    for item in items:
+        if not isinstance(item, dict):
+            raise LineageError("fetch item is not an object")
+        row = dict(item)
+        row["run_id"] = run_id
+        row["attempt_id"] = attempt_id
+        row["query_window_start"] = window_start
+        row["query_window_end"] = window_end
+        row["window_start"] = window_start
+        row["window_end"] = window_end
+        row["page"] = page
+        row["official_url"] = official_url
+        row["raw_uri"] = raw_uri
+        row["raw_sha256"] = digest
+        row["_raw_bytes"] = raw_bytes
+        # Fail closed at stamp time so persist never sees a half-envelope.
+        lineage_from_envelope(row, default_url=official_url)
+        stamped.append(row)
+    return stamped
+
+
+def assert_persisted_lineage(records: list[dict[str, Any]]) -> None:
+    """Refuse persist when any observation is missing required lineage."""
+    if not records:
+        return
+    for record in records:
+        missing = [name for name in REQUIRED_FIELDS if not str(record.get(name) or "")]
+        if missing:
+            raise LineageError(f"persist_missing_lineage:{','.join(missing)}")
+        digest = str(record.get("raw_sha256") or "")
+        if len(digest) != 64:
+            raise LineageError("persist_missing_lineage:raw_sha256")
+
+
 def persist_observations(
     existing: tuple[Observation, ...],
     incoming: tuple[Observation, ...],

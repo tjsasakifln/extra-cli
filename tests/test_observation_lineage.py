@@ -2,13 +2,19 @@
 
 from __future__ import annotations
 
+import json
+from unittest.mock import MagicMock, patch
+
 import pytest
 
 from scripts.contracts_truth import annotate_transformed_contract
+from scripts.crawl.contracts_crawler import FetchStatus, _fetch_page, _persist_window_if_enabled, transform
 from scripts.crawl.observation_lineage import (
+    REQUIRED_FIELDS,
     Lineage,
     LineageError,
     Observation,
+    assert_persisted_lineage,
     persist_observations,
     reconcile_page_window,
     sha256_bytes,
@@ -109,3 +115,72 @@ def test_page_window_fetched_equals_persisted_plus_rejected() -> None:
             window_end="2026-01-07",
             page=3,
         )
+
+
+def test_fetch_page_stamps_lineage_and_transform_persist_keep_it() -> None:
+    """Live path: _fetch_page (not a pre-stamped fixture) → transform → persist gate."""
+    payload = {
+        "data": [
+            {
+                "numeroControlePNCP": "SC-LIVE-1",
+                "situacaoContrato": "Vigente",
+                "orgaoEntidade": {"cnpj": "82892282000100", "razaoSocial": "PMF"},
+                "unidadeOrgao": {"ufSigla": "SC", "municipioNome": "Florianopolis"},
+                "objetoContrato": "Servico",
+                "valorGlobal": 10,
+            }
+        ],
+        "totalRegistros": 1,
+        "totalPaginas": 1,
+    }
+    raw_bytes = json.dumps(payload).encode("utf-8")
+    mock_resp = MagicMock()
+    mock_resp.read.return_value = raw_bytes
+    with patch("urllib.request.urlopen") as mock_urlopen:
+        mock_urlopen.return_value.__enter__.return_value = mock_resp
+        fetched = _fetch_page("20260101", "20260107", 2, run_id="run-live")
+
+    assert fetched.status == FetchStatus.SUCCESS_DATA
+    item = fetched.items[0]
+    assert item["numeroControlePNCP"] == "SC-LIVE-1"
+    for field in REQUIRED_FIELDS:
+        assert item.get(field), field
+    assert item["run_id"] == "run-live"
+    assert item["page"] == 2
+    assert item["query_window_start"] == "20260101"
+    assert item["query_window_end"] == "20260107"
+    assert item["official_url"] == fetched.url
+    assert "pagina=2" in fetched.url
+    assert item["raw_sha256"] == sha256_bytes(raw_bytes)
+    assert item["raw_uri"] == f"cas://pncp-contratos/{item['raw_sha256']}"
+
+    transformed = transform(fetched.items)
+    assert len(transformed) == 1
+    row = transformed[0]
+    for field in REQUIRED_FIELDS:
+        assert row.get(field), field
+    assert row["run_id"] == "run-live"
+    assert row["page"] == 2
+    assert row["window_start"] == "20260101"
+    assert row["raw_sha256"] == sha256_bytes(raw_bytes)
+    assert_persisted_lineage(transformed)
+
+    with pytest.raises(LineageError, match="persist_missing_lineage"):
+        assert_persisted_lineage([{"contrato_id": "SC-LIVE-1", "source": "pncp"}])
+
+
+def test_persist_window_refuses_unstamped_items(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("CONTRACTS_PERSIST_EACH_WINDOW", "1")
+    monkeypatch.setenv("LOCAL_DATALAKE_DSN", "postgresql://test:test@127.0.0.1:5433/extra_test")
+    bare = [
+        {
+            "numeroControlePNCP": "SC-BARE-1",
+            "situacaoContrato": "Vigente",
+            "orgaoEntidade": {"cnpj": "82892282000100"},
+            "unidadeOrgao": {"ufSigla": "SC"},
+            "objetoContrato": "x",
+            "valorGlobal": 1,
+        }
+    ]
+    with pytest.raises(LineageError, match="persist_missing_lineage"):
+        _persist_window_if_enabled(bare)
