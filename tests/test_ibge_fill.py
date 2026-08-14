@@ -134,3 +134,34 @@ def test_product_load_persists_19_florianopolis_codes() -> None:
         if not normalize_codigo_ibge(e.codigo_ibge) and e.municipio.upper() != "SANTA CATARINA"
     ]
     assert still_missing_municipal == []
+
+
+def test_fixture_seed_without_the_19_is_unchanged(tmp_path) -> None:
+    """Overlay must not break load_canonical_universe on non-canonical seeds."""
+    from openpyxl import Workbook
+
+    from scripts.lib.universe import load_canonical_universe as load_u
+
+    seed = tmp_path / "seed.xlsx"
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.title = "Entes Públicos SC"
+    sheet.append(
+        [
+            "Razão Social",
+            "CNPJ",
+            "Município",
+            "IBGE",
+            "Natureza",
+            "Extra",
+            "Latitude",
+            "Longitude",
+            "Distância",
+            "Raio 200km?",
+        ]
+    )
+    sheet.append(["Ente A", "12.345.678/0001-00", "Cidade A", 1, "M", None, -27, -48, 10, "SIM"])
+    workbook.save(seed)
+    universe = load_u(seed)
+    assert len(universe.entities) == 1
+    assert universe.entities[0].codigo_ibge in {"1", ""}
