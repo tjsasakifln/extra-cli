@@ -225,6 +225,65 @@ def process_document(
     return existing
 
 
+def enqueue_from_inventory(run: InventoryRun, inventory: Any) -> InventoryRun:
+    """Queue jobs from a versioned official inventory (#365 CandidateInventory).
+
+    Terminal official status supersedes work. Document blockers stay BLOCKED.
+    An incomplete inventory never becomes an empty success.
+    """
+    status = str(getattr(inventory, "status", "") or "")
+    terminal = status in {"revoked", "annulled", "suspended", "closed"}
+    candidate_id = str(getattr(inventory, "candidate_id", "unknown"))
+    official_page = getattr(inventory, "official_page", None)
+    documents = list(getattr(inventory, "documents", []) or [])
+    for doc in documents:
+        kind = str(getattr(doc, "kind", "anexo"))
+        version = getattr(doc, "version", 1)
+        job_id = f"{candidate_id}:{kind}:v{version}"
+        job = DocumentJob(
+            job_id=job_id,
+            url=str(getattr(doc, "url", "") or ""),
+            content_hash=str(getattr(doc, "sha256", "") or "") or None,
+        )
+        blocker = getattr(doc, "blocker", None)
+        if terminal:
+            job.state = "SUPERSEDED"
+            job.reason_code = f"official_status_{status}"
+            job.evidence = official_page
+            job.next_action = "não processar documento de oportunidade encerrada"
+        elif blocker:
+            job.state = "BLOCKED"
+            job.reason_code = str(blocker)
+            job.evidence = job.url
+            job.next_action = "registrar blocker e não marcar inventário completo"
+        else:
+            job.state = "QUEUED"
+            job.evidence = str(getattr(doc, "raw_uri", "") or getattr(doc, "sha256", "") or "")
+        run.jobs[job_id] = job
+    inventory_complete = bool(getattr(inventory, "inventory_complete", False))
+    if documents and not inventory_complete and not terminal:
+        marker = DocumentJob(
+            job_id=f"{candidate_id}:inventory",
+            url=str(official_page or ""),
+            state="BLOCKED",
+            reason_code="inventory_incomplete",
+            evidence="missing required kinds or fan-out",
+            next_action="não shortlistar até o inventário documental fechar",
+        )
+        run.jobs[marker.job_id] = marker
+    if not documents:
+        empty = DocumentJob(
+            job_id=f"{candidate_id}:inventory",
+            url=str(official_page or ""),
+            state="BLOCKED",
+            reason_code="inventory_empty",
+            evidence="zero documents is not a successful inventory",
+            next_action="falhar fechado; ausência não é sucesso",
+        )
+        run.jobs[empty.job_id] = empty
+    return run
+
+
 def close_orphans(run: InventoryRun) -> None:
     """A run never stays RUNNING. Orphans become BLOCKED."""
     for job in run.jobs.values():

@@ -5,11 +5,14 @@ from __future__ import annotations
 import io
 import zipfile
 
+from types import SimpleNamespace
+
 from scripts.process_documents.inventory_pipeline import (
     EXTRACTOR_VERSION,
     FACT_KEYS,
     InventoryRun,
     close_orphans,
+    enqueue_from_inventory,
     inventory_report,
     process_document,
 )
@@ -135,6 +138,65 @@ def test_replay_skips_and_hash_change_invalidates_derived() -> None:
     assert run.jobs["doc"].state == "SUPERSEDED"
     assert changed.state == "SUCCEEDED"
     assert changed.job_id.endswith(":v")
+
+
+def test_pipeline_consumes_versioned_inventory_and_does_not_succeed_empty() -> None:
+    run = InventoryRun(process_id="compose")
+    revoked = SimpleNamespace(
+        candidate_id="c-rev",
+        status="revoked",
+        official_page="https://pncp.gov.br/app/editais/1",
+        inventory_complete=True,
+        documents=[
+            SimpleNamespace(
+                kind="edital",
+                version=2,
+                url="https://pncp.gov.br/docs/edital",
+                sha256="ab" * 32,
+                raw_uri="cas://pncp-docs/ab",
+                blocker=None,
+            )
+        ],
+    )
+    enqueue_from_inventory(run, revoked)
+    job = run.jobs["c-rev:edital:v2"]
+    assert job.state == "SUPERSEDED"
+    assert job.reason_code == "official_status_revoked"
+
+    blocked = InventoryRun(process_id="compose-block")
+    incomplete = SimpleNamespace(
+        candidate_id="c-inc",
+        status="open",
+        official_page="https://pncp.gov.br/app/editais/2",
+        inventory_complete=False,
+        documents=[
+            SimpleNamespace(
+                kind="edital",
+                version=1,
+                url="https://pncp.gov.br/docs/edital",
+                sha256="cd" * 32,
+                raw_uri="cas://pncp-docs/cd",
+                blocker="http_404",
+            )
+        ],
+    )
+    enqueue_from_inventory(blocked, incomplete)
+    assert blocked.jobs["c-inc:edital:v1"].state == "BLOCKED"
+    assert blocked.jobs["c-inc:inventory"].reason_code == "inventory_incomplete"
+
+    empty = InventoryRun(process_id="compose-empty")
+    enqueue_from_inventory(
+        empty,
+        SimpleNamespace(
+            candidate_id="c-empty",
+            status="open",
+            official_page="https://pncp.gov.br/x",
+            inventory_complete=False,
+            documents=[],
+        ),
+    )
+    assert empty.jobs["c-empty:inventory"].state == "BLOCKED"
+    assert empty.jobs["c-empty:inventory"].reason_code == "inventory_empty"
 
 
 def test_run_never_stays_running() -> None:
