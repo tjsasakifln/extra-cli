@@ -108,3 +108,18 @@ def test_buyer_intel_uses_only_rows_with_provenance() -> None:
     report = job_report(job)
     assert report["status"] == "complete"
     assert report["policy_window_start"] == "2025-01-01"
+
+
+def test_replay_same_window_is_idempotent_and_never_checkpoints_before_persist() -> None:
+    job = WindowJob(ente_id="e5", window_start="2025-01-01", window_end="2025-01-31")
+    rows = [_row("c-replay", "contratado", 99.0)]
+    ingest_window(job, pages=[_page(1)], rows=rows, query_complete=True, persist_ok=True)
+    ingest_window(job, pages=[_page(1)], rows=rows, query_complete=True, persist_ok=True)
+    assert job.status == "complete"
+    assert len(job.persisted) == 1
+    assert job.balanced
+    blocked = WindowJob(ente_id="e5", window_start="2025-01-01", window_end="2025-01-31")
+    ingest_window(blocked, pages=[_page(1)], rows=rows, query_complete=True, persist_ok=False)
+    assert blocked.status == "failed"
+    assert blocked.checkpoint_after_persist is False
+    assert blocked.persisted == []

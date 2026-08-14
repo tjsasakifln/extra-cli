@@ -101,6 +101,11 @@ def ingest_window(
 ) -> WindowJob:
     job.pages = list(pages)
     job.fetched = len(rows)
+    job.persisted = []
+    job.rejected = []
+    job.error = None
+    job.checkpoint_after_persist = False
+    job.status = None
     if any(p.retryable and p.status != 200 for p in pages) and not query_complete:
         job.status = "failed"
         job.error = "retryable_http"
