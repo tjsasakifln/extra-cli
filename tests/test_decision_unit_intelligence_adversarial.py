@@ -38,6 +38,7 @@ from scripts.decision_unit_intelligence.models import (
     SearchLedger,
     StopReason,
 )
+from scripts.decision_unit_intelligence.operator_pack import build_card
 from scripts.decision_unit_intelligence.orchestrator import investigate_account
 from scripts.decision_unit_intelligence.providers.historical_campaign import parse_qsa_blob
 from scripts.decision_unit_intelligence.reachability import (
@@ -573,6 +574,40 @@ def test_accountant_domain_and_legal_form_tokens_not_minted_as_r2():
     )
     draft = classify_channel_observation(obs, candidate=_candidate("Lilian Maahs"), suitable_person=True)
     assert draft.reachability != ReachabilityClass.R2_HIGH_CONFIDENCE_DIRECT
+
+
+def test_operator_r3_card_is_human_usable():
+    """Shipped build_card must expose a usable R3 action without reinterpreting the model."""
+    acc = investigate_account(
+        cnpj="12345678000190",
+        legal_name="EXEMPLO LTDA",
+        service=SERVICE_REAJUSTE_14133,
+        why_now="contrato ativo",
+        people=[_person("CARLOS SILVA", "Sócio-Administrador", source="qsa_rfb")],
+        channels=[
+            _channel(ChannelType.COMPANY_SWITCHBOARD, "4833334444", extra={"person_owns_phone": False}),
+        ],
+        infer_email=False,
+    )
+    card = build_card(acc)
+    assert card["primary_decision_unit_target"] == "CARLOS SILVA"
+    assert card["role_evidence"]["observed_roles"]
+    assert card["role_evidence"]["decision_role_class"]
+    assert card["role_evidence"]["reason_codes"]
+    assert card["role_evidence"]["source_count"] >= 1
+    assert card["role_evidence"]["evidence_ids"]
+    assert card["channel"] == "4833334444"
+    assert card["route_class"] == "R3_ROUTED_TO_NAMED_PERSON"
+    assert card["action_mode"] == "MANUAL_ROUTED_CALL"
+    assert card["route_relation"] == "ROUTES_TO_NAMED_PERSON"
+    assert "SWITCHBOARD_ROUTES_TO_NAMED_PERSON" in card["route_reason_codes"]
+    assert "NOT_PERSONAL_PHONE" in card["route_reason_codes"]
+    assert card["channel_ownership"] == "COMPANY_OWNED"
+    assert card["channel_epistemic_class"] == "OBSERVED"
+    assert "pedir por" in (card["exact_next_action"] or "").lower()
+    assert "Não alegar que o telefone pertence à pessoa." in card["do_not_claim"]
+    assert any("não alegar contato direto" in w.lower() for w in card["do_not_claim"])
+    assert card["route_class"] != "R1_DIRECT"
 
 
 def test_track_a_manifest_has_thirty_real_cnpjs():

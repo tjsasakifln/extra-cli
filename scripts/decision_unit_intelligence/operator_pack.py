@@ -19,13 +19,15 @@ def build_card(account: AccountInvestigation) -> dict[str, Any]:
     alts = [routes[i] for i in (rec.alternative_route_ids if rec else []) if i in routes]
     action = ""
     do_not_claim = []
-    if route and primary and route.channel_type.value == "COMPANY_SWITCHBOARD":
-        action = (
-            f"Ligar para {route.channel_value} e pedir por {primary.person_name}."
-        )
-        do_not_claim.append("Não alegar que o telefone pertence à pessoa.")
-    elif route:
+    relation = route.route_relation.value if route else None
+    if route:
         action = route.next_action or ""
+    if relation == "ROUTES_TO_NAMED_PERSON":
+        do_not_claim.append(
+            "Não alegar contato direto: o canal apenas roteia até a pessoa nomeada."
+        )
+        if route and route.channel_type.value in {"COMPANY_SWITCHBOARD", "DIRECT_PHONE"}:
+            do_not_claim.append("Não alegar que o telefone pertence à pessoa.")
     return {
         "empresa": account.legal_name,
         "cnpj": account.cnpj,
@@ -35,11 +37,21 @@ def build_card(account: AccountInvestigation) -> dict[str, Any]:
         "role_evidence": {
             "observed_roles": primary.observed_roles if primary else [],
             "decision_role_class": primary.decision_role_class.value if primary else None,
+            "role_confidence": primary.role_confidence.value if primary else None,
             "reason_codes": primary.reason_codes if primary else [],
+            "evidence_ids": primary.evidence_ids if primary else [],
+            "source_count": primary.source_count if primary else 0,
+            "aspects": [a.to_dict() if hasattr(a, "to_dict") else a for a in (primary.aspects if primary else [])],
             "inferred_decision_relevance": primary.inferred_decision_relevance if primary else None,
         },
         "primary_route": route.channel_type.value if route else None,
         "route_class": route.reachability_class.value if route else account.extra.get("account_reachability_class"),
+        "route_relation": relation,
+        "route_reason_codes": list(route.reason_codes) if route else [],
+        "channel_source_type": route.source_type if route else None,
+        "channel_source_url": route.source_url if route else None,
+        "channel_epistemic_class": route.epistemic_class.value if route else None,
+        "channel_ownership": route.ownership.value if route else None,
         "action_mode": rec.action_mode.value if rec else None,
         "channel": route.channel_value if route else None,
         "exact_next_action": action or (rec.next_action if rec else None),
@@ -78,6 +90,9 @@ def render_markdown(cards: list[dict[str, Any]]) -> str:
                 f"- Primary target: **{card.get('primary_decision_unit_target') or '—'}**",
                 f"- Papel/evidência: {card.get('role_evidence')}",
                 f"- Primary route: `{card.get('primary_route')}` / `{card.get('route_class')}`",
+                f"- Relação canal↔pessoa: `{card.get('route_relation') or '—'}`",
+                f"- Reason codes da rota: {card.get('route_reason_codes')}",
+                f"- Provenance do canal: `{card.get('channel_source_type')}` / `{card.get('channel_epistemic_class')}` / `{card.get('channel_ownership')}`",
                 f"- Action mode: `{card.get('action_mode')}`",
                 f"- Canal: `{card.get('channel')}`",
                 f"- **AÇÃO:** {card.get('exact_next_action')}",
