@@ -47,6 +47,8 @@ from scripts.national_contract_truth.compras_gov_feeder import (
     SCOPE_14133,
     SCOPE_LEGADO,
     ComprasGovIngestError,
+    PaginationVerdict,
+    ScopeIngest,
     classify_fetch,
     classify_legacy_record,
     default_open_window,
@@ -707,7 +709,7 @@ def identity_disposition(record: dict) -> str:
     return "ACCEPT" if record.get("orgao_cnpj") else "REJECT"
 
 
-def finalize_scope(scope: str, records: list[dict], pagination) -> object:
+def finalize_scope(scope: str, records: list[dict], pagination: PaginationVerdict) -> ScopeIngest:
     """Public wrapper so tests drive the shipped ingest contract."""
     if scope not in {SCOPE_14133, SCOPE_LEGADO}:
         raise ComprasGovIngestError("UNKNOWN_SCOPE", scope)

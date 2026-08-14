@@ -30,8 +30,11 @@ import logging
 import os
 import subprocess
 import sys
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
+
+from scripts.national_contract_truth.universe_linkage import LakeRow, LinkageLedger, UniverseRow
 
 _logger = logging.getLogger(__name__)
 
@@ -303,7 +306,12 @@ def list_snapshots(conn=None, limit: int = 10) -> list[dict[str, Any]]:
 # ---------------------------------------------------------------------------
 
 
-def link_included_to_datalake(rows, lake, *, active_run_keys):
+def link_included_to_datalake(
+    rows: Iterable[UniverseRow],
+    lake: Iterable[LakeRow],
+    *,
+    active_run_keys: Iterable[str],
+) -> LinkageLedger:
     """Shipped #300 entry: resolve included universe keys to datalake entities."""
     from scripts.national_contract_truth.universe_linkage import (
         link_included_to_datalake as _link,
