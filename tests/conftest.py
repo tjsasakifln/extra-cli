@@ -69,7 +69,12 @@ def _mock_psycopg2_connect(request):
         return
 
     # Explicit marker for modules that need real PG without integration/database.
-    if request.node.get_closest_marker("real_db") is not None and require_real:
+    # #285: real_db never falls through to MagicMock. Missing opt-in is skip
+    # or a configuration error, not a silently mocked missing table.
+    if request.node.get_closest_marker("real_db") is not None:
+        from scripts.testing.real_db_guard import admit_real_db_or_raise
+
+        admit_real_db_or_raise(real_db_marker=True, require_real=require_real)
         yield
         return
 
