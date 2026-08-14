@@ -198,12 +198,23 @@ def test_unmappable_identity_bearing_row_is_not_silently_dropped() -> None:
 def test_latest_state_not_historical_success_keeps_entity_covered() -> None:
     kpis = compute_coverage_kpis(
         [
-            {"entity_id": "e1", "state": "success_with_data"},
-            {"entity_id": "e1", "state": "failed"},
+            {"entity_id": "e1", "source": "pncp", "state": "success_with_data"},
+            {"entity_id": "e1", "source": "pncp", "state": "failed"},
         ]
     )
     assert "e1" not in kpis.covered_entity_ids
     assert kpis.covered_count == 0
+
+
+def test_failed_source_does_not_erase_other_source_success() -> None:
+    kpis = compute_coverage_kpis(
+        [
+            {"entity_id": "1", "source": "pncp", "state": "success_zero"},
+            {"entity_id": "1", "source": "dom_sc", "state": "connection_failed"},
+        ]
+    )
+    assert "1" in kpis.covered_entity_ids
+    assert kpis.covered_count == 1
 
 
 def test_universe_members_without_evidence_stay_in_denominator() -> None:

@@ -160,11 +160,12 @@ def compute_coverage_kpis(
     covered after a later failed/blocked/error/partial. Universe members
     without evidence stay in the denominator as uncovered.
     """
-    by_entity: dict[str, list[str]] = defaultdict(list)
+    by_entity_source: dict[tuple[str, str], list[str]] = defaultdict(list)
     rejected: list[str] = []
     for raw in rows:
         row = dict(raw)
         entity = _entity_key(row)
+        source = str(row.get("source") or "")
         state = row.get("state") or row.get("coverage_state") or row.get("result")
         if not entity:
             identity = classify_evidence_identity(
@@ -177,12 +178,16 @@ def compute_coverage_kpis(
         if state is None and row.get("is_covered") is True:
             # Boolean-only flag without state cannot prove coverage.
             rejected.append(f"{entity}:boolean_without_state")
-            by_entity[entity].append("unknown")
+            by_entity_source[(entity, source)].append("unknown")
             continue
         normalized = normalize_coverage_state(state)
-        by_entity[entity].append(normalized or "unknown")
+        by_entity_source[(entity, source)].append(normalized or "unknown")
         if normalized in NON_COVERED_STATE_VALUES and not is_covered_state(normalized):
             rejected.append(f"{entity}:{normalized}")
+
+    by_entity: dict[str, list[str]] = defaultdict(list)
+    for (entity, _source), states in by_entity_source.items():
+        by_entity[entity].append(states[-1] if states else "unknown")
 
     if universe_entity_ids is not None:
         for raw_id in universe_entity_ids:
@@ -197,8 +202,9 @@ def compute_coverage_kpis(
     for entity, states in by_entity.items():
         for state in states:
             state_counts[state or "unknown"] += 1
-        latest = states[-1] if states else "unknown"
-        if is_covered_state(latest):
+        # Latest state per source. One failed source does not erase another
+        # source's proven success.
+        if any(is_covered_state(state) for state in states):
             covered.add(entity)
         else:
             excluded.add(entity)
