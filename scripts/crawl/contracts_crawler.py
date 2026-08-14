@@ -35,6 +35,12 @@ from pathlib import Path
 from typing import Any
 
 from scripts.contracts_identity import normalize_supplier_identity
+from scripts.contracts_truth import (
+    PaginationReconcile,
+    annotate_transformed_contract,
+    resolve_checkpoint_dir,
+    stamp_contract_truth_labels,
+)
 from scripts.crawl.common import (
     digits_only as _digits_only,
 )
@@ -71,9 +77,11 @@ CONTRACTS_JANELA_DELAY = float(os.getenv("CONTRACTS_JANELA_DELAY", "5.0"))
 CONTRACTS_FULL_DAYS = int(os.getenv("CONTRACTS_FULL_DAYS", "90"))
 CONTRACTS_INCREMENTAL_DAYS = int(os.getenv("CONTRACTS_INCREMENTAL_DAYS", "3"))
 CONTRACTS_BACKFILL_YEARS = int(os.getenv("CONTRACTS_BACKFILL_YEARS", "3"))
-CONTRACTS_CHECKPOINT_DIR = os.getenv(
-    "CONTRACTS_CHECKPOINT_DIR",
-    str(_PROJECT_ROOT / "data" / "contracts_checkpoints"),
+CONTRACTS_CHECKPOINT_DIR = str(
+    resolve_checkpoint_dir(
+        os.getenv("CONTRACTS_CHECKPOINT_DIR"),
+        repo_root=_PROJECT_ROOT,
+    )
 )
 
 _ESFERA_MAP = {"F": 1, "E": 2, "M": 3, "D": 4}
@@ -363,6 +371,7 @@ def _persist_window_if_enabled(raw_items: list[dict]) -> int:
                 (json.dumps(transformed, default=str),),
             )
             rows = cur.fetchall()
+            stamped = stamp_contract_truth_labels(conn, transformed)
             conn.commit()
         finally:
             conn.close()
@@ -370,8 +379,16 @@ def _persist_window_if_enabled(raw_items: list[dict]) -> int:
             return 0
         first = rows[0]
         if len(rows) == 1 and len(first) >= 3 and all(isinstance(v, int) for v in first[:3]):
-            return int(first[0]) + int(first[1])
-        return len(rows)
+            persisted = int(first[0]) + int(first[1])
+        else:
+            persisted = len(rows)
+        if stamped < persisted:
+            logger.warning(
+                "Truth stamp undercount: stamped=%s persisted=%s",
+                stamped,
+                persisted,
+            )
+        return persisted
     except Exception as exc:  # noqa: BLE001 — window crawl must continue
         logger.warning("Per-window persist failed (non-fatal): %s", exc)
         return 0
@@ -657,8 +674,7 @@ def _transform_record(rec: dict) -> dict | None:
             "municipio": municipio,
             "source_id": contrato_id,
         }
-
-        return record
+        return annotate_transformed_contract(record, raw=rec)
 
     except Exception as e:
         logger.warning("Transform error for record %s: %s", rec.get("numeroControlePNCP", ""), e)
@@ -787,6 +803,7 @@ def _crawl_date_range(
         window_pages = 0
         window_errors: list[str] = []
         window_items: list[dict] = []
+        pagination = PaginationReconcile()
 
         while page <= CONTRACTS_MAX_PAGES:
             result = _fetch_page(data_ini, data_fim, page)
@@ -815,6 +832,11 @@ def _crawl_date_range(
                 break
 
             # Success with data
+            pagination.observe_page(
+                total_registros=result.total_records,
+                total_paginas=result.total_pages,
+                items=result.items,
+            )
             all_records.extend(result.items)
             window_items.extend(result.items)
             window_records += len(result.items)
@@ -844,14 +866,33 @@ def _crawl_date_range(
                 # Persist immediately so kill mid-run does not drop completed windows.
                 persisted = _persist_window_if_enabled(window_items)
                 if persisted:
+                    pagination.record_persisted(int(persisted))
+                    leftover = max(0, pagination.fetched - pagination.persisted)
+                    if leftover:
+                        fully_ok = False
+                        window_errors.append(
+                            f"persist_undercount:fetched={pagination.fetched}:persisted={persisted}"
+                        )
                     logger.info(
                         "Window %s persisted %d rows to DB (per-window upsert)",
                         window_key,
                         persisted,
                     )
-                checkpoint.completed_windows.append(window_key)
-                checkpoint.total_windows_completed += 1
-                checkpoint.total_contracts_fetched += window_records
+                elif window_items:
+                    fully_ok = False
+                    window_errors.append("persist_zero")
+                page_report = pagination.finish()
+                if not page_report.ok:
+                    window_errors.append(page_report.status)
+                    logger.warning("Window %s pagination %s", window_key, page_report.to_dict())
+                    fully_ok = False
+                if fully_ok:
+                    checkpoint.completed_windows.append(window_key)
+                    checkpoint.total_windows_completed += 1
+                    checkpoint.total_contracts_fetched += window_records
+                else:
+                    checkpoint.total_windows_failed += 1
+                    checkpoint.last_error = "; ".join(window_errors[:3])
             else:
                 checkpoint.total_windows_failed += 1
                 checkpoint.last_error = "; ".join(window_errors[:3])

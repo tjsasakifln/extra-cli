@@ -206,6 +206,18 @@ class TestTransformRecord:
             "uf",
             "municipio",
             "source_id",
+            "status_raw",
+            "status_normalized",
+            "status_rule_version",
+            "status_source",
+            "quality_state",
+            "quality_reasons",
+            "quality_rule_version",
+            "report_ready",
+            "canonical_contract_id",
+            "source",
+            "source_contract_id",
+            "parent_procurement_id",
         }
         assert set(result.keys()) == expected_fields, (
             f"Field mismatch. Extra: {set(result.keys()) - expected_fields}. "

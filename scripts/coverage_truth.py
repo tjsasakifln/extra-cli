@@ -23,6 +23,9 @@ from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
+from scripts.coverage.covered_entity import COVERED_ENTITY_FORMULA as COVERED_ENTITY_FORMULA
+from scripts.coverage.covered_entity import compute_coverage_kpis
+
 _logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -316,12 +319,36 @@ def compute_metrics(
             entities_monitored.add(eid)
             monitored_sources.setdefault(eid, set()).add(src)
 
+    published_kpis = compute_coverage_kpis(
+        [
+            {
+                "entity_id": ev.get("entity_id"),
+                "canonical_entity_key": ev.get("canonical_entity_key"),
+                "state": ev.get("state"),
+                "source": ev.get("source"),
+                "metadata": ev.get("metadata") if isinstance(ev.get("metadata"), dict) else {},
+            }
+            for ev in entity_source_evidence.values()
+        ]
+    )
+    entities_monitored = {
+        eid
+        for eid in entities_monitored
+        if str(eid) in published_kpis.covered_entity_ids
+    }
+
     entities_never_checked = n_entities - len(entities_checked)
 
     if n_entities == 0:
         monitoring_coverage_pct: float | None = 0.0  # trivial: no entities
     elif has_any_entity_evidence:
-        monitoring_coverage_pct = round(len(entities_monitored) / n_entities * 100, 1)
+        monitoring_coverage_pct = round(100.0 * published_kpis.covered_count / n_entities, 1)
+        entities_monitored = {
+            eid
+            for eid in entities_monitored
+            if str(eid) in published_kpis.covered_entity_ids
+            or any(str(key) == str(eid) for key in published_kpis.covered_entity_ids)
+        }
     else:
         monitoring_coverage_pct = None  # unverified
 
@@ -507,10 +534,12 @@ def compute_metrics(
         "monitoring_coverage": {
             "pct": monitoring_coverage_pct,
             "pct_display": (f"{monitoring_coverage_pct}%" if monitoring_coverage_pct is not None else "unverified"),
-            "entities_monitored": len(entities_monitored),
+            "entities_monitored": published_kpis.covered_count,
             "entities_checked_no_coverage": len(entities_checked - entities_monitored),
             "entities_never_checked": entities_never_checked,
-            "_source": "coverage_evidence (v_latest_evidence)",
+            "formula_id": COVERED_ENTITY_FORMULA.__name__,
+            "covered_entity_ids": sorted(published_kpis.covered_entity_ids),
+            "_source": "coverage_evidence via compute_coverage_kpis",
             "_note": (
                 "Monitoring coverage from evidence ledger — entity-level "
                 "observations only. Bid presence is a separate metric."

@@ -37,6 +37,11 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
+from scripts.coverage.covered_entity import (  # noqa: E402
+    MISSING_EVIDENCE,
+    SOURCE_WIDE_AGGREGATE,
+    classify_evidence_identity,
+)
 from scripts.coverage.states import CoverageState  # noqa: E402
 from scripts.lib.universe import (  # noqa: E402
     CanonicalEntity,
@@ -368,6 +373,8 @@ class DualCoverageReport:
     schema_compatibility_mode: SchemaMode = "unknown"
     unmapped_evidence_count: int = 0
     outsider_evidence_count: int = 0
+    source_wide_evidence_count: int = 0
+    missing_evidence_reason: str | None = None
     scope_complete: bool = False
     dual_gate_status: str = "NOT_EVALUATED"  # PASS | FAIL | NOT_EVALUATED | NOT_READY
     capabilities_evaluated: tuple[str, ...] = field(default_factory=tuple)
@@ -405,6 +412,8 @@ class DualCoverageReport:
             "schema_compatibility_mode": self.schema_compatibility_mode,
             "unmapped_evidence_count": self.unmapped_evidence_count,
             "outsider_evidence_count": self.outsider_evidence_count,
+            "source_wide_evidence_count": self.source_wide_evidence_count,
+            "missing_evidence_reason": self.missing_evidence_reason,
             "forbidden_methods": sorted(FORBIDDEN_METHODS),
             "claims_forbidden": [
                 "entity_coverage.any_row as coverage",
@@ -1635,11 +1644,11 @@ def load_observations_from_db(
     cnpj8_to_entity_id: Mapping[str, str],
     db_id_to_entity_id: Mapping[int, str],
     universe_ids: set[str],
-) -> tuple[dict[str, dict[str, EvidenceObservation]], SchemaMode, int, int]:
-    """Return (entity→source→obs, schema_mode, unmapped_count, outsider_count).
+) -> tuple[dict[str, dict[str, EvidenceObservation]], SchemaMode, int, int, int]:
+    """Return (entity→source→obs, schema_mode, unmapped, outsider, source_wide).
 
-    Fail-closed on unexpected schema/query errors. Legacy fallback only when
-    modern columns are proven absent.
+    Source-wide aggregates (NULL identity) are classified and excluded from
+    numerators. Identity-bearing rows that cannot be mapped stay fail-closed.
     """
     _ = cnpj8_to_entity_id  # reserved for alternate key paths
     cur = conn.cursor()
@@ -1748,6 +1757,7 @@ def load_observations_from_db(
     out: dict[str, dict[str, EvidenceObservation]] = defaultdict(dict)
     unmapped = 0
     outsider = 0
+    source_wide = 0
     for row in rows:
         # Modern rows include optional trailing canonical_entity_key; legacy has 20 cols.
         if len(row) >= 21:
@@ -1813,6 +1823,14 @@ def load_observations_from_db(
             except (TypeError, ValueError):
                 entity_key = None
         if entity_key is None:
+            identity_kind = classify_evidence_identity(
+                entity_id=db_entity_id,
+                canonical_entity_key=canonical_entity_key,
+                metadata=metadata if isinstance(metadata, dict) else {},
+            )
+            if identity_kind == SOURCE_WIDE_AGGREGATE:
+                source_wide += 1
+                continue
             unmapped += 1
             continue
         if entity_key not in universe_ids:
@@ -1849,7 +1867,7 @@ def load_observations_from_db(
         raise DualCoverageError(f"unmapped_evidence_count={unmapped} (cannot drop evidence outside identity map)")
     if outsider > 0:
         raise DualCoverageError(f"entity_id_outside_canonical_universe: outsider_evidence_count={outsider}")
-    return dict(out), schema_mode, unmapped, outsider
+    return dict(out), schema_mode, unmapped, outsider, source_wide
 
 
 def load_data_presence(
@@ -2226,6 +2244,8 @@ def compute_dual_coverage(
     schema_mode: SchemaMode = "unknown"
     unmapped_evidence = 0
     outsider_evidence = 0
+    source_wide_evidence = 0
+    missing_evidence_reason: str | None = None
     legacy_metric = None
 
     owns_conn = False
@@ -2258,7 +2278,7 @@ def compute_dual_coverage(
             modes: list[SchemaMode] = []
             for cap in capabilities:
                 cap_n = normalize_capability(cap) or cap
-                loaded, mode, unm, out_c = load_observations_from_db(
+                loaded, mode, unm, out_c, source_wide_n = load_observations_from_db(
                     conn,
                     capability=cap_n,
                     cnpj8_to_entity_id=mapping_metrics.cnpj8_to_entity_id,
@@ -2267,6 +2287,12 @@ def compute_dual_coverage(
                 )
                 obs_map[cap_n] = loaded
                 modes.append(mode)
+                source_wide_evidence += source_wide_n
+                if source_wide_n and not loaded:
+                    missing_evidence_reason = (
+                        f"{MISSING_EVIDENCE}:source_wide_aggregate_without_identity:{cap_n}"
+                    )
+                    limitations.append(missing_evidence_reason)
                 unmapped_evidence += unm
                 outsider_evidence += out_c
                 pres = load_data_presence(
@@ -2506,11 +2532,14 @@ def compute_dual_coverage(
         and (not fallback_used)
         and unmapped_evidence == 0
         and outsider_evidence == 0
+        and missing_evidence_reason is None
         and all(c.reconciliation_ok for c in caps_out.values())
         and all(c.measurement_success for c in caps_out.values())
     )
     err_msg = None
-    if policy_bad:
+    if missing_evidence_reason:
+        err_msg = missing_evidence_reason
+    elif policy_bad:
         err_msg = "SOURCE_POLICY_NOT_READY"
     elif identity_bad:
         amb = list(mapping_metrics.ambiguous_cnpj8[:5]) if mapping_metrics else []
@@ -2554,6 +2583,8 @@ def compute_dual_coverage(
         schema_compatibility_mode=schema_mode,
         unmapped_evidence_count=unmapped_evidence,
         outsider_evidence_count=outsider_evidence,
+        source_wide_evidence_count=source_wide_evidence,
+        missing_evidence_reason=missing_evidence_reason,
         error=err_msg,
         scope_complete=scope_complete,
         dual_gate_status=dual_gate_status,

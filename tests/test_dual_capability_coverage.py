@@ -814,7 +814,7 @@ def test_identity_unresolved_fails_measurement(monkeypatch: pytest.MonkeyPatch) 
     monkeypatch.setattr(
         dcc,
         "load_observations_from_db",
-        lambda conn, **kwargs: ({}, "modern", 0, 0),
+        lambda conn, **kwargs: ({}, "modern", 0, 0, 0),
     )
     monkeypatch.setattr(
         dcc,
@@ -937,7 +937,7 @@ def test_cap_measurement_false_when_identity_unresolved(monkeypatch: pytest.Monk
             return None
 
     monkeypatch.setattr(dcc, "map_db_entities", lambda conn, universe: fake)
-    monkeypatch.setattr(dcc, "load_observations_from_db", lambda conn, **k: ({}, "modern", 0, 0))
+    monkeypatch.setattr(dcc, "load_observations_from_db", lambda conn, **k: ({}, "modern", 0, 0, 0))
     monkeypatch.setattr(
         dcc, "load_data_presence", lambda *a, **k: PresenceLoadResult(status="no_rows", entity_ids=set())
     )

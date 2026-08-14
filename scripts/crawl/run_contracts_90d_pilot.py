@@ -41,6 +41,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
+from scripts.contracts_truth import stamp_contract_truth_labels  # noqa: E402
 from scripts.crawl import contracts_crawler as _cc  # noqa: E402
 from scripts.crawl.contracts_crawler import (  # noqa: E402
     CONTRACTS_FULL_DAYS,
@@ -103,12 +104,15 @@ def evaluate_window_completion(
     last_total_pages: int,
     page: int,
     max_pages: int,
+    first_total_registros: int | None = None,
+    last_total_registros: int | None = None,
 ) -> tuple[bool, list[str]]:
     """Decide whether a date window may be marked complete (shipped predicate).
 
     A window is complete only when there are no errors AND pages were fully
     exhausted (or the API returned a legitimate zero on the first page path).
     Hitting ``max_pages`` without exhausting ``total_pages`` is incomplete.
+    Source ``totalRegistros`` drift is not success.
 
     Returns:
         (fully_ok, errors) — errors may be extended with a max-pages message.
@@ -123,6 +127,14 @@ def evaluate_window_completion(
         errors.append(
             f"Hit CONTRACTS_MAX_PAGES={max_pages} before "
             f"total_pages={last_total_pages}; window incomplete"
+        )
+    if (
+        first_total_registros is not None
+        and last_total_registros is not None
+        and first_total_registros != last_total_registros
+    ):
+        errors.append(
+            f"source_population_drift:totalRegistros {first_total_registros} -> {last_total_registros}"
         )
     fully_ok = not errors
     return fully_ok, errors
@@ -265,7 +277,9 @@ def _fetch_page_with_retry(
 
 def _configure_checkpoint_dir(ckpt_dir: str | None) -> str:
     """Point contracts_crawler checkpoint I/O at an isolated directory."""
-    path = ckpt_dir or os.getenv("CONTRACTS_CHECKPOINT_DIR") or DEFAULT_PILOT_CKPT_DIR
+    from scripts.contracts_truth import resolve_checkpoint_dir
+
+    path = str(resolve_checkpoint_dir(ckpt_dir or os.getenv("CONTRACTS_CHECKPOINT_DIR")))
     os.makedirs(path, exist_ok=True)
     os.environ["CONTRACTS_CHECKPOINT_DIR"] = path
     _cc.CONTRACTS_CHECKPOINT_DIR = path
@@ -452,6 +466,7 @@ def _upsert_batch(conn: Any, rows: list[dict]) -> tuple[int, int]:
             (json.dumps(payload),),
         )
         actions = cur.fetchall()
+        stamp_contract_truth_labels(conn, payload)
         conn.commit()
     except Exception:
         conn.rollback()
@@ -914,6 +929,8 @@ def run_pilot(
 
             pages_exhausted = False
             last_total_pages = 0
+            first_total_registros: int | None = None
+            last_total_registros: int | None = None
             print(f"WINDOW_START {window_key}", flush=True)
             while page <= CONTRACTS_MAX_PAGES:
                 result = _fetch_page_with_retry(data_ini, data_fim, page)
@@ -930,6 +947,12 @@ def run_pilot(
                     break
 
                 last_total_pages = int(result.total_pages or 0)
+                page_total = result.total_records
+                if page_total is not None:
+                    page_total_int = int(page_total)
+                    if first_total_registros is None:
+                        first_total_registros = page_total_int
+                    last_total_registros = page_total_int
                 window_records_raw.extend(result.items)
                 window_pages += 1
                 report["totals"]["pages"] += 1
@@ -1005,6 +1028,8 @@ def run_pilot(
                 last_total_pages=last_total_pages,
                 page=page,
                 max_pages=CONTRACTS_MAX_PAGES,
+                first_total_registros=first_total_registros,
+                last_total_registros=last_total_registros,
             )
             if not fully_ok and any("Hit CONTRACTS_MAX_PAGES" in e for e in window_errors):
                 report["totals"]["page_errors"] += 1

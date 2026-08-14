@@ -1,7 +1,6 @@
 """Unit tests for scripts/coverage/calculator.py.
 
-Tests cover the report_coverage and print_coverage_report functions
-using mocked database connections.
+Published KPIs come from compute_coverage_kpis, never is_covered COUNT.
 """
 
 from __future__ import annotations
@@ -9,162 +8,80 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 from scripts.coverage.calculator import print_coverage_report, report_coverage
-
-# ---------------------------------------------------------------------------
-# report_coverage
-# ---------------------------------------------------------------------------
+from scripts.coverage.covered_entity import compute_coverage_kpis
 
 
-def _make_mock_conn(
-    groups: list[tuple],
-    by_source: list[tuple],
-    uncovered: list[tuple],
-) -> MagicMock:
-    """Create a mock connection with three pre-defined query results.
-
-    Args:
-        groups: Rows for the groups query (raio, total, covered, uncovered).
-        by_source: Rows for the by_source query (source, count, covered).
-        uncovered: Rows for uncovered entities query
-            (razao_social, cnpj_8, municipio, natureza_juridica).
-    """
+def _make_mock_conn(state_rows: list[tuple]) -> MagicMock:
     conn = MagicMock()
     cursor = conn.cursor.return_value
-
-    # Mock cursor.__enter__ for context manager usage
     conn.cursor.return_value.__enter__.return_value = cursor
-
-    # We use side_effect to return different results on successive
-    # cursor.fetchall() calls
-    cursor.fetchall.side_effect = [groups, by_source, uncovered]
-    # Mock description for first query
-    # (description is only needed for returned cursors, which we don't use here)
+    cursor.fetchall.return_value = state_rows
     return conn
 
 
 class TestReportCoverage:
     def test_all_entities_covered(self):
-        """Return 100% coverage when all entities are covered."""
-        conn = _make_mock_conn(
-            groups=[(True, 10, 10, 0)],
-            by_source=[("pncp", 10, 10)],
-            uncovered=[],
+        rows = [(f"e{i}", "success_with_data", "pncp", {}) for i in range(10)]
+        result = report_coverage(_make_mock_conn(rows))
+        expected = compute_coverage_kpis(
+            [{"entity_id": r[0], "state": r[1], "source": r[2]} for r in rows]
         )
-
-        result = report_coverage(conn)
-
+        assert result["total_covered"] == expected.covered_count == 10
         assert result["total_entities"] == 10
-        assert result["total_covered"] == 10
-        assert result["total_uncovered"] == 0
         assert result["pct"] == 100.0
-        assert len(result["groups"]) == 1
-        assert result["groups"][0]["pct"] == 100.0
 
-    def test_partial_coverage(self):
-        """Return correct percentage when some entities are uncovered."""
-        conn = _make_mock_conn(
-            groups=[(True, 20, 12, 8)],
-            by_source=[("dom_sc", 20, 12)],
-            uncovered=[],
+    def test_partial_coverage_ignores_blocked(self):
+        rows = [(f"e{i}", "success_with_data", "dom_sc", {}) for i in range(12)]
+        rows += [(f"b{i}", "blocked", "dom_sc", {}) for i in range(8)]
+        result = report_coverage(_make_mock_conn(rows))
+        expected = compute_coverage_kpis(
+            [{"entity_id": r[0], "state": r[1], "source": r[2]} for r in rows]
         )
-
-        result = report_coverage(conn)
-
-        assert result["total_entities"] == 20
-        assert result["total_covered"] == 12
+        assert result["total_covered"] == expected.covered_count == 12
+        assert result["total_uncovered"] == 8
         assert result["pct"] == 60.0
+        assert "b0" not in result["covered_entity_ids"]
 
     def test_zero_entities(self):
-        """Handle zero entities gracefully."""
-        conn = _make_mock_conn(
-            groups=[],
-            by_source=[],
-            uncovered=[],
-        )
-
-        result = report_coverage(conn)
-
+        result = report_coverage(_make_mock_conn([]))
         assert result["total_entities"] == 0
         assert result["total_covered"] == 0
         assert result["pct"] == 0.0
         assert result["groups"] == []
         assert result["by_source"] == []
 
-    def test_both_radius_groups(self):
-        """Handle both within_200km and outside groups."""
-        conn = _make_mock_conn(
-            groups=[
-                (True, 15, 12, 3),
-                (False, 5, 2, 3),
-            ],
-            by_source=[("pncp", 15, 12)],
-            uncovered=[],
-        )
+    def test_failed_and_blocked_never_published_as_covered(self):
+        rows = [
+            ("ok", "success_zero", "pncp", {}),
+            ("bad", "failed", "pncp", {}),
+            ("blk", "blocked", "pncp", {}),
+        ]
+        result = report_coverage(_make_mock_conn(rows))
+        assert result["total_covered"] == 1
+        assert result["covered_entity_ids"] == ["ok"]
 
-        result = report_coverage(conn)
+    def test_uncovered_list_uses_formula_exclusions(self):
+        rows = [
+            ("covered", "success_with_data", "pncp", {}),
+            ("gap", "error", "pncp", {}),
+        ]
+        result = report_coverage(_make_mock_conn(rows))
+        assert any(item["razao_social"] == "gap" for item in result["uncovered_entities_200km"])
 
-        assert len(result["groups"]) == 2
-        assert result["groups"][0]["within_200km"] is True
-        assert result["groups"][1]["within_200km"] is False
-        assert result["total_entities"] == 20
-        assert result["total_covered"] == 14
-
-    def test_uncovered_within_200km(self):
-        """Report uncovered entities within 200km radius."""
-        conn = _make_mock_conn(
-            groups=[(True, 5, 3, 2)],
-            by_source=[("pncp", 5, 3)],
-            uncovered=[
-                ("Prefeitura de Sao Jose", "87654321", "Sao Jose", "PREFEITURA"),
-                ("Prefeitura de Palhoca", "99887766", "Palhoca", "PREFEITURA"),
-            ],
-        )
-
-        result = report_coverage(conn)
-
-        assert len(result["uncovered_entities_200km"]) == 2
-        assert result["uncovered_entities_200km"][0]["razao_social"] == "Prefeitura de Sao Jose"
-
-    def test_no_uncovered_within_200km(self):
-        """Return empty list when all 200km entities are covered."""
-        conn = _make_mock_conn(
-            groups=[(True, 10, 10, 0)],
-            by_source=[("pncp", 10, 10)],
-            uncovered=[],
-        )
-
-        result = report_coverage(conn)
-
-        assert result["uncovered_entities_200km"] == []
-
-    def test_by_source_breakdown(self):
-        """Provide per-source coverage breakdown."""
-        conn = _make_mock_conn(
-            groups=[(True, 30, 25, 5)],
-            by_source=[
-                ("pncp", 20, 18),
-                ("dom_sc", 10, 7),
-            ],
-            uncovered=[],
-        )
-
-        result = report_coverage(conn)
-
-        assert len(result["by_source"]) == 2
-        assert result["by_source"][0]["source"] == "pncp"
-        assert result["by_source"][0]["covered"] == 18
-        assert result["by_source"][1]["source"] == "dom_sc"
-        assert result["by_source"][1]["covered"] == 7
-
-
-# ---------------------------------------------------------------------------
-# print_coverage_report
-# ---------------------------------------------------------------------------
+    def test_by_source_breakdown_uses_formula(self):
+        rows = [
+            ("a", "success_with_data", "pncp", {}),
+            ("b", "blocked", "pncp", {}),
+            ("c", "success_zero", "dom_sc", {}),
+        ]
+        result = report_coverage(_make_mock_conn(rows))
+        by_source = {item["source"]: item for item in result["by_source"]}
+        assert by_source["pncp"]["covered"] == 1
+        assert by_source["dom_sc"]["covered"] == 1
 
 
 class TestPrintCoverageReport:
     def test_logs_coverage_summary(self, caplog):
-        """Log coverage report with correct values."""
         result = {
             "groups": [
                 {"within_200km": True, "total": 10, "covered": 8, "uncovered": 2, "pct": 80.0},
@@ -186,7 +103,6 @@ class TestPrintCoverageReport:
         assert any("10" in msg for msg in caplog.messages)
 
     def test_warns_on_uncovered(self, caplog):
-        """Log warning when uncovered entities exist within 200km."""
         result = {
             "groups": [
                 {"within_200km": True, "total": 10, "covered": 6, "uncovered": 4, "pct": 60.0},
@@ -209,7 +125,6 @@ class TestPrintCoverageReport:
         assert any("SEM COBERTURA" in msg for msg in caplog.messages)
 
     def test_no_warning_when_all_covered(self, caplog):
-        """No warning logged when all entities are covered."""
         result = {
             "groups": [
                 {"within_200km": True, "total": 5, "covered": 5, "uncovered": 0, "pct": 100.0},
@@ -228,10 +143,9 @@ class TestPrintCoverageReport:
             print_coverage_report(result)
 
         warning_logs = [m for m in caplog.messages if "SEM COBERTURA" in m]
-        assert len(warning_logs) == 0, "Expected no WARNING about uncovered entities"
+        assert len(warning_logs) == 0
 
     def test_empty_result_does_not_crash(self, caplog):
-        """Empty/dummy result does not crash the logger."""
         result = {
             "groups": [],
             "total_entities": 0,
@@ -241,7 +155,5 @@ class TestPrintCoverageReport:
             "by_source": [],
             "uncovered_entities_200km": [],
         }
-
-        # Should not raise any exception
         print_coverage_report(result)
         assert True

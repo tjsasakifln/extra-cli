@@ -11,7 +11,7 @@ Checkpoint contract (v2):
   * completed windows resume across attempts without foreign-run hard-fail
 
 Lock domain:
-  all writers share ``/run/lock/extra-contracts-writer.lock`` (EXIT 75 if busy).
+  PostgreSQL advisory fence (EXIT 75 if busy). Host-local flock is not used.
 
 Exit codes:
   0 — status=success and zero page/window failures
@@ -33,6 +33,12 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
+from scripts.contracts_truth import (  # noqa: E402
+    WriterFenceBusyError,
+    acquire_national_writer_fence,
+    refuse_writer_bypass,
+    resolve_checkpoint_dir,
+)
 from scripts.crawl.contracts_checkpoint_contract import (  # noqa: E402
     LOGICAL_JOB_INCREMENTAL,
     archive_checkpoint,
@@ -42,7 +48,7 @@ from scripts.crawl.contracts_checkpoint_contract import (  # noqa: E402
     migrate_meta,
     save_raw,
 )
-from scripts.crawl.contracts_writer_lock import acquire_or_exit  # noqa: E402
+from scripts.crawl.contracts_writer_lock import EXIT_LOCK_BUSY  # noqa: E402
 
 logger = logging.getLogger("contracts_incremental")
 
@@ -103,15 +109,35 @@ def main(argv: list[str] | None = None) -> int:
         print("ERROR: --days must be in 1..90 for incremental path", file=sys.stderr)
         return 2
 
-    lock = None
-    if not args.skip_lock and os.getenv("CONTRACTS_SKIP_WRITER_LOCK", "0") != "1":
-        lock = acquire_or_exit(owner_note="run_contracts_incremental")
-
+    refuse_writer_bypass(
+        skip_lock=args.skip_lock,
+        env_skip=os.getenv("CONTRACTS_SKIP_WRITER_LOCK", "0"),
+    )
+    args.checkpoint_dir = str(
+        resolve_checkpoint_dir(
+            args.checkpoint_dir,
+            repo_root=_PROJECT_ROOT,
+        )
+    )
+    fence = None
+    if args.dsn and not args.dry_run:
+        try:
+            fence = acquire_national_writer_fence(args.dsn, skip=args.skip_lock)
+        except WriterFenceBusyError:
+            print(
+                f"LOCK_BUSY: national writer fence held; exit={EXIT_LOCK_BUSY}",
+                file=sys.stderr,
+            )
+            return EXIT_LOCK_BUSY
     try:
         return _run_incremental(args)
     finally:
-        if lock is not None:
-            lock.release()
+        if fence is not None:
+            fence.release()
+            conn = getattr(fence, "_conn", None)
+            close = getattr(conn, "close", None)
+            if callable(close):
+                close()
 
 
 def _run_incremental(args: argparse.Namespace) -> int:
