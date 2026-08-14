@@ -271,20 +271,33 @@ def project_source_batch(
     return batch
 
 
-def attach_projection(result: Any, records: list[dict[str, Any]], source: str) -> ProjectionBatch:
-    """Hook used by resilience persistence for every non-PNCP source."""
-    projection = project_source_batch(records, source=source)
-    result.opportunities_persisted = len(projection.persisted)
+def apply_source_projection(
+    result: Any,
+    records: list[dict[str, Any]],
+    source: str,
+    store: dict[tuple[str, str], Observation] | None = None,
+) -> ProjectionBatch:
+    """Project non-PNCP records into an observation store. Count is store writes."""
+    observation_store = store if store is not None else {}
+    projection = project_source_batch(records, source=source, store=observation_store)
+    unique_keys = {obs.upsert_key() for obs in projection.persisted}
+    result.opportunities_persisted = len(unique_keys)
     provenance = dict(getattr(result, "provenance", {}) or {})
     provenance["source_projection"] = {
         "source": source,
         "fetched": projection.fetched,
-        "persisted": len(projection.persisted),
+        "persisted": len(unique_keys),
         "rejected": len(projection.rejected),
+        "store_size": len(observation_store),
         "rejection_reasons": [r.reason for r in projection.rejected],
     }
     result.provenance = provenance
     return projection
+
+
+def attach_projection(result: Any, records: list[dict[str, Any]], source: str) -> ProjectionBatch:
+    """Hook used by resilience persistence for every non-PNCP source."""
+    return apply_source_projection(result, records, source)
 
 
 def counts_by_source(batches: list[ProjectionBatch]) -> dict[str, dict[str, int]]:

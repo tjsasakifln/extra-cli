@@ -159,6 +159,14 @@ def zero_proof(job: WindowJob) -> dict[str, Any]:
         return {"ente_id": job.ente_id, "verdict": "SCOPE_INCOMPLETE", "count": len(job.persisted)}
     if job.persisted:
         return {"ente_id": job.ente_id, "verdict": "FOUND", "count": len(job.persisted)}
+    if job.fetched > 0 or job.rejected:
+        return {
+            "ente_id": job.ente_id,
+            "verdict": "REJECTED_ALL",
+            "count": 0,
+            "fetched": job.fetched,
+            "rejected": len(job.rejected),
+        }
     return {"ente_id": job.ente_id, "verdict": "ZERO_CONFIRMED", "count": 0}
 
 
