@@ -36,6 +36,7 @@ output/bootstrap/
 output/readiness/
 output/runs/
 output/resilience/
+output/contact-discovery/
 
 # Agent memories (runtime)
 .claude/agent-memory/

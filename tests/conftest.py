@@ -55,6 +55,11 @@ def _mock_psycopg2_connect(request):
         yield
         return
 
+    # Durable contact-discovery batch proves SKIP LOCKED / lease / resume on real PG.
+    if "test_contact_discovery_batch.py" in path_parts:
+        yield
+        return
+
     # Real database access is opt-in. Several legacy integration tests mutate
     # shared local tables, so a marker alone must never disable isolation.
     if request.node.get_closest_marker("integration") is not None and require_real:

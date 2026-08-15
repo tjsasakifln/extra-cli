@@ -1,4 +1,4 @@
-"""CLI: plan / run / report / replay / shadow."""
+"""CLI: plan / run / report / replay / shadow / batch."""
 
 from __future__ import annotations
 
@@ -9,6 +9,13 @@ import sys
 from pathlib import Path
 
 from scripts.decision_unit_intelligence import POLICY_VERSION, PROVIDER_VERSION, SCHEMA_VERSION
+from scripts.decision_unit_intelligence.batch_queue import (
+    ContactDiscoveryQueue,
+    budget_version_from_knobs,
+    connect,
+)
+from scripts.decision_unit_intelligence.batch_snapshot import publish_snapshot
+from scripts.decision_unit_intelligence.batch_worker import ContactDiscoveryWorker
 from scripts.decision_unit_intelligence.benchmark import funnel, replay_report
 from scripts.decision_unit_intelligence.cohort import TRACK_A_CNPJS, build_manifest
 from scripts.decision_unit_intelligence.operator_pack import build_card, write_operator_pack
@@ -181,6 +188,188 @@ def cmd_replay(args: argparse.Namespace) -> int:
     return 0
 
 
+def _resolve_code_sha(explicit: str | None) -> str:
+    if explicit:
+        return explicit
+    env = os.getenv("EXTRA_CODE_SHA") or os.getenv("GITHUB_SHA")
+    if env:
+        return env
+    head = Path(".git/HEAD")
+    if not head.is_file():
+        return "unknown"
+    text = head.read_text(encoding="utf-8").strip()
+    if text.startswith("ref:"):
+        ref = Path(".git") / text.split(" ", 1)[1].strip()
+        if ref.is_file():
+            return ref.read_text(encoding="utf-8").strip()
+    return text or "unknown"
+
+
+def _budget_knobs(args: argparse.Namespace) -> dict[str, object]:
+    return {
+        "max_queries": args.search_max_queries,
+        "max_results_per_query": args.search_results_per_query,
+        "max_pages": args.crawl_max_pages,
+        "max_bytes": args.crawl_max_bytes,
+        "timeout_seconds": args.web_timeout_seconds,
+        "min_query_interval_seconds": args.search_min_interval_seconds,
+        "cache_ttl_days": args.search_cache_ttl_days,
+        "cache_dir": args.search_cache_dir,
+        "infer_email": not args.no_infer_email,
+        "verify_email_dns": args.verify_email_dns,
+        "searxng_url": args.searxng_url or os.getenv("CONFENGE_SEARXNG_URL"),
+    }
+
+
+def _print(payload: object) -> None:
+    print(json.dumps(payload, ensure_ascii=False, indent=2, default=str))
+
+
+def cmd_batch_enqueue(args: argparse.Namespace) -> int:
+    cnpjs = _load_cnpjs(args)
+    knobs = _budget_knobs(args)
+    version = budget_version_from_knobs(knobs)
+    code_sha = _resolve_code_sha(args.code_sha)
+    inserted = 0
+    reused = 0
+    ids: list[int] = []
+    with connect(args.dsn) as connection:
+        queue = ContactDiscoveryQueue(connection)
+        queue.upsert_cohort(
+            cohort_id=args.cohort,
+            service=args.service,
+            offer_context=args.offer_context,
+            discovery_policy_version=POLICY_VERSION,
+            search_backend=args.search_backend,
+            budget_version=version,
+            code_sha=code_sha,
+            input_evidence_version=args.input_evidence_version,
+            metadata={"n": len(cnpjs), "output_root": args.out},
+        )
+        for cnpj in cnpjs:
+            job_id, created = queue.enqueue(
+                cohort_id=args.cohort,
+                canonical_account_id=cnpj,
+                service=args.service,
+                offer_context=args.offer_context,
+                discovery_policy_version=POLICY_VERSION,
+                search_backend=args.search_backend,
+                budget_version=version,
+                code_sha=code_sha,
+                input_evidence_version=args.input_evidence_version,
+                max_attempts=args.max_attempts,
+                backend_concurrency_limit=args.backend_concurrency,
+                domain_concurrency_limit=args.domain_concurrency,
+                cursor={"budget": knobs},
+            )
+            ids.append(job_id)
+            if created:
+                inserted += 1
+            else:
+                reused += 1
+        progress = queue.progress(cohort_id=args.cohort)
+    _print(
+        {
+            "cohort": args.cohort,
+            "enqueued": inserted,
+            "reused": reused,
+            "job_ids": ids,
+            "policy_version": POLICY_VERSION,
+            "budget_version": version,
+            "code_sha": code_sha,
+            "search_backend": args.search_backend,
+            "progress": progress,
+        }
+    )
+    return 0
+
+
+def cmd_batch_inspect(args: argparse.Namespace) -> int:
+    with connect(args.dsn) as connection:
+        jobs = ContactDiscoveryQueue(connection).inspect(cohort_id=args.cohort, job_id=args.job_id)
+    _print({"cohort": args.cohort, "n": len(jobs), "jobs": jobs})
+    return 0
+
+
+def cmd_batch_progress(args: argparse.Namespace) -> int:
+    with connect(args.dsn) as connection:
+        _print(ContactDiscoveryQueue(connection).progress(cohort_id=args.cohort))
+    return 0
+
+
+def cmd_batch_failures(args: argparse.Namespace) -> int:
+    with connect(args.dsn) as connection:
+        rows = ContactDiscoveryQueue(connection).failures(cohort_id=args.cohort)
+    _print({"cohort": args.cohort, "n": len(rows), "failures": rows})
+    return 0
+
+
+def cmd_batch_retry(args: argparse.Namespace) -> int:
+    with connect(args.dsn) as connection:
+        n = ContactDiscoveryQueue(connection).retry(
+            cohort_id=args.cohort,
+            job_id=args.job_id,
+            reason_codes=args.reason_code,
+        )
+    _print({"retried": n, "cohort": args.cohort, "job_id": args.job_id})
+    return 0
+
+
+def cmd_batch_cancel(args: argparse.Namespace) -> int:
+    with connect(args.dsn) as connection:
+        n = ContactDiscoveryQueue(connection).request_cancel(cohort_id=args.cohort, job_id=args.job_id)
+    _print({"cancelled": n, "cohort": args.cohort, "job_id": args.job_id})
+    return 0
+
+
+def cmd_batch_resume(args: argparse.Namespace) -> int:
+    with connect(args.dsn) as connection:
+        _print(ContactDiscoveryQueue(connection).resume(cohort_id=args.cohort))
+    return 0
+
+
+def cmd_batch_publish(args: argparse.Namespace) -> int:
+    with connect(args.dsn) as connection:
+        result = publish_snapshot(
+            ContactDiscoveryQueue(connection),
+            cohort_id=args.cohort,
+            output_root=Path(args.out),
+            allow_partial=args.allow_partial,
+        )
+    _print(result)
+    return 0 if result.get("approved") else 2
+
+
+def cmd_batch_worker(args: argparse.Namespace) -> int:
+    dsn = args.dsn or os.getenv("LOCAL_DATALAKE_DSN") or os.getenv("DATABASE_URL")
+    worker = ContactDiscoveryWorker(
+        dsn=dsn,
+        worker_id=args.worker_id,
+        lease_seconds=args.lease_seconds,
+        output_root=Path(args.out),
+        claim_limit=args.claim_limit,
+        backend_filter=args.backend,
+    )
+    if args.loop:
+        _print(worker.run_loop(idle_sleep=args.idle_sleep, max_jobs=args.max_jobs))
+    else:
+        _print(worker.run_once())
+    return 0
+
+
+def cmd_batch_kill_switch(args: argparse.Namespace) -> int:
+    if args.enable == args.disable:
+        raise SystemExit("kill-switch requires exactly one of --enable or --disable")
+    with connect(args.dsn) as connection:
+        result = ContactDiscoveryQueue(connection).set_kill_switch(
+            enabled=bool(args.enable),
+            reason=args.reason or ("enabled" if args.enable else "disabled"),
+            actor=args.actor,
+        )
+    _print(result)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="decision-unit-intelligence")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -221,6 +410,88 @@ def build_parser() -> argparse.ArgumentParser:
     replay.add_argument("--run-a", required=True)
     replay.add_argument("--run-b", required=True)
     replay.set_defaults(func=cmd_replay)
+
+    batch = sub.add_parser("batch", help="Durable contact-discovery cohort operations")
+    batch_sub = batch.add_subparsers(dest="batch_cmd", required=True)
+
+    enqueue = batch_sub.add_parser("enqueue")
+    enqueue.add_argument("--cohort", required=True)
+    enqueue.add_argument("--out", default="output/contact-discovery")
+    enqueue.add_argument("--manifest")
+    enqueue.add_argument("--cnpjs")
+    enqueue.add_argument("--limit", type=int)
+    enqueue.add_argument("--service", default="reajuste_14133")
+    enqueue.add_argument("--offer-context")
+    enqueue.add_argument("--input-evidence-version", default="input.v1")
+    enqueue.add_argument("--code-sha")
+    enqueue.add_argument("--dsn")
+    enqueue.add_argument("--max-attempts", type=int, default=5)
+    enqueue.add_argument("--backend-concurrency", type=int, default=2)
+    enqueue.add_argument("--domain-concurrency", type=int, default=1)
+    enqueue.add_argument("--no-infer-email", action="store_true")
+    _add_web_discovery_args(enqueue)
+    enqueue.set_defaults(func=cmd_batch_enqueue)
+
+    inspect = batch_sub.add_parser("inspect")
+    inspect.add_argument("--cohort", required=True)
+    inspect.add_argument("--job-id", type=int)
+    inspect.add_argument("--dsn")
+    inspect.set_defaults(func=cmd_batch_inspect)
+
+    progress = batch_sub.add_parser("progress")
+    progress.add_argument("--cohort", required=True)
+    progress.add_argument("--dsn")
+    progress.set_defaults(func=cmd_batch_progress)
+
+    failures = batch_sub.add_parser("failures")
+    failures.add_argument("--cohort", required=True)
+    failures.add_argument("--dsn")
+    failures.set_defaults(func=cmd_batch_failures)
+
+    retry = batch_sub.add_parser("retry")
+    retry.add_argument("--cohort")
+    retry.add_argument("--job-id", type=int)
+    retry.add_argument("--reason-code", action="append")
+    retry.add_argument("--dsn")
+    retry.set_defaults(func=cmd_batch_retry)
+
+    cancel = batch_sub.add_parser("cancel")
+    cancel.add_argument("--cohort")
+    cancel.add_argument("--job-id", type=int)
+    cancel.add_argument("--dsn")
+    cancel.set_defaults(func=cmd_batch_cancel)
+
+    resume = batch_sub.add_parser("resume")
+    resume.add_argument("--cohort", required=True)
+    resume.add_argument("--dsn")
+    resume.set_defaults(func=cmd_batch_resume)
+
+    publish = batch_sub.add_parser("publish")
+    publish.add_argument("--cohort", required=True)
+    publish.add_argument("--out", default="output/contact-discovery")
+    publish.add_argument("--allow-partial", action="store_true")
+    publish.add_argument("--dsn")
+    publish.set_defaults(func=cmd_batch_publish)
+
+    worker = batch_sub.add_parser("worker")
+    worker.add_argument("--dsn")
+    worker.add_argument("--worker-id")
+    worker.add_argument("--loop", action="store_true")
+    worker.add_argument("--idle-sleep", type=float, default=2.0)
+    worker.add_argument("--max-jobs", type=int)
+    worker.add_argument("--lease-seconds", type=int, default=300)
+    worker.add_argument("--claim-limit", type=int, default=1)
+    worker.add_argument("--backend")
+    worker.add_argument("--out", default="output/contact-discovery")
+    worker.set_defaults(func=cmd_batch_worker)
+
+    kill = batch_sub.add_parser("kill-switch")
+    kill.add_argument("--enable", action="store_true")
+    kill.add_argument("--disable", action="store_true")
+    kill.add_argument("--reason", default="")
+    kill.add_argument("--actor", default="operator")
+    kill.add_argument("--dsn")
+    kill.set_defaults(func=cmd_batch_kill_switch)
     return p
 
 
