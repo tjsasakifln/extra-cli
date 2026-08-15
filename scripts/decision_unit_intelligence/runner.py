@@ -21,14 +21,13 @@ from scripts.decision_unit_intelligence.providers.external_enrichment import Ext
 from scripts.decision_unit_intelligence.providers.historical_campaign import HistoricalCampaignProvider
 from scripts.decision_unit_intelligence.providers.official_documents import OfficialDocumentsProvider
 from scripts.decision_unit_intelligence.providers.public_search import PublicSearchProvider
+from scripts.decision_unit_intelligence.search_http import SearchBackendUnavailableError, build_search_backend
 from scripts.decision_unit_intelligence.web_discovery import (
     CachedPublicCrawler,
     CachedRateLimitedSearchBackend,
-    DdgsSearchBackend,
     HttpxPublicCrawler,
     JsonDiscoveryCache,
     SearchBudget,
-    SearxngSearchBackend,
 )
 
 _SHARED_HISTORICAL: HistoricalCampaignProvider | None = None
@@ -41,6 +40,7 @@ def default_providers(
     searxng_url: str | None = None,
     search_budget: SearchBudget | None = None,
     cache_dir: Path | None = None,
+    search_failover: str = "off",
 ) -> list[Any]:
     global _SHARED_HISTORICAL
     if _SHARED_HISTORICAL is None:
@@ -48,14 +48,17 @@ def default_providers(
     budget = search_budget or SearchBudget()
     backend = None
     if search_backend != "off":
-        if search_backend == "searxng":
-            if not searxng_url:
-                raise ValueError("searxng search backend requires --searxng-url")
-            raw_backend = SearxngSearchBackend(searxng_url, timeout_seconds=budget.timeout_seconds)
-        elif search_backend == "ddgs":
-            raw_backend = DdgsSearchBackend(timeout_seconds=budget.timeout_seconds)
-        else:
-            raise ValueError(f"unsupported search backend: {search_backend}")
+        try:
+            raw_backend = build_search_backend(
+                search_backend,
+                searxng_url=searxng_url,
+                timeout_seconds=budget.timeout_seconds,
+                failover=search_failover,
+            )
+        except SearchBackendUnavailableError as exc:
+            if exc.reason == "missing_url":
+                raise ValueError("searxng search backend requires --searxng-url") from exc
+            raise
         cache = JsonDiscoveryCache(cache_dir or Path(".cache/confenge-prospect"), ttl_days=budget.cache_ttl_days)
         backend = CachedRateLimitedSearchBackend(
             raw_backend,
@@ -95,6 +98,7 @@ def run_account(
     search_budget: SearchBudget | None = None,
     cache_dir: Path | None = None,
     verify_email_dns: bool = False,
+    search_failover: str = "off",
 ) -> Any:
     started = perf_counter()
     ctx = InvestigationContext(cnpj=normalize_cnpj(cnpj), service=service)
@@ -103,6 +107,7 @@ def run_account(
         searxng_url=searxng_url,
         search_budget=search_budget,
         cache_dir=cache_dir,
+        search_failover=search_failover,
     )
     people = []
     channels = []

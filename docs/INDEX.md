@@ -32,6 +32,7 @@ Precedência: `DOD.md` → ADR vigente → código testado → evidência reprod
 | `docs/ops/private-assets.md` | Repo público vs assets privados |
 | `docs/ops/dod-convergence.md` | Harness DOD |
 | `docs/ops/netcup-*.md`, handoffs Netcup | Host de record |
+| [`docs/ops/searxng-private-backend.md`](ops/searxng-private-backend.md) | SearXNG privado CONFENGE (HTTP boundary, runbook) |
 | `artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/` | Campanha HC (STATUS/HANDOFF) |
 | `specs/001-*`, `specs/002-*` | Spec Kit dual / historical contracts |
 | `deploy/systemd/` | Units de produção |

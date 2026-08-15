@@ -29,6 +29,7 @@ Existência do host **não** autoriza claims `VPS_OPERATIONAL` / `LOCAL_READY` /
 | [`onboarding.md`](onboarding.md) | Onboarding operacional |
 | [`METRIC-DEFINITION-POLICY.md`](METRIC-DEFINITION-POLICY.md) | Política de definição de métricas |
 | [`extra-technical-acervo.md`](extra-technical-acervo.md) | Acervo CAT/CAO Extra (store + CLI) |
+| [`searxng-private-backend.md`](searxng-private-backend.md) | SearXNG privado CONFENGE (HTTP only, AGPL, canário) |
 
 ## Host / Netcup / recovery
 

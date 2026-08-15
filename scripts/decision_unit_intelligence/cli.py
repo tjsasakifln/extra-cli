@@ -74,6 +74,7 @@ def _execute(args: argparse.Namespace, *, label: str) -> int:
             search_budget=search_budget,
             cache_dir=Path(args.search_cache_dir),
             verify_email_dns=args.verify_email_dns,
+            search_failover=args.search_failover or os.getenv("CONFENGE_SEARCH_FAILOVER", "off"),
         )
         payload = acc.to_dict()
         payload["replay_hash"] = account_hash(payload)
@@ -131,6 +132,7 @@ def _execute(args: argparse.Namespace, *, label: str) -> int:
         "email_safe_warmbly": email_safe,
         "web_discovery": {
             "backend": args.search_backend,
+            "failover": args.search_failover or os.getenv("CONFENGE_SEARCH_FAILOVER", "off"),
             "budget": {
                 "max_queries_per_account": search_budget.max_queries,
                 "max_results_per_query": search_budget.max_results_per_query,
@@ -498,6 +500,12 @@ def build_parser() -> argparse.ArgumentParser:
 def _add_web_discovery_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--search-backend", choices=("off", "searxng", "ddgs"), default="off")
     parser.add_argument("--searxng-url")
+    parser.add_argument(
+        "--search-failover",
+        choices=("off", "ddgs"),
+        default="off",
+        help="Explicit recorded failover only. Default off; never hides SearXNG downtime.",
+    )
     parser.add_argument("--search-max-queries", type=int, default=4)
     parser.add_argument("--search-results-per-query", type=int, default=5)
     parser.add_argument("--crawl-max-pages", type=int, default=4)

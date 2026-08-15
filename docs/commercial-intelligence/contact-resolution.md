@@ -88,7 +88,7 @@ Evaluation date: 2026-08-14. Recheck license and maintenance before upgrades.
 | Project | Repository | License | Decision and reuse |
 |---|---|---|---|
 | DDGS | <https://github.com/deedy5/ddgs> | MIT | Selected for the small local canary through a lazy adapter. It is replaceable and rate-limited; engine behavior is not treated as a stable contract. |
-| SearXNG | <https://github.com/searxng/searxng> | AGPL-3.0 | Selected only as an optional HTTP service boundary. No SearXNG code is copied or linked into extra-cli. A modified/network deployment requires explicit license compliance review. |
+| SearXNG | <https://github.com/searxng/searxng> | AGPL-3.0 | Selected only as an optional HTTP service boundary. No SearXNG code is copied or linked into extra-cli. CONFENGE runs a private official image (digest-pinned). A modified/network deployment requires offering corresponding source (AGPL-3.0 §13). See [`../ops/searxng-private-backend.md`](../ops/searxng-private-backend.md). |
 | Crawl4AI | <https://github.com/unclecode/crawl4ai> | Apache-2.0 | Evaluated and deferred. It is active and capable, but browser/runtime weight is unnecessary for the first static-HTML slice. The crawler interface allows later adoption. |
 | theHarvester | <https://github.com/laramies/theHarvester> | GPL metadata / repository license ambiguity | Not adopted. Its broad OSINT surface and licensing posture add more risk and complexity than this targeted professional-public-data use case needs. |
 | dnspython | <https://github.com/rthalley/dnspython> | ISC | Selected for passive DNS/MX resolution. It never performs mailbox ownership or SMTP identity proof. |

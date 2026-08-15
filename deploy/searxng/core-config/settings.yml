@@ -1,0 +1,61 @@
+# CONFENGE private SearXNG — configuration only.
+# This file is not SearXNG source. The official image provides the AGPL program.
+# extra-cli talks to this instance over HTTP only.
+
+use_default_settings:
+  engines:
+    keep_only:
+      - duckduckgo
+      - brave
+      - mojeek
+      - qwant
+      - wikipedia
+      - wikidata
+
+general:
+  instance_name: "CONFENGE private search"
+  debug: false
+  donation_url: false
+  contact_url: false
+  enable_metrics: true
+  open_metrics: ""
+
+search:
+  safe_search: 1
+  autocomplete: ""
+  favicon_resolver: ""
+  default_lang: "pt-BR"
+  formats:
+    - html
+    - json
+  ban_time_on_fail: 30
+  max_ban_time_on_fail: 600
+
+server:
+  limiter: true
+  public_instance: false
+  image_proxy: false
+  method: "GET"
+
+valkey:
+  url: redis://valkey:6379/0
+
+outgoing:
+  request_timeout: 5.0
+  max_request_timeout: 10.0
+  useragent_suffix: "CONFENGE-private"
+  # No proxies, no Tor, no source-IP rotation, no CAPTCHA bypass.
+
+engines:
+  - name: duckduckgo
+    disabled: false
+  - name: brave
+    disabled: false
+  - name: mojeek
+    disabled: false
+  - name: qwant
+    disabled: false
+  - name: wikipedia
+    disabled: false
+  - name: wikidata
+    disabled: false
