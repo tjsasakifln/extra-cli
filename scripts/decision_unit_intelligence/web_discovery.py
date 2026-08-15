@@ -24,6 +24,14 @@ import httpx
 from bs4 import BeautifulSoup
 
 from scripts.decision_unit_intelligence.decision_policy import normalize_observed_role
+from scripts.decision_unit_intelligence.email_discovery import (
+    associate_person_to_email,
+    build_email_job_queries,
+    classify_email_discovery,
+    extract_mailto_addresses,
+    plausible_person_name,
+    score_internal_url,
+)
 from scripts.decision_unit_intelligence.evidence import make_evidence
 from scripts.decision_unit_intelligence.models import (
     ChannelObservation,
@@ -33,7 +41,6 @@ from scripts.decision_unit_intelligence.models import (
     OwnershipStatus,
     PersonObservation,
     PersonRelation,
-    fold_text,
     normalize_cnpj,
     normalize_email,
     normalize_name,
@@ -56,6 +63,7 @@ _NAME_WORD = r"[A-ZÁÉÍÓÚÂÊÔÃÕÇ][A-Za-zÀ-ÖØ-öø-ÿ'’-]+"
 _NAME_PATTERN = rf"{_NAME_WORD}(?:\s+(?:(?:d[aeo]s?|e)\s+)?{_NAME_WORD}){{1,4}}"
 _ROLE_THEN_NAME = re.compile(rf"(?P<role>{_ROLE_PATTERN})\s*[:|,\-–]\s*(?P<name>{_NAME_PATTERN})", re.I)
 _NAME_THEN_ROLE = re.compile(rf"(?P<name>{_NAME_PATTERN})\s*[:|,\-–]\s*(?P<role>{_ROLE_PATTERN})", re.I)
+_NAME_THEN_ROLE_LOOSE = re.compile(rf"(?P<name>{_NAME_PATTERN})\s+(?P<role>{_ROLE_PATTERN})", re.I)
 _EMAIL_RE = re.compile(r"(?<![\w.+-])([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})(?![\w-])", re.I)
 _PHONE_RE = re.compile(r"(?<!\d)(?:\+?55\s*)?(?:\(?\d{2}\)?[\s.-]*)?\d{4,5}[\s.-]*\d{4}(?!\d)")
 
@@ -99,6 +107,7 @@ class CrawlDocument:
     retrieved_at: str
     links: tuple[str, ...] = ()
     bytes_touched: int = 0
+    html: str = ""
 
 
 @dataclass(frozen=True)
@@ -297,6 +306,7 @@ class CachedPublicCrawler:
                 retrieved_at=cached["retrieved_at"],
                 links=tuple(cached.get("links") or []),
                 bytes_touched=int(cached.get("bytes_touched") or 0),
+                html=str(cached.get("html") or ""),
             )
         self.cache_misses += 1
         document = self.crawler.fetch(url, max_bytes=max_bytes)
@@ -367,7 +377,7 @@ class HttpxPublicCrawler:
                             raise ValueError("crawl byte budget exceeded")
                         chunks.append(chunk)
                     raw = b"".join(chunks)
-                    text, links = _html_to_text_and_links(raw, str(response.url), content_type)
+                    html, text, links = _html_to_text_and_links(raw, str(response.url), content_type)
                     return CrawlDocument(
                         url=str(response.url),
                         text=text,
@@ -375,6 +385,7 @@ class HttpxPublicCrawler:
                         retrieved_at=now_iso(),
                         links=tuple(links),
                         bytes_touched=len(raw),
+                        html=html,
                     )
             except (httpx.HTTPError, OSError, ValueError, PermissionError) as exc:
                 last_error = exc
@@ -383,24 +394,38 @@ class HttpxPublicCrawler:
         raise last_error
 
 
-def _html_to_text_and_links(raw: bytes, url: str, content_type: str) -> tuple[str, list[str]]:
+def _html_to_text_and_links(raw: bytes, url: str, content_type: str) -> tuple[str, str, list[str]]:
+    decoded = raw.decode("utf-8", errors="replace")
     if content_type == "text/plain":
-        return raw.decode("utf-8", errors="replace"), []
+        return "", decoded, []
     soup = BeautifulSoup(raw, "lxml")
     for node in soup(["script", "style", "noscript", "svg"]):
         node.decompose()
+    for anchor in soup.find_all("a", href=True):
+        href = str(anchor.get("href") or "")
+        if href.lower().startswith("mailto:"):
+            address = href.split(":", 1)[1].split("?", 1)[0]
+            visible = anchor.get_text(" ", strip=True)
+            if address and address.lower() not in visible.lower():
+                anchor.string = f"{visible} {address}".strip()
     text = re.sub(r"\s+", " ", soup.get_text(" ", strip=True))
     links: list[str] = []
-    host = urlsplit(url).hostname
+    host = (urlsplit(url).hostname or "").lower().removeprefix("www.")
     for anchor in soup.find_all("a", href=True):
         target = urljoin(url, str(anchor["href"]))
         parsed = urlsplit(target)
-        if parsed.scheme in {"http", "https"} and parsed.hostname == host:
+        target_host = (parsed.hostname or "").lower().removeprefix("www.")
+        if parsed.scheme in {"http", "https"} and target_host == host:
             links.append(urlunsplit((parsed.scheme, parsed.netloc, parsed.path, parsed.query, "")))
-    return text, list(dict.fromkeys(links))
+    return decoded, text, list(dict.fromkeys(links))
 
 
-def build_query_plan(context: InvestigationContext, *, known_domain: str | None = None) -> list[str]:
+def build_query_plan(
+    context: InvestigationContext,
+    *,
+    known_domain: str | None = None,
+    known_people: list[str] | None = None,
+) -> list[str]:
     company = (context.legal_name or "").strip()
     cnpj = normalize_cnpj(context.cnpj)
     role_terms = {
@@ -409,7 +434,14 @@ def build_query_plan(context: InvestigationContext, *, known_domain: str | None 
         "licitacoes_propostas": ["licitações", "comercial", "suprimentos"],
         "orcamento_bdi": ["orçamento", "engenharia", "diretor de engenharia"],
     }.get(context.service, ["diretor", "engenharia", "comercial"])
-    queries: list[str] = []
+    people = known_people if known_people is not None else list(context.extra.get("known_people") or [])
+    queries = build_email_job_queries(
+        company=company or None,
+        cnpj=cnpj or None,
+        domain=known_domain,
+        known_people=people,
+        role_terms=role_terms,
+    )
     if company:
         queries.extend(f'"{company}" {term}' for term in role_terms)
         queries.extend(
@@ -417,20 +449,16 @@ def build_query_plan(context: InvestigationContext, *, known_domain: str | None 
                 f'"{company}" diretoria',
                 f'"{company}" sócio',
                 f'"{company}" contato',
-                f'"{company}" email',
                 f'"{company}" telefone',
             ]
         )
     if cnpj:
-        queries.extend([f'"{cnpj}" email', f'"{cnpj}" telefone'])
+        queries.append(f'"{cnpj}" telefone')
     if known_domain:
         queries.extend(
             [
                 f"site:{known_domain} diretor",
-                f"site:{known_domain} engenharia",
-                f"site:{known_domain} contato",
                 f"site:{known_domain} filetype:pdf",
-                f'"{company}" "@{known_domain}"' if company else f'"@{known_domain}"',
             ]
         )
     return list(dict.fromkeys(query for query in queries if query.strip()))
@@ -520,20 +548,26 @@ def resolve_corporate_domain(
     return DomainResolution(top.domain, confidence, tuple(candidates[:5]), top.reason_codes)
 
 
-def rank_crawl_urls(hits: list[SearchHit], canonical_domain: str, *, limit: int) -> list[str]:
+def rank_crawl_urls(
+    hits: list[SearchHit],
+    canonical_domain: str,
+    *,
+    limit: int,
+    extra_urls: list[str] | tuple[str, ...] = (),
+) -> list[str]:
     scored: list[tuple[int, str]] = []
     for hit in hits:
         if _host(hit.url) != canonical_domain:
             continue
         path = urlsplit(hit.url).path.lower()
-        score = 0
-        if any(token in path for token in ("contato", "equipe", "diret", "quem-somos", "institucional")):
-            score += 5
+        score = score_internal_url(hit.url, f"{hit.title} {hit.snippet}")
         if path in {"", "/"}:
             score += 3
-        if path.endswith(".pdf"):
-            score -= 5
         scored.append((-score, hit.url))
+    for url in extra_urls:
+        if _host(url) != canonical_domain:
+            continue
+        scored.append((-score_internal_url(url), url))
     ranked = list(dict.fromkeys(url for _score, url in sorted(scored)))
     homepage = f"https://{canonical_domain}/"
     if homepage not in ranked:
@@ -548,31 +582,31 @@ def _context_snippet(text: str, start: int, end: int, *, radius: int = 140) -> s
 
 
 def _match_person_to_email(email: str, people: list[PersonObservation]) -> str | None:
-    local = re.sub(r"[^a-z0-9]", "", email.split("@", 1)[0].lower())
-    matches: list[str] = []
-    for person in people:
-        name = normalize_name(person.person_name)
-        if not name:
-            continue
-        tokens = [re.sub(r"[^a-z0-9]", "", token) for token in fold_text(name).split()]
-        tokens = [token for token in tokens if token and token not in {"da", "de", "do", "dos", "das"}]
-        if len(tokens) >= 2 and tokens[0] in local and tokens[-1] in local:
-            matches.append(name)
+    """Local-part signal only. Identity uses associate_person_to_email."""
+    from scripts.decision_unit_intelligence.email_discovery import local_part_name_signal
+
+    matches = [
+        name
+        for person in people
+        if (name := normalize_name(person.person_name)) and local_part_name_signal(email, name)
+    ]
     return matches[0] if len(set(matches)) == 1 else None
 
 
 def extract_public_evidence(
     context: InvestigationContext,
     document: CrawlDocument,
+    *,
+    canonical_domain: str | None = None,
 ) -> ExtractedWebEvidence:
     cnpj = normalize_cnpj(context.cnpj)
     extracted = ExtractedWebEvidence()
     seen_people: set[tuple[str, str]] = set()
-    for pattern in (_ROLE_THEN_NAME, _NAME_THEN_ROLE):
+    for pattern in (_ROLE_THEN_NAME, _NAME_THEN_ROLE, _NAME_THEN_ROLE_LOOSE):
         for match in pattern.finditer(document.text):
             name = normalize_name(match.group("name"))
             role = match.group("role").strip()
-            if not name or (name, role.lower()) in seen_people:
+            if not name or not plausible_person_name(name) or (name, role.lower()) in seen_people:
                 continue
             seen_people.add((name, role.lower()))
             snippet = _context_snippet(document.text, match.start(), match.end())
@@ -603,22 +637,89 @@ def extract_public_evidence(
                     evidence_id=evidence.evidence_id,
                 )
             )
-    for email_match in _EMAIL_RE.finditer(document.text):
-        email = normalize_email(email_match.group(1))
+    emails = list(
+        dict.fromkeys(
+            [
+                *(normalize_email(match.group(1)) for match in _EMAIL_RE.finditer(document.text)),
+                *extract_mailto_addresses(document.html),
+            ]
+        )
+    )
+    known_people = list(extracted.people)
+    for extra_name in context.extra.get("known_people") or []:
+        name = normalize_name(str(extra_name))
+        if name and not any(normalize_name(person.person_name) == name for person in known_people):
+            known_people.append(
+                PersonObservation(
+                    observation_id=stable_id("ctx-person", cnpj, name),
+                    company_entity_id=cnpj,
+                    person_name=name,
+                    observed_role=None,
+                    relation=PersonRelation.COMPANY_MEMBER,
+                    source_type="investigation_context",
+                    source_url=document.url,
+                    epistemic_class=EpistemicClass.OBSERVED,
+                )
+            )
+    for email in emails:
         if not email:
             continue
-        person_name = _match_person_to_email(email, extracted.people)
+        association = associate_person_to_email(
+            email,
+            people=known_people,
+            html=document.html,
+            text=document.text,
+            source_url=document.url,
+            canonical_domain=canonical_domain or _host(document.url),
+        )
+        if association.associated and association.person_name:
+            if not any(normalize_name(person.person_name) == association.person_name for person in extracted.people):
+                person_evidence = make_evidence(
+                    field="person_role",
+                    value=association.person_name,
+                    epistemic_class=EpistemicClass.OBSERVED,
+                    source_type="company_website",
+                    source_url=document.url,
+                    evidence_snippet=association.snippet,
+                    observed_at=document.retrieved_at,
+                    extraction_method=association.extraction_method,
+                )
+                extracted.evidence.append(person_evidence)
+                extracted.people.append(
+                    PersonObservation(
+                        observation_id=stable_id("web-person", cnpj, association.person_name, document.url),
+                        company_entity_id=cnpj,
+                        person_name=association.person_name,
+                        observed_role=None,
+                        relation=PersonRelation.COMPANY_MEMBER,
+                        source_type="company_website",
+                        source_url=document.url,
+                        snippet=association.snippet,
+                        observed_at=document.retrieved_at,
+                        epistemic_class=EpistemicClass.OBSERVED,
+                        evidence_id=person_evidence.evidence_id,
+                    )
+                )
         channel_type = classify_observed_email_channel(email)
-        snippet = _context_snippet(document.text, email_match.start(), email_match.end())
+        discovery_class = classify_email_discovery(
+            email,
+            epistemic=EpistemicClass.OBSERVED,
+            identity_associated=association.associated,
+            ambiguous=association.ambiguous,
+        )
         evidence = make_evidence(
             field="email",
             value=email,
             epistemic_class=EpistemicClass.OBSERVED,
             source_type="company_website",
             source_url=document.url,
-            evidence_snippet=snippet,
+            evidence_snippet=association.snippet,
             observed_at=document.retrieved_at,
-            extraction_method="public_page_exact_text",
+            extraction_method=association.extraction_method,
+            extra={
+                "reason_codes": list(association.reason_codes),
+                "email_discovery_class": discovery_class.value,
+            },
         )
         extracted.evidence.append(evidence)
         extracted.channels.append(
@@ -627,15 +728,23 @@ def extract_public_evidence(
                 company_entity_id=cnpj,
                 channel_type=channel_type,
                 channel_value=email,
-                person_name=person_name,
+                person_name=association.person_name if association.associated else None,
                 source_type="company_website",
                 source_url=document.url,
-                snippet=snippet,
+                snippet=association.snippet,
                 observed_at=document.retrieved_at,
                 epistemic_class=EpistemicClass.OBSERVED,
                 ownership=OwnershipStatus.COMPANY_OWNED,
                 evidence_id=evidence.evidence_id,
-                extra={"identity_explicitly_associated": bool(person_name)},
+                extra={
+                    "identity_explicitly_associated": association.associated,
+                    "identity_ambiguous": association.ambiguous,
+                    "email_discovery_class": discovery_class.value,
+                    "association_reason_codes": list(association.reason_codes),
+                    "extraction_method": association.extraction_method,
+                    "third_party_echo": association.third_party_echo,
+                    "person_may_have_left": association.stale,
+                },
             )
         )
     for phone_match in _PHONE_RE.finditer(document.text):

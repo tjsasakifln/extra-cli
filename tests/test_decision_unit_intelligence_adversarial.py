@@ -406,6 +406,11 @@ def test_observed_switchboard_outranks_inferred_email():
         channels=[
             _channel(ChannelType.COMPANY_SWITCHBOARD, "4833331111", extra={"person_owns_phone": False}),
             _channel(ChannelType.ROLE_MAILBOX, "licitacoes@empresa.com.br"),
+            _channel(
+                ChannelType.DIRECT_EMAIL,
+                "ana.souza@empresa.com.br",
+                person="ANA SOUZA",
+            ),
         ],
         company_site="https://empresa.com.br",
         infer_email=True,

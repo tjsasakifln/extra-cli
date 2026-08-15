@@ -65,6 +65,40 @@ GENERIC_MAILBOX_LOCALS = frozenset(
         "secretaria",
         "recepcao",
         "mailbox",
+        "conduta",
+        "etica",
+        "denuncia",
+        "denuncias",
+        "compliance",
+        "canal",
+        "privacidade",
+        "brasilia",
+        "matriz",
+        "filial",
+        "unidade",
+        "sede",
+        "escritorio",
+        "vitoria",
+        "goiania",
+        "brasilia",
+        "curitiba",
+        "florianopolis",
+        "saopaulo",
+        "riodejaneiro",
+        "recife",
+        "salvador",
+        "fortaleza",
+        "manaus",
+        "belem",
+        "natal",
+        "maceio",
+        "joaopessoa",
+        "teresina",
+        "palmas",
+        "campogrande",
+        "cuiaba",
+        "portoalegre",
+        "belohorizonte",
     }
 )
 
@@ -153,10 +187,22 @@ def re_nominal(local: str) -> bool:
     )
 
 
+def is_brand_mailbox(value: str | None) -> bool:
+    """Company-name@company-domain is a generic org box, not a person."""
+    local = email_local_part(value)
+    domain = email_domain(value)
+    if not local or not domain:
+        return False
+    stem = domain.split(".", 1)[0]
+    compact_local = local.replace("-", "").replace("_", "")
+    compact_stem = stem.replace("-", "").replace("_", "")
+    return compact_local == compact_stem or compact_stem.startswith(compact_local) and len(compact_local) >= 4
+
+
 def classify_observed_email_channel(value: str) -> ChannelType:
     if is_role_mailbox(value):
         return ChannelType.ROLE_MAILBOX
-    if is_generic_mailbox(value) or is_freemail(value):
+    if is_generic_mailbox(value) or is_freemail(value) or is_brand_mailbox(value):
         return ChannelType.GENERIC_CORPORATE_EMAIL
     if looks_nominal_local(value):
         return ChannelType.DIRECT_EMAIL
@@ -266,7 +312,37 @@ def classify_channel_observation(
                 extra={**extra, "human_review_required": True, "inferred_class": "INFERRED_DIRECT_EMAIL_VERIFIED" if verified else "INFERRED_DIRECT_EMAIL"},
             )
 
-    if ctype == ChannelType.DIRECT_EMAIL and looks_nominal_local(value) and suitable_person and epistemic == EpistemicClass.OBSERVED:
+    if ctype == ChannelType.DIRECT_EMAIL and looks_nominal_local(value) and epistemic == EpistemicClass.OBSERVED:
+        from scripts.decision_unit_intelligence.email_discovery import plausible_person_name
+        from scripts.decision_unit_intelligence.email_resolution import is_third_party_professional_domain
+
+        if (
+            extra.get("identity_explicitly_associated") is False
+            or not suitable_person
+            or not plausible_person_name(person_name)
+            or is_third_party_professional_domain(email_domain(value))
+        ):
+            reasons.append("OBSERVED_EMAIL_IDENTITY_UNRESOLVED")
+            return RouteDraft(
+                channel_type=ChannelType.DIRECT_EMAIL,
+                channel_value=value,
+                relation=RouteRelation.ACCOUNT_LEVEL_ONLY,
+                epistemic=EpistemicClass.OBSERVED,
+                reachability=ReachabilityClass.R5_CORPORATE_ONLY,
+                action=ActionMode.HUMAN_REVIEW_EMAIL,
+                candidate_id=candidate_id if suitable_person else None,
+                target_role=target_role,
+                source_type=obs.source_type,
+                source_url=obs.source_url,
+                evidence_ids=[obs.evidence_id] if obs.evidence_id else [],
+                confidence=ConfidenceLevel.MEDIUM,
+                ownership=OwnershipStatus.COMPANY_OWNED,
+                freshness=FreshnessState.UNKNOWN,
+                suppression=SuppressionState.NONE,
+                reason_codes=reasons,
+                next_action=f"Revisar e-mail nominal observado {value} sem associação explícita de identidade. Sem AUTO_SEND.",
+                extra={**extra, "identity_explicitly_associated": False},
+            )
         reasons.append("NAMED_EMAIL_OBSERVED")
         return RouteDraft(
             channel_type=ChannelType.DIRECT_EMAIL,
