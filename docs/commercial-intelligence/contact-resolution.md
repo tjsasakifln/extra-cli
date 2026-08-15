@@ -84,6 +84,101 @@ Output is persisted under `extra.domain_resolution` and in the search attempt:
 - observed company telephone remains company-owned unless explicit evidence proves otherwise;
 - crawl may follow a bounded set of same-domain high-value slugs/anchors (equipe, diretoria, contato, engenharia, comercial, licitações, contratos, administração, imprensa). Not an infinite spider.
 
+### Corporate site contact crawl (isolated layer)
+
+After a domínio corporativo defensável exists, a specialized layer
+(`scripts/decision_unit_intelligence/site_contact_crawl.py`) runs behind the
+existing `WebCrawler` adapter. It does **not** rewrite domain resolution, the
+query planner, or SearXNG/DDGS. `CompanyWebsiteProvider` is the consumer.
+
+Observable chain:
+
+```text
+domínio corporativo defensável
+  → URLs internas de alto valor
+  → pessoa / cargo / email observado
+  → evidence bundle (SITE_* reason codes)
+```
+
+Seeds: homepage, useful URLs already returned by public search (#392/#394),
+`sitemap.xml`, `robots.txt`, and same-domain internal links (menus, anchors,
+breadcrumbs). Paths/anchors prioritized: equipe, time, quem somos, diretoria,
+liderança, administração, engenharia, comercial, licitações, contratos,
+contato, imprensa, representantes, unidades, authors/staff.
+
+Same-domain by default. Subdomain only with an explicit corporate relation
+(`www`, `institucional`, `equipe`, `contato`, `engenharia`, `comercial`,
+`portal`, `site`). Login, carrinho, webmail, search infinito, calendário,
+parâmetros combinatórios, and authenticated networks are skip-listed.
+URLs are canonicalized (fragment, `www`, tracking params, trailing slash)
+and de-duplicated. A huge sitemap is truncated at `max_sitemap_urls`; the
+crawl stops at the per-domain budget. Static HTML first; no browser farm.
+
+#### Budget defaults (`SiteCrawlBudget`)
+
+| Limit | Default | Meaning |
+|---|---|---|
+| `max_pages` | 12 | Fetches per domain (including sitemap/robots) |
+| `max_depth` | 3 | Link-follow depth from seeds |
+| `max_bytes` | 2_500_000 | Total response bytes per domain |
+| `timeout_seconds` | 20.0 | Wall-clock budget for the whole domain crawl |
+| `max_redirects` | 5 | Redirect hops counted toward the domain |
+| `requests_per_minute` | 20 | Rate ceiling (fixture crawlers skip sleep) |
+| `max_sitemap_urls` | 80 | Sitemap `<loc>` entries parsed before scoring |
+
+These are independent of the #392 search budget (`SearchBudget.max_pages=4`).
+
+#### SITE_* reason-code contract
+
+Strong promotion (named-associated) **only** when one of these is present and
+the structural evidence is unique:
+
+| Code | Meaning |
+|---|---|
+| `SITE_PROFILE_EMAIL` | Unique email on an individual profile page |
+| `SITE_TEAM_CARD_EMAIL` | Unique name+email inside a card / unique table row |
+| `SITE_MAILTO_ASSOCIATED` | `mailto:` inside the same card/profile as one person |
+| `SITE_STRUCTURED_CONTACT` | JSON-LD / microdata Person coherent with visible text |
+
+Never promoted to a person:
+
+| Code | Meaning |
+|---|---|
+| `SITE_GENERIC_ONLY` | Footer/header/nav or generic/role mailbox |
+| `SITE_JS_BLOCKED` | Shell page, almost no visible text, scripts only |
+| `SITE_NO_HIGH_VALUE_PATH` | Budget spent, no equipe/diretoria/contato-class URL |
+| `SITE_STALE_OR_UNKNOWN` | Ex-colaborador, holding/foreign domain, no freshness |
+
+Weak association (same text window, two nearby names, cross-card mailto
+whose local-part names a *different* visible person) stays **candidate**.
+`SAME_TEXT_WINDOW` from the #392 search-page associator is **not** used to
+promote SITE_* named emails. Stop-the-line: any known false association
+becomes a fixture and blocks promotion.
+
+#### Recommendation
+
+Keep this layer specialized and budget-hard. Do not grow it into a generic
+spider, do not add a browser farm, and do not promote footer or proximity
+hits. If the TRACK_A 30 canary shows incremental named-associated yield with
+zero false associations, raise `max_pages` only after another canary — never
+by relaxing association rules.
+
+Fixture canary on the in-repo corporate corpus (homepage-only vs deep bounded
+crawl, same `site-crawl` entry, no live spider):
+
+| Metric | Baseline | Deep bounded |
+|---|---|---|
+| high-value pages | 0 | 4 |
+| pages / account | 3 | 7 |
+| emails observed | 1 | 6 |
+| named-associated | 0 | 5 |
+| false association | 0 | 0 |
+| footer promoted | 0 | 0 |
+
+Pages that most generate yield: `equipe` (team cards + individual profile),
+then structured/obfuscated contact pages. Live TRACK_A 30 requires SearXNG or
+DDGS; it was not invented when those backends were unreachable.
+
 Published email-discovery classes stay distinct: `OBSERVED_DIRECT_EMAIL_IDENTITY_ASSOCIATED`, `OBSERVED_DIRECT_EMAIL_IDENTITY_UNRESOLVED`, `INFERRED_PATTERN_EMAIL`, `GENERIC_MAILBOX`, `ROLE_MAILBOX`, `DOMAIN_ONLY`, `TECHNICALLY_PLAUSIBLE`, `EMAIL_VALIDATED` (only when the existing email-safe policy already allows), `BLOCKED` / `UNKNOWN`. Org email patterns are versioned evidence (`org-email-pattern.v1`) derived only from OBSERVED same-domain addresses; generated candidates remain `INFERRED` / `CANDIDATE_UNVERIFIED` even with MX.
 
 ## Replaceable adapters and licenses
