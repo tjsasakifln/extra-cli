@@ -28,6 +28,8 @@ def build_card(account: AccountInvestigation) -> dict[str, Any]:
         )
         if route and route.channel_type.value in {"COMPANY_SWITCHBOARD", "DIRECT_PHONE"}:
             do_not_claim.append("Não alegar que o telefone pertence à pessoa.")
+    email_verification = route.extra.get("email_verification") if route else None
+    verification_status = _operator_verification_status(email_verification)
     return {
         "empresa": account.legal_name,
         "cnpj": account.cnpj,
@@ -52,6 +54,15 @@ def build_card(account: AccountInvestigation) -> dict[str, Any]:
         "channel_source_url": route.source_url if route else None,
         "channel_epistemic_class": route.epistemic_class.value if route else None,
         "channel_ownership": route.ownership.value if route else None,
+        "route_freshness": route.freshness.value if route else None,
+        "route_suppression": route.suppression.value if route else None,
+        "route_confidence": route.route_confidence.value if route else None,
+        "email_verification": email_verification,
+        "email_verification_reports": account.extra.get("email_verification", []),
+        "verification_status": verification_status,
+        # Passive DNS/MX never makes a route send-ready or proves a mailbox/person.
+        "email_send_ready": False,
+        "domain_resolution": account.extra.get("domain_resolution"),
         "action_mode": rec.action_mode.value if rec else None,
         "channel": route.channel_value if route else None,
         "exact_next_action": action or (rec.next_action if rec else None),
@@ -62,15 +73,32 @@ def build_card(account: AccountInvestigation) -> dict[str, Any]:
                 "channel_type": a.channel_type.value,
                 "channel": a.channel_value,
                 "action": a.action_mode.value,
+                "epistemic_class": a.epistemic_class.value,
+                "verification": a.extra.get("email_verification"),
             }
             for a in alts
         ],
         "confidence_dimensions": rec.dimensions if rec else {},
-        "evidence_links": [r.source_url for r in account.routes if r.source_url],
+        "evidence_links": list(
+            dict.fromkeys(
+                [r.source_url for r in account.routes if r.source_url]
+                + [e.source_url for e in account.evidence if e.source_url]
+            )
+        ),
+        "field_evidence": [e.to_dict() for e in account.evidence],
         "warnings": account.warnings + (rec.warnings if rec else []),
         "do_not_claim": do_not_claim,
         "terminal": account.terminal.value,
     }
+
+
+def _operator_verification_status(report: object) -> str:
+    if not isinstance(report, dict):
+        return "NOT_FOUND"
+    classification = str(report.get("final_classification") or "").upper()
+    if classification in {"GENERIC_MAILBOX", "GENERIC_ROLE_MAILBOX"}:
+        return "INSTITUTIONAL_GENERIC"
+    return "CANDIDATE_UNVERIFIED"
 
 
 def render_markdown(cards: list[dict[str, Any]]) -> str:
@@ -93,6 +121,9 @@ def render_markdown(cards: list[dict[str, Any]]) -> str:
                 f"- Relação canal↔pessoa: `{card.get('route_relation') or '—'}`",
                 f"- Reason codes da rota: {card.get('route_reason_codes')}",
                 f"- Provenance do canal: `{card.get('channel_source_type')}` / `{card.get('channel_epistemic_class')}` / `{card.get('channel_ownership')}`",
+                f"- Domínio: {card.get('domain_resolution')}",
+                f"- Verificação de e-mail: {card.get('email_verification')}",
+                f"- Verificações de rotas alternativas: {card.get('email_verification_reports')}",
                 f"- Action mode: `{card.get('action_mode')}`",
                 f"- Canal: `{card.get('channel')}`",
                 f"- **AÇÃO:** {card.get('exact_next_action')}",

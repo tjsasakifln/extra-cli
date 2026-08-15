@@ -471,6 +471,17 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 - [ ] O `confenge.outreach.v1` publica uma decisão target-fit completa para todo CNPJ endereçável do universo reconciliado, inclusive OUT, insuficiente, stale, DNC, downgrades e tombstones; omissão nunca preserva autorização anterior.
 - [ ] O primeiro ciclo de uso real registra decisões de Tiago, contatos realizados e resultados observados, inclusive quando não houver conversão.
 
+#### Contact resolution público e defensável
+
+- [ ] Para cada conta A1/A2 priorizada, a busca web contextual é executada dentro de budget explícito ou registra `POLICY_SKIP`/`SOURCE_BLOCKED`; ausência de execução não conta como cobertura.
+- [ ] Resolução de domínio retorna domínio canônico, confiança, alternativas, evidências e reason codes; ambiguidade, holding, terceiro, marketplace, rede social ou domínio abandonado não são promovidos silenciosamente.
+- [ ] Pessoa, cargo, domínio, derivação de email, verificação técnica, suitability e freshness permanecem dimensões independentes com provenance por campo.
+- [ ] Busca/crawl respeita fontes públicas profissionais, robots, limites de tempo/bytes/páginas, cache, retries e proteção SSRF; não usa scraping autenticado, evasão, breach data ou data broker pago.
+- [ ] `INFERRED` nunca vira `OBSERVED`; MX/SMTP não provam identidade; telefone geral nunca vira telefone pessoal sem evidência explícita.
+- [ ] A projeção consumer-agnostic chega ao Warmbly sem segunda verdade e sem autorizar envio. Outcomes retornam apenas como sinais idempotentes, não como CRM replicado.
+- [ ] Golden set cobre email nominal publicado, caixa genérica, padrão inferido, catch-all, domínio ambíguo/grupo, sem site, stale e conflito, com regressões epistemológicas fail-closed.
+- [ ] O primeiro canário de 10-30 contas reais publica métricas de busca, domínio, pessoa, rota, verificação, falhas e reason codes. Fixture prova lógica, não operação live.
+
 #### Gate imediato `CONFENGE_COMMERCIAL_READY`
 
 - [ ] O perfil comercial e o catálogo de sinais estão versionados.

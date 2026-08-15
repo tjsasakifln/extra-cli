@@ -175,6 +175,7 @@ class HistoricalCampaignProvider:
             return ProviderResult(attempts=[attempt], terminal="miss")
         people: list[PersonObservation] = []
         channels: list[ChannelObservation] = []
+        evidence = []
         for blob_key in ("qsa", "qsa2"):
             for name, role in parse_qsa_blob(row.get(blob_key)):
                 ev = make_evidence(
@@ -187,6 +188,7 @@ class HistoricalCampaignProvider:
                     evidence_snippet=f"{name} ({role})" if role else name,
                     extraction_method="qsa_cadastre",
                 )
+                evidence.append(ev)
                 people.append(
                     PersonObservation(
                         observation_id=stable_id("qsa", cnpj, name),
@@ -215,6 +217,7 @@ class HistoricalCampaignProvider:
                 evidence_snippet=str(tel),
                 extraction_method="rfb_phone",
             )
+            evidence.append(ev)
             channels.append(
                 ChannelObservation(
                     observation_id=stable_id("tel", cnpj, str(tel)),
@@ -242,6 +245,7 @@ class HistoricalCampaignProvider:
                 evidence_snippet=email,
                 extraction_method="public_or_manual_override",
             )
+            evidence.append(ev)
             channels.append(
                 ChannelObservation(
                     observation_id=stable_id("email", cnpj, email),
@@ -301,10 +305,14 @@ class HistoricalCampaignProvider:
         return ProviderResult(
             people=people,
             channels=channels,
+            evidence=evidence,
             attempts=[attempt],
             terminal="ok",
             why_now=why,
             company_site=str(site) if site else None,
             legal_name=row.get("legal_name") or row.get("razao_social") or row.get("Empresa"),
-            extra={"service_hint": service, "row": {k: row.get(k) for k in ("orgao", "valor", "melhor_contrato", "municipio", "uf")}},
+            extra={
+                "service_hint": service,
+                "row": {k: row.get(k) for k in ("orgao", "valor", "melhor_contrato", "municipio", "uf")},
+            },
         )

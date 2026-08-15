@@ -2,9 +2,15 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from time import perf_counter
 from typing import Any
 
+from scripts.decision_unit_intelligence.email_verification import (
+    DnspythonResolver,
+    PassiveEmailVerifier,
+    verify_email_routes,
+)
 from scripts.decision_unit_intelligence.models import SearchLedger, normalize_cnpj
 from scripts.decision_unit_intelligence.orchestrator import investigate_account
 from scripts.decision_unit_intelligence.providers.administrative_process import AdministrativeProcessProvider
@@ -15,21 +21,65 @@ from scripts.decision_unit_intelligence.providers.external_enrichment import Ext
 from scripts.decision_unit_intelligence.providers.historical_campaign import HistoricalCampaignProvider
 from scripts.decision_unit_intelligence.providers.official_documents import OfficialDocumentsProvider
 from scripts.decision_unit_intelligence.providers.public_search import PublicSearchProvider
+from scripts.decision_unit_intelligence.web_discovery import (
+    CachedPublicCrawler,
+    CachedRateLimitedSearchBackend,
+    DdgsSearchBackend,
+    HttpxPublicCrawler,
+    JsonDiscoveryCache,
+    SearchBudget,
+    SearxngSearchBackend,
+)
 
 _SHARED_HISTORICAL: HistoricalCampaignProvider | None = None
 
 
-def default_providers(*, external_enabled: bool = False) -> list[Any]:
+def default_providers(
+    *,
+    external_enabled: bool = False,
+    search_backend: str = "off",
+    searxng_url: str | None = None,
+    search_budget: SearchBudget | None = None,
+    cache_dir: Path | None = None,
+) -> list[Any]:
     global _SHARED_HISTORICAL
     if _SHARED_HISTORICAL is None:
         _SHARED_HISTORICAL = HistoricalCampaignProvider()
+    budget = search_budget or SearchBudget()
+    backend = None
+    if search_backend != "off":
+        if search_backend == "searxng":
+            if not searxng_url:
+                raise ValueError("searxng search backend requires --searxng-url")
+            raw_backend = SearxngSearchBackend(searxng_url, timeout_seconds=budget.timeout_seconds)
+        elif search_backend == "ddgs":
+            raw_backend = DdgsSearchBackend(timeout_seconds=budget.timeout_seconds)
+        else:
+            raise ValueError(f"unsupported search backend: {search_backend}")
+        cache = JsonDiscoveryCache(cache_dir or Path(".cache/confenge-prospect"), ttl_days=budget.cache_ttl_days)
+        backend = CachedRateLimitedSearchBackend(
+            raw_backend,
+            cache=cache,
+            min_interval_seconds=budget.min_query_interval_seconds,
+        )
     return [
         _SHARED_HISTORICAL,
         ExistingDatalakeProvider(),
+        PublicSearchProvider(
+            backend=backend,
+            crawler=(
+                CachedPublicCrawler(
+                    HttpxPublicCrawler(timeout_seconds=budget.timeout_seconds),
+                    cache=cache,
+                )
+                if backend
+                else None
+            ),
+            budget=budget,
+        ),
         AdministrativeProcessProvider(),
         OfficialDocumentsProvider(),
         CompanyWebsiteProvider(),
-        PublicSearchProvider(),
         ExternalEnrichmentProvider(enabled=external_enabled),
     ]
 
@@ -40,12 +90,24 @@ def run_account(
     service: str = "reajuste_14133",
     providers: list[Any] | None = None,
     infer_email: bool = True,
+    search_backend: str = "off",
+    searxng_url: str | None = None,
+    search_budget: SearchBudget | None = None,
+    cache_dir: Path | None = None,
+    verify_email_dns: bool = False,
 ) -> Any:
     started = perf_counter()
     ctx = InvestigationContext(cnpj=normalize_cnpj(cnpj), service=service)
-    providers = providers or default_providers()
+    providers = providers or default_providers(
+        search_backend=search_backend,
+        searxng_url=searxng_url,
+        search_budget=search_budget,
+        cache_dir=cache_dir,
+    )
     people = []
     channels = []
+    evidence = []
+    discovery_extra: dict[str, Any] = {}
     ledger = SearchLedger()
     legal_name = None
     why_now = None
@@ -60,6 +122,7 @@ def run_account(
             continue
         people.extend(result.people)
         channels.extend(result.channels)
+        evidence.extend(result.evidence)
         ledger.attempts.extend(result.attempts)
         ledger.provider_attempts += len(result.attempts)
         ledger.documents_checked += sum(a.documents_checked for a in result.attempts)
@@ -71,17 +134,27 @@ def run_account(
                 blocked = True
         if result.legal_name:
             legal_name = result.legal_name
+            ctx.legal_name = result.legal_name
         if result.why_now:
             why_now = result.why_now
         if result.company_site:
             site = result.company_site
+            ctx.extra["company_site"] = result.company_site
+        if result.extra.get("domain_resolution"):
+            discovery_extra["domain_resolution"] = result.extra["domain_resolution"]
+        ledger.cost_brl += result.cost.cost_brl
+        ledger.bytes_touched += result.cost.bytes_touched + sum(a.bytes_touched for a in result.attempts)
         ledger.tiers_completed.append(provider.tier)
         ledger.known_evidence_checked += len(result.people) + len(result.channels)
-        # Positive stop: we already have a named person and a channel.
-        if people and channels:
+        required = {
+            p.provider_id for p in providers if getattr(p, "first_class", False) and getattr(p, "enabled", False)
+        }
+        attempted = {attempt.provider_id for attempt in ledger.attempts}
+        # Positive stop only after every enabled first-class provider ran.
+        if people and channels and required.issubset(attempted):
             break
     ledger.duration_ms = int((perf_counter() - started) * 1000)
-    return investigate_account(
+    account = investigate_account(
         cnpj=cnpj,
         legal_name=legal_name,
         service=ctx.service,
@@ -91,5 +164,20 @@ def run_account(
         ledger=ledger,
         company_site=site,
         infer_email=infer_email,
+        evidence=evidence,
+        discovery_extra=discovery_extra,
         blocked=blocked,
     )
+    if verify_email_dns:
+        verification_cache = JsonDiscoveryCache(cache_dir or Path(".cache/confenge-prospect"), ttl_days=7)
+        reports = verify_email_routes(
+            account.routes,
+            PassiveEmailVerifier(
+                DnspythonResolver(),
+                cache=verification_cache,
+            ),
+        )
+        account.extra["email_verification"] = [report.to_dict() for report in reports]
+    else:
+        account.extra["email_verification"] = []
+    return account

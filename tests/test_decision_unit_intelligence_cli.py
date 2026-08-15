@@ -7,7 +7,9 @@ from pathlib import Path
 
 from scripts.decision_unit_intelligence.cli import main
 from scripts.decision_unit_intelligence.cohort import TRACK_A_CNPJS
+from scripts.decision_unit_intelligence.operator_pack import build_card
 from scripts.decision_unit_intelligence.providers.historical_campaign import load_campaign_index
+from scripts.decision_unit_intelligence.runner import run_account
 
 
 def test_cli_plan_and_run_track_a(tmp_path: Path):
@@ -53,6 +55,27 @@ def test_cli_plan_and_run_track_a(tmp_path: Path):
             if card["primary_route"] == "COMPANY_SWITCHBOARD":
                 assert "pedir por" in (card["exact_next_action"] or "").lower()
                 assert "Não alegar que o telefone pertence à pessoa." in (card.get("do_not_claim") or [])
+
+
+def test_operator_card_keeps_passive_email_verification_fail_closed() -> None:
+    account = run_account(TRACK_A_CNPJS[0])
+    email_route = next(route for route in account.routes if "@" in (route.channel_value or ""))
+    account.recommendation.primary_route_id = email_route.route_id
+    email_route.extra["email_verification"] = {
+        "dns": "RESOLVED",
+        "mx": "MX_PRESENT",
+        "catch_all": "UNKNOWN_NOT_PROBED",
+        "smtp": "SKIPPED_POLICY",
+        "final_classification": "UNVERIFIED_DIRECT_CANDIDATE",
+    }
+    account.extra["email_verification"] = [email_route.extra["email_verification"]]
+
+    card = build_card(account)
+
+    assert card["verification_status"] == "CANDIDATE_UNVERIFIED"
+    assert card["email_send_ready"] is False
+    assert card["email_verification"]["mx"] == "MX_PRESENT"
+    assert card["email_verification_reports"][0]["smtp"] == "SKIPPED_POLICY"
 
 
 def test_cli_replay_is_deterministic(tmp_path: Path):
