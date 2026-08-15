@@ -102,7 +102,7 @@ def default_providers(
             planner_cache=planner_cache,
         ),
         AdministrativeProcessProvider(),
-        OfficialDocumentsProvider(),
+        OfficialDocumentsProvider(backend=backend, budget=budget),
         CompanyWebsiteProvider(
             crawler=crawler if site_crawl else None,
             budget=budget,
