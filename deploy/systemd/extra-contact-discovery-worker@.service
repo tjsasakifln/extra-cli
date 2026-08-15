@@ -1,0 +1,47 @@
+[Unit]
+Description=Extra Consultoria leased contact-discovery worker %i
+After=network-online.target postgresql.service
+Wants=network-online.target
+Requires=postgresql.service
+OnFailure=extra-onfailure@%n.service
+StartLimitIntervalSec=900
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=extra-consultoria
+Group=extra-consultoria
+WorkingDirectory=/opt/extra-consultoria
+Environment=PYTHONPATH=/opt/extra-consultoria
+Environment=RESILIENCE_ENV=production
+EnvironmentFile=-/etc/extra-consultoria/crawler.env
+EnvironmentFile=-/etc/extra-cli/extra-collector.env
+ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.decision_unit_intelligence batch worker --loop --idle-sleep 5 --worker-id cd-worker-%i --out /var/lib/extra-consultoria/contact-discovery
+Restart=on-failure
+RestartSec=30
+Nice=15
+IOSchedulingClass=best-effort
+IOSchedulingPriority=6
+KillSignal=SIGTERM
+TimeoutStopSec=90
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+MemoryHigh=256M
+MemoryMax=384M
+CPUQuota=50%
+ReadWritePaths=/var/lib/extra-consultoria /var/log/extra-consultoria
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=extra-contact-discovery-worker-%i
+
+[Install]
+WantedBy=multi-user.target
