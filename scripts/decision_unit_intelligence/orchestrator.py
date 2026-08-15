@@ -81,6 +81,7 @@ def _stamp_email_discovery_classes(routes: list[ReachabilityRoute]) -> None:
             identity_associated=bool(extra.get("identity_explicitly_associated")),
             ambiguous=bool(extra.get("identity_ambiguous")),
             inferred_pattern=route.channel_type == ChannelType.INFERRED_DIRECT_EMAIL,
+            inferred_pattern_state=str(extra.get("inferred_pattern_state") or extra.get("candidate_state") or ""),
             mx_present=(extra.get("email_verification") or {}).get("mx") == "MX_PRESENT"
             if isinstance(extra.get("email_verification"), dict)
             else False,
@@ -323,7 +324,13 @@ def maybe_infer_emails(
                 "verified_class": preferred.verified_class,
                 "email_discovery_class": EmailDiscoveryClass.INFERRED_PATTERN_EMAIL.value,
                 "identity_explicitly_associated": False,
+                "person_name": cand.person_name,
+                "associated_person_name": cand.person_name,
                 "pattern_records": pattern_records,
+                "pattern_state": (preferred.signals or {}).get("pattern_state"),
+                "inferred_grade": (preferred.signals or {}).get("inferred_grade"),
+                "inferred_pattern_state": EmailDiscoveryClass.INFERRED_PATTERN_EMAIL.value,
+                "candidate_state": EmailDiscoveryClass.INFERRED_PATTERN_EMAIL.value,
             },
         )
         draft = classify_channel_observation(obs, candidate=cand, suitable_person=True)

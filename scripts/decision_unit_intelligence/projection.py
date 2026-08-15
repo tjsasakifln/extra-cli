@@ -22,6 +22,12 @@ WARMBLY_SCHEMA = "confenge.outreach.v1"
 
 def is_email_safe_for_warmbly(route: ReachabilityRoute) -> bool:
     """Named observed corporate email only. Inferred never qualifies."""
+    extra = route.extra or {}
+    discovery = str(extra.get("email_discovery_class") or extra.get("inferred_pattern_state") or "")
+    if discovery.startswith("INFERRED_PATTERN_"):
+        return False
+    if extra.get("inferred_grade") in {"INFERRED_HIGH", "INFERRED_UNVERIFIED"}:
+        return False
     if route.channel_type != ChannelType.DIRECT_EMAIL:
         return False
     if route.epistemic_class != EpistemicClass.OBSERVED:
@@ -74,7 +80,15 @@ def project_warmbly_outreach(account: AccountInvestigation) -> dict[str, Any]:
             klass = "UNKNOWN"
         if not klass:
             continue
-        if klass in {"INFERRED_PATTERN_EMAIL", "GENERIC_MAILBOX", "ROLE_MAILBOX", "TECHNICALLY_PLAUSIBLE"}:
+        if klass in {
+            "INFERRED_PATTERN_EMAIL",
+            "INFERRED_PATTERN_MX_OK",
+            "INFERRED_PATTERN_CATCH_ALL",
+            "INFERRED_PATTERN_REJECTED",
+            "GENERIC_MAILBOX",
+            "ROLE_MAILBOX",
+            "TECHNICALLY_PLAUSIBLE",
+        } or str(klass).startswith("INFERRED_PATTERN_"):
             contact_tier = "CANDIDATE_UNVERIFIED"
         elif klass == "EMAIL_VALIDATED":
             contact_tier = "DIRECT_EMAIL_VALIDATED"

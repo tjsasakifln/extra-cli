@@ -144,16 +144,14 @@ class EmailInference:
 
     @property
     def verified_class(self) -> str | None:
-        if (
-            self.epistemic_class == EpistemicClass.INFERRED
-            and self.technically_validated
-            and self.corroborated
-        ):
+        if self.epistemic_class == EpistemicClass.INFERRED and self.technically_validated and self.corroborated:
             return "INFERRED_DIRECT_EMAIL_VERIFIED"
         return None
 
 
-def official_domain_from_emails(emails: list[str], *, company_site: str | None = None) -> tuple[str | None, EpistemicClass, list[str]]:
+def official_domain_from_emails(
+    emails: list[str], *, company_site: str | None = None
+) -> tuple[str | None, EpistemicClass, list[str]]:
     reasons: list[str] = []
     site_domain = None
     if company_site:
@@ -284,6 +282,9 @@ def generate_inferred_emails(
         corroborated = pattern_ep == EpistemicClass.CORROBORATED and addr in public_hits
         if technically:
             reasons.append("TECHNICALLY_VALIDATED_DOMAIN_ONLY")
+        if pattern_ep == EpistemicClass.OBSERVED:
+            pattern_ep = EpistemicClass.INFERRED
+            reasons.append("PATTERN_NEVER_OBSERVED_CLASS")
         results.append(
             EmailInference(
                 email=addr,
@@ -299,6 +300,11 @@ def generate_inferred_emails(
                 mx_valid=mx_valid,
             )
         )
+    for item in results:
+        if item.epistemic_class == EpistemicClass.OBSERVED:
+            raise RuntimeError("generate_inferred_emails must never emit OBSERVED")
+        if item.pattern_epistemic == EpistemicClass.OBSERVED:
+            raise RuntimeError("pattern_epistemic must never be OBSERVED")
     return results
 
 
