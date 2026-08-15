@@ -215,6 +215,7 @@ class HistoricalCampaignProvider:
                 source_url=row.get("fonte") or "rfb/brasilapi",
                 source_id=cnpj,
                 evidence_snippet=str(tel),
+                observed_at="2026-08-05",
                 extraction_method="rfb_phone",
             )
             evidence.append(ev)
@@ -230,7 +231,42 @@ class HistoricalCampaignProvider:
                     epistemic_class=EpistemicClass.OBSERVED,
                     ownership=OwnershipStatus.COMPANY_OWNED,
                     evidence_id=ev.evidence_id,
-                    extra={"person_owns_phone": False},
+                    extra={"person_owns_phone": False, "phone_context": "geral"},
+                )
+            )
+        tel2 = row.get("telefone2") or row.get("Telefone 2 / WhatsApp")
+        if tel2 and str(tel2) != str(tel or ""):
+            ev2 = make_evidence(
+                field="company_phone",
+                value=str(tel2),
+                epistemic_class=EpistemicClass.OBSERVED,
+                source_type="rfb_cadastre",
+                source_url=row.get("fonte") or "rfb/brasilapi",
+                source_id=cnpj,
+                evidence_snippet=str(tel2),
+                observed_at="2026-08-05",
+                extraction_method="rfb_secondary_phone",
+            )
+            evidence.append(ev2)
+            channels.append(
+                ChannelObservation(
+                    observation_id=stable_id("tel2", cnpj, str(tel2)),
+                    company_entity_id=cnpj,
+                    channel_type=ChannelType.COMPANY_SWITCHBOARD,
+                    channel_value=str(tel2),
+                    source_type="rfb_cadastre",
+                    source_url=row.get("fonte"),
+                    snippet="Telefone 2 (coluna ambígua Telefone 2 / WhatsApp — não prova WhatsApp)",
+                    observed_at="2026-08-05",
+                    epistemic_class=EpistemicClass.OBSERVED,
+                    ownership=OwnershipStatus.COMPANY_OWNED,
+                    evidence_id=ev2.evidence_id,
+                    extra={
+                        "person_owns_phone": False,
+                        "explicit_whatsapp": False,
+                        "phone_context": "geral",
+                        "reason_codes": ["SECONDARY_CORPORATE_PHONE", "WHATSAPP_NOT_EXPLICITLY_MARKED"],
+                    },
                 )
             )
         email = normalize_email(str(row.get("email") or "") or None)

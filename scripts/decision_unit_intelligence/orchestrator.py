@@ -166,7 +166,9 @@ def _stamp_email_discovery_classes(routes: list[ReachabilityRoute]) -> None:
         ).value
         if extra.get("affiliation_association_refused"):
             extra["identity_explicitly_associated"] = False
-        elif extra.get("identity_explicitly_associated") is None and route.route_relation.value == "PERSON_OWNS_CHANNEL":
+        elif (
+            extra.get("identity_explicitly_associated") is None and route.route_relation.value == "PERSON_OWNS_CHANNEL"
+        ):
             extra["identity_explicitly_associated"] = route.channel_type == ChannelType.DIRECT_EMAIL
         route.extra = extra
 
@@ -505,6 +507,8 @@ def recommend(
         dims["ownership"] = primary_route.ownership.value
         dims["suppression"] = primary_route.suppression.value
         dims["freshness"] = primary_route.freshness.value
+        dims["first_class_label"] = primary_route.first_class_label.value
+        dims["first_class_kind"] = primary_route.first_class_kind.value
         if primary_route.channel_type == ChannelType.INFERRED_DIRECT_EMAIL:
             warnings.append("INFERRED_EMAIL_NOT_OBSERVED")
 
@@ -651,6 +655,12 @@ def investigate_account(
         built_at=now_iso(),
         extra={
             "account_reachability_class": klass.value,
+            "primary_first_class_label": (
+                next((r.first_class_label.value for r in routes if rec.primary_route_id == r.route_id), None)
+            ),
+            "primary_first_class_kind": (
+                next((r.first_class_kind.value for r in routes if rec.primary_route_id == r.route_id), None)
+            ),
             "affiliation_corroboration": [record.to_dict() for record in affiliation_records],
             **(discovery_extra or {}),
         },

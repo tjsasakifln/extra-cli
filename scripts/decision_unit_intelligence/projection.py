@@ -111,6 +111,29 @@ def project_warmbly_outreach(account: AccountInvestigation) -> dict[str, Any]:
                 "reason_codes": route.reason_codes,
             }
         )
+    first_class_routes = []
+    for route in account.routes:
+        person = people.get(route.decision_unit_candidate_id or "")
+        first_class_routes.append(
+            {
+                "first_class_kind": route.first_class_kind.value,
+                "first_class_label": route.first_class_label.value,
+                "channel_type": route.channel_type.value,
+                "channel_value": route.channel_value,
+                "reachability_class": route.reachability_class.value,
+                "action_mode": route.action_mode.value,
+                "route_relation": route.route_relation.value,
+                "epistemic_class": route.epistemic_class.value,
+                "freshness": route.freshness.value,
+                "suppression": route.suppression.value,
+                "suitability": route.suitability.value,
+                "observed_at": route.observed_at,
+                "source_type": route.source_type,
+                "source_url": route.source_url,
+                "reason_codes": route.reason_codes,
+                "person_name": associated_person_name(route) or (person.person_name if person else None),
+            }
+        )
     return {
         "schema_id": WARMBLY_SCHEMA,
         "account_id": account.company_entity_id,
@@ -121,6 +144,7 @@ def project_warmbly_outreach(account: AccountInvestigation) -> dict[str, Any]:
         "recipient_candidates": recipients,
         "email_safe_count": len(recipients),
         "email_discovery_routes": discovery_routes,
+        "first_class_routes": first_class_routes,
         "non_email_routes_remain_upstream": True,
         "auto_send": False,
     }

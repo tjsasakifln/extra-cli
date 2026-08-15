@@ -125,6 +125,29 @@ class ChannelType(StrEnum):
     OTHER_PUBLIC_BUSINESS_ROUTE = "OTHER_PUBLIC_BUSINESS_ROUTE"
 
 
+class FirstClassRouteLabel(StrEnum):
+    """Exactly one label per emitted route. A general phone is never DIRECT_PERSON_PHONE."""
+
+    DIRECT_PERSON_PHONE = "DIRECT_PERSON_PHONE"
+    ROUTES_TO_NAMED_PERSON = "ROUTES_TO_NAMED_PERSON"
+    CORPORATE_PHONE = "CORPORATE_PHONE"
+    PUBLIC_WHATSAPP = "PUBLIC_WHATSAPP"
+    FORM = "FORM"
+    PROFILE = "PROFILE"
+    UNKNOWN = "UNKNOWN"
+
+
+class FirstClassRouteKind(StrEnum):
+    """Operator-facing route kind. Sits beside R0–R5; does not erase MANUAL_ROUTED_CALL."""
+
+    PHONE = "PHONE"
+    ROUTED_CALL = "ROUTED_CALL"
+    PUBLIC_WHATSAPP = "PUBLIC_WHATSAPP"
+    FORM = "FORM"
+    PROFILE = "PROFILE"
+    MANUAL_RESEARCH = "MANUAL_RESEARCH"
+
+
 class RouteRelation(StrEnum):
     PERSON_OWNS_CHANNEL = "PERSON_OWNS_CHANNEL"
     ROUTES_TO_NAMED_PERSON = "ROUTES_TO_NAMED_PERSON"
@@ -161,9 +184,7 @@ class ActionMode(StrEnum):
 
 class AccountTerminal(StrEnum):
     ACTIONABLE_ROUTE = "ACTIONABLE_ROUTE"
-    DECISION_UNIT_IDENTIFIED_REACHABILITY_UNRESOLVED = (
-        "DECISION_UNIT_IDENTIFIED_REACHABILITY_UNRESOLVED"
-    )
+    DECISION_UNIT_IDENTIFIED_REACHABILITY_UNRESOLVED = "DECISION_UNIT_IDENTIFIED_REACHABILITY_UNRESOLVED"
     EXHAUSTED = "EXHAUSTED"
     BLOCKED = "BLOCKED"
     NEEDS_ENRICHMENT = "NEEDS_ENRICHMENT"
@@ -438,6 +459,10 @@ class ReachabilityRoute:
     suppression: SuppressionState = SuppressionState.NONE
     reason_codes: list[str] = dc_field(default_factory=list)
     next_action: str | None = None
+    first_class_label: FirstClassRouteLabel = FirstClassRouteLabel.UNKNOWN
+    first_class_kind: FirstClassRouteKind = FirstClassRouteKind.MANUAL_RESEARCH
+    observed_at: str | None = None
+    suitability: ConfidenceLevel = ConfidenceLevel.UNKNOWN
     aspects: list[FieldAspect] = dc_field(default_factory=list)
     extra: dict[str, Any] = dc_field(default_factory=dict)
 
@@ -452,6 +477,9 @@ class ReachabilityRoute:
         d["freshness"] = self.freshness.value
         d["ownership"] = self.ownership.value
         d["suppression"] = self.suppression.value
+        d["first_class_label"] = self.first_class_label.value
+        d["first_class_kind"] = self.first_class_kind.value
+        d["suitability"] = self.suitability.value
         d["aspects"] = [a.to_dict() if hasattr(a, "to_dict") else a for a in self.aspects]
         return d
 
@@ -475,9 +503,7 @@ class Recommendation:
     def to_dict(self) -> dict[str, Any]:
         d = asdict(self)
         d["action_mode"] = self.action_mode.value
-        d["reachability_class"] = (
-            self.reachability_class.value if self.reachability_class else None
-        )
+        d["reachability_class"] = self.reachability_class.value if self.reachability_class else None
         return d
 
 

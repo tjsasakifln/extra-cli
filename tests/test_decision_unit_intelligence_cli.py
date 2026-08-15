@@ -48,7 +48,37 @@ def test_cli_plan_and_run_track_a(tmp_path: Path):
     assert funnel["accounts"] == 30
     assert "decision_unit_reachability_rate" in funnel
     assert funnel["blocked_excluded_from_rate"] == funnel["classes"].get("BLOCKED", 0)
+    assert funnel["denominator"]["explicit"] is True
+    assert funnel["denominator"]["investigated_non_blocked"] == 30
+    assert "actionable_route_per_account" in funnel
+    assert "routed_call_per_account" in funnel
+    assert "decision_unit_known_per_account" in funnel
+    assert "public_whatsapp_per_account" in funnel
+    assert "unresolved_reason_distribution" in funnel
+    assert "cost_latency_per_route_class" in funnel
+    warmbly = json.loads((run_dir / "warmbly_outreach.json").read_text(encoding="utf-8"))
+    assert all(account.get("auto_send") is False for account in warmbly["accounts"])
+    assert any(account.get("first_class_routes") for account in warmbly["accounts"])
+    first_labels = {
+        route["first_class_label"]
+        for account in warmbly["accounts"]
+        for route in account.get("first_class_routes") or []
+    }
+    assert first_labels
+    assert "DIRECT_PERSON_PHONE" not in first_labels
     cards = json.loads((operator / "cards.json").read_text(encoding="utf-8"))
+    sample = next(card for card in cards["cards"] if card.get("who"))
+    for key in ("who", "why_now", "offer", "decision_unit", "route", "confidence", "evidence"):
+        assert key in sample
+    assert sample["route"]["label"] in {
+        "DIRECT_PERSON_PHONE",
+        "ROUTES_TO_NAMED_PERSON",
+        "CORPORATE_PHONE",
+        "PUBLIC_WHATSAPP",
+        "FORM",
+        "PROFILE",
+        "UNKNOWN",
+    }
     assert cards["n"] == 30
     md = (operator / "cards.md").read_text(encoding="utf-8")
     assert "AÇÃO" in md or "AÇÃO:" in md or "**AÇÃO:**" in md
@@ -57,7 +87,9 @@ def test_cli_plan_and_run_track_a(tmp_path: Path):
     for card in cards["cards"]:
         cnpj = card["cnpj"]
         row = index.get(cnpj) or {}
-        has_person_and_phone = bool(row.get("qsa") or row.get("qsa2")) and bool(row.get("telefone") or row.get("Telefone principal"))
+        has_person_and_phone = bool(row.get("qsa") or row.get("qsa2")) and bool(
+            row.get("telefone") or row.get("Telefone principal")
+        )
         if has_person_and_phone:
             assert card["route_class"] != "R0_NO_ACTIONABLE_ROUTE"
             assert card["terminal"] != "EXHAUSTED"

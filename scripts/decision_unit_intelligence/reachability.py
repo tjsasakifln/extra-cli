@@ -16,6 +16,8 @@ from scripts.decision_unit_intelligence.models import (
     ConfidenceLevel,
     DecisionUnitCandidate,
     EpistemicClass,
+    FirstClassRouteKind,
+    FirstClassRouteLabel,
     FreshnessState,
     OwnershipStatus,
     PersonRelation,
@@ -27,6 +29,7 @@ from scripts.decision_unit_intelligence.models import (
     normalize_email,
     stable_id,
 )
+from scripts.decision_unit_intelligence.route_class import finalize_route_draft
 
 ROLE_MAILBOX_LOCALS = frozenset(
     {
@@ -156,7 +159,9 @@ def is_role_mailbox(value: str | None) -> bool:
     base = base.replace(".", "").replace("_", "").replace("-", "")
     # licitacao1 / licitacoes2 still count
     stem = "".join(c for c in base if c.isalpha())
-    return stem in ROLE_MAILBOX_LOCALS or any(stem.startswith(r) and len(stem) <= len(r) + 2 for r in ROLE_MAILBOX_LOCALS)
+    return stem in ROLE_MAILBOX_LOCALS or any(
+        stem.startswith(r) and len(stem) <= len(r) + 2 for r in ROLE_MAILBOX_LOCALS
+    )
 
 
 def is_generic_mailbox(value: str | None) -> bool:
@@ -235,9 +240,33 @@ class RouteDraft:
     reason_codes: list[str]
     next_action: str
     extra: dict
+    first_class_label: FirstClassRouteLabel = FirstClassRouteLabel.UNKNOWN
+    first_class_kind: FirstClassRouteKind = FirstClassRouteKind.MANUAL_RESEARCH
+    observed_at: str | None = None
+    suitability: ConfidenceLevel = ConfidenceLevel.UNKNOWN
 
 
 def classify_channel_observation(
+    obs: ChannelObservation,
+    *,
+    candidate: DecisionUnitCandidate | None,
+    suitable_person: bool,
+) -> RouteDraft:
+    """Project one channel observation into a first-class route. Does not invent association."""
+    draft = _classify_channel_observation_raw(
+        obs,
+        candidate=candidate,
+        suitable_person=suitable_person,
+    )
+    return finalize_route_draft(
+        draft,
+        obs=obs,
+        candidate=candidate,
+        suitable_person=suitable_person,
+    )
+
+
+def _classify_channel_observation_raw(
     obs: ChannelObservation,
     *,
     candidate: DecisionUnitCandidate | None,
@@ -306,10 +335,13 @@ def classify_channel_observation(
                 suppression=SuppressionState.NONE,
                 reason_codes=reasons + (["INFERRED_DIRECT_EMAIL_VERIFIED"] if verified else ["INFERRED_UNVERIFIED"]),
                 next_action=(
-                    f"Revisar humanamente o e-mail inferido {value} para {person_name}. "
-                    "Não enviar automaticamente."
+                    f"Revisar humanamente o e-mail inferido {value} para {person_name}. Não enviar automaticamente."
                 ),
-                extra={**extra, "human_review_required": True, "inferred_class": "INFERRED_DIRECT_EMAIL_VERIFIED" if verified else "INFERRED_DIRECT_EMAIL"},
+                extra={
+                    **extra,
+                    "human_review_required": True,
+                    "inferred_class": "INFERRED_DIRECT_EMAIL_VERIFIED" if verified else "INFERRED_DIRECT_EMAIL",
+                },
             )
 
     if ctype == ChannelType.DIRECT_EMAIL and looks_nominal_local(value) and epistemic == EpistemicClass.OBSERVED:
@@ -503,8 +535,7 @@ def classify_channel_observation(
                 suppression=SuppressionState.NONE,
                 reason_codes=reasons,
                 next_action=(
-                    f"Ligar para {value} e pedir por {person_name}. "
-                    "Não alegar que o telefone pertence à pessoa."
+                    f"Ligar para {value} e pedir por {person_name}. Não alegar que o telefone pertence à pessoa."
                 ),
                 extra={**extra, "person_owns_phone": False},
             )
@@ -556,9 +587,7 @@ def classify_channel_observation(
     # Generic corporate email / leftover
     reasons.append("GENERIC_CORPORATE")
     return RouteDraft(
-        channel_type=ChannelType.GENERIC_CORPORATE_EMAIL
-        if value and "@" in (value or "")
-        else ctype,
+        channel_type=ChannelType.GENERIC_CORPORATE_EMAIL if value and "@" in (value or "") else ctype,
         channel_value=value,
         relation=RouteRelation.ACCOUNT_LEVEL_ONLY,
         epistemic=epistemic,
@@ -609,6 +638,10 @@ def draft_to_route(draft: RouteDraft, *, company_entity_id: str) -> Reachability
         reason_codes=draft.reason_codes,
         next_action=draft.next_action,
         reachability_class=draft.reachability,
+        first_class_label=draft.first_class_label,
+        first_class_kind=draft.first_class_kind,
+        observed_at=draft.observed_at,
+        suitability=draft.suitability,
         extra=draft.extra,
     )
 
@@ -661,8 +694,7 @@ def best_account_class(routes: list[ReachabilityRoute]) -> ReachabilityClass:
 def next_action_text(route: ReachabilityRoute, *, person_name: str | None) -> str:
     if route.reachability_class == ReachabilityClass.R3_ROUTED_TO_NAMED_PERSON and person_name:
         return (
-            f"Ligar para {route.channel_value} e pedir por {person_name}. "
-            "Não alegar que o telefone pertence à pessoa."
+            f"Ligar para {route.channel_value} e pedir por {person_name}. Não alegar que o telefone pertence à pessoa."
         )
     return route.next_action or ""
 
