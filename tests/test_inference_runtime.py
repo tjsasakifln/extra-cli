@@ -67,6 +67,12 @@ def test_same_idempotency_key_does_not_duplicate_promoted_output() -> None:
     again = run_job(store, "job-a", FakeProvider())
     assert len(again.attempts) == 1
     assert again.tokens_used == store.get("job-a").tokens_used
+    # Same job_id after success must not wipe the promoted result.
+    resubmit = submit(store, spec, job_id="job-a")
+    assert resubmit.job_id == "job-a"
+    assert resubmit.state == "SUCCEEDED"
+    assert resubmit.promoted is True
+    assert len(resubmit.attempts) == 1
 
 
 def test_invalid_schema_missing_evidence_or_low_confidence_not_promoted() -> None:
