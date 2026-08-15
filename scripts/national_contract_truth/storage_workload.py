@@ -102,18 +102,36 @@ def seal_workload(
     incomplete = [
         e.query_id
         for e in evidence
-        if not e.explain_analyze or e.p50_ms is None or e.p95_ms is None or e.p99_ms is None
+        if (
+            not e.explain_analyze
+            or e.p50_ms is None
+            or e.p95_ms is None
+            or e.p99_ms is None
+            or e.wal_bytes is None
+        )
     ]
     if incomplete:
         blockers.append(f"incomplete_metrics:{incomplete}")
     pk = evaluate_pk_headroom(candidate.pk_type, current_rows)
     if pk["blocker"]:
         blockers.append(str(pk["blocker"]))
-    if disk_wal_budget is None:
+    if not disk_wal_budget or any(int(v) <= 0 for v in disk_wal_budget.values()):
         blockers.append("disk_wal_budget_unrecorded")
     if not rollback_rehearsed:
         blockers.append("rollback_not_rehearsed")
 
+    evidence_payload = [
+        {
+            "query_id": item.query_id,
+            "explain_analyze": item.explain_analyze,
+            "p50_ms": item.p50_ms,
+            "p95_ms": item.p95_ms,
+            "p99_ms": item.p99_ms,
+            "wal_bytes": item.wal_bytes,
+            "buffers": item.buffers,
+        }
+        for item in evidence
+    ]
     seal: Seal = "PROVEN" if not blockers else "UNPROVEN"
     payload = {
         "schema_version": SCHEMA_VERSION,
@@ -127,6 +145,9 @@ def seal_workload(
         },
         "corpus_facts": corpus_facts,
         "incremental_churn": incremental_churn,
+        "evidence": evidence_payload,
+        "disk_wal_budget": dict(disk_wal_budget or {}),
+        "rollback_rehearsed": rollback_rehearsed,
         "pk": pk,
         "seal": seal,
         "blockers": blockers,
