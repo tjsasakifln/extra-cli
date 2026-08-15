@@ -44,7 +44,8 @@ The query planner records the full contextual plan and executes only the configu
 - company name plus decision roles appropriate to the offer;
 - company name plus directorate, partners, contact, email, and telephone;
 - CNPJ plus email or telephone;
-- known-domain queries for directorate, engineering, contact, published email patterns, and PDFs.
+- known-domain queries for equipe, diretoria, contato, engenharia, comercial, licitacoes, published email patterns, and PDFs;
+- named-person email-job shapes (`"NOME" "empresa"`, `"NOME" "@dominio"`, `"NOME" email`, `site:dominio "NOME"`) when QSA/site people are already known.
 
 Each account records executed queries, result count, pages, bytes, failures, duration, backend, domain alternatives, reason codes, and stop reason. Search and crawl failures remain visible as `SOURCE_BLOCKED`, `BUDGET_EXHAUSTED`, or `POLICY_SKIP`; they are not converted to “no route”.
 
@@ -77,9 +78,13 @@ Output is persisted under `extra.domain_resolution` and in the search attempt:
 - per-account query, result, page, byte, timeout, retry, and inter-query limits;
 - local TTL cache prevents blind rediscovery;
 - exact public page text may produce observed person/role/contact evidence;
-- email-to-person association requires the observed person's first and last name in the address local part in this first slice;
-- generic mailboxes never become named contacts;
-- observed company telephone remains company-owned unless explicit evidence proves otherwise.
+- email-to-person association requires auditável contextual evidence (same DOM card/block/row, `mailto:` in the person block, explicit “e-mail de Nome”, unique same-window proximity, or a same-domain person page). Local-part first+last is a signal only;
+- generic/role/ethics mailboxes (`contato@`, `comercial@`, `licitacoes@`, `conduta@`) never become a person;
+- third-party professional domains (`.adv.br`, contabil, advocacia) and non-canonical domains never become identity;
+- observed company telephone remains company-owned unless explicit evidence proves otherwise;
+- crawl may follow a bounded set of same-domain high-value slugs/anchors (equipe, diretoria, contato, engenharia, comercial, licitações, contratos, administração, imprensa). Not an infinite spider.
+
+Published email-discovery classes stay distinct: `OBSERVED_DIRECT_EMAIL_IDENTITY_ASSOCIATED`, `OBSERVED_DIRECT_EMAIL_IDENTITY_UNRESOLVED`, `INFERRED_PATTERN_EMAIL`, `GENERIC_MAILBOX`, `ROLE_MAILBOX`, `DOMAIN_ONLY`, `TECHNICALLY_PLAUSIBLE`, `EMAIL_VALIDATED` (only when the existing email-safe policy already allows), `BLOCKED` / `UNKNOWN`. Org email patterns are versioned evidence (`org-email-pattern.v1`) derived only from OBSERVED same-domain addresses; generated candidates remain `INFERRED` / `CANDIDATE_UNVERIFIED` even with MX.
 
 ## Replaceable adapters and licenses
 

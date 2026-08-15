@@ -20,9 +20,14 @@ from scripts.decision_unit_intelligence.decision_policy import (
     normalize_observed_role,
     role_confidence,
 )
+from scripts.decision_unit_intelligence.email_discovery import (
+    EmailDiscoveryClass,
+    classify_email_discovery,
+    derive_versioned_patterns,
+    inferred_candidates_from_supported_patterns,
+)
 from scripts.decision_unit_intelligence.email_resolution import (
     ObservedOrgEmail,
-    generate_inferred_emails,
     official_domain_from_emails,
 )
 from scripts.decision_unit_intelligence.models import (
@@ -51,6 +56,7 @@ from scripts.decision_unit_intelligence.models import (
     now_iso,
     stable_id,
 )
+from scripts.decision_unit_intelligence.projection import is_email_safe_for_warmbly
 from scripts.decision_unit_intelligence.reachability import (
     best_account_class,
     classify_channel_observation,
@@ -62,6 +68,27 @@ from scripts.decision_unit_intelligence.reachability import (
 )
 
 QSA_SOURCES = frozenset({"qsa_rfb", "brasilapi_cnpj", "rfb", "qsa"})
+
+
+def _stamp_email_discovery_classes(routes: list[ReachabilityRoute]) -> None:
+    for route in routes:
+        extra = route.extra if isinstance(route.extra, dict) else {}
+        email_safe = is_email_safe_for_warmbly(route)
+        extra["email_validated"] = email_safe
+        extra["email_discovery_class"] = classify_email_discovery(
+            route.channel_value,
+            epistemic=route.epistemic_class,
+            identity_associated=bool(extra.get("identity_explicitly_associated")),
+            ambiguous=bool(extra.get("identity_ambiguous")),
+            inferred_pattern=route.channel_type == ChannelType.INFERRED_DIRECT_EMAIL,
+            mx_present=(extra.get("email_verification") or {}).get("mx") == "MX_PRESENT"
+            if isinstance(extra.get("email_verification"), dict)
+            else False,
+            email_safe_policy=email_safe,
+        ).value
+        if extra.get("identity_explicitly_associated") is None and route.route_relation.value == "PERSON_OWNS_CHANNEL":
+            extra["identity_explicitly_associated"] = route.channel_type == ChannelType.DIRECT_EMAIL
+        route.extra = extra
 
 
 def person_id_for(company_entity_id: str, name: str | None) -> str:
@@ -264,11 +291,12 @@ def maybe_infer_emails(
     if not domain:
         return []
     already = {normalize_email(c.channel_value) for c in channels if c.channel_value}
+    pattern_records = [record.to_dict() for record in derive_versioned_patterns(observed)]
     routes: list[ReachabilityRoute] = []
     for cand in candidates:
         if not person_is_suitable(cand) or not cand.person_name:
             continue
-        inferences = generate_inferred_emails(
+        inferences = inferred_candidates_from_supported_patterns(
             person_name=cand.person_name,
             domain=domain,
             observed=observed,
@@ -276,7 +304,6 @@ def maybe_infer_emails(
             catch_all=catch_all,
             public_hits=public_hits,
         )
-        # Keep the best corroborated / first-dot-last candidate only — still INFERRED.
         preferred = next((i for i in inferences if i.pattern_id == "first.last"), inferences[0] if inferences else None)
         if not preferred or preferred.email in already:
             continue
@@ -294,6 +321,9 @@ def maybe_infer_emails(
                 "pattern_id": preferred.pattern_id,
                 "reason_codes": preferred.reason_codes,
                 "verified_class": preferred.verified_class,
+                "email_discovery_class": EmailDiscoveryClass.INFERRED_PATTERN_EMAIL.value,
+                "identity_explicitly_associated": False,
+                "pattern_records": pattern_records,
             },
         )
         draft = classify_channel_observation(obs, candidate=cand, suitable_person=True)
@@ -494,6 +524,7 @@ def investigate_account(
                 public_hits=public_email_hits,
             )
         )
+    _stamp_email_discovery_classes(routes)
     rec = recommend(candidates, routes)
     conflicts = detect_person_conflicts(people) + detect_channel_conflicts(normalized_channels)
     terminal = derive_terminal(candidates=candidates, routes=routes, ledger=ledger, blocked=blocked)

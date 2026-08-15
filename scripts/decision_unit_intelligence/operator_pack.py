@@ -60,6 +60,8 @@ def build_card(account: AccountInvestigation) -> dict[str, Any]:
         "email_verification": email_verification,
         "email_verification_reports": account.extra.get("email_verification", []),
         "verification_status": verification_status,
+        "email_discovery_class": (route.extra or {}).get("email_discovery_class") if route else None,
+        "identity_explicitly_associated": (route.extra or {}).get("identity_explicitly_associated") if route else None,
         # Passive DNS/MX never makes a route send-ready or proves a mailbox/person.
         "email_send_ready": False,
         "domain_resolution": account.extra.get("domain_resolution"),

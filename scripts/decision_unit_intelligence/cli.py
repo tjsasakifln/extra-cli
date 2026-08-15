@@ -18,6 +18,7 @@ from scripts.decision_unit_intelligence.batch_snapshot import publish_snapshot
 from scripts.decision_unit_intelligence.batch_worker import ContactDiscoveryWorker
 from scripts.decision_unit_intelligence.benchmark import funnel, replay_report
 from scripts.decision_unit_intelligence.cohort import TRACK_A_CNPJS, build_manifest
+from scripts.decision_unit_intelligence.email_discovery import summarize_email_discovery
 from scripts.decision_unit_intelligence.operator_pack import build_card, write_operator_pack
 from scripts.decision_unit_intelligence.projection import project_warmbly_outreach
 from scripts.decision_unit_intelligence.repository import JsonRunRepository, account_hash, write_json
@@ -90,6 +91,7 @@ def _execute(args: argparse.Namespace, *, label: str) -> int:
     pack_paths = write_operator_pack(cards, operator_dir)
     warmbly = [project_warmbly_outreach(a) for a in accounts]
     email_safe = sum(w["email_safe_count"] for w in warmbly)
+    email_discovery = summarize_email_discovery(accounts)
     write_json(Path(args.out) / "warmbly_outreach.json", {"accounts": warmbly, "email_safe_total": email_safe})
     web_attempts = [
         attempt for account in accounts for attempt in account.ledger.attempts if attempt.provider_id == "public_search"
@@ -154,8 +156,9 @@ def _execute(args: argparse.Namespace, *, label: str) -> int:
                 for account in accounts
                 for report in (account.extra.get("email_verification") or [])
             ),
-            "identity_proven": 0,
+            "identity_proven": email_discovery.observed_identity_associated,
         },
+        "email_discovery": email_discovery.to_dict(),
         "selection": build_manifest(cnpjs)["selection"],
         "auto_send": False,
     }

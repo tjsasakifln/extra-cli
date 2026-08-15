@@ -63,6 +63,31 @@ def project_warmbly_outreach(account: AccountInvestigation) -> dict[str, Any]:
                 "evidence_ids": route.evidence_ids,
                 "policy_version": account.policy_version,
                 "reason_codes": route.reason_codes,
+                "email_discovery_class": "EMAIL_VALIDATED",
+            }
+        )
+    discovery_routes = []
+    for route in account.routes:
+        extra = route.extra or {}
+        klass = extra.get("email_discovery_class")
+        if not klass and route.channel_value and "@" in str(route.channel_value):
+            klass = "UNKNOWN"
+        if not klass:
+            continue
+        if klass in {"INFERRED_PATTERN_EMAIL", "GENERIC_MAILBOX", "ROLE_MAILBOX", "TECHNICALLY_PLAUSIBLE"}:
+            contact_tier = "CANDIDATE_UNVERIFIED"
+        elif klass == "EMAIL_VALIDATED":
+            contact_tier = "DIRECT_EMAIL_VALIDATED"
+        else:
+            contact_tier = "OBSERVED_NOT_VALIDATED"
+        discovery_routes.append(
+            {
+                "channel_value": route.channel_value,
+                "email_discovery_class": klass,
+                "contact_tier": contact_tier,
+                "epistemic_class": route.epistemic_class.value,
+                "identity_explicitly_associated": bool(extra.get("identity_explicitly_associated")),
+                "reason_codes": route.reason_codes,
             }
         )
     return {
@@ -74,6 +99,7 @@ def project_warmbly_outreach(account: AccountInvestigation) -> dict[str, Any]:
         "service_context": account.service_context,
         "recipient_candidates": recipients,
         "email_safe_count": len(recipients),
+        "email_discovery_routes": discovery_routes,
         "non_email_routes_remain_upstream": True,
         "auto_send": False,
     }

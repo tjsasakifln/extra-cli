@@ -145,6 +145,11 @@ def run_account(
         if result.company_site:
             site = result.company_site
             ctx.extra["company_site"] = result.company_site
+        known = ctx.extra.setdefault("known_people", [])
+        for person in result.people:
+            name = person.person_name
+            if name and name not in known:
+                known.append(name)
         if result.extra.get("domain_resolution"):
             discovery_extra["domain_resolution"] = result.extra["domain_resolution"]
         ledger.cost_brl += result.cost.cost_brl

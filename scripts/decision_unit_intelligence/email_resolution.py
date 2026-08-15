@@ -55,12 +55,19 @@ THIRD_PARTY_DOMAIN_MARKERS = (
     "advogados",
     "despachante",
 )
+THIRD_PARTY_DOMAIN_SUFFIXES = (
+    ".adv.br",
+    ".cnt.br",
+    ".leg.br",
+)
 
 
 def is_third_party_professional_domain(domain: str | None) -> bool:
     if not domain:
         return False
     folded = fold_text(domain)
+    if any(folded.endswith(suffix) for suffix in THIRD_PARTY_DOMAIN_SUFFIXES):
+        return True
     return any(marker in folded for marker in THIRD_PARTY_DOMAIN_MARKERS)
 
 

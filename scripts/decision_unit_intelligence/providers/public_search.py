@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from time import perf_counter
 
+from scripts.decision_unit_intelligence.email_discovery import discover_internal_targets
 from scripts.decision_unit_intelligence.evidence import make_evidence
 from scripts.decision_unit_intelligence.models import EpistemicClass, SearchAttempt, normalize_cnpj, now_iso, stable_id
 from scripts.decision_unit_intelligence.providers.base import InvestigationContext, ProviderResult
@@ -39,7 +40,8 @@ class PublicSearchProvider:
     def collect(self, context: InvestigationContext) -> ProviderResult:
         cnpj = normalize_cnpj(context.cnpj)
         known_site = str(context.extra.get("company_site") or "") or None
-        plan = build_query_plan(context, known_domain=_domain(known_site))
+        known_people = [str(name) for name in (context.extra.get("known_people") or []) if name]
+        plan = build_query_plan(context, known_domain=_domain(known_site), known_people=known_people)
         queries = plan[: self.budget.max_queries]
         attempt = SearchAttempt(
             attempt_id=stable_id("att", self.provider_id, cnpj, "|".join(queries)),
@@ -111,12 +113,16 @@ class PublicSearchProvider:
         crawled_urls: list[str] = []
         bytes_touched = 0
         crawl_failures: list[str] = []
+        identity_yield = False
         if self.crawler and resolution.canonical_domain:
-            urls = rank_crawl_urls(hits, resolution.canonical_domain, limit=self.budget.max_pages)
+            seed_limit = max(2, min(self.budget.max_pages, (self.budget.max_pages + 1) // 2))
+            queued = rank_crawl_urls(hits, resolution.canonical_domain, limit=seed_limit)
             remaining_bytes = self.budget.max_bytes
-            for url in urls:
-                if remaining_bytes <= 0:
-                    break
+            seen = set(queued)
+            index = 0
+            while index < len(queued) and remaining_bytes > 0:
+                url = queued[index]
+                index += 1
                 try:
                     document = self.crawler.fetch(url, max_bytes=remaining_bytes)
                 except Exception as exc:
@@ -125,16 +131,38 @@ class PublicSearchProvider:
                 crawled_urls.append(document.url)
                 bytes_touched += document.bytes_touched
                 remaining_bytes -= document.bytes_touched
-                extracted = extract_public_evidence(context, document)
+                extracted = extract_public_evidence(
+                    context,
+                    document,
+                    canonical_domain=resolution.canonical_domain,
+                )
                 people.extend(extracted.people)
                 channels.extend(extracted.channels)
                 evidence.extend(extracted.evidence)
+                if any((channel.extra or {}).get("identity_explicitly_associated") for channel in extracted.channels):
+                    identity_yield = True
+                if identity_yield:
+                    break
+                for link in discover_internal_targets(
+                    links=document.links,
+                    html=document.html,
+                    canonical_domain=resolution.canonical_domain,
+                    already=seen,
+                    limit=self.budget.max_pages,
+                    page_url=document.url,
+                ):
+                    if len(queued) >= self.budget.max_pages:
+                        break
+                    queued.append(link)
+                    seen.add(link)
 
         attempt.documents_checked = len(crawled_urls)
         attempt.bytes_touched = bytes_touched
         attempt.duration_ms = int((perf_counter() - started) * 1000)
         attempt.extra["crawled_urls"] = crawled_urls
         attempt.extra["crawl_failures"] = crawl_failures
+        attempt.extra["identity_yield"] = identity_yield
+        attempt.extra["known_people_queried"] = known_people
         attempt.extra["cache_hits"] = (
             int(getattr(self.backend, "cache_hits", 0))
             - search_cache_before[0]
