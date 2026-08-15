@@ -41,6 +41,7 @@ def _pages_that_led_to_person_or_email(account: Any) -> list[str]:
 def summarize_account(account: Any) -> dict[str, Any]:
     search_attempts = [a for a in account.ledger.attempts if a.provider_id == "public_search"]
     attempt = search_attempts[0] if search_attempts else None
+    extra = (attempt.extra if attempt else None) or {}
     people = [p.person_name for p in account.candidates if p.person_name]
     emails = [
         getattr(route, "channel_value", None)
@@ -49,20 +50,33 @@ def summarize_account(account: Any) -> dict[str, Any]:
         or str(getattr(route, "channel_value", "")).find("@") >= 0
     ]
     emails = [e for e in emails if e]
+    search_pages = [
+        str(item.source_url)
+        for item in (getattr(account, "evidence", None) or [])
+        if getattr(item, "source_url", None)
+        and getattr(item, "source_type", "") in {"company_website", "public_search"}
+        and getattr(item, "field", "") in {"person_role", "email", "canonical_domain"}
+    ]
+    cache_hits = int(extra.get("cache_hits") or 0)
+    cache_misses = int(extra.get("cache_misses") or 0)
     return {
         "cnpj": account.cnpj,
         "legal_name": account.legal_name,
         "terminal": getattr(account.terminal, "value", str(account.terminal)),
         "people": people,
         "emails": emails,
-        "useful_yield": bool(people or emails),
-        "person_email_pages": _pages_that_led_to_person_or_email(account),
+        "useful_yield": bool(search_pages),
+        "account_yield_includes_historical": bool(people or emails),
+        "person_email_pages": list(dict.fromkeys(search_pages)),
         "latency_ms": attempt.duration_ms if attempt else account.ledger.duration_ms,
-        "failures": list((attempt.extra.get("failures") if attempt else None) or []),
+        "failures": list(extra.get("failures") or []),
         "blocked": bool(attempt.blocked) if attempt else False,
         "stop_reason": attempt.stop_reason if attempt else None,
-        "result_count": (attempt.extra.get("result_count") if attempt else 0) or 0,
-        "search_backend": (attempt.extra.get("search_backend") if attempt else None),
+        "result_count": int(extra.get("result_count") or 0),
+        "cache_hits": cache_hits,
+        "cache_misses": cache_misses,
+        "cache_reused": cache_hits > 0 and cache_hits >= cache_misses,
+        "search_backend": extra.get("search_backend"),
         "cost_brl": account.ledger.cost_brl,
         "bytes_touched": account.ledger.bytes_touched,
     }
@@ -143,6 +157,54 @@ def run_backend_batch(
     return rows
 
 
+def compare_live_backends(
+    cnpjs: list[str],
+    *,
+    searxng_url: str,
+    searxng_backend: Any | None = None,
+    ddgs_backend: Any | None = None,
+    limit: int = 4,
+) -> list[dict[str, Any]]:
+    """Hit both shipped backends with the same query and no disk cache."""
+
+    if ddgs_backend is None:
+        from scripts.decision_unit_intelligence.web_discovery import DdgsSearchBackend
+
+        ddgs_backend = DdgsSearchBackend(timeout_seconds=12.0)
+    if searxng_backend is None:
+        searxng_backend = SearxngHttpBackend(searxng_url, timeout_seconds=12.0)
+    rows: list[dict[str, Any]] = []
+    for cnpj in cnpjs:
+        query = f'"{cnpj}" email'
+        ddgs_hits, ddgs_error, ddgs_ms = _search_once(ddgs_backend, query, limit)
+        searxng_hits, searxng_error, searxng_ms = _search_once(searxng_backend, query, limit)
+        rows.append(
+            {
+                "cnpj": cnpj,
+                "query": query,
+                "cache": False,
+                **compare_backend_hits(
+                    ddgs_hits=ddgs_hits,
+                    searxng_hits=searxng_hits,
+                    ddgs_error=ddgs_error,
+                    searxng_error=searxng_error,
+                    ddgs_ms=ddgs_ms,
+                    searxng_ms=searxng_ms,
+                ),
+            }
+        )
+    return rows
+
+
+def _search_once(backend: Any, query: str, limit: int) -> tuple[list[SearchHit], str | None, float]:
+    started = perf_counter()
+    try:
+        hits = list(backend.search(query, limit=limit) or [])
+        return hits, None, (perf_counter() - started) * 1000.0
+    except Exception as exc:
+        return [], f"{type(exc).__name__}:{exc}", (perf_counter() - started) * 1000.0
+
+
 def build_report(
     *,
     cnpjs: list[str],
@@ -152,16 +214,22 @@ def build_report(
     metrics: dict[str, Any] | None = None,
     probe: dict[str, Any] | None = None,
     note: str | None = None,
+    backend_compare: list[dict[str, Any]] | None = None,
+    fresh_cache: bool = False,
 ) -> dict[str, Any]:
     def _agg(rows: list[dict[str, Any]]) -> dict[str, Any]:
         return {
             "accounts": len(rows),
             "useful_yield": sum(1 for row in rows if row.get("useful_yield")),
             "person_email_pages": sum(len(row.get("person_email_pages") or []) for row in rows),
-            "latency_ms_p50": _mid([int(row.get("latency_ms") or 0) for row in rows]),
+            "latency_ms_p50": _mid([int(row.get("wall_ms") or row.get("latency_ms") or 0) for row in rows]),
             "failures": sum(len(row.get("failures") or []) for row in rows),
             "blocked": sum(1 for row in rows if row.get("blocked")),
             "cost_brl": round(sum(float(row.get("cost_brl") or 0) for row in rows), 4),
+            "cache_hits": sum(int(row.get("cache_hits") or 0) for row in rows),
+            "cache_misses": sum(int(row.get("cache_misses") or 0) for row in rows),
+            "cache_reused_accounts": sum(1 for row in rows if row.get("cache_reused")),
+            "search_result_count": sum(int(row.get("result_count") or 0) for row in rows),
         }
 
     return {
@@ -177,6 +245,8 @@ def build_report(
             "DDGS cost is upstream engine rate-limit risk only."
         ),
         "note": note,
+        "fresh_cache": fresh_cache,
+        "backend_compare": backend_compare or [],
         "recommendation": _recommend(_agg(ddgs_rows), _agg(searxng_rows), searxng_rows),
     }
 
@@ -235,8 +305,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--limit", type=int, default=10)
     parser.add_argument("--searxng-url", default=os.getenv("CONFENGE_SEARXNG_URL"))
     parser.add_argument("--cache-dir", default=".cache/confenge-searxng-canary")
+    parser.add_argument("--fresh-cache", action="store_true", help="Wipe --cache-dir before running")
     parser.add_argument("--skip-ddgs", action="store_true")
     parser.add_argument("--skip-searxng", action="store_true")
+    parser.add_argument("--skip-backend-compare", action="store_true")
     parser.add_argument("--search-max-queries", type=int, default=2)
     parser.add_argument("--search-results-per-query", type=int, default=4)
     parser.add_argument("--crawl-max-pages", type=int, default=2)
@@ -253,9 +325,16 @@ def main(argv: list[str] | None = None) -> int:
         cache_ttl_days=7,
     )
     cache_dir = Path(args.cache_dir)
+    if args.fresh_cache and cache_dir.exists():
+        import shutil
+
+        shutil.rmtree(cache_dir)
     probe = None
     if args.searxng_url and not args.skip_searxng:
         probe = probe_instance(args.searxng_url)
+    backend_compare: list[dict[str, Any]] = []
+    if args.searxng_url and not args.skip_backend_compare and not args.skip_ddgs and not args.skip_searxng:
+        backend_compare = compare_live_backends(cnpjs, searxng_url=args.searxng_url)
 
     ddgs_rows: list[dict[str, Any]] = []
     if not args.skip_ddgs:
@@ -305,7 +384,9 @@ def main(argv: list[str] | None = None) -> int:
         searxng_rows=searxng_rows,
         searxng_url=args.searxng_url,
         probe=probe,
-        note="Failover is never implicit: each backend is a separate recorded run.",
+        backend_compare=backend_compare,
+        fresh_cache=bool(args.fresh_cache),
+        note="Failover is never implicit: each backend is a separate recorded run. useful_yield counts search-derived pages only.",
     )
     out = Path(args.out)
     write_json(out, report)

@@ -142,12 +142,14 @@ python3 -m scripts.ops.searxng_canary \
 
 The report compares useful yield, pages that led to a person/email, latency, failures, and cost (always R$ 0 purchased data). Each backend is a separate run.
 
-Live 2026-08-14, TRACK_A first 10, image `searxng/searxng@sha256:892cf809341915a4b7710d3c9045005b4c377d51335a089b6d4da0b28750788d`. Local loopback plus Netcup `127.0.0.1:18888` (same digest). Uncached wall times from the first pass; yield from the corrected reporter (candidates do not carry `source_url`).
+Cold live 2026-08-15 against **Netcup** (`ssh -L 18889:127.0.0.1:18888`, image `searxng/searxng@sha256:892cf809341915a4b7710d3c9045005b4c377d51335a089b6d4da0b28750788d`). `--fresh-cache`: `cache_hits=0`, `cache_reused_accounts=0`, `cache_misses=29` per backend. `useful_yield` counts **search-derived** person/email/domain pages only (historical QSA is not credited to a backend). Direct backend compare (`compare_live_backends`) calls the shipped clients with no disk cache.
 
-| Backend | Useful yield | Person/email pages | p50 latency | Failures | Blocked | Cost |
-|---|---:|---:|---:|---:|---:|---:|
-| DDGS | 9/10 | 14 | ~29 s cold / 1 ms cached | 0 | 0 | R$ 0 |
-| SearXNG private | 9/10 | 14 | ~2.7 s cold / 1 ms cached | 0 | 0 | R$ 0 |
+| Backend | Search useful yield | Person/email pages | p50 wall | Search hits | Cache hits/misses | Failures | Blocked | Cost |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| DDGS | 7/10 | 9 | 20.6 s | 63 | 0 / 29 | 0 | 0 | R$ 0 |
+| SearXNG private (Netcup) | 7/10 | 8 | 2.9 s | 46 | 0 / 29 | 0 | 0 | R$ 0 |
+
+Direct same-query probe (no cache): DDGS returned 4 hits on all 10 accounts (p50 ~4 s). SearXNG returned 4 hits on 5/10 and 0 on 5/10 (p50 ~1.0 s; Brave/Mojeek/Qwant 429/CAPTCHA stay suspended). Overlap 0–3 URLs. This is engine yield, not a cache replay.
 
 Netcup extra-cli smoke: `--search-backend searxng --searxng-url http://127.0.0.1:18889` (SSH tunnel) on CNPJ `00820854000114` → `ACTIONABLE_ROUTE` / `R3_ROUTED_TO_NAMED_PERSON`, not blocked. Engines that 429/CAPTCHA (Brave, Mojeek, Qwant) stay suspended; no bypass.
 
