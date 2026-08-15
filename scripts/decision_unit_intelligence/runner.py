@@ -35,16 +35,6 @@ from scripts.decision_unit_intelligence.web_discovery import (
 _SHARED_HISTORICAL: HistoricalCampaignProvider | None = None
 
 
-def _build_raw_backend(name: str, *, searxng_url: str | None, timeout_seconds: float):
-    if name == "searxng":
-        if not searxng_url:
-            raise ValueError("searxng search backend requires --searxng-url")
-        return SearxngSearchBackend(searxng_url, timeout_seconds=timeout_seconds)
-    if name == "ddgs":
-        return DdgsSearchBackend(timeout_seconds=timeout_seconds)
-    raise ValueError(f"unsupported search backend: {name}")
-
-
 def default_providers(
     *,
     external_enabled: bool = False,
