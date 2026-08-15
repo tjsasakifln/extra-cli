@@ -1,0 +1,100 @@
+{
+  "schema_id": "confenge.dui.public_documents.fixtures.v1",
+  "query": {
+    "cnpj": "12345678000190",
+    "legal_name": "EMPRESA EXEMPLO ENGENHARIA LTDA",
+    "aliases": ["Empresa Exemplo"],
+    "domain": "empresaexemplo.com.br",
+    "named_people": [{"name": "João da Silva", "role": "Diretor Técnico"}],
+    "contract_refs": ["82951344000140-2-000006/2024"],
+    "reference_date": "2026-08-15"
+  },
+  "cases": {
+    "signature_name_role_email": {
+      "url": "https://pncp.gov.br/app/contratos/82951344000140/2024/6",
+      "source_class": "contrato",
+      "must_contain": ["DOC_IDENTITY_ASSOCIATED", "DOC_EMAIL_OBSERVED"],
+      "must_not_contain": ["EMAIL_VALIDATED", "CURRENT_IDENTITY_PROVEN"],
+      "associated": true,
+      "email": "joao.silva@empresaexemplo.com.br",
+      "person_name": "João da Silva",
+      "discovery_class_not": "EMAIL_VALIDATED"
+    },
+    "ambiguous_table": {
+      "url": "https://transparencia.exemplo.gov.br/anexos/comissao.pdf",
+      "source_class": "edital_anexo",
+      "must_contain": ["DOC_AMBIGUOUS_PERSON"],
+      "must_not_contain": ["DOC_IDENTITY_ASSOCIATED"],
+      "associated": false,
+      "email": "comercial.time@empresaexemplo.com.br"
+    },
+    "accountant_email": {
+      "url": "https://diariooficial.exemplo.gov.br/2019/contrato-exemplo.pdf",
+      "source_class": "diario_oficial",
+      "must_contain": ["DOC_THIRD_PARTY_DOMAIN"],
+      "must_not_contain": ["DOC_IDENTITY_ASSOCIATED"],
+      "associated": false,
+      "discarded": true,
+      "email": "contador@silvacontabil.com.br"
+    },
+    "stale_document": {
+      "url": "https://doe.sc.gov.br/2018/ata-empresa-exemplo.pdf",
+      "source_class": "ata",
+      "published_at": "2018-03-12",
+      "must_contain": ["DOC_STALE", "DOC_EMAIL_OBSERVED"],
+      "must_not_contain": ["EMAIL_VALIDATED"],
+      "associated": true,
+      "stale": true,
+      "email": "joao.silva@empresaexemplo.com.br"
+    },
+    "consortium": {
+      "url": "https://pncp.gov.br/app/editais/anexo-consorcio.pdf",
+      "source_class": "proposta",
+      "must_contain": ["DOC_IDENTITY_ASSOCIATED", "DOC_EMAIL_OBSERVED"],
+      "must_not_contain": ["DOC_COMPANY_MISMATCH"],
+      "associated": true,
+      "email": "joao.silva@empresaexemplo.com.br",
+      "person_name": "João da Silva"
+    },
+    "holding": {
+      "url": "https://www.holdingexemplo.com.br/relatorio-anual.pdf",
+      "source_class": "relatorio_institucional",
+      "must_contain": ["DOC_COMPANY_MISMATCH"],
+      "must_not_contain": ["DOC_IDENTITY_ASSOCIATED"],
+      "associated": false,
+      "email": "ana.costa@holdingexemplo.com.br"
+    },
+    "homonym": {
+      "url": "https://transparencia.outro.gov.br/processo/representante.pdf",
+      "source_class": "administrative_process",
+      "must_contain": ["DOC_COMPANY_MISMATCH"],
+      "must_not_contain": ["DOC_IDENTITY_ASSOCIATED"],
+      "associated": false,
+      "email": "joao.silva@outrapavimentacao.com.br"
+    },
+    "generic_no_contact": {
+      "url": "https://empresaexemplo.com.br/institucional/contato.pdf",
+      "source_class": "relatorio_institucional",
+      "must_contain": ["DOC_NO_CONTACT"],
+      "must_not_contain": ["DOC_IDENTITY_ASSOCIATED"],
+      "associated": false,
+      "email": "contato@empresaexemplo.com.br"
+    },
+    "unreadable": {
+      "url": "https://doe.sc.gov.br/scan/ilegivel.pdf",
+      "source_class": "diario_oficial",
+      "readable": false,
+      "must_contain": ["DOC_UNREADABLE"],
+      "must_not_contain": ["DOC_IDENTITY_ASSOCIATED"],
+      "associated": false
+    },
+    "company_mismatch": {
+      "url": "https://pncp.gov.br/app/contratos/99999999000191/2024/1",
+      "source_class": "contrato",
+      "must_contain": ["DOC_COMPANY_MISMATCH"],
+      "must_not_contain": ["DOC_IDENTITY_ASSOCIATED"],
+      "associated": false,
+      "email": "maria.souza@outraconstrutora.com.br"
+    }
+  }
+}
