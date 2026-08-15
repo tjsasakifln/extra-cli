@@ -77,6 +77,8 @@ def classify_failure(*, http_status: int | None, error: Any) -> FailureClassific
         return FailureClassification("TRANSPORT_TRANSIENT", True, "retry_with_circuit_breaker")
     if "json" in message or "parse" in message or "schema" in message:
         return FailureClassification("PARSE_OR_SCHEMA_DRIFT", False, "inspect_and_update_adapter")
+    if "persist" in message or "cas collision" in message:
+        return FailureClassification("PERSIST_FAILURE", False, "inspect_storage_and_retry")
     return FailureClassification("UNCLASSIFIED_FAILURE", False, "inspect_failure")
 
 
