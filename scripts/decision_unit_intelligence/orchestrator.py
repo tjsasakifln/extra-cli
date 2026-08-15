@@ -134,14 +134,16 @@ def _apply_affiliation_email_gate(
         decision = email_association_gate(record, email=route.channel_value)
         extra["affiliation_gate"] = decision.to_dict()
         extra["affiliation_stop_the_line"] = decision.stop_the_line
-        if extra.get("identity_explicitly_associated") and not decision.allowed:
+        if not decision.allowed:
             extra["identity_explicitly_associated"] = False
             extra["affiliation_association_refused"] = True
             route.reason_codes = list(
                 dict.fromkeys([*route.reason_codes, *decision.reason_codes, "AFFILIATION_GATE_REFUSED"])
             )
             if route.route_relation == RouteRelation.PERSON_OWNS_CHANNEL:
-                route.route_relation = RouteRelation.INFERRED_ASSOCIATION
+                route.route_relation = RouteRelation.ACCOUNT_LEVEL_ONLY
+            if route.reachability_class == ReachabilityClass.R1_DIRECT:
+                route.reachability_class = ReachabilityClass.R5_CORPORATE_ONLY
         route.extra = extra
 
 
@@ -162,7 +164,9 @@ def _stamp_email_discovery_classes(routes: list[ReachabilityRoute]) -> None:
             else False,
             email_safe_policy=email_safe,
         ).value
-        if extra.get("identity_explicitly_associated") is None and route.route_relation.value == "PERSON_OWNS_CHANNEL":
+        if extra.get("affiliation_association_refused"):
+            extra["identity_explicitly_associated"] = False
+        elif extra.get("identity_explicitly_associated") is None and route.route_relation.value == "PERSON_OWNS_CHANNEL":
             extra["identity_explicitly_associated"] = route.channel_type == ChannelType.DIRECT_EMAIL
         route.extra = extra
 
