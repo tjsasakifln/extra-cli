@@ -35,6 +35,9 @@ show staleness and kill-switch state.
 | `organs` | entity fields restricted to organ/unit | buyer/publisher detail |
 | `municipalities` | canonical municipality ID, IBGE, UF/name, origin metadata | municipality landing-page identity |
 | `surface_health` | view, refresh/query/error/p95, snapshot/as-of, completeness | freshness banner and server-side circuit-breaker evidence |
+| `research_flagship_series` | competence/geography/archetype, volume, integral BRL ticket, provenance | chart/research series for web-cfg flagship research |
+| `research_claim_gate` | `nacional_completo`, `national_claim_allowed`, reason_codes, denominator hashes | fail-closed national publish decision |
+| `research_health` | freshness, coverage, consumer errors | operational observability for the research family |
 
 Exact query text, timeout, p95 target, row limit and concurrency budget are
 queryable in `public_read_v1.query_budgets`. Consumers must always use bounded
@@ -59,5 +62,11 @@ soak, or `VPS_OPERATIONAL`.
 
 ## Changelog
 
+- `v1.1.0` (2026-08-15): additive research-flagship families
+  (`research_flagship_series`, `research_claim_gate`, `research_health`) for
+  `web-cfg / flagship research` (extra-cli#400, web-cfg#65/#73). Contract:
+  [`public-read-research-flagship-v1.md`](public-read-research-flagship-v1.md).
+  Migration `094_public_intelligence_research_models.sql` (094 was free on
+  `origin/main` at `42166330`). No v1.0.0 column was removed or renamed.
 - `v1.0.0` (2026-08-13): initial snapshot, tender, contract, entity, supplier,
   organ, municipality and surface-health families.

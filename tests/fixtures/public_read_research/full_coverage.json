@@ -1,0 +1,69 @@
+{
+  "fixture_id": "full_coverage",
+  "as_of": "2026-08-15T12:00:00+00:00",
+  "competence": "contratos-2026",
+  "universe": {
+    "source": "pncp",
+    "competence": "contratos-2026",
+    "cutoff": "2026-08-01",
+    "method": "pncp-orgaos-publicantes-v1",
+    "orgs": [
+      {"org_id": "org-a", "source": "pncp", "competence": "2026", "name": "Orgao A", "unit_count": 1},
+      {"org_id": "org-b", "source": "pncp", "competence": "2026", "name": "Orgao B", "unit_count": 2}
+    ]
+  },
+  "partitions": [
+    {"partition_id": "org-a", "status": "FOUND", "evidence": "raw:a"},
+    {"partition_id": "org-b", "status": "ZERO_CONFIRMED", "evidence": "raw:b-empty"}
+  ],
+  "freshness": {
+    "publication_age_hours": 1,
+    "publication_lag_p99_hours": 2
+  },
+  "series_rows": [
+    {
+      "process_key": "pncp:SC:001",
+      "uf": "SC",
+      "archetype_id": "pavimentacao-infraestrutura-viaria",
+      "contract_value_brl": "15206416.82",
+      "source_id": "pncp",
+      "source_record_id": "rec-sc-001",
+      "observed_at": "2026-08-15T11:00:00+00:00",
+      "lineage": ["obs:sc-001"],
+      "value_status": "KNOWN"
+    },
+    {
+      "process_key": "pncp:SC:002",
+      "uf": "SC",
+      "archetype_id": "pavimentacao-infraestrutura-viaria",
+      "contract_value_brl": "345532.53",
+      "source_id": "pncp",
+      "source_record_id": "rec-sc-002",
+      "observed_at": "2026-08-15T11:05:00+00:00",
+      "lineage": ["obs:sc-002"],
+      "value_status": "KNOWN"
+    },
+    {
+      "process_key": "pncp:MG:001",
+      "uf": "MG",
+      "archetype_id": "edificacoes-publicas",
+      "contract_value_brl": "504997.83",
+      "source_id": "pncp",
+      "source_record_id": "rec-mg-001",
+      "observed_at": "2026-08-15T11:10:00+00:00",
+      "lineage": ["obs:mg-001"],
+      "value_status": "KNOWN"
+    },
+    {
+      "process_key": "pncp:MG:002",
+      "uf": "MG",
+      "archetype_id": "edificacoes-publicas",
+      "contract_value_brl": "1300000.00",
+      "source_id": "pncp",
+      "source_record_id": "rec-mg-002",
+      "observed_at": "2026-08-15T11:15:00+00:00",
+      "lineage": ["obs:mg-002"],
+      "value_status": "KNOWN"
+    }
+  ]
+}
