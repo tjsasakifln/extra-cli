@@ -108,3 +108,43 @@ def test_admit_requires_session_settings_and_readable_snapshot() -> None:
     assert blocked["success"] is False
     assert "approved_snapshot_unreadable" in blocked["blockers"]
     assert blocked["soak_seal"] == "UNPROVEN"
+
+
+def test_overnight_job_overlaps_backup_and_unknown_stays_refuse() -> None:
+    overnight = admit_ingest(
+        workload="national_ingest",
+        job_start="22:00",
+        job_end="06:00",
+        calendar=(CalendarEvent("backup", "03:00", "05:00"),),
+        session=SESSION,
+        limits=LIMITS,
+        pressure=HostPressure(
+            disk_free_ratio=0.5,
+            cpu_util=0.2,
+            checkpoint_intact=True,
+            last_approved_snapshot_readable=True,
+        ),
+    )
+    assert overnight["decision"] == "RESCHEDULE"
+    assert overnight["success"] is False
+    assert any(b.startswith("calendar_overlap") for b in overnight["blockers"])
+
+    unknown = admit_ingest(
+        workload="reports",
+        job_start="22:00",
+        job_end="06:00",
+        calendar=(CalendarEvent("backup", "03:00", "05:00"),),
+        session=SESSION,
+        limits=LIMITS,
+        pressure=HostPressure(
+            disk_free_ratio=0.05,
+            cpu_util=0.95,
+            checkpoint_intact=True,
+            last_approved_snapshot_readable=True,
+        ),
+    )
+    assert unknown["decision"] == "REFUSE"
+    assert unknown["success"] is False
+    assert any(b.startswith("unknown_workload") for b in unknown["blockers"])
+    assert any(b.startswith("calendar_overlap") for b in unknown["blockers"])
+    assert "disk_pressure" in unknown["blockers"]
