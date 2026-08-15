@@ -89,6 +89,7 @@ Output is persisted under `extra.domain_resolution` and in the search attempt:
 - local TTL cache prevents blind rediscovery;
 - exact public page text may produce observed person/role/contact evidence;
 - email-to-person association requires auditável contextual evidence (same DOM card/block/row, `mailto:` in the person block, explicit “e-mail de Nome”, unique same-window proximity, or a same-domain person page). Local-part first+last is a signal only;
+- after contextual association, `email_association_gate` requires current identity/affiliation corroboration. Homônimo, left-company, QSA-only, holding/operational mismatch, and conflicting role are stop-the-line. The gate does not promote email;
 - generic/role/ethics mailboxes (`contato@`, `comercial@`, `licitacoes@`, `conduta@`) never become a person;
 - third-party professional domains (`.adv.br`, contabil, advocacia) and non-canonical domains never become identity;
 - observed company telephone remains company-owned unless explicit evidence proves otherwise;
