@@ -2,13 +2,13 @@
   "schema_id": "confenge.dui.query-planner.v1",
   "version": "query-policy.v2",
   "ranking_metric": "identity_associated_per_search",
-  "family_order": ["SITE_PATH", "DOCUMENT", "PERSON", "ROLE", "COMPANY"],
+  "family_order": ["COMPANY", "PERSON", "SITE_PATH", "DOCUMENT", "ROLE"],
   "family_budgets": {
-    "SITE_PATH": 4,
-    "DOCUMENT": 3,
+    "COMPANY": 4,
     "PERSON": 3,
-    "ROLE": 1,
-    "COMPANY": 4
+    "SITE_PATH": 1,
+    "DOCUMENT": 1,
+    "ROLE": 1
   },
   "disabled_families": [],
   "early_stop": {
@@ -17,7 +17,7 @@
     "max_zero_yield_streak": 2
   },
   "adaptive": {
-    "known_person_and_domain": ["SITE_PATH", "PERSON", "DOCUMENT"],
+    "known_person_and_domain": ["COMPANY", "PERSON", "SITE_PATH"],
     "unknown_domain": ["COMPANY", "DOCUMENT", "ROLE"]
   }
 }

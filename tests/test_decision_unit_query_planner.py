@@ -108,9 +108,10 @@ def test_adaptive_budget_person_and_domain_vs_unknown_domain() -> None:
     discovery = plan_queries(_ctx(), policy=policy, known_domain=None, known_people=[])
     assert specific.adaptive_mode == "known_person_and_domain"
     assert discovery.adaptive_mode == "unknown_domain"
-    assert specific.specs[0].family in {QueryFamily.PERSON, QueryFamily.SITE_PATH}
+    assert specific.specs[0].family in {QueryFamily.COMPANY, QueryFamily.PERSON, QueryFamily.SITE_PATH}
     assert any(spec.family == QueryFamily.PERSON for spec in specific.specs)
     assert any(spec.family == QueryFamily.SITE_PATH for spec in specific.specs)
+    assert any(spec.family == QueryFamily.COMPANY for spec in specific.specs)
     assert discovery.specs[0].family == QueryFamily.COMPANY
     assert all(spec.family != QueryFamily.SITE_PATH for spec in discovery.specs)
     assert all(spec.family != QueryFamily.PERSON for spec in discovery.specs)
@@ -249,7 +250,7 @@ def test_ranking_uses_downstream_yield_not_serp_count() -> None:
     assert policy.ranking_metric != "result_count"
 
 
-def test_replay_backend_does_not_invent_identity_email() -> None:
+def test_replay_backend_only_returns_observed_urls_and_does_not_inject_email() -> None:
     from scripts.decision_unit_intelligence.query_planner.benchmark import BenchmarkAccount
 
     account = BenchmarkAccount(
@@ -262,10 +263,58 @@ def test_replay_backend_does_not_invent_identity_email() -> None:
         trade_name="qualidade",
     )
     backend = ObservationReplayBackend([account], simulate_backend="searxng")
-    hits = backend.search('"EDUARDO SCHMITT ESPINDOLA" email', limit=5)
-    joined = " ".join(f"{hit.title} {hit.snippet}" for hit in hits)
-    assert "eduardo" not in joined.lower() or "contato@qualidademineracao.com.br" in joined
+    observed = {account.site, account.fonte}
+    for query in (
+        'site:qualidademineracao.com.br equipe',
+        'site:qualidademineracao.com.br diretoria',
+        'site:qualidademineracao.com.br contato',
+        '"QUALIDADE MINERACAO LTDA" filetype:pdf',
+        '"QUALIDADE MINERACAO LTDA" email',
+        '"EDUARDO SCHMITT ESPINDOLA" email',
+    ):
+        hits = backend.search(query, limit=5)
+        assert all(hit.url in observed for hit in hits)
+        assert all("/documentos/ata.pdf" not in hit.url for hit in hits)
+        assert all(not hit.url.rstrip("/").endswith("/equipe") for hit in hits)
+    assert backend.search("site:qualidademineracao.com.br equipe", limit=5) == []
+    company_email = backend.search('"QUALIDADE MINERACAO LTDA" email', limit=5)
+    assert company_email
+    assert company_email[0].url == account.site
+    assert "contato@qualidademineracao.com.br" in company_email[0].snippet
+    person_email = backend.search('"EDUARDO SCHMITT ESPINDOLA" email', limit=5)
+    joined = " ".join(f"{hit.title} {hit.snippet}" for hit in person_email)
+    assert "contato@qualidademineracao.com.br" not in joined
     assert "eduardo.schmitt@" not in joined.lower()
+    path_hits = backend.search("site:qualidademineracao.com.br contato", limit=5)
+    assert path_hits == []
+
+
+def test_replay_pdf_hit_requires_observed_pdf_fonte() -> None:
+    from scripts.decision_unit_intelligence.query_planner.benchmark import BenchmarkAccount
+
+    pdf = "https://ilhota.sc.gov.br/wp-content/uploads/2023/07/planaterra.pdf"
+    account = BenchmarkAccount(
+        cnpj="82743832000162",
+        legal_name="PLANATERRA-TERRAPLENAGEM E PAVIMENTACAO LTDA",
+        site="https://planaterra.com.br/",
+        email="licitacao1@planaterra.com.br",
+        fonte=pdf,
+        people=["GERSON DE BORBA DIAS"],
+        trade_name="planaterra",
+    )
+    backend = ObservationReplayBackend([account], simulate_backend="searxng")
+    pdf_hits = backend.search('"82743832000162" filetype:pdf', limit=5)
+    assert [hit.url for hit in pdf_hits] == [pdf]
+    no_pdf = BenchmarkAccount(
+        cnpj="00820854000114",
+        legal_name="QUALIDADE MINERACAO LTDA",
+        site="https://qualidademineracao.com.br/",
+        email="contato@qualidademineracao.com.br",
+        fonte="https://qualidademineracao.com.br/",
+        people=[],
+    )
+    empty = ObservationReplayBackend([no_pdf], simulate_backend="searxng")
+    assert empty.search('"QUALIDADE MINERACAO LTDA" filetype:pdf', limit=5) == []
 
 
 def test_cli_query_yield_replay_30(tmp_path: Path) -> None:
@@ -301,3 +350,58 @@ def test_cli_query_yield_replay_30(tmp_path: Path) -> None:
     assert "replay-ddgs" in report
     assert (out / "query-yield-report.md").exists()
     assert (out / "query-policy.v2.json").exists()
+
+
+def test_run_cli_forwards_policy_version_and_fallback(tmp_path: Path) -> None:
+    import sys
+    import types
+
+    if "scripts.decision_unit_intelligence.affiliation_report" not in sys.modules:
+        stub = types.ModuleType("scripts.decision_unit_intelligence.affiliation_report")
+        stub.build_affiliation_cohort_report = lambda accounts: {  # type: ignore[attr-defined]
+            "schema_id": "stub",
+            "n": 0,
+            "uplift": {},
+            "remaining_blockers": [],
+            "next_recommendation": "",
+        }
+        sys.modules["scripts.decision_unit_intelligence.affiliation_report"] = stub
+
+    from scripts.decision_unit_intelligence.cli import _execute, build_parser
+
+    seen: dict[str, object] = {}
+
+    def fake_run_account(cnpj: str, **kwargs):
+        seen["cnpj"] = cnpj
+        seen.update(kwargs)
+        raise SystemExit("captured-run-account")
+
+    import scripts.decision_unit_intelligence.cli as cli_mod
+
+    original = cli_mod.run_account
+    cli_mod.run_account = fake_run_account  # type: ignore[method-assign]
+    try:
+        args = build_parser().parse_args(
+            [
+                "run",
+                "--out",
+                str(tmp_path / "out"),
+                "--cnpjs",
+                "00820854000114",
+                "--query-policy-version",
+                "query-policy.v1",
+                "--search-fallback",
+                "ddgs",
+            ]
+        )
+        try:
+            _execute(args, label="RUN")
+        except SystemExit as exc:
+            assert str(exc) == "captured-run-account"
+    finally:
+        cli_mod.run_account = original
+    assert seen["query_policy_version"] == "query-policy.v1"
+    assert seen["search_fallback"] == "ddgs"
+    source = Path("scripts/decision_unit_intelligence/cli.py").read_text(encoding="utf-8")
+    assert "query_policy_version=args.query_policy_version" in source
+    assert "search_fallback=args.search_fallback" in source

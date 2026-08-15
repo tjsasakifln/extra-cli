@@ -6,6 +6,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit
 
 from scripts.decision_unit_intelligence.cohort import TRACK_A_CNPJS, build_manifest
 from scripts.decision_unit_intelligence.email_discovery import is_third_party_echo_source
@@ -96,103 +97,18 @@ class ObservationReplayBackend:
     def _hits_for(self, account: BenchmarkAccount, query: str) -> list[SearchHit]:
         if not _query_mentions(account, query):
             return []
-        domain = account.domain
-        email = normalize_email(account.email)
-        fonte = account.fonte or ""
         hits: list[SearchHit] = []
-        if "filetype:pdf" in query.lower():
-            if fonte.lower().endswith(".pdf"):
-                hits.append(
-                    SearchHit(
-                        url=fonte,
-                        title=f"{account.legal_name} contrato",
-                        snippet=_snippet(account, email, document=True),
-                        engine=self.simulate_backend,
-                    )
-                )
-            elif domain:
-                hits.append(
-                    SearchHit(
-                        url=f"https://{domain}/documentos/ata.pdf",
-                        title=f"{account.legal_name} ata",
-                        snippet=_snippet(account, email, document=True),
-                        engine=self.simulate_backend,
-                    )
-                )
-            return hits
-        if domain and (f"site:{domain}" in query or (email and f"@{domain}" in query)):
-            slug = _site_slug(query)
-            url = f"https://{domain}/{slug}" if slug else f"https://{domain}/"
-            person = _person_in_query(account, query)
+        for url in _observed_urls(account):
+            if not _url_matches_query(url, query, account):
+                continue
             hits.append(
                 SearchHit(
                     url=url,
-                    title=f"{account.legal_name} {slug or 'institucional'}",
-                    snippet=_snippet(account, email, person=person, site=True),
+                    title=_observed_title(account, url, query),
+                    snippet=_observed_snippet(account, url, query),
                     engine=self.simulate_backend,
                 )
             )
-            return hits
-        if any(person.lower() in query.lower() for person in account.people):
-            person = _person_in_query(account, query)
-            if fonte and is_third_party_echo_source(fonte):
-                hits.append(
-                    SearchHit(
-                        url=fonte,
-                        title=f"{person} {account.legal_name}",
-                        snippet=f"{person} sócio-administrador. Fonte cadastral.",
-                        engine=self.simulate_backend,
-                    )
-                )
-            elif domain:
-                hits.append(
-                    SearchHit(
-                        url=f"https://{domain}/equipe",
-                        title=f"{person} — {account.legal_name}",
-                        snippet=_snippet(account, email, person=person, site=True),
-                        engine=self.simulate_backend,
-                    )
-                )
-            return hits
-        if account.legal_name and account.legal_name.lower() in query.lower():
-            if domain:
-                hits.append(
-                    SearchHit(
-                        url=f"https://{domain}/contato",
-                        title=f"{account.legal_name} contato",
-                        snippet=_snippet(account, email, site=True),
-                        engine=self.simulate_backend,
-                    )
-                )
-            elif fonte:
-                hits.append(
-                    SearchHit(
-                        url=fonte,
-                        title=account.legal_name or account.cnpj,
-                        snippet=_snippet(account, email),
-                        engine=self.simulate_backend,
-                    )
-                )
-            return hits
-        if account.cnpj in query:
-            if fonte:
-                hits.append(
-                    SearchHit(
-                        url=fonte,
-                        title=f"CNPJ {account.cnpj}",
-                        snippet=_snippet(account, email),
-                        engine=self.simulate_backend,
-                    )
-                )
-            elif domain:
-                hits.append(
-                    SearchHit(
-                        url=f"https://{domain}/",
-                        title=account.legal_name or account.cnpj,
-                        snippet=_snippet(account, email, site=True),
-                        engine=self.simulate_backend,
-                    )
-                )
         return hits
 
 
@@ -217,6 +133,15 @@ def _person_in_query(account: BenchmarkAccount, query: str) -> str | None:
     return None
 
 
+def _observed_urls(account: BenchmarkAccount) -> list[str]:
+    """Only URLs recorded on the observation. Never construct /equipe or /ata.pdf."""
+    urls: list[str] = []
+    for raw in (account.site, account.fonte):
+        if raw and raw not in urls:
+            urls.append(raw)
+    return urls
+
+
 def _site_slug(query: str) -> str | None:
     for slug in ("equipe", "diretoria", "contato", "engenharia"):
         if slug in query.lower():
@@ -224,25 +149,62 @@ def _site_slug(query: str) -> str | None:
     return None
 
 
-def _snippet(
-    account: BenchmarkAccount,
-    email: str | None,
-    *,
-    person: str | None = None,
-    site: bool = False,
-    document: bool = False,
-) -> str:
+def _url_matches_query(url: str, query: str, account: BenchmarkAccount) -> bool:
+    folded = query.lower()
+    path = (urlsplit(url).path or "").lower()
+    host = host_of(url)
+    if "filetype:pdf" in folded:
+        return path.endswith(".pdf") or url.lower().split("?", 1)[0].endswith(".pdf")
+    slug = _site_slug(query)
+    if slug and "site:" in folded:
+        return bool(account.domain and host == account.domain and slug in path)
+    if account.domain and (f"site:{account.domain}" in folded or f"@{account.domain}" in folded):
+        return host == account.domain
+    return True
+
+
+def _include_observed_email(account: BenchmarkAccount, url: str, query: str) -> bool:
+    email = normalize_email(account.email)
+    if not email or is_third_party_echo_source(url):
+        return False
+    folded = query.lower()
+    if "email" not in folded and "@" not in folded:
+        return False
+    person = _person_in_query(account, query)
+    mentions_company = bool(
+        (account.legal_name and account.legal_name.lower() in folded)
+        or account.cnpj in query
+        or (account.domain and account.domain in folded)
+        or (account.trade_name and account.trade_name.lower() in folded)
+    )
+    if person and not mentions_company:
+        return _email_belongs_to_person(email, person)
+    return mentions_company
+
+
+def _observed_title(account: BenchmarkAccount, url: str, query: str) -> str:
+    person = _person_in_query(account, query)
+    label = account.legal_name or account.cnpj
+    if person:
+        return f"{person} {label}"
+    if url.lower().split("?", 1)[0].endswith(".pdf"):
+        return f"{label} documento"
+    return label
+
+
+def _observed_snippet(account: BenchmarkAccount, url: str, query: str) -> str:
     parts = [account.legal_name or account.cnpj]
+    person = _person_in_query(account, query)
     if person:
         parts.append(person)
-    if document:
-        parts.append("ata contrato filetype:pdf")
-    if site and email:
-        parts.append(email)
-        if person and _email_belongs_to_person(email, person):
-            parts.append(f"E-mail de {person}: {email}")
-    elif email and not is_third_party_echo_source(account.fonte or ""):
-        parts.append(email)
+    if url.lower().split("?", 1)[0].endswith(".pdf"):
+        parts.append("documento público")
+    if _include_observed_email(account, url, query):
+        email = normalize_email(account.email)
+        if email:
+            parts.append(email)
+            if person and _email_belongs_to_person(email, person):
+                parts.append(f"E-mail de {person}: {email}")
     return ". ".join(part for part in parts if part)
 
 
@@ -390,12 +352,17 @@ def derive_policy(family_ranking: list[dict[str, Any]], *, version: str = DEFAUL
     if QueryFamily.COMPANY in disabled:
         disabled.remove(QueryFamily.COMPANY)
         budgets[QueryFamily.COMPANY] = 4
+    if QueryFamily.PERSON in disabled:
+        disabled.remove(QueryFamily.PERSON)
+        budgets[QueryFamily.PERSON] = max(budgets.get(QueryFamily.PERSON, 0), 2)
     if QueryFamily.ROLE in disabled:
         disabled.remove(QueryFamily.ROLE)
         budgets[QueryFamily.ROLE] = 1
     ranked_specific = tuple(
-        family for family in order if family in {QueryFamily.PERSON, QueryFamily.SITE_PATH, QueryFamily.DOCUMENT}
-    ) or (QueryFamily.PERSON, QueryFamily.SITE_PATH, QueryFamily.DOCUMENT)
+        family
+        for family in order
+        if family in {QueryFamily.COMPANY, QueryFamily.PERSON, QueryFamily.SITE_PATH, QueryFamily.DOCUMENT}
+    ) or (QueryFamily.COMPANY, QueryFamily.PERSON, QueryFamily.SITE_PATH)
     return QueryPolicy(
         version=version,
         ranking_metric="identity_associated_per_search",

@@ -87,6 +87,8 @@ def _execute(args: argparse.Namespace, *, label: str) -> int:
             site_budget=site_budget,
             site_crawl=not args.no_site_crawl,
             site_crawl_baseline=args.site_crawl_baseline,
+            query_policy_version=args.query_policy_version,
+            search_fallback=args.search_fallback,
         )
         payload = acc.to_dict()
         payload["replay_hash"] = account_hash(payload)
