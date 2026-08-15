@@ -257,6 +257,9 @@ class JobStore:
 
 
 def submit(store: JobStore, spec: JobSpec, *, job_id: str) -> InferenceJob:
+    existing_id = store.by_idempotency.get(spec.key)
+    if existing_id is not None:
+        return store.get(existing_id)
     queued = InferenceJob(
         job_id=job_id,
         idempotency_key=spec.key,
