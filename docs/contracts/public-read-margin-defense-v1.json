@@ -1,0 +1,77 @@
+{
+  "schema": "public-read-margin-defense/1.0",
+  "contract_version": "v1.0.0",
+  "public_read_base": "v1.0.0",
+  "compatibility": "additive_nullable_within_v1",
+  "consumer": {
+    "id": "web-cfg/diagnostico-defesa-de-margem",
+    "repository": "tjsasakifln/web-cfg",
+    "issues": ["#65"],
+    "decision": "May consume official contract facts. Must not treat UNKNOWN as zero. Must not infer right, imbalance, loss or that an adjustment is due."
+  },
+  "wedge": {
+    "id": "contracts-prices-margin-defense",
+    "label": "Official public-contract facts for margin-defense diagnosis",
+    "reuse": "Same grain as research-flagship contract identity; facts only, no legal conclusion"
+  },
+  "grain": "canonical_contract_id",
+  "keys": ["canonical_contract_id"],
+  "source_families": [
+    "pncp_supplier_contracts",
+    "canonical_public_observations",
+    "public_read_v1.contracts"
+  ],
+  "value_semantics": {
+    "nominal_value": "integral nominal BRL of the contract instrument as published by the source",
+    "not": [
+      "unit price",
+      "deflated BRL",
+      "adjustment due",
+      "economic imbalance",
+      "loss"
+    ],
+    "unknown_policy": "UNKNOWN remains UNKNOWN; absence of evidence is never zero"
+  },
+  "as_of": "snapshot cutoff from the input payload; never wall-clock",
+  "freshness": {
+    "policy": "contracts-freshness-slo-v1",
+    "layer": "publication",
+    "max_age_hours": 48
+  },
+  "provenance": [
+    "source_id",
+    "source_record_id",
+    "evidence_ref",
+    "content_hash"
+  ],
+  "unknown_reason_codes": [
+    "missing_identity",
+    "missing_object",
+    "missing_organ",
+    "missing_contractor",
+    "missing_nominal_value",
+    "missing_signed_at",
+    "missing_start_at",
+    "missing_end_at",
+    "missing_term",
+    "no_explicit_adjustment_rule",
+    "no_explicit_adjustment_document",
+    "no_amendment_signal",
+    "source_does_not_offer_measurements",
+    "source_does_not_offer_payments",
+    "not_observed",
+    "evidence_without_identity",
+    "index_without_document"
+  ],
+  "forbidden_conclusion_fields": [
+    "has_right",
+    "imbalance",
+    "loss",
+    "should_adjust",
+    "direito",
+    "desequilibrio",
+    "perda",
+    "deveria_reajustar"
+  ],
+  "branding": "truth plane and export are source-agnostic; CONFENGE marks are forbidden"
+}
