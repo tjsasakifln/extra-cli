@@ -262,17 +262,19 @@ class CachedRateLimitedSearchBackend:
         *,
         cache: JsonDiscoveryCache,
         min_interval_seconds: float,
+        policy_version: str = "query-policy.v2",
     ) -> None:
         self.backend = backend
         self.backend_id = backend.backend_id
         self.cache = cache
         self.min_interval_seconds = min_interval_seconds
+        self.policy_version = policy_version
         self._last_query_at = 0.0
         self.cache_hits = 0
         self.cache_misses = 0
 
     def search(self, query: str, *, limit: int) -> list[SearchHit]:
-        key = f"{self.backend_id}|{limit}|{query}"
+        key = f"{self.backend_id}|{self.policy_version}|{limit}|{query}"
         cached = self.cache.get("search", key)
         if cached is not None:
             self.cache_hits += 1

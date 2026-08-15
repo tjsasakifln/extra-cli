@@ -39,6 +39,16 @@ Operational classes already map to R0-R5. A company switchboard plus a named per
 
 Public search is a first-class bounded provider when explicitly enabled. The cascade uses cached datalake/campaign facts to obtain the legal name and known site, then runs targeted search before a positive early stop. Search remains disabled by default in generic/test commands so no caller silently creates network traffic.
 
+The query planner is a separate module (`scripts/decision_unit_intelligence/query_planner`) versioned by policy (`query-policy.v2` default). It instruments each query (family, backend, account/person, useful URLs, observed/identity-associated email, weak sources, latency, failure, cache) and stops early when downstream yield is sufficient or the marginal gain drops. Ranking never uses SERP count. SearXNG is primary; DDGS is an explicit comparison; fallback is recorded, never silent.
+
+```bash
+python3 -m scripts.decision_unit_intelligence.query_planner \
+  --out /tmp/query-yield-30 \
+  --limit 30 \
+  --primary replay-searxng \
+  --compare replay-ddgs
+```
+
 The query planner records the full contextual plan and executes only the configured budget. It covers:
 
 - company name plus decision roles appropriate to the offer;

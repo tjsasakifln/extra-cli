@@ -1,0 +1,23 @@
+{
+  "schema_id": "confenge.dui.query-planner.v1",
+  "version": "query-policy.v2",
+  "ranking_metric": "identity_associated_per_search",
+  "family_order": ["SITE_PATH", "DOCUMENT", "PERSON", "ROLE", "COMPANY"],
+  "family_budgets": {
+    "SITE_PATH": 4,
+    "DOCUMENT": 3,
+    "PERSON": 3,
+    "ROLE": 1,
+    "COMPANY": 4
+  },
+  "disabled_families": [],
+  "early_stop": {
+    "min_identity_associated": 1,
+    "min_observed_email": 2,
+    "max_zero_yield_streak": 2
+  },
+  "adaptive": {
+    "known_person_and_domain": ["SITE_PATH", "PERSON", "DOCUMENT"],
+    "unknown_domain": ["COMPANY", "DOCUMENT", "ROLE"]
+  }
+}

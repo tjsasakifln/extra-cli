@@ -21,6 +21,7 @@ from scripts.decision_unit_intelligence.providers.external_enrichment import Ext
 from scripts.decision_unit_intelligence.providers.historical_campaign import HistoricalCampaignProvider
 from scripts.decision_unit_intelligence.providers.official_documents import OfficialDocumentsProvider
 from scripts.decision_unit_intelligence.providers.public_search import PublicSearchProvider
+from scripts.decision_unit_intelligence.query_planner import ExplicitFallbackBackend, QuerySearchCache
 from scripts.decision_unit_intelligence.search_http import SearchBackendUnavailableError, build_search_backend
 from scripts.decision_unit_intelligence.site_contact_crawl import SiteCrawlBudget
 from scripts.decision_unit_intelligence.web_discovery import (
@@ -34,6 +35,16 @@ from scripts.decision_unit_intelligence.web_discovery import (
 _SHARED_HISTORICAL: HistoricalCampaignProvider | None = None
 
 
+def _build_raw_backend(name: str, *, searxng_url: str | None, timeout_seconds: float):
+    if name == "searxng":
+        if not searxng_url:
+            raise ValueError("searxng search backend requires --searxng-url")
+        return SearxngSearchBackend(searxng_url, timeout_seconds=timeout_seconds)
+    if name == "ddgs":
+        return DdgsSearchBackend(timeout_seconds=timeout_seconds)
+    raise ValueError(f"unsupported search backend: {name}")
+
+
 def default_providers(
     *,
     external_enabled: bool = False,
@@ -45,6 +56,8 @@ def default_providers(
     site_budget: SiteCrawlBudget | None = None,
     site_crawl: bool = True,
     site_crawl_baseline: bool = False,
+    query_policy_version: str | None = None,
+    search_fallback: str = "off",
 ) -> list[Any]:
     global _SHARED_HISTORICAL
     if _SHARED_HISTORICAL is None:
@@ -52,6 +65,8 @@ def default_providers(
     budget = search_budget or SearchBudget()
     backend = None
     crawler = None
+    planner_cache = None
+    policy_version = query_policy_version or "query-policy.v2"
     if search_backend != "off":
         try:
             raw_backend = build_search_backend(
@@ -64,12 +79,24 @@ def default_providers(
             if exc.reason == "missing_url":
                 raise ValueError("searxng search backend requires --searxng-url") from exc
             raise
+        if search_fallback and search_fallback not in {"off", search_backend}:
+            raw_backend = ExplicitFallbackBackend(
+                raw_backend,
+                build_search_backend(
+                    search_fallback,
+                    searxng_url=searxng_url,
+                    timeout_seconds=budget.timeout_seconds,
+                    failover="off",
+                ),
+            )
         cache = JsonDiscoveryCache(cache_dir or Path(".cache/confenge-prospect"), ttl_days=budget.cache_ttl_days)
         backend = CachedRateLimitedSearchBackend(
             raw_backend,
             cache=cache,
             min_interval_seconds=budget.min_query_interval_seconds,
+            policy_version=policy_version,
         )
+        planner_cache = QuerySearchCache(cache, policy_version=policy_version)
         crawler = CachedPublicCrawler(
             HttpxPublicCrawler(timeout_seconds=budget.timeout_seconds),
             cache=cache,
@@ -81,6 +108,8 @@ def default_providers(
             backend=backend,
             crawler=crawler,
             budget=budget,
+            policy_version=policy_version,
+            planner_cache=planner_cache,
         ),
         AdministrativeProcessProvider(),
         OfficialDocumentsProvider(),
@@ -109,6 +138,8 @@ def run_account(
     site_budget: SiteCrawlBudget | None = None,
     site_crawl: bool = True,
     site_crawl_baseline: bool = False,
+    query_policy_version: str | None = None,
+    search_fallback: str = "off",
 ) -> Any:
     started = perf_counter()
     ctx = InvestigationContext(cnpj=normalize_cnpj(cnpj), service=service)
@@ -121,6 +152,8 @@ def run_account(
         site_budget=site_budget,
         site_crawl=site_crawl,
         site_crawl_baseline=site_crawl_baseline,
+        query_policy_version=query_policy_version,
+        search_fallback=search_fallback,
     )
     people = []
     channels = []
