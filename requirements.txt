@@ -26,6 +26,10 @@ pydantic>=2.0.0
 lxml>=5.0.0
 beautifulsoup4>=4.12.0
 
+# Public web search canary adapter (MIT); production may use SearXNG over HTTP.
+ddgs>=9.14.4,<10
+dnspython>=2.7.0,<3
+
 # Fuzzy string matching (optional, fallback to difflib)
 rapidfuzz>=3.0.0
 

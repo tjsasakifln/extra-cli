@@ -123,6 +123,8 @@ docs/ops/campaigns/**/evidence/**/package-final-fixture/*.xlsx
 # Spec Kit / Grok runtime (keep skills + constitution + workflows definitions)
 .specify/workflows/**/runs/
 .specify/.cache/
+.cache/confenge-prospect/
+work/confenge-prospect-live-*/
 .grok/tmp/
 .grok/cache/
 specs/**/checklists/.runtime/

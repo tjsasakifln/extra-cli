@@ -11,7 +11,8 @@ from scripts.decision_unit_intelligence.models import dumps_stable
 
 def write_json(path: Path, payload: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    # Machine JSON stays ASCII-safe so Windows readers using the locale default do not corrupt evidence.
+    path.write_text(json.dumps(payload, ensure_ascii=True, indent=2) + "\n", encoding="utf-8")
 
 
 def read_json(path: Path) -> Any:

@@ -8,6 +8,7 @@ from typing import Any, Protocol
 from scripts.decision_unit_intelligence.models import (
     ChannelObservation,
     CostObservation,
+    FieldEvidence,
     PersonObservation,
     SearchAttempt,
 )
@@ -25,6 +26,7 @@ class InvestigationContext:
 class ProviderResult:
     people: list[PersonObservation] = field(default_factory=list)
     channels: list[ChannelObservation] = field(default_factory=list)
+    evidence: list[FieldEvidence] = field(default_factory=list)
     attempts: list[SearchAttempt] = field(default_factory=list)
     cursor: dict[str, Any] = field(default_factory=dict)
     terminal: str = "ok"

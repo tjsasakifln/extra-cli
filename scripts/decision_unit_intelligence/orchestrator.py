@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from typing import Any
 
 from scripts.decision_unit_intelligence.corroboration import (
     detect_channel_conflicts,
@@ -35,6 +36,7 @@ from scripts.decision_unit_intelligence.models import (
     DecisionUnitCandidate,
     EpistemicClass,
     FieldAspect,
+    FieldEvidence,
     PersonObservation,
     PersonRelation,
     ReachabilityClass,
@@ -322,7 +324,7 @@ def recommend(
     routes: list[ReachabilityRoute],
 ) -> Recommendation:
     usable_people = [c for c in candidates if person_is_suitable(c)]
-    usable_people.sort(key=lambda c: (c.person_name or ""))
+    usable_people.sort(key=lambda c: c.person_name or "")
     usable_people.sort(key=_candidate_sort_key, reverse=True)
     actionable = [r for r in routes if is_actionable_route(r)]
     actionable.sort(key=route_rank, reverse=True)
@@ -343,9 +345,7 @@ def recommend(
     # Prefer a route that reaches the primary person; do not pick a worse person
     # just because they have a prettier email.
     person_routes = [
-        r
-        for r in actionable
-        if primary_person and r.decision_unit_candidate_id == primary_person.candidate_id
+        r for r in actionable if primary_person and r.decision_unit_candidate_id == primary_person.candidate_id
     ]
     role_or_corp = [
         r
@@ -394,8 +394,10 @@ def recommend(
 
     secondary = [c.candidate_id for c in usable_people[1:4]]
     alternatives = [r.route_id for r in actionable if primary_route is None or r.route_id != primary_route.route_id][:5]
-    action = primary_route.action_mode if primary_route else (
-        ActionMode.NEEDS_ENRICHMENT if primary_person else ActionMode.NO_ACTIONABLE_ROUTE
+    action = (
+        primary_route.action_mode
+        if primary_route
+        else (ActionMode.NEEDS_ENRICHMENT if primary_person else ActionMode.NO_ACTIONABLE_ROUTE)
     )
     return Recommendation(
         primary_target_id=primary_person.candidate_id if primary_person else None,
@@ -451,6 +453,8 @@ def investigate_account(
     mx_valid: bool = False,
     catch_all: bool = False,
     public_email_hits: list[str] | None = None,
+    evidence: list[FieldEvidence] | None = None,
+    discovery_extra: dict[str, Any] | None = None,
     blocked: bool = False,
 ) -> AccountInvestigation:
     entity_id = normalize_cnpj(cnpj)
@@ -464,12 +468,17 @@ def investigate_account(
     # Normalize observed emails to a channel type before routing.
     normalized_channels: list[ChannelObservation] = []
     for ch in channels:
-        if ch.channel_value and "@" in ch.channel_value and ch.channel_type in {
-            ChannelType.DIRECT_EMAIL,
-            ChannelType.GENERIC_CORPORATE_EMAIL,
-            ChannelType.ROLE_MAILBOX,
-            ChannelType.OTHER_PUBLIC_BUSINESS_ROUTE,
-        }:
+        if (
+            ch.channel_value
+            and "@" in ch.channel_value
+            and ch.channel_type
+            in {
+                ChannelType.DIRECT_EMAIL,
+                ChannelType.GENERIC_CORPORATE_EMAIL,
+                ChannelType.ROLE_MAILBOX,
+                ChannelType.OTHER_PUBLIC_BUSINESS_ROUTE,
+            }
+        ):
             ch.channel_type = classify_observed_email_channel(ch.channel_value)
         normalized_channels.append(ch)
     routes = build_routes(normalized_channels, candidates, company_entity_id=entity_id)
@@ -510,10 +519,11 @@ def investigate_account(
         recommendation=rec,
         ledger=ledger,
         terminal=terminal,
+        evidence=evidence or [],
         conflicts=conflicts,
         reason_codes=reasons,
         warnings=list(dict.fromkeys(rec.warnings)),
         policy_version=POLICY_VERSION,
         built_at=now_iso(),
-        extra={"account_reachability_class": klass.value},
+        extra={"account_reachability_class": klass.value, **(discovery_extra or {})},
     )
