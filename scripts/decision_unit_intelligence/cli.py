@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 
 from scripts.decision_unit_intelligence import POLICY_VERSION, PROVIDER_VERSION, SCHEMA_VERSION
+from scripts.decision_unit_intelligence.affiliation_report import build_affiliation_cohort_report
 from scripts.decision_unit_intelligence.batch_queue import (
     ContactDiscoveryQueue,
     budget_version_from_knobs,
@@ -21,8 +22,15 @@ from scripts.decision_unit_intelligence.cohort import TRACK_A_CNPJS, build_manif
 from scripts.decision_unit_intelligence.email_discovery import summarize_email_discovery
 from scripts.decision_unit_intelligence.operator_pack import build_card, write_operator_pack
 from scripts.decision_unit_intelligence.projection import project_warmbly_outreach
+from scripts.decision_unit_intelligence.providers.base import InvestigationContext
 from scripts.decision_unit_intelligence.repository import JsonRunRepository, account_hash, write_json
 from scripts.decision_unit_intelligence.runner import run_account
+from scripts.decision_unit_intelligence.site_contact_crawl import (
+    SITE_CRAWL_BUDGET_DEFAULTS,
+    SiteCrawlBudget,
+    load_fixture_corpus,
+    run_site_contact_crawl,
+)
 from scripts.decision_unit_intelligence.web_discovery import SearchBudget
 
 
@@ -65,6 +73,7 @@ def _execute(args: argparse.Namespace, *, label: str) -> int:
         min_query_interval_seconds=args.search_min_interval_seconds,
         cache_ttl_days=args.search_cache_ttl_days,
     )
+    site_budget = _site_budget_from_args(args)
     for cnpj in cnpjs:
         acc = run_account(
             cnpj,
@@ -76,6 +85,9 @@ def _execute(args: argparse.Namespace, *, label: str) -> int:
             cache_dir=Path(args.search_cache_dir),
             verify_email_dns=args.verify_email_dns,
             search_failover=args.search_failover or os.getenv("CONFENGE_SEARCH_FAILOVER", "off"),
+            site_budget=site_budget,
+            site_crawl=not args.no_site_crawl,
+            site_crawl_baseline=args.site_crawl_baseline,
         )
         payload = acc.to_dict()
         payload["replay_hash"] = account_hash(payload)
@@ -92,6 +104,8 @@ def _execute(args: argparse.Namespace, *, label: str) -> int:
     warmbly = [project_warmbly_outreach(a) for a in accounts]
     email_safe = sum(w["email_safe_count"] for w in warmbly)
     email_discovery = summarize_email_discovery(accounts)
+    affiliation_cohort = build_affiliation_cohort_report(accounts)
+    write_json(Path(args.out) / "affiliation_cohort.json", affiliation_cohort)
     write_json(Path(args.out) / "warmbly_outreach.json", {"accounts": warmbly, "email_safe_total": email_safe})
     web_attempts = [
         attempt for account in accounts for attempt in account.ledger.attempts if attempt.provider_id == "public_search"
@@ -111,7 +125,9 @@ def _execute(args: argparse.Namespace, *, label: str) -> int:
     attempted_accounts = int(web_metrics["accounts_attempted"])
     web_metrics["cache_hits"] = cache_hits
     web_metrics["cache_misses"] = cache_misses
-    web_metrics["cache_hit_rate"] = round(cache_hits / (cache_hits + cache_misses), 4) if cache_hits + cache_misses else 0.0
+    web_metrics["cache_hit_rate"] = (
+        round(cache_hits / (cache_hits + cache_misses), 4) if cache_hits + cache_misses else 0.0
+    )
     web_metrics["duration_ms"] = sum(attempt.duration_ms for attempt in web_attempts)
     web_metrics["searches_per_account"] = (
         round(int(web_metrics["searches"]) / attempted_accounts, 4) if attempted_accounts else 0.0
@@ -143,6 +159,7 @@ def _execute(args: argparse.Namespace, *, label: str) -> int:
             },
             "metrics": web_metrics,
         },
+        "site_contact_crawl": _site_crawl_manifest(accounts, site_budget),
         "email_verification": {
             "enabled": args.verify_email_dns,
             "emails_checked": sum(len(account.extra.get("email_verification") or []) for account in accounts),
@@ -159,6 +176,14 @@ def _execute(args: argparse.Namespace, *, label: str) -> int:
             "identity_proven": email_discovery.observed_identity_associated,
         },
         "email_discovery": email_discovery.to_dict(),
+        "affiliation_cohort": {
+            "path": "affiliation_cohort.json",
+            "schema_id": affiliation_cohort["schema_id"],
+            "n": affiliation_cohort["n"],
+            "uplift": affiliation_cohort["uplift"],
+            "remaining_blockers": affiliation_cohort["remaining_blockers"],
+            "next_recommendation": affiliation_cohort["next_recommendation"],
+        },
         "selection": build_manifest(cnpjs)["selection"],
         "auto_send": False,
     }
@@ -184,6 +209,34 @@ def cmd_report(args: argparse.Namespace) -> int:
         )
     )
     return 0
+
+
+def _cmd_query_yield(args: argparse.Namespace) -> int:
+    from scripts.decision_unit_intelligence.query_planner.__main__ import main as query_planner_main
+
+    argv = [
+        "--out",
+        args.out,
+        "--limit",
+        str(args.limit),
+        "--query-policy-version",
+        args.query_policy_version,
+        "--primary",
+        args.primary,
+        "--compare",
+        args.compare,
+        "--search-results-per-query",
+        str(args.search_results_per_query),
+        "--web-timeout-seconds",
+        str(args.web_timeout_seconds),
+        "--search-cache-dir",
+        args.search_cache_dir,
+    ]
+    if args.searxng_url:
+        argv.extend(["--searxng-url", args.searxng_url])
+    if args.require_live:
+        argv.append("--require-live")
+    return query_planner_main(argv)
 
 
 def cmd_replay(args: argparse.Namespace) -> int:
@@ -497,6 +550,42 @@ def build_parser() -> argparse.ArgumentParser:
     kill.add_argument("--actor", default="operator")
     kill.add_argument("--dsn")
     kill.set_defaults(func=cmd_batch_kill_switch)
+
+    site = sub.add_parser("site-crawl")
+    site.add_argument("--out", required=True)
+    site.add_argument(
+        "--fixture",
+        default="tests/fixtures/site_contact_crawl/empresaexemplo.com.br",
+    )
+    site.add_argument("--domain")
+    site.add_argument("--cnpj", default="12345678000190")
+    site.add_argument("--legal-name", default="EMPRESA EXEMPLO ENGENHARIA LTDA")
+    site.add_argument("--service", default="reajuste_14133")
+    site.add_argument("--seed-url", action="append")
+    site.add_argument("--baseline", action="store_true")
+    _add_site_crawl_args(site)
+    site.set_defaults(func=cmd_site_crawl)
+
+    yield_cmd = sub.add_parser("query-yield")
+    yield_cmd.add_argument("--out", required=True)
+    yield_cmd.add_argument("--limit", type=int, default=30)
+    yield_cmd.add_argument("--query-policy-version", default="query-policy.v2")
+    yield_cmd.add_argument(
+        "--primary",
+        choices=("searxng", "ddgs", "replay", "replay-searxng", "replay-ddgs"),
+        default="searxng",
+    )
+    yield_cmd.add_argument(
+        "--compare",
+        choices=("ddgs", "searxng", "replay", "replay-ddgs", "replay-searxng", "off"),
+        default="ddgs",
+    )
+    yield_cmd.add_argument("--searxng-url")
+    yield_cmd.add_argument("--search-results-per-query", type=int, default=5)
+    yield_cmd.add_argument("--web-timeout-seconds", type=float, default=8.0)
+    yield_cmd.add_argument("--search-cache-dir", default=".cache/confenge-prospect")
+    yield_cmd.add_argument("--require-live", action="store_true")
+    yield_cmd.set_defaults(func=_cmd_query_yield)
     return p
 
 
@@ -518,6 +607,118 @@ def _add_web_discovery_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--search-cache-ttl-days", type=int, default=7)
     parser.add_argument("--search-cache-dir", default=".cache/confenge-prospect")
     parser.add_argument("--verify-email-dns", action="store_true")
+    parser.add_argument("--no-site-crawl", action="store_true")
+    parser.add_argument("--site-crawl-baseline", action="store_true")
+    _add_site_crawl_args(parser)
+
+
+def cmd_site_crawl(args: argparse.Namespace) -> int:
+    """Drive the shipped site-contact crawl against a local fixture corpus."""
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=True)
+    crawler, domain = load_fixture_corpus(Path(args.fixture))
+    domain = args.domain or domain
+    budget = _site_budget_from_args(args)
+    context = InvestigationContext(
+        cnpj=args.cnpj,
+        legal_name=args.legal_name,
+        service=args.service,
+        extra={"company_site": f"https://{domain}", "domain_resolution": {"canonical_domain": domain}},
+    )
+    result = run_site_contact_crawl(
+        crawler=crawler,
+        context=context,
+        canonical_domain=domain,
+        seed_urls=list(args.seed_url or []),
+        budget=budget,
+        baseline=args.baseline,
+        rate_limit=False,
+    )
+    payload = {
+        "schema_id": "confenge.dui.site-contact-crawl.v1",
+        "domain": domain,
+        "cnpj": args.cnpj,
+        "legal_name": args.legal_name,
+        "baseline": args.baseline,
+        "budget": budget.to_dict(),
+        "result": result.to_dict(),
+        "metrics": result.metrics,
+        "named_associated": [
+            {
+                "email": item.email,
+                "person_name": item.person_name,
+                "reason_codes": list(item.reason_codes),
+                "source_url": item.source_url,
+                "page_type": item.page_type,
+            }
+            for item in result.contacts
+            if item.associated and item.person_name
+        ],
+    }
+    write_json(out / "site-crawl.json", payload)
+    print(json.dumps({"out": str(out / "site-crawl.json"), "metrics": result.metrics}, ensure_ascii=False, indent=2))
+    return 0
+
+
+def _site_budget_from_args(args: argparse.Namespace) -> SiteCrawlBudget:
+    defaults = SITE_CRAWL_BUDGET_DEFAULTS
+    return SiteCrawlBudget(
+        max_pages=getattr(args, "site_max_pages", defaults.max_pages),
+        max_depth=getattr(args, "site_max_depth", defaults.max_depth),
+        max_bytes=getattr(args, "site_max_bytes", defaults.max_bytes),
+        timeout_seconds=getattr(args, "site_timeout_seconds", defaults.timeout_seconds),
+        max_redirects=getattr(args, "site_max_redirects", defaults.max_redirects),
+        requests_per_minute=getattr(args, "site_requests_per_minute", defaults.requests_per_minute),
+        max_sitemap_urls=getattr(args, "site_max_sitemap_urls", defaults.max_sitemap_urls),
+    )
+
+
+def _site_crawl_manifest(accounts, site_budget: SiteCrawlBudget) -> dict:
+    attempts = [
+        attempt
+        for account in accounts
+        for attempt in account.ledger.attempts
+        if attempt.provider_id == "company_website"
+    ]
+    executed = [attempt for attempt in attempts if attempt.status != "skipped"]
+    metrics = {
+        "accounts_attempted": len(executed),
+        "high_value_pages": 0,
+        "pages": 0,
+        "emails_observed": 0,
+        "named_associated": 0,
+        "false_association": 0,
+        "bytes_touched": 0,
+        "latency_ms": 0,
+        "yield_by_page_type": {},
+    }
+    for attempt in executed:
+        extra = attempt.extra.get("metrics") or (attempt.extra.get("site_crawl") or {}).get("metrics") or {}
+        metrics["high_value_pages"] += int(extra.get("high_value_pages") or 0)
+        metrics["pages"] += int(attempt.documents_checked or extra.get("pages_fetched") or 0)
+        metrics["emails_observed"] += int(extra.get("emails_observed") or 0)
+        metrics["named_associated"] += int(extra.get("named_associated") or 0)
+        metrics["false_association"] += int(extra.get("false_association") or 0)
+        metrics["bytes_touched"] += int(attempt.bytes_touched or extra.get("bytes_touched") or 0)
+        metrics["latency_ms"] += int(attempt.duration_ms or extra.get("latency_ms") or 0)
+        for page_type, count in (extra.get("yield_by_page_type") or {}).items():
+            metrics["yield_by_page_type"][page_type] = metrics["yield_by_page_type"].get(page_type, 0) + int(count)
+    attempted = metrics["accounts_attempted"] or 0
+    metrics["pages_per_account"] = round(metrics["pages"] / attempted, 4) if attempted else 0.0
+    return {"budget": site_budget.to_dict(), "metrics": metrics}
+
+
+def _add_site_crawl_args(parser: argparse.ArgumentParser) -> None:
+    defaults = SITE_CRAWL_BUDGET_DEFAULTS
+    parser.add_argument("--site-max-pages", type=int, default=defaults.max_pages)
+    parser.add_argument("--site-max-depth", type=int, default=defaults.max_depth)
+    parser.add_argument("--site-max-bytes", type=int, default=defaults.max_bytes)
+    parser.add_argument("--site-timeout-seconds", type=float, default=defaults.timeout_seconds)
+    parser.add_argument("--site-max-redirects", type=int, default=defaults.max_redirects)
+    parser.add_argument("--site-requests-per-minute", type=int, default=defaults.requests_per_minute)
+    parser.add_argument("--site-max-sitemap-urls", type=int, default=defaults.max_sitemap_urls)
+    parser.add_argument("--query-policy-version", default="query-policy.v2")
+    parser.add_argument("--search-fallback", choices=("off", "ddgs", "searxng"), default="off")
 
 
 def main(argv: list[str] | None = None) -> int:

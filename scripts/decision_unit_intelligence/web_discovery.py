@@ -367,7 +367,14 @@ class HttpxPublicCrawler:
                     if not _public_http_url(str(response.url)):
                         raise ValueError("redirected outside public HTTP(S)")
                     content_type = response.headers.get("content-type", "").split(";", 1)[0].lower()
-                    if content_type not in {"text/html", "text/plain"}:
+                    if content_type not in {
+                        "text/html",
+                        "text/plain",
+                        "application/xml",
+                        "text/xml",
+                        "application/rss+xml",
+                        "application/xhtml+xml",
+                    }:
                         raise ValueError(f"unsupported crawl content type: {content_type}")
                     chunks: list[bytes] = []
                     size = 0

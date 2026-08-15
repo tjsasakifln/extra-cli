@@ -22,6 +22,7 @@ from scripts.decision_unit_intelligence.providers.historical_campaign import His
 from scripts.decision_unit_intelligence.providers.official_documents import OfficialDocumentsProvider
 from scripts.decision_unit_intelligence.providers.public_search import PublicSearchProvider
 from scripts.decision_unit_intelligence.search_http import SearchBackendUnavailableError, build_search_backend
+from scripts.decision_unit_intelligence.site_contact_crawl import SiteCrawlBudget
 from scripts.decision_unit_intelligence.web_discovery import (
     CachedPublicCrawler,
     CachedRateLimitedSearchBackend,
@@ -41,12 +42,16 @@ def default_providers(
     search_budget: SearchBudget | None = None,
     cache_dir: Path | None = None,
     search_failover: str = "off",
+    site_budget: SiteCrawlBudget | None = None,
+    site_crawl: bool = True,
+    site_crawl_baseline: bool = False,
 ) -> list[Any]:
     global _SHARED_HISTORICAL
     if _SHARED_HISTORICAL is None:
         _SHARED_HISTORICAL = HistoricalCampaignProvider()
     budget = search_budget or SearchBudget()
     backend = None
+    crawler = None
     if search_backend != "off":
         try:
             raw_backend = build_search_backend(
@@ -65,24 +70,26 @@ def default_providers(
             cache=cache,
             min_interval_seconds=budget.min_query_interval_seconds,
         )
+        crawler = CachedPublicCrawler(
+            HttpxPublicCrawler(timeout_seconds=budget.timeout_seconds),
+            cache=cache,
+        )
     return [
         _SHARED_HISTORICAL,
         ExistingDatalakeProvider(),
         PublicSearchProvider(
             backend=backend,
-            crawler=(
-                CachedPublicCrawler(
-                    HttpxPublicCrawler(timeout_seconds=budget.timeout_seconds),
-                    cache=cache,
-                )
-                if backend
-                else None
-            ),
+            crawler=crawler,
             budget=budget,
         ),
         AdministrativeProcessProvider(),
         OfficialDocumentsProvider(),
-        CompanyWebsiteProvider(),
+        CompanyWebsiteProvider(
+            crawler=crawler if site_crawl else None,
+            budget=budget,
+            site_budget=site_budget,
+            baseline=site_crawl_baseline,
+        ),
         ExternalEnrichmentProvider(enabled=external_enabled),
     ]
 
@@ -99,6 +106,9 @@ def run_account(
     cache_dir: Path | None = None,
     verify_email_dns: bool = False,
     search_failover: str = "off",
+    site_budget: SiteCrawlBudget | None = None,
+    site_crawl: bool = True,
+    site_crawl_baseline: bool = False,
 ) -> Any:
     started = perf_counter()
     ctx = InvestigationContext(cnpj=normalize_cnpj(cnpj), service=service)
@@ -108,6 +118,9 @@ def run_account(
         search_budget=search_budget,
         cache_dir=cache_dir,
         search_failover=search_failover,
+        site_budget=site_budget,
+        site_crawl=site_crawl,
+        site_crawl_baseline=site_crawl_baseline,
     )
     people = []
     channels = []
@@ -152,6 +165,16 @@ def run_account(
                 known.append(name)
         if result.extra.get("domain_resolution"):
             discovery_extra["domain_resolution"] = result.extra["domain_resolution"]
+            ctx.extra["domain_resolution"] = result.extra["domain_resolution"]
+        useful = list(result.extra.get("useful_urls") or [])
+        for attempt in result.attempts:
+            useful.extend(attempt.extra.get("crawled_urls") or [])
+            useful.extend(attempt.extra.get("useful_urls") or [])
+        if useful:
+            bucket = ctx.extra.setdefault("search_hit_urls", [])
+            for url in useful:
+                if url not in bucket:
+                    bucket.append(url)
         ledger.cost_brl += result.cost.cost_brl
         ledger.bytes_touched += result.cost.bytes_touched + sum(a.bytes_touched for a in result.attempts)
         ledger.tiers_completed.append(provider.tier)

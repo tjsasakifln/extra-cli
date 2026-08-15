@@ -1,0 +1,6 @@
+{
+  "origin": "https://empresaexemplo.com.br/",
+  "redirects": {
+    "https://empresaexemplo.com.br/parceiro": "https://externo.example/oferta"
+  }
+}

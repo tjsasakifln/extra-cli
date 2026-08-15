@@ -92,6 +92,12 @@ class PublicSearchProvider:
         attempt.extra["result_count"] = len(hits)
         attempt.extra["failures"] = failures
         attempt.extra["domain_resolution"] = resolution.to_dict()
+        useful_urls = [
+            hit.url
+            for hit in hits
+            if resolution.canonical_domain and _domain(hit.url) == resolution.canonical_domain
+        ]
+        attempt.extra["useful_urls"] = useful_urls
 
         evidence = []
         if resolution.canonical_domain:
@@ -191,7 +197,10 @@ class PublicSearchProvider:
             attempts=[attempt],
             terminal=attempt.status,
             company_site=(f"https://{resolution.canonical_domain}" if resolution.canonical_domain else known_site),
-            extra={"domain_resolution": resolution.to_dict()},
+            extra={
+                "domain_resolution": resolution.to_dict(),
+                "useful_urls": list(attempt.extra.get("useful_urls") or []),
+            },
         )
 
 
