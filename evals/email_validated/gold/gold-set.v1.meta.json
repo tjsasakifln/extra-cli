@@ -1,0 +1,42 @@
+{
+  "schema_id": "confenge.email-validated-gold-meta.v1",
+  "gold_set_version": "email-validated-gold.v1",
+  "policy_version": "dui.email-validated-promotion.v1",
+  "n": 58,
+  "by_human_verdict": {
+    "GENERIC_ROLE": 22,
+    "INFERRED_UNVERIFIED": 4,
+    "WRONG_PERSON": 2,
+    "OBSERVED_BUT_STALE": 1,
+    "UNKNOWN": 19,
+    "WRONG_COMPANY": 6,
+    "OBSERVED_BUT_IDENTITY_AMBIGUOUS": 4
+  },
+  "by_split": {
+    "development": 28,
+    "holdout": 30
+  },
+  "skew": {
+    "VALIDATED_DIRECT": {
+      "count": 0,
+      "reason": "PR #392 Track A canary: 0 honest EMAIL_VALIDATED after rejecting lawyer/ethics/brand/capital false positives. No invented positives."
+    },
+    "INFERRED_HIGH": {
+      "count": 0,
+      "reason": "No domain in this pool has two or more OBSERVED person mailboxes needed to corroborate a high-confidence org pattern. Single-sample patterns stay INFERRED_UNVERIFIED."
+    }
+  },
+  "auto_send": false,
+  "gold_label_is_not_send_authorization": true,
+  "human_review_approved": false,
+  "leakage": {
+    "development_used_to_write_policy": true,
+    "holdout_frozen_disjoint_case_ids": true
+  },
+  "origins": [
+    "scripts/decision_unit_intelligence/data/track_a_30.observations.json",
+    "PR extra-cli #392 canary (setep@, conduta@, vitoria@, ricardocoelho.adv.br)",
+    "artifacts/confenge/contact-enrichment/expand-esr-20260810/",
+    "artifacts/confenge/unconditional-go/clean-cohort-send-ready.json"
+  ]
+}

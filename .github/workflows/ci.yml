@@ -177,6 +177,42 @@ jobs:
           retention-days: 14
 
   # ============================================================================
+  # EMAIL_VALIDATED policy + gold set — offline fixtures only
+  # ============================================================================
+  email-validated-policy:
+    name: EMAIL_VALIDATED policy (offline)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Run offline gold-set and promotion tests
+        run: >-
+          pytest
+          tests/test_email_validated_promotion.py
+          tests/test_email_validated_gold_set.py
+          tests/test_email_validated_eval.py
+          tests/test_email_validated_cli.py
+          -m "not integration and not database and not live"
+          -o addopts=''
+          --tb=short
+          -v
+        env:
+          CI: true
+
+  # ============================================================================
   # TEST ALL — inclui integration, smoke, slow (gate completo)
   # ============================================================================
   # Expanded operational suite on every PR (fail-closed, explicit file list).

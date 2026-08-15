@@ -1,0 +1,16 @@
+{
+  "schema_id": "confenge.email-validated-promotion.v0",
+  "policy_id": "dui.email-validated-promotion",
+  "version": "dui.email-validated-promotion.v0",
+  "auto_send": false,
+  "primary_metric": "coverage",
+  "coverage_is_secondary": false,
+  "operational_email_validated": {
+    "requires": ["score_gte_0.8_or_mx_present"],
+    "never_sufficient_alone": [],
+    "hard_bans": []
+  },
+  "professional_public_sources": ["any"],
+  "approved_exceptions": ["score_threshold"],
+  "note": "Rejected precursor. Kept only so policy-diff has a real version/content change. Must never be used to promote."
+}
