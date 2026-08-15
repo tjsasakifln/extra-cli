@@ -22,7 +22,8 @@ def test_consumer_known_person_and_domain_gets_specific_queries() -> None:
     families = {spec.family for spec in plan.specs}
     assert QueryFamily.PERSON in families
     assert QueryFamily.SITE_PATH in families
-    assert plan.specs[0].family in {QueryFamily.PERSON, QueryFamily.SITE_PATH}
+    assert QueryFamily.COMPANY in families
+    assert plan.specs[0].family in {QueryFamily.COMPANY, QueryFamily.PERSON, QueryFamily.SITE_PATH}
     assert any('"KELLY NUNES"' in spec.query for spec in plan.specs)
     assert any(spec.query.startswith("site:infrapav.com.br") for spec in plan.specs)
 
