@@ -18,7 +18,6 @@ from bs4 import BeautifulSoup, Tag
 from scripts.decision_unit_intelligence.email_resolution import (
     ObservedOrgEmail,
     derive_org_patterns,
-    generate_inferred_emails,
     is_third_party_professional_domain,
     name_tokens,
 )
@@ -176,6 +175,9 @@ class EmailDiscoveryClass(StrEnum):
     OBSERVED_DIRECT_EMAIL_IDENTITY_ASSOCIATED = "OBSERVED_DIRECT_EMAIL_IDENTITY_ASSOCIATED"
     OBSERVED_DIRECT_EMAIL_IDENTITY_UNRESOLVED = "OBSERVED_DIRECT_EMAIL_IDENTITY_UNRESOLVED"
     INFERRED_PATTERN_EMAIL = "INFERRED_PATTERN_EMAIL"
+    INFERRED_PATTERN_MX_OK = "INFERRED_PATTERN_MX_OK"
+    INFERRED_PATTERN_CATCH_ALL = "INFERRED_PATTERN_CATCH_ALL"
+    INFERRED_PATTERN_REJECTED = "INFERRED_PATTERN_REJECTED"
     GENERIC_MAILBOX = "GENERIC_MAILBOX"
     ROLE_MAILBOX = "ROLE_MAILBOX"
     DOMAIN_ONLY = "DOMAIN_ONLY"
@@ -183,6 +185,16 @@ class EmailDiscoveryClass(StrEnum):
     EMAIL_VALIDATED = "EMAIL_VALIDATED"
     BLOCKED = "BLOCKED"
     UNKNOWN = "UNKNOWN"
+
+
+INFERRED_PATTERN_CLASSES = frozenset(
+    {
+        EmailDiscoveryClass.INFERRED_PATTERN_EMAIL,
+        EmailDiscoveryClass.INFERRED_PATTERN_MX_OK,
+        EmailDiscoveryClass.INFERRED_PATTERN_CATCH_ALL,
+        EmailDiscoveryClass.INFERRED_PATTERN_REJECTED,
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -266,6 +278,7 @@ def classify_email_discovery(
     identity_associated: bool = False,
     ambiguous: bool = False,
     inferred_pattern: bool = False,
+    inferred_pattern_state: str | None = None,
     mx_present: bool = False,
     blocked: bool = False,
     email_safe_policy: bool = False,
@@ -273,6 +286,12 @@ def classify_email_discovery(
     """Distinct classes. EMAIL_VALIDATED only when the existing policy already allows it."""
     if blocked:
         return EmailDiscoveryClass.BLOCKED
+    epistemic_value = epistemic.value if isinstance(epistemic, EpistemicClass) else str(epistemic or "")
+    if inferred_pattern or epistemic_value == EpistemicClass.INFERRED.value:
+        extra_state = str(inferred_pattern_state or "")
+        if extra_state in {item.value for item in INFERRED_PATTERN_CLASSES}:
+            return EmailDiscoveryClass(extra_state)
+        return EmailDiscoveryClass.INFERRED_PATTERN_EMAIL
     if email_safe_policy:
         return EmailDiscoveryClass.EMAIL_VALIDATED
     if not email or "@" not in str(email):
@@ -281,9 +300,6 @@ def classify_email_discovery(
         return EmailDiscoveryClass.ROLE_MAILBOX
     if is_generic_mailbox(email) or is_brand_mailbox(email):
         return EmailDiscoveryClass.GENERIC_MAILBOX
-    epistemic_value = epistemic.value if isinstance(epistemic, EpistemicClass) else str(epistemic or "")
-    if inferred_pattern or epistemic_value == EpistemicClass.INFERRED.value:
-        return EmailDiscoveryClass.INFERRED_PATTERN_EMAIL
     if identity_associated and epistemic_value == EpistemicClass.OBSERVED.value:
         return EmailDiscoveryClass.OBSERVED_DIRECT_EMAIL_IDENTITY_ASSOCIATED
     if epistemic_value == EpistemicClass.OBSERVED.value:
@@ -303,6 +319,7 @@ def associate_person_to_email(
     text: str = "",
     source_url: str = "",
     canonical_domain: str | None = None,
+    corroboration: Any = None,
 ) -> PersonEmailAssociation:
     """Associate only from auditável contextual evidence. Local-part is a signal."""
     normalized = normalize_email(email) or email
@@ -383,6 +400,14 @@ def associate_person_to_email(
     if stale:
         reasons.append("PERSON_MAY_HAVE_LEFT")
     associated = bool(person_name) and not ambiguous and not stale and not third_party
+    if associated and corroboration is not None:
+        from scripts.decision_unit_intelligence.corroboration import email_association_gate
+
+        gate = email_association_gate(corroboration, email=normalized)
+        if not gate.allowed:
+            associated = False
+            reasons.append("AFFILIATION_GATE_REFUSED")
+            reasons.extend(gate.reason_codes)
     if associated:
         reasons.append("CONTEXTUAL_IDENTITY_ASSOCIATED")
     elif ambiguous:
@@ -517,25 +542,64 @@ def inferred_candidates_from_supported_patterns(
     public_hits: list[str] | None = None,
 ) -> list[Any]:
     """Emit INFERRED candidates only for patterns actually seen on OBSERVED org mail."""
-    supported = {
-        record.pattern_id
-        for record in derive_versioned_patterns(observed)
-        if record.domain == domain and record.pattern_id in {"first.last", "firstlast", "first.compoundlast"}
-    }
-    if not supported:
-        return []
-    return [
-        inference
-        for inference in generate_inferred_emails(
-            person_name=person_name,
-            domain=domain,
-            observed=observed,
-            mx_valid=mx_valid,
-            catch_all=catch_all,
-            public_hits=public_hits,
+    from scripts.decision_unit_intelligence.email_patterns.engine import (
+        InjectedTechnicalAdapter,
+        run_email_patterns,
+    )
+    from scripts.decision_unit_intelligence.email_patterns.types import KnownPerson, ObservedPersonEmail
+    from scripts.decision_unit_intelligence.email_resolution import EmailInference
+
+    observed_inputs = [
+        ObservedPersonEmail(
+            email=item.email,
+            person_name=item.person_name or "",
+            domain=email_domain(item.email) or domain,
+            source_url=item.source_url,
+            source_type=item.source_type,
         )
-        if inference.pattern_id in supported
+        for item in observed
+        if item.person_name
     ]
+    result = run_email_patterns(
+        observed=observed_inputs,
+        known_people=[KnownPerson(person_name, corroborated=True)],
+        domain=domain,
+        technical=InjectedTechnicalAdapter(
+            mx_by_domain={domain: "MX_PRESENT" if mx_valid else "MISSING"},
+            catch_all_by_domain={domain: "CATCH_ALL" if catch_all else "UNKNOWN_NOT_PROBED"},
+        ),
+    )
+    inferences: list[EmailInference] = []
+    public = {normalize_email(item) for item in (public_hits or [])}
+    for candidate in result.candidates:
+        reasons = list(candidate.reason_codes)
+        if candidate.email in public:
+            reasons.append("CANDIDATE_SEEN_IN_PUBLIC_SOURCE")
+        inferences.append(
+            EmailInference(
+                email=candidate.email,
+                pattern_id=candidate.pattern_id,
+                epistemic_class=EpistemicClass.INFERRED,
+                domain=domain,
+                domain_epistemic=EpistemicClass.OBSERVED,
+                pattern_epistemic=(
+                    EpistemicClass.CORROBORATED
+                    if candidate.pattern_state.value == "PATTERN_STRONG"
+                    else EpistemicClass.INFERRED
+                ),
+                technically_validated=candidate.candidate_state.value == "INFERRED_PATTERN_MX_OK",
+                corroborated=False,
+                reason_codes=reasons,
+                signals={
+                    "domain": domain,
+                    "pattern": candidate.pattern_id,
+                    "pattern_state": candidate.pattern_state.value,
+                    "inferred_grade": candidate.inferred_grade.value,
+                },
+                mx_valid=mx_valid,
+            )
+        )
+    return inferences
 
 
 def build_email_job_queries(
@@ -620,7 +684,7 @@ def summarize_email_discovery(accounts: list[Any]) -> EmailDiscoverySummary:
             elif klass == EmailDiscoveryClass.OBSERVED_DIRECT_EMAIL_IDENTITY_UNRESOLVED:
                 summary.observed_emails += 1
                 summary.unresolved += 1
-            elif klass == EmailDiscoveryClass.INFERRED_PATTERN_EMAIL:
+            elif klass in INFERRED_PATTERN_CLASSES:
                 summary.inferred_pattern_emails += 1
             elif klass in {EmailDiscoveryClass.GENERIC_MAILBOX, EmailDiscoveryClass.ROLE_MAILBOX}:
                 summary.generic_or_role += 1
@@ -801,8 +865,11 @@ def _associate_from_person_page(
             False,
             stale,
         )
-    if len(page_names) == 1 and len(unique_emails) == 1 and unique_emails[0] == email and any(
-        slug in path for slug in ("equipe", "time", "diretor", "profissional", "curriculo")
+    if (
+        len(page_names) == 1
+        and len(unique_emails) == 1
+        and unique_emails[0] == email
+        and any(slug in path for slug in ("equipe", "time", "diretor", "profissional", "curriculo"))
     ):
         return (
             page_names[0],
