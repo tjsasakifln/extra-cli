@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "confenge.dui.affiliation_corroboration.v1",
+  "title": "Decision-Unit affiliation corroboration",
+  "type": "object",
+  "required": [
+    "schema_id",
+    "canonical_name",
+    "aliases",
+    "company_cnpj",
+    "role_candidates",
+    "evidence",
+    "contradictions",
+    "identity_confidence",
+    "affiliation_confidence",
+    "role_confidence",
+    "recency_confidence",
+    "reason_codes",
+    "association_allowed"
+  ],
+  "properties": {
+    "schema_id": {"const": "confenge.dui.affiliation_corroboration.v1"},
+    "policy_id": {"type": "string"},
+    "person_id": {"type": "string"},
+    "canonical_name": {"type": "string", "minLength": 3},
+    "aliases": {"type": "array", "items": {"type": "string"}},
+    "company_cnpj": {"type": "string", "pattern": "^[0-9]{14}$"},
+    "company_name": {"type": ["string", "null"]},
+    "company_kind": {
+      "type": ["string", "null"],
+      "enum": ["holding", "operational", "unit", "brand", "consortium", "unknown", null]
+    },
+    "role_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["role_text"],
+        "properties": {
+          "role_text": {"type": "string"},
+          "canonical_role": {"type": ["string", "null"]},
+          "source_ids": {"type": "array", "items": {"type": "string"}},
+          "evidence_date": {"type": ["string", "null"]},
+          "origin_ids": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "canonical_decision_role": {"type": ["string", "null"]},
+    "evidence": {"type": "array"},
+    "rejected_evidence": {"type": "array"},
+    "contradictions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["topic", "left", "right", "reason_codes"],
+        "properties": {
+          "topic": {"type": "string"},
+          "left": {"type": "string"},
+          "right": {"type": "string"},
+          "reason_codes": {"type": "array", "items": {"type": "string"}},
+          "evidence_ids": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "identity_confidence": {"enum": ["HIGH", "MEDIUM", "LOW", "UNKNOWN", "NONE"]},
+    "affiliation_confidence": {"enum": ["HIGH", "MEDIUM", "LOW", "UNKNOWN", "NONE"]},
+    "role_confidence": {"enum": ["HIGH", "MEDIUM", "LOW", "UNKNOWN", "NONE"]},
+    "recency_confidence": {"enum": ["HIGH", "MEDIUM", "LOW", "UNKNOWN", "NONE"]},
+    "reason_codes": {"type": "array", "items": {"type": "string"}},
+    "association_allowed": {"type": "boolean"},
+    "stop_reasons": {"type": "array", "items": {"type": "string"}},
+    "field_records": {"type": "array"},
+    "promotes_email": {"const": false}
+  },
+  "additionalProperties": true
+}

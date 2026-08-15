@@ -35,6 +35,15 @@ def test_cli_plan_and_run_track_a(tmp_path: Path):
     assert rc == 0
     written = list((run_dir / "accounts").glob("*.json"))
     assert len(written) == 30
+    cohort = json.loads((run_dir / "affiliation_cohort.json").read_text(encoding="utf-8"))
+    assert cohort["n"] == 30
+    assert cohort["cnpjs"] == TRACK_A_CNPJS
+    assert "uplift" in cohort and "delta" in cohort["uplift"]
+    assert "contradictions" in cohort
+    assert "next_recommendation" in cohort
+    assert "QSA_ONLY" in cohort["remaining_blockers"]
+    assert cohort["auto_send"] is False
+    assert cohort["invented_cargo_or_empresa"] is False
     funnel = json.loads((run_dir / "funnel.json").read_text(encoding="utf-8"))
     assert funnel["accounts"] == 30
     assert "decision_unit_reachability_rate" in funnel
