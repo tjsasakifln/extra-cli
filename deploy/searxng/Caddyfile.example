@@ -1,0 +1,11 @@
+# Optional private TLS terminator. Do not publish this site.
+# Default deployment binds SearXNG to 127.0.0.1:18888 and does not need Caddy.
+#
+# search.internal.confenge {
+#     bind 127.0.0.1
+#     reverse_proxy 127.0.0.1:18888
+#     @admin {
+#         path /preferences /stats /metrics /clientlogin
+#     }
+#     respond @admin 404
+# }

@@ -24,7 +24,7 @@ It does **not** treat “named email explicitly published” as success.
 - There is no `AUTO_SEND`.
 - Public web search is a first-class bounded provider, not an untracked fallback.
 - Search, crawl, domain resolution, and verification remain replaceable adapters.
-- SearXNG is allowed only across an HTTP service boundary; its AGPL code is not embedded.
+- SearXNG is allowed only across an HTTP service boundary; its AGPL code is not embedded. The private instance contract is [`adr-searxng-http-boundary.md`](adr-searxng-http-boundary.md).
 - The local canary may use the MIT-licensed DDGS adapter. Static HTML crawling reuses existing dependencies.
 - extra-cli remains the identity/reachability truth plane; Warmbly remains the activation/outcome plane.
 

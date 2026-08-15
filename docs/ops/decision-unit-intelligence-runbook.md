@@ -33,7 +33,7 @@ python3 -m scripts.decision_unit_intelligence run \
   --verify-email-dns
 ```
 
-Para SearXNG, use `--search-backend searxng` e `--searxng-url` ou `CONFENGE_SEARXNG_URL`. Não use instância pública de terceiros para batch. Cache local: `.cache/confenge-prospect/`.
+Para SearXNG, use `--search-backend searxng` e `--searxng-url` ou `CONFENGE_SEARXNG_URL`. Não use instância pública de terceiros para batch. Cache local: `.cache/confenge-prospect/`. Instância privada CONFENGE: [`searxng-private-backend.md`](searxng-private-backend.md).
 
 O manifesto registra contas tentadas, domínios resolvidos, buscas, páginas, bytes e custo externo. Falha de fonte, orçamento esgotado e ausência de evidência são estados diferentes.
 
