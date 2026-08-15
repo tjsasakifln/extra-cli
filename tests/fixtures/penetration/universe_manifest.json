@@ -1,0 +1,11 @@
+{
+  "as_of": "2026-08-15",
+  "rule_version": "confenge-universe-rules-v1",
+  "universe_schema_version": "confenge-universe-v1",
+  "outputs": {
+    "jsonl": {
+      "filename": "universe.jsonl",
+      "sha256": "fixture"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "accounts": [
+    {
+      "cnpj": "11222333000181",
+      "terminal": "ACTIONABLE_ROUTE",
+      "extra": {"account_reachability_class": "R3_ROUTED_TO_NAMED_PERSON"},
+      "why_now": {"code": "CONTRACT_EXTENSION"},
+      "offer": {"service_code": "acompanhamento_admin"},
+      "candidates": [{"person_name": "redacted"}]
+    },
+    {
+      "cnpj": "22333444000155",
+      "terminal": "DECISION_UNIT_IDENTIFIED_REACHABILITY_UNRESOLVED",
+      "extra": {"account_reachability_class": "R0_NO_ACTIONABLE_ROUTE"},
+      "why_now": {"code": "MULTI_CONTRACT_PATTERN"},
+      "offer": {"service_code": "monitoramento"},
+      "candidates": [{"person_name": "redacted"}]
+    },
+    {
+      "cnpj": "33445566000186",
+      "terminal": "ACTIONABLE_ROUTE",
+      "extra": {"account_reachability_class": "R4_ROLE_ROUTE"},
+      "why_now": {"code": "ADDITIVE_SIGNED"},
+      "offer": {"service_code": "auditoria_orcamento"},
+      "candidates": [{"person_name": "redacted"}]
+    }
+  ]
+}

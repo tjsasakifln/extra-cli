@@ -1,0 +1,3 @@
+{"schema_version":"confenge.outcome.v1","event_id":"evt-acme-1","idempotency_key":"warmbly:fixture:acme:1","occurred_at":"2026-08-10T12:00:00Z","source":"warmbly","cnpj14":"11222333000181","event_type":"CONTACTED","channel":"email"}
+{"schema_version":"confenge.outcome.v1","event_id":"evt-delta-1","idempotency_key":"warmbly:fixture:delta:1","occurred_at":"2026-08-11T12:00:00Z","source":"warmbly","cnpj14":"33445566000186","event_type":"PROPOSAL","channel":"email"}
+{"schema_version":"confenge.outcome.v1","event_id":"evt-delta-2","idempotency_key":"warmbly:fixture:delta:2","occurred_at":"2026-08-12T12:00:00Z","source":"warmbly","cnpj14":"33445566000186","event_type":"REPLIED","channel":"email"}
