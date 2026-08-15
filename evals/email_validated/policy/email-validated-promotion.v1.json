@@ -1,0 +1,48 @@
+{
+  "schema_id": "confenge.email-validated-promotion.v1",
+  "policy_id": "dui.email-validated-promotion",
+  "version": "dui.email-validated-promotion.v1",
+  "auto_send": false,
+  "primary_metric": "precision_email_validated",
+  "coverage_is_secondary": true,
+  "operational_email_validated": {
+    "requires": [
+      "real_known_person",
+      "defensible_person_company_affiliation",
+      "email_observed_on_professional_public_source_or_approved_exception",
+      "provenance_present",
+      "freshness_sufficient",
+      "suppression_clear",
+      "no_technical_hard_fail",
+      "identity_explicitly_associated",
+      "epistemic_observed",
+      "not_generic_or_role_mailbox"
+    ],
+    "never_sufficient_alone": [
+      "score_gte_x",
+      "mx_or_dns",
+      "inferred_pattern",
+      "local_part_name_match"
+    ],
+    "hard_bans": [
+      "INFERRED_never_becomes_OBSERVED",
+      "MX_DNS_never_proves_identity",
+      "score_alone_never_promotes"
+    ]
+  },
+  "professional_public_sources": [
+    "administrative_process",
+    "company_website",
+    "official_document",
+    "pncp_document",
+    "public_gazette"
+  ],
+  "approved_exceptions": [],
+  "freshness": {
+    "promotable": ["FRESH", "AGING"],
+    "blocks": ["STALE", "UNKNOWN"],
+    "stale_after_months": 18,
+    "aging_after_months": 12
+  },
+  "stop_the_line": ["WRONG_PERSON", "WRONG_COMPANY"]
+}
