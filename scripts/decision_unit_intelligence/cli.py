@@ -9,7 +9,6 @@ import sys
 from pathlib import Path
 
 from scripts.decision_unit_intelligence import POLICY_VERSION, PROVIDER_VERSION, SCHEMA_VERSION
-from scripts.decision_unit_intelligence.affiliation_report import build_affiliation_cohort_report
 from scripts.decision_unit_intelligence.batch_queue import (
     ContactDiscoveryQueue,
     budget_version_from_knobs,
@@ -104,8 +103,6 @@ def _execute(args: argparse.Namespace, *, label: str) -> int:
     warmbly = [project_warmbly_outreach(a) for a in accounts]
     email_safe = sum(w["email_safe_count"] for w in warmbly)
     email_discovery = summarize_email_discovery(accounts)
-    affiliation_cohort = build_affiliation_cohort_report(accounts)
-    write_json(Path(args.out) / "affiliation_cohort.json", affiliation_cohort)
     write_json(Path(args.out) / "warmbly_outreach.json", {"accounts": warmbly, "email_safe_total": email_safe})
     web_attempts = [
         attempt for account in accounts for attempt in account.ledger.attempts if attempt.provider_id == "public_search"
@@ -209,34 +206,6 @@ def cmd_report(args: argparse.Namespace) -> int:
         )
     )
     return 0
-
-
-def _cmd_query_yield(args: argparse.Namespace) -> int:
-    from scripts.decision_unit_intelligence.query_planner.__main__ import main as query_planner_main
-
-    argv = [
-        "--out",
-        args.out,
-        "--limit",
-        str(args.limit),
-        "--query-policy-version",
-        args.query_policy_version,
-        "--primary",
-        args.primary,
-        "--compare",
-        args.compare,
-        "--search-results-per-query",
-        str(args.search_results_per_query),
-        "--web-timeout-seconds",
-        str(args.web_timeout_seconds),
-        "--search-cache-dir",
-        args.search_cache_dir,
-    ]
-    if args.searxng_url:
-        argv.extend(["--searxng-url", args.searxng_url])
-    if args.require_live:
-        argv.append("--require-live")
-    return query_planner_main(argv)
 
 
 def cmd_replay(args: argparse.Namespace) -> int:
@@ -565,27 +534,6 @@ def build_parser() -> argparse.ArgumentParser:
     site.add_argument("--baseline", action="store_true")
     _add_site_crawl_args(site)
     site.set_defaults(func=cmd_site_crawl)
-
-    yield_cmd = sub.add_parser("query-yield")
-    yield_cmd.add_argument("--out", required=True)
-    yield_cmd.add_argument("--limit", type=int, default=30)
-    yield_cmd.add_argument("--query-policy-version", default="query-policy.v2")
-    yield_cmd.add_argument(
-        "--primary",
-        choices=("searxng", "ddgs", "replay", "replay-searxng", "replay-ddgs"),
-        default="searxng",
-    )
-    yield_cmd.add_argument(
-        "--compare",
-        choices=("ddgs", "searxng", "replay", "replay-ddgs", "replay-searxng", "off"),
-        default="ddgs",
-    )
-    yield_cmd.add_argument("--searxng-url")
-    yield_cmd.add_argument("--search-results-per-query", type=int, default=5)
-    yield_cmd.add_argument("--web-timeout-seconds", type=float, default=8.0)
-    yield_cmd.add_argument("--search-cache-dir", default=".cache/confenge-prospect")
-    yield_cmd.add_argument("--require-live", action="store_true")
-    yield_cmd.set_defaults(func=_cmd_query_yield)
     return p
 
 
