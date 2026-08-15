@@ -82,8 +82,51 @@ class HostPressure:
     soak_ran: bool = False
 
 
+_DECISION_RANK: dict[Decision, int] = {
+    "ADMIT": 0,
+    "RESCHEDULE": 1,
+    "PAUSE": 2,
+    "REFUSE": 3,
+}
+_MINUTES_PER_DAY = 24 * 60
+
+
+def _clock_minutes(value: str) -> int:
+    parts = value.strip().split(":")
+    if len(parts) != 2:
+        raise IsolationError(f"invalid_time:{value}")
+    try:
+        hour = int(parts[0])
+        minute = int(parts[1])
+    except ValueError as exc:
+        raise IsolationError(f"invalid_time:{value}") from exc
+    if hour < 0 or hour > 23 or minute < 0 or minute > 59:
+        raise IsolationError(f"invalid_time:{value}")
+    return hour * 60 + minute
+
+
+def _segments(start: int, end: int) -> tuple[tuple[int, int], ...]:
+    if end > start:
+        return ((start, end),)
+    if end == start:
+        return ((0, _MINUTES_PER_DAY),)
+    return ((start, _MINUTES_PER_DAY), (0, end))
+
+
 def _overlaps(job_start: str, job_end: str, event: CalendarEvent) -> bool:
-    return not (job_end <= event.start or job_start >= event.end)
+    job_segs = _segments(_clock_minutes(job_start), _clock_minutes(job_end))
+    event_segs = _segments(_clock_minutes(event.start), _clock_minutes(event.end))
+    for job_a, job_b in job_segs:
+        for ev_a, ev_b in event_segs:
+            if not (job_b <= ev_a or job_a >= ev_b):
+                return True
+    return False
+
+
+def _escalate(current: Decision, incoming: Decision) -> Decision:
+    if _DECISION_RANK[incoming] > _DECISION_RANK[current]:
+        return incoming
+    return current
 
 
 def admit_ingest(
@@ -101,31 +144,30 @@ def admit_ingest(
     decision: Decision = "ADMIT"
     if workload not in INGEST_WORKLOADS:
         blockers.append(f"unknown_workload:{workload}")
-        decision = "REFUSE"
+        decision = _escalate(decision, "REFUSE")
     missing = [name for name in REQUIRED_SESSION if not session.as_dict().get(name)]
     if missing:
         blockers.append(f"session_missing:{missing}")
-        decision = "REFUSE"
+        decision = _escalate(decision, "REFUSE")
     if session.max_connections < 1 or limits.worker_limit < 1:
         blockers.append("non_positive_limit")
-        decision = "REFUSE"
+        decision = _escalate(decision, "REFUSE")
     overlaps = [e.kind for e in calendar if e.kind in PROTECTED_WINDOWS and _overlaps(job_start, job_end, e)]
     if overlaps:
         blockers.append(f"calendar_overlap:{overlaps}")
-        decision = "RESCHEDULE"
+        decision = _escalate(decision, "RESCHEDULE")
     if pressure.disk_free_ratio < 0.10:
         blockers.append("disk_pressure")
-        decision = "PAUSE"
+        decision = _escalate(decision, "PAUSE")
     if pressure.cpu_util > 0.90:
         blockers.append("cpu_pressure")
-        decision = "PAUSE"
-    if decision == "PAUSE" and not pressure.checkpoint_intact:
+        decision = _escalate(decision, "PAUSE")
+    if not pressure.checkpoint_intact:
         blockers.append("checkpoint_not_intact")
-        decision = "REFUSE"
+        decision = _escalate(decision, "REFUSE")
     if not pressure.last_approved_snapshot_readable:
         blockers.append("approved_snapshot_unreadable")
-        if decision == "ADMIT":
-            decision = "REFUSE"
+        decision = _escalate(decision, "REFUSE")
 
     false_success = decision in {"PAUSE", "REFUSE", "RESCHEDULE"}
     seal: Seal = "PROVEN" if pressure.soak_ran and not blockers else "UNPROVEN"
