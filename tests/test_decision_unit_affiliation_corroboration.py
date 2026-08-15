@@ -20,13 +20,23 @@ from scripts.decision_unit_intelligence.corroboration import (
     independence_origin,
     may_associate_email,
 )
-from scripts.decision_unit_intelligence.email_discovery import associate_person_to_email
+from scripts.decision_unit_intelligence.decision_policy import SERVICE_REAJUSTE_14133
+from scripts.decision_unit_intelligence.email_discovery import (
+    EmailDiscoveryClass,
+    associate_person_to_email,
+)
 from scripts.decision_unit_intelligence.models import (
+    ChannelObservation,
+    ChannelType,
     ConfidenceLevel,
     EpistemicClass,
     PersonObservation,
     PersonRelation,
+    ReachabilityClass,
+    RouteRelation,
 )
+from scripts.decision_unit_intelligence.orchestrator import investigate_account
+from scripts.decision_unit_intelligence.projection import is_email_safe_for_warmbly
 
 AS_OF = "2026-08-15"
 CNPJS = "12345678000190"
@@ -442,6 +452,54 @@ def test_stop_the_line_refuses_known_false_vinculo_on_email_promoter():
     )
     assert association.associated is False
     assert "AFFILIATION_GATE_REFUSED" in association.reason_codes
+
+
+def test_qsa_only_observed_nominal_email_is_not_validated_when_identity_flag_unset():
+    """Stop-the-line must unbind even if identity_explicitly_associated was never set."""
+    acc = investigate_account(
+        cnpj=CNPJS,
+        legal_name="EXEMPLO ENGENHARIA LTDA",
+        service=SERVICE_REAJUSTE_14133,
+        why_now=None,
+        people=[
+            PersonObservation(
+                observation_id="p-carlos-qsa",
+                company_entity_id=CNPJS,
+                person_name="Carlos Socio",
+                observed_role="Sócio-Administrador",
+                relation=PersonRelation.COMPANY_MEMBER,
+                source_type="qsa_rfb",
+                epistemic_class=EpistemicClass.OBSERVED,
+                evidence_id="ev-qsa-carlos",
+            )
+        ],
+        channels=[
+            ChannelObservation(
+                observation_id="c-carlos-email",
+                company_entity_id=CNPJS,
+                channel_type=ChannelType.DIRECT_EMAIL,
+                channel_value="carlos.socio@exemplo.eng.br",
+                person_name="Carlos Socio",
+                source_type="company_website",
+                source_url="https://exemplo.eng.br/equipe",
+                epistemic_class=EpistemicClass.OBSERVED,
+                extra={"person_name": "Carlos Socio"},
+            )
+        ],
+        infer_email=False,
+    )
+    route = next(item for item in acc.routes if item.channel_value == "carlos.socio@exemplo.eng.br")
+    gate = (route.extra or {}).get("affiliation_gate") or {}
+    assert gate.get("allowed") is False
+    assert gate.get("stop_the_line") is True
+    assert (route.extra or {}).get("identity_explicitly_associated") is False
+    assert (route.extra or {}).get("affiliation_association_refused") is True
+    assert route.route_relation != RouteRelation.PERSON_OWNS_CHANNEL
+    assert route.reachability_class != ReachabilityClass.R1_DIRECT
+    assert (route.extra or {}).get("email_discovery_class") != EmailDiscoveryClass.EMAIL_VALIDATED.value
+    assert is_email_safe_for_warmbly(route) is False
+    assert "AFFILIATION_GATE_REFUSED" in route.reason_codes
+    assert AffiliationReasonCode.QSA_ONLY.value in (gate.get("reason_codes") or [])
 
 
 def test_consumer_payload_conforms_to_schema_and_is_deterministic():
