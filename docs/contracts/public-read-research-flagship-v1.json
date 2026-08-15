@@ -1,0 +1,118 @@
+{
+  "schema": "public-read-research-flagship/1.0",
+  "contract_version": "v1.1.0",
+  "public_read_base": "v1.0.0",
+  "compatibility": "additive_nullable_within_v1",
+  "consumer": {
+    "id": "web-cfg/flagship-research",
+    "repository": "tjsasakifln/web-cfg",
+    "issues": ["#65"],
+    "pull_requests": ["#73"],
+    "decision": "EDIÇÃO ZERO may consume this export; national publish requires national_claim_allowed=true"
+  },
+  "wedge": {
+    "id": "contracts-prices-margin-defense",
+    "label": "Public-contract volume and integral ticket for margin-defense research",
+    "reuse": "Same grain feeds volume, ticket and margin-defense questions; not a unit price series"
+  },
+  "grain": "competence × geography_kind × geography_code × archetype_id",
+  "keys": [
+    "competence",
+    "geography_kind",
+    "geography_code",
+    "archetype_id"
+  ],
+  "source_families": [
+    "public_read_v1.contracts",
+    "canonical_public_observations",
+    "national_universe/1.0"
+  ],
+  "value_semantics": {
+    "contract_value": "integral nominal BRL of the contract instrument",
+    "not": [
+      "unit price",
+      "price per m2",
+      "deflated BRL",
+      "practiced national price band"
+    ],
+    "ticket_percentiles": "nearest-rank P25/median/P75 of integral nominal BRL in the cell",
+    "unknown_policy": "UNKNOWN remains UNKNOWN; a cell with any unknown value cannot publish numeric totals"
+  },
+  "temporal_geographic_denominator": {
+    "authority": "scripts.national_contract_truth.national_universe.reconcile_partitions",
+    "schema": "national_universe/1.0",
+    "geographic_unit": "publishing-org partition of the versioned national universe",
+    "forbidden_substitutes": [
+      "Extra commercial 1093-entity universe",
+      "4-UF published-market slice",
+      "any recorte claimed as BR without nacional_completo"
+    ],
+    "nacional_completo_rule": "every expected partition closes FOUND or ZERO_CONFIRMED with evidence; BLOCKED/FAILED/missing fail closed"
+  },
+  "as_of": "snapshot cutoff from the input payload; never wall-clock",
+  "freshness": {
+    "policy": "contracts-freshness-slo-v1",
+    "layer": "publication",
+    "max_age_hours": 48
+  },
+  "completeness": {
+    "COMPLETE": "nacional_completo and every series cell is KNOWN",
+    "INCOMPLETE": "denominator or cells missing/blocked",
+    "UNKNOWN": "required watermarks, values or partitions absent"
+  },
+  "provenance": [
+    "source_id",
+    "source_record_id",
+    "lineage",
+    "catalog_hash",
+    "reconciliation_hash",
+    "content_hash"
+  ],
+  "unknown_reason_codes": [
+    "missing_partitions",
+    "blocked_or_failed_partitions",
+    "national_denominator_incomplete",
+    "freshness_stale",
+    "unknown_values",
+    "duplicated_source_lineage",
+    "inconsistent_denominator_extra_1093",
+    "inconsistent_denominator"
+  ],
+  "query_budget": {
+    "query_family": "research_flagship_series",
+    "statement_timeout_ms": 2000,
+    "p95_budget_ms": 250,
+    "max_rows": 64,
+    "max_concurrent": 2,
+    "representative_query": "SELECT * FROM public_read_v1.research_flagship_series WHERE competence = $1 ORDER BY geography_kind, geography_code, archetype_id LIMIT 64"
+  },
+  "query_budgets": [
+    {
+      "query_family": "research_flagship_series",
+      "statement_timeout_ms": 2000,
+      "p95_budget_ms": 250,
+      "max_rows": 64,
+      "max_concurrent": 2,
+      "representative_query": "SELECT * FROM public_read_v1.research_flagship_series WHERE competence = $1 ORDER BY geography_kind, geography_code, archetype_id LIMIT 64"
+    },
+    {
+      "query_family": "research_claim_gate",
+      "statement_timeout_ms": 1000,
+      "p95_budget_ms": 100,
+      "max_rows": 1,
+      "max_concurrent": 4,
+      "representative_query": "SELECT * FROM public_read_v1.research_claim_gate LIMIT 1"
+    },
+    {
+      "query_family": "research_health",
+      "statement_timeout_ms": 1000,
+      "p95_budget_ms": 100,
+      "max_rows": 20,
+      "max_concurrent": 2,
+      "representative_query": "SELECT * FROM public_read_v1.research_health LIMIT 20"
+    }
+  ],
+  "national_claim_rule": "national_claim_allowed is true only when nacional_completo=true and no material reason_code remains. geography_code=BR is emitted only then. Extra 1093 is never a national denominator.",
+  "branding": "truth plane and export are source-agnostic; CONFENGE marks are forbidden",
+  "migration": "094_public_intelligence_research_models.sql (094 was free after fetch of origin/main@42166330; reserved for extra-cli#400 only)"
+}

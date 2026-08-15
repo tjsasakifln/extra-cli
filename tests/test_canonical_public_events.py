@@ -519,8 +519,14 @@ def test_snapshot_barrier_repeatable_read_projection_invalidation_and_public_rol
 
             cursor.execute("SELECT schema_hash FROM public_read_v1.contract_releases WHERE version = 'v1.0.0'")
             assert len(cursor.fetchone()["schema_hash"]) == 64
-            cursor.execute("SELECT count(*) AS count FROM public_read_v1.query_budgets")
-            assert int(cursor.fetchone()["count"]) == 4
+            cursor.execute("SELECT query_family FROM public_read_v1.query_budgets")
+            families = {row["query_family"] for row in cursor.fetchall()}
+            assert {
+                "tenders_by_process",
+                "contracts_by_process",
+                "entities_by_id",
+                "surface_health",
+            } <= families
 
             cursor.execute("SET ROLE smartlic_public_reader")
             cursor.execute("SELECT count(*) AS count FROM public_read_v1.current_snapshot")
