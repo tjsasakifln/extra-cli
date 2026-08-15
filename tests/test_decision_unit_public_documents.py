@@ -86,6 +86,9 @@ def test_fixtures_cover_required_adversarial_cases():
         "generic_no_contact",
         "unreadable",
         "company_mismatch",
+        "header_blesses_foreign_signature",
+        "foreign_corporate_mailbox",
+        "header_same_domain_other_person",
     }
     assert required <= set(EXPECTED["cases"])
     for case_id in required:
@@ -127,6 +130,35 @@ def test_each_fixture_drives_shipped_miner_to_manifest_verdict():
             assert ev.observed_at
             assert ev.extraction_method
             assert ev.extra.get("source_class")
+
+
+def test_document_header_does_not_bless_another_firm_signature():
+    result = _mine_case("header_blesses_foreign_signature")
+    pedro = [item for item in result.associations if item.email == "pedro.santos@outrapavimentacao.com.br"]
+    assert pedro
+    assert all(item.associated is False for item in pedro)
+    assert all(item.company_matched is False for item in pedro)
+    assert "DOC_IDENTITY_ASSOCIATED" not in _codes(result)
+    assert "DOC_THIRD_PARTY_DOMAIN" in _codes(result)
+
+
+def test_foreign_corporate_mailbox_is_not_identity_even_in_our_signature():
+    result = _mine_case("foreign_corporate_mailbox")
+    hits = [item for item in result.associations if item.email == "joao.silva@outrapavimentacao.com.br"]
+    assert hits
+    assert all(item.associated is False for item in hits)
+    assert all(item.discarded for item in hits)
+    assert "DOC_IDENTITY_ASSOCIATED" not in _codes(result)
+    assert "DOC_THIRD_PARTY_DOMAIN" in _codes(result)
+
+
+def test_header_mention_does_not_associate_same_domain_signature_without_unit_company():
+    result = _mine_case("header_same_domain_other_person")
+    hits = [item for item in result.associations if item.email == "pedro.santos@empresaexemplo.com.br"]
+    assert hits
+    assert all(item.associated is False for item in hits)
+    assert all(item.company_matched is False for item in hits)
+    assert "DOC_IDENTITY_ASSOCIATED" not in _codes(result)
 
 
 def test_signature_fixture_is_strong_association_without_email_validated():
@@ -232,7 +264,9 @@ def test_runner_wires_official_documents_additively():
 
     source = Path("scripts/decision_unit_intelligence/runner.py").read_text(encoding="utf-8")
     assert "OfficialDocumentsProvider(backend=backend, budget=budget)" in source
-    official = next(item for item in default_providers(search_backend="off") if item.provider_id == "official_documents")
+    official = next(
+        item for item in default_providers(search_backend="off") if item.provider_id == "official_documents"
+    )
     assert official.backend is None
     result = official.collect(InvestigationContext(cnpj="12345678000190"))
     assert result.attempts
