@@ -173,14 +173,6 @@ def _execute(args: argparse.Namespace, *, label: str) -> int:
             "identity_proven": email_discovery.observed_identity_associated,
         },
         "email_discovery": email_discovery.to_dict(),
-        "affiliation_cohort": {
-            "path": "affiliation_cohort.json",
-            "schema_id": affiliation_cohort["schema_id"],
-            "n": affiliation_cohort["n"],
-            "uplift": affiliation_cohort["uplift"],
-            "remaining_blockers": affiliation_cohort["remaining_blockers"],
-            "next_recommendation": affiliation_cohort["next_recommendation"],
-        },
         "selection": build_manifest(cnpjs)["selection"],
         "auto_send": False,
     }
