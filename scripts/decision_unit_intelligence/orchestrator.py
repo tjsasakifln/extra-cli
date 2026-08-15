@@ -6,8 +6,12 @@ from collections import defaultdict
 from typing import Any
 
 from scripts.decision_unit_intelligence.corroboration import (
+    CandidatePerson,
+    corroborate_affiliation,
     detect_channel_conflicts,
     detect_person_conflicts,
+    email_association_gate,
+    evidence_items_from_observations,
     evidence_quality_label,
 )
 from scripts.decision_unit_intelligence.decision_policy import (
@@ -47,6 +51,7 @@ from scripts.decision_unit_intelligence.models import (
     ReachabilityClass,
     ReachabilityRoute,
     Recommendation,
+    RouteRelation,
     SearchLedger,
     StopReason,
     level_rank,
@@ -68,6 +73,76 @@ from scripts.decision_unit_intelligence.reachability import (
 )
 
 QSA_SOURCES = frozenset({"qsa_rfb", "brasilapi_cnpj", "rfb", "qsa"})
+
+
+def _corroborate_candidates(
+    candidates: list[DecisionUnitCandidate],
+    *,
+    people: list[PersonObservation],
+    company_cnpj: str,
+    company_name: str | None,
+    as_of: str = "2026-08-15",
+) -> list[Any]:
+    records = []
+    for candidate in candidates:
+        name = normalize_name(candidate.person_name)
+        if not name:
+            continue
+        person_obs = [
+            obs
+            for obs in people
+            if normalize_name(obs.person_name) == name
+            and (not obs.company_entity_id or normalize_cnpj(obs.company_entity_id) == company_cnpj)
+        ]
+        items = evidence_items_from_observations(person_obs, company_name=company_name)
+        person = CandidatePerson(
+            canonical_name=name,
+            target_company_cnpj=company_cnpj,
+            target_company_name=company_name,
+            claimed_role=candidate.observed_roles[0] if candidate.observed_roles else None,
+        )
+        record = corroborate_affiliation(person, items, as_of=as_of)
+        extra = dict(candidate.extra or {})
+        extra["affiliation_corroboration"] = record.to_dict()
+        candidate.extra = extra
+        records.append(record)
+    return records
+
+
+def _apply_affiliation_email_gate(
+    routes: list[ReachabilityRoute],
+    records: list[Any],
+    candidates: list[DecisionUnitCandidate] | None = None,
+) -> None:
+    """Refuse person↔email association on known false vínculo. Does not promote email."""
+    by_name = {(normalize_name(record.canonical_name) or "").lower(): record for record in records}
+    by_candidate: dict[str, Any] = {}
+    for candidate in candidates or []:
+        rec = by_name.get((normalize_name(candidate.person_name) or "").lower())
+        if rec is not None:
+            by_candidate[candidate.candidate_id] = rec
+    for route in routes:
+        if not route.channel_value or "@" not in str(route.channel_value):
+            continue
+        extra = dict(route.extra or {})
+        name = normalize_name(extra.get("associated_person_name") or extra.get("person_name"))
+        record = by_name.get((name or "").lower()) if name else None
+        if record is None and route.decision_unit_candidate_id:
+            record = by_candidate.get(route.decision_unit_candidate_id)
+        if record is None:
+            continue
+        decision = email_association_gate(record, email=route.channel_value)
+        extra["affiliation_gate"] = decision.to_dict()
+        extra["affiliation_stop_the_line"] = decision.stop_the_line
+        if extra.get("identity_explicitly_associated") and not decision.allowed:
+            extra["identity_explicitly_associated"] = False
+            extra["affiliation_association_refused"] = True
+            route.reason_codes = list(
+                dict.fromkeys([*route.reason_codes, *decision.reason_codes, "AFFILIATION_GATE_REFUSED"])
+            )
+            if route.route_relation == RouteRelation.PERSON_OWNS_CHANNEL:
+                route.route_relation = RouteRelation.INFERRED_ASSOCIATION
+        route.extra = extra
 
 
 def _stamp_email_discovery_classes(routes: list[ReachabilityRoute]) -> None:
@@ -531,6 +606,13 @@ def investigate_account(
                 public_hits=public_email_hits,
             )
         )
+    affiliation_records = _corroborate_candidates(
+        candidates,
+        people=people,
+        company_cnpj=entity_id,
+        company_name=legal_name,
+    )
+    _apply_affiliation_email_gate(routes, affiliation_records, candidates)
     _stamp_email_discovery_classes(routes)
     rec = recommend(candidates, routes)
     conflicts = detect_person_conflicts(people) + detect_channel_conflicts(normalized_channels)
@@ -563,5 +645,9 @@ def investigate_account(
         warnings=list(dict.fromkeys(rec.warnings)),
         policy_version=POLICY_VERSION,
         built_at=now_iso(),
-        extra={"account_reachability_class": klass.value, **(discovery_extra or {})},
+        extra={
+            "account_reachability_class": klass.value,
+            "affiliation_corroboration": [record.to_dict() for record in affiliation_records],
+            **(discovery_extra or {}),
+        },
     )

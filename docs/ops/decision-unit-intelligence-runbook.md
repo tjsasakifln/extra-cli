@@ -54,6 +54,11 @@ O shadow 1000 só cresce se o índice histórico/datalake tiver as contas. Sem i
 
 `BLOCKED` ≠ `R0`. Falta de e-mail nominal ≠ fracasso.
 
+Cada `run` grava `affiliation_cohort.json` (schema `confenge.dui.affiliation_cohort.v1`)
+com confiança por campo, uplift de emails antes ambíguos agora associáveis
+somente quando a corroboração permite, contradições e próxima recomendação.
+Delta 0 é honesto quando a Track A só tem QSA + caixa genérica.
+
 ## Warmbly
 
 Apenas rotas `R1` com e-mail nominal **observado** entram em `confenge.outreach.v1`.

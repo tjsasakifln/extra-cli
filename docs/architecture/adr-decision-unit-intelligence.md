@@ -29,3 +29,18 @@ It does **not** treat “named email explicitly published” as success.
 - extra-cli remains the identity/reachability truth plane; Warmbly remains the activation/outcome plane.
 
 Operational contract: [`../commercial-intelligence/contact-resolution.md`](../commercial-intelligence/contact-resolution.md).
+
+## Affiliation corroboration (person ↔ company ↔ role ↔ date)
+
+Isolated transform `corroborate_affiliation` in
+`scripts/decision_unit_intelligence/corroboration.py`. Policy data lives in
+`affiliation_policy.py`. Schema:
+`scripts/decision_unit_intelligence/data/affiliation_corroboration.schema.json`.
+
+- Separate confidences: identity, company affiliation, role, recency.
+- Copies of one origin are not independent.
+- Contradiction is `CONFLICTING_EVIDENCE` (roles also `CONFLICTING_ROLE`); never a silent average.
+- QSA supports names / controle societário and yields `QSA_ONLY`; it does not prove operational/buyer role.
+- Canonical decision-unit role is assigned only from observed role evidence.
+- `email_association_gate` / `may_associate_email` refuse known false vínculo and do not promote email, flip `auto_send`, or mark `EMAIL_VALIDATED`.
+
