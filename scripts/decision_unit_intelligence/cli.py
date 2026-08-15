@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 
 from scripts.decision_unit_intelligence import POLICY_VERSION, PROVIDER_VERSION, SCHEMA_VERSION
+from scripts.decision_unit_intelligence.affiliation_report import build_affiliation_cohort_report
 from scripts.decision_unit_intelligence.batch_queue import (
     ContactDiscoveryQueue,
     budget_version_from_knobs,
@@ -105,6 +106,8 @@ def _execute(args: argparse.Namespace, *, label: str) -> int:
     warmbly = [project_warmbly_outreach(a) for a in accounts]
     email_safe = sum(w["email_safe_count"] for w in warmbly)
     email_discovery = summarize_email_discovery(accounts)
+    affiliation_cohort = build_affiliation_cohort_report(accounts)
+    write_json(Path(args.out) / "affiliation_cohort.json", affiliation_cohort)
     write_json(Path(args.out) / "warmbly_outreach.json", {"accounts": warmbly, "email_safe_total": email_safe})
     web_attempts = [
         attempt for account in accounts for attempt in account.ledger.attempts if attempt.provider_id == "public_search"
@@ -175,6 +178,14 @@ def _execute(args: argparse.Namespace, *, label: str) -> int:
             "identity_proven": email_discovery.observed_identity_associated,
         },
         "email_discovery": email_discovery.to_dict(),
+        "affiliation_cohort": {
+            "path": "affiliation_cohort.json",
+            "schema_id": affiliation_cohort["schema_id"],
+            "n": affiliation_cohort["n"],
+            "uplift": affiliation_cohort["uplift"],
+            "remaining_blockers": affiliation_cohort["remaining_blockers"],
+            "next_recommendation": affiliation_cohort["next_recommendation"],
+        },
         "selection": build_manifest(cnpjs)["selection"],
         "auto_send": False,
     }
