@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime, timedelta
 
 from scripts.crawl.pncp_entity_pagination import (
@@ -15,6 +16,7 @@ from scripts.crawl.pncp_entity_pagination import (
     sanitize_url,
     sla_status,
 )
+from scripts.crawl.pncp_entity_scope_live import parse_contratos_page
 
 
 def _page(n: int, records: int = 2) -> object:
@@ -25,6 +27,14 @@ def _page(n: int, records: int = 2) -> object:
         page=n,
         records=records,
     )
+
+
+def test_parse_official_contratos_page() -> None:
+    body = json.dumps({"data": [{"numeroControlePNCP": "a"}, {"numeroControlePNCP": "b"}], "totalRegistros": 2}).encode()
+    records, total = parse_contratos_page(body)
+    assert len(records) == 2
+    assert total == 2
+    assert expected_pages(total or 0, 50) == 1
 
 
 def test_pages_expected_equals_pages_fetched() -> None:
