@@ -49,7 +49,11 @@ from scripts.decision_unit_intelligence.models import (
     RouteRelation,
 )
 from scripts.decision_unit_intelligence.orchestrator import investigate_account
-from scripts.decision_unit_intelligence.projection import is_email_safe_for_warmbly, project_warmbly_outreach
+from scripts.decision_unit_intelligence.projection import (
+    associated_person_name,
+    is_email_safe_for_warmbly,
+    project_warmbly_outreach,
+)
 
 
 def _run(case: dict) -> object:
@@ -270,6 +274,8 @@ def _inferred_route(state: str) -> ReachabilityRoute:
             "email_discovery_class": state,
             "inferred_pattern_state": state,
             "inferred_grade": "INFERRED_HIGH",
+            "person_name": "João da Silva",
+            "associated_person_name": "João da Silva",
         },
     )
 
@@ -327,6 +333,17 @@ def test_warmbly_fail_closed_for_all_inferred_pattern_states():
         discovery = payload["email_discovery_routes"][0]
         assert discovery["contact_tier"] not in {"EMAIL_VALIDATED", "DIRECT_EMAIL_VALIDATED"}
         assert discovery["contact_tier"] == "CANDIDATE_UNVERIFIED"
+
+
+def test_warmbly_path_never_reads_route_person_name():
+    from dataclasses import fields
+
+    assert "person_name" not in {item.name for item in fields(ReachabilityRoute)}
+    src = Path("scripts/decision_unit_intelligence/orchestrator.py").read_text(encoding="utf-8")
+    assert "route.person_name" not in src
+    route = _inferred_route(EmailDiscoveryClass.INFERRED_PATTERN_MX_OK.value)
+    assert associated_person_name(route) == "João da Silva"
+    assert is_email_safe_for_warmbly(route) is False
 
 
 def test_orchestrator_inferred_route_is_not_warmbly_validated():

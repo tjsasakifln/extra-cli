@@ -15,9 +15,16 @@ from scripts.decision_unit_intelligence.models import (
     ReachabilityClass,
     ReachabilityRoute,
     RouteRelation,
+    normalize_name,
 )
 
 WARMBLY_SCHEMA = "confenge.outreach.v1"
+
+
+def associated_person_name(route: ReachabilityRoute) -> str | None:
+    """Person bound to a route. ReachabilityRoute has no person_name field."""
+    extra = route.extra if isinstance(route.extra, dict) else {}
+    return normalize_name(extra.get("associated_person_name") or extra.get("person_name"))
 
 
 def is_email_safe_for_warmbly(route: ReachabilityRoute) -> bool:
