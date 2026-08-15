@@ -484,8 +484,13 @@ _NEGATED_COMPANY_RE = re.compile(
 )
 
 
+def _word_tokens(text: str) -> set[str]:
+    return set(re.findall(r"[a-z0-9]{4,}", fold_text(text)))
+
+
 def company_mentioned(query: PublicDocumentQuery, text: str) -> bool:
     blob = fold_text(text)
+    words = _word_tokens(text)
     target = normalize_cnpj(query.cnpj)
     if target and target in "".join(ch for ch in text if ch.isdigit()):
         return True
@@ -499,13 +504,10 @@ def company_mentioned(query: PublicDocumentQuery, text: str) -> bool:
             around = blob[max(0, idx - 48) : idx + len(folded) + 8]
             if _NEGATED_COMPANY_RE.search(around):
                 continue
+            return True
         tokens = significant_name_tokens(name)
-        if len(tokens) >= 2 and all(tok in blob for tok in tokens[:3]):
-            if folded in blob:
-                idx = blob.find(folded)
-                around = blob[max(0, idx - 48) : idx + len(folded) + 8]
-                if _NEGATED_COMPANY_RE.search(around):
-                    continue
+        # Word tokens only — never treat "empresaexemplo" in an email as the razão.
+        if len(tokens) >= 2 and all(tok in words for tok in tokens[:3]):
             return True
     return False
 
@@ -531,14 +533,32 @@ def is_public_organ_email(email: str) -> bool:
     return bool(_GOV_DOMAIN_RE.search(domain) or "prefeitura" in domain or "camara" in domain)
 
 
+def account_domains(query: PublicDocumentQuery) -> set[str]:
+    domains: set[str] = set()
+    raw = (query.domain or "").strip().lower().removeprefix("www.")
+    if raw:
+        domains.add(raw)
+    return domains
+
+
+def email_matches_account_domain(email: str, query: PublicDocumentQuery) -> bool:
+    """True when the account has no known domain, or the mailbox is on that domain."""
+    expected = account_domains(query)
+    if not expected:
+        return True
+    domain = (email_domain(email) or "").lower().removeprefix("www.")
+    if not domain:
+        return False
+    return any(domain == item or domain.endswith(f".{item}") for item in expected)
+
+
 def is_discarded_third_party_email(email: str, query: PublicDocumentQuery) -> bool:
     domain = email_domain(email)
     if is_public_organ_email(email):
         return True
     if is_third_party_professional_domain(domain):
         return True
-    expected = (query.domain or "").lower().removeprefix("www.")
-    if expected and domain and domain != expected and is_third_party_professional_domain(domain):
+    if not email_matches_account_domain(email, query):
         return True
     return False
 
@@ -712,8 +732,10 @@ def _units_from_page(page_text: str, page: int | None, query: PublicDocumentQuer
                     company_bound=company_mentioned(query, window),
                 )
             )
-    # Signature-like clusters: name + role + email inside a short line window.
-    for idx in range(len(compact)):
+    # Signature-like clusters start at a name or closing cue, never at a header.
+    for idx, start_line in enumerate(compact):
+        if not (extract_person_names(start_line) or _SIGNATURE_CUE_RE.search(start_line)):
+            continue
         window_lines = compact[idx : idx + 6]
         window = "\n".join(window_lines)
         emails = extract_emails(window)
@@ -772,7 +794,8 @@ def associate_unit(
     names = extract_person_names(unit.text)
     role = extract_role(unit.text)
     foreign_cnpjs = [item for item in extract_cnpjs(unit.text) if item != normalize_cnpj(query.cnpj)]
-    company_ok = (unit.company_bound or company_mentioned(query, document.text)) and not foreign_cnpjs
+    # Company binding is unit-local. A header mention must not bless another firm's signature.
+    company_ok = bool(unit.company_bound) and not foreign_cnpjs
     company_other = other_company_dominant(query, unit.text) or bool(foreign_cnpjs)
     structural = unit.kind in {"signature", "table_row", "labeled_field"}
     results: list[DocumentAssociation] = []
@@ -891,13 +914,10 @@ def associate_unit(
             continue
         if len(bound_names) == 1 and (role or unit.kind in {"signature", "labeled_field", "table_row"}):
             person = bound_names[0]
-            if company_other and not company_ok:
-                reasons.append(REASON_DOC_COMPANY_MISMATCH)
-                discarded = True
-                person = None
-            elif query.named_people and not hint_matches(person, query) and not company_ok:
-                reasons.append(REASON_DOC_AMBIGUOUS_PERSON)
-                ambiguous = True
+            if not company_ok:
+                if company_other:
+                    reasons.append(REASON_DOC_COMPANY_MISMATCH)
+                    discarded = True
                 person = None
             else:
                 associated = True
@@ -1032,7 +1052,7 @@ def mine_document_text(query: PublicDocumentQuery, document: FetchedDocument) ->
                 page=None,
                 section=None,
                 source_class=document.source_class,
-                company_matched=company_mentioned(query, document.text),
+                company_matched=company_mentioned(query, snippet_around(document.text, email, 80)),
                 current_identity_proven=False,
                 document_epistemic_class=DOC_EPISTEMIC_OBSERVED,
             )

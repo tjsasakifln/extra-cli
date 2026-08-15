@@ -95,6 +95,32 @@
       "must_not_contain": ["DOC_IDENTITY_ASSOCIATED"],
       "associated": false,
       "email": "maria.souza@outraconstrutora.com.br"
+    },
+    "header_blesses_foreign_signature": {
+      "url": "https://pncp.gov.br/app/contratos/82951344000140/2024/6",
+      "source_class": "contrato",
+      "must_contain": ["DOC_THIRD_PARTY_DOMAIN"],
+      "must_not_contain": ["DOC_IDENTITY_ASSOCIATED"],
+      "associated": false,
+      "discarded": true,
+      "email": "pedro.santos@outrapavimentacao.com.br"
+    },
+    "foreign_corporate_mailbox": {
+      "url": "https://pncp.gov.br/app/contratos/82951344000140/2024/6",
+      "source_class": "contrato",
+      "must_contain": ["DOC_THIRD_PARTY_DOMAIN"],
+      "must_not_contain": ["DOC_IDENTITY_ASSOCIATED"],
+      "associated": false,
+      "discarded": true,
+      "email": "joao.silva@outrapavimentacao.com.br"
+    },
+    "header_same_domain_other_person": {
+      "url": "https://pncp.gov.br/app/contratos/82951344000140/2024/6",
+      "source_class": "contrato",
+      "must_contain": ["DOC_EMAIL_OBSERVED"],
+      "must_not_contain": ["DOC_IDENTITY_ASSOCIATED"],
+      "associated": false,
+      "email": "pedro.santos@empresaexemplo.com.br"
     }
   }
 }
