@@ -8,11 +8,18 @@ from scripts.decision_unit_intelligence.email_discovery import discover_internal
 from scripts.decision_unit_intelligence.evidence import make_evidence
 from scripts.decision_unit_intelligence.models import EpistemicClass, SearchAttempt, normalize_cnpj, now_iso, stable_id
 from scripts.decision_unit_intelligence.providers.base import InvestigationContext, ProviderResult
+from scripts.decision_unit_intelligence.query_planner import (
+    ExplicitFallbackBackend,
+    aggregate_executions,
+    default_policy,
+    execute_plan,
+    load_policy,
+    plan_queries,
+)
 from scripts.decision_unit_intelligence.web_discovery import (
     SearchBackend,
     SearchBudget,
     WebCrawler,
-    build_query_plan,
     dedupe_search_hits,
     extract_public_evidence,
     rank_crawl_urls,
@@ -31,18 +38,29 @@ class PublicSearchProvider:
         backend: SearchBackend | None = None,
         crawler: WebCrawler | None = None,
         budget: SearchBudget | None = None,
+        policy_version: str | None = None,
+        planner_cache=None,
     ) -> None:
         self.backend = backend
         self.crawler = crawler
         self.budget = budget or SearchBudget()
         self.enabled = backend is not None
+        self.policy = load_policy(policy_version) if policy_version else default_policy()
+        self.planner_cache = planner_cache
 
     def collect(self, context: InvestigationContext) -> ProviderResult:
         cnpj = normalize_cnpj(context.cnpj)
         known_site = str(context.extra.get("company_site") or "") or None
         known_people = [str(name) for name in (context.extra.get("known_people") or []) if name]
-        plan = build_query_plan(context, known_domain=_domain(known_site), known_people=known_people)
-        queries = plan[: self.budget.max_queries]
+        known_domain = _domain(known_site)
+        plan = plan_queries(
+            context,
+            policy=self.policy,
+            known_domain=known_domain,
+            known_people=known_people,
+            max_queries=self.budget.max_queries,
+        )
+        queries = [spec.query for spec in plan.specs]
         attempt = SearchAttempt(
             attempt_id=stable_id("att", self.provider_id, cnpj, "|".join(queries)),
             company_entity_id=cnpj,
@@ -52,7 +70,9 @@ class PublicSearchProvider:
             status="skipped",
             queries=queries,
             extra={
-                "planned_query_count": len(plan),
+                "planned_query_count": len(plan.specs),
+                "query_policy_version": self.policy.version,
+                "adaptive_mode": plan.adaptive_mode,
                 "budget": {
                     "max_queries": self.budget.max_queries,
                     "max_results_per_query": self.budget.max_results_per_query,
@@ -79,23 +99,30 @@ class PublicSearchProvider:
             int(getattr(self.crawler, "cache_hits", 0)),
             int(getattr(self.crawler, "cache_misses", 0)),
         )
-        hits = []
-        failures: list[str] = []
-        for query in queries:
-            try:
-                hits.extend(self.backend.search(query, limit=self.budget.max_results_per_query))
-            except Exception as exc:  # provider failures are preserved, not promoted to evidence
-                failures.append(f"{type(exc).__name__}:{query}")
-        hits = dedupe_search_hits(hits)
+        run = execute_plan(
+            plan,
+            self.backend,
+            policy=self.policy,
+            cache=self.planner_cache,
+            limit=self.budget.max_results_per_query,
+            legal_name=context.legal_name,
+            known_people=known_people,
+        )
+        executed = [row for row in run.executions if row.executed]
+        attempt.queries = [row.spec.query for row in executed]
+        hits = dedupe_search_hits(run.hits)
+        failures = [f"{row.failure}:{row.spec.query}" for row in run.executions if row.failure]
         resolution = resolve_corporate_domain(context, hits, known_site=known_site)
         attempt.extra["search_backend"] = self.backend.backend_id
         attempt.extra["result_count"] = len(hits)
         attempt.extra["failures"] = failures
         attempt.extra["domain_resolution"] = resolution.to_dict()
+        attempt.extra["query_executions"] = [row.to_dict() for row in run.executions]
+        attempt.extra["query_yield"] = aggregate_executions(run.executions)
+        if isinstance(self.backend, ExplicitFallbackBackend) and self.backend.events:
+            attempt.extra["fallback_events"] = [event.to_dict() for event in self.backend.events]
         useful_urls = [
-            hit.url
-            for hit in hits
-            if resolution.canonical_domain and _domain(hit.url) == resolution.canonical_domain
+            hit.url for hit in hits if resolution.canonical_domain and _domain(hit.url) == resolution.canonical_domain
         ]
         attempt.extra["useful_urls"] = useful_urls
 
