@@ -1,0 +1,43 @@
+{
+  "entity": {"ibge": "4202008", "cnpj": "83102105000100", "name": "Balneario Camboriu"},
+  "listing": [
+    {
+      "page": 1,
+      "complete": true,
+      "status": 200,
+      "records": [
+        {
+          "sessao_id": "192640",
+          "objeto": "Servico de engenharia consultiva",
+          "situacao": "aberto",
+          "prazo": "2026-09-10",
+          "documents": ["edital.pdf"]
+        }
+      ]
+    }
+  ],
+  "detail": [
+    {
+      "page": 1,
+      "complete": true,
+      "status": 200,
+      "records": [{"sessao_id": "192640", "orgao": "PM Balneario Camboriu"}]
+    }
+  ],
+  "documents": [
+    {
+      "page": 1,
+      "complete": true,
+      "status": 200,
+      "records": [{"sessao_id": "192640", "documents": ["edital.pdf"]}]
+    }
+  ],
+  "status": [
+    {
+      "page": 1,
+      "complete": true,
+      "status": 200,
+      "records": [{"sessao_id": "192640", "situacao": "aberto"}]
+    }
+  ]
+}

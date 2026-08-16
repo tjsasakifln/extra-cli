@@ -1,0 +1,43 @@
+{
+  "entity": {"ibge": "4208203", "cnpj": "82892231000100", "name": "Itajai"},
+  "listing": [
+    {
+      "page": 1,
+      "complete": true,
+      "status": 200,
+      "records": [
+        {
+          "idlicitacao": "42516",
+          "objeto": "Pregao eletronico CBR-42516",
+          "situacao": "aberto",
+          "prazo": "2026-09-15",
+          "documents": ["edital.pdf"]
+        }
+      ]
+    }
+  ],
+  "detail": [
+    {
+      "page": 1,
+      "complete": true,
+      "status": 200,
+      "records": [{"idlicitacao": "42516", "orgao": "PM Itajai"}]
+    }
+  ],
+  "documents": [
+    {
+      "page": 1,
+      "complete": true,
+      "status": 200,
+      "records": [{"idlicitacao": "42516", "documents": ["edital.pdf"]}]
+    }
+  ],
+  "status": [
+    {
+      "page": 1,
+      "complete": true,
+      "status": 200,
+      "records": [{"idlicitacao": "42516", "situacao": "retificado"}]
+    }
+  ]
+}
