@@ -1,0 +1,11 @@
+{
+  "schema": "national_universe/1.0",
+  "producer_status": "CONTRACT_FIXTURE",
+  "official_live": false,
+  "nacional_completo": true,
+  "national_claim_allowed": true,
+  "reason_codes": [],
+  "expected_partitions": 98437,
+  "closed_partitions": 98437,
+  "note": "Labeled PASS fixture. Does not authorize a production national claim."
+}

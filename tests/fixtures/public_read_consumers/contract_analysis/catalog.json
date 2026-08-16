@@ -1,0 +1,267 @@
+{
+  "generated_at": "2026-08-16T00:00:00+00:00",
+  "catalog_mode": "fixture",
+  "claimed_live": false,
+  "producer_status": "CONTRACT_FIXTURE",
+  "official_live": false,
+  "candidates": [
+    {
+      "analysis_candidate_id": "cand-preco-01",
+      "angle": "preco_bdi",
+      "score": {
+        "schema": "contract-publication-candidate/1.0",
+        "version": "1.0",
+        "formula_version": "publication-value-score/1.0",
+        "value": 0.94,
+        "reason_summary": "factual preco_bdi observation on official instrument",
+        "status": "accepted",
+        "canonical_contract_ids": ["83102277000152-2-eco-01/2026"]
+      },
+      "evidence_pack": {
+        "schema": "contract-evidence-pack/1.0",
+        "version": "1.0",
+        "content_hash": "24c179ad39ef4b7f1dfe371ef09d7ced045d7d69c4bc17bcfe4b9e97c42fd0eb",
+        "source_as_of": "2026-08-15T00:00:00+00:00",
+        "canonical_contract_ids": ["83102277000152-2-eco-01/2026"],
+        "object": "Pavimentacao asfaltica de vias urbanas",
+        "organ": "Autarquia Municipal Fixture",
+        "supplier": "Construtora Fixture Alfa",
+        "location_label": "Fixture Centro",
+        "timeline": [{"at": "2026-08-13", "event": "signed"}],
+        "calculations": [{"name": "nominal_instrument", "value": 740874.59, "unit": "BRL", "epistemic_class": "CALCULATION"}],
+        "official_refs": [{"source_id": "pncp_contracts", "source_record_id": "83102277000152-2-eco-01/2026", "url": "https://pncp.gov.br/app/contratos/83102277000152-2-eco-01/2026"}],
+        "limitations": ["source does not publish unit prices"],
+        "coverage": {"status": "COMPLETE"},
+        "epistemic_classes": ["FACT", "CALCULATION"]
+      },
+      "peer_group": {
+        "schema": "comparable-contracts/1.0",
+        "version": "1.0",
+        "content_hash": "c125fa0e5250aba53d4c288a4ab61c75e7cbe009752d9140bee36b35954592c4",
+        "status": "COMPARABLE",
+        "metrics": {"median": 700000.0, "n": 11, "unit": "integral_nominal_instrument"},
+        "comparisons": [{"peer_id": "peer-of-cand-preco-01", "method": "integral_nominal_nearest_rank", "text": "instrument near sample median"}]
+      }
+    },
+    {
+      "analysis_candidate_id": "cand-reajuste-01",
+      "angle": "reajuste_reequilibrio",
+      "score": {
+        "schema": "contract-publication-candidate/1.0",
+        "version": "1.0",
+        "formula_version": "publication-value-score/1.0",
+        "value": 0.88,
+        "reason_summary": "published anniversary index series on official instrument",
+        "status": "accepted",
+        "canonical_contract_ids": ["83102277000152-2-eco-02/2026"]
+      },
+      "evidence_pack": {
+        "schema": "contract-evidence-pack/1.0",
+        "version": "1.0",
+        "content_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+        "source_as_of": "2026-08-15T00:00:00+00:00",
+        "canonical_contract_ids": ["83102277000152-2-eco-02/2026"],
+        "object": "Pavimentacao e drenagem",
+        "organ": "Departamento Estadual Fixture",
+        "supplier": "Construtora Fixture Beta",
+        "location_label": "Fixture Sul",
+        "timeline": [{"at": "2025-08-15", "event": "signed"}, {"at": "2026-08-15", "event": "anniversary"}],
+        "calculations": [{"name": "nominal_instrument", "value": 2100000.0, "unit": "BRL", "epistemic_class": "CALCULATION"}],
+        "official_refs": [{"source_id": "pncp_contracts", "source_record_id": "83102277000152-2-eco-02/2026", "url": "https://pncp.gov.br/app/contratos/83102277000152-2-eco-02/2026"}],
+        "limitations": ["index series published; applied factor UNKNOWN"],
+        "coverage": {"status": "COMPLETE"},
+        "epistemic_classes": ["FACT", "CALCULATION", "UNKNOWN"]
+      },
+      "peer_group": {"status": "HOLD_FOR_DATA", "schema": "comparable-contracts/1.0", "version": "1.0"}
+    },
+    {
+      "analysis_candidate_id": "cand-aditivo-01",
+      "angle": "aditivos_valor",
+      "score": {
+        "schema": "contract-publication-candidate/1.0",
+        "version": "1.0",
+        "formula_version": "publication-value-score/1.0",
+        "value": 0.86,
+        "reason_summary": "two published additive terms on official instrument",
+        "status": "accepted",
+        "canonical_contract_ids": ["83102277000152-2-eco-03/2026"]
+      },
+      "evidence_pack": {
+        "schema": "contract-evidence-pack/1.0",
+        "version": "1.0",
+        "content_hash": "2222222222222222222222222222222222222222222222222222222222222222",
+        "source_as_of": "2026-08-15T00:00:00+00:00",
+        "canonical_contract_ids": ["83102277000152-2-eco-03/2026"],
+        "object": "Pavimentacao de conjunto habitacional",
+        "organ": "Autarquia Municipal Fixture",
+        "supplier": "Consorcio Fixture Gama",
+        "location_label": "Fixture Centro",
+        "timeline": [{"at": "2025-04-12", "event": "first additive"}, {"at": "2026-02-03", "event": "second additive"}],
+        "calculations": [{"name": "nominal_instrument", "value": 9800000.0, "unit": "BRL", "epistemic_class": "CALCULATION"}],
+        "official_refs": [{"source_id": "pncp_contracts", "source_record_id": "83102277000152-2-eco-03/2026", "url": "https://pncp.gov.br/app/contratos/83102277000152-2-eco-03/2026"}],
+        "limitations": ["additive terms published; fiscal classification UNKNOWN"],
+        "coverage": {"status": "COMPLETE"},
+        "epistemic_classes": ["FACT", "CALCULATION", "UNKNOWN"]
+      }
+    },
+    {
+      "analysis_candidate_id": "cand-prazo-01",
+      "angle": "prazo",
+      "score": {
+        "schema": "contract-publication-candidate/1.0",
+        "version": "1.0",
+        "formula_version": "publication-value-score/1.0",
+        "value": 0.81,
+        "reason_summary": "published term extension on official instrument",
+        "status": "accepted",
+        "canonical_contract_ids": ["83102277000152-2-eco-04/2026"]
+      },
+      "evidence_pack": {
+        "schema": "contract-evidence-pack/1.0",
+        "version": "1.0",
+        "content_hash": "3333333333333333333333333333333333333333333333333333333333333333",
+        "source_as_of": "2026-08-15T00:00:00+00:00",
+        "canonical_contract_ids": ["83102277000152-2-eco-04/2026"],
+        "object": "Recapeamento asfaltico",
+        "organ": "Prefeitura Fixture Leste",
+        "supplier": "Construtora Fixture Delta",
+        "location_label": "Fixture Leste",
+        "timeline": [{"at": "2025-01-10", "event": "signed"}, {"at": "2026-01-10", "event": "term extension published"}],
+        "calculations": [{"name": "nominal_instrument", "value": 430000.0, "unit": "BRL", "epistemic_class": "CALCULATION"}],
+        "official_refs": [{"source_id": "pncp_contracts", "source_record_id": "83102277000152-2-eco-04/2026", "url": "https://pncp.gov.br/app/contratos/83102277000152-2-eco-04/2026"}],
+        "limitations": ["cause of extension UNKNOWN"],
+        "coverage": {"status": "COMPLETE"},
+        "epistemic_classes": ["FACT", "UNKNOWN"]
+      }
+    },
+    {
+      "analysis_candidate_id": "cand-comparavel-01",
+      "angle": "comparavel",
+      "score": {
+        "schema": "contract-publication-candidate/1.0",
+        "version": "1.0",
+        "formula_version": "publication-value-score/1.0",
+        "value": 0.79,
+        "reason_summary": "peer group marked COMPARABLE by producer",
+        "status": "accepted",
+        "canonical_contract_ids": ["83102277000152-2-eco-05/2026"]
+      },
+      "evidence_pack": {
+        "schema": "contract-evidence-pack/1.0",
+        "version": "1.0",
+        "content_hash": "4444444444444444444444444444444444444444444444444444444444444444",
+        "source_as_of": "2026-08-15T00:00:00+00:00",
+        "canonical_contract_ids": ["83102277000152-2-eco-05/2026"],
+        "object": "Pavimentacao em CBUQ",
+        "organ": "DER Fixture",
+        "supplier": "Construtora Fixture Epsilon",
+        "location_label": "Fixture Oeste",
+        "timeline": [{"at": "2026-05-01", "event": "signed"}],
+        "calculations": [{"name": "nominal_instrument", "value": 3100000.0, "unit": "BRL", "epistemic_class": "CALCULATION"}],
+        "official_refs": [{"source_id": "pncp_contracts", "source_record_id": "83102277000152-2-eco-05/2026", "url": "https://pncp.gov.br/app/contratos/83102277000152-2-eco-05/2026"}],
+        "limitations": ["comparison uses integral nominal grain only"],
+        "coverage": {"status": "COMPLETE"},
+        "epistemic_classes": ["FACT", "CALCULATION"]
+      },
+      "peer_group": {
+        "schema": "comparable-contracts/1.0",
+        "version": "1.0",
+        "content_hash": "5555555555555555555555555555555555555555555555555555555555555555",
+        "status": "COMPARABLE",
+        "metrics": {"median": 3000000.0, "n": 9, "unit": "integral_nominal_instrument"},
+        "comparisons": [{"peer_id": "peer-of-cand-comparavel-01", "method": "integral_nominal_nearest_rank", "text": "within interquartile range"}]
+      }
+    },
+    {
+      "analysis_candidate_id": "cand-exceptional-01",
+      "angle": "exceptional",
+      "score": {
+        "schema": "contract-publication-candidate/1.0",
+        "version": "1.0",
+        "formula_version": "publication-value-score/1.0",
+        "value": 0.77,
+        "reason_summary": "documented scope change published after award",
+        "status": "accepted",
+        "canonical_contract_ids": ["83102277000152-2-eco-06/2026"]
+      },
+      "evidence_pack": {
+        "schema": "contract-evidence-pack/1.0",
+        "version": "1.0",
+        "content_hash": "6666666666666666666666666666666666666666666666666666666666666666",
+        "source_as_of": "2026-08-15T00:00:00+00:00",
+        "canonical_contract_ids": ["83102277000152-2-eco-06/2026"],
+        "object": "Pavimentacao e sinalizacao",
+        "organ": "Prefeitura Fixture Norte",
+        "supplier": "Construtora Fixture Zeta",
+        "location_label": "Fixture Norte",
+        "timeline": [{"at": "2026-04-02", "event": "signed"}, {"at": "2026-07-20", "event": "scope change published"}],
+        "calculations": [{"name": "nominal_instrument", "value": 560000.0, "unit": "BRL", "epistemic_class": "CALCULATION"}],
+        "official_refs": [{"source_id": "pncp_contracts", "source_record_id": "83102277000152-2-eco-06/2026", "url": "https://pncp.gov.br/app/contratos/83102277000152-2-eco-06/2026"}],
+        "limitations": ["scope change published; cause UNKNOWN"],
+        "coverage": {"status": "COMPLETE"},
+        "epistemic_classes": ["FACT", "UNKNOWN"]
+      }
+    },
+    {
+      "analysis_candidate_id": "cand-preco-02",
+      "angle": "preco_bdi",
+      "score": {
+        "schema": "contract-publication-candidate/1.0",
+        "version": "1.0",
+        "formula_version": "publication-value-score/1.0",
+        "value": 0.74,
+        "reason_summary": "second preco_bdi observation on official instrument",
+        "status": "accepted",
+        "canonical_contract_ids": ["83102277000152-2-eco-07/2026"]
+      },
+      "evidence_pack": {
+        "schema": "contract-evidence-pack/1.0",
+        "version": "1.0",
+        "content_hash": "7777777777777777777777777777777777777777777777777777777777777777",
+        "source_as_of": "2026-08-15T00:00:00+00:00",
+        "canonical_contract_ids": ["83102277000152-2-eco-07/2026"],
+        "object": "Pavimentacao em pedra irregular",
+        "organ": "Prefeitura Fixture Sul",
+        "supplier": "Construtora Fixture Eta",
+        "location_label": "Fixture Sul",
+        "timeline": [{"at": "2026-06-01", "event": "signed"}],
+        "calculations": [{"name": "nominal_instrument", "value": 190000.0, "unit": "BRL", "epistemic_class": "CALCULATION"}],
+        "official_refs": [{"source_id": "pncp_contracts", "source_record_id": "83102277000152-2-eco-07/2026", "url": "https://pncp.gov.br/app/contratos/83102277000152-2-eco-07/2026"}],
+        "limitations": ["source does not publish unit prices"],
+        "coverage": {"status": "COMPLETE"},
+        "epistemic_classes": ["FACT", "CALCULATION"]
+      },
+      "peer_group": {"status": "NOT_COMPARABLE", "schema": "comparable-contracts/1.0", "version": "1.0"}
+    },
+    {
+      "analysis_candidate_id": "cand-prazo-02",
+      "angle": "prazo",
+      "score": {
+        "schema": "contract-publication-candidate/1.0",
+        "version": "1.0",
+        "formula_version": "publication-value-score/1.0",
+        "value": 0.71,
+        "reason_summary": "second published term event",
+        "status": "accepted",
+        "canonical_contract_ids": ["83102277000152-2-eco-08/2026"]
+      },
+      "evidence_pack": {
+        "schema": "contract-evidence-pack/1.0",
+        "version": "1.0",
+        "content_hash": "8888888888888888888888888888888888888888888888888888888888888888",
+        "source_as_of": "2026-08-15T00:00:00+00:00",
+        "canonical_contract_ids": ["83102277000152-2-eco-08/2026"],
+        "object": "Pavimentacao de acesso vicinal",
+        "organ": "Prefeitura Fixture Oeste",
+        "supplier": "Construtora Fixture Teta",
+        "location_label": "Fixture Oeste",
+        "timeline": [{"at": "2026-02-18", "event": "signed"}],
+        "calculations": [{"name": "nominal_instrument", "value": 275000.0, "unit": "BRL", "epistemic_class": "CALCULATION"}],
+        "official_refs": [{"source_id": "pncp_contracts", "source_record_id": "83102277000152-2-eco-08/2026", "url": "https://pncp.gov.br/app/contratos/83102277000152-2-eco-08/2026"}],
+        "limitations": ["duration in calendar days UNKNOWN"],
+        "coverage": {"status": "COMPLETE"},
+        "epistemic_classes": ["FACT", "UNKNOWN"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "schema": "public-read-market-answer-pavimentacao/1.0",
+  "contract_version": "v1.0.0",
+  "public_read_base": "v1.0.0",
+  "consumer": {
+    "id": "web-cfg/market-answer/valor-tipico-contratos-pavimentacao",
+    "repository": "tjsasakifln/web-cfg",
+    "issues": ["#84"],
+    "decision": "Publish the paving ticket answer only when typology, grain, coverage and #302 claim authorization pass."
+  },
+  "question": "Qual é o valor típico dos contratos públicos de pavimentação?",
+  "question_id": "valor-tipico-contratos-pavimentacao",
+  "typology_id": "pavimentacao/1.0",
+  "method_id": "integral-nominal-nearest-rank/1.0",
+  "grain": "integral_nominal_instrument",
+  "grain_not": ["cost_per_km", "unit_price", "price_per_m2", "custo_por_km"],
+  "stats": ["median", "p25", "p75", "n"],
+  "min_n": 8,
+  "answer_state": ["DATA_READY", "DATA_HOLD", "DATA_REJECT", "NEEDS_DATA"],
+  "claim_gate": {
+    "issue": "#302",
+    "schema": "national_universe/1.0",
+    "national_requires_pass": true,
+    "extra_1093_never_denominator": true
+  },
+  "peer_group": {"issue": "#415", "optional": true},
+  "fail_closed": "typology, denominator or coverage failure emits NEEDS_DATA; grain is never relaxed to serve a URL"
+}

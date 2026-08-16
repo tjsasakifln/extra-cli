@@ -1,0 +1,29 @@
+{
+  "schema": "contract-evidence-pack/1.0",
+  "version": "1.0",
+  "producer_status": "CONTRACT_FIXTURE",
+  "official_live": false,
+  "content_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "source_as_of": "2026-08-15T00:00:00+00:00",
+  "canonical_contract_ids": ["00000000000191-1-000001/2026"],
+  "object": "Pavimentacao asfaltica de vias urbanas",
+  "organ": "Prefeitura Municipal Fixture",
+  "supplier": "Construtora Fixture Alfa",
+  "location_label": "Fixture Norte",
+  "document_set_hash": "docset-001",
+  "timeline": [{"at": "2026-03-10", "event": "signed"}],
+  "calculations": [
+    {"name": "nominal_instrument", "value": 1250000.0, "unit": "BRL", "epistemic_class": "CALCULATION"}
+  ],
+  "official_refs": [
+    {
+      "source_id": "pncp_contracts",
+      "source_record_id": "00000000000191-1-000001/2026",
+      "url": "https://pncp.gov.br/app/contratos/00000000000191-1-000001/2026",
+      "content_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    }
+  ],
+  "limitations": ["source does not publish unit prices"],
+  "coverage": {"status": "COMPLETE", "n": 1},
+  "epistemic_classes": ["FACT", "CALCULATION", "UNKNOWN"]
+}

@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-08-16T00:00:00+00:00",
+  "as_of": "2026-08-15T00:00:00+00:00",
+  "catalog_mode": "fixture",
+  "claimed_live": false,
+  "grain": "integral_nominal_instrument",
+  "typology_id": "pavimentacao/1.0",
+  "typology": {"id": "pavimentacao/1.0", "sample_precision_reviewed": true},
+  "stats": {"median": 900000.0, "p25": 400000.0, "p75": 1800000.0, "n": 20},
+  "period": {"start": "2024-01-01", "end": "2026-06-30"},
+  "geography": {"kind": "country", "code": "BR"},
+  "coverage": {"status": "COMPLETE", "n": 20, "usable_n": 20},
+  "claim": {
+    "schema": "national_universe/1.0",
+    "producer_status": "CONTRACT_FIXTURE",
+    "official_live": false,
+    "nacional_completo": false,
+    "national_claim_allowed": false,
+    "reason_codes": ["national_denominator_incomplete"]
+  }
+}
