@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://extra.local/contracts/comparable-contracts/1.0",
+  "title": "comparable-contracts/1.0",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema",
+    "contract_version",
+    "method_version",
+    "policy_version",
+    "peer_group_id",
+    "contract_id",
+    "target_contract_id",
+    "status",
+    "question",
+    "question_id",
+    "consumer",
+    "as_of",
+    "inclusion_rules",
+    "exclusion_rules",
+    "typology",
+    "geography",
+    "period",
+    "regime",
+    "value_semantic",
+    "unit",
+    "coverage",
+    "denominator",
+    "total_n",
+    "usable_n",
+    "metrics",
+    "reason_codes",
+    "limitations",
+    "method",
+    "freshness",
+    "catalog_mode",
+    "source",
+    "content_hash",
+    "producer_sha"
+  ],
+  "not": {
+    "required": ["valid"]
+  },
+  "properties": {
+    "schema": {
+      "type": "string",
+      "enum": ["comparable-contracts/1.0", "public-read-comparable-contracts/1.0"]
+    },
+    "accepted_schemas": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "contract_version": { "type": "string", "const": "v1.0.0" },
+    "method_version": { "type": "string", "const": "comparable-contracts-peer-group/1.0" },
+    "policy_version": { "type": "string" },
+    "peer_group_id": { "type": "string", "pattern": "^pg-[0-9a-f]{16}$" },
+    "contract_id": { "type": "string", "minLength": 1 },
+    "target_contract_id": { "type": "string", "minLength": 1 },
+    "status": {
+      "type": "string",
+      "enum": ["COMPARABLE", "HOLD_FOR_DATA", "NOT_COMPARABLE"]
+    },
+    "question": { "type": "string" },
+    "question_id": { "type": "string", "const": "paving_nominal_total_value_position" },
+    "consumer": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": { "type": "string" },
+        "family": { "type": "string" }
+      }
+    },
+    "as_of": { "type": "string", "minLength": 4 },
+    "catalog_mode": {
+      "type": "string",
+      "enum": ["fixture", "live_candidate", "FIXTURE_ONLY"]
+    },
+    "source": { "type": "string" },
+    "value_semantic": { "type": "string", "const": "valor_integral_nominal" },
+    "unit": { "type": "string", "const": "BRL_TOTAL" },
+    "metrics": { "type": "object" },
+    "percentiles": { "type": "object" },
+    "reason_codes": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "limitations": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "content_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "producer_sha": { "type": "string", "minLength": 1 }
+  }
+}
