@@ -1,0 +1,26 @@
+{
+  "story_id": "story-never-worked-271-277-storage",
+  "risk_level": "STANDARD",
+  "status": "InProgress",
+  "po_validated": true,
+  "qa_verdict": "PENDING",
+  "po_closed": false,
+  "scope_files": [
+    "scripts/ops/blob_cas.py",
+    "scripts/ops/backup_integrity.py",
+    "tests/test_issue_271_blob_cas.py",
+    "tests/test_issue_277_backup_integrity.py",
+    "docs/stories/story-never-worked-271-277-storage.md"
+  ],
+  "reviewed_commit": null,
+  "gates": {
+    "lint": "PENDING",
+    "typecheck": "PENDING",
+    "tests": "PENDING",
+    "build": "NA"
+  },
+  "rollback_plan": "revert the branch; no schema or production change",
+  "snapshot_evidence": null,
+  "publication_authorized": false,
+  "maintenance_mode": false
+}
