@@ -16,6 +16,9 @@ def test_dual_seed_and_bid_table_no_duplicate_keys() -> None:
         pytest.skip("no psycopg2")
 
     conn = psycopg2.connect(dsn, connect_timeout=5)
+    from scripts.testing.connection_policy import refuse_silent_mock
+
+    refuse_silent_mock(conn, required=True, context="golden_path_idempotency")
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT count(*), count(distinct cnpj_8) FROM sc_public_entities")

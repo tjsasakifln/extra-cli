@@ -34,7 +34,11 @@ def test_write_concorrentes_report_domain_file(tmp_path: Path) -> None:
     try:
         import psycopg2
 
-        psycopg2.connect(dsn, connect_timeout=3).close()
+        from scripts.testing.connection_policy import refuse_silent_mock
+
+        probe = psycopg2.connect(dsn, connect_timeout=3)
+        refuse_silent_mock(probe, required=True, context="golden_path_concorrentes")
+        probe.close()
     except Exception:
         pytest.skip("no test-db")
 

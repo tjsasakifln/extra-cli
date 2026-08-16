@@ -76,12 +76,37 @@ def _mock_psycopg2_connect(request):
     # Explicit marker for modules that need real PG without integration/database.
     # #285: real_db never falls through to MagicMock. Missing opt-in is skip
     # or a configuration error, not a silently mocked missing table.
-    if request.node.get_closest_marker("real_db") is not None:
+    # #343: the four canonical suites that consult PostgreSQL share that policy
+    # even if a file still carries only @pytest.mark.integration.
+    from scripts.testing.connection_policy import (
+        CANONICAL_REAL_SUITES,
+        decide_suite_strategy,
+    )
+
+    filename = path_parts[-1] if path_parts else ""
+    consults_pg = request.node.get_closest_marker("real_db") is not None or (
+        filename in CANONICAL_REAL_SUITES
+    )
+    if consults_pg:
         from scripts.testing.real_db_guard import admit_real_db_or_raise
 
         admit_real_db_or_raise(real_db_marker=True, require_real=require_real)
         yield
         return
+
+    if request.node.get_closest_marker("integration") is not None:
+        from scripts.testing.real_db_guard import dsn_is_reachable
+
+        strategy = decide_suite_strategy(
+            filename=filename,
+            real_db_marker=False,
+            integration_marker=True,
+            require_real=require_real,
+            db_available=dsn_is_reachable() if require_real else False,
+        )
+        if strategy == "real":
+            yield
+            return
 
     # Allow TestPostgreSQLFailClosed to test real connection failures
     cls = getattr(request, "cls", None)
