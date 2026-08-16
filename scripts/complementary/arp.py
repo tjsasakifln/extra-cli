@@ -50,9 +50,7 @@ def normalize_ata(raw: dict[str, Any]) -> dict[str, Any] | None:
         "fornecedores": suppliers if isinstance(suppliers, list) else [],
         "documentos": documents if isinstance(documents, list) else [],
         "raw_hash": sha256_json(raw),
-        "content_hash": sha256_json(
-            {"id": ata_id, "status": status, "objeto": raw.get("objeto"), "itens": items}
-        ),
+        "content_hash": sha256_json({"id": ata_id, "status": status, "objeto": raw.get("objeto"), "itens": items}),
     }
     return row
 
@@ -289,6 +287,11 @@ def crawl(mode: str = "full") -> list[dict[str, Any]]:
 def transform(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     for raw in records:
+        if not isinstance(raw, dict):
+            continue
+        if raw.get("official_id") and raw.get("content_hash"):
+            out.append(raw)
+            continue
         row = normalize_ata(raw)
         if row:
             out.append(row)

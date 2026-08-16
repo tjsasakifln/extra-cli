@@ -124,7 +124,13 @@ def test_dados_abertos_dedup_keeps_sc_compras_lineage() -> None:
         assert "compras.sc.gov.br" in sc_link["url"]
     dropped = merge_lineage_with_sc_compras(
         [{"resource_id": "r1", "objeto": "pregao eletronico 2024", "url": "https://dados.sc/x"}],
-        [{"source_id": "SC-PREGAO-2024-01", "objeto": "pregao eletronico 2024", "url": "https://www.compras.sc.gov.br/x"}],
+        [
+            {
+                "source_id": "SC-PREGAO-2024-01",
+                "objeto": "pregao eletronico 2024",
+                "url": "https://www.compras.sc.gov.br/x",
+            }
+        ],
     )
     if not any(link.get("source") == "sc_compras" for link in dropped[0].get("lineage", [])):
         raise AssertionError("SC Compras lineage must survive dedup")
@@ -185,6 +191,37 @@ def test_registry_crawl_never_returns_silent_empty() -> None:
         assert rows[0]["terminal"] in {"BLOCKED", "NOT_APPLICABLE", "FAILED"}
         assert rows[0].get("silent_zero") is False
         assert rows[0]["source"] == source
+
+
+def test_monitor_path_transform_keeps_crawl_ids(monkeypatch: pytest.MonkeyPatch) -> None:
+    """monitor.py does crawl() then transform(raw). IDs must survive that path."""
+    monkeypatch.setenv("COMPLEMENTARY_FIXTURE", str(FIXTURES / "portal_ipm_ipmbrasil.json"))
+    ipm_raw = ipm_crawler.crawl("incremental")
+    ipm_out = ipm_crawler.transform(ipm_raw)
+    assert [row["source_id"] for row in ipm_out] == [row["source_id"] for row in ipm_raw] == ["IPM-BR-1"]
+
+    monkeypatch.setenv("COMPLEMENTARY_FIXTURE", str(FIXTURES / "portal_egov_municipio.json"))
+    egov_raw = betha_egov_crawler.crawl("full")
+    egov_out = betha_egov_crawler.transform(egov_raw)
+    assert [row["source_id"] for row in egov_out] == [row["source_id"] for row in egov_raw] == ["EGOV-FLN-3"]
+
+    monkeypatch.setenv("COMPLEMENTARY_FIXTURE", str(FIXTURES / "portal_atende.json"))
+    atende_raw = betha_atende_crawler.crawl("full")
+    atende_out = betha_atende_crawler.transform(atende_raw)
+    assert [row.get("source_id") for row in atende_out] == [row.get("source_id") for row in atende_raw]
+    assert atende_out, "Atende crawl+transform must not drop fixture rows"
+
+    monkeypatch.setenv("ARP_FIXTURE", str(FIXTURES / "arp_pages.json"))
+    monkeypatch.delenv("LOCAL_DATALAKE_DSN", raising=False)
+    arp_raw = arp_lake.crawl("full")
+    arp_out = arp_lake.transform(arp_raw)
+    assert {row.get("official_id") for row in arp_out} == {"ATA-001", "ATA-002"}
+
+    licitacoes_raw = licitacoes_e_crawler.crawl("full")
+    licitacoes_out = licitacoes_e_crawler.transform(licitacoes_raw)
+    assert licitacoes_out
+    assert licitacoes_out[0].get("terminal") in {"BLOCKED", "NOT_APPLICABLE", "FAILED"}
+    assert licitacoes_out[0].get("terminal") != "success_zero"
 
 
 def test_ipm_and_egov_fixtures_drive_shipped_crawl(monkeypatch: pytest.MonkeyPatch) -> None:

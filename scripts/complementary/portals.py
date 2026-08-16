@@ -56,8 +56,11 @@ def parse_list_payload(payload: dict[str, Any] | list[Any], *, platform: str) ->
     for raw in items or []:
         if not isinstance(raw, dict):
             continue
-        source_id = str(raw.get("id") or raw.get("numero") or raw.get("codigo") or "")
+        source_id = str(raw.get("id") or raw.get("numero") or raw.get("codigo") or raw.get("source_id") or "")
         if not source_id:
+            continue
+        if raw.get("source") == platform and raw.get("source_id") == source_id:
+            out.append(raw)
             continue
         out.append(
             {
