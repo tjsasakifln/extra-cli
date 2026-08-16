@@ -544,6 +544,12 @@ def crawl(mode: str = "full", max_records: int | None = None) -> list[dict[str, 
     """
     from google.api_core import exceptions as google_exceptions
 
+    from scripts.complementary.mides import credential_status
+
+    creds = credential_status()
+    if not creds["ok"]:
+        raise RuntimeError(f"BLOCKED: {creds['reason']}")
+
     # Env var fallback for monitor.py integration
     if max_records is None:
         env_limit = os.environ.get("MIDES_CRAWL_LIMIT")
