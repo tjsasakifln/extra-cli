@@ -1,7 +1,10 @@
-"""#261 #331 #332 #333 — consume #346 ranking; promote or defer, no adapters.
+"""Consume #346 ranking; promote or defer VALIDATE sources; no adapters.
 
 Reads the existing AlertaLicitação ranking snapshot and records one
 decision per VALIDATE source. Does not start adapter, coverage or live ops.
+
+Wave 1 (#411): #261 #331 #332 #333
+Wave 2: #252 #254 #255 #260 #334 #335
 """
 
 from __future__ import annotations
@@ -35,7 +38,58 @@ ISSUE_SOURCES: dict[int, dict[str, Any]] = {
         "label": "portais_municipais",
         "seed_identity": "MUN-333",
     },
+    252: {
+        "adapter_keys": ("ocds", "compras_gov", "compras.gov", "comprasgov"),
+        "label": "Compras.gov OCDS",
+        "seed_identity": "OCDS-252",
+        "seed_evidence": "official release-package collector absent from #346 snapshot",
+    },
+    254: {
+        "adapter_keys": ("doe_sc", "doe-sc", "doe"),
+        "label": "DOE-SC",
+        "seed_identity": "DOE-254",
+        "seed_evidence": "public editions path exists; no publication in measured snapshot",
+    },
+    255: {
+        "adapter_keys": ("tce_sc", "tce-sc", "tce"),
+        "label": "TCE-SC",
+        "seed_identity": "TCE-255",
+        "seed_evidence": "partial code; no live evidence in the compared window",
+    },
+    260: {
+        "adapter_keys": ("pcp", "portal_compras_publicas"),
+        "label": "PCP",
+        "seed_identity": "PCP-260",
+        "seed_evidence": "crawler exists; live manifest recorded sem_dados_no_lake",
+    },
+    334: {
+        "adapter_keys": ("joinville",),
+        "label": "Joinville",
+        "seed_identity": "JOI-334",
+        "seed_evidence": "3 seed occurrences; not unique commercially relevant recall",
+    },
+    335: {
+        "adapter_keys": ("e-publica",),
+        "label": "e-Publica",
+        "seed_identity": "EPUB-335",
+        "seed_evidence": "2 seed occurrences; not unique commercially relevant recall",
+    },
 }
+
+WAVE1_ISSUES: tuple[int, ...] = (261, 331, 332, 333)
+WAVE2_ISSUES: tuple[int, ...] = (252, 254, 255, 260, 334, 335)
+# Filenames that would start adapter work for these VALIDATE issues.
+# Pre-existing DOE/TCE/PCP/Compras.gov crawlers are not in this list.
+FORBIDDEN_ADAPTER_MODULES: tuple[str, ...] = (
+    "bll_crawler.py",
+    "bnc_crawler.py",
+    "dou_crawler.py",
+    "portais_municipais_crawler.py",
+    "ocds_crawler.py",
+    "compras_gov_ocds_crawler.py",
+    "joinville_crawler.py",
+    "e_publica_crawler.py",
+)
 
 DEFAULT_WINDOW_START = "2026-08-01"
 DEFAULT_WINDOW_END = "2026-08-12"
@@ -98,7 +152,13 @@ def _seed_record(report: ReconciliationReport, issue: int) -> dict[str, Any]:
     for seed in HISTORICAL_SEEDS:
         if int(seed["issue"]) == issue:
             return {**seed, "evidence": "seed preserved; not present in this ranking window"}
-    raise KeyError(issue)
+    meta = ISSUE_SOURCES[issue]
+    return {
+        "identity": identity,
+        "issue": issue,
+        "label": meta["label"],
+        "evidence": str(meta.get("seed_evidence") or "seed preserved; not present in this ranking window"),
+    }
 
 
 def decide_promotion(
@@ -181,7 +241,7 @@ def decide_promotion(
     )
 
 
-def decide_all(report: ReconciliationReport, issues: tuple[int, ...] = (261, 331, 332, 333)) -> tuple[SourceDecision, ...]:
+def decide_all(report: ReconciliationReport, issues: tuple[int, ...] = WAVE1_ISSUES) -> tuple[SourceDecision, ...]:
     top = report.ranking[0] if report.ranking else None
     out: list[SourceDecision] = []
     for issue in issues:
