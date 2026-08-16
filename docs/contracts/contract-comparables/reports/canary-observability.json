@@ -1,0 +1,250 @@
+{
+  "as_of": "2026-08-01",
+  "catalog_mode": "fixture",
+  "cost_latency": {
+    "per_group_ms": [
+      20.087,
+      16.292,
+      18.094,
+      17.813,
+      15.107,
+      18.396,
+      17.278
+    ],
+    "total_ms": 123.22
+  },
+  "groups": [
+    {
+      "case_id": "comparable_clear",
+      "content_hash": "b47cdd43a344f95bf2d0a87fcba97eb59911d4ff945d5e5d28413605fc3578fc",
+      "coverage": {
+        "eligible_n": 8,
+        "missingness": 0.0,
+        "usable_over_total": 1.0
+      },
+      "focal_id": "83102277000152-2-pav001/2025",
+      "latency_ms": 20.087,
+      "missingness": {
+        "ratio": 0.0,
+        "unknown_excluded": true
+      },
+      "n": 8,
+      "peer_group_id": "pg-572a51954dd304b7",
+      "reason_codes": [
+        "fixture_not_official_live"
+      ],
+      "status": "COMPARABLE",
+      "total_n": 8,
+      "usable_n": 8
+    },
+    {
+      "case_id": "regime_incompatible",
+      "content_hash": "e25198be980ac7840df1ccb4b3b5af0bb81008e3d3a6c27ef64166825e6a9b12",
+      "coverage": {
+        "eligible_n": 0,
+        "missingness": 1.0,
+        "usable_over_total": 0.0
+      },
+      "focal_id": "83102277000152-2-reg001/2025",
+      "latency_ms": 16.292,
+      "missingness": {
+        "ratio": 1.0,
+        "unknown_excluded": true
+      },
+      "n": null,
+      "peer_group_id": "pg-fd93f8da2b100743",
+      "reason_codes": [
+        "incompatible_regime",
+        "fixture_not_official_live"
+      ],
+      "status": "NOT_COMPARABLE",
+      "total_n": 5,
+      "usable_n": 0
+    },
+    {
+      "case_id": "geo_period_inadequate",
+      "content_hash": "5ac0d14f0b625511b1c0da699c513fad7cac9b9172a71aaf637f77662f473082",
+      "coverage": {
+        "eligible_n": 0,
+        "missingness": 1.0,
+        "usable_over_total": 0.0
+      },
+      "focal_id": "83102277000152-2-geo001/2025",
+      "latency_ms": 18.094,
+      "missingness": {
+        "ratio": 1.0,
+        "unknown_excluded": true
+      },
+      "n": null,
+      "peer_group_id": "pg-1ca58f50cb006010",
+      "reason_codes": [
+        "geography_not_comparable",
+        "period_not_comparable",
+        "fixture_not_official_live"
+      ],
+      "status": "NOT_COMPARABLE",
+      "total_n": 5,
+      "usable_n": 0
+    },
+    {
+      "case_id": "insufficient_sample",
+      "content_hash": "f4d78c45d2ae77dc8b3f69f30f69e9fb559141f805dc8412386d94d7ae1678d9",
+      "coverage": {
+        "eligible_n": 2,
+        "missingness": 0.0,
+        "usable_over_total": 1.0
+      },
+      "focal_id": "83102277000152-2-n001/2025",
+      "latency_ms": 17.813,
+      "missingness": {
+        "ratio": 0.0,
+        "unknown_excluded": true
+      },
+      "n": null,
+      "peer_group_id": "pg-ccb21bbb01692c7c",
+      "reason_codes": [
+        "insufficient_n",
+        "fixture_not_official_live"
+      ],
+      "status": "NOT_COMPARABLE",
+      "total_n": 2,
+      "usable_n": 2
+    },
+    {
+      "case_id": "missing_values",
+      "content_hash": "b12ae855c73c7eb25173b621f81aacbd3db251185bfff56dd08f2427a32e8c49",
+      "coverage": {
+        "eligible_n": 5,
+        "missingness": 1.0,
+        "usable_over_total": 0.0
+      },
+      "focal_id": "83102277000152-2-miss001/2025",
+      "latency_ms": 15.107,
+      "missingness": {
+        "ratio": 1.0,
+        "unknown_excluded": true
+      },
+      "n": null,
+      "peer_group_id": "pg-91c03fb02a9afd7e",
+      "reason_codes": [
+        "unknown_excluded_from_denominator",
+        "missing_value",
+        "fixture_not_official_live"
+      ],
+      "status": "HOLD_FOR_DATA",
+      "total_n": 5,
+      "usable_n": 0
+    },
+    {
+      "case_id": "duplicate_rectification",
+      "content_hash": "5ddb7da58882c9bb2895aade58c31d7f59901147240adb9dc1a3aeaa4b26422b",
+      "coverage": {
+        "eligible_n": 4,
+        "missingness": 0.0,
+        "usable_over_total": 1.0
+      },
+      "focal_id": "83102277000152-2-dup001/2025",
+      "latency_ms": 18.396,
+      "missingness": {
+        "ratio": 0.0,
+        "unknown_excluded": true
+      },
+      "n": null,
+      "peer_group_id": "pg-d1075acbe56c37fe",
+      "reason_codes": [
+        "duplicate_or_rectification",
+        "fixture_not_official_live"
+      ],
+      "status": "NOT_COMPARABLE",
+      "total_n": 4,
+      "usable_n": 4
+    },
+    {
+      "case_id": "statistical_outlier",
+      "content_hash": "3b2bf53b45ac2a23e54e2cf0d6da3798eb47b0ddb9a59c7c8057d5f23703d437",
+      "coverage": {
+        "eligible_n": 8,
+        "missingness": 0.0,
+        "usable_over_total": 1.0
+      },
+      "focal_id": "83102277000152-2-out001/2025",
+      "latency_ms": 17.278,
+      "missingness": {
+        "ratio": 0.0,
+        "unknown_excluded": true
+      },
+      "n": 8,
+      "peer_group_id": "pg-5e7f922798d9de89",
+      "reason_codes": [
+        "statistical_difference_only",
+        "fixture_not_official_live"
+      ],
+      "status": "COMPARABLE",
+      "total_n": 8,
+      "usable_n": 8
+    }
+  ],
+  "groups_evaluated": 7,
+  "late_arrivals": {
+    "cases_changed": [],
+    "note": "A late arrival or rectification invalidates only groups that include the affected contract_id."
+  },
+  "metric_distribution": [
+    {
+      "case_id": "comparable_clear",
+      "n": 8,
+      "status": "COMPARABLE"
+    },
+    {
+      "case_id": "regime_incompatible",
+      "n": null,
+      "status": "NOT_COMPARABLE"
+    },
+    {
+      "case_id": "geo_period_inadequate",
+      "n": null,
+      "status": "NOT_COMPARABLE"
+    },
+    {
+      "case_id": "insufficient_sample",
+      "n": null,
+      "status": "NOT_COMPARABLE"
+    },
+    {
+      "case_id": "missing_values",
+      "n": null,
+      "status": "HOLD_FOR_DATA"
+    },
+    {
+      "case_id": "duplicate_rectification",
+      "n": null,
+      "status": "NOT_COMPARABLE"
+    },
+    {
+      "case_id": "statistical_outlier",
+      "n": 8,
+      "status": "COMPARABLE"
+    }
+  ],
+  "reason_codes": {
+    "duplicate_or_rectification": 1,
+    "fixture_not_official_live": 7,
+    "geography_not_comparable": 1,
+    "incompatible_regime": 1,
+    "insufficient_n": 1,
+    "missing_value": 1,
+    "period_not_comparable": 1,
+    "statistical_difference_only": 1,
+    "unknown_excluded_from_denominator": 1
+  },
+  "recommendation": "manter",
+  "recommendation_rationale": "Canary has at least one COMPARABLE group and explicit refusals; keep the engine.",
+  "rejection_rate": 0.7143,
+  "schema": "contract-comparables-observability/1.0",
+  "source": "fixture",
+  "status_counts": {
+    "COMPARABLE": 2,
+    "HOLD_FOR_DATA": 1,
+    "NOT_COMPARABLE": 4
+  }
+}
