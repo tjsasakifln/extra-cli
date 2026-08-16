@@ -6,6 +6,66 @@
     "VPS_OPERATIONAL": false,
     "campaign_terminal": false
   },
+  "campaign_state": {
+    "terminal": "BLOCKED_WITH_WINDOW_LIST",
+    "windows": [
+      {
+        "window_key": "20251127_20251226",
+        "terminal": "failed",
+        "blocker": "max_locks_per_transaction",
+        "in_pin": true
+      },
+      {
+        "window_key": "20251227_20260125",
+        "terminal": "failed",
+        "blocker": "max_locks_per_transaction",
+        "in_pin": true
+      },
+      {
+        "window_key": "20260126_20260224",
+        "terminal": "failed",
+        "blocker": "max_locks_per_transaction",
+        "in_pin": true
+      },
+      {
+        "window_key": "20260225_20260326",
+        "terminal": "failed",
+        "blocker": "max_locks_per_transaction",
+        "in_pin": true
+      },
+      {
+        "window_key": "20260327_20260425",
+        "terminal": "failed",
+        "blocker": "max_locks_per_transaction",
+        "in_pin": true
+      },
+      {
+        "window_key": "20260426_20260525",
+        "terminal": "failed",
+        "blocker": "max_locks_per_transaction",
+        "in_pin": true
+      },
+      {
+        "window_key": "20260526_20260624",
+        "terminal": "failed",
+        "blocker": "max_locks_per_transaction",
+        "in_pin": true
+      },
+      {
+        "window_key": "20260725_20260816",
+        "terminal": "blocked",
+        "blocker": "max_locks_per_transaction",
+        "in_pin": false
+      }
+    ],
+    "blocker": "max_locks_per_transaction"
+  },
+  "unplanned_windows": [
+    {
+      "window_key": "20260725_20260816",
+      "terminal": "blocked"
+    }
+  ],
   "pin": {
     "origin_main_sha": "820c83b82a35aaab0d381f54faa5357b386db1b3",
     "host_sha": "bbc4b6b7db295909d773f5a0e1f3314085a2f26c",
@@ -21,8 +81,8 @@
   },
   "checkpoint_path": "/var/lib/extra-consultoria/checkpoints/national-2025-canary/contracts_full.json",
   "run_id": "contracts-90d-20260816T203107Z-c1380ff11c",
-  "current_window": "20251127_20251226",
-  "current_page": 33,
+  "current_window": "20260725_20260816",
+  "current_page": 161,
   "counts": {
     "planned": 20,
     "complete": 13,
@@ -248,11 +308,11 @@
         "balanced": true,
         "identity": "fetched=persisted+rejected+skipped",
         "unknown_fields": [],
-        "expected_sum": 9000,
-        "fetched": 9000,
-        "persisted": 0,
-        "rejected": 100,
-        "skipped": 8900
+        "expected_sum": 74500,
+        "fetched": 74500,
+        "persisted": 2,
+        "rejected": 428,
+        "skipped": 74070
       }
     },
     {
@@ -265,11 +325,11 @@
         "balanced": true,
         "identity": "fetched=persisted+rejected+skipped",
         "unknown_fields": [],
-        "expected_sum": 56500,
-        "fetched": 56500,
-        "persisted": 24,
-        "rejected": 500,
-        "skipped": 55976
+        "expected_sum": 15500,
+        "fetched": 15500,
+        "persisted": 0,
+        "rejected": 348,
+        "skipped": 15152
       }
     },
     {
@@ -282,11 +342,11 @@
         "balanced": true,
         "identity": "fetched=persisted+rejected+skipped",
         "unknown_fields": [],
-        "expected_sum": 117500,
-        "fetched": 117500,
-        "persisted": 4,
-        "rejected": 500,
-        "skipped": 116996
+        "expected_sum": 26500,
+        "fetched": 26500,
+        "persisted": 0,
+        "rejected": 452,
+        "skipped": 26048
       }
     },
     {
@@ -299,11 +359,11 @@
         "balanced": true,
         "identity": "fetched=persisted+rejected+skipped",
         "unknown_fields": [],
-        "expected_sum": 157500,
-        "fetched": 157500,
-        "persisted": 7,
-        "rejected": 500,
-        "skipped": 156993
+        "expected_sum": 14000,
+        "fetched": 14000,
+        "persisted": 0,
+        "rejected": 476,
+        "skipped": 13524
       }
     },
     {
@@ -316,11 +376,11 @@
         "balanced": true,
         "identity": "fetched=persisted+rejected+skipped",
         "unknown_fields": [],
-        "expected_sum": 7000,
-        "fetched": 7000,
+        "expected_sum": 12500,
+        "fetched": 12500,
         "persisted": 0,
-        "rejected": 500,
-        "skipped": 6500
+        "rejected": 428,
+        "skipped": 12072
       }
     },
     {
@@ -333,11 +393,11 @@
         "balanced": true,
         "identity": "fetched=persisted+rejected+skipped",
         "unknown_fields": [],
-        "expected_sum": 52000,
-        "fetched": 52000,
-        "persisted": 3,
-        "rejected": 500,
-        "skipped": 51497
+        "expected_sum": 31500,
+        "fetched": 31500,
+        "persisted": 0,
+        "rejected": 324,
+        "skipped": 31176
       }
     },
     {
@@ -350,11 +410,11 @@
         "balanced": true,
         "identity": "fetched=persisted+rejected+skipped",
         "unknown_fields": [],
-        "expected_sum": 9500,
-        "fetched": 9500,
+        "expected_sum": 16000,
+        "fetched": 16000,
         "persisted": 0,
-        "rejected": 500,
-        "skipped": 9000
+        "rejected": 492,
+        "skipped": 15508
       }
     },
     {
@@ -412,11 +472,11 @@
         "balanced": true,
         "identity": "fetched=persisted+rejected+skipped",
         "unknown_fields": [],
-        "expected_sum": 9000,
-        "fetched": 9000,
-        "persisted": 0,
-        "rejected": 100,
-        "skipped": 8900
+        "expected_sum": 74500,
+        "fetched": 74500,
+        "persisted": 2,
+        "rejected": 428,
+        "skipped": 74070
       }
     },
     {
@@ -429,11 +489,11 @@
         "balanced": true,
         "identity": "fetched=persisted+rejected+skipped",
         "unknown_fields": [],
-        "expected_sum": 56500,
-        "fetched": 56500,
-        "persisted": 24,
-        "rejected": 500,
-        "skipped": 55976
+        "expected_sum": 15500,
+        "fetched": 15500,
+        "persisted": 0,
+        "rejected": 348,
+        "skipped": 15152
       }
     },
     {
@@ -446,11 +506,11 @@
         "balanced": true,
         "identity": "fetched=persisted+rejected+skipped",
         "unknown_fields": [],
-        "expected_sum": 117500,
-        "fetched": 117500,
-        "persisted": 4,
-        "rejected": 500,
-        "skipped": 116996
+        "expected_sum": 26500,
+        "fetched": 26500,
+        "persisted": 0,
+        "rejected": 452,
+        "skipped": 26048
       }
     },
     {
@@ -463,11 +523,11 @@
         "balanced": true,
         "identity": "fetched=persisted+rejected+skipped",
         "unknown_fields": [],
-        "expected_sum": 157500,
-        "fetched": 157500,
-        "persisted": 7,
-        "rejected": 500,
-        "skipped": 156993
+        "expected_sum": 14000,
+        "fetched": 14000,
+        "persisted": 0,
+        "rejected": 476,
+        "skipped": 13524
       }
     },
     {
@@ -480,11 +540,11 @@
         "balanced": true,
         "identity": "fetched=persisted+rejected+skipped",
         "unknown_fields": [],
-        "expected_sum": 7000,
-        "fetched": 7000,
+        "expected_sum": 12500,
+        "fetched": 12500,
         "persisted": 0,
-        "rejected": 500,
-        "skipped": 6500
+        "rejected": 428,
+        "skipped": 12072
       }
     },
     {
@@ -497,11 +557,11 @@
         "balanced": true,
         "identity": "fetched=persisted+rejected+skipped",
         "unknown_fields": [],
-        "expected_sum": 52000,
-        "fetched": 52000,
-        "persisted": 3,
-        "rejected": 500,
-        "skipped": 51497
+        "expected_sum": 31500,
+        "fetched": 31500,
+        "persisted": 0,
+        "rejected": 324,
+        "skipped": 31176
       }
     },
     {
@@ -514,38 +574,43 @@
         "balanced": true,
         "identity": "fetched=persisted+rejected+skipped",
         "unknown_fields": [],
-        "expected_sum": 9500,
-        "fetched": 9500,
+        "expected_sum": 16000,
+        "fetched": 16000,
         "persisted": 0,
-        "rejected": 500,
-        "skipped": 9000
+        "rejected": 492,
+        "skipped": 15508
       }
     }
   ],
   "freshness": {
     "status": "observed",
-    "source": "SELECT on host pncp_datalake",
-    "pncp_supplier_contracts_count": 4572994,
+    "source": "SELECT on host pncp_datalake (this session)",
+    "pncp_supplier_contracts_count": 4572996,
     "max_data_publicacao_fonte": "2026-08-15",
-    "max_last_seen_at": "2026-08-16T16:49:15-03:00",
-    "note": "row count is not coverage; UNKNOWN never coerced to 0"
+    "max_last_seen_at": "2026-08-17T00:26:03.914351+02:00",
+    "note": "row count is not coverage; UNKNOWN never coerced to 0; last_seen_at is writer death, not SLA"
   },
   "writer": {
-    "status": "running",
-    "pid": 609336,
-    "argv": "run_contracts_90d_pilot --days 592 --checkpoint-dir .../national-2025-canary --allow-cross-run-resume",
+    "status": "inactive",
+    "last_argv": "run_contracts_90d_pilot --days 592 --checkpoint-dir .../national-2025-canary --allow-cross-run-resume",
     "upsert_batch": 8,
     "host_sha": "bbc4b6b7db295909d773f5a0e1f3314085a2f26c",
-    "single_writer": true,
-    "lock": "flock /run/lock/extra-contracts-writer.lock"
+    "single_writer_during_retry": true,
+    "lock": "flock /run/lock/extra-contracts-writer.lock (stale incremental pid, not held)",
+    "died_at": "2026-08-16T22:26:03Z",
+    "last_error": "out of shared memory / max_locks_per_transaction=64"
   },
   "partial_never_success": true,
   "incremental": {
     "enabled": false,
-    "reason": "backfill writer is still the authority until residual windows close"
+    "timer_enabled": true,
+    "timer_active": true,
+    "service_active": false,
+    "next": "Mon 2026-08-17 06:03:14 -03",
+    "reason": "backfill residual is still the authority; incremental is not the only normal writer"
   },
   "checkpoint_diagnosis": {
-    "path": "/tmp/grok-goal-4ed7ab206b67/implementer/ckpt-national/contracts_full.json",
+    "path": "/tmp/grok-goal-48cf64b48876/implementer/ckpt-live/contracts_full.json",
     "exists": true,
     "ok": true,
     "identity": {
@@ -598,6 +663,9 @@
   },
   "evaluate_window_completion_imported": "evaluate_window_completion",
   "retry_plan": {
+    "attempted_this_session": true,
+    "batch": 8,
+    "result": "all 7 planned residual windows failed again; drifted key 20260725_20260816 blocked",
     "failed_windows": [
       "20251127_20251226",
       "20251227_20260125",
@@ -607,8 +675,14 @@
       "20260426_20260525",
       "20260526_20260624"
     ],
-    "in_progress": "20251127_20251226",
-    "current_page": 33,
-    "blocker_if_batch8_fails": "ALTER SYSTEM max_locks_per_transaction=256 + restart (human/DBA)"
-  }
+    "blocker": "ALTER SYSTEM max_locks_per_transaction=256 + restart (human/DBA). Batch 8 already retried live."
+  },
+  "evidence_kind": {
+    "live": true,
+    "fixture": false,
+    "preview": false,
+    "dry_run": false,
+    "checkpoint_source": "byte-copy of host /var/lib/extra-consultoria/checkpoints/national-2025-canary taken 2026-08-16T23:10:57Z"
+  },
+  "observed_at": "2026-08-16T23:26:00Z"
 }

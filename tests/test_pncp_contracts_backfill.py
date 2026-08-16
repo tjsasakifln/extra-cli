@@ -251,3 +251,98 @@ def test_report_classifies_residual_and_keeps_unknown() -> None:
     assert missing["balanced"] is None
     assert reconcile_window_counts(10, 2, 0, 8)["balanced"] is True
     assert reconcile_window_counts(10, 2, 0)["balanced"] is False
+
+
+def test_campaign_terminal_blocked_names_guc_windows_and_drift() -> None:
+    from datetime import date
+
+    from scripts.crawl.pncp_contracts_backfill import WINDOW_START
+    from scripts.ops.report_national_backfill import (
+        ALLOWED_TERMINALS,
+        TERMINAL_BLOCKED,
+        TERMINAL_COMPLETE,
+        build_national_backfill_report,
+        classify_campaign_terminal,
+    )
+
+    start = date.fromisoformat(WINDOW_START)
+    end = date(2026, 8, 15)
+    failed = [
+        "20251127_20251226",
+        "20251227_20260125",
+        "20260126_20260224",
+        "20260225_20260326",
+        "20260327_20260425",
+        "20260426_20260525",
+        "20260526_20260624",
+    ]
+    completed = [
+        "20250101_20250130",
+        "20250131_20250301",
+        "20250302_20250331",
+        "20250401_20250430",
+        "20250501_20250530",
+        "20250531_20250629",
+        "20250630_20250729",
+        "20250730_20250828",
+        "20250829_20250927",
+        "20250928_20251027",
+        "20251028_20251126",
+        "20260625_20260724",
+        "20260725_20260815",
+    ]
+    report = build_national_backfill_report(
+        {
+            "completed_windows": completed,
+            "failed_windows": failed,
+            "blocked_windows": ["20260725_20260816"],
+            "current_window": "20260725_20260816",
+            "window_results": {
+                "20260725_20260816": {
+                    "terminal": "BLOCKED",
+                    "fetched": 80500,
+                    "persisted": 0,
+                    "rejected": 284,
+                    "skipped": 80216,
+                }
+            },
+            "meta": {"run_id": "contracts-90d-live-shape"},
+        },
+        start=start,
+        end=end,
+        origin_main_sha="820c83b8",
+        host_sha="bbc4b6b7",
+        incremental_only=False,
+        default_blocker="max_locks_per_transaction",
+    )
+    state = report["campaign_state"]
+    assert state["terminal"] == TERMINAL_BLOCKED
+    assert state["terminal"] in ALLOWED_TERMINALS
+    assert state["blocker"] == "max_locks_per_transaction"
+    named = [w["window_key"] for w in state["windows"]]
+    assert named[:7] == failed
+    assert "20260725_20260816" in named
+    drift = next(w for w in state["windows"] if w["window_key"] == "20260725_20260816")
+    assert drift["in_pin"] is False
+    assert drift["terminal"] == "blocked"
+    assert report["claims"]["campaign_terminal"] is False
+    assert report["claims"]["VPS_OPERATIONAL"] is False
+    assert report["counts"]["planned"] == 20
+    assert report["counts"]["complete"] == 13
+    assert report["counts"]["failed"] == 7
+
+    complete_report = {
+        "counts": {"planned": 20, "complete": 20},
+        "residual": [],
+    }
+    done = classify_campaign_terminal(complete_report, incremental_only=True)
+    assert done["terminal"] == TERMINAL_COMPLETE
+    assert done["windows"] == []
+    not_only = classify_campaign_terminal(complete_report, incremental_only=False)
+    assert not_only["terminal"] == TERMINAL_BLOCKED
+    assert not_only["blocker"] == "incremental_not_only_writer"
+    unknown = classify_campaign_terminal(
+        {"counts": {"planned": 20, "complete": 19}, "residual": [{"window_key": "x", "terminal": "failed"}]},
+    )
+    assert unknown["blocker"] == "UNKNOWN"
+    assert unknown["windows"][0]["blocker"] == "UNKNOWN"

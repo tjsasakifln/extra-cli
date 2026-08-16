@@ -9,6 +9,7 @@ Usage:
     --start-date 2025-01-01 --end-date 2026-08-15 \\
     --origin-main-sha SHA --host-sha SHA
 """
+
 from __future__ import annotations
 
 import argparse
@@ -37,6 +38,9 @@ from scripts.crawl.run_contracts_90d_pilot import (  # noqa: E402
 UNIVERSE = "pncp_supplier_contracts"
 PARTITION_KIND = "date_window_30d"
 DEFAULT_CAMPAIGN_END = "2026-08-15"
+TERMINAL_COMPLETE = "BACKFILL_COMPLETE_INCREMENTAL_ENABLED"
+TERMINAL_BLOCKED = "BLOCKED_WITH_WINDOW_LIST"
+ALLOWED_TERMINALS = frozenset({TERMINAL_COMPLETE, TERMINAL_BLOCKED})
 
 
 def _unknown(value: Any) -> bool:
@@ -127,6 +131,118 @@ def classify_window(
     }
 
 
+def _window_list_entry(
+    window_key: str,
+    *,
+    terminal: str,
+    blocker: str | None,
+    in_pin: bool,
+) -> dict[str, Any]:
+    return {
+        "window_key": window_key,
+        "terminal": terminal,
+        "blocker": blocker,
+        "in_pin": in_pin,
+    }
+
+
+def classify_campaign_terminal(
+    report: dict[str, Any],
+    *,
+    incremental_only: bool = False,
+    extra_windows: list[dict[str, Any]] | None = None,
+    default_blocker: str | None = None,
+) -> dict[str, Any]:
+    """Return exactly one allowed campaign terminal token.
+
+    ``BACKFILL_COMPLETE_INCREMENTAL_ENABLED`` requires every planned window
+    ``complete``, no extra (unplanned/drifted) keys, and incremental as the
+    only normal writer. Anything else is ``BLOCKED_WITH_WINDOW_LIST`` with
+    each non-complete window named. Missing blocker stays ``UNKNOWN``.
+    """
+    counts = report.get("counts") or {}
+    planned = int(counts.get("planned") or 0)
+    complete = int(counts.get("complete") or 0)
+    residual = list(report.get("residual") or [])
+    extras = list(extra_windows or [])
+    blocker = default_blocker if default_blocker is not None else "UNKNOWN"
+    window_list: list[dict[str, Any]] = []
+    for item in residual:
+        window_list.append(
+            _window_list_entry(
+                str(item.get("window_key") or "UNKNOWN"),
+                terminal=str(item.get("terminal") or "UNKNOWN"),
+                blocker=blocker,
+                in_pin=True,
+            )
+        )
+    seen = {entry["window_key"] for entry in window_list}
+    for item in extras:
+        key = str(item.get("window_key") or "UNKNOWN")
+        if key in seen:
+            continue
+        window_list.append(
+            _window_list_entry(
+                key,
+                terminal=str(item.get("terminal") or "blocked"),
+                blocker=str(item.get("blocker") or blocker),
+                in_pin=False,
+            )
+        )
+        seen.add(key)
+    all_planned_complete = planned > 0 and complete == planned and not residual and not extras
+    if all_planned_complete and incremental_only:
+        return {
+            "terminal": TERMINAL_COMPLETE,
+            "windows": [],
+            "blocker": None,
+        }
+    if all_planned_complete and not incremental_only:
+        return {
+            "terminal": TERMINAL_BLOCKED,
+            "windows": [],
+            "blocker": "incremental_not_only_writer",
+        }
+    return {
+        "terminal": TERMINAL_BLOCKED,
+        "windows": window_list,
+        "blocker": blocker,
+    }
+
+
+def unplanned_checkpoint_windows(
+    checkpoint_data: dict[str, Any],
+    planned: list[str],
+) -> list[dict[str, Any]]:
+    """Name drifted/extra checkpoint keys that are outside the pin."""
+    planned_set = set(planned)
+    extras: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    blocked = {str(w) for w in (checkpoint_data.get("blocked_windows") or [])}
+    failed = {str(w) for w in (checkpoint_data.get("failed_windows") or [])}
+    results = checkpoint_data.get("window_results") or {}
+    result_keys = list(results) if isinstance(results, dict) else []
+    current = checkpoint_data.get("current_window")
+    candidates = [*blocked, *failed, *result_keys]
+    if current:
+        candidates.append(str(current))
+    for key in candidates:
+        key_s = str(key)
+        if key_s in planned_set or key_s in seen:
+            continue
+        if key_s in blocked:
+            terminal = "blocked"
+        elif key_s in failed:
+            terminal = "failed"
+        else:
+            result = results.get(key_s) if isinstance(results, dict) else None
+            raw = (result or {}).get("terminal") if isinstance(result, dict) else None
+            terminal = str(raw).lower() if raw else "open"
+        extras.append({"window_key": key_s, "terminal": terminal})
+        seen.add(key_s)
+    return extras
+
+
 def build_national_backfill_report(
     checkpoint_data: dict[str, Any],
     *,
@@ -137,6 +253,8 @@ def build_national_backfill_report(
     checkpoint_path: str | None = None,
     freshness: dict[str, Any] | None = None,
     writer: dict[str, Any] | None = None,
+    incremental_only: bool = False,
+    default_blocker: str | None = None,
 ) -> dict[str, Any]:
     """Build the published pin + reconciliation document from a checkpoint dict."""
     completed = [str(w) for w in (checkpoint_data.get("completed_windows") or [])]
@@ -166,32 +284,27 @@ def build_national_backfill_report(
         "open": sum(1 for w in windows if w["terminal"] == "open"),
         "skip_on_resume": sum(1 for w in windows if w["resume"] == "skip"),
     }
-    unknown_recon = [
-        w["window_key"]
-        for w in windows
-        if w["reconciliation"]["identity"] == "UNKNOWN"
-    ]
-    unbalanced = [
-        w["window_key"]
-        for w in windows
-        if w["reconciliation"]["balanced"] is False
-    ]
+    unknown_recon = [w["window_key"] for w in windows if w["reconciliation"]["identity"] == "UNKNOWN"]
+    unbalanced = [w["window_key"] for w in windows if w["reconciliation"]["balanced"] is False]
     residual = [w for w in windows if w["terminal"] != "complete"]
-    sha_match = (
-        None
-        if not origin_main_sha or not host_sha
-        else origin_main_sha == host_sha
+    extras = unplanned_checkpoint_windows(checkpoint_data, planned)
+    campaign_state = classify_campaign_terminal(
+        {"counts": counts, "residual": residual},
+        incremental_only=incremental_only,
+        extra_windows=extras,
+        default_blocker=default_blocker,
     )
+    sha_match = None if not origin_main_sha or not host_sha else origin_main_sha == host_sha
     return {
         "campaign": "EXTRA-012",
         "issue": 249,
         "decision_inputs_only": True,
         "claims": {
             "VPS_OPERATIONAL": False,
-            "campaign_terminal": counts["complete"] == counts["planned"]
-            and counts["planned"] > 0
-            and not residual,
+            "campaign_terminal": campaign_state["terminal"] == TERMINAL_COMPLETE,
         },
+        "campaign_state": campaign_state,
+        "unplanned_windows": extras,
         "pin": {
             "origin_main_sha": origin_main_sha or "UNKNOWN",
             "host_sha": host_sha or "UNKNOWN",
@@ -201,9 +314,7 @@ def build_national_backfill_report(
             "policy_window_start": WINDOW_START,
             "universe": UNIVERSE,
             "partition_kind": PARTITION_KIND,
-            "partition_version": (
-                f"{PARTITION_KIND}/start={start.isoformat()}/end={end.isoformat()}"
-            ),
+            "partition_version": (f"{PARTITION_KIND}/start={start.isoformat()}/end={end.isoformat()}"),
             "runner": "scripts.crawl.run_contracts_90d_pilot",
             "allow_cross_run_resume": True,
         },
@@ -235,6 +346,8 @@ def report_from_checkpoint_dir(
     host_sha: str | None = None,
     freshness: dict[str, Any] | None = None,
     writer: dict[str, Any] | None = None,
+    incremental_only: bool = False,
+    default_blocker: str | None = None,
 ) -> dict[str, Any]:
     diagnosis = diagnose(checkpoint_dir)
     if not diagnosis.exists:
@@ -262,8 +375,7 @@ def report_from_checkpoint_dir(
             "issues": diagnosis.issues,
             "prerequisite": "repair or archive checkpoint via contracts_checkpoint_contract",
             "next_command": (
-                "python3 -m scripts.crawl.contracts_checkpoint_contract diagnose "
-                f"--checkpoint-dir {checkpoint_dir}"
+                f"python3 -m scripts.crawl.contracts_checkpoint_contract diagnose --checkpoint-dir {checkpoint_dir}"
             ),
             "claims": {"VPS_OPERATIONAL": False},
         }
@@ -277,6 +389,8 @@ def report_from_checkpoint_dir(
         checkpoint_path=diagnosis.path,
         freshness=freshness,
         writer=writer,
+        incremental_only=incremental_only,
+        default_blocker=default_blocker,
     )
     report["checkpoint_diagnosis"] = diagnosis.to_dict()
     report["evaluate_window_completion_imported"] = evaluate_window_completion.__name__
@@ -291,6 +405,16 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--days", type=int, default=591)
     ap.add_argument("--origin-main-sha", default=None)
     ap.add_argument("--host-sha", default=None)
+    ap.add_argument(
+        "--incremental-only",
+        action="store_true",
+        help="Set only when recurring incremental is the sole normal writer",
+    )
+    ap.add_argument(
+        "--blocker",
+        default=None,
+        help="Nominal blocker for BLOCKED_WITH_WINDOW_LIST (UNKNOWN if omitted)",
+    )
     ap.add_argument("--output", default=None, help="Write JSON here; default stdout")
     args = ap.parse_args(argv)
 
@@ -307,6 +431,8 @@ def main(argv: list[str] | None = None) -> int:
         end=end,
         origin_main_sha=args.origin_main_sha,
         host_sha=args.host_sha,
+        incremental_only=args.incremental_only,
+        default_blocker=args.blocker,
     )
     text = json.dumps(report, indent=2, default=str)
     if args.output:

@@ -2,6 +2,8 @@
   "origin_main_sha": "820c83b82a35aaab0d381f54faa5357b386db1b3",
   "host_sha": "bbc4b6b7db295909d773f5a0e1f3314085a2f26c",
   "sha_equal": false,
+  "sha_implanted": false,
+  "sha_implant_blocked_reason": "not a closed-window boundary; current_window=20260725_20260816 page=161",
   "window_start": "2025-01-01",
   "window_end": "2026-08-15",
   "policy_window_start": "2025-01-01",
@@ -10,12 +12,11 @@
   "partition_version": "date_window_30d/start=2025-01-01/end=2026-08-15",
   "runner": "scripts.crawl.run_contracts_90d_pilot",
   "allow_cross_run_resume": true,
-  "days_original_run": 591,
   "days_host_resume_2026_08_16": 592,
   "upsert_batch_host": 8,
   "checkpoint": "/var/lib/extra-consultoria/checkpoints/national-2025-canary/contracts_full.json",
-  "current_window": "20251127_20251226",
-  "current_page": 33,
+  "current_window": "20260725_20260816",
+  "current_page": 161,
   "counts": {
     "planned": 20,
     "complete": 13,
@@ -25,6 +26,7 @@
     "open": 0,
     "skip_on_resume": 13
   },
+  "campaign_state": "BLOCKED_WITH_WINDOW_LIST",
   "claims": {
     "VPS_OPERATIONAL": false,
     "campaign_terminal": false
