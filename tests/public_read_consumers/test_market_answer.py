@@ -49,6 +49,12 @@ def test_national_claim_blocked_without_302_pass() -> None:
     assert payload["claim_authorization"]["national_claim_allowed"] is False
     assert "national_claim_blocked" in payload["reason_codes"]
     assert payload["geography"]["code"] is None
+    assert payload["answer_state"] == NEEDS_DATA
+    assert payload["stats"]["median"] is None
+    assert payload["stats"]["p25"] is None
+    assert payload["stats"]["p75"] is None
+    assert payload["distribution"] == []
+    assert payload["series"] == []
 
 
 def test_commercial_universe_never_national_denominator() -> None:
@@ -56,6 +62,11 @@ def test_commercial_universe_never_national_denominator() -> None:
     assert payload["claim_authorization"]["national_claim_allowed"] is False
     assert payload["claim_authorization"]["commercial_universe_used_as_denominator"] is True
     assert "inconsistent_denominator_commercial_universe" in payload["reason_codes"]
+    assert "denominator_failed" in payload["reason_codes"]
+    assert payload["answer_state"] == NEEDS_DATA
+    assert payload["stats"]["median"] is None
+    assert payload["stats"]["p25"] is None
+    assert payload["stats"]["p75"] is None
     dumped = json.dumps(payload)
     assert "extra_1093" not in dumped
     assert "Extra 1093" not in dumped

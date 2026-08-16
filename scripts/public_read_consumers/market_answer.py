@@ -103,6 +103,8 @@ def project_market_answer(raw: dict[str, Any]) -> dict[str, Any]:
     reasons.extend(refuse_fixture_as_live({"catalog_mode": catalog_mode, "claimed_live": claimed_live}))
     if extra_1093_used(raw) or extra_1093_used(raw.get("claim") or {}):
         reasons.append(REASON_EXTRA_1093)
+        reasons.append(REASON_DENOMINATOR)
+        reasons.append(REASON_NEEDS_DATA)
     typology_ok = _typology_ok(raw)
     if not typology_ok:
         reasons.append(REASON_TYPOLOGY)
@@ -117,6 +119,7 @@ def project_market_answer(raw: dict[str, Any]) -> dict[str, Any]:
         reasons.append(REASON_STALE)
     if geo_code.upper() in {"BR", "BRASIL", "NACIONAL"} and not claim["national_claim_allowed"]:
         reasons.append(REASON_NATIONAL_CLAIM)
+        reasons.append(REASON_NEEDS_DATA)
     grain = str(raw.get("grain") or GRAIN)
     if grain in GRAIN_NOT or grain != GRAIN:
         reasons.append(REASON_TYPOLOGY)
@@ -130,6 +133,8 @@ def project_market_answer(raw: dict[str, Any]) -> dict[str, Any]:
         or REASON_TYPOLOGY in unique_reasons
         or REASON_COVERAGE in unique_reasons
         or REASON_DENOMINATOR in unique_reasons
+        or REASON_NATIONAL_CLAIM in unique_reasons
+        or REASON_EXTRA_1093 in unique_reasons
     ):
         answer_state = NEEDS_DATA
     elif REASON_STALE in unique_reasons:
