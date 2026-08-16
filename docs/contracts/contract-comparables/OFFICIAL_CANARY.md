@@ -54,9 +54,14 @@ export LOCAL_DATALAKE_DSN="${LOCAL_DATALAKE_DSN:-postgresql://test:test@127.0.0.
 python3 -m scripts.contract_comparables official-canary --as-of 2026-08-01 --limit 200
 ```
 
+## Host-of-record residual (2026-08-16)
+
+`pncp_datalake` on the Netcup host of record has 4,572,996 active rows and 28,630 paving-like rows. Two identical official-canary runs on ticket `00001602000163-2-000001/2024` (`as_of=2026-08-01`, metric `valor_integral_nominal`) returned `NOT_COMPARABLE` with the same `content_hash` (`6efd091f6a0ae0e9ad68bb645ca126210fbd919c969fe77f3fed9e24050e0068`). Reason codes: `live_columns_unavailable`, `fields_unavailable`, `unit_unknown`, `period_not_comparable`. `custo/km` is `HOLD_FOR_DATA` / `physical_unit_price_not_verified` with no unit-price metric. `catalog_mode` stayed `live_candidate`.
+
 ## Dependencies still open
 
 - EXTRA-003: no local branch
 - EXTRA-004 (`feat/extra-004-official-national-catalog`): not in `origin/main`
 - EXTRA-008 (`feat/extra-008-live-consumers`): not in `origin/main`
 - Consumer web-cfg#84 / extra-cli#400: reads the document; this slice is producer-only
+- Semantic columns `unidade` / `quantidade` / `regime` / `modalidade` / `valor_semantic` are still absent on the official table

@@ -8,9 +8,9 @@ The inbound #418 producer now has an official paving canary:
 
 Live SELECT-only against `public.pncp_supplier_contracts` either builds a versioned peer-group document or refuses with `HOLD_FOR_DATA` / `NOT_COMPARABLE` / `BLOCKED`. Recusal is success. Fixture `COMPARABLE` is not official proof.
 
-**Decisão final: `READY_BEHIND_HUMAN_GATE`**
+**Decisão final: `NOT_COMPARABLE_WITH_REASON`**
 
-**Veredito live deste sandbox: `BLOCKED`** — `official_dataset_empty` + `live_columns_unavailable`. Valor integral nominal **não** admite peer group oficial defensável hoje.
+**Veredito live no host de record (`pncp_datalake`, SELECT-only): `NOT_COMPARABLE`** — reason codes `live_columns_unavailable`, `fields_unavailable`, `unit_unknown`, `period_not_comparable`. Snapshot local vazio continua `BLOCKED` e **não** conta como prova. Valor integral nominal **não** admite peer group oficial defensável enquanto unidade/regime/semântica estiverem ausentes.
 
 ## Scope
 
@@ -55,8 +55,8 @@ Remover `scripts/contract_comparables/official_canary.py`, o subcomando `officia
 
 ## Residual (human / ops gate)
 
-1. Popular `pncp_supplier_contracts` no DSN oficial (Netcup ou snapshot reconciliado) com contratos de pavimentação.
-2. Materializar colunas semânticas oficiais (`unidade`, `quantidade`, `regime`, `modalidade`, `valor_semantic`) — sem isso o teto continua `HOLD_FOR_DATA`.
+1. Host de record já tem `pncp_supplier_contracts` ativo (4.572.996 linhas; 28.630 pavimentação por keyword). Recorte oficial do ticket `00001602000163-2-000001/2024` (TO / Nova Olinda) recusou com reason codes nominais.
+2. Materializar colunas semânticas oficiais (`unidade`, `quantidade`, `regime`, `modalidade`, `valor_semantic`) — sem isso o teto continua recusa (`HOLD_FOR_DATA` / `NOT_COMPARABLE`). Não inventar essas colunas.
 3. Merge de EXTRA-004 (catálogo nacional) se o recorte pretender coverage nacional.
 4. Merge de EXTRA-008 / #400 para o consumer public-read.
 5. EXTRA-003 ainda sem branch local — tipologia permanece o classificador documentado de keywords.
@@ -75,8 +75,9 @@ python3 -m scripts.contract_comparables official-canary --as-of 2026-08-01 --met
 | Run | Status | Reason codes | Replay |
 |-----|--------|--------------|--------|
 | no DSN ×2 | `BLOCKED` | `dsn_unavailable` | hash idêntico |
-| DSN `127.0.0.1:55432/extra_test` ×2 | `BLOCKED` | `official_dataset_empty`, `live_columns_unavailable` | hash idêntico |
-| `--metric custo/km` | `HOLD_FOR_DATA` | `physical_unit_price_not_verified` | n/a |
-| `pytest tests/contract_comparables/ --no-cov` | 36 passed, 1 skipped | n/a | n/a |
+| DSN local vazio | `BLOCKED` | `official_dataset_empty`, `live_columns_unavailable` | hash idêntico |
+| host de record ×2 `--focal 00001602000163-2-000001/2024 --as-of 2026-08-01 --metric valor_integral_nominal` | `NOT_COMPARABLE` | `live_columns_unavailable`, `fields_unavailable`, `unit_unknown`, `period_not_comparable` | `content_hash=6efd091f6a0ae0e9ad68bb645ca126210fbd919c969fe77f3fed9e24050e0068` idêntico |
+| `--metric custo/km` no mesmo ticket | `HOLD_FOR_DATA` | `physical_unit_price_not_verified` | document/peers vazios; nenhum custo/km emitido |
+| `pytest tests/contract_comparables/ --no-cov` | 37 passed, 1 skipped | n/a | n/a |
 
-`catalog_mode` nunca foi `official_live`.
+Amostra oficial (stratum UF do focal): tipologia `pavimentacao` (keyword documentado, confiança 0.95), geografia TO / Nova Olinda, período 2024–2026, regime `UNKNOWN`, porte heurístico (não oficial), n=6/6 usable=0, missingness=1.0. `catalog_mode` nunca foi `official_live`.
