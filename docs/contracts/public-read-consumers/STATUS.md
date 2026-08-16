@@ -12,11 +12,12 @@ Base: `origin/main` `820c83b8`
 - B2G X-Ray for normalized CNPJ / entity id.
 - Snapshot / LKG / stale / invalidation / diff + CLI.
 
-## Not proven
+## Not proven (EXTRA-011 live inputs still absent)
 
-- Live #414 evidence packs.
-- Live #415 peer groups.
-- Live #302 `nacional_completo`.
+- Live #414 pack/score (`contract-publication-candidate/1.0` + `contract-evidence-pack/1.0` with `official_live=true`).
+- Live #415 peer group (`comparable-contracts/1.0` with `official_live=true`).
+- Live #302 national gate with `official_live=true` and `nacional_completo` authorized (`authorization_state=AUTHORIZED` on the versioned universe; then map to `national_claim_allowed`).
 - Host materialization of any new view.
 
-#400 remains OPEN. Fixture ≠ live proof.
+#400 remains OPEN. Fixture ≠ live proof. EXTRA-011 must not promote
+`DATA_READY` / fixture PASS / dry-run to `INDEX` or `official_live`.

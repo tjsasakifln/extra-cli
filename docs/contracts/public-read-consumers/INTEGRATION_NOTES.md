@@ -88,6 +88,28 @@ document. The Market Answer consumer reads only:
 A PASS fixture does **not** authorize a production BR claim. Only a live
 #302 document with `official_live=true` does.
 
+Sibling #417 emits `authorization_state` (`AUTHORIZED` / `AUTHORIZED_WITH_LIMITATIONS`
+/ `NEEDS_DATA` / `STALE` / `BLOCKED` / `FAILED`) plus `nacional_completo`.
+It does **not** emit `national_claim_allowed`. Until EXTRA-011 maps
+`authorization_state == AUTHORIZED` onto that flag **and** the document is
+live (`official_live=true`), a missing flag stays fail-closed (`allowed=false`).
+`AUTHORIZED_WITH_LIMITATIONS` already forces `nacional_completo=false` on the
+producer. Extra 1093 remains a hard refuse on both sides.
+
+## EXTRA-011 — live inputs still absent
+
+This merge is engine-only. EXTRA-011 must not treat fixture / preview / dry-run
+as live proof. Required live inputs, none of which this slice supplies:
+
+| Input | Source PR / issue | What EXTRA-011 still needs |
+|---|---|---|
+| Pack + score live | #419 / #414 | Official `contract-publication-candidate/1.0` + `contract-evidence-pack/1.0` with `official_live=true` (not the CONTRACT_FIXTURE files under `tests/fixtures/public_read_consumers/producers/`) |
+| Peer group live | #418 / #415 | Official `comparable-contracts/1.0` with `COMPARABLE\|HOLD_FOR_DATA\|NOT_COMPARABLE` and `official_live=true` |
+| National gate live | #417 / #302 | Live arbiter document with `official_live=true` **and** `nacional_completo` authorized (`authorization_state=AUTHORIZED` on the versioned national universe). Map that to `national_claim_allowed` here; do not accept Extra 1093, ICP, or row count as the national denominator. |
+
+`DATA_READY` still does not authorize `INDEX` / `PUBLISHABLE_*`.
+#400 stays open until those live documents exist and are bound.
+
 ## Proposed shared-view SQL (not a migration)
 
 No migration ships in this PR. If `public_read_v1` later needs a dedicated
