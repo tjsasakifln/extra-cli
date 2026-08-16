@@ -141,12 +141,30 @@ def collect_from_fixture(source: str, fixture: Path | None = None) -> RunResult:
     return collect_from_payload(source, load_payload(path))
 
 
+def _blocked_observation(source: str, reason: str) -> dict[str, Any]:
+    return {
+        "source": source,
+        "terminal": "BLOCKED",
+        "reason": reason,
+        "fetched": 0,
+        "silent_zero": False,
+    }
+
+
 def transform_records(source: str, records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     id_field = str(PLATFORMS[source]["id_field"])
     out: list[dict[str, Any]] = []
     for raw in records:
-        identity = raw.get(id_field) or raw.get("id")
+        if not isinstance(raw, dict):
+            continue
+        if raw.get("source") == source and raw.get("terminal"):
+            out.append(raw)
+            continue
+        identity = raw.get(id_field) or raw.get("id") or raw.get("source_id")
         if not identity:
+            continue
+        if raw.get("source") == source and raw.get("source_id") == str(identity):
+            out.append(raw)
             continue
         out.append(
             {
@@ -166,7 +184,10 @@ def crawl_source(source: str, mode: str = "incremental", fixture: str | None = N
     del mode
     if os.environ.get("PUBLIC_PLATFORM_LIVE", "").strip() in {"1", "true", "yes"}:
         raise RuntimeError(f"{source}: live smoke is opt-in and must supply a transport; refusing bare live crawl")
-    result = collect_from_fixture(source, Path(fixture) if fixture else None)
+    fixture_path = fixture or os.environ.get("PUBLIC_PLATFORM_FIXTURE")
+    if not fixture_path:
+        return [_blocked_observation(source, "missing_fixture_or_tenant_binding")]
+    result = collect_from_fixture(source, Path(fixture_path))
     if result.terminal == "BLOCKED":
-        return []
+        return [_blocked_observation(source, result.reason or "login_captcha_or_forbidden")]
     return result.records

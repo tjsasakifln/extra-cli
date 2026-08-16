@@ -87,6 +87,40 @@ def test_issue_264_opt_in_live_refuses_bare_network(monkeypatch: pytest.MonkeyPa
         crawl_source("compras_br", mode="incremental")
 
 
+def test_monitor_crawl_without_fixture_is_blocked_not_silent_or_fixture_data(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from scripts.crawl import bbmnet_crawler, compras_br_crawler, licitanet_crawler
+    from scripts.public_platforms.collect import crawl_source
+
+    monkeypatch.delenv("PUBLIC_PLATFORM_LIVE", raising=False)
+    monkeypatch.delenv("PUBLIC_PLATFORM_FIXTURE", raising=False)
+    for source, mod in (
+        ("bbmnet", bbmnet_crawler),
+        ("licitanet", licitanet_crawler),
+        ("compras_br", compras_br_crawler),
+    ):
+        rows = crawl_source(source)
+        assert rows, f"{source} crawl_source returned silent empty"
+        assert rows[0]["terminal"] == "BLOCKED"
+        assert rows[0].get("silent_zero") is False
+        wrapped = mod.crawl("incremental")
+        transformed = mod.transform(wrapped)
+        assert transformed
+        assert transformed[0]["terminal"] == "BLOCKED"
+        assert all("42516" != str(row.get("source_id")) for row in transformed)
+
+
+def test_monitor_path_transform_keeps_fixture_ids(monkeypatch: pytest.MonkeyPatch) -> None:
+    from scripts.crawl import compras_br_crawler
+
+    monkeypatch.delenv("PUBLIC_PLATFORM_LIVE", raising=False)
+    monkeypatch.setenv("PUBLIC_PLATFORM_FIXTURE", str(FIXTURES / "compras_br_pages.json"))
+    crawled = compras_br_crawler.crawl("incremental")
+    transformed = compras_br_crawler.transform(crawled)
+    assert any(row.get("source_id") == "42516" for row in transformed)
+
+
 def test_issue_262_263_264_cli_emits_json(tmp_path: Path) -> None:
     from scripts.public_platforms.cli import main
 
