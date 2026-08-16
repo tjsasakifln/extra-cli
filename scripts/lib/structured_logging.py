@@ -27,6 +27,7 @@ _SECRET_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"(?i)(api[_-]?key|token|secret)\s*[:=]\s*\S+"),
     re.compile(r"(?i)(authorization)\s*[:=]\s*\S+"),
     re.compile(r"(?i)(postgres|postgresql|mysql|mongodb)://[^\s]+"),
+    re.compile(r"(?i)(cookie|set-cookie)\s*[:=]\s*[^\s;]+"),
     re.compile(r"(?i)(aws_secret_access_key|private_key)\s*[:=]\s*\S+"),
     re.compile(r"(?i)sk-[a-zA-Z0-9]{20,}"),
     # Compact JWT (header.payload.sig) — residual after partial Bearer redaction

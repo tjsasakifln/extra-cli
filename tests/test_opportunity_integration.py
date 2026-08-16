@@ -15,8 +15,8 @@ import psycopg2
 import psycopg2.extras
 import pytest
 
-# Skip unless explicit
-pytestmark = pytest.mark.integration
+# Skip unless explicit. Refs #343: never receive a silent MagicMock.
+pytestmark = [pytest.mark.integration, pytest.mark.real_db]
 
 DEFAULT_DSN = (
     os.getenv("DATABASE_URL")
@@ -26,13 +26,16 @@ DEFAULT_DSN = (
 
 
 def _get_conn():
-    """Connect to PostgreSQL or skip."""
+    """Connect to PostgreSQL or skip. Refs #343: name the connection used."""
+    from scripts.testing.connection_policy import refuse_silent_mock
+
     try:
         conn = psycopg2.connect(DEFAULT_DSN)
         conn.autocommit = True
-        return conn
     except psycopg2.Error as e:
         pytest.skip(f"No database connection: {e}")
+    refuse_silent_mock(conn, required=True, context="opportunity_integration")
+    return conn
 
 
 def _table_exists(conn, table_name: str) -> bool:

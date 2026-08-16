@@ -28,12 +28,15 @@ def resolve_dsn(explicit: str | None = None) -> str:
     return dsn
 
 
+CONNECT_TIMEOUT_SECONDS = 2
+
+
 @contextmanager
-def connect(dsn: str) -> Iterator[Any]:
+def connect(dsn: str, *, connect_timeout: int = CONNECT_TIMEOUT_SECONDS) -> Iterator[Any]:
     try:
         import psycopg
 
-        conn = psycopg.connect(dsn)
+        conn = psycopg.connect(dsn, connect_timeout=connect_timeout)
         try:
             yield conn
         finally:
@@ -43,7 +46,7 @@ def connect(dsn: str) -> Iterator[Any]:
         pass
     import psycopg2
 
-    conn = psycopg2.connect(dsn)
+    conn = psycopg2.connect(dsn, connect_timeout=connect_timeout)
     try:
         yield conn
     finally:
