@@ -40,6 +40,7 @@ def inventory_resources(package: dict[str, Any]) -> list[dict[str, Any]]:
             "url": res.get("url"),
             "format": str(res.get("format") or "").upper(),
             "period": res.get("temporal_coverage") or res.get("periodo") or res.get("name"),
+            "objeto": res.get("objeto") or res.get("name") or package.get("title"),
             "last_modified": res.get("last_modified") or res.get("metadata_modified"),
             "hash": res.get("hash") or hashlib.sha256(str(res.get("url") or "").encode("utf-8")).hexdigest(),
         }
@@ -57,17 +58,70 @@ def schema_drift(resource: dict[str, Any], columns: list[str], expected: list[st
     return missing
 
 
+def _norm_objeto(text: str | None) -> str:
+    return " ".join(str(text or "").lower().split())
+
+
+def merge_lineage_with_sc_compras(
+    dados_abertos_rows: list[dict[str, Any]],
+    sc_compras_rows: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Dedup Dados Abertos SC against SC Compras without dropping lineage.
+
+    A match keeps both source identities, official IDs and URLs. Dropping the
+    SC Compras side is a contract violation.
+    """
+    index: dict[str, list[dict[str, Any]]] = {}
+    for sc in sc_compras_rows:
+        key = _norm_objeto(str(sc.get("objeto") or sc.get("descricao") or ""))
+        if key:
+            index.setdefault(key, []).append(sc)
+    merged: list[dict[str, Any]] = []
+    for row in dados_abertos_rows:
+        item = dict(row)
+        lineage = [
+            {
+                "source": SOURCE,
+                "source_id": row.get("resource_id"),
+                "url": row.get("url"),
+                "hash": row.get("hash"),
+            }
+        ]
+        key = _norm_objeto(str(row.get("objeto") or row.get("period") or row.get("name") or ""))
+        matches = index.get(key, [])
+        for sc in matches:
+            sc_id = sc.get("source_id") or sc.get("id")
+            sc_url = sc.get("url") or sc.get("official_url")
+            if not sc_id or not sc_url:
+                continue
+            lineage.append(
+                {
+                    "source": "sc_compras",
+                    "source_id": sc_id,
+                    "url": sc_url,
+                    "hash": sc.get("content_hash") or sc.get("hash"),
+                }
+            )
+        item["lineage"] = lineage
+        item["matched_sc_compras"] = any(link["source"] == "sc_compras" for link in lineage)
+        merged.append(item)
+    return merged
+
+
 def run_inventory(
     packages: list[dict[str, Any]],
     *,
     processed_ids: set[str] | None = None,
     truncated: bool = False,
     drift: list[str] | None = None,
+    sc_compras_rows: list[dict[str, Any]] | None = None,
 ) -> RunResult:
     processed = processed_ids or set()
     rows: list[dict[str, Any]] = []
     for pkg in packages:
         rows.extend(inventory_resources(pkg))
+    if sc_compras_rows:
+        rows = merge_lineage_with_sc_compras(rows, sc_compras_rows)
     if drift:
         return RunResult(
             SOURCE,

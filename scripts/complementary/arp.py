@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from typing import Any
 
 from scripts.complementary.contract import (
@@ -56,13 +57,115 @@ def normalize_ata(raw: dict[str, Any]) -> dict[str, Any] | None:
     return row
 
 
+ENSURE_TABLE_SQL = """
+CREATE TABLE IF NOT EXISTS public.canonical_arp_atas (
+    official_id       TEXT PRIMARY KEY,
+    source            TEXT NOT NULL DEFAULT 'pncp_arp',
+    pncp_id_origem    TEXT,
+    orgao_cnpj        TEXT,
+    orgao_nome        TEXT,
+    objeto            TEXT,
+    status            TEXT,
+    vigencia_inicio   DATE,
+    vigencia_fim      DATE,
+    itens             JSONB NOT NULL DEFAULT '[]'::jsonb,
+    fornecedores      JSONB NOT NULL DEFAULT '[]'::jsonb,
+    documentos        JSONB NOT NULL DEFAULT '[]'::jsonb,
+    raw_hash          TEXT NOT NULL,
+    content_hash      TEXT NOT NULL,
+    previous_hash     TEXT,
+    persisted_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+)
+"""
+
+UPSERT_SQL = """
+INSERT INTO public.canonical_arp_atas (
+    official_id, source, pncp_id_origem, orgao_cnpj, orgao_nome, objeto, status,
+    vigencia_inicio, vigencia_fim, itens, fornecedores, documentos,
+    raw_hash, content_hash, previous_hash, persisted_at
+) VALUES (
+    %(official_id)s, %(source)s, %(pncp_id_origem)s, %(orgao_cnpj)s, %(orgao_nome)s,
+    %(objeto)s, %(status)s, %(vigencia_inicio)s, %(vigencia_fim)s,
+    %(itens)s::jsonb, %(fornecedores)s::jsonb, %(documentos)s::jsonb,
+    %(raw_hash)s, %(content_hash)s, %(previous_hash)s, NOW()
+)
+ON CONFLICT (official_id) DO UPDATE SET
+    objeto = EXCLUDED.objeto,
+    status = EXCLUDED.status,
+    vigencia_inicio = EXCLUDED.vigencia_inicio,
+    vigencia_fim = EXCLUDED.vigencia_fim,
+    itens = EXCLUDED.itens,
+    fornecedores = EXCLUDED.fornecedores,
+    documentos = EXCLUDED.documentos,
+    raw_hash = EXCLUDED.raw_hash,
+    previous_hash = CASE
+        WHEN canonical_arp_atas.content_hash IS DISTINCT FROM EXCLUDED.content_hash
+        THEN canonical_arp_atas.content_hash
+        ELSE canonical_arp_atas.previous_hash
+    END,
+    content_hash = EXCLUDED.content_hash,
+    persisted_at = NOW()
+RETURNING official_id, content_hash, previous_hash
+"""
+
+SELECT_ONE_SQL = """
+SELECT official_id, content_hash, previous_hash, objeto, status
+FROM public.canonical_arp_atas
+WHERE official_id = %s
+"""
+
+
+def _json_param(value: Any) -> str:
+    import json
+
+    return json.dumps(value, ensure_ascii=False, default=str)
+
+
+def persist_atas_to_postgres(conn: Any, rows: list[dict[str, Any]]) -> dict[str, int]:
+    """Write ARP rows to local PostgreSQL. conn must be a live psycopg2 connection."""
+    if conn is None:
+        raise RuntimeError("BLOCKED: PostgreSQL connection required for ARP persist")
+    persisted = 0
+    deduped = 0
+    with conn.cursor() as cur:
+        cur.execute(ENSURE_TABLE_SQL)
+        for row in rows:
+            params = {
+                **row,
+                "itens": _json_param(row.get("itens") or []),
+                "fornecedores": _json_param(row.get("fornecedores") or []),
+                "documentos": _json_param(row.get("documentos") or []),
+                "previous_hash": row.get("previous_hash"),
+            }
+            cur.execute(SELECT_ONE_SQL, (row["official_id"],))
+            existing = cur.fetchone()
+            cur.execute(UPSERT_SQL, params)
+            written = cur.fetchone()
+            if written is None:
+                raise RuntimeError(f"ARP upsert returned no row for {row['official_id']}")
+            if existing is None:
+                persisted += 1
+            else:
+                deduped += 1
+                if existing[1] != row["content_hash"]:
+                    persisted += 1
+    conn.commit()
+    return {"persisted": persisted, "deduplicated": deduped}
+
+
 def persist_window(
     pages: list[dict[str, Any]],
     *,
     lake: dict[str, dict[str, Any]] | None = None,
     skipped: bool = False,
+    conn: Any = None,
+    dsn: str | None = None,
 ) -> RunResult:
-    """Idempotent persist by official ID. Job skipped is never success."""
+    """Idempotent persist by official ID. Job skipped is never success.
+
+    Local PostgreSQL is the metadata authority only when a live connection
+    (or DSN) actually writes. An in-memory dict is staging, not authority.
+    """
     store = lake if lake is not None else {}
     if skipped:
         return RunResult(
@@ -73,6 +176,7 @@ def persist_window(
             deduplicated=0,
             failed=0,
             reason="job_skipped_not_success",
+            job={"authority": "none", "upsert": "skipped"},
         )
     fetched = 0
     rejected = 0
@@ -122,8 +226,24 @@ def persist_window(
     else:
         reason = None
     if not reconcile_counts(fetched=fetched, persisted=persisted, rejected=rejected + deduped):
-        # fetched = new persist + reject + identical-dedup
         pass
+
+    own_conn = False
+    live = conn
+    if live is None and dsn:
+        import psycopg2
+
+        live = psycopg2.connect(dsn)
+        own_conn = True
+    authority = "staging_memory"
+    if live is not None:
+        counts = persist_atas_to_postgres(live, list(store.values()))
+        persisted = counts["persisted"]
+        deduped = counts["deduplicated"]
+        authority = "postgresql_local"
+        if own_conn:
+            live.close()
+
     return RunResult(
         source=SOURCE,
         terminal=terminal,
@@ -133,13 +253,37 @@ def persist_window(
         failed=rejected,
         records=list(store.values()),
         reason=reason,
-        job={"authority": "postgresql_local", "upsert": "official_id"},
+        job={"authority": authority, "upsert": "official_id", "table": "canonical_arp_atas"},
     )
 
 
 def crawl(mode: str = "full") -> list[dict[str, Any]]:
+    """Collect ARP pages from a fixture (or BLOCKED). Never silent empty."""
+    import os
+    from pathlib import Path
+
+    from scripts.complementary.collect import observations_from_result
+
     del mode
-    return []
+    fixture = os.environ.get("ARP_FIXTURE") or os.environ.get("COMPLEMENTARY_FIXTURE")
+    dsn = os.environ.get("LOCAL_DATALAKE_DSN")
+    if not fixture:
+        return [
+            {
+                "source": SOURCE,
+                "terminal": "BLOCKED",
+                "reason": "missing_arp_fixture",
+                "fetched": 0,
+                "silent_zero": False,
+            }
+        ]
+    payload = json.loads(Path(fixture).read_text(encoding="utf-8"))
+    result = persist_window(
+        payload.get("pages") or [],
+        skipped=bool(payload.get("skipped")),
+        dsn=dsn,
+    )
+    return observations_from_result(result)
 
 
 def transform(records: list[dict[str, Any]]) -> list[dict[str, Any]]:

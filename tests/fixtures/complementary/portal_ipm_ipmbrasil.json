@@ -1,0 +1,25 @@
+{
+  "binding": {
+    "url": "https://prefeitura-x.ipmbrasil.com.br/licitacoes",
+    "cnpj": "83102337000181",
+    "ibge": "4205407",
+    "municipio": "Florianopolis"
+  },
+  "pages": [
+    {
+      "status": 200,
+      "complete": true,
+      "payload": {
+        "data": [
+          {
+            "id": "IPM-BR-1",
+            "objeto": "Manutencao predial",
+            "situacao": "ABERTA",
+            "modalidade": "PREGAO",
+            "documentos": [{"nome": "edital.pdf"}]
+          }
+        ]
+      }
+    }
+  ]
+}

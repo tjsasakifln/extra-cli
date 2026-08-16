@@ -26,7 +26,12 @@ def detect_platform(url: str) -> str | None:
         return None
     if _IPAM_FALSE.search(host):
         return None
-    if _IPM_HOST.search(host) or host.endswith("ipmbrasil.com.br") or "portaldecompras.ipm" in host:
+    if (
+        _IPM_HOST.search(host)
+        or host.endswith("ipmbrasil.com.br")
+        or "portaldecompras.ipm" in host
+        or host.startswith("portaldecompras.ipm")
+    ):
         return IPM
     return None
 

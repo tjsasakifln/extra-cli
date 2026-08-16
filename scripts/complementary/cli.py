@@ -42,6 +42,7 @@ def main(argv: list[str] | None = None) -> int:
         result = persist_window(
             payload.get("pages") or [],
             skipped=bool(payload.get("skipped")),
+            dsn=payload.get("dsn") or None,
         )
     elif args.source == "dados-abertos":
         result = run_inventory(
@@ -49,6 +50,7 @@ def main(argv: list[str] | None = None) -> int:
             processed_ids=set(payload.get("processed_ids") or []),
             truncated=bool(payload.get("truncated")),
             drift=payload.get("drift"),
+            sc_compras_rows=payload.get("sc_compras"),
         )
     elif args.source == "mides":
         result = run_bounded_job(

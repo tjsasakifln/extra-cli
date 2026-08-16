@@ -1,0 +1,26 @@
+{
+  "binding": {
+    "url": "https://pmf.e-gov.betha.com.br/transparencia/licitacoes",
+    "cnpj": "82892282000137",
+    "ibge": "4205407",
+    "municipio": "Florianopolis"
+  },
+  "pages": [
+    {
+      "status": 200,
+      "complete": true,
+      "payload": {
+        "data": [
+          {
+            "id": "EGOV-FLN-3",
+            "objeto": "Obra de drenagem",
+            "situacao": "ABERTA",
+            "modalidade": "CONCORRENCIA",
+            "orgao": "Prefeitura de Florianopolis",
+            "documentos": [{"nome": "edital-drenagem.pdf"}]
+          }
+        ]
+      }
+    }
+  ]
+}

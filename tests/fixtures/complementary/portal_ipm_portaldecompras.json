@@ -1,0 +1,25 @@
+{
+  "binding": {
+    "url": "https://portaldecompras.ipm.sc.gov.br/pregao",
+    "cnpj": "82892282000137",
+    "ibge": "4208203",
+    "municipio": "Itajai"
+  },
+  "pages": [
+    {
+      "status": 200,
+      "complete": true,
+      "payload": {
+        "data": [
+          {
+            "id": "IPM-PC-77",
+            "objeto": "Aquisicao de merenda",
+            "situacao": "HOMOLOGADA",
+            "modalidade": "DISPENSA",
+            "anexos": [{"nome": "ata.pdf"}]
+          }
+        ]
+      }
+    }
+  ]
+}

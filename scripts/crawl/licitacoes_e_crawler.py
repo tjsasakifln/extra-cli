@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from typing import Any
 
+from scripts.complementary.collect import crawl_licitacoes_e
 from scripts.complementary.licitacoes_e import classify_surface
 
 
 def crawl(mode: str = "full") -> list[dict[str, Any]]:
-    del mode
-    return []
+    return crawl_licitacoes_e(mode)
 
 
 def transform(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
