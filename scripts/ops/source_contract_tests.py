@@ -19,6 +19,10 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
+from scripts.crawl.pncp_contract import (  # noqa: E402
+    PNCP_TAMANHO_PAGINA_MAX,
+    PNCP_TAMANHO_PAGINA_MIN,
+)
 from scripts.crawl.registry import export_registry, lookup  # noqa: E402
 
 PNCP_CONSULTA = "https://pncp.gov.br/api/consulta"
@@ -47,12 +51,19 @@ def http_probe(url: str, *, timeout: float = 15.0, method: str = "GET") -> dict[
                 "error": None,
             }
     except HTTPError as exc:
+        raw = b""
+        try:
+            raw = exc.read(2_000_000)
+        except Exception:  # noqa: BLE001 — probe must still classify the status
+            raw = b""
+        body_text = raw.decode("utf-8", errors="replace")
         return {
             "ok": False,
             "status": exc.code,
             "url": url,
-            "bytes": 0,
-            "body_prefix": "",
+            "bytes": len(raw),
+            "body_prefix": body_text[:200],
+            "body": body_text,
             "error": f"HTTPError:{exc.code}",
             "kind": f"http_{exc.code}",
         }
@@ -121,8 +132,80 @@ def fixture_pncp_payload() -> dict[str, Any]:
     }
 
 
-def classify_http_outcome(status: int | None, kind: str | None, n_records: int | None = None) -> str:
-    """Distinguish transport/errors from legitimate zero-result responses."""
+def pncp_live_page_size() -> int:
+    """Page size for the live PNCP probe — same clamp as the PNCP crawler."""
+    raw = os.getenv("PNCP_PAGE_SIZE", str(PNCP_TAMANHO_PAGINA_MAX))
+    try:
+        configured = int(raw)
+    except ValueError:
+        configured = PNCP_TAMANHO_PAGINA_MAX
+    return max(PNCP_TAMANHO_PAGINA_MIN, min(PNCP_TAMANHO_PAGINA_MAX, configured))
+
+
+def build_pncp_live_probe_url(
+    *,
+    data_inicial: str,
+    data_final: str,
+    uf: str = "SC",
+    modalidade: int = 6,
+    pagina: int = 1,
+    tamanho_pagina: int | None = None,
+) -> str:
+    """Build the PNCP publicacao URL using the crawler's legal page size."""
+    size = pncp_live_page_size() if tamanho_pagina is None else int(tamanho_pagina)
+    if size < PNCP_TAMANHO_PAGINA_MIN:
+        raise ValueError(
+            f"INTERNAL_DEFECT: tamanhoPagina={size} < PNCP minimum {PNCP_TAMANHO_PAGINA_MIN}"
+        )
+    return (
+        f"{PNCP_PUBLICACOES}?dataInicial={data_inicial}&dataFinal={data_final}"
+        f"&codigoModalidadeContratacao={modalidade}&uf={uf}"
+        f"&pagina={pagina}&tamanhoPagina={size}"
+    )
+
+
+def parse_tamanho_pagina(url: str) -> int | None:
+    for part in str(url).split("&"):
+        if part.startswith("tamanhoPagina=") or "tamanhoPagina=" in part:
+            raw = part.rsplit("=", 1)[-1]
+            try:
+                return int(raw)
+            except ValueError:
+                return None
+    return None
+
+
+def classify_http_outcome(
+    status: int | None,
+    kind: str | None,
+    n_records: int | None = None,
+    *,
+    body: str | None = None,
+    requested_page_size: int | None = None,
+    url: str | None = None,
+) -> str:
+    """Distinguish transport/errors from legitimate zero-result responses.
+
+    HTTP 400 caused by our own illegal page size is INTERNAL_DEFECT, never
+    EXTERNAL_TRANSIENT and never success_zero.
+    """
+    page_size = requested_page_size
+    if page_size is None and url:
+        page_size = parse_tamanho_pagina(url)
+    if page_size is not None and page_size < PNCP_TAMANHO_PAGINA_MIN:
+        return "INTERNAL_DEFECT"
+    blob = (body or "").lower()
+    invalid_page = any(
+        token in blob
+        for token in (
+            "must be greater than or equal",
+            "tamanhopagina",
+            "tamanho de página inválido",
+            "tamanho de pagina invalido",
+        )
+    )
+    if status == 400 and invalid_page:
+        return "INTERNAL_DEFECT"
     if kind == "timeout" or kind == "network":
         return "transport_error"
     if status == 403:
@@ -131,6 +214,8 @@ def classify_http_outcome(status: int | None, kind: str | None, n_records: int |
         return "http_429_rate_limited"
     if status is not None and status >= 500:
         return "http_5xx_server_error"
+    if status == 400:
+        return "INTERNAL_DEFECT"
     if status is not None and status >= 400:
         return f"http_{status}_client_error"
     if status in (200, 201, 204) or status is None:
@@ -216,11 +301,28 @@ def run_contract_suite(*, live: bool = False) -> dict[str, Any]:
 
         d_fim = date.today().strftime("%Y%m%d")
         d_ini = (date.today() - timedelta(days=2)).strftime("%Y%m%d")
-        url = (
-            f"{PNCP_PUBLICACOES}?dataInicial={d_ini}&dataFinal={d_fim}"
-            f"&codigoModalidadeContratacao=6&uf=SC&pagina=1&tamanhoPagina=5"
-        )
+        page_size = pncp_live_page_size()
+        url = build_pncp_live_probe_url(data_inicial=d_ini, data_final=d_fim)
         probe = http_probe(url)
+        probe["requested_page_size"] = page_size
+        probe["min_page_size"] = PNCP_TAMANHO_PAGINA_MIN
+        probe["outcome"] = classify_http_outcome(
+            probe.get("status"),
+            probe.get("kind"),
+            body=str(probe.get("body") or probe.get("body_prefix") or ""),
+            requested_page_size=page_size,
+            url=url,
+        )
+        results["checks"]["pncp_live_page_size"] = {
+            "ok": page_size >= PNCP_TAMANHO_PAGINA_MIN
+            and parse_tamanho_pagina(url) == page_size
+            and parse_tamanho_pagina(url) is not None
+            and int(parse_tamanho_pagina(url) or 0) >= PNCP_TAMANHO_PAGINA_MIN,
+            "tamanhoPagina": page_size,
+            "min": PNCP_TAMANHO_PAGINA_MIN,
+            "canonical_crawler_page_size": pncp_live_page_size(),
+            "url": url,
+        }
         results["checks"]["pncp_endpoint_live"] = probe
         if probe.get("ok") and probe.get("bytes", 0) > 0:
             try:
@@ -339,6 +441,28 @@ def run_contract_suite(*, live: bool = False) -> dict[str, Any]:
         and classify_http_outcome(200, None, 0) == "success_zero_records",
         "timeout": classify_http_outcome(None, "timeout"),
         "zero": classify_http_outcome(200, None, 0),
+    }
+    probe_size = pncp_live_page_size()
+    illegal_400 = classify_http_outcome(
+        400,
+        "http_400",
+        body='{"message":"must be greater than or equal to 10","status":"400"}',
+        requested_page_size=5,
+    )
+    results["checks"]["pncp_probe_page_size"] = {
+        "ok": probe_size >= PNCP_TAMANHO_PAGINA_MIN
+        and parse_tamanho_pagina(
+            build_pncp_live_probe_url(data_inicial="20260101", data_final="20260102")
+        )
+        == probe_size,
+        "tamanhoPagina": probe_size,
+        "min": PNCP_TAMANHO_PAGINA_MIN,
+        "canonical_crawler_page_size": probe_size,
+    }
+    results["checks"]["pncp_invalid_page_is_internal_defect"] = {
+        "ok": illegal_400 == "INTERNAL_DEFECT"
+        and illegal_400 not in {"EXTERNAL_TRANSIENT", "success_zero_records"},
+        "outcome": illegal_400,
     }
 
     # summary

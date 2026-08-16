@@ -40,6 +40,45 @@ def test_http_error_not_confused_with_zero():
     assert classify_http_outcome(200, None, 0) == "success_zero_records"
 
 
+def test_pncp_live_probe_never_sends_page_size_below_minimum():
+    from scripts.crawl.pncp_contract import PNCP_TAMANHO_PAGINA_MIN
+    from scripts.ops.source_contract_tests import (
+        build_pncp_live_probe_url,
+        parse_tamanho_pagina,
+        pncp_live_page_size,
+    )
+
+    size = pncp_live_page_size()
+    url = build_pncp_live_probe_url(data_inicial="20260801", data_final="20260803")
+    parsed = parse_tamanho_pagina(url)
+    assert size >= PNCP_TAMANHO_PAGINA_MIN
+    assert parsed == size
+    assert parsed is not None and parsed >= 10
+    try:
+        build_pncp_live_probe_url(
+            data_inicial="20260801", data_final="20260803", tamanho_pagina=5
+        )
+        raise AssertionError("illegal page size must fail closed")
+    except ValueError as exc:
+        assert "INTERNAL_DEFECT" in str(exc)
+
+
+def test_invalid_pncp_page_size_400_is_internal_defect_not_transient():
+    from scripts.ops.source_contract_tests import classify_http_outcome
+
+    outcome = classify_http_outcome(
+        400,
+        "http_400",
+        body='{"message":"must be greater than or equal to 10","status":"400"}',
+        requested_page_size=5,
+    )
+    assert outcome == "INTERNAL_DEFECT"
+    assert outcome != "EXTERNAL_TRANSIENT"
+    assert outcome != "success_zero_records"
+    # legal page size + unrelated 403 stays forbidden, not defect-from-page-size
+    assert classify_http_outcome(403, "http_403", requested_page_size=10) == "http_403_forbidden"
+
+
 def test_contract_alerts():
     from scripts.ops.source_contract_tests import detect_contract_alerts
 

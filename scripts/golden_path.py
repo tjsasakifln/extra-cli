@@ -204,6 +204,79 @@ def assert_sources_persisted(
     }
 
 
+def classify_freshness_summary(details: dict[str, Any] | None) -> dict[str, list[str]]:
+    """Split critical sources into fresh / stale / never / external_failure.
+
+    `never` (zero successful runs and zero persisted rows) is MISSING_EVIDENCE,
+    never stale. Stale requires existing data or a successful run outside SLA.
+    """
+    buckets: dict[str, list[str]] = {
+        "fresh": [],
+        "stale": [],
+        "never": [],
+        "missing_evidence": [],
+        "external_failure": [],
+    }
+    if not isinstance(details, dict):
+        return buckets
+    rows = details.get("critical_sources") or []
+    if not isinstance(rows, list):
+        return buckets
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        name = str(row.get("source") or "").strip()
+        if not name:
+            continue
+        status = str(row.get("freshness_status") or "").strip().lower()
+        total_records = int(row.get("total_records") or 0)
+        successful_runs = int(row.get("successful_runs") or 0)
+        last_success = row.get("last_success_at")
+        never_like = status == "never" or (
+            last_success in (None, "", "never") and total_records == 0 and successful_runs == 0
+        )
+        if status == "fresh":
+            buckets["fresh"].append(name)
+        elif never_like:
+            buckets["never"].append(name)
+            buckets["missing_evidence"].append(name)
+        elif status == "stale":
+            buckets["stale"].append(name)
+        else:
+            buckets["external_failure"].append(name)
+    return buckets
+
+
+def format_freshness_gate_failure_lines(
+    details: dict[str, Any] | None,
+    *,
+    duration_ms: float,
+) -> list[str]:
+    """Human summary that never prints stale for a never/missing_evidence source."""
+    classes = classify_freshness_summary(details)
+    parts: list[str] = []
+    if classes["stale"]:
+        parts.append("stale")
+    if classes["never"] or classes["missing_evidence"]:
+        parts.append("never/missing_evidence")
+    if classes["external_failure"]:
+        parts.append("external failure")
+    if classes["fresh"]:
+        parts.append("fresh")
+    label = ", ".join(parts) if parts else "not fresh"
+    lines = [f"  Freshness gate: FAIL ({label}) ({duration_ms:.0f}ms)"]
+    if classes["stale"]:
+        lines.append(f"    Sources stale: {', '.join(classes['stale'])}")
+    if classes["never"] or classes["missing_evidence"]:
+        never_names = classes["never"] or classes["missing_evidence"]
+        lines.append(f"    Sources never/missing_evidence: {', '.join(never_names)}")
+    if classes["external_failure"]:
+        lines.append(f"    Sources external failure: {', '.join(classes['external_failure'])}")
+    if classes["fresh"]:
+        lines.append(f"    Sources fresh: {', '.join(classes['fresh'])}")
+    return lines
+
+
 def assert_freshness_gate_executed(
     freshness: FreshnessRecord | None,
 ) -> tuple[bool, dict[str, Any]]:
@@ -1432,11 +1505,8 @@ def run_freshness_gate(dsn: str) -> FreshnessRecord:
                 details=details,
             )
         else:
-            _echo(f"  Freshness gate: FAIL (stale sources) ({dur:.0f}ms)", "warn")
-            if details:
-                failing = details.get("overall", {}).get("failing_sources", [])
-                if failing:
-                    _echo(f"    Sources stale: {', '.join(failing)}", "warn")
+            for line in format_freshness_gate_failure_lines(details, duration_ms=dur):
+                _echo(line, "warn")
             return FreshnessRecord(
                 status="fail",
                 details=details,
@@ -1861,6 +1931,12 @@ def parse_args() -> argparse.Namespace:
         help=("Run only freshness gate + ledger (requires DB; skips crawl/reports/migrations/seeds)"),
     )
     p.add_argument(
+        "--render-freshness-json",
+        type=Path,
+        default=None,
+        help="Print the human freshness summary for a freshness-gate.json (no DB)",
+    )
+    p.add_argument(
         "--execute-coverage-only",
         action="store_true",
         help=(
@@ -1963,6 +2039,20 @@ def main() -> int:
 
     if args.verbose:
         logging.getLogger().setLevel(logging.DEBUG)
+
+    if args.render_freshness_json is not None:
+        payload = json.loads(Path(args.render_freshness_json).read_text(encoding="utf-8"))
+        classes = classify_freshness_summary(payload)
+        failed = bool(classes["stale"] or classes["never"] or classes["external_failure"])
+        if failed:
+            lines = format_freshness_gate_failure_lines(payload, duration_ms=0)
+        else:
+            lines = ["  Freshness gate: PASS (0ms)"]
+            if classes["fresh"]:
+                lines.append(f"    Sources fresh: {', '.join(classes['fresh'])}")
+        for line in lines:
+            print(line)
+        return 0 if not failed else 2
 
     # Early path: spreadsheet-only validation (CLI proof for DoD planilha item)
     if args.validate_spreadsheet_only:

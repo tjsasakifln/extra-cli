@@ -75,6 +75,12 @@ EXPECTED_VIEWS: set[str] = {
     "v_contracts_canonical_v2",  # 077 — competitive_intel_validation.py
     "v_opportunity_coverage_summary",  # 027 — opportunity_intel/cli.py
     "v_target_universe_active",  # 038 — universe_tools.py
+    # Story 1.2 canonical views — exist in 030/041a and db/current-schema.sql
+    # but were missing from this baseline, so full-suite schema checks skipped them.
+    "v_entities_canonical",
+    "v_open_opportunities_canonical",
+    "v_contracts_canonical",
+    "v_suppliers_canonical",
 }
 
 # Functions that MUST exist (created by migrations, consumed by code)
