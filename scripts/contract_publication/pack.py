@@ -133,24 +133,38 @@ def _timeline(projected: ProjectedRecord) -> list[dict[str, Any]]:
             if not isinstance(item, dict):
                 continue
             stamp = item.get("at") or item.get("effective_at") or item.get("published_at")
+            locators = official_locator_refs(projected)
+            refs = _fact_refs(
+                [ref for ref in (item.get("ref"), item.get("evidence_ref")) if ref],
+                locators,
+            )
+            if not refs:
+                continue
             events.append(
                 {
                     "kind": name,
                     "at": stamp,
                     "id": item.get("id") or item.get("source_event_id"),
                     "epistemic_class": "FACT",
-                    "evidence_refs": [ref for ref in (item.get("ref"), item.get("evidence_ref")) if ref],
+                    "evidence_refs": refs,
                 }
             )
+    locators = official_locator_refs(projected)
     for item in projected.record.get("events") or ():
         if isinstance(item, dict):
+            refs = _fact_refs(
+                [ref for ref in (item.get("ref"), item.get("raw_hash")) if ref],
+                locators,
+            )
+            if not refs:
+                continue
             events.append(
                 {
                     "kind": item.get("family") or "event",
                     "at": item.get("effective_at") or item.get("at"),
                     "id": item.get("source_event_id") or item.get("id"),
                     "epistemic_class": "FACT",
-                    "evidence_refs": [ref for ref in (item.get("ref"), item.get("raw_hash")) if ref],
+                    "evidence_refs": refs,
                 }
             )
     events.sort(key=lambda row: (str(row.get("at") or ""), str(row.get("kind") or ""), str(row.get("id") or "")))
@@ -180,18 +194,24 @@ def _calculations(projected: ProjectedRecord, detectors: tuple[DetectorResult, .
     start = parse_optional_datetime(fact_value(projected, "start_at") or projected.record.get("data_inicio"))
     end = parse_optional_datetime(fact_value(projected, "end_at") or projected.record.get("data_fim"))
     if start and end:
-        days = (end - start).days
-        rows.append(
-            {
-                "name": "term_days",
-                "value": days,
-                "unit": "day",
-                "epistemic_class": "CALCULATION",
-                "method": {"id": "term_days/1.0", "version": "1.0", "description": "end_at - start_at in days"},
-                "evidence_refs": list(official_locator_refs(projected)),
-                "reason_code": "term_interval",
-            }
-        )
+        refs = list(official_locator_refs(projected))
+        if refs:
+            days = (end - start).days
+            rows.append(
+                {
+                    "name": "term_days",
+                    "value": days,
+                    "unit": "day",
+                    "epistemic_class": "CALCULATION",
+                    "method": {
+                        "id": "term_days/1.0",
+                        "version": "1.0",
+                        "description": "end_at - start_at in days",
+                    },
+                    "evidence_refs": refs,
+                    "reason_code": "term_interval",
+                }
+            )
     return rows
 
 
@@ -269,22 +289,40 @@ def _peer(projected: ProjectedRecord) -> dict[str, Any]:
     }
 
 
+def _fact_refs(*groups: list[str] | tuple[str, ...]) -> list[str]:
+    refs: list[str] = []
+    for group in groups:
+        for item in group:
+            if item and item not in refs:
+                refs.append(item)
+    return refs
+
+
 def _values(projected: ProjectedRecord) -> list[dict[str, Any]]:
     rows = []
+    locators = official_locator_refs(projected)
     nominal = fact_value(projected, "nominal_value")
     if isinstance(nominal, dict):
-        rows.append(
-            {
-                "kind": "nominal_instrument",
-                "amount": str(nominal.get("amount")),
-                "currency": nominal.get("currency") or "BRL",
-                "semantics": nominal.get("semantics") or "integral_nominal_instrument",
-                "epistemic_class": "FACT",
-                "evidence_refs": list(explicit_evidence_refs(projected.record)),
-            }
-        )
+        refs = _fact_refs(explicit_evidence_refs(projected.record), locators)
+        if refs:
+            rows.append(
+                {
+                    "kind": "nominal_instrument",
+                    "amount": str(nominal.get("amount")),
+                    "currency": nominal.get("currency") or "BRL",
+                    "semantics": nominal.get("semantics") or "integral_nominal_instrument",
+                    "epistemic_class": "FACT",
+                    "evidence_refs": refs,
+                }
+            )
     for change in fact_value(projected, "value_changes") or ():
         if isinstance(change, dict):
+            refs = _fact_refs(
+                [ref for ref in (change.get("ref"), change.get("evidence_ref")) if ref],
+                locators,
+            )
+            if not refs:
+                continue
             rows.append(
                 {
                     "kind": "value_change",
@@ -292,7 +330,7 @@ def _values(projected: ProjectedRecord) -> list[dict[str, Any]]:
                     "currency": "BRL",
                     "semantics": "documented_delta",
                     "epistemic_class": "FACT",
-                    "evidence_refs": [ref for ref in (change.get("ref"), change.get("evidence_ref")) if ref],
+                    "evidence_refs": refs,
                 }
             )
     return rows
@@ -344,8 +382,19 @@ def build_evidence_pack(projected: ProjectedRecord, candidate: Candidate) -> dic
     unknowns = _unknowns(projected, candidate.detectors)
     timeline = _timeline(projected)
     documents = []
+    locators = official_locator_refs(projected)
     for item in projected.record.get("documents") or ():
         if isinstance(item, dict):
+            refs = _fact_refs(
+                [
+                    ref
+                    for ref in (item.get("id"), item.get("ref"), item.get("sha256"), item.get("hash"), item.get("url"))
+                    if ref
+                ],
+                locators,
+            )
+            if not refs:
+                continue
             documents.append(
                 {
                     "id": item.get("id") or item.get("ref"),
@@ -353,6 +402,7 @@ def build_evidence_pack(projected: ProjectedRecord, candidate: Candidate) -> dic
                     "sha256": item.get("sha256") or item.get("hash"),
                     "url": item.get("url"),
                     "epistemic_class": "FACT",
+                    "evidence_refs": refs,
                 }
             )
     source_urls = []
@@ -444,11 +494,28 @@ def build_evidence_pack(projected: ProjectedRecord, candidate: Candidate) -> dic
     return cleaned
 
 
+def iter_epistemic_nodes(node: Any, path: str = "") -> list[tuple[str, dict[str, Any]]]:
+    found: list[tuple[str, dict[str, Any]]] = []
+    if isinstance(node, dict):
+        cls = node.get("epistemic_class") or node.get("class")
+        if cls in {"FACT", "CALCULATION"}:
+            found.append((path or "root", node))
+        for key, value in node.items():
+            next_path = f"{path}.{key}" if path else str(key)
+            found.extend(iter_epistemic_nodes(value, next_path))
+    elif isinstance(node, list):
+        for index, item in enumerate(node):
+            found.extend(iter_epistemic_nodes(item, f"{path}[{index}]"))
+    return found
+
+
 def assert_every_fact_has_ref(document: dict[str, Any]) -> None:
-    for group in ("facts", "calculations"):
-        for item in document.get(group) or ():
-            if item.get("epistemic_class") in {"FACT", "CALCULATION"} and not item.get("evidence_refs"):
-                raise ValueError(f"missing_evidence_ref:{group}:{item.get('id') or item.get('name')}")
+    for path, item in iter_epistemic_nodes(document):
+        if item.get("epistemic_class") in {"FACT", "CALCULATION"} or item.get("class") in {"FACT", "CALCULATION"}:
+            if not item.get("evidence_refs"):
+                raise ValueError(
+                    f"missing_evidence_ref:{path}:{item.get('id') or item.get('name') or item.get('kind')}"
+                )
 
 
 def assert_inferences_not_facts(document: dict[str, Any]) -> None:

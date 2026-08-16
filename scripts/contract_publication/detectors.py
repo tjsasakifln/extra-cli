@@ -384,8 +384,44 @@ def detect_documented_suspension(projected: ProjectedRecord, *, as_of: str) -> D
     return _lifecycle(projected, "documented_suspension", "suspension", "suspensao", "prazo", as_of)
 
 
+_RESUMPTION_FAMILIES = frozenset({"retomada", "resumption"})
+
+
 def detect_documented_resumption(projected: ProjectedRecord, *, as_of: str) -> DetectorResult:
-    return _lifecycle(projected, "documented_resumption", "resumption", "prorrogacao", "prazo", as_of)
+    """Retomada only. `prorrogacao` is a term extension and is not a resumption."""
+    freshness = _freshness_payload(projected, as_of)
+    observed = fact_status(projected, "resumption") == "KNOWN"
+    raw = projected.record.get("resumption") or projected.record.get("retomada")
+    events = [
+        item
+        for item in projected.record.get("events") or ()
+        if isinstance(item, dict) and str(item.get("family") or "").casefold() in _RESUMPTION_FAMILIES
+    ]
+    if not observed and not raw and not events:
+        return _empty(
+            "documented_resumption",
+            "not_observed",
+            missing=("resumption", "retomada"),
+            freshness=freshness,
+        )
+    payload = raw if raw else fact_value(projected, "resumption") if observed else events
+    return _known(
+        "documented_resumption",
+        fired=True,
+        strength=0.70,
+        reason="resumption_documented",
+        evidence=explicit_evidence_refs(projected.record),
+        events=_event_ids(payload, "resumption") + _event_ids(events, "retomada"),
+        angles=("prazo",),
+        epistemic="FACT",
+        method=_method(
+            "documented_resumption/1.0",
+            "documented resumption/retomada field only; prorrogacao is not retomada",
+        ),
+        freshness=freshness,
+        result={"observed": True},
+        limitations=("documented_lifecycle_is_not_an_accusation",),
+    )
 
 
 def detect_documented_rescission(projected: ProjectedRecord, *, as_of: str) -> DetectorResult:

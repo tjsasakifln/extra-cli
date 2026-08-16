@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from scripts.contract_publication.engine import build_packs, load_snapshot, rank_candidates
+from scripts.contract_publication.pack import assert_every_fact_has_ref, iter_epistemic_nodes
 from scripts.contract_publication.schema import PACK_SCHEMA, load_policy
 
 FIXTURE = Path(__file__).resolve().parents[1] / "fixtures" / "contract_publication" / "golden_corpus.json"
@@ -21,9 +22,18 @@ def _run():
 def test_every_fact_and_calculation_has_evidence_ref() -> None:
     _ranked, packs = _run()
     for pack in packs.values():
-        for item in pack["facts"] + pack["calculations"]:
-            assert item["epistemic_class"] in {"FACT", "CALCULATION"}
-            assert item["evidence_refs"]
+        assert_every_fact_has_ref(pack)
+        labeled = iter_epistemic_nodes(pack)
+        assert labeled
+        for path, item in labeled:
+            assert item.get("epistemic_class") in {"FACT", "CALCULATION"} or item.get("class") in {
+                "FACT",
+                "CALCULATION",
+            }
+            assert item.get("evidence_refs"), path
+        for item in pack.get("values") or ():
+            if item.get("epistemic_class") in {"FACT", "CALCULATION"}:
+                assert item.get("evidence_refs")
 
 
 def test_inference_never_serialized_as_fact() -> None:

@@ -4,7 +4,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from scripts.contract_publication.detectors import build_cohort, run_detectors
+from scripts.contract_publication.detectors import (
+    build_cohort,
+    detect_documented_resumption,
+    run_detectors,
+)
 from scripts.contract_publication.engine import load_snapshot, rank_candidates
 from scripts.contract_publication.facts import project_record
 from scripts.contract_publication.schema import load_policy
@@ -97,6 +101,39 @@ def test_not_comparable_is_honest_hold() -> None:
     assert detectors["peer_difference"].reason_code == "NOT_COMPARABLE"
     assert detectors["peer_difference"].status == "HOLD"
     assert not detectors["peer_difference"].fired
+
+
+def test_prorrogacao_event_is_not_resumption() -> None:
+    as_of, by_id, _mode = _by_id()
+    record = dict(by_id["CAND-ABSENT-01"])
+    record["events"] = [
+        {
+            "family": "prorrogacao",
+            "source_event_id": "ext-1",
+            "effective_at": "2026-01-01T00:00:00+00:00",
+        }
+    ]
+    record.pop("resumption", None)
+    record.pop("retomada", None)
+    projected = project_record(record, as_of=as_of)
+    result = detect_documented_resumption(projected, as_of=as_of)
+    assert result.fired is False
+    assert result.status == "UNKNOWN"
+    assert result.reason_code == "not_observed"
+    detectors = {item.detector_id: item for item in run_detectors(projected, build_cohort([record]), as_of=as_of)}
+    assert detectors["documented_resumption"].fired is False
+
+
+def test_retomada_field_fires_resumption() -> None:
+    as_of, by_id, _mode = _by_id()
+    record = dict(by_id["CAND-ABSENT-01"])
+    record["retomada"] = [{"id": "ret-1", "at": "2026-02-01T00:00:00+00:00", "ref": "doc:retomada"}]
+    record["evidence_ref"] = "doc:retomada"
+    projected = project_record(record, as_of=as_of)
+    result = detect_documented_resumption(projected, as_of=as_of)
+    assert result.fired is True
+    assert result.status == "KNOWN"
+    assert result.reason_code == "resumption_documented"
 
 
 def test_identity_swap_is_inference_not_fact() -> None:
