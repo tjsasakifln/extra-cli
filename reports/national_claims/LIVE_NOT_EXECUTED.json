@@ -1,0 +1,12 @@
+{
+  "LIVE_NOT_EXECUTED": true,
+  "live_smoke_command": "export LOCAL_DATALAKE_DSN=\"${LOCAL_DATALAKE_DSN:-postgresql://test:test@127.0.0.1:5433/extra_test}\" && python3 -m scripts.ops.apply_migrations --dsn \"$LOCAL_DATALAKE_DSN\" && python3 -m scripts.national_claims evaluate --input docs/contracts/national-claims/fixtures/needs-data.json --out reports/national_claims/live-smoke.json",
+  "pii": false,
+  "preflight": {
+    "dsn_host": "127.0.0.1:5433/extra_test",
+    "missing_tables": [],
+    "outcome": "skip",
+    "reason": "national_claims preflight: database unreachable at 127.0.0.1:5433/extra_test: OperationalError"
+  },
+  "reason": "canonical DSN 127.0.0.1:5433 connection refused; no host/live dataset in this workspace"
+}
