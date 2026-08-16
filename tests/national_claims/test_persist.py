@@ -39,6 +39,15 @@ def _exec_sql(conn, path: Path) -> None:
         cursor.execute(sql)
 
 
+def test_persist_replay_declares_real_db_admission() -> None:
+    """Full suite patches psycopg2.connect unless @pytest.mark.real_db is set."""
+    marks = getattr(test_persist_replay_and_rollback_on_real_postgres, "pytestmark", [])
+    if not isinstance(marks, list):
+        marks = [marks]
+    names = {getattr(mark, "name", "") for mark in marks}
+    assert "real_db" in names
+
+
 def test_migration_files_exist_and_are_paired() -> None:
     assert MIGRATION.is_file()
     assert ROLLBACK.is_file()
@@ -80,7 +89,11 @@ def test_store_append_never_deletes_prior_evidence() -> None:
     assert not any("DELETE" in sql.upper() for sql in statements)
 
 
+@pytest.mark.real_db
 def test_persist_replay_and_rollback_on_real_postgres() -> None:
+    """Persist/replay requires a live driver. Full-suite MagicMock isolation
+    must not be treated as PostgreSQL (issue #285 / #343).
+    """
     dsn = os.environ.get("LOCAL_DATALAKE_DSN") or os.environ.get("DATABASE_URL")
     required = os.environ.get("REQUIRE_REAL_DB", "").strip().lower() in {"1", "true", "yes"}
     if not dsn:
@@ -94,7 +107,16 @@ def test_persist_replay_and_rollback_on_real_postgres() -> None:
             pytest.fail(f"required DSN not reachable: {type(exc).__name__}")
         pytest.skip(f"database unreachable: {exc}")
     kind = connection_kind(conn)
-    assert kind != "MagicMock"
+    if kind == "MagicMock":
+        if required:
+            pytest.fail(
+                "REQUIRE_REAL_DB=1 but psycopg2.connect resolved to MagicMock; "
+                "this test must keep @pytest.mark.real_db so the suite does not "
+                "patch the driver"
+            )
+        pytest.skip(
+            "psycopg2.connect resolved to MagicMock: explicit skip before business SQL"
+        )
     try:
         conn.autocommit = True
         _exec_sql(conn, MIGRATION)
