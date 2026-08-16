@@ -237,18 +237,28 @@ def _decide_inner(
             "unmappable_evidence_cannot_drop",
         }
     )
+    identity_refuses_yes = dual_gate.get("measurement_success") is False or bool(
+        reasons
+        & {
+            "source_wide_aggregate_without_identity",
+            "missing_evidence",
+        }
+    )
+
     if "failed_partitions" in reasons:
         state = "FAILED"
     elif hard_block or "blocked_partitions" in reasons:
         state = "BLOCKED"
     elif "freshness_stale" in reasons:
         state = "STALE"
-    elif reasons & {
+    elif identity_refuses_yes or reasons & {
         "unknown_partitions",
         "zero_without_pagination_proof",
         "national_denominator_incomplete",
         "scoped_partitions_incomplete",
         "partition_counts_do_not_close",
+        "source_wide_aggregate_without_identity",
+        "missing_evidence",
     }:
         state = "NEEDS_DATA"
     elif national_claim and closed_ok:
@@ -262,6 +272,9 @@ def _decide_inner(
     if state == "AUTHORIZED" and limitations:
         state = "AUTHORIZED_WITH_LIMITATIONS"
 
+    if state in {"AUTHORIZED", "AUTHORIZED_WITH_LIMITATIONS"} and identity_refuses_yes:
+        state = "NEEDS_DATA"
+
     current_authorized = state in {"AUTHORIZED", "AUTHORIZED_WITH_LIMITATIONS"}
     view = consumer_view(current_authorized=current_authorized, lkg_status=lkg_status)
 
@@ -271,10 +284,12 @@ def _decide_inner(
         nacional_completo = False
 
     if nacional_completo and (
-        "inconsistent_denominator_extra_1093" in reasons or "row_count_completeness_forbidden" in reasons
+        "inconsistent_denominator_extra_1093" in reasons
+        or "row_count_completeness_forbidden" in reasons
+        or identity_refuses_yes
     ):
         nacional_completo = False
-        state = "BLOCKED"
+        state = "BLOCKED" if "inconsistent_denominator_extra_1093" in reasons else "NEEDS_DATA"
         view = consumer_view(current_authorized=False, lkg_status=lkg_status)
 
     if state not in AUTHORIZATION_STATES:

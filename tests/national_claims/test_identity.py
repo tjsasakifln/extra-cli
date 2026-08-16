@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
+
 from scripts.coverage.covered_entity import MISSING_EVIDENCE
 from scripts.national_claims.gate import decide
 from scripts.national_claims.identity import dual_coverage_from_rows, split_evidence
 from scripts.national_claims.loader import request_from_dict
 from scripts.national_claims.models import EvidenceRow
-from scripts.national_claims.sample_fixtures import fixture_source_wide_only
+from scripts.national_claims.sample_fixtures import (
+    fixture_authorized_national,
+    fixture_source_wide_only,
+)
 
 
 def test_aggregated_evidence_does_not_prove_entity_coverage() -> None:
@@ -25,6 +30,21 @@ def test_aggregated_evidence_does_not_prove_entity_coverage() -> None:
     assert payload["identity"]["proves_dual_coverage"] is False
     assert "aggregated_evidence_not_entity_coverage" in payload["reason_codes"]
     assert payload["authorization_state"] != "AUTHORIZED"
+
+
+def test_closed_partitions_plus_source_wide_cannot_authorize() -> None:
+    """Identity, not missing partitions, must refuse the national yes."""
+    document = deepcopy(fixture_authorized_national())
+    document["claim"]["claim_id"] = "claim-identity-closed-source-wide"
+    document["evidence"] = fixture_source_wide_only()["evidence"]
+    payload = decide(request_from_dict(document))
+    assert payload["partitions_closed"] == payload["partitions_expected"]
+    assert "unknown_partitions" not in payload["reason_codes"]
+    assert payload["authorization_state"] != "AUTHORIZED"
+    assert payload["nacional_completo"] is False
+    assert payload["dual_coverage_gate"]["measurement_success"] is False
+    assert payload["identity"]["mapped"] == 0
+    assert payload["identity"]["source_wide"] == 1
 
 
 def test_unmappable_is_fail_closed_and_kept() -> None:

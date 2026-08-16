@@ -307,6 +307,27 @@ def fixture_stale_lkg() -> dict[str, Any]:
     return document
 
 
+def fixture_closed_partitions_source_wide_only() -> dict[str, Any]:
+    """Honest #350 case: every national partition closes, evidence is source-wide only."""
+    document = fixture_authorized_national()
+    document["claim"] = _base_claim(claim_id="claim-closed-source-wide-only")
+    document["evidence"] = [
+        {
+            "id": 3,
+            "entity_id": None,
+            "canonical_entity_key": None,
+            "source": "pncp",
+            "data_type": "bids",
+            "state": "success_with_data",
+            "run_id": 22,
+            "count_obtained": 800,
+            "count_persisted": 800,
+            "metadata": {"pipeline": "resilient_cycle"},
+        }
+    ]
+    return document
+
+
 def fixture_authorized_national() -> dict[str, Any]:
     document = _base_document()
     document["claim"] = _base_claim(claim_id="claim-national-fixture-closed")
@@ -346,4 +367,5 @@ def all_fixtures() -> dict[str, dict[str, Any]]:
         "unknown-partition": fixture_unknown_partition(),
         "stale-lkg": fixture_stale_lkg(),
         "authorized-national": fixture_authorized_national(),
+        "closed-partitions-source-wide": fixture_closed_partitions_source_wide_only(),
     }

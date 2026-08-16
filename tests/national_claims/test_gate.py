@@ -11,6 +11,7 @@ from scripts.national_claims.models import AUTHORIZATION_STATES
 from scripts.national_claims.sample_fixtures import (
     fixture_authorized_limited,
     fixture_authorized_national,
+    fixture_closed_partitions_source_wide_only,
     fixture_needs_data,
     fixture_source_wide_only,
     fixture_stale_lkg,
@@ -93,6 +94,30 @@ def test_source_wide_only_is_not_authorized_national() -> None:
     assert payload["authorization_state"] != "AUTHORIZED"
     assert payload["nacional_completo"] is False
     assert payload["identity"]["proves_entity_coverage"] is False
+
+
+def test_closed_national_partitions_with_only_source_wide_is_not_authorized() -> None:
+    """#350: closed partitions cannot mint AUTHORIZED from aggregate-only evidence."""
+    closed = fixture_authorized_national()
+    assert decide(request_from_dict(closed))["authorization_state"] == "AUTHORIZED"
+    document = deepcopy(closed)
+    document["claim"]["claim_id"] = "claim-closed-plus-source-wide"
+    document["evidence"] = fixture_source_wide_only()["evidence"]
+    payload = decide(request_from_dict(document))
+    assert payload["partitions_closed"] == payload["partitions_expected"]
+    assert payload["partitions_expected"] > 0
+    assert "unknown_partitions" not in payload["reason_codes"]
+    assert "national_denominator_incomplete" not in payload["reason_codes"]
+    assert payload["authorization_state"] == "NEEDS_DATA"
+    assert payload["authorization_state"] != "AUTHORIZED"
+    assert payload["nacional_completo"] is False
+    assert payload["identity"]["proves_entity_coverage"] is False
+    assert payload["dual_coverage_gate"]["measurement_success"] is False
+    assert "source_wide_aggregate_without_identity" in payload["reason_codes"]
+
+    factory = decide(request_from_dict(fixture_closed_partitions_source_wide_only()))
+    assert factory["authorization_state"] == "NEEDS_DATA"
+    assert factory["nacional_completo"] is False
 
 
 def test_payload_content_hash_is_stable() -> None:

@@ -1,0 +1,95 @@
+{
+  "attempted": 3,
+  "authorization_state": "NEEDS_DATA",
+  "blockers": [],
+  "by_status": {
+    "FOUND": 2,
+    "ZERO_CONFIRMED": 1
+  },
+  "claim_id": "claim-closed-source-wide-only",
+  "claim_state": "NEEDS_DATA",
+  "closed": 3,
+  "consumer_view": "blocked",
+  "content_hash": "eedcaa30f9cb514c2de20aa70a82b83821848581f7bbb166ed6de2f490361c0d",
+  "contract_version": "national-claims/1.0",
+  "cost_ms": 1.0,
+  "diff_vs_prior": {
+    "invalidation_triggers": [],
+    "lkg_ref": null,
+    "lkg_status": "absent"
+  },
+  "expected": 3,
+  "freshness": {
+    "as_of": "2026-08-15T00:00:00Z",
+    "reason": "within_slo",
+    "status": "OK"
+  },
+  "identity": {
+    "aggregate_relation": "national_claims_aggregate_evidence",
+    "identity_relation": "national_claims_identity_evidence",
+    "mapped": 0,
+    "proves_dual_coverage": false,
+    "proves_entity_coverage": false,
+    "source_wide": 1,
+    "source_wide_kept": true,
+    "unmappable": 0
+  },
+  "limitations": [],
+  "nacional_completo": false,
+  "next_action": "none",
+  "partitions": [
+    {
+      "attempted": true,
+      "next_action": null,
+      "partition_id": "org-a",
+      "reason": null,
+      "status": "FOUND"
+    },
+    {
+      "attempted": true,
+      "next_action": null,
+      "partition_id": "org-b",
+      "reason": null,
+      "status": "ZERO_CONFIRMED"
+    },
+    {
+      "attempted": true,
+      "next_action": null,
+      "partition_id": "org-sc",
+      "reason": null,
+      "status": "FOUND"
+    }
+  ],
+  "pii": false,
+  "reason_codes": [
+    "source_wide_aggregate_without_identity",
+    "aggregated_evidence_not_entity_coverage"
+  ],
+  "universe": {
+    "catalog_hash": "0b4dbacbed5d4ee96fa6b001dc35dea7efa19eab92f02e8b783f77e29fe7d098",
+    "kinds": {
+      "extra_1093_monitored": {
+        "catalog_hash": "12d44104026739739f23de2aea33ab6b389aac32e1c21059473ec8eece9eed97",
+        "expected_partitions": 2,
+        "universe_id": "x1093-sc_public_entities-contratos-2026-12d4410402673973"
+      },
+      "icp_commercial": {
+        "catalog_hash": "e43c78b4c04931ba41bbe70e39b9b80dd1a2ba1e879d3bd4e09194f42cc3f4c3",
+        "expected_partitions": 2,
+        "universe_id": "icp-icp-commercial-contratos-2026-e43c78b4c04931ba"
+      },
+      "national": {
+        "catalog_hash": "0b4dbacbed5d4ee96fa6b001dc35dea7efa19eab92f02e8b783f77e29fe7d098",
+        "expected_partitions": 3,
+        "universe_id": "nu-pncp-contratos-2026-fecfaa9b1842f386"
+      },
+      "observed_corpus": {
+        "catalog_hash": "8e6f1b0d539ceb8931534fa5812c859367dcb76e30f6f6c0928cd58ba916cd6d",
+        "expected_partitions": 1,
+        "universe_id": "obs-snapshot-contratos-2026-8e6f1b0d539ceb89"
+      }
+    },
+    "method_version": "pncp-orgaos-publicantes-v1",
+    "national_universe_id": "nu-pncp-contratos-2026-fecfaa9b1842f386"
+  }
+}

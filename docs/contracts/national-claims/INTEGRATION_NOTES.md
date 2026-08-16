@@ -55,6 +55,11 @@ Source-wide evidence lands in `national_claims_aggregate_evidence` and in
 `payload.identity.source_wide`. It does not increment dual-coverage
 numerators. Unmappable rows fail closed (`unmappable_evidence_cannot_drop`).
 
+Closed partitions plus **only** source-wide evidence cannot produce
+`AUTHORIZED` or `nacional_completo=true`. The gate returns `NEEDS_DATA`
+with `source_wide_aggregate_without_identity`. Persist is append-only:
+prior partition and evidence rows are never deleted.
+
 ## Live census
 
 This package does **not** close #302 or #350. A live `AUTHORIZED` national

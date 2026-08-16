@@ -69,8 +69,11 @@ CREATE TABLE IF NOT EXISTS public.national_claims_partition (
     identity_mapped        BOOLEAN NOT NULL DEFAULT FALSE,
     reason                 TEXT,
     next_action            TEXT,
-    UNIQUE (claim_id, partition_id)
+    recorded_at            TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE INDEX IF NOT EXISTS national_claims_partition_claim_idx
+    ON public.national_claims_partition (claim_id, partition_id, recorded_at DESC);
 
 CREATE TABLE IF NOT EXISTS public.national_claims_aggregate_evidence (
     id                     BIGSERIAL PRIMARY KEY,

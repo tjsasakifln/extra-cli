@@ -27,8 +27,8 @@ def persist_decision(conn: Any, request: ClaimRequest, payload: dict[str, Any]) 
     cursor = conn.cursor()
     try:
         _upsert_universes(cursor, request)
-        _replace_partitions(cursor, payload)
-        _replace_evidence(cursor, request, payload["claim_id"])
+        _append_partitions(cursor, payload)
+        _append_evidence(cursor, request, payload["claim_id"])
         cursor.execute(
             """
             INSERT INTO national_claims_decision (
@@ -218,12 +218,9 @@ def _upsert_universes(cursor: Any, request: ClaimRequest) -> None:
         )
 
 
-def _replace_partitions(cursor: Any, payload: dict[str, Any]) -> None:
+def _append_partitions(cursor: Any, payload: dict[str, Any]) -> None:
+    """Append a partition snapshot. Never delete prior rows."""
     claim_id = payload["claim_id"]
-    cursor.execute(
-        "DELETE FROM national_claims_partition WHERE claim_id = %s",
-        (claim_id,),
-    )
     for item in payload.get("partitions") or []:
         cursor.execute(
             """
@@ -263,15 +260,8 @@ def _replace_partitions(cursor: Any, payload: dict[str, Any]) -> None:
         )
 
 
-def _replace_evidence(cursor: Any, request: ClaimRequest, claim_id: str) -> None:
-    cursor.execute(
-        "DELETE FROM national_claims_aggregate_evidence WHERE claim_id = %s",
-        (claim_id,),
-    )
-    cursor.execute(
-        "DELETE FROM national_claims_identity_evidence WHERE claim_id = %s",
-        (claim_id,),
-    )
+def _append_evidence(cursor: Any, request: ClaimRequest, claim_id: str) -> None:
+    """Append classified evidence. Never delete prior rows."""
     for row in request.evidence:
         _insert_evidence(cursor, claim_id, row)
 

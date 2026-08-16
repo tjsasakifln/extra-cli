@@ -56,8 +56,9 @@ Statuses: `FOUND` · `ZERO_CONFIRMED` · `BLOCKED` · `FAILED` · `NOT_APPLICABL
 
 Source-wide / aggregated evidence is stored in
 `national_claims_aggregate_evidence`. It is never silently dropped and never
-proves entity or dual coverage. Unmappable identity stays fail-closed with
-`unmappable_evidence_cannot_drop`.
+proves entity or dual coverage. A national claim whose partitions all close
+but whose evidence is source-wide only is `NEEDS_DATA`, not `AUTHORIZED`.
+Unmappable identity stays fail-closed with `unmappable_evidence_cannot_drop`.
 
 ## Freshness and last-known-good
 

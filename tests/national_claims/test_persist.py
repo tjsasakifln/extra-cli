@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import inspect
 import os
 from pathlib import Path
 
@@ -11,7 +12,13 @@ from scripts.national_claims.gate import decide
 from scripts.national_claims.loader import request_from_dict
 from scripts.national_claims.preflight import REQUIRED_TABLES, inspect_national_claims_schema, probe_national_claims
 from scripts.national_claims.sample_fixtures import fixture_authorized_national, fixture_source_wide_only
-from scripts.national_claims.store import invalidate_lkg, persist_decision, replay_decision
+from scripts.national_claims.store import (
+    _append_evidence,
+    _append_partitions,
+    invalidate_lkg,
+    persist_decision,
+    replay_decision,
+)
 from scripts.testing.connection_policy import connection_kind
 
 MIGRATION = Path("db/migrations/096_national_claims_gate.sql")
@@ -42,6 +49,35 @@ def test_migration_files_exist_and_are_paired() -> None:
         assert table in down
     assert "096 was free on origin/main" in up
     assert "DROP TABLE IF EXISTS public.national_claims_universe" in down
+    assert "UNIQUE (claim_id, partition_id)" not in up
+    assert "recorded_at" in up
+
+
+def test_store_append_never_deletes_prior_evidence() -> None:
+    append_src = inspect.getsource(_append_partitions) + inspect.getsource(_append_evidence)
+    persist_src = inspect.getsource(persist_decision)
+    assert "DELETE" not in append_src
+    assert "DELETE FROM national_claims_partition" not in persist_src
+    assert "DELETE FROM national_claims_aggregate_evidence" not in persist_src
+    assert "DELETE FROM national_claims_identity_evidence" not in persist_src
+
+    statements: list[str] = []
+
+    class RecordingCursor:
+        def execute(self, sql: str, params=None) -> None:
+            statements.append(" ".join(sql.split()))
+
+        def close(self) -> None:
+            return None
+
+    class RecordingConn:
+        def cursor(self) -> RecordingCursor:
+            return RecordingCursor()
+
+    request = request_from_dict(fixture_authorized_national())
+    persist_decision(RecordingConn(), request, decide(request))
+    assert statements
+    assert not any("DELETE" in sql.upper() for sql in statements)
 
 
 def test_persist_replay_and_rollback_on_real_postgres() -> None:
@@ -70,6 +106,14 @@ def test_persist_replay_and_rollback_on_real_postgres() -> None:
         request = request_from_dict(fixture_authorized_national())
         payload = decide(request)
         persist_decision(conn, request, payload)
+        persist_decision(conn, request, payload)
+        with conn.cursor() as cursor:
+            cursor.execute(
+                "SELECT count(*) FROM national_claims_partition WHERE claim_id = %s",
+                (payload["claim_id"],),
+            )
+            partition_rows = cursor.fetchone()[0]
+        assert partition_rows >= 2 * payload["partitions_expected"]
         replayed = replay_decision(conn, payload["claim_id"])
         assert replayed["content_hash"] == payload["content_hash"]
         assert replayed["authorization_state"] == payload["authorization_state"]
