@@ -9,8 +9,7 @@ METHOD_VERSION = "comparable-contracts-peer-group/1.0"
 POLICY_VERSION = "contract-comparables-policy/1.0"
 QUESTION_ID = "paving_nominal_total_value_position"
 QUESTION = (
-    "Como o valor integral nominal de um contrato público de pavimentação "
-    "se posiciona frente a contratos comparáveis?"
+    "Como o valor integral nominal de um contrato público de pavimentação se posiciona frente a contratos comparáveis?"
 )
 CONSUMER_ID = "public-read-contract-analysis/#400"
 CONSUMER_FAMILY = "web-cfg / contract-analysis family"
@@ -18,7 +17,9 @@ CONSUMER_FAMILY = "web-cfg / contract-analysis family"
 STATUS_COMPARABLE = "COMPARABLE"
 STATUS_HOLD = "HOLD_FOR_DATA"
 STATUS_NOT = "NOT_COMPARABLE"
+STATUS_BLOCKED = "BLOCKED"
 STATUS_ENUM = (STATUS_COMPARABLE, STATUS_HOLD, STATUS_NOT)
+CANARY_STATUS_ENUM = (*STATUS_ENUM, STATUS_BLOCKED)
 
 LEGACY_STATUS_MAP = {
     "PEER_VALID": STATUS_COMPARABLE,
@@ -31,7 +32,23 @@ UNIT_CANONICAL = "BRL_TOTAL"
 CATALOG_FIXTURE = "fixture"
 CATALOG_LIVE_CANDIDATE = "live_candidate"
 CATALOG_FIXTURE_ONLY = "FIXTURE_ONLY"
+CATALOG_BLOCKED = "blocked"
 OFFICIAL_LIVE = "official_live"
+OFFICIAL_CANARY_SCHEMA = "comparable-contracts-official-canary/1.0"
+METRIC_NOMINAL_TOTAL = "valor_integral_nominal"
+PHYSICAL_UNIT_METRICS = frozenset(
+    {
+        "cost_per_km",
+        "custo_por_km",
+        "custo/km",
+        "cost_per_m2",
+        "custo_por_m2",
+        "custo/m2",
+        "unit_price",
+        "preco_unitario",
+        "preço_unitário",
+    }
+)
 
 MIN_USABLE_N_COMPARABLE = 5
 MIN_USABLE_N_HOLD = 3
@@ -67,6 +84,12 @@ REASON_PORTE_NOT_COMPARABLE = "porte_not_comparable"
 REASON_TEXT_SIMILARITY_ONLY = "text_similarity_only"
 REASON_EMBEDDING_NOT_AUTHORITY = "embedding_not_authority"
 REASON_FIELDS_UNAVAILABLE = "fields_unavailable"
+REASON_DSN_UNAVAILABLE = "dsn_unavailable"
+REASON_HOST_UNAVAILABLE = "host_unavailable"
+REASON_TABLE_MISSING = "official_table_missing"
+REASON_DATASET_EMPTY = "official_dataset_empty"
+REASON_PAVING_SAMPLE_EMPTY = "official_paving_sample_empty"
+REASON_LIVE_PROBE_FAILED = "live_probe_failed"
 
 HARD_REFUSAL_REASONS = frozenset(
     {

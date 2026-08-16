@@ -36,9 +36,14 @@ python3 -m scripts.contract_comparables report \
   --out docs/contracts/contract-comparables/reports/canary-observability.json \
   --markdown docs/contracts/contract-comparables/reports/canary-observability.md
 python3 -m scripts.contract_comparables live --as-of 2026-08-01
+python3 -m scripts.contract_comparables official-canary --as-of 2026-08-01
 ```
 
-Sem `LOCAL_DATALAKE_DSN` o modo é `FIXTURE_ONLY`. Com DSN, o live lê só colunas oficiais de `pncp_supplier_contracts`. Se `unidade`, `quantidade`, `regime`, `modalidade` e `valor_semantic` não existirem, o grupo é `HOLD_FOR_DATA` (`live_columns_unavailable`). Não inventar semântica. Replay: mesmo `--dsn --focal --as-of` deve reproduzir o `content_hash` se o snapshot não mudou.
+Sem `LOCAL_DATALAKE_DSN` o modo do `live` legado é `FIXTURE_ONLY`. O canário oficial (`official-canary`) **não** cai para fixture: emite `BLOCKED` com pré-requisito e próximo comando.
+
+Com DSN, o canário lê só colunas oficiais de `pncp_supplier_contracts` e filtra pavimentação pelo classificador documentado. Se `unidade`, `quantidade`, `regime`, `modalidade` e `valor_semantic` não existirem, o grupo é `HOLD_FOR_DATA` (`live_columns_unavailable`). Snapshot vazio = `BLOCKED` (`official_dataset_empty`). Pedido de custo/km = `HOLD_FOR_DATA` (`physical_unit_price_not_verified`). Não inventar semântica. Replay: mesmo `--dsn --focal --as-of --metric` deve reproduzir o `content_hash` se o snapshot não mudou.
+
+Ver [OFFICIAL_CANARY.md](./OFFICIAL_CANARY.md).
 
 ## Live smoke (quando houver snapshot)
 

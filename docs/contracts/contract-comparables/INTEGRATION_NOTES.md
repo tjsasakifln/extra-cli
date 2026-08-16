@@ -40,6 +40,14 @@ Colunas oficiais atuais: identidade, objeto, `valor_total`, datas, UF/município
 
 **Não existem** `unidade`, `quantidade`, `regime`, `modalidade`, `valor_semantic`. Live sem esses campos = `HOLD_FOR_DATA` (`live_columns_unavailable`). `valor_total` é tratado como candidato a valor integral nominal **somente** quando o recorte fixture declara a semântica; no live a semântica permanece `unknown`.
 
+## EXTRA-010 official canary
+
+`python3 -m scripts.contract_comparables official-canary` is the official-sample runner. It never falls back to `FIXTURE_ONLY`. Missing DSN/host/table/empty snapshot → `BLOCKED` with prerequisite and next command. `custo/km` → `HOLD_FOR_DATA` (`physical_unit_price_not_verified`). Envelope schema: `comparable-contracts-official-canary/1.0`. The inner peer-group document stays `comparable-contracts/1.0`.
+
+Observed 2026-08-16 on `127.0.0.1:55432/extra_test`: table exists, 0 rows, semantic columns absent → `BLOCKED` (`official_dataset_empty`, `live_columns_unavailable`). Replay of the same `--dsn --as-of` reproduced `content_hash`.
+
+EXTRA-003 is absent locally. EXTRA-004 and EXTRA-008 are not in `origin/main`. This producer does not implement Market Answer UX (web-cfg#84).
+
 ## Worktree paralelo `scripts/comparable_contracts`
 
 Não foi reutilizado nem fundido. O id de schema `comparable-contracts/1.0` é compartilhado de propósito para #400. O layout de módulos deste inbound é `scripts/contract_comparables`.

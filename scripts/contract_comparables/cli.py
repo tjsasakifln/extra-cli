@@ -16,6 +16,7 @@ from scripts.contract_comparables.corpus import (
 )
 from scripts.contract_comparables.engine import build_peer_group
 from scripts.contract_comparables.live import live_or_fixture_only, live_smoke_instructions
+from scripts.contract_comparables.official_canary import run_official_canary
 from scripts.contract_comparables.report import evaluate_corpus
 from scripts.contract_comparables.serialize import validate_against_schema
 
@@ -40,7 +41,9 @@ def _cmd_build(args: argparse.Namespace) -> int:
     if errors:
         raise SystemExit(f"document failed schema checks: {errors}")
     if args.out:
-        Path(args.out).write_text(json.dumps(document, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        Path(args.out).write_text(
+            json.dumps(document, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
     return _dump(document)
 
 
@@ -73,6 +76,23 @@ def _cmd_live(args: argparse.Namespace) -> int:
         as_of=args.as_of,
         limit=args.limit,
     )
+    return _dump(payload)
+
+
+def _cmd_official_canary(args: argparse.Namespace) -> int:
+    payload = run_official_canary(
+        dsn=args.dsn,
+        focal_id=args.focal,
+        as_of=args.as_of,
+        limit=args.limit,
+        metric=args.metric,
+    )
+    if args.out:
+        path = Path(args.out)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    if payload.get("catalog_mode") == "official_live":
+        raise SystemExit("official-canary refused to emit catalog_mode=official_live")
     return _dump(payload)
 
 
@@ -143,6 +163,18 @@ def build_parser() -> argparse.ArgumentParser:
     live.add_argument("--as-of", dest="as_of", default="2026-08-01")
     live.add_argument("--limit", type=int, default=200)
     live.set_defaults(func=_cmd_live)
+
+    official = sub.add_parser(
+        "official-canary",
+        help="Run the official paving canary or emit BLOCKED with the exact prerequisite",
+    )
+    official.add_argument("--dsn", default=None)
+    official.add_argument("--focal", default=None)
+    official.add_argument("--as-of", dest="as_of", default="2026-08-01")
+    official.add_argument("--limit", type=int, default=200)
+    official.add_argument("--metric", default="valor_integral_nominal")
+    official.add_argument("--out", default=None)
+    official.set_defaults(func=_cmd_official_canary)
     return parser
 
 
