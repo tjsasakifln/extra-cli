@@ -15,6 +15,7 @@ Live SELECT-only against `public.pncp_supplier_contracts` either builds a versio
 ## Scope
 
 - Reuse `scripts.contract_comparables` (PR #418). No third producer.
+- Official envelope recorta o peer group à UF do focal. Dump nacional mixed-UF sem colunas semânticas = `HOLD_FOR_DATA`, não `NOT_COMPARABLE` por geografia.
 - Reviewable sample: tipologia (keyword documentado), regime, porte, geografia, período, moeda/base, coverage.
 - Metric whitelist: mediana / P25 / P75 / distâncias sobre valor integral nominal.
 - `custo/km` sem quantidade/unidade documental → `HOLD_FOR_DATA` (`physical_unit_price_not_verified`).

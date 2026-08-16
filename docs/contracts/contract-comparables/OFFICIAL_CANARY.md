@@ -30,6 +30,15 @@ and robust distances are emitted only after the peer-group gate passes.
 `custo/km`, `cost_per_km`, `custo/m2`, `unit_price` → `HOLD_FOR_DATA` with
 `physical_unit_price_not_verified`. `UNKNOWN` never becomes zero.
 
+## Official stratum
+
+`pncp_supplier_contracts` is national. The canary fetches paving-like rows
+and then keeps **only the focal UF** before `build_peer_group`. A mixed-UF
+dump with missing semantic columns is `HOLD_FOR_DATA`
+(`live_columns_unavailable`), not `NOT_COMPARABLE` /
+`geography_not_comparable`. Geography remains a hard refusal only after
+semantics exist and the focal UF stratum is still incompatible.
+
 ## Replay
 
 ```bash

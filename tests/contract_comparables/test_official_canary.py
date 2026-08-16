@@ -19,6 +19,7 @@ from scripts.contract_comparables.constants import (
     OFFICIAL_LIVE,
     REASON_DATASET_EMPTY,
     REASON_DSN_UNAVAILABLE,
+    REASON_GEOGRAPHY_NOT_COMPARABLE,
     REASON_LIVE_COLUMNS,
     REASON_PHYSICAL_UNIT,
     STATUS_BLOCKED,
@@ -153,6 +154,54 @@ def test_official_shaped_rows_hold_and_never_official_live() -> None:
     )
     assert replay["content_hash"] == envelope["content_hash"]
     assert replay["document"]["content_hash"] == document["content_hash"]
+
+
+def test_mixed_uf_official_envelope_holds_for_missing_semantics() -> None:
+    from scripts.contract_comparables.live import rows_to_records
+
+    sc_rows = [_official_row(index, uf="SC") for index in range(1, 7)]
+    pr_rows = [_official_row(index, uf="PR") for index in range(1, 7)]
+    for row in pr_rows:
+        row["contrato_id"] = row["contrato_id"].replace("off", "pr")
+        row["municipio"] = "Curitiba"
+    mappings = rows_to_records(sc_rows + pr_rows)
+    focal = mappings[0]["contract_id"]
+    envelope = build_official_envelope(
+        mappings,
+        as_of="2026-08-01",
+        focal_id=focal,
+        missing_semantic_columns=("unidade", "quantidade", "regime", "modalidade", "valor_semantic"),
+        official_columns=("contrato_id", "objeto_contrato", "valor_total", "uf"),
+        active_row_count=12,
+    )
+    assert envelope["status"] == STATUS_HOLD
+    assert envelope["status"] != STATUS_NOT
+    assert envelope["status"] != STATUS_COMPARABLE
+    assert REASON_LIVE_COLUMNS in envelope["reason_codes"]
+    assert REASON_GEOGRAPHY_NOT_COMPARABLE not in envelope["reason_codes"]
+    assert envelope["catalog_mode"] != OFFICIAL_LIVE
+    sample = envelope["reviewable_sample"]
+    assert sample["stratum_uf"] == "SC"
+    assert sample["geography"]["ufs"] == ["SC"]
+    assert set(sample["fetched_ufs"]) == {"PR", "SC"}
+    assert sample["n_paving"] == 6
+    assert sample["n_paving_fetched"] == 12
+    assert envelope["observability"]["not_comparable_rate"] == 0.0
+    assert envelope["observability"]["status_counts"][STATUS_NOT] == 0
+    document = envelope["document"]
+    assert document is not None
+    assert document["status"] == STATUS_HOLD
+    assert document["geography"]["uf"] == "SC"
+    replay = build_official_envelope(
+        list(reversed(mappings)),
+        as_of="2026-08-01",
+        focal_id=focal,
+        missing_semantic_columns=("unidade", "quantidade", "regime", "modalidade", "valor_semantic"),
+        official_columns=("contrato_id", "objeto_contrato", "valor_total", "uf"),
+        active_row_count=12,
+    )
+    assert replay["status"] == STATUS_HOLD
+    assert replay["content_hash"] == envelope["content_hash"]
 
 
 def test_empty_official_snapshot_is_blocked() -> None:

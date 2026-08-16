@@ -42,7 +42,7 @@ Colunas oficiais atuais: identidade, objeto, `valor_total`, datas, UF/município
 
 ## EXTRA-010 official canary
 
-`python3 -m scripts.contract_comparables official-canary` is the official-sample runner. It never falls back to `FIXTURE_ONLY`. Missing DSN/host/table/empty snapshot → `BLOCKED` with prerequisite and next command. `custo/km` → `HOLD_FOR_DATA` (`physical_unit_price_not_verified`). Envelope schema: `comparable-contracts-official-canary/1.0`. The inner peer-group document stays `comparable-contracts/1.0`.
+`python3 -m scripts.contract_comparables official-canary` is the official-sample runner. It never falls back to `FIXTURE_ONLY`. Missing DSN/host/table/empty snapshot → `BLOCKED` with prerequisite and next command. `custo/km` → `HOLD_FOR_DATA` (`physical_unit_price_not_verified`). National rows are reduced to the focal UF before the engine runs; mixed-UF + missing semantics stays `HOLD_FOR_DATA`. Envelope schema: `comparable-contracts-official-canary/1.0`. The inner peer-group document stays `comparable-contracts/1.0`.
 
 Observed 2026-08-16 on `127.0.0.1:55432/extra_test`: table exists, 0 rows, semantic columns absent → `BLOCKED` (`official_dataset_empty`, `live_columns_unavailable`). Replay of the same `--dsn --as-of` reproduced `content_hash`.
 

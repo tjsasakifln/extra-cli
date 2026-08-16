@@ -289,6 +289,35 @@ def filter_paving_mappings(mappings: list[dict[str, Any]]) -> list[dict[str, Any
     return [item for item in mappings if is_paving_record(item)]
 
 
+def mapping_uf(mapping: dict[str, Any]) -> str | None:
+    raw = mapping.get("uf")
+    if raw is None or raw == "":
+        return None
+    return str(raw).upper()
+
+
+def pick_focal_mapping(mappings: list[dict[str, Any]], focal_id: str | None) -> dict[str, Any] | None:
+    if not mappings:
+        return None
+    if focal_id:
+        for item in mappings:
+            if str(item.get("contract_id")) == str(focal_id):
+                return item
+        return None
+    return mappings[0]
+
+
+def same_uf_stratum(mappings: list[dict[str, Any]], focal_id: str | None) -> list[dict[str, Any]]:
+    """Keep the focal UF only. A national dump is not one peer group."""
+    focal = pick_focal_mapping(mappings, focal_id)
+    if focal is None:
+        return []
+    uf = mapping_uf(focal)
+    if uf is None:
+        return [focal]
+    return [item for item in mappings if mapping_uf(item) == uf]
+
+
 def reviewable_sample_from_records(
     mappings: list[dict[str, Any]],
     *,
@@ -416,9 +445,9 @@ def measure_status_rates(
     statuses: Counter[str] = Counter()
     latencies_ms: list[float] = []
     hashes: list[str] = []
-    records = records_from_mappings(mappings)
     for focal_id in ids[:MAX_FOCALS_FOR_RATE]:
         started = time.perf_counter()
+        stratum = same_uf_stratum(mappings, focal_id)
         request = PeerRequest(
             focal_contract_id=focal_id,
             as_of=as_of,
@@ -426,7 +455,7 @@ def measure_status_rates(
             source="pncp_supplier_contracts",
             live_semantic_columns_present=live_semantic_columns_present,
         )
-        _result, document = build_peer_group(records, request)
+        _result, document = build_peer_group(records_from_mappings(stratum), request)
         latencies_ms.append((time.perf_counter() - started) * 1000.0)
         statuses[document["status"]] += 1
         hashes.append(document["content_hash"])
@@ -477,7 +506,19 @@ def build_official_envelope(
             missing_semantic_columns=missing_semantic_columns,
             extra={"official_columns_present": list(official_columns), "active_row_count": active_row_count},
         )
-    focal = focal_id or str(paving[0]["contract_id"])
+    chosen = pick_focal_mapping(paving, focal_id)
+    if chosen is None:
+        return blocked_envelope(
+            reason_codes=("target_not_found", REASON_LIVE_COLUMNS),
+            prerequisite="Pass --focal with a contrato_id present in the official paving sample.",
+            next_command=NEXT_COMMAND,
+            as_of=as_of,
+            metric=METRIC_NOMINAL_TOTAL,
+            missing_semantic_columns=missing_semantic_columns,
+            extra={"official_columns_present": list(official_columns), "active_row_count": active_row_count},
+        )
+    focal = str(chosen["contract_id"])
+    stratum = same_uf_stratum(paving, focal)
     live_semantic = not missing_semantic_columns
     request = PeerRequest(
         focal_contract_id=focal,
@@ -486,7 +527,7 @@ def build_official_envelope(
         source="pncp_supplier_contracts",
         live_semantic_columns_present=live_semantic,
     )
-    _result, document = build_peer_group(records_from_mappings(paving), request)
+    _result, document = build_peer_group(records_from_mappings(stratum), request)
     if document.get("catalog_mode") == OFFICIAL_LIVE:
         raise RuntimeError("official canary must not self-label official_live")
     if missing_semantic_columns and REASON_LIVE_COLUMNS not in document["reason_codes"]:
@@ -497,11 +538,14 @@ def build_official_envelope(
         live_semantic_columns_present=live_semantic,
     )
     late = observe_late_arrivals(
-        paving,
+        stratum,
         as_of=as_of,
         live_semantic_columns_present=live_semantic,
     )
-    sample = reviewable_sample_from_records(paving, as_of=as_of, coverage=document.get("coverage"))
+    sample = reviewable_sample_from_records(stratum, as_of=as_of, coverage=document.get("coverage"))
+    sample["n_paving_fetched"] = len(paving)
+    sample["stratum_uf"] = mapping_uf(chosen)
+    sample["fetched_ufs"] = sorted({uf for uf in (mapping_uf(item) for item in paving) if uf})
     payload = {
         "schema": OFFICIAL_CANARY_SCHEMA,
         "status": document["status"],
