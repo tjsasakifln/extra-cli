@@ -1,0 +1,59 @@
+{
+  "schema": "publication-value-score/1.0",
+  "contract_version": "v1.0.0",
+  "compatibility": "additive_nullable_within_v1",
+  "formula": "weighted_geometric_mean_of_known_components",
+  "unknown_policy": "UNKNOWN remains UNKNOWN; missing data is never coerced to 0 and never counted as positive evidence",
+  "clamp": {
+    "min": 0.05,
+    "max": 1.0,
+    "note": "clamp applies only to KNOWN values inside the geometric mean; raw component values are stored unclamped"
+  },
+  "weights": {
+    "commercial_relevance": 0.09,
+    "demand_fit": 0.10,
+    "insight_or_anomaly_strength": 0.22,
+    "documentary_richness": 0.10,
+    "comparability": 0.07,
+    "freshness": 0.09,
+    "defensibility": 0.10,
+    "citation_potential": 0.07,
+    "editorial_maintenance_cost": 0.08,
+    "reputational_sensitivity": 0.08
+  },
+  "component_semantics": {
+    "commercial_relevance": "editorial size of the published instrument (nominal BRL). Not a lead score.",
+    "demand_fit": "thematic fit to public-contract technical analysis (price index, amendment, term, documented adjustment). Not reachability.",
+    "insight_or_anomaly_strength": "verifiable technical signal (event, material change, documented index, versioned peer gap). Atypical is not irregular.",
+    "documentary_richness": "share of official fact fields that are KNOWN, plus sourced documents.",
+    "comparability": "KNOWN only with a versioned peer sample; otherwise UNKNOWN. Missing peer is not a reject.",
+    "freshness": "age of observation versus payload as_of (never wall-clock).",
+    "defensibility": "sourced evidence on fired insight detectors.",
+    "citation_potential": "official source + stable identity + dated evidence refs.",
+    "editorial_maintenance_cost": "inverted maintenance burden (higher value = cheaper to keep current). Conflicts, missing docs and amendment volume raise cost.",
+    "reputational_sensitivity": "inverted reputational exposure (higher value = safer). High sensitivity sets a review flag and never accuses."
+  },
+  "thresholds": {
+    "review_min_insight": 0.40,
+    "review_min_defensibility": 0.50,
+    "review_min_score": 0.42,
+    "review_min_known_weight_fraction": 0.50,
+    "review_min_sourced_insight_detectors": 1,
+    "stale_max_age_hours": 48,
+    "min_peer_sample": 5,
+    "value_material_brl": 1000000,
+    "value_material_ratio": 0.05,
+    "value_material_abs_brl": 100000,
+    "concentration_min_recurrence": 3
+  },
+  "epistemic_classes": ["FACT", "CALCULATION", "INFERENCE", "UNKNOWN"],
+  "candidate_states": ["REJECT", "HOLD_FOR_DATA", "EDITORIAL_REVIEW"],
+  "does_not_authorize": [
+    "publication",
+    "indexation",
+    "PUBLISHABLE_NOINDEX",
+    "PUBLISHABLE_INDEX",
+    "INDEX",
+    "web page"
+  ]
+}

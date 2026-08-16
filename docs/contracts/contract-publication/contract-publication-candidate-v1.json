@@ -1,0 +1,103 @@
+{
+  "schema": "contract-publication-candidate/1.0",
+  "contract_version": "v1.0.0",
+  "score_formula_version": "publication-value-score/1.0",
+  "compatibility": "additive_nullable_within_v1",
+  "grain": "canonical_contract_id",
+  "keys": ["canonical_contract_id", "analysis_candidate_id"],
+  "accepted_versions": ["1.0", "v1.0.0"],
+  "source_families": [
+    "pncp_supplier_contracts",
+    "canonical_public_observations",
+    "public_read_v1.contracts",
+    "national_contract_truth.contract_events"
+  ],
+  "reuses": {
+    "margin_defense_projector": "scripts.public_read.margin_defense.project_margin_facts",
+    "identity": "scripts.contracts_truth.canonical_contract_identity",
+    "event_families": "scripts.national_contract_truth.contract_events.EVENT_FAMILIES",
+    "freshness_policy": "contracts-freshness-slo-v1"
+  },
+  "does_not_import": [
+    "scripts.commercial.reajuste_14133.domain.scoring",
+    "scripts.organic.score",
+    "scripts.decision_unit_intelligence"
+  ],
+  "candidate_states": ["REJECT", "HOLD_FOR_DATA", "EDITORIAL_REVIEW"],
+  "does_not_authorize": [
+    "publication",
+    "indexation",
+    "PUBLISHABLE_NOINDEX",
+    "PUBLISHABLE_INDEX",
+    "INDEX",
+    "web page"
+  ],
+  "as_of": "snapshot cutoff from the input payload; never wall-clock",
+  "freshness": {
+    "policy": "contracts-freshness-slo-v1",
+    "layer": "publication",
+    "max_age_hours": 48
+  },
+  "catalog_mode": {
+    "fixture": "labeled fixture; never consumed or labeled as official",
+    "official_unavailable": "OFFICIAL_DATA_UNAVAILABLE when no versioned official projection exists"
+  },
+  "unknown_reason_codes": [
+    "missing_identity",
+    "missing_nominal_value",
+    "missing_object",
+    "missing_observed_at",
+    "no_explicit_adjustment_document",
+    "no_amendment_signal",
+    "not_observed",
+    "source_does_not_offer_measurements",
+    "source_does_not_offer_payments",
+    "index_without_document",
+    "insufficient_peer_sample",
+    "peer_group_absent",
+    "price_reference_absent",
+    "bdi_sinapi_sicro_absent",
+    "peer_interface_unversioned"
+  ],
+  "state_reason_codes": [
+    "no_verifiable_insight",
+    "high_value_without_insight",
+    "anomaly_without_source",
+    "snapshot_stale",
+    "detector_field_missing",
+    "duplicate_collapsed",
+    "local_labeled_national",
+    "single_component_dominance",
+    "municipality_or_party_swap_is_not_insight",
+    "review_gates_passed",
+    "hold_for_missing_evidence",
+    "reputational_review_required"
+  ],
+  "forbidden_conclusion_fields": [
+    "has_right",
+    "imbalance",
+    "loss",
+    "should_adjust",
+    "direito",
+    "desequilibrio",
+    "perda",
+    "deveria_reajustar",
+    "irregular",
+    "fraude"
+  ],
+  "forbidden_export_fields": [
+    "seo_title",
+    "cta",
+    "index",
+    "noindex",
+    "INDEX",
+    "PUBLISHABLE_INDEX",
+    "PUBLISHABLE_NOINDEX"
+  ],
+  "epistemic_classes": ["FACT", "CALCULATION", "INFERENCE", "UNKNOWN"],
+  "consumer": {
+    "id": "contract-publication-candidate-engine",
+    "issues": ["#414"],
+    "downstream": ["public-read-contract-analysis/1.0"]
+  }
+}
