@@ -1,0 +1,174 @@
+{
+  "claim": {
+    "claim_id": "claim-source-wide-only",
+    "cutoff": "2026-08-15T00:00:00Z",
+    "denominator_kind": "national",
+    "geography": "BR",
+    "infer_completeness_from_row_count": false,
+    "period": "2026-01/2026-08",
+    "policy_version": "national-claims-gate/1.0",
+    "scope": "national",
+    "snapshot": "2026-08-15T00:00:00Z",
+    "sources": [
+      "pncp"
+    ],
+    "typology": "contratos"
+  },
+  "contract_version": "national-claims/1.0",
+  "evidence": [
+    {
+      "canonical_entity_key": null,
+      "count_obtained": 800,
+      "count_persisted": 800,
+      "data_type": "bids",
+      "entity_id": null,
+      "id": 3,
+      "metadata": {
+        "pipeline": "resilient_cycle"
+      },
+      "run_id": 22,
+      "source": "pncp",
+      "state": "success_with_data"
+    }
+  ],
+  "freshness": {
+    "age_hours": 6,
+    "as_of": "2026-08-15T00:00:00Z",
+    "lag_p99_hours": 3,
+    "layer": "publication"
+  },
+  "partitions": [
+    {
+      "attempted": false,
+      "expected": true,
+      "partition_id": "org-a",
+      "status": "UNKNOWN"
+    },
+    {
+      "attempted": false,
+      "expected": true,
+      "partition_id": "org-b",
+      "status": "UNKNOWN"
+    },
+    {
+      "attempted": false,
+      "expected": true,
+      "partition_id": "org-sc",
+      "status": "UNKNOWN"
+    }
+  ],
+  "prior_lkg": null,
+  "producer_sha": "fixture",
+  "source_version": "pncp/1.0",
+  "universes": {
+    "extra_1093_monitored": {
+      "competence": "contratos-2026",
+      "cutoff": "2026-08-15T00:00:00Z",
+      "exclusion_rules": [
+        "national_publishing_orgs"
+      ],
+      "inclusion_rules": [
+        "raio_200km_monitored"
+      ],
+      "method_version": "extra-1093-v1",
+      "official_source": "sc_public_entities",
+      "orgs": [
+        {
+          "name": "Ente monitorado 1",
+          "org_id": "ent-001",
+          "unit_count": 1
+        },
+        {
+          "name": "Ente monitorado 2",
+          "org_id": "ent-002",
+          "unit_count": 1
+        }
+      ]
+    },
+    "icp_commercial": {
+      "competence": "contratos-2026",
+      "cutoff": "2026-08-15T00:00:00Z",
+      "exclusion_rules": [
+        "national_publishing_orgs"
+      ],
+      "inclusion_rules": [
+        "commercial_icp"
+      ],
+      "method_version": "icp-v1",
+      "official_source": "icp-commercial",
+      "orgs": [
+        {
+          "name": "ICP Buyer 1",
+          "org_id": "icp-1",
+          "unit_count": 1
+        },
+        {
+          "name": "ICP Buyer 2",
+          "org_id": "icp-2",
+          "unit_count": 1
+        }
+      ]
+    },
+    "national": {
+      "competence": "contratos-2026",
+      "cutoff": "2026-08-15T00:00:00Z",
+      "exclusion_rules": [
+        "extra_1093_monitored_entes",
+        "icp_commercial_universe",
+        "observed_corpus_at_snapshot",
+        "row_count_as_completeness"
+      ],
+      "inclusion_rules": [
+        "official_publishing_org_catalog",
+        "competence_window",
+        "cutoff_inclusive"
+      ],
+      "method_version": "pncp-orgaos-publicantes-v1",
+      "official_source": "pncp",
+      "orgs": [
+        {
+          "geography": "SP",
+          "name": "Orgao A",
+          "org_id": "org-a",
+          "unit_count": 1
+        },
+        {
+          "geography": "RJ",
+          "name": "Orgao B",
+          "org_id": "org-b",
+          "unit_count": 2
+        },
+        {
+          "geography": "SC",
+          "name": "Orgao SC",
+          "org_id": "org-sc",
+          "unit_count": 1
+        }
+      ],
+      "owner": "contracts-truth",
+      "review_cadence": "weekly",
+      "version_changes": [
+        "initial fixture seed"
+      ]
+    },
+    "observed_corpus": {
+      "competence": "contratos-2026",
+      "cutoff": "2026-08-15T00:00:00Z",
+      "exclusion_rules": [
+        "unobserved_orgs"
+      ],
+      "inclusion_rules": [
+        "rows_present_in_snapshot"
+      ],
+      "method_version": "observed-corpus-v1",
+      "official_source": "snapshot",
+      "orgs": [
+        {
+          "name": "Orgao A seen",
+          "org_id": "org-a",
+          "unit_count": 1
+        }
+      ]
+    }
+  }
+}
