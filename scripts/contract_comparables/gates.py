@@ -111,7 +111,13 @@ def peer_dimension_reasons(focal: Recorte, peer: Recorte) -> tuple[str, ...]:
             reasons.append(REASON_PERIOD_NOT_COMPARABLE)
         elif delta > MAX_YEAR_DELTA_COMPARABLE:
             reasons.append(REASON_PERIOD_NOT_COMPARABLE)
-    if peer.value_semantic != VALUE_SEMANTIC_CANONICAL or focal.value_semantic != VALUE_SEMANTIC_CANONICAL:
+    if peer.value_semantic == "unknown" or focal.value_semantic == "unknown":
+        reasons.append(REASON_FIELDS_UNAVAILABLE)
+    elif (
+        peer.value_semantic != VALUE_SEMANTIC_CANONICAL
+        or focal.value_semantic != VALUE_SEMANTIC_CANONICAL
+        or peer.value_semantic != focal.value_semantic
+    ):
         reasons.append(REASON_VALUE_SEMANTIC_MISMATCH)
     if {focal.value_basis, peer.value_basis} == {"original", "atualizado"}:
         reasons.append(REASON_ORIGINAL_VS_UPDATED_MIX)
@@ -142,7 +148,9 @@ def focal_gate_reasons(focal: Recorte, request: PeerRequest) -> tuple[str, ...]:
         reasons.append(REASON_INCOMPATIBLE_UNIT if focal.unit != "unknown" else REASON_UNIT_UNKNOWN)
     if focal.regime == "unknown":
         reasons.append(REASON_FIELDS_UNAVAILABLE)
-    if focal.value_semantic != VALUE_SEMANTIC_CANONICAL:
+    if focal.value_semantic == "unknown":
+        reasons.append(REASON_FIELDS_UNAVAILABLE)
+    elif focal.value_semantic != VALUE_SEMANTIC_CANONICAL:
         reasons.append(REASON_VALUE_SEMANTIC_MISMATCH)
     if focal.contract.valor_is_unknown or focal.contract.valor is None:
         reasons.append(REASON_MISSING_VALUE)
@@ -165,6 +173,24 @@ def decide_status(
         reasons.append(REASON_DUPLICATE_OR_RECTIFICATION)
     unique = tuple(dict.fromkeys(reasons))
     hard = tuple(code for code in unique if code in HARD_REFUSAL_REASONS)
+    if REASON_LIVE_COLUMNS in unique:
+        proven = tuple(
+            code
+            for code in hard
+            if code
+            in {
+                REASON_TYPOLOGY_MISMATCH,
+                REASON_DISTINCT_SCOPE,
+                REASON_GEOGRAPHY_NOT_COMPARABLE,
+                REASON_PERIOD_NOT_COMPARABLE,
+                REASON_DUPLICATE_OR_RECTIFICATION,
+                REASON_TEXT_SIMILARITY_ONLY,
+                REASON_EMBEDDING_NOT_AUTHORITY,
+            }
+        )
+        if proven:
+            return STATUS_NOT, unique
+        return STATUS_HOLD, unique
     if hard:
         return STATUS_NOT, unique
     focal_holds = tuple(code for code in focal_reasons if code in HOLD_REASONS)

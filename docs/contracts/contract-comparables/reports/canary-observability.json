@@ -3,27 +3,27 @@
   "catalog_mode": "fixture",
   "cost_latency": {
     "per_group_ms": [
-      154.511,
-      151.337,
-      155.284,
-      143.829,
-      168.435,
-      233.2,
-      258.584
+      20.087,
+      16.292,
+      18.094,
+      17.813,
+      15.107,
+      18.396,
+      17.278
     ],
-    "total_ms": 1265.329
+    "total_ms": 123.22
   },
   "groups": [
     {
       "case_id": "comparable_clear",
-      "content_hash": "44a1a0280b0ae32b5b95a8d6717b1f5b7ff7eda97b960f5087d0d727a40497aa",
+      "content_hash": "b47cdd43a344f95bf2d0a87fcba97eb59911d4ff945d5e5d28413605fc3578fc",
       "coverage": {
         "eligible_n": 8,
         "missingness": 0.0,
         "usable_over_total": 1.0
       },
       "focal_id": "83102277000152-2-pav001/2025",
-      "latency_ms": 154.511,
+      "latency_ms": 20.087,
       "missingness": {
         "ratio": 0.0,
         "unknown_excluded": true
@@ -39,14 +39,14 @@
     },
     {
       "case_id": "regime_incompatible",
-      "content_hash": "d8780d051b0ecdce461caecd34ba3ca57573b7baae399bf4b129689b45fa1b43",
+      "content_hash": "e25198be980ac7840df1ccb4b3b5af0bb81008e3d3a6c27ef64166825e6a9b12",
       "coverage": {
         "eligible_n": 0,
         "missingness": 1.0,
         "usable_over_total": 0.0
       },
       "focal_id": "83102277000152-2-reg001/2025",
-      "latency_ms": 151.337,
+      "latency_ms": 16.292,
       "missingness": {
         "ratio": 1.0,
         "unknown_excluded": true
@@ -63,14 +63,14 @@
     },
     {
       "case_id": "geo_period_inadequate",
-      "content_hash": "a538a08d2a8061ee3e09ddd2ce27940075e1de6c288fd51d3d8dbb5bb357e47e",
+      "content_hash": "5ac0d14f0b625511b1c0da699c513fad7cac9b9172a71aaf637f77662f473082",
       "coverage": {
         "eligible_n": 0,
         "missingness": 1.0,
         "usable_over_total": 0.0
       },
       "focal_id": "83102277000152-2-geo001/2025",
-      "latency_ms": 155.284,
+      "latency_ms": 18.094,
       "missingness": {
         "ratio": 1.0,
         "unknown_excluded": true
@@ -88,14 +88,14 @@
     },
     {
       "case_id": "insufficient_sample",
-      "content_hash": "234d64a9445635fcbeae8359a91395a75e1004376e64a03e18606b3220558ae3",
+      "content_hash": "f4d78c45d2ae77dc8b3f69f30f69e9fb559141f805dc8412386d94d7ae1678d9",
       "coverage": {
         "eligible_n": 2,
         "missingness": 0.0,
         "usable_over_total": 1.0
       },
       "focal_id": "83102277000152-2-n001/2025",
-      "latency_ms": 143.829,
+      "latency_ms": 17.813,
       "missingness": {
         "ratio": 0.0,
         "unknown_excluded": true
@@ -112,14 +112,14 @@
     },
     {
       "case_id": "missing_values",
-      "content_hash": "88462ce9241c943b988d0dcffd591d6172de3b9b0fe6a1f24d9c8e15641399b7",
+      "content_hash": "b12ae855c73c7eb25173b621f81aacbd3db251185bfff56dd08f2427a32e8c49",
       "coverage": {
         "eligible_n": 5,
         "missingness": 1.0,
         "usable_over_total": 0.0
       },
       "focal_id": "83102277000152-2-miss001/2025",
-      "latency_ms": 168.435,
+      "latency_ms": 15.107,
       "missingness": {
         "ratio": 1.0,
         "unknown_excluded": true
@@ -137,14 +137,14 @@
     },
     {
       "case_id": "duplicate_rectification",
-      "content_hash": "c1461d1bdaa1e151e1695ea8f5d718fc3f608385d8a58551c31f238db7a246af",
+      "content_hash": "5ddb7da58882c9bb2895aade58c31d7f59901147240adb9dc1a3aeaa4b26422b",
       "coverage": {
         "eligible_n": 4,
         "missingness": 0.0,
         "usable_over_total": 1.0
       },
       "focal_id": "83102277000152-2-dup001/2025",
-      "latency_ms": 233.2,
+      "latency_ms": 18.396,
       "missingness": {
         "ratio": 0.0,
         "unknown_excluded": true
@@ -161,14 +161,14 @@
     },
     {
       "case_id": "statistical_outlier",
-      "content_hash": "65f716b9f0a65a51bbebec24ee9196080beef7b4ed0a9bd659792333080d014d",
+      "content_hash": "3b2bf53b45ac2a23e54e2cf0d6da3798eb47b0ddb9a59c7c8057d5f23703d437",
       "coverage": {
         "eligible_n": 8,
         "missingness": 0.0,
         "usable_over_total": 1.0
       },
       "focal_id": "83102277000152-2-out001/2025",
-      "latency_ms": 258.584,
+      "latency_ms": 17.278,
       "missingness": {
         "ratio": 0.0,
         "unknown_excluded": true

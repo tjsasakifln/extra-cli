@@ -84,7 +84,9 @@ def classify_regime(raw: str | None) -> str:
 def classify_unit(raw: str | None, *, quantity: Decimal | None) -> str:
     folded = fold_text(raw)
     if not folded or folded == "unknown":
-        return UNIT_CANONICAL if quantity is None else "unknown"
+        # Missing unit is unknown. Never invent BRL_TOTAL from silence.
+        _ = quantity
+        return "unknown"
     if folded in UNIT_TOTAL_ALIASES:
         return UNIT_CANONICAL
     if folded in UNIT_KM_ALIASES:

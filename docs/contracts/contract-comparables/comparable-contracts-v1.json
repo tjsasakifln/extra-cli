@@ -77,8 +77,8 @@
       "enum": ["fixture", "live_candidate", "FIXTURE_ONLY"]
     },
     "source": { "type": "string" },
-    "value_semantic": { "type": "string", "const": "valor_integral_nominal" },
-    "unit": { "type": "string", "const": "BRL_TOTAL" },
+    "value_semantic": { "type": "string", "minLength": 1 },
+    "unit": { "type": "string", "minLength": 1 },
     "metrics": { "type": "object" },
     "percentiles": { "type": "object" },
     "reason_codes": {

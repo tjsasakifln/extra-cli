@@ -5,7 +5,7 @@
 - HOLD_FOR_DATA: 1
 - NOT_COMPARABLE: 4
 - taxa de rejeição: 0.7143
-- custo/latência total (ms): 1265.329
+- custo/latência total (ms): 123.22
 - recomendação: manter
 
 ## Grupos

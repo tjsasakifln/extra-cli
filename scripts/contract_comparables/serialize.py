@@ -26,7 +26,6 @@ from scripts.contract_comparables.constants import (
     SCHEMA,
     SCHEMA_ALIAS,
     STATUS_COMPARABLE,
-    UNIT_CANONICAL,
     VALUE_SEMANTIC_CANONICAL,
 )
 from scripts.contract_comparables.models import PeerGroupResult
@@ -215,8 +214,8 @@ def serialize_result(result: PeerGroupResult) -> dict[str, Any]:
         "regime": focal.regime,
         "modality": focal.modalidade,
         "porte": focal.porte,
-        "value_semantic": VALUE_SEMANTIC_CANONICAL,
-        "unit": UNIT_CANONICAL,
+        "value_semantic": focal.value_semantic,
+        "unit": focal.unit,
         "monetary_normalization": request.monetary_normalization,
         "universe": {
             "total_n": result.total_n,

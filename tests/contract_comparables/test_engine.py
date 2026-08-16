@@ -14,6 +14,7 @@ from typing import Any
 import pytest
 
 from scripts.contract_comparables.constants import (
+    CATALOG_LIVE_CANDIDATE,
     FORBIDDEN_CLAIM_TOKENS,
     FORBIDDEN_METRIC_KEYS,
     OFFICIAL_LIVE,
@@ -22,6 +23,7 @@ from scripts.contract_comparables.constants import (
     REASON_INCOMPATIBLE_REGIME,
     REASON_INCOMPATIBLE_UNIT,
     REASON_INSUFFICIENT_N,
+    REASON_LIVE_COLUMNS,
     REASON_MISSING_VALUE,
     REASON_ORIGINAL_VS_UPDATED_MIX,
     REASON_PERIOD_NOT_COMPARABLE,
@@ -38,10 +40,12 @@ from scripts.contract_comparables.constants import (
 from scripts.contract_comparables.corpus import CANARY_CASES, case_expected_status, case_records, case_request
 from scripts.contract_comparables.engine import (
     build_document,
+    build_peer_group,
     groups_changed_by_rectification,
 )
+from scripts.contract_comparables.live import rows_to_records
 from scripts.contract_comparables.models import PeerRequest, RectificationEvent
-from scripts.contract_comparables.normalize import records_from_mappings
+from scripts.contract_comparables.normalize import classify_unit, records_from_mappings, recorte_from_record
 from scripts.contract_comparables.serialize import REQUIRED_DOCUMENT_FIELDS, content_hash_for, validate_against_schema
 from tests.contract_comparables.conftest import CORPUS_PATH, document_for, result_for
 
@@ -366,6 +370,56 @@ def test_compatible_with_400_adapter_contract(corpus: dict[str, Any]) -> None:
     assert mapped_not.status == "NOT_COMPARABLE"
     assert mapped_ok.schema == SCHEMA
     assert mapped_ok.metrics["n"] == comparable["metrics"]["n"]
+
+
+def test_live_shaped_records_hold_and_do_not_invent_unit() -> None:
+    assert classify_unit(None, quantity=None) == "unknown"
+    assert classify_unit("", quantity=None) == "unknown"
+    assert classify_unit(None, quantity=Decimal("12.5")) == "unknown"
+    assert classify_unit("BRL_TOTAL", quantity=None) == UNIT_CANONICAL
+
+    official_rows = [
+        {
+            "contrato_id": f"83102277000152-2-live{index:03d}/2025",
+            "objeto_contrato": "Pavimentação asfáltica em CBUQ de vias urbanas",
+            "valor_total": 700000 + (index * 10000),
+            "data_publicacao": "2025-06-01",
+            "data_inicio": "2025-06-01",
+            "uf": "SC",
+            "municipio": "Florianopolis",
+            "orgao_cnpj": "83102277000152",
+            "orgao_nome": "Prefeitura",
+            "fornecedor_cnpj": "00000000000191",
+            "fornecedor_nome": "Construtora",
+        }
+        for index in range(1, 7)
+    ]
+    mappings = rows_to_records(official_rows)
+    assert all(row["unidade"] is None for row in mappings)
+    assert all(row["valor_semantic"] == "unknown" for row in mappings)
+    assert all(row["regime"] is None for row in mappings)
+
+    recortes = [recorte_from_record(record) for record in records_from_mappings(mappings)]
+    assert all(item.unit == "unknown" for item in recortes)
+    assert all(item.value_semantic == "unknown" for item in recortes)
+    assert all(item.regime == "unknown" for item in recortes)
+
+    request = PeerRequest(
+        focal_contract_id="83102277000152-2-live001/2025",
+        as_of="2026-08-01",
+        catalog_mode=CATALOG_LIVE_CANDIDATE,
+        source="pncp_supplier_contracts",
+        live_semantic_columns_present=False,
+    )
+    result, document = build_peer_group(records_from_mappings(mappings), request)
+    assert document["status"] == STATUS_HOLD
+    assert document["status"] != STATUS_NOT
+    assert REASON_LIVE_COLUMNS in document["reason_codes"]
+    assert document["unit"] == "unknown"
+    assert document["value_semantic"] == "unknown"
+    assert document["catalog_mode"] != OFFICIAL_LIVE
+    assert result.focal.unit == "unknown"
+    assert result.metrics is None
 
 
 def test_cli_build_is_deterministic(corpus: dict[str, Any]) -> None:
