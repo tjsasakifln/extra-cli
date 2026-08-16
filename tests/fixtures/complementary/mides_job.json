@@ -1,0 +1,10 @@
+{
+  "interval": "2024-01-01/2024-12-31",
+  "estimated_bytes": 1048576,
+  "budget_bytes": 10485760,
+  "job_id": "job-fixture-1",
+  "env": {"GOOGLE_APPLICATION_CREDENTIALS": "/etc/passwd"},
+  "rows": [
+    {"id_municipio": "4205407", "descricao": "obras", "valor_final": 10.0, "source": "mides_bigquery"}
+  ]
+}

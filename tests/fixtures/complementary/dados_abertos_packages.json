@@ -1,0 +1,37 @@
+{
+  "packages": [
+    {
+      "id": "pkg-licitacoes",
+      "name": "licitacoes-pregoes-sc",
+      "title": "Licitações e pregões SC",
+      "resources": [
+        {
+          "id": "res-2024-csv",
+          "name": "Pregoes 2024",
+          "objeto": "pregao eletronico 2024",
+          "url": "https://dados.sc.gov.br/dataset/licitacoes/resource/2024.csv",
+          "format": "CSV",
+          "last_modified": "2026-01-10T00:00:00Z",
+          "temporal_coverage": "2024"
+        },
+        {
+          "id": "res-2025-csv",
+          "name": "Licitacoes 2025",
+          "url": "https://dados.sc.gov.br/dataset/licitacoes/resource/2025.csv",
+          "format": "CSV",
+          "last_modified": "2026-02-01T00:00:00Z",
+          "temporal_coverage": "2025"
+        }
+      ]
+    }
+  ],
+  "processed_ids": ["res-2024-csv", "res-2025-csv"],
+  "sc_compras": [
+    {
+      "source": "sc_compras",
+      "source_id": "SC-PREGAO-2024-01",
+      "objeto": "pregao eletronico 2024",
+      "url": "https://www.compras.sc.gov.br/editais/SC-PREGAO-2024-01"
+    }
+  ]
+}

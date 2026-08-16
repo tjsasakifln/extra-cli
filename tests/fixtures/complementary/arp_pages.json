@@ -1,0 +1,33 @@
+{
+  "pages": [
+    {
+      "complete": false,
+      "data": [
+        {
+          "identificadorAta": "ATA-001",
+          "numeroControlePNCP": "00000000000191-1-000001/2026",
+          "objeto": "Registro de precos de concreto",
+          "situacao": "VIGENTE",
+          "dataVigenciaInicio": "2026-01-01",
+          "dataVigenciaFim": "2026-12-31",
+          "orgaoEntidade": {"cnpj": "83102337000181", "razaoSocial": "PREFEITURA"},
+          "itens": [{"id": 1, "descricao": "m3 concreto"}],
+          "fornecedores": [{"cnpj": "12345678000199"}]
+        }
+      ]
+    },
+    {
+      "complete": true,
+      "data": [
+        {
+          "identificadorAta": "ATA-002",
+          "objeto": "IRP de combustivel",
+          "situacao": "ENCERRADA",
+          "orgaoEntidade": {"cnpj": "83102337000181"},
+          "itens": [],
+          "arquivos": [{"url": "https://pncp.gov.br/app/atas/ATA-002.pdf"}]
+        }
+      ]
+    }
+  ]
+}

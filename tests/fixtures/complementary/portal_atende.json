@@ -1,0 +1,25 @@
+{
+  "binding": {
+    "url": "https://pref-demo.atende.net/transparencia/licitacoes",
+    "cnpj": "83102337000181",
+    "ibge": "4205407",
+    "municipio": "Florianopolis"
+  },
+  "pages": [
+    {
+      "status": 200,
+      "complete": true,
+      "payload": {
+        "data": [
+          {
+            "id": "ATD-10",
+            "objeto": "Pavimentacao",
+            "situacao": "ABERTA",
+            "modalidade": "PREGAO",
+            "documentos": [{"nome": "edital.pdf"}]
+          }
+        ]
+      }
+    }
+  ]
+}
