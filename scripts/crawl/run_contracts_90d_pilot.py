@@ -82,19 +82,55 @@ _PAGE_RETRYABLE = frozenset(
 )
 
 
+def planned_window_keys(
+    start: date, end: date, window_days: int = CONTRACTS_WINDOW_DAYS
+) -> list[str]:
+    """Stable date-window keys the pilot will attempt between start and end.
+
+    ``end`` is an inclusive clip for the last window (same as ``date.today()``
+    in the historical ``today - days`` path). Keys stay aligned only when
+    start/end are pinned; deriving start from ``today - days`` drifts the
+    last window key every calendar day.
+    """
+    if window_days < 1 or start >= end:
+        return []
+    keys: list[str] = []
+    cur = start
+    while cur < end:
+        window_end = min(cur + timedelta(days=window_days - 1), end)
+        keys.append(f"{_fmt(cur)}_{_fmt(window_end)}")
+        cur = window_end + timedelta(days=1)
+    return keys
+
+
 def count_planned_windows(
     start: date, end: date, window_days: int = CONTRACTS_WINDOW_DAYS
 ) -> int:
     """Number of date windows the pilot will attempt between start and end."""
-    if window_days < 1 or start >= end:
-        return 0
-    n = 0
-    cur = start
-    while cur < end:
-        window_end = min(cur + timedelta(days=window_days - 1), end)
-        n += 1
-        cur = window_end + timedelta(days=1)
-    return n
+    return len(planned_window_keys(start, end, window_days))
+
+
+def resolve_pilot_range(
+    *,
+    days: int,
+    start_date: date | None = None,
+    end_date: date | None = None,
+    today: date | None = None,
+) -> tuple[date, date]:
+    """Pin the inclusive-clip range. ``start_date`` wins over ``today - days``."""
+    range_end = end_date or today or date.today()
+    range_start = start_date or (range_end - timedelta(days=days))
+    if range_start >= range_end:
+        raise ValueError(
+            f"invalid pilot range start={range_start.isoformat()} "
+            f"end={range_end.isoformat()}"
+        )
+    return range_start, range_end
+
+
+def resume_action_for_window(window_key: str, completed_windows: list[str] | tuple[str, ...]) -> str:
+    """Resume predicate: completed windows SKIP; anything else is fetched again."""
+    return "skip" if window_key in completed_windows else "fetch"
 
 
 def evaluate_window_completion(
@@ -841,11 +877,14 @@ def run_pilot(
     run_id: str | None = None,
     logical_job_id: str | None = None,
     campaign_id: str | None = None,
+    start_date: date | None = None,
+    end_date: date | None = None,
 ) -> dict[str, Any]:
     started = datetime.now(UTC)
     mode = "full"
-    today = date.today()
-    start = today - timedelta(days=days)
+    start, today = resolve_pilot_range(
+        days=days, start_date=start_date, end_date=end_date
+    )
     planned_windows = count_planned_windows(start, today, CONTRACTS_WINDOW_DAYS)
     run_id = run_id or new_run_id(prefix="contracts-90d")
 
@@ -903,7 +942,7 @@ def run_pilot(
             data_ini, data_fim = _fmt(cur_date), _fmt(window_end)
             w_started = time.time()
 
-            if window_key in checkpoint.completed_windows:
+            if resume_action_for_window(window_key, checkpoint.completed_windows) == "skip":
                 logger.info("SKIP completed window %s", window_key)
                 report["totals"]["windows_skipped_resume"] += 1
                 report["windows"].append(
@@ -1367,6 +1406,16 @@ def main() -> int:
         action="store_true",
         help="Allow rebinding checkpoint from another run_id (operational resume)",
     )
+    ap.add_argument(
+        "--start-date",
+        default=None,
+        help="Pin range start (YYYY-MM-DD). Wins over today-days so window keys stay stable.",
+    )
+    ap.add_argument(
+        "--end-date",
+        default=None,
+        help="Pin inclusive-clip end (YYYY-MM-DD). Default: today.",
+    )
     args = ap.parse_args()
     if not args.dsn and not args.dry_run and not args.seal:
         print("ERROR: --dsn or DATABASE_URL required (or --seal / --dry-run)", file=sys.stderr)
@@ -1421,6 +1470,8 @@ def main() -> int:
             output_json=args.output_json,
             dry_run=args.dry_run,
             checkpoint_dir=args.checkpoint_dir,
+            start_date=date.fromisoformat(args.start_date) if args.start_date else None,
+            end_date=date.fromisoformat(args.end_date) if args.end_date else None,
         )
     summary_keys = (
         "run_id",

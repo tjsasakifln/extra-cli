@@ -146,3 +146,108 @@ def test_replay_same_window_is_idempotent_and_never_checkpoints_before_persist()
     assert blocked.status == "failed"
     assert blocked.checkpoint_after_persist is False
     assert blocked.persisted == []
+
+
+def test_pinned_national_windows_and_resume_skip() -> None:
+    from datetime import date
+
+    from scripts.crawl.pncp_contracts_backfill import WINDOW_START
+    from scripts.crawl.run_contracts_90d_pilot import (
+        evaluate_window_completion,
+        planned_window_keys,
+        resolve_pilot_range,
+        resume_action_for_window,
+    )
+
+    start, end = resolve_pilot_range(
+        days=591,
+        start_date=date.fromisoformat(WINDOW_START),
+        end_date=date(2026, 8, 15),
+    )
+    keys = planned_window_keys(start, end)
+    assert start.isoformat() == "2025-01-01"
+    assert keys[0] == "20250101_20250130"
+    assert keys[-1] == "20260725_20260815"
+    assert len(keys) == 20
+    drifted = planned_window_keys(date(2025, 1, 2), date(2026, 8, 16))
+    assert drifted[0] != keys[0]
+    completed = [keys[0], keys[1]]
+    assert resume_action_for_window(keys[0], completed) == "skip"
+    assert resume_action_for_window(keys[2], completed) == "fetch"
+    ok, errors = evaluate_window_completion(
+        ["upsert failed"],
+        pages_exhausted=False,
+        last_total_pages=100,
+        page=19,
+        max_pages=500,
+    )
+    assert ok is False
+    assert errors
+    partial_ok, _ = evaluate_window_completion(
+        [],
+        pages_exhausted=True,
+        last_total_pages=10,
+        page=10,
+        max_pages=500,
+    )
+    assert partial_ok is True
+
+
+def test_report_classifies_residual_and_keeps_unknown() -> None:
+    from datetime import date
+
+    from scripts.crawl.pncp_contracts_backfill import WINDOW_START
+    from scripts.ops.report_national_backfill import (
+        build_national_backfill_report,
+        reconcile_window_counts,
+    )
+
+    start = date.fromisoformat(WINDOW_START)
+    end = date(2026, 8, 15)
+    report = build_national_backfill_report(
+        {
+            "completed_windows": ["20250101_20250130"],
+            "failed_windows": ["20251127_20251226"],
+            "blocked_windows": [],
+            "window_results": {
+                "20250101_20250130": {
+                    "terminal": "COMPLETE",
+                    "fetched": 10,
+                    "persisted": 2,
+                    "rejected": 0,
+                    "skipped": 8,
+                },
+                "20251127_20251226": {
+                    "terminal": "FAILED",
+                    "fetched": 5,
+                    "persisted": 1,
+                    "rejected": 1,
+                    "skipped": 3,
+                },
+            },
+            "meta": {"run_id": "contracts-90d-fixture"},
+        },
+        start=start,
+        end=end,
+        origin_main_sha="aaa",
+        host_sha="bbb",
+    )
+    by_key = {w["window_key"]: w for w in report["windows"]}
+    assert by_key["20250101_20250130"]["terminal"] == "complete"
+    assert by_key["20250101_20250130"]["resume"] == "skip"
+    assert by_key["20251127_20251226"]["terminal"] == "failed"
+    assert by_key["20251127_20251226"]["resume"] == "retry"
+    open_key = "20250131_20250301"
+    assert by_key[open_key]["terminal"] == "open"
+    assert by_key[open_key]["reconciliation"]["identity"] == "UNKNOWN"
+    assert by_key[open_key]["reconciliation"]["fetched"] is None
+    assert report["counts"]["complete"] == 1
+    assert report["counts"]["failed"] == 1
+    assert report["counts"]["retry"] >= 1
+    assert report["claims"]["VPS_OPERATIONAL"] is False
+    assert report["pin"]["window_start"] == WINDOW_START
+    missing = reconcile_window_counts(None, None, None)
+    assert missing["identity"] == "UNKNOWN"
+    assert missing["balanced"] is None
+    assert reconcile_window_counts(10, 2, 0, 8)["balanced"] is True
+    assert reconcile_window_counts(10, 2, 0)["balanced"] is False

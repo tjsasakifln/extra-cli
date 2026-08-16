@@ -1,0 +1,614 @@
+{
+  "campaign": "EXTRA-012",
+  "issue": 249,
+  "decision_inputs_only": true,
+  "claims": {
+    "VPS_OPERATIONAL": false,
+    "campaign_terminal": false
+  },
+  "pin": {
+    "origin_main_sha": "820c83b82a35aaab0d381f54faa5357b386db1b3",
+    "host_sha": "bbc4b6b7db295909d773f5a0e1f3314085a2f26c",
+    "sha_equal": false,
+    "window_start": "2025-01-01",
+    "window_end": "2026-08-15",
+    "policy_window_start": "2025-01-01",
+    "universe": "pncp_supplier_contracts",
+    "partition_kind": "date_window_30d",
+    "partition_version": "date_window_30d/start=2025-01-01/end=2026-08-15",
+    "runner": "scripts.crawl.run_contracts_90d_pilot",
+    "allow_cross_run_resume": true
+  },
+  "checkpoint_path": "/var/lib/extra-consultoria/checkpoints/national-2025-canary/contracts_full.json",
+  "run_id": "contracts-90d-20260816T203107Z-c1380ff11c",
+  "current_window": "20251127_20251226",
+  "current_page": 33,
+  "counts": {
+    "planned": 20,
+    "complete": 13,
+    "failed": 7,
+    "blocked": 0,
+    "retry": 7,
+    "open": 0,
+    "skip_on_resume": 13
+  },
+  "windows": [
+    {
+      "window_key": "20250101_20250130",
+      "terminal": "complete",
+      "resume": "skip",
+      "partial_never_success": false,
+      "result_present": false,
+      "reconciliation": {
+        "balanced": null,
+        "identity": "UNKNOWN",
+        "unknown_fields": [
+          "fetched",
+          "persisted",
+          "rejected"
+        ],
+        "fetched": null,
+        "persisted": null,
+        "rejected": null,
+        "skipped": null
+      }
+    },
+    {
+      "window_key": "20250131_20250301",
+      "terminal": "complete",
+      "resume": "skip",
+      "partial_never_success": false,
+      "result_present": false,
+      "reconciliation": {
+        "balanced": null,
+        "identity": "UNKNOWN",
+        "unknown_fields": [
+          "fetched",
+          "persisted",
+          "rejected"
+        ],
+        "fetched": null,
+        "persisted": null,
+        "rejected": null,
+        "skipped": null
+      }
+    },
+    {
+      "window_key": "20250302_20250331",
+      "terminal": "complete",
+      "resume": "skip",
+      "partial_never_success": false,
+      "result_present": false,
+      "reconciliation": {
+        "balanced": null,
+        "identity": "UNKNOWN",
+        "unknown_fields": [
+          "fetched",
+          "persisted",
+          "rejected"
+        ],
+        "fetched": null,
+        "persisted": null,
+        "rejected": null,
+        "skipped": null
+      }
+    },
+    {
+      "window_key": "20250401_20250430",
+      "terminal": "complete",
+      "resume": "skip",
+      "partial_never_success": false,
+      "result_present": false,
+      "reconciliation": {
+        "balanced": null,
+        "identity": "UNKNOWN",
+        "unknown_fields": [
+          "fetched",
+          "persisted",
+          "rejected"
+        ],
+        "fetched": null,
+        "persisted": null,
+        "rejected": null,
+        "skipped": null
+      }
+    },
+    {
+      "window_key": "20250501_20250530",
+      "terminal": "complete",
+      "resume": "skip",
+      "partial_never_success": false,
+      "result_present": false,
+      "reconciliation": {
+        "balanced": null,
+        "identity": "UNKNOWN",
+        "unknown_fields": [
+          "fetched",
+          "persisted",
+          "rejected"
+        ],
+        "fetched": null,
+        "persisted": null,
+        "rejected": null,
+        "skipped": null
+      }
+    },
+    {
+      "window_key": "20250531_20250629",
+      "terminal": "complete",
+      "resume": "skip",
+      "partial_never_success": false,
+      "result_present": false,
+      "reconciliation": {
+        "balanced": null,
+        "identity": "UNKNOWN",
+        "unknown_fields": [
+          "fetched",
+          "persisted",
+          "rejected"
+        ],
+        "fetched": null,
+        "persisted": null,
+        "rejected": null,
+        "skipped": null
+      }
+    },
+    {
+      "window_key": "20250630_20250729",
+      "terminal": "complete",
+      "resume": "skip",
+      "partial_never_success": false,
+      "result_present": true,
+      "reconciliation": {
+        "balanced": true,
+        "identity": "fetched=persisted+rejected+skipped",
+        "unknown_fields": [],
+        "expected_sum": 174274,
+        "fetched": 174274,
+        "persisted": 7,
+        "rejected": 0,
+        "skipped": 174267
+      }
+    },
+    {
+      "window_key": "20250730_20250828",
+      "terminal": "complete",
+      "resume": "skip",
+      "partial_never_success": false,
+      "result_present": true,
+      "reconciliation": {
+        "balanced": true,
+        "identity": "fetched=persisted+rejected+skipped",
+        "unknown_fields": [],
+        "expected_sum": 188545,
+        "fetched": 188545,
+        "persisted": 8,
+        "rejected": 0,
+        "skipped": 188537
+      }
+    },
+    {
+      "window_key": "20250829_20250927",
+      "terminal": "complete",
+      "resume": "skip",
+      "partial_never_success": false,
+      "result_present": true,
+      "reconciliation": {
+        "balanced": true,
+        "identity": "fetched=persisted+rejected+skipped",
+        "unknown_fields": [],
+        "expected_sum": 192339,
+        "fetched": 192339,
+        "persisted": 11,
+        "rejected": 0,
+        "skipped": 192328
+      }
+    },
+    {
+      "window_key": "20250928_20251027",
+      "terminal": "complete",
+      "resume": "skip",
+      "partial_never_success": false,
+      "result_present": true,
+      "reconciliation": {
+        "balanced": true,
+        "identity": "fetched=persisted+rejected+skipped",
+        "unknown_fields": [],
+        "expected_sum": 183309,
+        "fetched": 183309,
+        "persisted": 8,
+        "rejected": 0,
+        "skipped": 183301
+      }
+    },
+    {
+      "window_key": "20251028_20251126",
+      "terminal": "complete",
+      "resume": "skip",
+      "partial_never_success": false,
+      "result_present": true,
+      "reconciliation": {
+        "balanced": true,
+        "identity": "fetched=persisted+rejected+skipped",
+        "unknown_fields": [],
+        "expected_sum": 192724,
+        "fetched": 192724,
+        "persisted": 13,
+        "rejected": 0,
+        "skipped": 192711
+      }
+    },
+    {
+      "window_key": "20251127_20251226",
+      "terminal": "failed",
+      "resume": "retry",
+      "partial_never_success": true,
+      "result_present": true,
+      "reconciliation": {
+        "balanced": true,
+        "identity": "fetched=persisted+rejected+skipped",
+        "unknown_fields": [],
+        "expected_sum": 9000,
+        "fetched": 9000,
+        "persisted": 0,
+        "rejected": 100,
+        "skipped": 8900
+      }
+    },
+    {
+      "window_key": "20251227_20260125",
+      "terminal": "failed",
+      "resume": "retry",
+      "partial_never_success": true,
+      "result_present": true,
+      "reconciliation": {
+        "balanced": true,
+        "identity": "fetched=persisted+rejected+skipped",
+        "unknown_fields": [],
+        "expected_sum": 56500,
+        "fetched": 56500,
+        "persisted": 24,
+        "rejected": 500,
+        "skipped": 55976
+      }
+    },
+    {
+      "window_key": "20260126_20260224",
+      "terminal": "failed",
+      "resume": "retry",
+      "partial_never_success": true,
+      "result_present": true,
+      "reconciliation": {
+        "balanced": true,
+        "identity": "fetched=persisted+rejected+skipped",
+        "unknown_fields": [],
+        "expected_sum": 117500,
+        "fetched": 117500,
+        "persisted": 4,
+        "rejected": 500,
+        "skipped": 116996
+      }
+    },
+    {
+      "window_key": "20260225_20260326",
+      "terminal": "failed",
+      "resume": "retry",
+      "partial_never_success": true,
+      "result_present": true,
+      "reconciliation": {
+        "balanced": true,
+        "identity": "fetched=persisted+rejected+skipped",
+        "unknown_fields": [],
+        "expected_sum": 157500,
+        "fetched": 157500,
+        "persisted": 7,
+        "rejected": 500,
+        "skipped": 156993
+      }
+    },
+    {
+      "window_key": "20260327_20260425",
+      "terminal": "failed",
+      "resume": "retry",
+      "partial_never_success": true,
+      "result_present": true,
+      "reconciliation": {
+        "balanced": true,
+        "identity": "fetched=persisted+rejected+skipped",
+        "unknown_fields": [],
+        "expected_sum": 7000,
+        "fetched": 7000,
+        "persisted": 0,
+        "rejected": 500,
+        "skipped": 6500
+      }
+    },
+    {
+      "window_key": "20260426_20260525",
+      "terminal": "failed",
+      "resume": "retry",
+      "partial_never_success": true,
+      "result_present": true,
+      "reconciliation": {
+        "balanced": true,
+        "identity": "fetched=persisted+rejected+skipped",
+        "unknown_fields": [],
+        "expected_sum": 52000,
+        "fetched": 52000,
+        "persisted": 3,
+        "rejected": 500,
+        "skipped": 51497
+      }
+    },
+    {
+      "window_key": "20260526_20260624",
+      "terminal": "failed",
+      "resume": "retry",
+      "partial_never_success": true,
+      "result_present": true,
+      "reconciliation": {
+        "balanced": true,
+        "identity": "fetched=persisted+rejected+skipped",
+        "unknown_fields": [],
+        "expected_sum": 9500,
+        "fetched": 9500,
+        "persisted": 0,
+        "rejected": 500,
+        "skipped": 9000
+      }
+    },
+    {
+      "window_key": "20260625_20260724",
+      "terminal": "complete",
+      "resume": "skip",
+      "partial_never_success": false,
+      "result_present": true,
+      "reconciliation": {
+        "balanced": true,
+        "identity": "fetched=persisted+rejected+skipped",
+        "unknown_fields": [],
+        "expected_sum": 164190,
+        "fetched": 164190,
+        "persisted": 12,
+        "rejected": 0,
+        "skipped": 164178
+      }
+    },
+    {
+      "window_key": "20260725_20260815",
+      "terminal": "complete",
+      "resume": "skip",
+      "partial_never_success": false,
+      "result_present": true,
+      "reconciliation": {
+        "balanced": true,
+        "identity": "fetched=persisted+rejected+skipped",
+        "unknown_fields": [],
+        "expected_sum": 125346,
+        "fetched": 125346,
+        "persisted": 8759,
+        "rejected": 0,
+        "skipped": 116587
+      }
+    }
+  ],
+  "unknown_reconciliation_windows": [
+    "20250101_20250130",
+    "20250131_20250301",
+    "20250302_20250331",
+    "20250401_20250430",
+    "20250501_20250530",
+    "20250531_20250629"
+  ],
+  "unbalanced_windows": [],
+  "residual": [
+    {
+      "window_key": "20251127_20251226",
+      "terminal": "failed",
+      "resume": "retry",
+      "partial_never_success": true,
+      "result_present": true,
+      "reconciliation": {
+        "balanced": true,
+        "identity": "fetched=persisted+rejected+skipped",
+        "unknown_fields": [],
+        "expected_sum": 9000,
+        "fetched": 9000,
+        "persisted": 0,
+        "rejected": 100,
+        "skipped": 8900
+      }
+    },
+    {
+      "window_key": "20251227_20260125",
+      "terminal": "failed",
+      "resume": "retry",
+      "partial_never_success": true,
+      "result_present": true,
+      "reconciliation": {
+        "balanced": true,
+        "identity": "fetched=persisted+rejected+skipped",
+        "unknown_fields": [],
+        "expected_sum": 56500,
+        "fetched": 56500,
+        "persisted": 24,
+        "rejected": 500,
+        "skipped": 55976
+      }
+    },
+    {
+      "window_key": "20260126_20260224",
+      "terminal": "failed",
+      "resume": "retry",
+      "partial_never_success": true,
+      "result_present": true,
+      "reconciliation": {
+        "balanced": true,
+        "identity": "fetched=persisted+rejected+skipped",
+        "unknown_fields": [],
+        "expected_sum": 117500,
+        "fetched": 117500,
+        "persisted": 4,
+        "rejected": 500,
+        "skipped": 116996
+      }
+    },
+    {
+      "window_key": "20260225_20260326",
+      "terminal": "failed",
+      "resume": "retry",
+      "partial_never_success": true,
+      "result_present": true,
+      "reconciliation": {
+        "balanced": true,
+        "identity": "fetched=persisted+rejected+skipped",
+        "unknown_fields": [],
+        "expected_sum": 157500,
+        "fetched": 157500,
+        "persisted": 7,
+        "rejected": 500,
+        "skipped": 156993
+      }
+    },
+    {
+      "window_key": "20260327_20260425",
+      "terminal": "failed",
+      "resume": "retry",
+      "partial_never_success": true,
+      "result_present": true,
+      "reconciliation": {
+        "balanced": true,
+        "identity": "fetched=persisted+rejected+skipped",
+        "unknown_fields": [],
+        "expected_sum": 7000,
+        "fetched": 7000,
+        "persisted": 0,
+        "rejected": 500,
+        "skipped": 6500
+      }
+    },
+    {
+      "window_key": "20260426_20260525",
+      "terminal": "failed",
+      "resume": "retry",
+      "partial_never_success": true,
+      "result_present": true,
+      "reconciliation": {
+        "balanced": true,
+        "identity": "fetched=persisted+rejected+skipped",
+        "unknown_fields": [],
+        "expected_sum": 52000,
+        "fetched": 52000,
+        "persisted": 3,
+        "rejected": 500,
+        "skipped": 51497
+      }
+    },
+    {
+      "window_key": "20260526_20260624",
+      "terminal": "failed",
+      "resume": "retry",
+      "partial_never_success": true,
+      "result_present": true,
+      "reconciliation": {
+        "balanced": true,
+        "identity": "fetched=persisted+rejected+skipped",
+        "unknown_fields": [],
+        "expected_sum": 9500,
+        "fetched": 9500,
+        "persisted": 0,
+        "rejected": 500,
+        "skipped": 9000
+      }
+    }
+  ],
+  "freshness": {
+    "status": "observed",
+    "source": "SELECT on host pncp_datalake",
+    "pncp_supplier_contracts_count": 4572994,
+    "max_data_publicacao_fonte": "2026-08-15",
+    "max_last_seen_at": "2026-08-16T16:49:15-03:00",
+    "note": "row count is not coverage; UNKNOWN never coerced to 0"
+  },
+  "writer": {
+    "status": "running",
+    "pid": 609336,
+    "argv": "run_contracts_90d_pilot --days 592 --checkpoint-dir .../national-2025-canary --allow-cross-run-resume",
+    "upsert_batch": 8,
+    "host_sha": "bbc4b6b7db295909d773f5a0e1f3314085a2f26c",
+    "single_writer": true,
+    "lock": "flock /run/lock/extra-contracts-writer.lock"
+  },
+  "partial_never_success": true,
+  "incremental": {
+    "enabled": false,
+    "reason": "backfill writer is still the authority until residual windows close"
+  },
+  "checkpoint_diagnosis": {
+    "path": "/tmp/grok-goal-4ed7ab206b67/implementer/ckpt-national/contracts_full.json",
+    "exists": true,
+    "ok": true,
+    "identity": {
+      "logical_job_id": "",
+      "attempt_run_id": "contracts-90d-20260816T203107Z-c1380ff11c",
+      "campaign_id": null,
+      "checkpoint_version": 1,
+      "source": "pncp_contracts",
+      "capability": "historical_contracts",
+      "incremental_days": null,
+      "code_sha": null,
+      "schema_version": null
+    },
+    "completed_windows": [
+      "20250101_20250130",
+      "20250131_20250301",
+      "20250302_20250331",
+      "20250401_20250430",
+      "20250501_20250530",
+      "20250531_20250629",
+      "20250630_20250729",
+      "20250730_20250828",
+      "20250829_20250927",
+      "20250928_20251027",
+      "20251028_20251126",
+      "20260625_20260724",
+      "20260725_20260815"
+    ],
+    "issues": [
+      "missing_logical_job_id_legacy",
+      "schema_old:v1"
+    ],
+    "raw_meta": {
+      "run_id": "contracts-90d-20260816T203107Z-c1380ff11c",
+      "run_ids": [
+        "contracts-90d-20260815T193341Z-71991f26c7",
+        "contracts-90d-20260815T194446Z-df42439c6e",
+        "contracts-90d-20260816T005933Z-e8eb1fdf8a",
+        "contracts-90d-20260816T202407Z-4730dd327e",
+        "contracts-90d-20260816T203107Z-c1380ff11c"
+      ],
+      "previous_run_ids": [
+        "contracts-90d-20260815T193341Z-71991f26c7",
+        "contracts-90d-20260815T194446Z-df42439c6e",
+        "contracts-90d-20260816T005933Z-e8eb1fdf8a",
+        "contracts-90d-20260816T202407Z-4730dd327e"
+      ],
+      "foreign_resume": true
+    }
+  },
+  "evaluate_window_completion_imported": "evaluate_window_completion",
+  "retry_plan": {
+    "failed_windows": [
+      "20251127_20251226",
+      "20251227_20260125",
+      "20260126_20260224",
+      "20260225_20260326",
+      "20260327_20260425",
+      "20260426_20260525",
+      "20260526_20260624"
+    ],
+    "in_progress": "20251127_20251226",
+    "current_page": 33,
+    "blocker_if_batch8_fails": "ALTER SYSTEM max_locks_per_transaction=256 + restart (human/DBA)"
+  }
+}

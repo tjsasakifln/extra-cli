@@ -250,3 +250,67 @@ def test_writer_lock_nonblock_busy(tmp_path: Path, monkeypatch: pytest.MonkeyPat
     assert b.acquire() is True
     b.release()
     assert EXIT_LOCK_BUSY == 75
+
+
+def test_national_backfill_report_uses_checkpoint_contract(tmp_path: Path) -> None:
+    from datetime import date
+
+    from scripts.ops.report_national_backfill import report_from_checkpoint_dir
+
+    missing = report_from_checkpoint_dir(
+        tmp_path / "absent",
+        start=date(2025, 1, 1),
+        end=date(2026, 8, 15),
+        origin_main_sha="origin",
+        host_sha="host",
+    )
+    assert missing["status"] == "BLOCKED"
+    assert missing["blocker"] == "checkpoint_missing"
+    assert "run_contracts_90d_pilot" in missing["next_command"]
+    assert missing["claims"]["VPS_OPERATIONAL"] is False
+
+    ckpt = tmp_path / "national-2025-canary"
+    ckpt.mkdir()
+    save_raw(
+        ckpt / "contracts_full.json",
+        {
+            "source": "pncp_contracts",
+            "mode": "full",
+            "completed_windows": ["20250101_20250130", "20250131_20250301"],
+            "failed_windows": ["20251127_20251226"],
+            "blocked_windows": [],
+            "current_window": "20251127_20251226",
+            "current_page": 19,
+            "window_results": {
+                "20250101_20250130": {
+                    "fetched": 4,
+                    "persisted": 1,
+                    "rejected": 0,
+                    "skipped": 3,
+                }
+            },
+            "meta": {
+                "run_id": "contracts-90d-test",
+                "checkpoint_version": 2,
+            },
+        },
+    )
+    diagnosis = diagnose(ckpt)
+    assert diagnosis.exists is True
+    assert diagnosis.completed_windows == ["20250101_20250130", "20250131_20250301"]
+
+    report = report_from_checkpoint_dir(
+        ckpt,
+        start=date(2025, 1, 1),
+        end=date(2026, 8, 15),
+        origin_main_sha="origin",
+        host_sha="host",
+    )
+    assert report["status"] != "BLOCKED" if "status" in report else True
+    assert report["counts"]["complete"] == 2
+    assert report["counts"]["skip_on_resume"] == 2
+    assert report["counts"]["failed"] == 1
+    failed = [w for w in report["windows"] if w["terminal"] == "failed"]
+    assert failed[0]["resume"] == "retry"
+    assert report["current_page"] == 19
+    assert report["pin"]["sha_equal"] is False
