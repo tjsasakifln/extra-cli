@@ -1,9 +1,12 @@
 {
   "campaign": "CONFENGE-EXTRA-LIVE-INBOUND-TRUTH-02",
   "baseline_sha": "4bbb825c5052558fec495c9528e5fa5a6a2e8416",
+  "merged_sha": "c84c9a4e6ec1adbe90541803468b45f22b152abf",
+  "pr": 425,
   "branch": "feat/live-inbound-truth-02",
   "pr_413_files_touched": false,
   "classes": {
+    "ci": "CI_PROVEN",
     "drift_classifier": "CODE_PROVEN",
     "incremental_dry_run": "LIVE_PROVEN",
     "host_incremental_unit": "LIVE_PROVEN",
