@@ -1,0 +1,11 @@
+{
+  "source_system": "pncp",
+  "source_kind": "official_page",
+  "official_url": "https://pncp.gov.br/app/contratos/00000000000000-0-000000/2099",
+  "source_document_id": "doc-unavailable-url",
+  "contract_identifier": "00000000000000-0-000000/2099",
+  "http_status": 404,
+  "error_kind": "http_status",
+  "fetch_error": "http_status",
+  "message": "official page returned 404"
+}

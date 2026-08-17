@@ -1,0 +1,30 @@
+{
+  "records": [
+    {
+      "source_system": "pncp",
+      "source_kind": "contract",
+      "official_url": "https://pncp.gov.br/app/contratos/83102277000152-1-000014/2025",
+      "source_document_id": "doc-incomplete-focal",
+      "contract_identifier": "83102277000152-1-000014/2025",
+      "contracting_entity_identifier": "83102277000152",
+      "object_text": "Pavimentação asfáltica em CBUQ da Rua das Palmeiras",
+      "valor_global": "750000.00",
+      "currency": "BRL",
+      "uf": "SC",
+      "municipio": "Florianopolis"
+    },
+    {
+      "source_system": "pncp",
+      "source_kind": "contract",
+      "official_url": "https://pncp.gov.br/app/contratos/83102277000152-1-000015/2025",
+      "source_document_id": "doc-incomplete-peer",
+      "contract_identifier": "83102277000152-1-000015/2025",
+      "contracting_entity_identifier": "83102277000152",
+      "object_text": "Recapeamento asfáltico em CBUQ no bairro Centro",
+      "valor_global": "620000.00",
+      "currency": "BRL",
+      "uf": "SC",
+      "municipio": "Florianopolis"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "schema": "official-contract-semantics-fixture-catalog/1.0",
+  "cases": [
+    {"id": "01", "path": "01_global_unknown_unit.json", "expect": "observed_unknown_unit_quantity"},
+    {"id": "02", "path": "02_unit_item_explicit.json", "expect": "observed_explicit_unit_quantity"},
+    {"id": "03", "path": "03_monthly_vs_global.json", "expect": "two_semantics_preserved"},
+    {"id": "04", "path": "04_amendment_term.json", "expect": "amendment_term"},
+    {"id": "05", "path": "05_amendment_value.json", "expect": "amendment_value"},
+    {"id": "06", "path": "06_official_conflict.json", "expect": "conflict_preserved"},
+    {"id": "07", "path": "07_explicit_supersession.json", "expect": "explicit_supersession"},
+    {"id": "08", "path": "08_divergent_cnpj.json", "expect": "cnpj_conflict"},
+    {"id": "09", "path": "09_unavailable_url.json", "expect": "unavailable_not_absence"},
+    {"id": "10", "path": "01_global_unknown_unit.json", "expect": "replay_idempotent"},
+    {"id": "11", "path": "11_insufficient_text.txt", "expect": "insufficient_evidence"},
+    {"id": "12", "path": "12_value_without_semantic.json", "expect": "value_without_semantic_rejected"},
+    {"id": "13", "path": "13_absence_inference.json", "expect": "absence_inference_rejected"},
+    {"id": "14", "path": "14_export_incomplete.json", "expect": "export_holds"},
+    {"id": "15", "path": "15_export_comparable.json", "expect": "export_engine_evaluates"}
+  ]
+}

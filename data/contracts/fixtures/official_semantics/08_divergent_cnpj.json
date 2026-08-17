@@ -1,0 +1,40 @@
+{
+  "records": [
+    {
+      "source_system": "pncp",
+      "source_kind": "contract",
+      "official_url": "https://pncp.gov.br/app/contratos/83102277000152-1-000008/2025",
+      "source_document_id": "doc-cnpj-a",
+      "contract_identifier": "83102277000152-1-000008/2025",
+      "contracting_entity_identifier": "83102277000152",
+      "supplier_identifier": "77888999000127",
+      "object_text": "Obra de recapeamento — fornecedor no instrumento",
+      "valor_contratado": "430000.00",
+      "currency": "BRL",
+      "period_start": "2025-07-01",
+      "period_end": "2026-01-01",
+      "execution_regime": "empreitada_global",
+      "procurement_modality": "pregao_eletronico",
+      "uf": "SC",
+      "municipio": "Palhoca"
+    },
+    {
+      "source_system": "pncp",
+      "source_kind": "process_document",
+      "official_url": "https://pncp.gov.br/app/editais/83102277000152-1-000008/2025",
+      "source_document_id": "doc-cnpj-b",
+      "contract_identifier": "83102277000152-1-000008/2025",
+      "contracting_entity_identifier": "83102277000152",
+      "supplier_identifier": "88999000000118",
+      "object_text": "Obra de recapeamento — fornecedor em publicação distinta",
+      "valor_contratado": "430000.00",
+      "currency": "BRL",
+      "period_start": "2025-07-01",
+      "period_end": "2026-01-01",
+      "execution_regime": "empreitada_global",
+      "procurement_modality": "pregao_eletronico",
+      "uf": "SC",
+      "municipio": "Palhoca"
+    }
+  ]
+}

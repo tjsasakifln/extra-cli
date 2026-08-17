@@ -1,0 +1,22 @@
+{
+  "source_system": "pncp",
+  "source_kind": "amendment",
+  "official_url": "https://pncp.gov.br/app/contratos/83102277000152-1-000005/2025/aditivos/1",
+  "source_document_id": "doc-aditivo-valor-01",
+  "contract_identifier": "83102277000152-1-000005/2025",
+  "process_identifier": "005/2025",
+  "contracting_entity_identifier": "83102277000152",
+  "supplier_identifier": "44555666000154",
+  "object_text": "1º Termo Aditivo — acréscimo de valor",
+  "amendment_type": "valor",
+  "amendment_value_delta": "125000.00",
+  "valor_contratado": "875000.00",
+  "currency": "BRL",
+  "period_start": "2025-04-01",
+  "period_end": "2026-04-01",
+  "effective_at": "2025-09-01",
+  "observed_at": "2025-09-02",
+  "evidence_excerpt": "Aditivo de valor: R$ 125000.00",
+  "uf": "SC",
+  "municipio": "Florianopolis"
+}

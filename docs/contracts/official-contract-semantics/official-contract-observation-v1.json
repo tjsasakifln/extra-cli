@@ -1,0 +1,38 @@
+{
+  "schema": "official-contract-observation/1.0",
+  "extractor_version": "official-contract-semantics-extract/1.0",
+  "source_kinds": ["contract", "amendment", "notice", "process_document", "official_page"],
+  "statuses": ["observed", "conflicted", "superseded_by_official_evidence", "unknown"],
+  "value_semantics": [
+    "valor_estimado",
+    "valor_homologado",
+    "valor_contratado",
+    "valor_unitario",
+    "valor_global",
+    "valor_mensal",
+    "valor_anual",
+    "valor_medido",
+    "valor_pago",
+    "valor_saldo",
+    "valor_integral_nominal"
+  ],
+  "confidence_classes": [
+    "explicit_structured_field",
+    "explicit_labeled_text",
+    "explicit_table_cell",
+    "unknown"
+  ],
+  "required_identity_any_of": [
+    ["official_url"],
+    ["source_document_id", "source_document_sha256"],
+    ["source_system", "contract_identifier", "raw_record_hash"]
+  ],
+  "does_not_authorize": [
+    "publication",
+    "indexation",
+    "editorial_classification",
+    "inferred_fact_from_absence",
+    "production_write"
+  ],
+  "semantic_hash_excludes": ["extracted_at"]
+}
