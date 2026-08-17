@@ -1,0 +1,56 @@
+{
+  "campaign": "CONFENGE-PRODUCTION-CLOSEOUT-01",
+  "repo": "tjsasakifln/extra-cli",
+  "approval": "OWNER_CONDITIONAL_PREAPPROVAL_CONFENGE_PRODUCTION_CLOSEOUT_01",
+  "as_of": "2026-08-17T12:41:00Z",
+  "origin_main": "2d68272dbe4680c6285b9a35a43f6e4f9076e966",
+  "vps_extra_sha": "bbc4b6b7db295909d773f5a0e1f3314085a2f26c",
+  "tokens": [
+    "BACKFILL_BASELINE_ACCEPTED",
+    "OFFICIAL_MARKET_ANSWER_SC_LIVE_EXPORT"
+  ],
+  "tokens_withheld": [
+    "INCREMENTAL_HEALTHY",
+    "NATIONAL_CLAIM_AUTHORIZED",
+    "COMPARABLES_OFFICIAL_LIVE",
+    "XRAY_OFFICIAL_LIVE",
+    "ANALYSIS_OFFICIAL_LIVE"
+  ],
+  "backfill": {
+    "verdict": "BACKFILL_COMPLETO",
+    "planned_completed": "37/37",
+    "count_all": 4573257,
+    "checkpoint_sha256": "17ff50a4d47dc6d5e17541940f95325efbd76c80a0c1bd07c481d240e9312bf8"
+  },
+  "incremental": {
+    "class": "ATTEMPTED_FAIL_CLOSED_DRIFT",
+    "last_trigger": "2026-08-17T06:03:20-03:00",
+    "unit_result": "failed",
+    "reason": "source_population_drift:totalRegistros 44515 -> 44517",
+    "inserted_journal": 261,
+    "max_ingested_at": "2026-08-17T11:29:37.0758+02:00",
+    "within_sla_hours": true
+  },
+  "market_answer": {
+    "consumer": "web-cfg/market-answer/valor-tipico-contratos-pavimentacao",
+    "official_live": true,
+    "answer_state": "DATA_READY",
+    "geography": "SC",
+    "n": 5038,
+    "median": 218284.5,
+    "p25": 19969.495,
+    "p75": 708950.0,
+    "grain": "integral_nominal_instrument",
+    "folded_hash": "9b69e30cb9e696a6c268526b3646f2d1588519849c5024aa46e6ba89ec06c0b6",
+    "national_claim_allowed": false
+  },
+  "comparables": {
+    "official_live": false,
+    "status": "NOT_COMPARABLE",
+    "reason_codes": ["live_columns_unavailable", "unit_unknown", "fields_unavailable", "period_not_comparable"]
+  },
+  "xray": {
+    "official_live": false,
+    "reason": "public_read_v1 snapshot empty"
+  }
+}
