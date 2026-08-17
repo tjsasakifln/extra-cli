@@ -76,6 +76,14 @@ Export directory: `exports/public-read-live/contract-analysis/1.0/{payload,manif
 
 This is an honest `HOLD_FOR_DATA` official-live feed: live rows exist, documents/semantic columns do not. No text was invented. No OCR.
 
+## CI / merge
+
+PR https://github.com/tjsasakifln/extra-cli/pull/425 squash-merged to `main` as `c84c9a4e6ec1adbe90541803468b45f22b152abf`.
+
+HEAD `79fc883f` (the tip that merged): 28/28 checks SUCCESS, including Test All, Edital Relevance Foundation, Lint, mypy, Generated Artifacts Policy, PR Reviewability. No review threads. No #413 files. No migrations.
+
+First CI on `18b63189` failed only `test_dsn_absent_is_blocked_not_live` because the runner has `LOCAL_DATALAKE_DSN`; the follow-up isolated that env. Class: `CI_PROVEN`.
+
 ## Classes
 
 | Result | Class |
