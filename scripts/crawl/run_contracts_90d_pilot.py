@@ -30,6 +30,7 @@ import os
 import random
 import sys
 import time
+from collections.abc import Iterable, Sequence
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -41,7 +42,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
-from scripts.contracts_truth import stamp_contract_truth_labels  # noqa: E402
+from scripts.contracts_truth import PaginationReconcile, stamp_contract_truth_labels  # noqa: E402
 from scripts.crawl import contracts_crawler as _cc  # noqa: E402
 from scripts.crawl.contracts_crawler import (  # noqa: E402
     CONTRACTS_FULL_DAYS,
@@ -55,6 +56,7 @@ from scripts.crawl.contracts_crawler import (  # noqa: E402
     _fmt,
     transform,
 )
+from scripts.crawl.population_convergence import tail_page_numbers  # noqa: E402
 from scripts.crawl.run_evidence import (  # noqa: E402
     assert_checkpoint_run_id,
     assert_proof_run_coherence,
@@ -82,9 +84,7 @@ _PAGE_RETRYABLE = frozenset(
 )
 
 
-def iter_planned_window_keys(
-    start: date, end: date, window_days: int = CONTRACTS_WINDOW_DAYS
-) -> list[str]:
+def iter_planned_window_keys(start: date, end: date, window_days: int = CONTRACTS_WINDOW_DAYS) -> list[str]:
     """Date-window keys the pilot will attempt between start and end.
 
     Keys use the same ``YYYYMMDD_YYYYMMDD`` format as ``run_pilot`` /
@@ -101,9 +101,7 @@ def iter_planned_window_keys(
     return keys
 
 
-def count_planned_windows(
-    start: date, end: date, window_days: int = CONTRACTS_WINDOW_DAYS
-) -> int:
+def count_planned_windows(start: date, end: date, window_days: int = CONTRACTS_WINDOW_DAYS) -> int:
     """Number of date windows the pilot will attempt between start and end."""
     return len(iter_planned_window_keys(start, end, window_days))
 
@@ -117,36 +115,67 @@ def evaluate_window_completion(
     max_pages: int,
     first_total_registros: int | None = None,
     last_total_registros: int | None = None,
+    first_total_paginas: int | None = None,
+    last_total_paginas: int | None = None,
+    seen_ids: Iterable[str] | None = None,
+    tail_ids: Iterable[str] | None = None,
+    totals_sequence: Sequence[int] | None = None,
+    page_id_sequences: Sequence[tuple[int, tuple[str, ...]]] | None = None,
+    pass_count: int = 1,
+    persisted: int | None = None,
+    fetched: int | None = None,
+    rejected: int = 0,
+    timeout: bool = False,
+    checkpoint_committed: bool = True,
+    persistence_failed: bool = False,
+    state_committed: bool = True,
+    elapsed_seconds: float = 0.0,
+    unique_ids: int = 0,
 ) -> tuple[bool, list[str]]:
     """Decide whether a date window may be marked complete (shipped predicate).
 
     A window is complete only when there are no errors AND pages were fully
     exhausted (or the API returned a legitimate zero on the first page path).
     Hitting ``max_pages`` without exhausting ``total_pages`` is incomplete.
-    Source ``totalRegistros`` drift is not success.
+    Source ``totalRegistros`` drift is not success unless a limited tail pass
+    proves every newly appeared id was seen.
 
     Returns:
         (fully_ok, errors) — errors may be extended with a max-pages message.
     """
+    from scripts.contracts_truth import DRIFT_CONVERGED, DRIFT_OK, classify_population_drift
+    from scripts.crawl.population_convergence import format_window_error
+
     errors = list(window_errors)
-    if (
-        not pages_exhausted
-        and last_total_pages
-        and page <= last_total_pages
-        and page > max_pages
-    ):
-        errors.append(
-            f"Hit CONTRACTS_MAX_PAGES={max_pages} before "
-            f"total_pages={last_total_pages}; window incomplete"
+    if not pages_exhausted and last_total_pages and page <= last_total_pages and page > max_pages:
+        errors.append(f"Hit CONTRACTS_MAX_PAGES={max_pages} before total_pages={last_total_pages}; window incomplete")
+    if first_total_registros is not None and last_total_registros is not None:
+        decision = classify_population_drift(
+            first_total_registros=first_total_registros,
+            last_total_registros=last_total_registros,
+            first_total_paginas=first_total_paginas,
+            last_total_paginas=last_total_paginas if last_total_paginas is not None else last_total_pages,
+            unique_ids=unique_ids or len(set(seen_ids or ())),
+            seen_ids=seen_ids or (),
+            tail_ids=tail_ids or (),
+            totals_sequence=totals_sequence or (),
+            page_id_sequences=page_id_sequences or (),
+            pass_count=pass_count,
+            persisted=persisted,
+            fetched=fetched,
+            rejected=rejected,
+            timeout=timeout,
+            checkpoint_committed=checkpoint_committed,
+            persistence_failed=persistence_failed,
+            state_committed=state_committed,
+            elapsed_seconds=elapsed_seconds,
         )
-    if (
-        first_total_registros is not None
-        and last_total_registros is not None
-        and first_total_registros != last_total_registros
-    ):
-        errors.append(
-            f"source_population_drift:totalRegistros {first_total_registros} -> {last_total_registros}"
-        )
+        if decision.status not in {DRIFT_OK, DRIFT_CONVERGED}:
+            errors.append(format_window_error(decision))
+            if first_total_registros != last_total_registros:
+                errors.append(
+                    f"source_population_drift:totalRegistros {first_total_registros} -> {last_total_registros}"
+                )
     fully_ok = not errors
     return fully_ok, errors
 
@@ -181,12 +210,7 @@ def evaluate_pilot_status(
 
     if require_full_coverage:
         planned = int(planned_windows or 0)
-        if (
-            windows_failed == 0
-            and page_errors == 0
-            and planned > 0
-            and covered >= planned
-        ):
+        if windows_failed == 0 and page_errors == 0 and planned > 0 and covered >= planned:
             return "success"
         # Progress without full clean coverage (incl. skipped_resume short of planned)
         if windows_ok > 0 or windows_skipped > 0:
@@ -302,8 +326,10 @@ def _record_contracts_ingestion_run(dsn: str, report: dict[str, Any]) -> None:
     import psycopg2
 
     totals = report.get("totals") or {}
-    status = "completed" if report.get("status") == "success" else (
-        "partial" if report.get("status") == "partial" else "failed"
+    status = (
+        "completed"
+        if report.get("status") == "success"
+        else ("partial" if report.get("status") == "partial" else "failed")
     )
     now = datetime.now(UTC)
     started = report.get("started_at") or now.isoformat()
@@ -374,9 +400,7 @@ def _apply_run_id_to_checkpoint(
     existing_meta = cp_dict.get("meta") or {}
     existing_run = existing_meta.get("run_id") or existing_meta.get("attempt_run_id")
 
-    job = logical_job_id or os.getenv("CONTRACTS_LOGICAL_JOB_ID") or existing_meta.get(
-        "logical_job_id"
-    )
+    job = logical_job_id or os.getenv("CONTRACTS_LOGICAL_JOB_ID") or existing_meta.get("logical_job_id")
     # Incremental role implies stable logical job even on legacy checkpoints.
     if not job and (
         existing_meta.get("campaign_role") == "historical_contracts_incremental"
@@ -504,12 +528,7 @@ def _build_path_proof(
     page_errors = int(totals.get("page_errors") or 0)
 
     completed = [w for w in windows if w.get("status") == "completed"]
-    single_clean = (
-        windows_ok >= 1
-        and windows_failed == 0
-        and page_errors == 0
-        and len(completed) >= 1
-    )
+    single_clean = windows_ok >= 1 and windows_failed == 0 and page_errors == 0 and len(completed) >= 1
 
     if days <= 1:
         return {
@@ -653,9 +672,7 @@ def seal_pilot_artifact(
         completed_keys = [
             str(w.get("window_key"))
             for w in windows
-            if isinstance(w, dict)
-            and w.get("status") == "completed"
-            and w.get("window_key")
+            if isinstance(w, dict) and w.get("status") == "completed" and w.get("window_key")
         ]
         # For isolated seal dirs, replace with exact claimed set so live path
         # and embedded snapshot cannot diverge from windows[].
@@ -687,22 +704,17 @@ def seal_pilot_artifact(
         "P1_run_status": status == "success",
         "P2_date_span": bool(db_snapshot and db_snapshot.get("min_data_publicacao")),
         "P3_monthly": bool(db_snapshot and db_snapshot.get("monthly")),
-        "P5_no_residual_page_errors": totals["page_errors"] == 0
-        and totals["windows_failed"] == 0,
+        "P5_no_residual_page_errors": totals["page_errors"] == 0 and totals["windows_failed"] == 0,
         "P6_checkpoint_coherent": p6,
-        "P7_sample_fields": int((db_snapshot or {}).get("sample_populated_n20") or 0)
-        >= 20
+        "P7_sample_fields": int((db_snapshot or {}).get("sample_populated_n20") or 0) >= 20
         or int((db_snapshot or {}).get("pncp_supplier_contracts_count") or 0) >= 20,
         "P8_full_window_coverage": (
             planned_windows > 0
-            and (totals["windows_ok"] + totals["windows_skipped_resume"])
-            >= planned_windows
+            and (totals["windows_ok"] + totals["windows_skipped_resume"]) >= planned_windows
             and totals["windows_failed"] == 0
         ),
     }
-    go_label, go_reason = evaluate_go_no_go(
-        status, criteria, days=days, min_days_for_3y=CONTRACTS_FULL_DAYS
-    )
+    go_label, go_reason = evaluate_go_no_go(status, criteria, days=days, min_days_for_3y=CONTRACTS_FULL_DAYS)
 
     path_proof = path_proof_override
     if path_proof is None:
@@ -774,12 +786,8 @@ def seal_pilot_artifact(
             "Artifact sealed with run_id and evidence hashes",
         ],
         "claims_forbidden": [
-            "Full 90-day national pilot completed"
-            if status != "success"
-            else "Unsupervised 3y without re-validation",
-            "GO for unsupervised 3-year backfill"
-            if go_label != "GO"
-            else "Skip re-check after schema changes",
+            "Full 90-day national pilot completed" if status != "success" else "Unsupervised 3y without re-validation",
+            "GO for unsupervised 3-year backfill" if go_label != "GO" else "Skip re-check after schema changes",
             "CONTRATOS_95",
             "Seal duration equals live crawl duration",
             "Seal re-fetched PNCP pages",
@@ -942,6 +950,7 @@ def run_pilot(
             last_total_pages = 0
             first_total_registros: int | None = None
             last_total_registros: int | None = None
+            pagination = PaginationReconcile()
             print(f"WINDOW_START {window_key}", flush=True)
             while page <= CONTRACTS_MAX_PAGES:
                 result = _fetch_page_with_retry(data_ini, data_fim, page)
@@ -964,6 +973,12 @@ def run_pilot(
                     if first_total_registros is None:
                         first_total_registros = page_total_int
                     last_total_registros = page_total_int
+                pagination.observe_page(
+                    total_registros=result.total_records,
+                    total_paginas=result.total_pages,
+                    items=result.items,
+                    page=page,
+                )
                 window_records_raw.extend(result.items)
                 window_pages += 1
                 report["totals"]["pages"] += 1
@@ -1033,6 +1048,56 @@ def run_pilot(
                             break
                 window_records_raw = []
 
+            pagination.mark_first_pass_complete()
+            persist_failed = any("upsert failed" in err for err in window_errors)
+            timed_out = any("timeout" in err.lower() or "CONNECTION_FAILED" in err for err in window_errors)
+            first_pass = pagination.finish(
+                pass_count=1,
+                timeout=timed_out,
+                checkpoint_committed=True,
+                persistence_failed=persist_failed,
+                state_committed=True,
+                elapsed_seconds=time.time() - w_started,
+                reconcile_counts=False,
+            )
+            tail_pass_count = 1
+            if first_pass.allows_tail_pass and not window_errors:
+                for tail_page in tail_page_numbers(
+                    first_total_paginas=pagination.first_total_paginas,
+                    last_total_paginas=pagination.last_total_paginas,
+                ):
+                    tail_result = _fetch_page_with_retry(data_ini, data_fim, tail_page)
+                    if tail_result.is_failure or tail_result.is_zero:
+                        break
+                    pagination.observe_tail_page(
+                        total_registros=tail_result.total_records,
+                        total_paginas=tail_result.total_pages,
+                        items=tail_result.items,
+                        page=tail_page,
+                    )
+                    last_total_pages = int(tail_result.total_pages or last_total_pages)
+                    if tail_result.total_records is not None:
+                        last_total_registros = int(tail_result.total_records)
+                    tail_rows = transform(list(tail_result.items))
+                    window_transformed += len(tail_rows)
+                    report["totals"]["fetched"] += len(tail_result.items)
+                    report["totals"]["transformed"] += len(tail_rows)
+                    if not dry_run and conn is not None and tail_rows:
+                        try:
+                            ins, sk = _upsert_batch(conn, tail_rows)
+                            window_inserted += ins
+                            window_skipped += sk
+                            report["totals"]["inserted"] += ins
+                            report["totals"]["skipped"] += sk
+                        except Exception as exc:  # noqa: BLE001
+                            err = f"upsert failed window={window_key} tail page~{tail_page}: {exc}"
+                            logger.exception(err)
+                            window_errors.append(err)
+                            report["errors"].append(err)
+                            persist_failed = True
+                            break
+                tail_pass_count = 2
+            persist_failed = persist_failed or any("upsert failed" in err for err in window_errors)
             fully_ok, window_errors = evaluate_window_completion(
                 window_errors,
                 pages_exhausted=pages_exhausted,
@@ -1041,10 +1106,34 @@ def run_pilot(
                 max_pages=CONTRACTS_MAX_PAGES,
                 first_total_registros=first_total_registros,
                 last_total_registros=last_total_registros,
+                first_total_paginas=pagination.first_total_paginas,
+                last_total_paginas=pagination.last_total_paginas,
+                seen_ids=pagination.seen_ids - pagination.tail_ids,
+                tail_ids=pagination.tail_ids,
+                totals_sequence=pagination.totals_sequence,
+                page_id_sequences=pagination.page_id_sequences,
+                pass_count=tail_pass_count,
+                persisted=None,
+                fetched=None,
+                rejected=pagination.rejected,
+                timeout=timed_out,
+                checkpoint_committed=True,
+                persistence_failed=persist_failed,
+                state_committed=True,
+                unique_ids=len(pagination.seen_ids),
             )
             if not fully_ok and any("Hit CONTRACTS_MAX_PAGES" in e for e in window_errors):
                 report["totals"]["page_errors"] += 1
             elapsed = round(time.time() - w_started, 1)
+            drift_report = pagination.finish(
+                pass_count=tail_pass_count,
+                timeout=timed_out,
+                checkpoint_committed=True,
+                persistence_failed=persist_failed,
+                state_committed=fully_ok,
+                elapsed_seconds=elapsed,
+                reconcile_counts=False,
+            ).to_dict()
             w_status = "completed" if fully_ok else "partial_or_failed"
             if fully_ok:
                 checkpoint.completed_windows.append(window_key)
@@ -1075,6 +1164,7 @@ def run_pilot(
                     "skipped": window_skipped,
                     "errors": window_errors[:5],
                     "elapsed_seconds": elapsed,
+                    "population_drift": drift_report,
                 }
             )
             logger.info(
@@ -1093,9 +1183,7 @@ def run_pilot(
                 interim["status"] = "running"
                 interim["checkpoint"] = checkpoint.to_dict()
                 Path(output_json).parent.mkdir(parents=True, exist_ok=True)
-                Path(output_json).write_text(
-                    json.dumps(interim, indent=2, default=str), encoding="utf-8"
-                )
+                Path(output_json).write_text(json.dumps(interim, indent=2, default=str), encoding="utf-8")
 
             cur_date = window_end + timedelta(days=1)
             if cur_date < today:
@@ -1248,23 +1336,15 @@ def run_pilot(
         report["claims_allowed"] = [
             "Resumable pilot runner exists; partial windows are not marked complete on page errors",
         ]
-        if int(p.get("windows_ok") or 0) >= 1 or (
-            path_proof and path_proof.get("status") == "success"
-        ):
-            report["claims_allowed"].append(
-                "At least one full day/window completed with 0 page errors (path_proof)"
-            )
+        if int(p.get("windows_ok") or 0) >= 1 or (path_proof and path_proof.get("status") == "success"):
+            report["claims_allowed"].append("At least one full day/window completed with 0 page errors (path_proof)")
         if int((db or {}).get("pncp_supplier_contracts_count") or 0) >= 1000:
-            report["claims_allowed"].append(
-                "Contracts persisted in pncp_supplier_contracts (see db counts)"
-            )
+            report["claims_allowed"].append("Contracts persisted in pncp_supplier_contracts (see db counts)")
         report["claims_forbidden"] = [
             "Full 90-day national pilot completed"
             if report["status"] != "success"
             else "Unsupervised 3y without re-validation",
-            "GO for unsupervised 3-year backfill"
-            if go_label != "GO"
-            else "Skip re-check after schema changes",
+            "GO for unsupervised 3-year backfill" if go_label != "GO" else "Skip re-check after schema changes",
             "CONTRATOS_95",
         ]
 
@@ -1329,9 +1409,7 @@ def run_pilot(
                 report["go_no_go_3y"] = "NO-GO"
                 report["go_no_go_reason"] = str(e)
                 if output_json:
-                    Path(output_json).write_text(
-                        json.dumps(report, indent=2, default=str), encoding="utf-8"
-                    )
+                    Path(output_json).write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
 
     return report
 

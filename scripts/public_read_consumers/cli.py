@@ -14,6 +14,7 @@ from scripts.public_read_consumers.export import (
     load_json,
     verify_dir,
 )
+from scripts.public_read_consumers.live_refresh import RefreshRefusedError, refresh, replay_dir
 from scripts.public_read_consumers.registry import (
     get_consumer,
     list_consumer_ids,
@@ -103,6 +104,37 @@ def _cmd_verify(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_refresh(args: argparse.Namespace) -> int:
+    snapshot = load_json(args.snapshot) if args.snapshot else None
+    if args.replay_snapshot:
+        snapshot = load_json(args.replay_snapshot)
+    try:
+        result = refresh(
+            consumer=args.consumer,
+            out=args.out,
+            dsn=args.dsn,
+            snapshot=snapshot,
+            fixture=bool(args.fixture or (snapshot and not args.live and args.snapshot)),
+            live=bool(args.live),
+            fail_before_rename=bool(getattr(args, "fail_before_rename", False)),
+        )
+    except RefreshRefusedError as exc:
+        _print({"ok": False, "reason_code": exc.reason_code, "error": str(exc)})
+        return 2
+    _print(result)
+    return 0
+
+
+def _cmd_replay(args: argparse.Namespace) -> int:
+    try:
+        result = replay_dir(args.path)
+    except RefreshRefusedError as exc:
+        _print({"ok": False, "reason_code": exc.reason_code, "error": str(exc)})
+        return 2
+    _print(result)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python3 -m scripts.public_read_consumers")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -131,6 +163,21 @@ def build_parser() -> argparse.ArgumentParser:
     verify = sub.add_parser("verify", help="Verify content hashes in an export directory")
     verify.add_argument("--path", required=True)
     verify.set_defaults(func=_cmd_verify)
+
+    refresh_cmd = sub.add_parser("refresh", help="Official-live or fixture contract-analysis refresh")
+    refresh_cmd.add_argument("--consumer", required=True)
+    refresh_cmd.add_argument("--out", required=True)
+    refresh_cmd.add_argument("--dsn", help="Optional live DSN for official SELECT")
+    refresh_cmd.add_argument("--snapshot", help="Snapshot JSON (fixture or previously exported)")
+    refresh_cmd.add_argument("--replay-snapshot", dest="replay_snapshot", help="Replay a stored snapshot.json")
+    refresh_cmd.add_argument("--fixture", action="store_true", help="Label the input as fixture; official_live=false")
+    refresh_cmd.add_argument("--live", action="store_true", help="Require official_select snapshot")
+    refresh_cmd.add_argument("--fail-before-rename", action="store_true", help=argparse.SUPPRESS)
+    refresh_cmd.set_defaults(func=_cmd_refresh)
+
+    replay_cmd = sub.add_parser("replay", help="Replay snapshot.json inside an export directory")
+    replay_cmd.add_argument("--path", required=True)
+    replay_cmd.set_defaults(func=_cmd_replay)
     return parser
 
 

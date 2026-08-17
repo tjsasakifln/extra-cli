@@ -1,0 +1,51 @@
+{
+  "campaign": "CONFENGE-EXTRA-LIVE-INBOUND-TRUTH-02",
+  "baseline_sha": "4bbb825c5052558fec495c9528e5fa5a6a2e8416",
+  "branch": "feat/live-inbound-truth-02",
+  "pr_413_files_touched": false,
+  "classes": {
+    "drift_classifier": "CODE_PROVEN",
+    "incremental_dry_run": "LIVE_PROVEN",
+    "host_incremental_unit": "LIVE_PROVEN",
+    "incremental_healthy": false,
+    "official_sc_select": "LIVE_PROVEN",
+    "contract_analysis_export": "OFFICIAL_LIVE",
+    "editorial_review": "HOLD_FOR_DATA",
+    "comparability": "NOT_COMPARABLE",
+    "national_claim": "NO_GO",
+    "index": "NO_GO",
+    "xray": "NO_GO",
+    "issue_302": "UNKNOWN"
+  },
+  "export": {
+    "path": "exports/public-read-live/contract-analysis/1.0/",
+    "schema": "public-read-contract-analysis/1.0",
+    "official_live": true,
+    "producer_status": "OFFICIAL_LIVE",
+    "payload_content_hash": "63614768fc8c3d7e0ecb8da454a9832d8fbc58c0c4bc30dc9fe395a0a1e87595",
+    "manifest_content_hash": "7437a1cf6abb2c6db156290c98f6eaf3f1d5bf301d585c351e007f7d0156552c",
+    "coverage": {
+      "candidate_count": 40,
+      "editorial_review": 0,
+      "data_ready": 0,
+      "data_hold": 40,
+      "data_reject": 0
+    },
+    "no_index_authorization": true,
+    "claim_scope": "SC",
+    "claim_authorization": null
+  },
+  "incremental_host": {
+    "run_id": "contracts-90d-20260817T090320Z-1762326015",
+    "status": "failed",
+    "inserted": 261,
+    "error": "source_population_drift:totalRegistros 44515 -> 44517",
+    "new_classifier": "needs_retry"
+  },
+  "issues": {
+    "400": "open",
+    "414": "open",
+    "415": "open",
+    "302": "open"
+  }
+}
