@@ -1,0 +1,508 @@
+{
+  "active_row_count": 4573257,
+  "as_of": "2026-08-01",
+  "catalog_mode": "live_candidate",
+  "content_hash": "4123fe6b2344a272dc93a1e8f3a15e27afb58558831496598ad69884673a798d",
+  "document": {
+    "accepted_schemas": [
+      "comparable-contracts/1.0",
+      "public-read-comparable-contracts/1.0"
+    ],
+    "as_of": "2026-08-01",
+    "canonical_contract_ids": [
+      "00001602000163-2-000001/2024"
+    ],
+    "catalog_mode": "live_candidate",
+    "comparisons": [],
+    "consumer": {
+      "family": "web-cfg / contract-analysis family",
+      "id": "public-read-contract-analysis/#400"
+    },
+    "content_hash": "1f0ca255810e2b11c00060d84c900a7d6e27f266814778664db3fcd76005038c",
+    "contract_id": "00001602000163-2-000001/2024",
+    "contract_version": "v1.0.0",
+    "coverage": {
+      "eligible_n": 0,
+      "missingness": 1.0,
+      "usable_over_total": 0.0
+    },
+    "denominator": {
+      "kind": "usable_known_valor_integral_nominal",
+      "n": 0,
+      "unknown_policy": "UNKNOWN_never_zero_never_silent_denominator"
+    },
+    "evidence_refs": [
+      "pncp_supplier_contracts:00001602000163-2-000001/2024"
+    ],
+    "exclusion_rules": [
+      "incompatible unit, typology, scope, regime, geography, period, value semantic",
+      "original vs atualizado mix without explicit method",
+      "unresolved duplicate or superseded identity",
+      "pequeno vs grande porte",
+      "text similarity or embeddings as inclusion key",
+      "physical unit price without verified quantity/unit/scope/normalization/sample"
+    ],
+    "exclusions": [
+      {
+        "contract_id": "00001602000163-2-000023/2026",
+        "detail": "dimension_gate",
+        "match_distance": 0.5,
+        "reason_codes": [
+          "unit_unknown",
+          "fields_unavailable",
+          "period_not_comparable"
+        ]
+      },
+      {
+        "contract_id": "00001602000163-2-000025/2024",
+        "detail": "dimension_gate",
+        "match_distance": 0.0,
+        "reason_codes": [
+          "unit_unknown",
+          "fields_unavailable"
+        ]
+      },
+      {
+        "contract_id": "00001602000163-2-000036/2026",
+        "detail": "dimension_gate",
+        "match_distance": 0.65,
+        "reason_codes": [
+          "unit_unknown",
+          "fields_unavailable",
+          "period_not_comparable"
+        ]
+      },
+      {
+        "contract_id": "00001602000163-2-000039/2024",
+        "detail": "dimension_gate",
+        "match_distance": 0.15,
+        "reason_codes": [
+          "unit_unknown",
+          "fields_unavailable"
+        ]
+      },
+      {
+        "contract_id": "00001602000163-2-000046/2025",
+        "detail": "dimension_gate",
+        "match_distance": 0.4,
+        "reason_codes": [
+          "unit_unknown",
+          "fields_unavailable"
+        ]
+      }
+    ],
+    "freshness": {
+      "as_of": "2026-08-01",
+      "max_age_hours": 48,
+      "policy": "contracts-freshness-slo-v1"
+    },
+    "geography": {
+      "municipio": "Nova Olinda",
+      "region": "N",
+      "uf": "TO"
+    },
+    "inclusion_rules": [
+      "typology=pavimentacao AND typology_confidence>=0.80",
+      "unit=BRL_TOTAL (valor integral nominal; never km or m2)",
+      "value_semantic=valor_integral_nominal",
+      "regime identical and known",
+      "geography=same UF",
+      "period=|year_delta|<=1",
+      "UNKNOWN valor excluded from denominator",
+      "highest revision only"
+    ],
+    "limitations": [
+      "Canary answers only the nominal total-value position question for paving contracts.",
+      "This is not a physical-unit cost, a productivity benchmark, or a legal accusation.",
+      "UNKNOWN is never coerced to zero and never enters the denominator.",
+      "Fixture output is never official_live.",
+      "No national ranking or complete-universe share claim is licensed by this document.",
+      "Metrics withheld because the peer-group gate did not pass."
+    ],
+    "match_quality": [],
+    "method": {
+      "id": "comparable-contracts-peer-group/1.0",
+      "no_embeddings_authority": true,
+      "no_llm": true,
+      "policy": "contract-comparables-policy/1.0",
+      "question_id": "paving_nominal_total_value_position"
+    },
+    "method_version": "comparable-contracts-peer-group/1.0",
+    "metrics": {},
+    "missingness": {
+      "ratio": 1.0,
+      "unknown_excluded": true
+    },
+    "modality": "unknown",
+    "monetary_normalization": null,
+    "outlier_treatment": "outliers remain in the sample; IQR 1.5 and MAD robust distance are descriptive; no legal accusation is emitted",
+    "peer_count": 0,
+    "peer_group_id": "pg-7315646e93b2fe25",
+    "peer_ids": [],
+    "peer_refs": [],
+    "peers": [],
+    "percentiles": {},
+    "period": {
+      "data_referencia": "2024-04-05",
+      "year": 2024
+    },
+    "policy_version": "contract-comparables-policy/1.0",
+    "porte": "medio",
+    "producer_sha": "2d68272dbe4680c6285b9a35a43f6e4f9076e966",
+    "question": "Como o valor integral nominal de um contrato público de pavimentação se posiciona frente a contratos comparáveis?",
+    "question_id": "paving_nominal_total_value_position",
+    "reason_codes": [
+      "live_columns_unavailable",
+      "fields_unavailable",
+      "unit_unknown",
+      "period_not_comparable"
+    ],
+    "regime": "unknown",
+    "schema": "comparable-contracts/1.0",
+    "source": "pncp_supplier_contracts",
+    "status": "NOT_COMPARABLE",
+    "suppression": {
+      "aggregate_only": false,
+      "peer_ids_emitted": true
+    },
+    "target_contract_id": "00001602000163-2-000001/2024",
+    "total_n": 5,
+    "typology": {
+      "confidence": 0.95,
+      "label": "pavimentacao",
+      "scope": "paving_works"
+    },
+    "typology_confidence": 0.95,
+    "unit": "unknown",
+    "universe": {
+      "eligible_n": 0,
+      "source": "pncp_supplier_contracts",
+      "total_n": 5,
+      "usable_n": 0
+    },
+    "usable_n": 0,
+    "value_semantic": "unknown"
+  },
+  "focal_contract_id": "00001602000163-2-000001/2024",
+  "limitations": [
+    "Canary answers only the nominal total-value position question for paving contracts.",
+    "This is not a physical-unit cost, a productivity benchmark, or a legal accusation.",
+    "UNKNOWN is never coerced to zero and never enters the denominator.",
+    "Fixture output is never official_live.",
+    "No national ranking or complete-universe share claim is licensed by this document.",
+    "Metrics withheld because the peer-group gate did not pass.",
+    "Canary answers only the nominal total-value position of paving contracts.",
+    "This is not cost/km, a unit price, a legal accusation, or a national ranking.",
+    "catalog_mode is never official_live unless semantic columns and coverage are proven.",
+    "Keyword typology is the documented method; it is not an official regime/unit column.",
+    "valor_total has no currency column; BRL is a PNCP instrument convention, not a proven field."
+  ],
+  "match_quality": [],
+  "method": {
+    "id": "comparable-contracts-peer-group/1.0",
+    "no_embeddings_authority": true,
+    "no_llm": true,
+    "policy": "contract-comparables-policy/1.0",
+    "question_id": "paving_nominal_total_value_position"
+  },
+  "metric": "valor_integral_nominal",
+  "missing_semantic_columns": [
+    "unidade",
+    "quantidade",
+    "regime",
+    "modalidade",
+    "valor_semantic"
+  ],
+  "missingness": {
+    "ratio": 1.0,
+    "unknown_excluded": true
+  },
+  "next_command": "export LOCAL_DATALAKE_DSN=\"${LOCAL_DATALAKE_DSN:-postgresql://test:test@127.0.0.1:5433/extra_test}\" && python3 -m scripts.contract_comparables official-canary --as-of 2026-08-01 --metric valor_integral_nominal",
+  "observability": {
+    "groups_evaluated": 12,
+    "late_arrivals": {
+      "affected_groups": [
+        "00001602000163-2-000001/2024",
+        "00001602000163-2-000046/2025"
+      ],
+      "note": "A late arrival or rectification invalidates only groups that include the affected contract_id.",
+      "rectified_contract_id": "00001602000163-2-000001/2024",
+      "unaffected_groups": []
+    },
+    "not_comparable_rate": 0.6667,
+    "per_group_ms": [
+      105.107,
+      107.791,
+      112.292,
+      115.656,
+      106.123,
+      103.802,
+      106.683,
+      110.896,
+      105.613,
+      112.237,
+      107.825,
+      105.081
+    ],
+    "refresh_latency_ms": 8632.932,
+    "status_counts": {
+      "BLOCKED": 0,
+      "COMPARABLE": 0,
+      "HOLD_FOR_DATA": 4,
+      "NOT_COMPARABLE": 8
+    }
+  },
+  "official_columns_present": [
+    "contrato_id",
+    "orgao_cnpj",
+    "orgao_nome",
+    "fornecedor_cnpj",
+    "fornecedor_nome",
+    "objeto_contrato",
+    "valor_total",
+    "data_inicio",
+    "data_fim",
+    "data_publicacao",
+    "uf",
+    "municipio",
+    "source",
+    "source_id",
+    "ingested_at",
+    "is_active",
+    "codigo_municipio_ibge"
+  ],
+  "peers": [],
+  "prerequisite": "Official semantic columns (unidade, quantidade, regime, modalidade, valor_semantic) plus a usable paving sample.",
+  "question": "Como o valor integral nominal de um contrato público de pavimentação se posiciona frente a contratos comparáveis?",
+  "question_id": "paving_nominal_total_value_position",
+  "reason_codes": [
+    "live_columns_unavailable",
+    "fields_unavailable",
+    "unit_unknown",
+    "period_not_comparable"
+  ],
+  "residual": {
+    "EXTRA-003": "absent_locally",
+    "EXTRA-004": "not_in_origin_main",
+    "EXTRA-008": "not_in_origin_main"
+  },
+  "reviewable_sample": {
+    "contracts": [
+      {
+        "contract_id": "00001602000163-2-000001/2024",
+        "porte": "medio",
+        "regime": "unknown",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "TO",
+        "unit": "unknown",
+        "unknown_fields": [
+          "regime",
+          "unidade",
+          "valor_semantic",
+          "value_basis"
+        ],
+        "value_semantic": "unknown",
+        "year": 2024
+      },
+      {
+        "contract_id": "00001602000163-2-000023/2026",
+        "porte": "medio",
+        "regime": "unknown",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "TO",
+        "unit": "unknown",
+        "unknown_fields": [
+          "regime",
+          "unidade",
+          "valor_semantic",
+          "value_basis"
+        ],
+        "value_semantic": "unknown",
+        "year": 2026
+      },
+      {
+        "contract_id": "00001602000163-2-000025/2024",
+        "porte": "medio",
+        "regime": "unknown",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "TO",
+        "unit": "unknown",
+        "unknown_fields": [
+          "regime",
+          "unidade",
+          "valor_semantic",
+          "value_basis"
+        ],
+        "value_semantic": "unknown",
+        "year": 2024
+      },
+      {
+        "contract_id": "00001602000163-2-000036/2026",
+        "porte": "grande",
+        "regime": "unknown",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "TO",
+        "unit": "unknown",
+        "unknown_fields": [
+          "regime",
+          "unidade",
+          "valor_semantic",
+          "value_basis"
+        ],
+        "value_semantic": "unknown",
+        "year": 2026
+      },
+      {
+        "contract_id": "00001602000163-2-000039/2024",
+        "porte": "pequeno",
+        "regime": "unknown",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "TO",
+        "unit": "unknown",
+        "unknown_fields": [
+          "regime",
+          "unidade",
+          "valor_semantic",
+          "value_basis"
+        ],
+        "value_semantic": "unknown",
+        "year": 2024
+      },
+      {
+        "contract_id": "00001602000163-2-000046/2025",
+        "porte": "pequeno",
+        "regime": "unknown",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "TO",
+        "unit": "unknown",
+        "unknown_fields": [
+          "regime",
+          "unidade",
+          "valor_semantic",
+          "value_basis"
+        ],
+        "value_semantic": "unknown",
+        "year": 2025
+      }
+    ],
+    "coverage": {
+      "eligible_n": 0,
+      "missingness": 1.0,
+      "usable_over_total": 0.0
+    },
+    "currency": {
+      "code": "UNKNOWN",
+      "column": null,
+      "note": "valor_total has no currency column; BRL is a PNCP convention, not a proven field"
+    },
+    "fetched_ufs": [
+      "AC",
+      "AM",
+      "AP",
+      "BA",
+      "CE",
+      "DF",
+      "GO",
+      "MG",
+      "MS",
+      "PA",
+      "PB",
+      "PI",
+      "PR",
+      "RJ",
+      "RN",
+      "RS",
+      "SC",
+      "SE",
+      "SP",
+      "TO"
+    ],
+    "geography": {
+      "municipio_count": 1,
+      "municipios": [
+        "Nova Olinda"
+      ],
+      "ufs": [
+        "TO"
+      ]
+    },
+    "n_paving": 6,
+    "n_paving_fetched": 96,
+    "n_rows_fetched": 6,
+    "period": {
+      "as_of": "2026-08-01",
+      "years": [
+        2024,
+        2025,
+        2026
+      ]
+    },
+    "porte": {
+      "column": null,
+      "note": "no official porte column; value-band heuristic is not an official field",
+      "observed": [
+        "grande",
+        "medio",
+        "pequeno"
+      ],
+      "status": "value_band_heuristic"
+    },
+    "regime": {
+      "column": null,
+      "note": "no official regime column; unknown remains unknown",
+      "observed": [
+        "unknown"
+      ],
+      "status": "UNKNOWN"
+    },
+    "stratum_uf": "TO",
+    "typology": {
+      "confidences": [
+        0.95,
+        0.95,
+        0.95,
+        0.95,
+        0.95,
+        0.95
+      ],
+      "keywords": [
+        "pavimentacao",
+        "recapeamento",
+        "revestimento asfaltico",
+        "cbuq",
+        "tsd",
+        "microrevestimento",
+        "restauracao asfaltica",
+        "capa asfaltica",
+        "asfaltamento",
+        "concreto betuminoso usinado"
+      ],
+      "label": "pavimentacao",
+      "method": "documented_keyword_classifier",
+      "min_confidence": 0.8,
+      "sample_precision_reviewed": true
+    },
+    "unknown_fields": [
+      "regime",
+      "unidade",
+      "valor_semantic",
+      "value_basis"
+    ],
+    "value_basis": {
+      "column": null,
+      "status": "UNKNOWN"
+    }
+  },
+  "schema": "comparable-contracts-official-canary/1.0",
+  "status": "NOT_COMPARABLE",
+  "suppression": {
+    "aggregate_only": false,
+    "peer_ids_emitted": true
+  }
+}
