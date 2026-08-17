@@ -82,19 +82,30 @@ _PAGE_RETRYABLE = frozenset(
 )
 
 
+def iter_planned_window_keys(
+    start: date, end: date, window_days: int = CONTRACTS_WINDOW_DAYS
+) -> list[str]:
+    """Date-window keys the pilot will attempt between start and end.
+
+    Keys use the same ``YYYYMMDD_YYYYMMDD`` format as ``run_pilot`` /
+    ``contracts_crawler`` (``_fmt(start)_fmt(end)``).
+    """
+    if window_days < 1 or start >= end:
+        return []
+    keys: list[str] = []
+    cur = start
+    while cur < end:
+        window_end = min(cur + timedelta(days=window_days - 1), end)
+        keys.append(f"{_fmt(cur)}_{_fmt(window_end)}")
+        cur = window_end + timedelta(days=1)
+    return keys
+
+
 def count_planned_windows(
     start: date, end: date, window_days: int = CONTRACTS_WINDOW_DAYS
 ) -> int:
     """Number of date windows the pilot will attempt between start and end."""
-    if window_days < 1 or start >= end:
-        return 0
-    n = 0
-    cur = start
-    while cur < end:
-        window_end = min(cur + timedelta(days=window_days - 1), end)
-        n += 1
-        cur = window_end + timedelta(days=1)
-    return n
+    return len(iter_planned_window_keys(start, end, window_days))
 
 
 def evaluate_window_completion(
