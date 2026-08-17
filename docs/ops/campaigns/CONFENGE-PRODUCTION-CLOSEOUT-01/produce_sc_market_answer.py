@@ -21,7 +21,6 @@ from scripts.contract_comparables.official_canary import PAVING_ILIKE
 from scripts.public_read_consumers.export import export_consumer
 from scripts.public_read_consumers.market_answer import CONSUMER_ID, project_market_answer
 
-
 GEOGRAPHY_UF = "SC"
 PERIOD_START = "2023-07-20"
 ZERO_EXCLUDED_NOTE = "valor_total<=0 treated as missingness, never as a real ticket"
