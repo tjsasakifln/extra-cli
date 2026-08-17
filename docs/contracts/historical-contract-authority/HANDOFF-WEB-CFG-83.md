@@ -18,15 +18,16 @@ Root: `exports/authority-handoff/contract-analysis/1.0/`
 
 | Path | SHA-256 |
 |------|---------|
-| `manifest.json` | `017ea41e9ae2a05478c0554cb477bc4f1b48ed8f2135fe4ea20c06343a030b8c` |
+| `manifest.json` | `1255682d88cff481b65d9d4efb62e175f43bf9ad4e549bfc13b4d0b5e7078955` |
 | `status.json` | `15f54e0af143493591388b747438e0b1097f47d2109490d06098bbc779719906` |
-| `lineage.json` | `979ea60893898d8e4e291101bb39fa5d716c01f27a025cc08d9ed6dfdabf16ac` |
-| `dossiers/0a849765324712f532b68c1e37692f25.json` | `8f28f6db6e87f23b45df3ad5a8550f0fa75e049c3aa86739429e8fb1fcef5e2a` |
-| `public-read/0a849765324712f532b68c1e37692f25.json` | `66c0aa580f4c88f07e2a01ef4d1ed626e1a1f8453277e03fe8e8c8d004badd33` |
+| `lineage.json` | `5a135b50d3fababc32a640af7eb84a5360d2829198cae0f7663b5b7a5feb2f31` |
+| `dossiers/0a849765324712f532b68c1e37692f25.json` | `f0e1ddde1c9eaf0b83b9c98d518deb73ee425b1a00221bec2548efd146d3c4ff` |
+| `public-read/0a849765324712f532b68c1e37692f25.json` | `015f464d08dd197989d10b4d5b4190c8311bd3306191af7dbe41d91d9dd52e1d` |
 | `source-claim-matrix/0a849765324712f532b68c1e37692f25.json` | `a621943fea914b3547f3ebfb62630a4772d21257573af1f535276a8e6627352a` |
 | `editorial-briefs/0a849765324712f532b68c1e37692f25.json` | `efa2c92168b5de6ff8f58c9d4b6bcae56ac7121bc2d7c960ed1cbc94595902ee` |
 
-Manifest `content_hash`: `418a87307123502caa6730cab21c48533bdffe27291719ef3d4579a9dabaaac4`.
+Manifest `content_hash`: `df7633933b3fb3ef3fcb1065a06507162b61edf3ee978950fee6bd07065071ca`.
+Official refs use SHA-256 of document bytes (64 hex), never slugs.
 
 ## Selected dossier
 

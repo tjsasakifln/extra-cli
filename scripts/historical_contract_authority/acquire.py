@@ -16,6 +16,7 @@ from scripts.historical_contract_authority.schema import (
     MAX_REQUESTS,
     RATE_LIMIT_S,
     USER_AGENT,
+    is_sha256,
     sha256_bytes,
     sha256_text,
 )
@@ -44,8 +45,12 @@ def document_from_mapping(raw: dict[str, Any]) -> DocumentRecord:
         payload = bytes(binary)
     else:
         payload = text.encode("utf-8")
-    binary_hash = str(raw.get("binary_sha256") or sha256_bytes(payload))
-    text_hash = str(raw.get("text_sha256") or sha256_text(text))
+    computed_bin = sha256_bytes(payload)
+    computed_txt = sha256_text(text)
+    provided_bin = str(raw.get("binary_sha256") or "")
+    provided_txt = str(raw.get("text_sha256") or "")
+    binary_hash = computed_bin if payload else (provided_bin if is_sha256(provided_bin) else "")
+    text_hash = computed_txt if text else (provided_txt if is_sha256(provided_txt) else "")
     mime = str(raw.get("mime") or detect_mime(payload, raw.get("mime") or "text/plain"))
     return DocumentRecord(
         document_id=str(raw.get("document_id") or binary_hash[:16]),
@@ -95,7 +100,8 @@ def bounded_fetch(
     for attempt in range(1, FETCH_RETRIES + 1):
         budget["requests"] += 1
         try:
-            request = Request(url, headers={"User-Agent": USER_AGENT})  # noqa: S310
+            headers = {} if url.startswith("file:") else {"User-Agent": USER_AGENT}
+            request = Request(url, headers=headers)  # noqa: S310
             with urlopen(request, timeout=FETCH_TIMEOUT_S) as response:  # noqa: S310
                 status = int(getattr(response, "status", 200) or 200)
                 data = response.read(MAX_BYTES_PER_DOC + 1)
@@ -120,7 +126,8 @@ def bounded_fetch(
                     "redirect_chain": tuple(getattr(response, "url", url) for _ in (0,)),
                 }
                 cache[url] = record
-                time.sleep(RATE_LIMIT_S)
+                if not url.startswith("file:"):
+                    time.sleep(RATE_LIMIT_S)
                 return record
         except HTTPError as exc:
             last_error = f"http_{exc.code}"
@@ -132,17 +139,59 @@ def bounded_fetch(
     return record
 
 
+def attach_portal_locators(case: dict[str, Any]) -> dict[str, Any]:
+    documents = list(case.get("documents") or [])
+    if documents:
+        return case
+    urls = list(case.get("source_urls") or [])
+    identity = case.get("identity") or {}
+    if not urls and identity.get("contract_id"):
+        urls = [f"https://pncp.gov.br/app/contratos/{identity['contract_id']}"]
+    attached = [
+        {
+            "document_id": f"portal-{index}",
+            "title": "official portal locator",
+            "class": "portal_record",
+            "family": "portal",
+            "url": url,
+            "locator": {"section": "contract-record"},
+            "relation": "portal",
+        }
+        for index, url in enumerate(urls)
+        if url
+    ]
+    if not attached:
+        return case
+    updated = dict(case)
+    updated["documents"] = attached
+    return updated
+
+
+def lookup_inventory(case: dict[str, Any]) -> list[dict[str, Any]]:
+    found: list[dict[str, Any]] = []
+    for item in case.get("inventory") or []:
+        if isinstance(item, dict) and item.get("url"):
+            found.append(item)
+    return found[:MAX_DOCS_PER_CONTRACT]
+
+
 def collect_documents(
-    case: dict[str, Any], *, cache: dict[str, dict[str, Any]] | None = None, fetch: bool = False
+    case: dict[str, Any],
+    *,
+    cache: dict[str, dict[str, Any]] | None = None,
+    fetch: bool = False,
+    budget: dict[str, Any] | None = None,
 ) -> tuple[tuple[DocumentRecord, ...], list[dict[str, Any]]]:
     store = cache if cache is not None else {}
-    budget = {"requests": 0}
+    budget = budget if budget is not None else {"requests": 0, "bytes": 0}
     failed: list[dict[str, Any]] = []
     collected: list[DocumentRecord] = []
-    raw_docs = list(case.get("documents") or [])
+    raw_docs = list(case.get("documents") or []) + lookup_inventory(case)
     fetched_count = 0
     for raw in raw_docs:
-        needs_fetch = fetch and raw.get("url") and not raw.get("text") and not raw.get("binary_sha256")
+        needs_fetch = (
+            fetch and raw.get("url") and not raw.get("text") and not is_sha256(str(raw.get("binary_sha256") or ""))
+        )
         if needs_fetch:
             if fetched_count >= MAX_DOCS_PER_CONTRACT:
                 failed.append({"ok": False, "reason": "doc_budget_exceeded", "url": raw.get("url")})
@@ -152,6 +201,7 @@ def collect_documents(
             if not fetched.get("ok"):
                 failed.append(fetched)
                 continue
+            budget["bytes"] = int(budget.get("bytes") or 0) + int(fetched.get("bytes_len") or 0)
             raw = {**raw, **fetched}
         collected.append(document_from_mapping(raw))
     return tuple(collected), failed

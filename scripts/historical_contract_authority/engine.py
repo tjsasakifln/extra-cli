@@ -6,8 +6,9 @@ from datetime import UTC, date, datetime
 from decimal import ROUND_HALF_EVEN, Decimal, InvalidOperation
 from typing import Any
 
-from scripts.historical_contract_authority.acquire import collect_documents
+from scripts.historical_contract_authority.acquire import attach_portal_locators, collect_documents
 from scripts.historical_contract_authority.adapters import compare_via_415
+from scripts.historical_contract_authority.extract import assemble_from_documents
 from scripts.historical_contract_authority.gates import (
     admit,
     build_score,
@@ -248,24 +249,54 @@ def _identity_block(case: dict[str, Any], snapshot_hash: str, as_of: str) -> dic
     return identity
 
 
-def build_dossier(case: dict[str, Any], *, as_of: str | None = None, snapshot_hash: str | None = None) -> Dossier:
+def _should_fetch(case: dict[str, Any], fetch: bool | None) -> bool:
+    if fetch is not None:
+        return fetch
+    mode = str(case.get("catalog_mode") or "fixture")
+    return mode in {"official_projection", "official", "live_candidate"}
+
+
+def build_dossier(
+    case: dict[str, Any],
+    *,
+    as_of: str | None = None,
+    snapshot_hash: str | None = None,
+    fetch: bool | None = None,
+    cache: dict[str, dict[str, Any]] | None = None,
+    budget: dict[str, Any] | None = None,
+) -> Dossier:
     stamp = _as_of_now(as_of or case.get("as_of"))
-    documents, _failed = collect_documents(case, fetch=False)
-    events = parse_events(list(case.get("events") or []))
-    claims = parse_claims(list(case.get("claims") or []))
-    calculations = parse_calculations(list(case.get("calculations") or []), claims)
-    contradictions = parse_contradictions(list(case.get("contradictions") or []))
-    identity = case.get("identity") or {}
+    working = attach_portal_locators(case)
+    documents, _failed = collect_documents(working, fetch=_should_fetch(working, fetch), cache=cache, budget=budget)
+    events = parse_events(list(working.get("events") or []))
+    claims = parse_claims(list(working.get("claims") or []))
+    assembled = assemble_from_documents(documents, working)
+    if not claims:
+        claims = assembled["claims"]  # type: ignore[assignment]
+    if not events:
+        events = assembled["events"]  # type: ignore[assignment]
+    question = str(working.get("technical_question") or assembled.get("technical_question") or "")
+    if not working.get("technical_question") and assembled.get("technical_question"):
+        working = dict(working)
+        working["technical_question"] = assembled["technical_question"]
+        editorial = dict(working.get("editorial") or {})
+        if not editorial.get("central_question"):
+            editorial["central_question"] = assembled["technical_question"]
+            working["editorial"] = editorial
+    calculations = parse_calculations(list(working.get("calculations") or []), claims)
+    contradictions = parse_contradictions(list(working.get("contradictions") or []))
+    identity = working.get("identity") or {}
     contract_id = str(identity.get("contract_id") or "unknown")
     snap = snapshot_hash or str(
-        case.get("source_snapshot_hash") or content_hash({"case_id": case.get("case_id"), "contract_id": contract_id})
+        working.get("source_snapshot_hash")
+        or content_hash({"case_id": working.get("case_id"), "contract_id": contract_id})
     )
-    brief = parse_brief(case.get("editorial") or {}, str(case.get("technical_question") or ""))
+    brief = parse_brief(working.get("editorial") or {}, question)
     maintenance = parse_maintenance(case.get("maintenance") or {}, contract_id)
-    admitted, admission_reasons = admit(case, documents, events)
+    admitted, admission_reasons = admit(working, documents, events)
     replay = replay_ok(calculations)
     gates = quality_gates(
-        case=case,
+        case=working,
         documents=documents,
         claims=claims,
         events=events,
@@ -286,7 +317,7 @@ def build_dossier(case: dict[str, Any], *, as_of: str | None = None, snapshot_ha
         gates=gates,
     )
     score = build_score(dimensions, gates)
-    comparability = compare_via_415(case, as_of=stamp)
+    comparability = compare_via_415(working, as_of=stamp)
     reasons = list(admission_reasons)
     if not admitted:
         reject_now = {
@@ -302,6 +333,7 @@ def build_dossier(case: dict[str, Any], *, as_of: str | None = None, snapshot_ha
             "value_without_semantics",
             "missing_official_instrument",
             "missing_reference_date",
+            "missing_technical_question",
         }
         if reject_now.intersection(admission_reasons):
             state = "REJECT"
@@ -322,7 +354,7 @@ def build_dossier(case: dict[str, Any], *, as_of: str | None = None, snapshot_ha
             reasons.append("score_below_88")
         if score.below_floor:
             reasons.append("dimension_below_75")
-    limitations = tuple(case.get("limitations") or brief.cannot_assert)
+    limitations = tuple(working.get("limitations") or brief.cannot_assert)
     if any(item.result == "NOT_COMPUTABLE" for item in calculations):
         limitations = tuple(dict.fromkeys((*limitations, "NOT_COMPUTABLE")))
     dossier = Dossier(
@@ -330,7 +362,7 @@ def build_dossier(case: dict[str, Any], *, as_of: str | None = None, snapshot_ha
         dossier_id=dossier_id(contract_id=contract_id, snapshot_hash=snap),
         state=state,  # type: ignore[arg-type]
         reason_codes=tuple(dict.fromkeys(reasons)),
-        identity=_identity_block(case, snap, stamp),
+        identity=_identity_block(working, snap, stamp),
         documents=documents,
         claims=claims,
         chronology=events,
@@ -345,11 +377,11 @@ def build_dossier(case: dict[str, Any], *, as_of: str | None = None, snapshot_ha
             "as_of": stamp,
             "max_age_hours": 48,
             "policy": "authority-freshness/1.0",
-            "source_as_of": (case.get("dates") or {}).get("reference"),
+            "source_as_of": (working.get("dates") or {}).get("reference"),
         },
         source_snapshot_hash=snap,
         producer_sha=producer_sha(),
-        catalog_mode=str(case.get("catalog_mode") or "fixture"),
+        catalog_mode=str(working.get("catalog_mode") or "fixture"),
         limitations=limitations,
         content_hash="",
     )
@@ -361,8 +393,19 @@ def dossier_dict(dossier: Dossier) -> dict[str, Any]:
 
 
 def process_cases(
-    cases: list[dict[str, Any]], *, as_of: str | None = None, snapshot_hash: str | None = None
+    cases: list[dict[str, Any]],
+    *,
+    as_of: str | None = None,
+    snapshot_hash: str | None = None,
+    fetch: bool | None = None,
+    cache: dict[str, dict[str, Any]] | None = None,
+    budget: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
     stamp = _as_of_now(as_of)
     snap = snapshot_hash or content_hash({"cases": [item.get("case_id") for item in cases], "as_of": stamp})
-    return [dossier_dict(build_dossier(case, as_of=stamp, snapshot_hash=snap)) for case in cases]
+    store = cache if cache is not None else {}
+    spend = budget if budget is not None else {"requests": 0, "bytes": 0}
+    return [
+        dossier_dict(build_dossier(case, as_of=stamp, snapshot_hash=snap, fetch=fetch, cache=store, budget=spend))
+        for case in cases
+    ]

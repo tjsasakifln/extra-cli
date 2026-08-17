@@ -17,11 +17,13 @@ from scripts.historical_contract_authority.models import (
 )
 from scripts.historical_contract_authority.schema import (
     FORBIDDEN_CONCLUSION,
+    GENERIC_FICHA_QUESTIONS,
     HANDOFF_MIN_DIMENSION,
     HANDOFF_MIN_SCORE,
     MIN_EVIDENCE_FAMILIES,
     MIN_MATERIAL_CLAIMS,
     SCORE_WEIGHTS,
+    is_sha256,
 )
 
 GENERIC_THESES = frozenset(
@@ -91,7 +93,13 @@ def distinct_official_events(documents: tuple[DocumentRecord, ...], events: tupl
 def hashed_located(documents: tuple[DocumentRecord, ...]) -> bool:
     if not documents:
         return False
-    return all(item.url and item.binary_sha256 and item.locator.as_text() != "UNSPECIFIED" for item in documents)
+    return all(
+        item.url
+        and is_sha256(item.binary_sha256)
+        and item.locator.as_text() != "UNSPECIFIED"
+        and (item.bytes_len > 0 or bool(item.text.strip()))
+        for item in documents
+    )
 
 
 def admit(
@@ -118,7 +126,9 @@ def admit(
     if not (case.get("dates") or {}).get("reference"):
         reasons.append("missing_reference_date")
     question = str(case.get("technical_question") or "").strip()
-    if not question or question.lower() in {"what is the contract value?", "qual o valor do contrato?"}:
+    if not question:
+        reasons.append("missing_technical_question")
+    elif question.lower() in GENERIC_FICHA_QUESTIONS:
         reasons.append("no_specific_technical_question")
     if case.get("reputational_block"):
         reasons.append("reputational_block")
@@ -140,6 +150,7 @@ def admit(
         "insufficient_documents",
         "missing_url_or_hash_or_locator",
         "missing_reference_date",
+        "missing_technical_question",
         "no_specific_technical_question",
         "reputational_block",
     }
