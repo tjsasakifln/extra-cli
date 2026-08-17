@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
+
 from scripts.confenge_target_fit.coverage import (
     TARGET_FIT_COVERAGE_THRESHOLD,
     build_coverage_snapshot,
@@ -55,6 +57,11 @@ class _Conn:
         return None
 
 
+def _recent_reconcile() -> str:
+    """Stay inside the 7-day STALE SLO without a hardcoded calendar day."""
+    return (datetime.now(UTC) - timedelta(hours=1)).replace(microsecond=0).isoformat()
+
+
 def test_coverage_ratio_and_threshold() -> None:
     assert coverage_ratio(materialized_company_count=995, canonical_company_count=1000) == 0.995
     assert coverage_ratio(materialized_company_count=0, canonical_company_count=0) is None
@@ -65,7 +72,7 @@ def test_coverage_ratio_and_threshold() -> None:
         visited_company_roots=1000,
         unexplained_missing=0,
         pagination_exhausted_normally=True,
-        last_full_reconcile_completed_at="2026-08-10T00:00:00+00:00",
+        last_full_reconcile_completed_at=_recent_reconcile(),
     )
     assert snap["coverage_ratio"] == 1.0
     assert snap["FULL_NATIONAL_READY"] is True
@@ -86,7 +93,7 @@ def test_coverage_mode_bootstrapping_and_partial() -> None:
     assert (
         classify_coverage_mode(
             coverage=0.02,
-            last_full_reconcile_completed_at="2026-08-10T00:00:00+00:00",
+            last_full_reconcile_completed_at=_recent_reconcile(),
             unexplained_missing=0,
             pagination_exhausted_normally=True,
         )
@@ -95,7 +102,7 @@ def test_coverage_mode_bootstrapping_and_partial() -> None:
     assert (
         classify_coverage_mode(
             coverage=0.999,
-            last_full_reconcile_completed_at="2026-08-10T00:00:00+00:00",
+            last_full_reconcile_completed_at=_recent_reconcile(),
             unexplained_missing=5,
             pagination_exhausted_normally=True,
         )
