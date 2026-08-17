@@ -1,0 +1,20 @@
+{
+  "schema": "historical-contract-authority-canary/1.0",
+  "claim_scope": "SC",
+  "claim_authorization": null,
+  "official_live": false,
+  "live": {
+    "entry": "scripts.contract_publication.official_snapshot.fetch_official_sc_snapshot",
+    "reason_codes": ["dsn_connect_failed"],
+    "error_class": "OperationalError",
+    "handoff_ready": 0
+  },
+  "fixture": {
+    "handoff_ready_exported": 1,
+    "dossier_id": "0a849765324712f532b68c1e37692f25",
+    "score": 100.0
+  },
+  "consumer": "web-cfg#83",
+  "no_index_authorization": true,
+  "no_publication_authorization": true
+}
