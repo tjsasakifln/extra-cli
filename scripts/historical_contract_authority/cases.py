@@ -5,6 +5,8 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Any
 
+from scripts.historical_contract_authority.schema import sha256_bytes, sha256_text
+
 PNCP = "https://pncp.gov.br/app/contratos"
 DOE = "https://portal.doe.sea.sc.gov.br/edicoes"
 ORG = {
@@ -18,6 +20,7 @@ ORG = {
 
 
 def _doc(doc_id: str, klass: str, family: str, *, page: str, section: str, text: str, **extra: Any) -> dict[str, Any]:
+    payload_bytes = text.encode("utf-8")
     payload = {
         "document_id": doc_id,
         "title": extra.pop("title", doc_id),
@@ -27,10 +30,10 @@ def _doc(doc_id: str, klass: str, family: str, *, page: str, section: str, text:
         "locator": {"page": page, "section": section},
         "published_at": extra.pop("published_at", "2024-02-10"),
         "effective_at": extra.pop("effective_at", "2024-03-01"),
-        "binary_sha256": extra.pop("binary_sha256", f"{doc_id}-bin".ljust(64, "0")),
-        "text_sha256": extra.pop("text_sha256", f"{doc_id}-txt".ljust(64, "0")),
+        "binary_sha256": extra.pop("binary_sha256", sha256_bytes(payload_bytes)),
+        "text_sha256": extra.pop("text_sha256", sha256_text(text)),
         "mime": extra.pop("mime", "application/pdf"),
-        "bytes_len": extra.pop("bytes_len", 12000),
+        "bytes_len": extra.pop("bytes_len", len(payload_bytes)),
         "extract_status": extra.pop("extract_status", "ok"),
         "relation": extra.pop("relation", "primary"),
         "ocr_used": extra.pop("ocr_used", False),

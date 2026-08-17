@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from pathlib import Path
 from typing import Any, Literal
 
@@ -100,6 +101,20 @@ def sha256_bytes(data: bytes) -> str:
 
 def sha256_text(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+_SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+GENERIC_FICHA_QUESTIONS = frozenset(
+    {
+        "what is the contract value?",
+        "qual o valor do contrato?",
+        "qual o valor do contrato",
+    }
+)
+
+
+def is_sha256(value: str | None) -> bool:
+    return bool(value and _SHA256_RE.fullmatch(value))
 
 
 def hash_without_content_hash(document: dict[str, Any]) -> str:

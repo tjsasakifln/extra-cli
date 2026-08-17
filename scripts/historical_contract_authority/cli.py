@@ -13,7 +13,13 @@ from scripts.historical_contract_authority.adapters import rank_via_414
 from scripts.historical_contract_authority.cases import CASE_BUILDERS, fixture_corpus
 from scripts.historical_contract_authority.engine import build_dossier, dossier_dict, process_cases
 from scripts.historical_contract_authority.handoff import write_handoff
-from scripts.historical_contract_authority.schema import HANDOFF_DIR, canonical_dumps, content_hash, producer_sha
+from scripts.historical_contract_authority.schema import (
+    HANDOFF_DIR,
+    MAX_CONTRACTS,
+    canonical_dumps,
+    content_hash,
+    producer_sha,
+)
 
 
 def _stamp() -> str:
@@ -55,6 +61,7 @@ def record_to_case(record: dict[str, Any]) -> dict[str, Any]:
             "observed_at": record.get("observed_at"),
         },
         "documents": list(record.get("documents") or []),
+        "source_urls": list(record.get("source_urls") or []),
         "claims": [],
         "events": [],
         "contradictions": [],
@@ -104,13 +111,29 @@ def run_live(*, output: Path, dsn: str | None, limit: int, as_of: str | None = N
     }
     records = list(snapshot.get("records") or [])
     cases = [record_to_case(record) for record in records]
-    if cases:
-        rank_via_414(cases, as_of=stamp)
+    ranked = rank_via_414(cases, as_of=stamp) if cases else []
+    by_id = {(case.get("identity") or {}).get("contract_id"): case for case in cases}
+    ordered = [by_id[item.canonical_contract_id] for item in ranked if item.canonical_contract_id in by_id]
+    deepen = ordered[:MAX_CONTRACTS]
+    remainder = [case for case in cases if case not in deepen]
     snap = str(snapshot.get("content_hash") or content_hash(snapshot))
-    dossiers = process_cases(cases, as_of=stamp, snapshot_hash=snap) if cases else []
+    budget = {"requests": 0, "bytes": 0}
+    cache: dict[str, dict[str, Any]] = {}
+    dossiers = []
+    if deepen:
+        dossiers.extend(process_cases(deepen, as_of=stamp, snapshot_hash=snap, fetch=True, cache=cache, budget=budget))
+    if remainder:
+        dossiers.extend(
+            process_cases(remainder, as_of=stamp, snapshot_hash=snap, fetch=False, cache=cache, budget=budget)
+        )
     elapsed = time.perf_counter() - started
     live_meta["elapsed_s"] = round(elapsed, 3)
-    live_meta["cost"] = {"requests": 0, "bytes": 0, "note": "select_only_no_document_download"}
+    live_meta["cost"] = {
+        "requests": budget["requests"],
+        "bytes": budget["bytes"],
+        "deepened": len(deepen),
+        "note": "bounded_fetch_on_shortlist",
+    }
     replay = "python3 -m scripts.historical_contract_authority --mode live --limit 40"
     written = write_handoff(
         dossiers,
