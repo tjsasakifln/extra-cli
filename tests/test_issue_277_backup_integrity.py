@@ -89,6 +89,25 @@ def test_issue_277_backup_or_restore_failure_emits_alert(tmp_path: Path) -> None
     assert "restore" in failed_restore.alerts[0].message
 
 
+def test_issue_277_executive_policy_is_explicit() -> None:
+    from scripts.ops.backup_integrity import DECISION_ID, RECOVERY_POLICY, approved_policy
+
+    gates = approved_policy(
+        rpo_approved_by=DECISION_ID,
+        rto_approved_by=DECISION_ID,
+        retention_approved_by=DECISION_ID,
+        destination_approved_by=DECISION_ID,
+    )
+    assert gates.all_approved is True
+    assert RECOVERY_POLICY["rpo_hours"] == 24
+    assert RECOVERY_POLICY["rto_hours"] == 8
+    assert RECOVERY_POLICY["retention_daily"] == 14
+    assert RECOVERY_POLICY["retention_weekly"] == 8
+    assert RECOVERY_POLICY["retention_monthly"] == 12
+    assert RECOVERY_POLICY["restore_cadence"] == "quarterly"
+    assert RECOVERY_POLICY["purge_before_restore"] is False
+
+
 def test_issue_277_cli_inventory_and_report(tmp_path: Path) -> None:
     source = tmp_path / "seeded"
     restore = tmp_path / "restore"

@@ -1,0 +1,31 @@
+{
+  "story_id": "story-extra-002-offsite-joint-backup",
+  "risk_level": "HIGH-RISK",
+  "status": "InProgress",
+  "po_validated": true,
+  "qa_verdict": "PENDING",
+  "po_closed": false,
+  "scope_files": [
+    "scripts/ops/blob_cas.py",
+    "scripts/ops/backup_integrity.py",
+    "scripts/ops/offsite_transport.py",
+    "tests/test_issue_271_blob_cas.py",
+    "tests/test_issue_277_backup_integrity.py",
+    "tests/test_extra_002_offsite.py",
+    "docs/ops/extra-002-recovery-policy.md",
+    "docs/stories/story-extra-002-offsite-joint-backup.md",
+    "deploy/systemd/extra-joint-offsite-backup.service",
+    "deploy/systemd/extra-joint-offsite-backup.timer"
+  ],
+  "reviewed_commit": null,
+  "gates": {
+    "lint": "PENDING",
+    "typecheck": "PENDING",
+    "tests": "PENDING",
+    "build": "NA"
+  },
+  "rollback_plan": "keep extra-joint-offsite-backup.timer disabled; do not purge NFS objects; revert branch",
+  "snapshot_evidence": null,
+  "publication_authorized": false,
+  "maintenance_mode": false
+}

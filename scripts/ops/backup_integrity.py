@@ -1,23 +1,57 @@
-"""#277 — backup inventory, checksum and isolated restore proof.
+"""#277 / EXTRA-002 — backup inventory, checksum, encrypted off-site joint restore.
 
-Does not claim VPS_OPERATIONAL. Human RPO/RTO/retention/destination stay
-residual until explicitly approved. Failures emit an alert record.
+Does not claim VPS_OPERATIONAL. Failures emit an alert record. Recurrence stays
+off until a hash-identical isolated restore is recorded.
 """
 
 from __future__ import annotations
 
 import argparse
 import hashlib
+import hmac
+import io
 import json
+import os
+import shutil
+import subprocess
 import sys
+import tarfile
+import tempfile
 import time
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Literal
 
+from scripts.ops.blob_cas import record_job, redact
+from scripts.ops.offsite_transport import (
+    OffsiteTarget,
+    OffsiteTransportError,
+    get_bytes,
+    put_bytes,
+    resolve_target,
+)
+
 SCHEMA_VERSION = 1
 MODULE_VERSION = "backup-integrity-v1"
+JOINT_VERSION = "joint-offsite-v1"
+DECISION_ID = "PREAPPROVED-EXTRA-002-2026-08-17"
+PACKAGE_NAME = "joint-package.enc"
+PACKAGE_META_NAME = "joint-package.json"
+INVENTORY_SKIP_NAMES = {PACKAGE_NAME, PACKAGE_META_NAME, "joint.key"}
+OPENSSL_PBKDF2_ITERS = 100_000
+KEY_BYTES = 32
+RECOVERY_POLICY: dict[str, Any] = {
+    "decision_id": DECISION_ID,
+    "owner": "CONFENGE owner",
+    "rpo_hours": 24,
+    "rto_hours": 8,
+    "retention_daily": 14,
+    "retention_weekly": 8,
+    "retention_monthly": 12,
+    "restore_cadence": "quarterly",
+    "purge_before_restore": False,
+}
 
 ArtifactKind = Literal["postgres_dump", "blob", "manifest", "job"]
 GateStatus = Literal["approved", "blocked_human", "failed"]
@@ -130,7 +164,9 @@ def inventory(root: Path) -> tuple[Artifact, ...]:
         raise BackupIntegrityError(f"inventory root missing: {root}")
     items: list[Artifact] = []
     for path in sorted(p for p in root.rglob("*") if p.is_file()):
-        if path.name.endswith(".partial"):
+        if path.name.endswith(".partial") or path.name.endswith(".fernet") or path.name.endswith(".enc"):
+            continue
+        if path.name in INVENTORY_SKIP_NAMES:
             continue
         rel = path.relative_to(root).as_posix()
         items.append(
@@ -326,6 +362,361 @@ def run_proof(
     )
 
 
+def approved_policy(
+    *,
+    rpo_approved_by: str | None,
+    rto_approved_by: str | None,
+    retention_approved_by: str | None,
+    destination_approved_by: str | None,
+) -> HumanApprovals:
+    """Record the EXTRA-002 executive policy when the decision id is the approver."""
+    return evaluate_approvals(
+        rpo_approved_by=rpo_approved_by,
+        rto_approved_by=rto_approved_by,
+        retention_approved_by=retention_approved_by,
+        destination_approved_by=destination_approved_by,
+    )
+
+
+def generate_encrypt_key() -> bytes:
+    return os.urandom(KEY_BYTES)
+
+
+def load_encrypt_key(key_path: Path | None, provided: str | None) -> bytes:
+    if provided:
+        key = bytes.fromhex(provided.strip())
+        if len(key) != KEY_BYTES:
+            raise BackupIntegrityError("encrypt key must be 32 bytes hex")
+        return key
+    if key_path is not None and key_path.is_file():
+        raw = key_path.read_bytes().strip()
+        if len(raw) == KEY_BYTES:
+            return raw
+        try:
+            decoded = bytes.fromhex(raw.decode("ascii"))
+        except (ValueError, UnicodeDecodeError) as exc:
+            raise BackupIntegrityError("encrypt key file is not 32 raw bytes or hex") from exc
+        if len(decoded) != KEY_BYTES:
+            raise BackupIntegrityError("encrypt key must be 32 bytes")
+        return decoded
+    return generate_encrypt_key()
+
+
+def write_key(path: Path, key: bytes) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(key)
+    path.chmod(0o600)
+
+
+def _openssl_bin() -> str:
+    path = shutil.which("openssl")
+    if not path:
+        raise BackupIntegrityError("openssl is required to encrypt/decrypt the joint package")
+    return path
+
+
+def encrypt_payload(plaintext: bytes, key: bytes) -> bytes:
+    """AES-256-CBC + HMAC-SHA256. Key is passed via a 0600 file, never argv."""
+    openssl = _openssl_bin()
+    with tempfile.TemporaryDirectory(prefix="extra002-enc-") as tmp:
+        tmp_path = Path(tmp)
+        key_file = tmp_path / "key"
+        src = tmp_path / "plain"
+        dest = tmp_path / "cipher"
+        key_file.write_bytes(key.hex().encode("ascii"))
+        key_file.chmod(0o600)
+        src.write_bytes(plaintext)
+        result = subprocess.run(  # noqa: S603
+            [
+                openssl,
+                "enc",
+                "-aes-256-cbc",
+                "-pbkdf2",
+                "-iter",
+                str(OPENSSL_PBKDF2_ITERS),
+                "-salt",
+                "-in",
+                str(src),
+                "-out",
+                str(dest),
+                "-pass",
+                f"file:{key_file}",
+            ],
+            capture_output=True,
+            check=False,
+        )
+        if result.returncode != 0 or not dest.is_file():
+            raise BackupIntegrityError("openssl enc failed")
+        ciphertext = dest.read_bytes()
+    mac = hmac.new(key, ciphertext, hashlib.sha256).digest()
+    return mac + ciphertext
+
+
+def decrypt_payload(ciphertext: bytes, key: bytes) -> bytes:
+    if len(ciphertext) < 32:
+        raise BackupIntegrityError("decrypt failed: ciphertext too short")
+    mac, body = ciphertext[:32], ciphertext[32:]
+    expected = hmac.new(key, body, hashlib.sha256).digest()
+    if not hmac.compare_digest(mac, expected):
+        raise BackupIntegrityError("decrypt failed: hmac mismatch")
+    openssl = _openssl_bin()
+    with tempfile.TemporaryDirectory(prefix="extra002-dec-") as tmp:
+        tmp_path = Path(tmp)
+        key_file = tmp_path / "key"
+        src = tmp_path / "cipher"
+        dest = tmp_path / "plain"
+        key_file.write_bytes(key.hex().encode("ascii"))
+        key_file.chmod(0o600)
+        src.write_bytes(body)
+        result = subprocess.run(  # noqa: S603
+            [
+                openssl,
+                "enc",
+                "-d",
+                "-aes-256-cbc",
+                "-pbkdf2",
+                "-iter",
+                str(OPENSSL_PBKDF2_ITERS),
+                "-in",
+                str(src),
+                "-out",
+                str(dest),
+                "-pass",
+                f"file:{key_file}",
+            ],
+            capture_output=True,
+            check=False,
+        )
+        if result.returncode != 0 or not dest.is_file():
+            raise BackupIntegrityError("openssl dec failed")
+        return dest.read_bytes()
+
+
+def tar_inventory(root: Path, items: tuple[Artifact, ...]) -> bytes:
+    buffer = io.BytesIO()
+    with tarfile.open(fileobj=buffer, mode="w:gz") as archive:
+        for item in items:
+            path = root / item.relpath
+            archive.add(path, arcname=item.relpath)
+    return buffer.getvalue()
+
+
+def untar_payload(payload: bytes, dest: Path) -> None:
+    dest.mkdir(parents=True, exist_ok=True)
+    with tarfile.open(fileobj=io.BytesIO(payload), mode="r:gz") as archive:
+        archive.extractall(dest, filter="data")
+
+
+def write_encrypted_package(root: Path, dest_dir: Path, key: bytes) -> dict[str, Any]:
+    items = inventory(root)
+    if not any(item.kind == "postgres_dump" for item in items):
+        raise BackupIntegrityError("inventory missing postgres_dump")
+    if not any(item.kind == "blob" for item in items):
+        raise BackupIntegrityError("inventory missing blob")
+    if not any(item.kind == "manifest" for item in items):
+        raise BackupIntegrityError("inventory missing manifest")
+    plaintext = tar_inventory(root, items)
+    ciphertext = encrypt_payload(plaintext, key)
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    enc_path = dest_dir / PACKAGE_NAME
+    meta_path = dest_dir / PACKAGE_META_NAME
+    enc_path.write_bytes(ciphertext)
+    envelope = {
+        "schema_version": SCHEMA_VERSION,
+        "version": JOINT_VERSION,
+        "decision_id": DECISION_ID,
+        "cipher": "aes-256-cbc-hmac-sha256",
+        "ciphertext_sha256": sha256_bytes(ciphertext),
+        "plaintext_sha256": sha256_bytes(plaintext),
+        "object_count": len(items),
+        "bytes": len(ciphertext),
+        "artifacts": [item.as_dict() for item in items],
+        "vps_operational_claimed": False,
+    }
+    meta_path.write_text(json.dumps(envelope, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return envelope
+
+
+def restore_encrypted_package(enc_path: Path, dest: Path, key: bytes) -> tuple[Artifact, ...]:
+    ciphertext = enc_path.read_bytes()
+    plaintext = decrypt_payload(ciphertext, key)
+    untar_payload(plaintext, dest)
+    return inventory(dest)
+
+
+def recurrence_authorized(proof_path: Path | None) -> bool:
+    if proof_path is None or not proof_path.is_file():
+        return False
+    payload = json.loads(proof_path.read_text(encoding="utf-8"))
+    return bool(payload.get("hash_identical")) and payload.get("isolated") is True
+
+
+def recurrence_status(proof_path: Path | None) -> dict[str, Any]:
+    if recurrence_authorized(proof_path):
+        return {
+            "recurrence": "authorized",
+            "enabled": False,
+            "reason": "hash-identical isolated restore recorded; timer unit stays disabled until deploy",
+        }
+    return {
+        "recurrence": "disabled",
+        "enabled": False,
+        "reason": "hash-identical isolated restore proof missing",
+    }
+
+
+def run_joint(
+    source_root: Path,
+    restore_root: Path,
+    *,
+    key: bytes,
+    job_id: str | None = None,
+    blob_sha256: str | None = None,
+    rpo_approved_by: str | None = DECISION_ID,
+    rto_approved_by: str | None = DECISION_ID,
+    retention_approved_by: str | None = DECISION_ID,
+    destination_approved_by: str | None = DECISION_ID,
+    simulate_vps_loss: bool = True,
+    push: bool = False,
+    target: OffsiteTarget | None = None,
+    staging_root: Path | None = None,
+    runner: Any = None,
+    fail: str | None = None,
+    proof_path: Path | None = None,
+    meta_root: Path | None = None,
+    remote_name: str = PACKAGE_NAME,
+) -> dict[str, Any]:
+    """Encrypt DB+blobs+manifests, optionally push off-site, restore in isolation."""
+    started = time.perf_counter()
+    started_at = _utc_now()
+    alerts: list[Alert] = []
+    restore: RestoreProof | None = None
+    envelope: dict[str, Any] | None = None
+    offsite: dict[str, Any] = {"pushed": False, "pulled": False, "status": "skipped"}
+    job_status = "failed"
+    items: tuple[Artifact, ...] = ()
+    work = source_root / ".joint-work"
+    try:
+        if fail == "backup":
+            raise BackupIntegrityError("forced backup failure")
+        items = inventory(source_root)
+        envelope = write_encrypted_package(source_root, work, key)
+        chosen = blob_sha256 or next(item.sha256 for item in items if item.kind == "blob")
+        resolved = target if target is not None else resolve_target()
+        if push:
+            if fail == "transport":
+                raise OffsiteTransportError("forced transport failure")
+            put_bytes(
+                resolved,
+                remote_name,
+                (work / PACKAGE_NAME).read_bytes(),
+                runner=runner,
+                staging_root=staging_root,
+            )
+            pulled = get_bytes(
+                resolved,
+                remote_name,
+                runner=runner,
+                staging_root=staging_root,
+            )
+            if sha256_bytes(pulled) != envelope["ciphertext_sha256"]:
+                raise BackupIntegrityError("off-site ciphertext hash mismatch")
+            offsite = {
+                "pushed": True,
+                "pulled": True,
+                "status": "ok",
+                "nfs_host": resolved.nfs_host,
+                "kind": resolved.kind,
+                "independent_of_vps_disk": resolved.independent_of_vps_disk,
+                "object": remote_name,
+                "bytes": envelope["bytes"],
+            }
+            pulled_path = work / "pulled.fernet"
+            pulled_path.write_bytes(pulled)
+            items = restore_encrypted_package(pulled_path, restore_root, key)
+        else:
+            items = restore_encrypted_package(work / PACKAGE_NAME, restore_root, key)
+            offsite["status"] = "local_only"
+        if fail == "restore":
+            raise BackupIntegrityError("forced restore failure")
+        restore = restore_selected(
+            restore_root,
+            restore_root / "selected",
+            items,
+            blob_sha256=chosen,
+            job_id=job_id,
+            simulate_vps_loss=simulate_vps_loss,
+        )
+        if not restore.hash_identical:
+            raise BackupIntegrityError("restore hash is not identical")
+        if dest_is_source := restore_root.resolve() == source_root.resolve():
+            raise BackupIntegrityError("restore dest must differ from source")
+        del dest_is_source
+        job_status = "success"
+    except (BackupIntegrityError, OffsiteTransportError) as exc:
+        alerts.append(emit_alert("backup_restore_failed", redact(str(exc))))
+        job_status = "failed"
+        offsite["status"] = offsite.get("status") if offsite.get("pushed") else "failed"
+
+    if meta_root is not None and job_id:
+        record_job(
+            meta_root,
+            job_id,
+            restore.recovered_blob_sha256 if restore else None,
+            verified=job_status == "success",
+            reason="joint restore hash identical" if job_status == "success" else "joint backup/restore failed",
+        )
+
+    if proof_path is not None and job_status == "success" and restore is not None:
+        proof_path.parent.mkdir(parents=True, exist_ok=True)
+        proof_path.write_text(
+            json.dumps(
+                {
+                    "hash_identical": True,
+                    "isolated": restore_root.resolve() != source_root.resolve(),
+                    "recovered_blob_sha256": restore.recovered_blob_sha256,
+                    "recovered_job_id": restore.recovered_job_id,
+                    "decision_id": DECISION_ID,
+                    "vps_operational_claimed": False,
+                },
+                ensure_ascii=False,
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+    report = {
+        "schema_version": SCHEMA_VERSION,
+        "version": JOINT_VERSION,
+        "decision_id": DECISION_ID,
+        "policy": RECOVERY_POLICY,
+        "started_at": started_at,
+        "finished_at": _utc_now(),
+        "duration_s": round(time.perf_counter() - started, 6),
+        "artifacts": [item.as_dict() for item in items],
+        "object_count": len(items),
+        "bytes": envelope["bytes"] if envelope else 0,
+        "approvals": approved_policy(
+            rpo_approved_by=rpo_approved_by,
+            rto_approved_by=rto_approved_by,
+            retention_approved_by=retention_approved_by,
+            destination_approved_by=destination_approved_by,
+        ).as_dict(),
+        "restore": None if restore is None else restore.as_dict(),
+        "hash_identical": bool(restore and restore.hash_identical),
+        "isolated": restore_root.resolve() != source_root.resolve(),
+        "offsite": offsite,
+        "package": envelope,
+        "alerts": [item.as_dict() for item in alerts],
+        "job_status": job_status,
+        "recurrence": recurrence_status(proof_path),
+        "vps_operational_claimed": False,
+    }
+    return report
+
+
 def seed_fixture(
     root: Path,
     *,
@@ -356,8 +747,8 @@ def seed_fixture(
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Backup inventory/checksum/restore proof (#277)")
-    parser.add_argument("action", choices=("inventory", "report", "seed"))
-    parser.add_argument("--root", required=True)
+    parser.add_argument("action", choices=("inventory", "report", "seed", "joint", "policy"))
+    parser.add_argument("--root")
     parser.add_argument("--restore-root")
     parser.add_argument("--blob-sha256")
     parser.add_argument("--job-id")
@@ -365,39 +756,96 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--rto-approved-by")
     parser.add_argument("--retention-approved-by")
     parser.add_argument("--destination-approved-by")
-    parser.add_argument("--fail", choices=("backup", "restore"))
+    parser.add_argument("--fail", choices=("backup", "restore", "transport"))
     parser.add_argument("--seed-dump")
     parser.add_argument("--seed-blob")
     parser.add_argument("--output")
+    parser.add_argument("--key-file")
+    parser.add_argument("--proof-file")
+    parser.add_argument("--push", action="store_true")
+    parser.add_argument("--staging-root")
+    parser.add_argument("--meta-root")
     args = parser.parse_args(argv)
-    root = Path(args.root)
-    if args.action == "seed":
-        dump = Path(args.seed_dump).read_bytes() if args.seed_dump else b"PGDUMP-FIXTURE"
-        blob = Path(args.seed_blob).read_bytes() if args.seed_blob else b"%PDF-1.4 fixture"
-        planted = seed_fixture(
-            root,
-            dump_bytes=dump,
-            blob_bytes=blob,
-            job_id=args.job_id or "job-restore-1",
-            manifest={"kind": "backup-manifest", "version": MODULE_VERSION},
+    if args.action == "policy":
+        text = (
+            json.dumps(
+                {
+                    "policy": RECOVERY_POLICY,
+                    "recurrence": recurrence_status(Path(args.proof_file) if args.proof_file else None),
+                    "vps_operational_claimed": False,
+                },
+                ensure_ascii=False,
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n"
         )
-        text = json.dumps(planted, ensure_ascii=False, indent=2) + "\n"
-    elif args.action == "inventory":
-        text = json.dumps([item.as_dict() for item in inventory(root)], ensure_ascii=False, indent=2) + "\n"
     else:
-        restore_root = Path(args.restore_root or (str(root) + "-restore"))
-        report = run_proof(
-            root,
-            restore_root,
-            blob_sha256=args.blob_sha256,
-            job_id=args.job_id,
-            rpo_approved_by=args.rpo_approved_by,
-            rto_approved_by=args.rto_approved_by,
-            retention_approved_by=args.retention_approved_by,
-            destination_approved_by=args.destination_approved_by,
-            fail=args.fail,
-        )
-        text = json.dumps(report.as_dict(), ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+        if not args.root:
+            raise SystemExit("error: --root is required")
+        root = Path(args.root)
+        if args.action == "seed":
+            dump = Path(args.seed_dump).read_bytes() if args.seed_dump else b"PGDUMP-FIXTURE"
+            blob = Path(args.seed_blob).read_bytes() if args.seed_blob else b"%PDF-1.4 fixture"
+            planted = seed_fixture(
+                root,
+                dump_bytes=dump,
+                blob_bytes=blob,
+                job_id=args.job_id or "job-restore-1",
+                manifest={"kind": "backup-manifest", "version": MODULE_VERSION},
+            )
+            text = json.dumps(planted, ensure_ascii=False, indent=2) + "\n"
+        elif args.action == "inventory":
+            text = json.dumps([item.as_dict() for item in inventory(root)], ensure_ascii=False, indent=2) + "\n"
+        elif args.action == "joint":
+            restore_root = Path(args.restore_root or (str(root) + "-restore"))
+            key_path = Path(args.key_file) if args.key_file else restore_root / "joint.key"
+            key = load_encrypt_key(key_path if key_path.is_file() else None, None)
+            if not key_path.is_file():
+                write_key(key_path, key)
+            staging = Path(args.staging_root) if args.staging_root else None
+            isolated_target = None
+            if staging is not None:
+                isolated_target = resolve_target(
+                    {
+                        "BACKUP_NFS_EXPORT": os.environ.get("BACKUP_NFS_EXPORT") or "46.38.248.210:/voln1116040a1",
+                        "BACKUP_MOUNT_POINT": "/mnt/storage-box",
+                        "EXTRA_OFFSITE_PREFIX": "backups/extra-002",
+                        "EXTRA_OFFSITE_SSH_HOST": os.environ.get("EXTRA_OFFSITE_SSH_HOST") or "staging",
+                    }
+                )
+            report = run_joint(
+                root,
+                restore_root,
+                key=key,
+                job_id=args.job_id,
+                blob_sha256=args.blob_sha256,
+                rpo_approved_by=args.rpo_approved_by or DECISION_ID,
+                rto_approved_by=args.rto_approved_by or DECISION_ID,
+                retention_approved_by=args.retention_approved_by or DECISION_ID,
+                destination_approved_by=args.destination_approved_by or DECISION_ID,
+                push=args.push,
+                target=isolated_target,
+                staging_root=staging,
+                fail=args.fail,
+                proof_path=Path(args.proof_file) if args.proof_file else None,
+                meta_root=Path(args.meta_root) if args.meta_root else None,
+            )
+            text = json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+        else:
+            restore_root = Path(args.restore_root or (str(root) + "-restore"))
+            report_obj = run_proof(
+                root,
+                restore_root,
+                blob_sha256=args.blob_sha256,
+                job_id=args.job_id,
+                rpo_approved_by=args.rpo_approved_by,
+                rto_approved_by=args.rto_approved_by,
+                retention_approved_by=args.retention_approved_by,
+                destination_approved_by=args.destination_approved_by,
+                fail=args.fail if args.fail in {"backup", "restore"} else None,
+            )
+            text = json.dumps(report_obj.as_dict(), ensure_ascii=False, indent=2, sort_keys=True) + "\n"
     if args.output:
         out = Path(args.output)
         out.parent.mkdir(parents=True, exist_ok=True)

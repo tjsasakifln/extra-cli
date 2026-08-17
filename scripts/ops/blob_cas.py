@@ -172,18 +172,23 @@ def store(
     destination_approved_by: str | None = None,
     credentials_present: bool = False,
     available: bool = True,
+    offsite_root: Path | None = None,
 ) -> BlobMeta:
     """Address by SHA-256, write atomically, verify read-after-write."""
     if not data:
         raise BlobStoreError("refusing to store empty blob")
     _refuse_postgres_or_git(str(root))
     _refuse_postgres_or_git(str(meta_root))
+    if offsite_root is not None:
+        _refuse_postgres_or_git(str(offsite_root))
     digest = sha256_bytes(data)
     chosen, replica = resolve_backend(
         backend,
         destination_approved_by=destination_approved_by,
         credentials_present=credentials_present,
     )
+    if chosen == "object_storage" and offsite_root is None:
+        raise DestinationUndecidedError("object_storage backend blocked: offsite_root required")
     if not available:
         meta = BlobMeta(
             sha256=digest,
@@ -210,13 +215,31 @@ def store(
             record_job(meta_root, job_id, digest, verified=False, reason="read-after-write mismatch")
         raise CorruptionError("read-after-write hash mismatch")
 
+    replica_label = replica
+    if offsite_root is not None:
+        replica_dest = cas_path(offsite_root, digest)
+        try:
+            _atomic_write(replica_dest, data)
+            if sha256_bytes(replica_dest.read_bytes()) != digest:
+                replica_dest.unlink(missing_ok=True)
+                raise CorruptionError("offsite replica read-after-write mismatch")
+            replica_label = "offsite-verified"
+        except OSError as exc:
+            if job_id:
+                record_job(meta_root, job_id, digest, verified=False, reason="offsite replica failed")
+            raise BackendUnavailableError("offsite replica unavailable; job not success") from exc
+        except CorruptionError:
+            if job_id:
+                record_job(meta_root, job_id, digest, verified=False, reason="offsite replica corrupt")
+            raise
+
     meta = BlobMeta(
         sha256=digest,
         size_bytes=len(data),
         content_type=content_type,
         stored_at=_utc_now(),
         backend=chosen,
-        replica=replica,
+        replica=replica_label,
         job_id=job_id,
         postgres_stored=False,
         git_stored=False,
@@ -313,6 +336,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--credentials-present", action="store_true")
     parser.add_argument("--unavailable", action="store_true")
     parser.add_argument("--content-type", default="application/octet-stream")
+    parser.add_argument("--offsite-root")
     args = parser.parse_args(argv)
     root = Path(args.root)
     meta_root = Path(args.meta_root)
@@ -331,6 +355,7 @@ def main(argv: list[str] | None = None) -> int:
                 destination_approved_by=args.destination_approved_by or os.environ.get("BLOB_DESTINATION_APPROVED_BY"),
                 credentials_present=args.credentials_present or bool(os.environ.get("BLOB_OFFSITE_CREDENTIALS")),
                 available=not args.unavailable,
+                offsite_root=Path(args.offsite_root) if args.offsite_root else None,
             )
             sys.stdout.write(json.dumps(meta.as_dict(), ensure_ascii=False, indent=2) + "\n")
             return 0

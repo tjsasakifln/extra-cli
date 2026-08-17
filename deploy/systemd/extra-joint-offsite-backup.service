@@ -1,0 +1,27 @@
+# /etc/systemd/system/extra-joint-offsite-backup.service
+# EXTRA-002 joint DB+blobs off-site backup. Do not enable before isolated restore proof.
+
+[Unit]
+Description=Extra Consultoria — Joint off-site backup (DB + blobs)
+Documentation=https://github.com/tjsasakifln/extra-cli/blob/main/docs/ops/extra-002-recovery-policy.md
+Requires=network-online.target
+After=network-online.target
+OnFailure=extra-onfailure@%n.service
+StartLimitIntervalSec=3600
+StartLimitBurst=3
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 -m scripts.ops.backup_integrity joint --root /var/lib/extra-consultoria/backups/joint-src --restore-root /var/lib/extra-consultoria/backups/joint-restore-isolated --push --proof-file /var/lib/extra-consultoria/backups/extra-002-restore-proof.json --output /var/lib/extra-consultoria/backups/extra-002-last-report.json
+EnvironmentFile=-/etc/backup-database.conf
+WorkingDirectory=/opt/extra-consultoria/extra-cli
+User=root
+Group=root
+Nice=19
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+StandardOutput=append:/var/log/extra-joint-offsite-backup.log
+StandardError=append:/var/log/extra-joint-offsite-backup.log
+
+[Install]
+WantedBy=multi-user.target

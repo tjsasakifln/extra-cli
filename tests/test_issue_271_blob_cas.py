@@ -118,6 +118,51 @@ def test_issue_271_redacts_signed_urls_and_secrets(caplog: pytest.LogCaptureFixt
     assert "super-token-value" not in caplog.text
 
 
+def test_issue_271_offsite_replica_verified_or_fails_job(tmp_path: Path) -> None:
+    payload = b"replica-bytes-271"
+    digest = _digest(payload)
+    root = tmp_path / "blobs"
+    meta_root = tmp_path / "meta"
+    offsite = tmp_path / "nfs-cas"
+    stored = store(
+        payload,
+        root=root,
+        meta_root=meta_root,
+        job_id="job-271-replica",
+        offsite_root=offsite,
+        destination_approved_by="PREAPPROVED-EXTRA-002-2026-08-17",
+        credentials_present=True,
+    )
+    assert stored.replica == "offsite-verified"
+    assert get(digest, root=offsite) == payload
+    assert load_job(meta_root, "job-271-replica").status == "success"
+
+    blocked = tmp_path / "not-a-dir" / "missing"
+    blocked.parent.mkdir(parents=True, exist_ok=True)
+    blocked.write_text("not-a-directory", encoding="utf-8")
+    with pytest.raises(BackendUnavailableError):
+        store(
+            b"replica-fail-271",
+            root=tmp_path / "blobs2",
+            meta_root=tmp_path / "meta2",
+            job_id="job-271-replica-fail",
+            offsite_root=blocked,
+        )
+    assert load_job(tmp_path / "meta2", "job-271-replica-fail").status == "failed"
+
+
+def test_issue_271_object_storage_needs_offsite_root(tmp_path: Path) -> None:
+    with pytest.raises(DestinationUndecidedError, match="offsite_root"):
+        store(
+            b"needs-root",
+            root=tmp_path / "blobs",
+            meta_root=tmp_path / "meta",
+            backend="object_storage",
+            destination_approved_by="PREAPPROVED-EXTRA-002-2026-08-17",
+            credentials_present=True,
+        )
+
+
 def test_issue_271_cli_store_get_head(tmp_path: Path) -> None:
     payload = b"cli-roundtrip-271"
     digest = _digest(payload)

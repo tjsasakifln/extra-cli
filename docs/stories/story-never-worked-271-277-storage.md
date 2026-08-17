@@ -39,6 +39,6 @@ VPS ACs stay on the GitHub issues. No `VPS_OPERATIONAL` claim.
 
 ## Residual (stay on the issues)
 
-- Human destination and credentials (#271)
-- Human RPO/RTO/retention approval (#277)
-- Real lost-VPS restore on a host
+- Human destination/RPO/RTO/retention: decided under `PREAPPROVED-EXTRA-002-2026-08-17` (see `docs/ops/extra-002-recovery-policy.md` and EXTRA-002 follow-up).
+- Recurring timer enable on the VPS after merge/deploy.
+- Second green restore before any retention purge.
