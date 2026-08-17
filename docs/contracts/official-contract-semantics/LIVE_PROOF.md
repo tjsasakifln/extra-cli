@@ -4,6 +4,14 @@
 
 ## Replay
 
+Exact argv that produced the hashes below:
+
+```bash
+python3 -m scripts.official_contract_semantics live-readonly --limit 8 --as-of 2026-08-17 --skip-pages --cache-dir /tmp/grok-goal-beb0997cc248/implementer/live-cache --out /tmp/grok-goal-beb0997cc248/implementer/live
+```
+
+Portable form (same extract; local `--out` / `--cache-dir`):
+
 ```bash
 python3 -m scripts.official_contract_semantics live-readonly --limit 8 --as-of 2026-08-17 --skip-pages
 ```
@@ -48,7 +56,9 @@ A API de contratos do PNCP, nesta janela, **não publica** unidade, quantidade, 
 
 ## Hashes
 
+`sha256sum` of the final on-disk files (manifest is written once; it hashes sibling `live-observations.jsonl` only, never a self-hash after rewrite):
+
 - `live-observations.jsonl` SHA256 `f535a32aefa29b57a5d7cf6e666911b9dd19f0e512c3698b115036eeea809328`
-- `live-manifest.json` SHA256 `f68c6b8357093a6a125a4fb35114549df71c8cb94b2efdaac6a813f66f74806d`
+- `live-manifest.json` SHA256 `8bc96cc9f4292d7c6f7cbdfc35ba057e1f7dd108adcb5ffb76b6b24ee4a53b7d`
 
 Baseline #414/#415: a primeira janela oficial terminou sem candidato editorial por falta destas observações. Esta camada agora **mostra** o que falta. Não fabrica avanço.

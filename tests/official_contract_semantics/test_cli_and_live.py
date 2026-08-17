@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -76,10 +77,48 @@ def test_live_readonly_records_unavailability_when_dsn_absent(tmp_path: Path, mo
     assert (
         "dsn_unavailable" in kinds or "network" in kinds or "http_status" in kinds or "dependency_unavailable" in kinds
     )
-    written = json.loads((tmp_path / "live" / "live-manifest.json").read_text(encoding="utf-8"))
-    assert written["artifact_sha256"]["live-observations.jsonl"]
-    assert written["artifact_sha256"]["live-manifest.json"]
-    assert "replay_command" in written
+    man_path = tmp_path / "live" / "live-manifest.json"
+    written_bytes = man_path.read_bytes()
+    written = json.loads(written_bytes)
+    obs_path = tmp_path / "live" / "live-observations.jsonl"
+    assert written["artifact_sha256"]["live-observations.jsonl"] == hashlib.sha256(obs_path.read_bytes()).hexdigest()
+    assert "live-manifest.json" not in written["artifact_sha256"]
+    assert manifest["manifest_file_sha256"] == hashlib.sha256(written_bytes).hexdigest()
+    replay = written["replay_command"]
+    assert "--skip-pages" in replay
+    assert f"--cache-dir {tmp_path / 'cache'}" in replay
+    assert f"--out {tmp_path / 'live'}" in replay
+    assert written["commands"] == [replay]
+
+
+def test_live_manifest_hash_matches_final_bytes_and_replay_argv(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.delenv("LOCAL_DATALAKE_DSN", raising=False)
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    out = tmp_path / "proof"
+    cache = tmp_path / "http-cache"
+    returned = run_live_readonly(
+        dsn=None,
+        limit=2,
+        out_dir=out,
+        cache_dir=cache,
+        fetch_pages=False,
+        as_of="2026-08-17",
+    )
+    man_path = out / "live-manifest.json"
+    final = man_path.read_bytes()
+    on_disk = json.loads(final)
+    assert (
+        on_disk["artifact_sha256"]["live-observations.jsonl"]
+        == hashlib.sha256((out / "live-observations.jsonl").read_bytes()).hexdigest()
+    )
+    assert "live-manifest.json" not in on_disk["artifact_sha256"]
+    assert returned["manifest_file_sha256"] == hashlib.sha256(final).hexdigest()
+    assert on_disk["replay_command"] == (
+        "python3 -m scripts.official_contract_semantics live-readonly "
+        "--limit 2 --as-of 2026-08-17 "
+        f"--skip-pages --cache-dir {cache} --out {out}"
+    )
+    assert on_disk["commands"] == [on_disk["replay_command"]]
 
 
 def test_no_mock_or_skip_in_new_tests() -> None:

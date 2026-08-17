@@ -150,6 +150,28 @@ def _api_records(limit: int, cache_dir: Path | None) -> tuple[list[dict[str, Any
     return records, []
 
 
+def build_replay_command(
+    *,
+    limit: int,
+    as_of: str,
+    out_dir: str | Path | None = None,
+    cache_dir: str | Path | None = None,
+    fetch_pages: bool = True,
+) -> str:
+    parts = [
+        "python3 -m scripts.official_contract_semantics live-readonly",
+        f"--limit {int(limit)}",
+        f"--as-of {as_of}",
+    ]
+    if not fetch_pages:
+        parts.append("--skip-pages")
+    if cache_dir is not None:
+        parts.append(f"--cache-dir {Path(cache_dir)}")
+    if out_dir is not None:
+        parts.append(f"--out {Path(out_dir)}")
+    return " ".join(parts)
+
+
 def run_live_readonly(
     *,
     dsn: str | None = None,
@@ -235,7 +257,19 @@ def run_live_readonly(
     unavailabilities.extend(row_result.unavailabilities)
     reconciled = reconcile(observations)
 
-    commands = [f"python3 -m scripts.official_contract_semantics live-readonly --limit {bounded} --as-of {stamp}"]
+    replay = build_replay_command(
+        limit=bounded,
+        as_of=stamp,
+        out_dir=out_dir,
+        cache_dir=cache_dir,
+        fetch_pages=fetch_pages,
+    )
+    artifact_sha256: dict[str, str] = {}
+    if out_dir is not None:
+        out = Path(out_dir)
+        artifact_sha256["live-observations.jsonl"] = write_jsonl(
+            out / "live-observations.jsonl", [item.as_dict() for item in reconciled]
+        )
     manifest: dict[str, Any] = {
         "schema": "official-contract-semantics-live-manifest/1.0",
         "live_version": LIVE_VERSION,
@@ -246,7 +280,8 @@ def run_live_readonly(
         "period": {"start": "2026-07-01", "end": "2026-07-07", "uf": "SC"},
         "limit": bounded,
         "sources": sources_used,
-        "commands": commands,
+        "commands": [replay],
+        "replay_command": replay,
         "documents_considered": considered,
         "documents_obtained": obtained,
         "documents_failed": len(failed),
@@ -257,19 +292,12 @@ def run_live_readonly(
         "backfill": False,
         "inferred_from_absence": False,
         "note": "unavailability is recorded as unavailability, never as absence of a fact",
+        "artifact_sha256": artifact_sha256,
     }
-    if out_dir is not None:
-        out = Path(out_dir)
-        obs_path = out / "live-observations.jsonl"
-        man_path = out / "live-manifest.json"
-        obs_hash = write_jsonl(obs_path, [item.as_dict() for item in reconciled])
-        manifest["artifact_sha256"] = {
-            "live-observations.jsonl": obs_hash,
-        }
-        manifest["replay_command"] = commands[0] + f" --out {out}"
-        man_hash = write_json(man_path, manifest)
-        manifest["artifact_sha256"]["live-manifest.json"] = man_hash
-        write_json(man_path, manifest)
     manifest["content_hash"] = content_hash({key: value for key, value in manifest.items() if key != "content_hash"})
+    if out_dir is not None:
+        man_path = Path(out_dir) / "live-manifest.json"
+        manifest_file_sha256 = write_json(man_path, manifest)
+        manifest["manifest_file_sha256"] = manifest_file_sha256
     manifest["observations"] = [item.as_dict() for item in reconciled]
     return manifest
