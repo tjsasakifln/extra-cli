@@ -77,7 +77,10 @@ def _fixture_snapshot() -> dict:
     return payload
 
 
-def test_dsn_absent_is_blocked_not_live() -> None:
+def test_dsn_absent_is_blocked_not_live(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("LOCAL_DATALAKE_DSN", raising=False)
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    monkeypatch.delenv("NATIONAL_INTEL_DSN", raising=False)
     snapshot = fetch_official_sc_snapshot(None)
     assert snapshot["source_kind"] == "blocked"
     assert snapshot["official_live"] is False
