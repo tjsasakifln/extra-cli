@@ -20,6 +20,12 @@
 
 A VPS é hop SSH, não destino. Disco local da VPS não é off-site. Nenhum plano novo.
 
+## Chave de cifra (off-VPS)
+
+A chave AES **não** mora em `restore-root` nem no pacote. Ela é persistida no vault já usado (`~/.config/extra-consultoria/joint-offsite.key` / `EXTRA_JOINT_KEY_FILE`) e, no push, como sidecar off-site `backups/extra-002/sidecar/joint.key`. Restore após perda da VPS usa só o pacote NFS + essa chave off-VPS.
+
+`assemble` copia o dump `pg_dump` mais recente e blobs CAS reais para `joint-src`. Recusa fixture ASCII (`PGDUMP-…`).
+
 ## Recorrência
 
 O timer `extra-joint-offsite-backup.timer` permanece **desabilitado** até:
