@@ -38,9 +38,22 @@ JOINT_VERSION = "joint-offsite-v1"
 DECISION_ID = "PREAPPROVED-EXTRA-002-2026-08-17"
 PACKAGE_NAME = "joint-package.enc"
 PACKAGE_META_NAME = "joint-package.json"
+SIDECAR_KEY_NAME = "sidecar/joint.key"
 INVENTORY_SKIP_NAMES = {PACKAGE_NAME, PACKAGE_META_NAME, "joint.key"}
 OPENSSL_PBKDF2_ITERS = 100_000
 KEY_BYTES = 32
+PG_CUSTOM_MAGIC = b"PGDMP"
+FAKE_DUMP_PREFIXES = (b"PGDUMP-", b"PGDUMP-FIXTURE", b"PGDUMP-EXTRA")
+VAULT_KEY_ENV = "EXTRA_JOINT_KEY_FILE"
+DEFAULT_VAULT_KEY = Path.home() / ".config/extra-consultoria/joint-offsite.key"
+DEFAULT_DUMP_DIRS = (
+    Path("/var/lib/extra-consultoria/backups/postgresql"),
+    Path("/mnt/storage-box/backups/postgresql/daily"),
+)
+DEFAULT_CAS_DIRS = (
+    Path("/opt/extra-consultoria/data/raw/process_documents"),
+    Path("/opt/extra-consultoria/extra-cli/data/raw/process_documents"),
+)
 RECOVERY_POLICY: dict[str, Any] = {
     "decision_id": DECISION_ID,
     "owner": "CONFENGE owner",
@@ -378,6 +391,45 @@ def approved_policy(
     )
 
 
+def is_real_postgres_dump(path: Path) -> bool:
+    """Accept pg_dump custom/gzip/sql. Refuse the ASCII EXTRA-002 fixtures."""
+    if not path.is_file() or path.stat().st_size < 5:
+        return False
+    with path.open("rb") as handle:
+        head = handle.read(8)
+    if head.startswith(FAKE_DUMP_PREFIXES):
+        return False
+    if head.startswith(PG_CUSTOM_MAGIC):
+        return True
+    if head.startswith(b"\x1f\x8b"):
+        import gzip
+
+        try:
+            with gzip.open(path, "rb") as handle:
+                inner = handle.read(16)
+        except OSError:
+            return False
+        return inner.startswith(PG_CUSTOM_MAGIC) or inner.startswith((b"--", b"SET ", b"CREATE"))
+    return False
+
+
+def vault_key_path() -> Path:
+    override = os.environ.get(VAULT_KEY_ENV)
+    if override:
+        return Path(override)
+    return DEFAULT_VAULT_KEY
+
+
+def load_or_create_vault_key(path: Path | None = None) -> tuple[bytes, Path]:
+    """Persist the encrypt key in the off-VPS vault. Never use restore_root as sole copy."""
+    dest = path or vault_key_path()
+    if dest.is_file():
+        return load_encrypt_key(dest, None), dest
+    key = generate_encrypt_key()
+    write_key(dest, key)
+    return key, dest
+
+
 def generate_encrypt_key() -> bytes:
     return os.urandom(KEY_BYTES)
 
@@ -507,7 +559,13 @@ def untar_payload(payload: bytes, dest: Path) -> None:
         archive.extractall(dest, filter="data")
 
 
-def write_encrypted_package(root: Path, dest_dir: Path, key: bytes) -> dict[str, Any]:
+def write_encrypted_package(
+    root: Path,
+    dest_dir: Path,
+    key: bytes,
+    *,
+    require_real_dump: bool = False,
+) -> dict[str, Any]:
     items = inventory(root)
     if not any(item.kind == "postgres_dump" for item in items):
         raise BackupIntegrityError("inventory missing postgres_dump")
@@ -515,6 +573,10 @@ def write_encrypted_package(root: Path, dest_dir: Path, key: bytes) -> dict[str,
         raise BackupIntegrityError("inventory missing blob")
     if not any(item.kind == "manifest" for item in items):
         raise BackupIntegrityError("inventory missing manifest")
+    if require_real_dump:
+        dumps = [item for item in items if item.kind == "postgres_dump"]
+        if not any(is_real_postgres_dump(root / item.relpath) for item in dumps):
+            raise BackupIntegrityError("inventory postgres_dump is not a real pg_dump")
     plaintext = tar_inventory(root, items)
     ciphertext = encrypt_payload(plaintext, key)
     dest_dir.mkdir(parents=True, exist_ok=True)
@@ -542,6 +604,117 @@ def restore_encrypted_package(enc_path: Path, dest: Path, key: bytes) -> tuple[A
     plaintext = decrypt_payload(ciphertext, key)
     untar_payload(plaintext, dest)
     return inventory(dest)
+
+
+def _dump_dirs_from_env() -> tuple[Path, ...]:
+    extra = os.environ.get("EXTRA_JOINT_DUMP_DIR")
+    if extra:
+        return (Path(extra), *DEFAULT_DUMP_DIRS)
+    return DEFAULT_DUMP_DIRS
+
+
+def _cas_dirs_from_env() -> tuple[Path, ...]:
+    extra = os.environ.get("EXTRA_JOINT_CAS_ROOT") or os.environ.get("PROCESS_DOCUMENTS_RAW_ROOT")
+    if extra:
+        return (Path(extra), *DEFAULT_CAS_DIRS)
+    return DEFAULT_CAS_DIRS
+
+
+def _newest_real_dump(dirs: tuple[Path, ...]) -> Path | None:
+    found: list[Path] = []
+    for root in dirs:
+        if not root.is_dir():
+            continue
+        for path in root.rglob("*"):
+            if not path.is_file():
+                continue
+            name = path.name.casefold()
+            if not name.endswith((".dump", ".dump.gz", ".sql", ".sql.gz")):
+                continue
+            if is_real_postgres_dump(path):
+                found.append(path)
+    if not found:
+        return None
+    return max(found, key=lambda item: item.stat().st_mtime)
+
+
+def _collect_cas_blobs(dirs: tuple[Path, ...], *, limit: int = 8) -> list[Path]:
+    blobs: list[Path] = []
+    for root in dirs:
+        cas = root / "cas" if (root / "cas").is_dir() else root
+        if not cas.is_dir():
+            continue
+        for path in sorted(p for p in cas.rglob("*") if p.is_file()):
+            if path.name.endswith(".partial"):
+                continue
+            blobs.append(path)
+            if len(blobs) >= limit:
+                return blobs
+    return blobs
+
+
+def assemble_joint_source(
+    dest: Path,
+    *,
+    dump_dirs: tuple[Path, ...] | None = None,
+    cas_dirs: tuple[Path, ...] | None = None,
+    job_id: str = "joint-assembled",
+) -> dict[str, Any]:
+    """Copy a real pg_dump + CAS blobs + manifests into dest. Fail-closed."""
+    dump = _newest_real_dump(dump_dirs if dump_dirs is not None else _dump_dirs_from_env())
+    if dump is None:
+        raise BackupIntegrityError("assemble failed: no real postgres dump found")
+    blobs = _collect_cas_blobs(cas_dirs if cas_dirs is not None else _cas_dirs_from_env())
+    if not blobs:
+        raise BackupIntegrityError("assemble failed: no CAS blobs found")
+    dest.mkdir(parents=True, exist_ok=True)
+    dump_dest = dest / "postgresql" / "daily" / dump.name
+    dump_dest.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(dump, dump_dest)
+    copied_blobs: list[str] = []
+    for blob in blobs:
+        rel = Path("blobs") / "cas" / blob.name
+        target = dest / rel
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(blob, target)
+        copied_blobs.append(rel.as_posix())
+    planted = {
+        "job_id": job_id,
+        "status": "assembled",
+        "dump": dump.name,
+        "dump_sha256": sha256_file(dump_dest),
+        "blob_count": len(copied_blobs),
+        "require_real_dump": True,
+    }
+    job = dest / "jobs" / f"{job_id}.job.json"
+    man = dest / "manifests" / "backup.manifest"
+    job.parent.mkdir(parents=True, exist_ok=True)
+    man.parent.mkdir(parents=True, exist_ok=True)
+    job.write_text(json.dumps(planted, sort_keys=True) + "\n", encoding="utf-8")
+    man.write_text(
+        json.dumps(
+            {
+                "kind": "joint-assembled",
+                "version": JOINT_VERSION,
+                "decision_id": DECISION_ID,
+                "dump": dump.name,
+                "blobs": copied_blobs,
+            },
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    if not is_real_postgres_dump(dump_dest):
+        raise BackupIntegrityError("assemble failed: copied dump failed real-pg_dump check")
+    return {
+        "dest": str(dest),
+        "dump": str(dump_dest),
+        "dump_sha256": planted["dump_sha256"],
+        "blob_count": len(copied_blobs),
+        "job_id": job_id,
+        "real_postgres_dump": True,
+    }
 
 
 def recurrence_authorized(proof_path: Path | None) -> bool:
@@ -585,6 +758,8 @@ def run_joint(
     proof_path: Path | None = None,
     meta_root: Path | None = None,
     remote_name: str = PACKAGE_NAME,
+    require_real_dump: bool = False,
+    persist_sidecar: bool = False,
 ) -> dict[str, Any]:
     """Encrypt DB+blobs+manifests, optionally push off-site, restore in isolation."""
     started = time.perf_counter()
@@ -592,7 +767,12 @@ def run_joint(
     alerts: list[Alert] = []
     restore: RestoreProof | None = None
     envelope: dict[str, Any] | None = None
-    offsite: dict[str, Any] = {"pushed": False, "pulled": False, "status": "skipped"}
+    offsite: dict[str, Any] = {
+        "pushed": False,
+        "pulled": False,
+        "status": "skipped",
+        "sidecar_persisted": False,
+    }
     job_status = "failed"
     items: tuple[Artifact, ...] = ()
     work = source_root / ".joint-work"
@@ -600,7 +780,12 @@ def run_joint(
         if fail == "backup":
             raise BackupIntegrityError("forced backup failure")
         items = inventory(source_root)
-        envelope = write_encrypted_package(source_root, work, key)
+        envelope = write_encrypted_package(
+            source_root,
+            work,
+            key,
+            require_real_dump=require_real_dump,
+        )
         chosen = blob_sha256 or next(item.sha256 for item in items if item.kind == "blob")
         resolved = target if target is not None else resolve_target()
         if push:
@@ -613,6 +798,14 @@ def run_joint(
                 runner=runner,
                 staging_root=staging_root,
             )
+            if persist_sidecar:
+                put_bytes(
+                    resolved,
+                    SIDECAR_KEY_NAME,
+                    key,
+                    runner=runner,
+                    staging_root=staging_root,
+                )
             pulled = get_bytes(
                 resolved,
                 remote_name,
@@ -626,10 +819,13 @@ def run_joint(
                 "pulled": True,
                 "status": "ok",
                 "nfs_host": resolved.nfs_host,
-                "kind": resolved.kind,
+                "kind": "staging_isolated" if staging_root is not None else resolved.kind,
+                "live_nfs": staging_root is None,
                 "independent_of_vps_disk": resolved.independent_of_vps_disk,
                 "object": remote_name,
                 "bytes": envelope["bytes"],
+                "sidecar_persisted": persist_sidecar,
+                "sidecar_object": SIDECAR_KEY_NAME if persist_sidecar else None,
             }
             pulled_path = work / "pulled.fernet"
             pulled_path.write_bytes(pulled)
@@ -712,6 +908,9 @@ def run_joint(
         "alerts": [item.as_dict() for item in alerts],
         "job_status": job_status,
         "recurrence": recurrence_status(proof_path),
+        "require_real_dump": require_real_dump,
+        "key_source": "vault_or_caller",
+        "key_written_to_restore_root": False,
         "vps_operational_claimed": False,
     }
     return report
@@ -747,7 +946,7 @@ def seed_fixture(
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Backup inventory/checksum/restore proof (#277)")
-    parser.add_argument("action", choices=("inventory", "report", "seed", "joint", "policy"))
+    parser.add_argument("action", choices=("inventory", "report", "seed", "joint", "policy", "assemble"))
     parser.add_argument("--root")
     parser.add_argument("--restore-root")
     parser.add_argument("--blob-sha256")
@@ -765,6 +964,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--push", action="store_true")
     parser.add_argument("--staging-root")
     parser.add_argument("--meta-root")
+    parser.add_argument("--dump-dir")
+    parser.add_argument("--cas-dir")
+    parser.add_argument("--require-real-dump", action="store_true")
+    parser.add_argument("--persist-sidecar", action="store_true")
+    parser.add_argument("--assemble", action="store_true")
     args = parser.parse_args(argv)
     if args.action == "policy":
         text = (
@@ -780,6 +984,17 @@ def main(argv: list[str] | None = None) -> int:
             )
             + "\n"
         )
+    elif args.action == "assemble":
+        dest = Path(args.root or "")
+        if not dest.parts:
+            raise SystemExit("error: --root is required for assemble")
+        planted = assemble_joint_source(
+            dest,
+            dump_dirs=(Path(args.dump_dir),) if args.dump_dir else None,
+            cas_dirs=(Path(args.cas_dir),) if args.cas_dir else None,
+            job_id=args.job_id or "joint-assembled",
+        )
+        text = json.dumps(planted, ensure_ascii=False, indent=2) + "\n"
     else:
         if not args.root:
             raise SystemExit("error: --root is required")
@@ -799,10 +1014,16 @@ def main(argv: list[str] | None = None) -> int:
             text = json.dumps([item.as_dict() for item in inventory(root)], ensure_ascii=False, indent=2) + "\n"
         elif args.action == "joint":
             restore_root = Path(args.restore_root or (str(root) + "-restore"))
-            key_path = Path(args.key_file) if args.key_file else restore_root / "joint.key"
-            key = load_encrypt_key(key_path if key_path.is_file() else None, None)
-            if not key_path.is_file():
-                write_key(key_path, key)
+            if args.assemble:
+                assemble_joint_source(
+                    root,
+                    dump_dirs=(Path(args.dump_dir),) if args.dump_dir else None,
+                    cas_dirs=(Path(args.cas_dir),) if args.cas_dir else None,
+                    job_id=args.job_id or "joint-assembled",
+                )
+            key, key_path = load_or_create_vault_key(Path(args.key_file) if args.key_file else None)
+            if key_path.resolve() == restore_root.resolve() or restore_root in key_path.parents:
+                raise SystemExit("error: encrypt key must live in the off-VPS vault, not restore-root")
             staging = Path(args.staging_root) if args.staging_root else None
             isolated_target = None
             if staging is not None:
@@ -830,6 +1051,8 @@ def main(argv: list[str] | None = None) -> int:
                 fail=args.fail,
                 proof_path=Path(args.proof_file) if args.proof_file else None,
                 meta_root=Path(args.meta_root) if args.meta_root else None,
+                require_real_dump=args.require_real_dump,
+                persist_sidecar=args.persist_sidecar,
             )
             text = json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
         else:

@@ -14,11 +14,17 @@ import pytest
 
 from scripts.ops.backup_integrity import (
     DECISION_ID,
+    BackupIntegrityError,
+    assemble_joint_source,
+    is_real_postgres_dump,
+    load_or_create_vault_key,
     main,
     recurrence_authorized,
+    restore_encrypted_package,
     run_joint,
     seed_fixture,
     sha256_bytes,
+    sha256_file,
 )
 from scripts.ops.blob_cas import load_job
 from scripts.ops.offsite_transport import (
@@ -202,3 +208,87 @@ def test_extra_002_cli_joint_twice(tmp_path: Path) -> None:
 def _write(path: Path, payload: bytes) -> Path:
     path.write_bytes(payload)
     return path
+
+
+def _pgdump_custom(path: Path, payload: bytes = b"table extra002") -> Path:
+    """Minimal custom-format header (PGDMP) plus payload. Real magic, test-sized."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(b"PGDMP\x01\x0e\x00" + payload)
+    return path
+
+
+def test_extra_002_assembler_refuses_ascii_fixture_and_accepts_pgdmp(tmp_path: Path) -> None:
+    fake_dir = tmp_path / "fake-dumps"
+    fake = fake_dir / "extra.dump"
+    fake.parent.mkdir(parents=True)
+    fake.write_bytes(b"PGDUMP-EXTRA-002-ISOLATED-SLICE\n")
+    assert is_real_postgres_dump(fake) is False
+    cas = tmp_path / "cas-root" / "cas" / "ab"
+    cas.mkdir(parents=True)
+    (cas / "doc.bin").write_bytes(b"%PDF-1.4 real-fixture")
+    with pytest.raises(BackupIntegrityError, match="no real postgres dump"):
+        assemble_joint_source(tmp_path / "out-fake", dump_dirs=(fake_dir,), cas_dirs=(tmp_path / "cas-root",))
+
+    real_dir = tmp_path / "real-dumps"
+    dump = _pgdump_custom(real_dir / "extra_test.dump")
+    assert is_real_postgres_dump(dump) is True
+    planted = assemble_joint_source(
+        tmp_path / "out-real",
+        dump_dirs=(real_dir,),
+        cas_dirs=(tmp_path / "cas-root",),
+        job_id="job-assemble",
+    )
+    assert planted["real_postgres_dump"] is True
+    assert planted["blob_count"] == 1
+    assert is_real_postgres_dump(Path(planted["dump"])) is True
+
+
+def test_extra_002_restore_uses_vault_and_sidecar_not_restore_root(tmp_path: Path) -> None:
+    dump_dir = tmp_path / "dumps"
+    cas_root = tmp_path / "cas-root"
+    _pgdump_custom(dump_dir / "extra_test.dump", b"isolated-throwaway")
+    blob = b"%PDF-1.4 sample-edital-bytes"
+    (cas_root / "cas" / "aa").mkdir(parents=True)
+    (cas_root / "cas" / "aa" / "blob.bin").write_bytes(blob)
+    source = tmp_path / "assembled"
+    assemble_joint_source(source, dump_dirs=(dump_dir,), cas_dirs=(cas_root,), job_id="job-vault")
+    vault = tmp_path / "vault" / "joint-offsite.key"
+    key, key_path = load_or_create_vault_key(vault)
+    assert key_path == vault
+    restore = tmp_path / "isolated"
+    staging = tmp_path / "nfs"
+    report = run_joint(
+        source,
+        restore,
+        key=key,
+        job_id="job-vault",
+        blob_sha256=sha256_bytes(blob),
+        push=True,
+        persist_sidecar=True,
+        require_real_dump=True,
+        target=_target(),
+        staging_root=staging,
+        proof_path=tmp_path / "proof.json",
+        meta_root=tmp_path / "meta",
+    )
+    assert report["hash_identical"] is True
+    assert report["require_real_dump"] is True
+    assert report["key_written_to_restore_root"] is False
+    assert report["offsite"]["sidecar_persisted"] is True
+    assert report["offsite"]["live_nfs"] is False
+    assert report["offsite"]["kind"] == "staging_isolated"
+    assert not (restore / "joint.key").exists()
+    sidecar = get_bytes(_target(), "sidecar/joint.key", staging_root=staging)
+    assert sidecar == key
+    pulled = get_bytes(_target(), "joint-package.enc", staging_root=staging)
+    pulled_path = tmp_path / "from-offsite.enc"
+    pulled_path.write_bytes(pulled)
+    vps_loss = tmp_path / "vps-loss-restore"
+    items = restore_encrypted_package(pulled_path, vps_loss, sidecar)
+    dumps = [item for item in items if item.kind == "postgres_dump"]
+    assert dumps
+    assert is_real_postgres_dump(vps_loss / dumps[0].relpath) is True
+    blobs = [item for item in items if item.kind == "blob"]
+    recovered = vps_loss / blobs[0].relpath
+    assert sha256_file(recovered) == sha256_bytes(blob)
+    assert recovered.read_bytes() == blob
