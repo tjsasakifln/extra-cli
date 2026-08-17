@@ -1,0 +1,8 @@
+{
+  "generated_at": "2026-08-16T00:00:00+00:00",
+  "as_of": "2026-08-15T00:00:00+00:00",
+  "catalog_mode": "fixture",
+  "input": {"cnpj": "123"},
+  "contracts": [],
+  "coverage": {"status": "INCOMPLETE", "n": 0, "usable_n": 0}
+}

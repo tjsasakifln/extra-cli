@@ -1,0 +1,48 @@
+{
+  "schema": "public-read-contract-analysis/1.0",
+  "contract_version": "v1.0.0",
+  "public_read_base": "v1.0.0",
+  "compatibility": "adapter_for_web-cfg_PR_85",
+  "namespace": "scripts.public_read_consumers",
+  "does_not_rewrite": "The shipped consumer shape remains public-read-contract-analysis/1.0. This file documents the adapter; it does not change required fields of that contract.",
+  "consumer": {
+    "id": "web-cfg/contract-analysis",
+    "family": "web-cfg / contract-analysis family",
+    "repository": "tjsasakifln/web-cfg",
+    "issues": ["#83"],
+    "pull_requests": ["#85"],
+    "decision": "May consume official FACTUAL analysis facts. Never INDEX. DATA_READY is not permission to index."
+  },
+  "grain": "analysis_candidate_id",
+  "keys": ["analysis_candidate_id"],
+  "export_layout": {
+    "manifest": "manifest.json",
+    "analyses": "analyses/<analysis_candidate_id>.json",
+    "previous": "analyses/previous/<id>.<content_hash>.json"
+  },
+  "aliases": {
+    "data_state": ["publication_readiness"],
+    "data_state_facts": ["publication_readiness_facts"],
+    "official_refs": ["source_refs"]
+  },
+  "data_state": {
+    "enum": ["DATA_READY", "DATA_HOLD", "DATA_REJECT"],
+    "forbidden": ["INDEX", "PUBLISHABLE_INDEX", "PUBLISHABLE_NOINDEX"]
+  },
+  "epistemic_classes": ["FACT", "CALCULATION", "INFERENCE", "UNKNOWN"],
+  "peer_status_from_producer": {
+    "COMPARABLE": "PEER_VALID",
+    "HOLD_FOR_DATA": "PEER_WEAK",
+    "NOT_COMPARABLE": "NOT_COMPARABLE",
+    "absent": "ABSENT"
+  },
+  "producers": {
+    "score": {"schema": "contract-publication-candidate/1.0", "issue": "#414"},
+    "evidence_pack": {"schema": "contract-evidence-pack/1.0", "issue": "#414"},
+    "peer_group": {"schema": "comparable-contracts/1.0", "issue": "#415", "optional": true}
+  },
+  "catalog_mode": {
+    "fixture": "labeled fixture; official_live is always false",
+    "official_live": "only when producers are live official artifacts and claimed_live is true"
+  }
+}

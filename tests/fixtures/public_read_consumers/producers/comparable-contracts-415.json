@@ -1,0 +1,23 @@
+{
+  "schema": "comparable-contracts/1.0",
+  "version": "1.0",
+  "producer_status": "CONTRACT_FIXTURE",
+  "official_live": false,
+  "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "status": "COMPARABLE",
+  "canonical_contract_ids": ["00000000000191-1-000001/2026"],
+  "metrics": {
+    "median": 1100000.0,
+    "p25": 800000.0,
+    "p75": 1600000.0,
+    "n": 12,
+    "unit": "integral_nominal_instrument"
+  },
+  "comparisons": [
+    {
+      "peer_id": "peer-of-cand-preco-01",
+      "method": "integral_nominal_nearest_rank",
+      "text": "instrument sits near sample median"
+    }
+  ]
+}

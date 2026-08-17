@@ -1,0 +1,11 @@
+{
+  "generated_at": "2026-08-16T00:00:00+00:00",
+  "catalog_mode": "fixture",
+  "claimed_live": false,
+  "candidates": [
+    {
+      "analysis_candidate_id": "cand-missing-01",
+      "angle": "preco_bdi"
+    }
+  ]
+}

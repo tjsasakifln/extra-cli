@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-08-16T00:00:00+00:00",
+  "as_of": "2026-08-15T00:00:00+00:00",
+  "catalog_mode": "fixture",
+  "claimed_live": false,
+  "producer_status": "CONTRACT_FIXTURE",
+  "official_live": false,
+  "input": {"cnpj": "83.102.277/0001-52"},
+  "observed_portfolio": {"contract_count": 2, "value_sum_nominal_brl": 2840874.59},
+  "contracts": [
+    {
+      "canonical_contract_id": "83102277000152-2-eco-01/2026",
+      "object": "Pavimentacao asfaltica de vias urbanas",
+      "value_nominal_brl": 740874.59,
+      "organ": "Autarquia Municipal Fixture",
+      "uf": "SC"
+    },
+    {
+      "canonical_contract_id": "83102277000152-2-eco-02/2026",
+      "object": "Pavimentacao e drenagem",
+      "value_nominal_brl": 2100000.0,
+      "organ": "Departamento Estadual Fixture",
+      "uf": "SC"
+    }
+  ],
+  "organs": ["Autarquia Municipal Fixture", "Departamento Estadual Fixture"],
+  "ufs": ["SC"],
+  "typologies": ["pavimentacao/1.0"],
+  "concentration": {"by_organ": [{"organ": "Departamento Estadual Fixture", "share_of_observed": 0.74}], "denominator": "observed_portfolio"},
+  "events": [{"at": "2026-08-15", "event": "anniversary published", "contract_id": "83102277000152-2-eco-02/2026"}],
+  "comparables": {"status": "COMPARABLE", "position": "near_median", "issue": "#415"},
+  "related_analyses": ["cand-preco-01"],
+  "second_read_candidates": [{"analysis_candidate_id": "cand-reajuste-01", "kind": "candidate_ref"}],
+  "coverage": {"status": "COMPLETE", "n": 2, "usable_n": 2},
+  "limitations": ["observed public portfolio only; no scoring or lending product"],
+  "unknown_fields": []
+}

@@ -1,0 +1,13 @@
+{
+  "schema": "contract-publication-candidate/1.0",
+  "version": "1.0",
+  "formula_version": "publication-value-score/1.0",
+  "producer_status": "CONTRACT_FIXTURE",
+  "official_live": false,
+  "analysis_candidate_id": "cand-preco-01",
+  "canonical_contract_ids": ["00000000000191-1-000001/2026"],
+  "publication_value_score": {"value": 0.91, "version": "1.0", "formula_version": "publication-value-score/1.0"},
+  "reason_summary": "factual preco_bdi observation on official instrument",
+  "angle": "preco_bdi",
+  "status": "accepted"
+}

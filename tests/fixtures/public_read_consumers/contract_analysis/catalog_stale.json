@@ -1,0 +1,35 @@
+{
+  "generated_at": "2026-08-16T00:00:00+00:00",
+  "catalog_mode": "fixture",
+  "claimed_live": false,
+  "producer_status": "CONTRACT_FIXTURE",
+  "official_live": false,
+  "candidates": [
+    {
+      "analysis_candidate_id": "cand-stale-01",
+      "angle": "preco_bdi",
+      "score": {
+        "schema": "contract-publication-candidate/1.0",
+        "version": "1.0",
+        "formula_version": "publication-value-score/1.0",
+        "value": 0.9,
+        "reason_summary": "stale evidence window",
+        "status": "accepted",
+        "canonical_contract_ids": ["83102277000152-2-eco-99/2026"]
+      },
+      "evidence_pack": {
+        "schema": "contract-evidence-pack/1.0",
+        "version": "1.0",
+        "content_hash": "9999999999999999999999999999999999999999999999999999999999999999",
+        "source_as_of": "2026-08-01T00:00:00+00:00",
+        "canonical_contract_ids": ["83102277000152-2-eco-99/2026"],
+        "object": "Pavimentacao asfaltica",
+        "timeline": [{"at": "2026-01-01", "event": "signed"}],
+        "calculations": [{"name": "nominal_instrument", "value": 100000.0, "unit": "BRL", "epistemic_class": "CALCULATION"}],
+        "official_refs": [{"source_id": "pncp_contracts", "source_record_id": "83102277000152-2-eco-99/2026", "url": "https://pncp.gov.br/app/contratos/83102277000152-2-eco-99/2026"}],
+        "limitations": ["stale source_as_of"],
+        "coverage": {"status": "COMPLETE"}
+      }
+    }
+  ]
+}

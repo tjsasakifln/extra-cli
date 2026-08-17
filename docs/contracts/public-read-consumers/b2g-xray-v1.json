@@ -1,0 +1,36 @@
+{
+  "schema": "public-read-b2g-xray/1.0",
+  "contract_version": "v1.0.0",
+  "public_read_base": "v1.0.0",
+  "consumer": {
+    "id": "web-cfg/b2g-xray",
+    "repository": "tjsasakifln/web-cfg",
+    "issues": ["#84", "#88"],
+    "decision": "Return observed public portfolio facts for a visitor CNPJ or authorized entity id."
+  },
+  "input": ["cnpj_normalized", "canonical_entity_id"],
+  "cnpj_rule": "digits only, length 14, reject all-zero",
+  "output": [
+    "observed_portfolio",
+    "contracts",
+    "organs",
+    "ufs",
+    "typologies",
+    "concentration",
+    "events",
+    "comparables",
+    "related_analyses",
+    "second_read_candidates"
+  ],
+  "denied": [
+    "risk_score",
+    "credit",
+    "dor",
+    "irregularidade",
+    "capacidade",
+    "consentimento",
+    "market_share_total_without_denominator"
+  ],
+  "second_read_candidates": "candidate refs, never a diagnosis",
+  "comparables": "only when #415 status is COMPARABLE or HOLD_FOR_DATA"
+}
