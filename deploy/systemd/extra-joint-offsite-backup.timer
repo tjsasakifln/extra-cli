@@ -1,0 +1,15 @@
+# /etc/systemd/system/extra-joint-offsite-backup.timer
+# EXTRA-002 — remains disabled until hash-identical isolated restore + deploy.
+# Offset from extra-db-backup (06:00 UTC) and EXTRA-001 canary windows.
+
+[Unit]
+Description=Extra Consultoria — Joint off-site backup timer (disabled by default)
+Documentation=https://github.com/tjsasakifln/extra-cli/blob/main/docs/ops/extra-002-recovery-policy.md
+
+[Timer]
+OnCalendar=*-*-* 07:30:00
+Persistent=false
+RandomizedDelaySec=180
+
+[Install]
+WantedBy=timers.target
