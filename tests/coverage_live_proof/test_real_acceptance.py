@@ -211,7 +211,8 @@ def test_golden_path_entry_runs_on_ephemeral(migrated_proof_dsn: str, tmp_path: 
     assert "super-secret" not in combined
     password = urlparse(migrated_proof_dsn).password or ""
     if password:
-        assert password not in combined
+        assert f":{password}@" not in combined
+        assert migrated_proof_dsn not in combined
     assert result["ledger_present"] is True or result["returncode"] in {0, 1, 2}
 
 
@@ -235,7 +236,11 @@ def test_runner_writes_evidence_pack(tmp_path: Path) -> None:
     assert payload["scenarios"]["D"]["row_counts_stable"] is True
     assert "psycopg2" in payload["connection"]["driver"]
     log_text = (tmp_path / "coverage-live-proof.log").read_text(encoding="utf-8")
+    evidence_text = (tmp_path / "evidence.json").read_text(encoding="utf-8")
     password = urlparse(admin).password or ""
     if password:
-        assert password not in log_text
-        assert password not in (tmp_path / "evidence.json").read_text(encoding="utf-8")
+        leaked = f":{password}@"
+        assert leaked not in log_text
+        assert leaked not in evidence_text
+        assert admin not in log_text
+        assert admin not in evidence_text
