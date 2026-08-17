@@ -7,6 +7,8 @@ from pathlib import Path
 from scripts.contract_publication.detectors import (
     build_cohort,
     detect_documented_resumption,
+    detect_identity_swap_is_not_insight,
+    detect_value_or_date_conflict,
     run_detectors,
 )
 from scripts.contract_publication.engine import load_snapshot, rank_candidates
@@ -146,6 +148,28 @@ def test_identity_swap_is_inference_not_fact() -> None:
     item = detectors["identity_swap_is_not_insight"]
     assert item.epistemic_class == "INFERENCE"
     assert not item.fired
+
+
+def test_identity_swap_fires_when_cnpj_and_municipio_are_inverted() -> None:
+    as_of, by_id, _mode = _by_id()
+    record = dict(by_id["CAND-VALUE-TERM-01"])
+    record["municipio"] = record["orgao_cnpj"]
+    record["orgao_cnpj"] = "Florianopolis"
+    projected = project_record(record, as_of=as_of)
+    result = detect_identity_swap_is_not_insight(projected, as_of=as_of)
+    assert result.fired is True
+    assert result.reason_code == "identity_swap_not_insight"
+
+
+def test_value_or_date_conflict_fires_on_inverted_dates() -> None:
+    as_of, by_id, _mode = _by_id()
+    record = dict(by_id["CAND-VALUE-TERM-01"])
+    record["data_inicio"] = "2026-12-01"
+    record["data_fim"] = "2025-02-01"
+    projected = project_record(record, as_of=as_of)
+    result = detect_value_or_date_conflict(projected, as_of=as_of)
+    assert result.fired is True
+    assert result.reason_code == "value_or_date_conflict"
 
 
 def test_ranking_states_are_only_allowed_public_states() -> None:

@@ -21,6 +21,7 @@ from scripts.contract_publication.facts import (
     freshness_hours,
     nominal_amount,
     parse_as_of,
+    parse_optional_datetime,
     text,
 )
 from scripts.contract_publication.models import DetectorResult
@@ -697,18 +698,138 @@ def detect_peer_difference(projected: ProjectedRecord, *, as_of: str) -> Detecto
     )
 
 
+def _digits_only(value: Any) -> str:
+    return "".join(char for char in str(value or "") if char.isdigit())
+
+
+def _looks_like_cnpj(value: Any) -> bool:
+    return len(_digits_only(value)) == 14
+
+
+def _looks_like_place_name(value: Any) -> bool:
+    found = text(value)
+    if not found:
+        return False
+    return not _looks_like_cnpj(found) and any(char.isalpha() for char in found)
+
+
 def detect_identity_swap_is_not_insight(projected: ProjectedRecord, *, as_of: str) -> DetectorResult:
+    """CNPJ in a place field (or a place name in a CNPJ field) is never insight."""
+    record = projected.record
+    municipio = record.get("municipio") or record.get("city")
+    orgao = record.get("orgao_cnpj")
+    supplier = record.get("fornecedor_cnpj") or record.get("contractor_id")
+    previous_orgao = record.get("previous_orgao_cnpj")
+    previous_supplier = record.get("previous_fornecedor_cnpj")
+    previous_city = record.get("previous_municipio")
+    swapped = False
+    kinds: list[str] = []
+    if _looks_like_cnpj(municipio):
+        swapped = True
+        kinds.append("municipio_holds_cnpj")
+    if _looks_like_place_name(orgao):
+        swapped = True
+        kinds.append("orgao_cnpj_holds_place")
+    if _looks_like_place_name(supplier):
+        swapped = True
+        kinds.append("fornecedor_cnpj_holds_place")
+    if (
+        previous_orgao
+        and previous_supplier
+        and text(orgao) == text(previous_supplier)
+        and text(supplier) == text(previous_orgao)
+    ):
+        swapped = True
+        kinds.append("party_cnpj_swapped")
+    if previous_city and _looks_like_cnpj(municipio) and text(municipio) == text(previous_orgao):
+        swapped = True
+        kinds.append("municipio_took_prior_cnpj")
+    freshness = _freshness_payload(projected, as_of)
+    if not swapped:
+        return _known(
+            "identity_swap_is_not_insight",
+            fired=False,
+            strength=0.0,
+            reason="municipality_or_party_swap_is_not_insight",
+            evidence=(),
+            epistemic="INFERENCE",
+            method=_method("identity_swap_is_not_insight/1.0", "explicit non-event"),
+            freshness=freshness,
+            result={"insight": False, "swap": False},
+            limitations=("identity_swap_never_promotes",),
+        )
     return _known(
         "identity_swap_is_not_insight",
-        fired=False,
+        fired=True,
         strength=0.0,
-        reason="municipality_or_party_swap_is_not_insight",
-        evidence=(),
-        epistemic="INFERENCE",
-        method=_method("identity_swap_is_not_insight/1.0", "explicit non-event"),
-        freshness=_freshness_payload(projected, as_of),
-        result={"insight": False},
+        reason="identity_swap_not_insight",
+        evidence=explicit_evidence_refs(record),
+        epistemic="FACT",
+        method=_method("identity_swap_is_not_insight/1.0", "CNPJ/municipio inversion is never novelty"),
+        freshness=freshness,
+        result={"insight": False, "swap": True, "kinds": kinds},
         limitations=("identity_swap_never_promotes",),
+    )
+
+
+def detect_value_or_date_conflict(projected: ProjectedRecord, *, as_of: str) -> DetectorResult:
+    """Conflicting official amounts or inverted dates fail closed."""
+    record = projected.record
+    freshness = _freshness_payload(projected, as_of)
+    start = parse_optional_datetime(record.get("data_inicio") or record.get("start_at"))
+    end = parse_optional_datetime(record.get("data_fim") or record.get("end_at"))
+    signed = parse_optional_datetime(record.get("data_assinatura") or record.get("signed_at"))
+    conflicts: list[str] = []
+    if start is not None and end is not None and start > end:
+        conflicts.append("start_after_end")
+    if signed is not None and end is not None and signed > end:
+        conflicts.append("signed_after_end")
+    if signed is not None and start is not None and signed > start:
+        # assinatura after início is unusual but not always a conflict; only flag inversion vs end above
+        pass
+
+    def _amount(key: str) -> Decimal | None:
+        raw = record.get(key)
+        if raw in (None, ""):
+            return None
+        try:
+            return Decimal(str(raw))
+        except ArithmeticError:
+            return None
+
+    total = _amount("valor_total")
+    updated = _amount("valor_atualizado")
+    initial = _amount("valor_inicial")
+    stated_delta = _delta_amount(record.get("value_changes"))
+    if total is not None and updated is not None and total != updated:
+        accounted = stated_delta is not None and abs(updated - total) == stated_delta
+        if not accounted:
+            conflicts.append("conflicting_values")
+    if initial is not None and total is not None and initial != total:
+        if stated_delta is None or abs(initial + stated_delta - total) > Decimal("0.01"):
+            conflicts.append("conflicting_values")
+    if not conflicts:
+        return _known(
+            "value_or_date_conflict",
+            fired=False,
+            strength=0.0,
+            reason="no_value_or_date_conflict",
+            evidence=explicit_evidence_refs(record),
+            epistemic="CALCULATION",
+            method=_method("value_or_date_conflict/1.0", "inverted dates or disagreeing official amounts"),
+            freshness=freshness,
+            result={"conflicts": []},
+        )
+    return _known(
+        "value_or_date_conflict",
+        fired=True,
+        strength=0.0,
+        reason="value_or_date_conflict",
+        evidence=explicit_evidence_refs(record),
+        epistemic="FACT",
+        method=_method("value_or_date_conflict/1.0", "inverted dates or disagreeing official amounts"),
+        freshness=freshness,
+        result={"conflicts": conflicts},
     )
 
 
@@ -766,6 +887,7 @@ def run_detectors(projected: ProjectedRecord, cohort: CohortIndex, *, as_of: str
         detect_peer_difference(projected, as_of=as_of),
         detect_demand_theme(projected, as_of=as_of),
         detect_identity_swap_is_not_insight(projected, as_of=as_of),
+        detect_value_or_date_conflict(projected, as_of=as_of),
     )
 
 

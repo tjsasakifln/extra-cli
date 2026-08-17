@@ -236,25 +236,80 @@ def test_inference_is_not_serialized_as_fact() -> None:
                 assert node.get("class") != "FACT"
 
 
-def test_cnpj_or_city_swap_is_not_novelty() -> None:
+def _strong_editorial(records: list[dict]) -> dict:
+    return next(item for item in records if item.get("canonical_contract_id") == "CAND-VALUE-TERM-01")
+
+
+def test_cnpj_or_city_swap_is_not_novelty(tmp_path: Path) -> None:
     from scripts.contract_publication.engine import rank_candidates
 
     snap = _fixture_snapshot()
-    ranked = {
-        item.analysis_candidate_id: item
-        for item in rank_candidates(snap["records"], as_of=snap["as_of"], catalog_mode="fixture")
-    }
-    swapped = ranked.get("CAND-SWAP-01") or next(
-        (
-            item
-            for item in ranked.values()
-            if "swap" in item.analysis_candidate_id.lower() or "municipio" in ",".join(item.reason_codes)
-        ),
-        None,
+    strong = _strong_editorial(snap["records"])
+    baseline = rank_candidates([dict(strong)], as_of=snap["as_of"], catalog_mode="fixture")
+    assert baseline[0].candidate_state == "EDITORIAL_REVIEW"
+
+    swapped = dict(strong)
+    swapped["canonical_contract_id"] = "CAND-SWAP-01"
+    swapped["source_id"] = "CAND-SWAP-01"
+    swapped["numero_controle_pncp"] = "CAND-SWAP-01"
+    swapped["municipio"] = strong["orgao_cnpj"]
+    swapped["orgao_cnpj"] = strong["municipio"]
+    ranked = rank_candidates([swapped], as_of=snap["as_of"], catalog_mode="fixture")
+    item = ranked[0]
+    assert item.analysis_candidate_id == "CAND-SWAP-01"
+    assert item.candidate_state != "EDITORIAL_REVIEW"
+    assert item.candidate_state == "REJECT"
+    assert "identity_swap_not_insight" in item.reason_codes
+
+    dest = tmp_path / "swap"
+    payload_snap = _fixture_snapshot()
+    payload_snap["records"] = [swapped]
+    refresh(
+        consumer=CONSUMER_ID,
+        out=dest,
+        snapshot=payload_snap,
+        fixture=True,
+        generated_at="2026-08-17T00:00:00Z",
     )
-    if swapped is None:
-        pytest.skip("golden corpus has no swap record on this revision")
-    assert swapped.candidate_state != "EDITORIAL_REVIEW" or "swap" not in swapped.reason_codes
+    exported = json.loads((dest / "payload.json").read_text(encoding="utf-8"))
+    analysis = next(row for row in exported["analyses"] if row["analysis_candidate_id"] == "CAND-SWAP-01")
+    assert analysis["data_state"] == "DATA_REJECT"
+    assert "identity_swap_not_insight" in analysis["reason_codes"] or analysis["data_state"] == "DATA_REJECT"
+
+
+def test_value_or_date_conflict_is_not_editorial_review(tmp_path: Path) -> None:
+    from scripts.contract_publication.engine import rank_candidates
+
+    snap = _fixture_snapshot()
+    strong = _strong_editorial(snap["records"])
+    conflicting = dict(strong)
+    conflicting["canonical_contract_id"] = "CAND-CONFLICT-01"
+    conflicting["source_id"] = "CAND-CONFLICT-01"
+    conflicting["numero_controle_pncp"] = "CAND-CONFLICT-01"
+    conflicting["data_inicio"] = "2026-12-01"
+    conflicting["data_fim"] = "2025-02-01"
+    conflicting["valor_total"] = 12_000_000
+    conflicting["valor_atualizado"] = 18_000_000
+    ranked = rank_candidates([conflicting], as_of=snap["as_of"], catalog_mode="fixture")
+    item = ranked[0]
+    assert item.candidate_state != "EDITORIAL_REVIEW"
+    assert item.candidate_state == "REJECT"
+    assert "value_or_date_conflict" in item.reason_codes
+
+    dest = tmp_path / "conflict"
+    payload_snap = _fixture_snapshot()
+    payload_snap["records"] = [conflicting]
+    refresh(
+        consumer=CONSUMER_ID,
+        out=dest,
+        snapshot=payload_snap,
+        fixture=True,
+        generated_at="2026-08-17T00:00:00Z",
+    )
+    exported = json.loads((dest / "payload.json").read_text(encoding="utf-8"))
+    analysis = next(row for row in exported["analyses"] if row["analysis_candidate_id"] == "CAND-CONFLICT-01")
+    assert analysis["data_state"] == "DATA_REJECT"
+    assert "value_or_date_conflict" in analysis["reason_codes"] or analysis["data_state"] == "DATA_REJECT"
 
 
 def test_duplicate_or_rectification_collapses() -> None:

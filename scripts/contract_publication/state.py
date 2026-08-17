@@ -101,6 +101,13 @@ def decide_state(
     unsourced = unsourced_insight_detectors(detectors)
     flags = sensitivity_flags(projected, detectors)
 
+    swap = next((item for item in detectors if item.detector_id == "identity_swap_is_not_insight"), None)
+    if swap is not None and swap.fired:
+        return "REJECT", ("identity_swap_not_insight",)
+    conflict = next((item for item in detectors if item.detector_id == "value_or_date_conflict"), None)
+    if conflict is not None and conflict.fired:
+        return "REJECT", ("value_or_date_conflict",)
+
     if unsourced and not sourced:
         return "HOLD_FOR_DATA", ("anomaly_without_source",)
 
