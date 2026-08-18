@@ -52,7 +52,14 @@ def test_git_identity_producer_commit_is_emission_head_sha() -> None:
     assert identity["commit"] == head
     assert len(identity["commit"]) == 40
     assert identity["commit"] != ""
-    assert identity["branch"] == "goal/authority-singularity-20260818"
+    # Detached CI checkouts have no branch name; emission identity is the SHA.
+    symbolic = subprocess.check_output(
+        ["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=REPO_ROOT, text=True
+    ).strip()
+    if symbolic == "HEAD":
+        assert identity["branch"] == "unknown"
+    else:
+        assert identity["branch"] == symbolic
 
 
 def test_git_identity_reads_worktree_head_file_not_later_tip(tmp_path: Path) -> None:
@@ -69,6 +76,16 @@ def test_git_identity_reads_worktree_head_file_not_later_tip(tmp_path: Path) -> 
     assert identity["commit"] == emission
     assert identity["commit"] != later_tip
     assert identity["branch"] == "goal/x"
+
+
+def test_git_identity_detached_head_keeps_emission_sha(tmp_path: Path) -> None:
+    emission = "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    git_dir = tmp_path / ".git"
+    git_dir.mkdir()
+    (git_dir / "HEAD").write_text(emission + "\n", encoding="utf-8")
+    identity = git_identity(repo_root=tmp_path)
+    assert identity["commit"] == emission
+    assert identity["branch"] == "unknown"
 
 
 def test_generated_at_clock_is_excluded_from_root_and_content_hash() -> None:

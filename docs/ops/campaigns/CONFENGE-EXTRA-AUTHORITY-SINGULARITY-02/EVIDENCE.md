@@ -73,7 +73,7 @@ Every FACT was checked with shipped `verify_claim_url_hash`: sha256 equals bytes
 
 ```
 python3 -m pytest tests/historical_contract_authority/ tests/official_contract_semantics/ -o addopts= -q
-# 117 passed
+# 118 passed
 ```
 
 New/updated gates: locação de veículos discarded; generic purchase discarded; `mão de obra` alone is not AEC; SPA cannot inherit listing sha256; READY requires located FACTs + singular insight; READY xor BLOCKED; two canaries share identity/hash; apostilamento gestor/fiscal is not insight; PDF reajuste page is material; Brazilian `4.710,00 m²` ratio; FGV Coluna 35 page text does not invent DNIT or reequilíbrio; process_document FACTs are `fact-indice`/`fact-reajuste`/`fact-data_base`, not `Objeto oficial`; `producer_commit` is emission HEAD; listing FACTs rebind to contract detail JSON; JSON key order is canonicalized; READY xor BLOCKED.
