@@ -110,6 +110,8 @@ def test_unavailable_url_is_unavailability() -> None:
     assert result.unavailabilities
     assert all(item.recorded_as == "unavailable" for item in result.unavailabilities)
     assert all(item.http_status == 404 for item in result.unavailabilities)
+    assert all(item.epistemic_class == "NOT_FOUND" for item in result.unavailabilities)
+    assert all(item.asserts_world_absence is False for item in result.unavailabilities)
 
 
 def test_insufficient_text_does_not_invent_fields() -> None:

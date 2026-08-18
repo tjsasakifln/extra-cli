@@ -10,11 +10,21 @@ from typing import Any
 
 from scripts.official_contract_semantics.constants import (
     EXTRACTOR_VERSION,
+    REASON_AMBIGUOUS_DATE,
+    REASON_CONFLICTING_LABELED_VALUES,
+    REASON_CONFLICTING_VALUE_FIELDS,
     REASON_INSUFFICIENT_EVIDENCE,
     REASON_PARSER_ERROR,
     SCHEMA_VERSION,
-    SOURCE_KINDS,
     VALUE_SEMANTICS,
+)
+from scripts.official_contract_semantics.epistemics import (
+    classify_fields,
+    explicit_not_applicable_fields,
+    identifier_is_masked,
+    is_not_applicable_token,
+    observation_epistemic_class,
+    parse_official_date,
 )
 from scripts.official_contract_semantics.identity import (
     clip_excerpt,
@@ -108,18 +118,8 @@ def _text(value: Any) -> str | None:
     return found or None
 
 
-def _normalize_date(value: Any) -> str | None:
-    text = _text(value)
-    if not text:
-        return None
-    if re.fullmatch(r"\d{2}/\d{2}/\d{4}", text):
-        day, month, year = text.split("/")
-        return f"{year}-{month}-{day}"
-    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", text[:10] or ""):
-        return text[:10]
-    if "T" in text and len(text) >= 10:
-        return text
-    return text
+def _normalize_date(value: Any) -> tuple[str | None, str | None]:
+    return parse_official_date(value)
 
 
 def _map_semantic(raw: str | None) -> str | None:
@@ -133,7 +133,7 @@ def _map_semantic(raw: str | None) -> str | None:
 
 def _source_kind(raw: dict[str, Any]) -> str:
     explicit = _text(raw.get("source_kind"))
-    if explicit in SOURCE_KINDS:
+    if explicit:
         return explicit
     kind = (_text(raw.get("document_type") or raw.get("tipo") or raw.get("kind")) or "").casefold()
     if "aditiv" in kind or "amendment" in kind:
@@ -147,23 +147,54 @@ def _source_kind(raw: dict[str, Any]) -> str:
     return "contract"
 
 
-def _pick_value(raw: dict[str, Any]) -> tuple[Any, str | None, str | None]:
-    explicit_semantic = _map_semantic(_text(raw.get("value_semantic") or raw.get("valor_semantic")))
+def _explicit_semantic(raw: dict[str, Any]) -> str | None:
+    raw_semantic = _text(raw.get("value_semantic") or raw.get("valor_semantic"))
+    if not raw_semantic:
+        return None
+    mapped = _map_semantic(raw_semantic)
+    return mapped if mapped is not None else raw_semantic
+
+
+def _collect_value_fields(raw: dict[str, Any]) -> list[tuple[Any, str | None, str]]:
+    """Every distinct official value field. Never elect a convenient winner."""
+    found: list[tuple[Any, str | None, str]] = []
+    explicit_semantic = _explicit_semantic(raw)
     if raw.get("value_amount") not in {None, ""}:
-        return raw.get("value_amount"), explicit_semantic, "value_amount"
+        found.append((raw.get("value_amount"), explicit_semantic, "value_amount"))
     for field_name, semantic in VALUE_FIELD_TO_SEMANTIC.items():
         if raw.get(field_name) not in {None, ""}:
-            return raw.get(field_name), explicit_semantic or semantic, field_name
-    # valor_total is ambiguous. Amount may be copied only when an explicit semantic exists.
+            found.append((raw.get(field_name), explicit_semantic or semantic, field_name))
     if raw.get("valor_total") not in {None, ""}:
-        return raw.get("valor_total"), explicit_semantic, "valor_total"
+        found.append((raw.get("valor_total"), explicit_semantic, "valor_total"))
     if raw.get("valor") not in {None, ""}:
-        return raw.get("valor"), explicit_semantic, "valor"
-    return None, explicit_semantic, None
+        found.append((raw.get("valor"), explicit_semantic, "valor"))
+    return found
+
+
+def _pick_value(raw: dict[str, Any]) -> tuple[Any, str | None, str | None]:
+    found = _collect_value_fields(raw)
+    if not found:
+        return None, _explicit_semantic(raw), None
+    if len(found) == 1:
+        return found[0]
+    return None, None, "__conflict__"
+
+
+def _raw_identifier(value: Any) -> str | None:
+    text = _text(value)
+    return text
+
+
+def _apply_not_applicable(value: Any, name: str, marked: set[str]) -> Any:
+    if name in marked or is_not_applicable_token(value):
+        return None
+    return value
 
 
 def draft_from_record(raw: dict[str, Any], *, default_source: str = "fixture") -> dict[str, Any]:
     amount, semantic, amount_field = _pick_value(raw)
+    if amount_field == "__conflict__":
+        raise ValueError(REASON_CONFLICTING_VALUE_FIELDS)
     locator = raw.get("locator") if isinstance(raw.get("locator"), dict) else {"json_path": amount_field}
     excerpt_source = _text(raw.get("evidence_excerpt")) or _text(
         raw.get("object_text") or raw.get("objeto") or raw.get("objeto_contrato")
@@ -182,6 +213,44 @@ def draft_from_record(raw: dict[str, Any], *, default_source: str = "fixture") -
             amendment_type = "valor"
         elif raw.get("amendment_term_delta") not in {None, ""}:
             amendment_type = "prazo"
+    marked_na = explicit_not_applicable_fields(raw)
+    extra = {
+        **dict(raw.get("extra") or {}),
+        **{key: raw[key] for key in ("uf", "municipio") if raw.get(key)},
+    }
+    orgao_raw = _raw_identifier(raw.get("contracting_entity_identifier") or raw.get("orgao_cnpj") or raw.get("orgao_id"))
+    supplier_raw = _raw_identifier(raw.get("supplier_identifier") or raw.get("fornecedor_cnpj") or raw.get("fornecedor_id"))
+    if identifier_is_masked(orgao_raw):
+        extra["contracting_entity_identifier_raw"] = orgao_raw
+        extra["contracting_entity_identifier_masked"] = True
+    elif orgao_raw and normalize_cnpj(orgao_raw) is None:
+        extra["contracting_entity_identifier_raw"] = orgao_raw
+        extra["contracting_entity_identifier_incomplete"] = True
+    if identifier_is_masked(supplier_raw):
+        extra["supplier_identifier_raw"] = supplier_raw
+        extra["supplier_identifier_masked"] = True
+    elif supplier_raw and normalize_cnpj(supplier_raw) is None:
+        extra["supplier_identifier_raw"] = supplier_raw
+        extra["supplier_identifier_incomplete"] = True
+    effective_at, effective_reject = _normalize_date(raw.get("effective_at") or raw.get("data_assinatura"))
+    period_start, start_reject = _normalize_date(_first(raw, PERIOD_START_KEYS))
+    period_end, end_reject = _normalize_date(_first(raw, PERIOD_END_KEYS))
+    observed_at, observed_reject = _normalize_date(raw.get("observed_at") or raw.get("data_publicacao"))
+    if observed_reject:
+        extra["observed_at_raw"] = _text(raw.get("observed_at") or raw.get("data_publicacao"))
+        extra["observed_at_unparsed"] = True
+        observed_at = _text(raw.get("observed_at") or raw.get("data_publicacao"))
+    date_rejects = {
+        key: reason
+        for key, reason in (
+            ("effective_at", effective_reject),
+            ("period_start", start_reject),
+            ("period_end", end_reject),
+        )
+        if reason
+    }
+    if date_rejects:
+        extra["unparsed_dates"] = date_rejects
     draft = {
         "schema_version": SCHEMA_VERSION,
         "source_system": _text(raw.get("source_system") or raw.get("source") or default_source),
@@ -204,8 +273,8 @@ def draft_from_record(raw: dict[str, Any], *, default_source: str = "fixture") -
             or raw.get("numero_controle_pncp")
             or raw.get("contract_id")
         ),
-        "observed_at": _text(raw.get("observed_at") or raw.get("data_publicacao")),
-        "effective_at": _normalize_date(raw.get("effective_at") or raw.get("data_assinatura")),
+        "observed_at": observed_at,
+        "effective_at": effective_at,
         "extractor_version": EXTRACTOR_VERSION,
         "locator": locator,
         "evidence_excerpt": clip_excerpt(excerpt_source),
@@ -213,15 +282,17 @@ def draft_from_record(raw: dict[str, Any], *, default_source: str = "fixture") -
         "object_text": _text(raw.get("object_text") or raw.get("objeto") or raw.get("objeto_contrato")),
         "lot_identifier": _text(raw.get("lot_identifier") or raw.get("lote")),
         "item_identifier": _text(raw.get("item_identifier") or raw.get("item")),
-        "unit": _text(_first(raw, UNIT_FIELD_KEYS)),
-        "quantity": _first(raw, QUANTITY_FIELD_KEYS),
-        "execution_regime": _text(_first(raw, REGIME_FIELD_KEYS)),
-        "procurement_modality": _text(_first(raw, MODALITY_FIELD_KEYS)),
-        "currency": _text(raw.get("currency")),
-        "value_amount": amount,
-        "value_semantic": semantic,
-        "period_start": _normalize_date(_first(raw, PERIOD_START_KEYS)),
-        "period_end": _normalize_date(_first(raw, PERIOD_END_KEYS)),
+        "unit": _text(_apply_not_applicable(_first(raw, UNIT_FIELD_KEYS), "unit", marked_na)),
+        "quantity": _apply_not_applicable(_first(raw, QUANTITY_FIELD_KEYS), "quantity", marked_na),
+        "execution_regime": _text(_apply_not_applicable(_first(raw, REGIME_FIELD_KEYS), "execution_regime", marked_na)),
+        "procurement_modality": _text(
+            _apply_not_applicable(_first(raw, MODALITY_FIELD_KEYS), "procurement_modality", marked_na)
+        ),
+        "currency": _text(_apply_not_applicable(raw.get("currency"), "currency", marked_na)),
+        "value_amount": _apply_not_applicable(amount, "value_amount", marked_na),
+        "value_semantic": _apply_not_applicable(semantic, "value_semantic", marked_na),
+        "period_start": period_start if "period_start" not in marked_na else None,
+        "period_end": period_end if "period_end" not in marked_na else None,
         "amendment_type": amendment_type,
         "amendment_value_delta": raw.get("amendment_value_delta"),
         "amendment_term_delta": _text(raw.get("amendment_term_delta")),
@@ -239,17 +310,52 @@ def draft_from_record(raw: dict[str, Any], *, default_source: str = "fixture") -
         "period_presumed": raw.get("period_presumed"),
         "amendment_presumed": raw.get("amendment_presumed"),
         "merge_cnpj_root_with_establishment": raw.get("merge_cnpj_root_with_establishment"),
-        "extra": {
-            **dict(raw.get("extra") or {}),
-            **{key: raw[key] for key in ("uf", "municipio") if raw.get(key)},
-        },
+        "extra": extra,
+        "not_applicable_fields": sorted(marked_na),
     }
+    draft["field_epistemics"] = classify_fields(draft, not_applicable=marked_na)
+    draft["epistemic_class"] = observation_epistemic_class(draft["field_epistemics"], status=draft["status"])
     draft["observation_id"] = observation_id_for(draft)
     return draft
 
 
 def _finalize(draft: dict[str, Any]) -> OfficialContractObservation:
     return validate_mapping(draft)
+
+
+def _record_payloads(raw: dict[str, Any]) -> list[dict[str, Any]]:
+    values = _collect_value_fields(raw)
+    if len(values) <= 1:
+        return [raw]
+    distinct: list[tuple[Any, str | None, str]] = []
+    seen: set[tuple[str, str]] = set()
+    for amount, semantic, field_name in values:
+        key = (str(amount), str(semantic))
+        if key in seen:
+            continue
+        seen.add(key)
+        distinct.append((amount, semantic, field_name))
+    if len(distinct) <= 1:
+        clone = dict(raw)
+        amount, semantic, field_name = distinct[0]
+        for name in VALUE_FIELD_TO_SEMANTIC:
+            clone.pop(name, None)
+        clone.pop("valor_total", None)
+        clone.pop("valor", None)
+        clone["value_amount"] = amount
+        clone["value_semantic"] = semantic
+        return [clone]
+    payloads: list[dict[str, Any]] = []
+    for amount, semantic, field_name in distinct:
+        clone = {key: value for key, value in raw.items() if key not in VALUE_FIELD_TO_SEMANTIC}
+        clone.pop("valor_total", None)
+        clone.pop("valor", None)
+        clone["value_amount"] = amount
+        clone["value_semantic"] = semantic
+        if not isinstance(clone.get("locator"), dict):
+            clone["locator"] = {"json_path": field_name}
+        payloads.append(clone)
+    return payloads
 
 
 def extract_record(raw: dict[str, Any], *, default_source: str = "fixture") -> ExtractResult:
@@ -281,22 +387,34 @@ def extract_record(raw: dict[str, Any], *, default_source: str = "fixture") -> E
         )
     if raw.get("html") and not raw.get("_from_html"):
         return extract_html(str(raw["html"]), identity={key: raw.get(key) for key in raw if key != "html"})
-    try:
-        observation = _finalize(draft_from_record(raw, default_source=default_source))
-        return ExtractResult(observations=(observation,), rejections=(), document_errors=())
-    except ObservationValidationError as exc:
-        return ExtractResult(
-            observations=(),
-            rejections=(
+    observations: list[OfficialContractObservation] = []
+    rejections: list[ExtractionRejection] = []
+    for payload in _record_payloads(raw):
+        try:
+            observations.append(_finalize(draft_from_record(payload, default_source=default_source)))
+        except ObservationValidationError as exc:
+            rejections.append(
                 ExtractionRejection(
                     code=exc.code,
                     message=exc.message,
                     source_document_id=_text(raw.get("source_document_id") or raw.get("document_id")),
                     official_url=_text(raw.get("official_url") or raw.get("url")),
-                ),
-            ),
-            document_errors=(),
-        )
+                )
+            )
+        except ValueError as exc:
+            rejections.append(
+                ExtractionRejection(
+                    code=REASON_CONFLICTING_VALUE_FIELDS if str(exc) == REASON_CONFLICTING_VALUE_FIELDS else REASON_PARSER_ERROR,
+                    message=str(exc),
+                    source_document_id=_text(raw.get("source_document_id") or raw.get("document_id")),
+                    official_url=_text(raw.get("official_url") or raw.get("url")),
+                )
+            )
+    return ExtractResult(
+        observations=tuple(sorted({item.observation_id: item for item in observations}.values(), key=lambda item: item.observation_id)),
+        rejections=tuple(rejections),
+        document_errors=(),
+    )
 
 
 def extract_text(text: str, *, identity: dict[str, Any] | None = None) -> ExtractResult:
@@ -329,22 +447,101 @@ def extract_text(text: str, *, identity: dict[str, Any] | None = None) -> Extrac
     modality_match = _LABEL_MODALITY.search(text)
     if modality_match:
         fields["procurement_modality"] = modality_match.group(1).strip()
-    value_match = _LABEL_VALUE.search(text)
-    if value_match:
-        fields["value_semantic"] = _map_semantic(value_match.group(1))
-        fields["value_amount"] = value_match.group(2)
-        fields["evidence_excerpt"] = clip_excerpt(value_match.group(0))
+    value_matches = list(_LABEL_VALUE.finditer(text))
+    if value_matches:
+        by_semantic: dict[str | None, set[str]] = {}
+        for match in value_matches:
+            semantic = _map_semantic(match.group(1))
+            by_semantic.setdefault(semantic, set()).add(match.group(2))
+        if any(len(amounts) > 1 for amounts in by_semantic.values()):
+            return ExtractResult(
+                observations=(),
+                rejections=(
+                    ExtractionRejection(
+                        code=REASON_CONFLICTING_LABELED_VALUES,
+                        message="multiple_amounts_for_same_value_semantic",
+                        source_document_id=_text(base.get("source_document_id")),
+                        official_url=_text(base.get("official_url")),
+                        evidence_excerpt=clip_excerpt(text),
+                    ),
+                ),
+                document_errors=(),
+            )
+        if len(value_matches) > 1:
+            merged_results: list[ExtractResult] = []
+            for match in value_matches:
+                item_fields = {
+                    **fields,
+                    "value_semantic": _map_semantic(match.group(1)),
+                    "value_amount": match.group(2),
+                    "evidence_excerpt": clip_excerpt(match.group(0)),
+                    "locator": {
+                        "section": "labeled_text",
+                        "char_start": match.start(),
+                        "char_end": match.end(),
+                    },
+                }
+                merged_results.append(
+                    extract_record(
+                        {
+                            **base,
+                            **item_fields,
+                            "source_kind": base.get("source_kind") or "process_document",
+                            "confidence_class": "explicit_labeled_text",
+                            "extraction_rule": "labeled_text/1.0",
+                            "extraction_rule_version": "1.0",
+                            "raw_text": text,
+                            "source_document_sha256": base.get("source_document_sha256") or raw_record_hash_for(text),
+                        }
+                    )
+                )
+            observations = []
+            rejections = []
+            errors = []
+            unavailabilities = []
+            for item in merged_results:
+                observations.extend(item.observations)
+                rejections.extend(item.rejections)
+                errors.extend(item.document_errors)
+                unavailabilities.extend(item.unavailabilities)
+            unique = {item.observation_id: item for item in observations}
+            return ExtractResult(
+                observations=tuple(sorted(unique.values(), key=lambda item: item.observation_id)),
+                rejections=tuple(rejections),
+                document_errors=tuple(errors),
+                unavailabilities=tuple(unavailabilities),
+            )
+        fields["value_semantic"] = _map_semantic(value_matches[0].group(1))
+        fields["value_amount"] = value_matches[0].group(2)
+        fields["evidence_excerpt"] = clip_excerpt(value_matches[0].group(0))
         fields["locator"] = {
             "section": "labeled_text",
-            "char_start": value_match.start(),
-            "char_end": value_match.end(),
+            "char_start": value_matches[0].start(),
+            "char_end": value_matches[0].end(),
         }
     else:
         bare = _LABEL_BARE_VALUE.search(text)
         if bare:
             fields["value_amount"] = bare.group(1)
             fields["evidence_excerpt"] = clip_excerpt(bare.group(0))
-    period_match = _LABEL_PERIOD.search(text)
+    period_matches = list(_LABEL_PERIOD.finditer(text))
+    if len(period_matches) > 1:
+        spans = {(item.group(1), item.group(2)) for item in period_matches}
+        if len(spans) > 1:
+            return ExtractResult(
+                observations=(),
+                rejections=(
+                    ExtractionRejection(
+                        code=REASON_AMBIGUOUS_DATE,
+                        message="conflicting_labeled_periods",
+                        source_document_id=_text(base.get("source_document_id")),
+                        official_url=_text(base.get("official_url")),
+                        evidence_excerpt=clip_excerpt(text),
+                    ),
+                ),
+                document_errors=(),
+            )
+    period_match = period_matches[0] if period_matches else None
     if period_match:
         fields["period_start"] = period_match.group(1)
         fields["period_end"] = period_match.group(2)

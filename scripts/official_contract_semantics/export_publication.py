@@ -52,6 +52,8 @@ def observation_to_snapshot_record(item: OfficialContractObservation) -> dict[st
         "documents": documents,
         "observation_id": item.observation_id,
         "observation_status": item.status,
+        "epistemic_class": item.epistemic_class,
+        "field_epistemics": dict(item.field_epistemics or {}),
         "value_semantic": item.value_semantic,
         "unit": item.unit,
         "quantity": None if item.quantity is None else format(item.quantity, "f"),

@@ -15,6 +15,8 @@
     {"id": "12", "path": "12_value_without_semantic.json", "expect": "value_without_semantic_rejected"},
     {"id": "13", "path": "13_absence_inference.json", "expect": "absence_inference_rejected"},
     {"id": "14", "path": "14_export_incomplete.json", "expect": "export_holds"},
-    {"id": "15", "path": "15_export_comparable.json", "expect": "export_engine_evaluates"}
+    {"id": "15", "path": "15_export_comparable.json", "expect": "export_engine_evaluates"},
+    {"id": "16", "path": "01_global_unknown_unit.json", "expect": "global_unit_remains_unknown_not_na"},
+    {"id": "17", "path": "09_unavailable_url.json", "expect": "http_404_is_not_found_not_world_absence"}
   ]
 }

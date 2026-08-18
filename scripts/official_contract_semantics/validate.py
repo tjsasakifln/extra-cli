@@ -7,11 +7,14 @@ from typing import Any
 from scripts.official_contract_semantics.constants import (
     AMENDMENT_TYPES,
     CONFIDENCE_CLASSES,
+    EPISTEMIC_CLASSES,
     EXTRACTOR_VERSION,
     REASON_CNPJ_ROOT_ESTABLISHMENT_MERGE,
     REASON_CREDENTIAL_MARKER,
     REASON_INFERRED_FROM_ABSENCE,
     REASON_INFERRED_UNIT_OR_QUANTITY,
+    REASON_INVALID_AMENDMENT_TYPE,
+    REASON_INVALID_EPISTEMIC_CLASS,
     REASON_INVALID_SCHEMA,
     REASON_INVALID_SOURCE_KIND,
     REASON_INVALID_STATUS,
@@ -81,7 +84,10 @@ def validate_mapping(raw: dict[str, Any]) -> OfficialContractObservation:
         _fail(REASON_INVALID_VALUE_SEMANTIC, str(semantic))
     amendment_type = raw.get("amendment_type")
     if amendment_type and amendment_type not in AMENDMENT_TYPES:
-        _fail(REASON_PRESUMED_PERIOD_OR_AMENDMENT, str(amendment_type))
+        _fail(REASON_INVALID_AMENDMENT_TYPE, str(amendment_type))
+    epistemic = raw.get("epistemic_class")
+    if epistemic and epistemic not in EPISTEMIC_CLASSES:
+        _fail(REASON_INVALID_EPISTEMIC_CLASS, str(epistemic))
     if raw.get("merge_cnpj_root_with_establishment"):
         _fail(REASON_CNPJ_ROOT_ESTABLISHMENT_MERGE, "root_and_establishment_must_stay_distinct")
     excerpt = raw.get("evidence_excerpt")

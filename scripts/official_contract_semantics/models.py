@@ -9,12 +9,17 @@ from typing import Any, Literal
 from scripts.official_contract_semantics.constants import (
     AMENDMENT_TYPES,
     CONFIDENCE_CLASSES,
+    EPISTEMIC_CLASSES,
+    EPISTEMIC_FACT_OFFICIAL,
     EXTRACTOR_VERSION,
+    FIELD_EPISTEMIC_CLASSES,
     SCHEMA_VERSION,
+    SEARCH_EPISTEMIC_CLASSES,
     SOURCE_KINDS,
     STATUSES,
     VALUE_SEMANTICS,
 )
+from scripts.official_contract_semantics.epistemics import classify_search_outcome
 from scripts.official_contract_semantics.serialize import jsonable
 
 SourceKind = Literal["contract", "amendment", "notice", "process_document", "official_page"]
@@ -81,6 +86,9 @@ class OfficialContractObservation:
     extraction_rule_version: str | None = None
     supersedes_document_id: str | None = None
     supersedes_observation_id: str | None = None
+    epistemic_class: str = EPISTEMIC_FACT_OFFICIAL
+    field_epistemics: dict[str, str] = field(default_factory=dict)
+    derivation_method: str | None = None
     extra: dict[str, Any] = field(default_factory=dict)
 
     def as_dict(self) -> dict[str, Any]:
@@ -134,6 +142,28 @@ class SourceUnavailability:
     recorded_as: str = "unavailable"
     http_status: int | None = None
     message: str | None = None
+    epistemic_class: str | None = None
+    asserts_world_absence: bool = False
+    search_contract: dict[str, Any] | None = None
+
+    def __post_init__(self) -> None:
+        if self.epistemic_class is None:
+            object.__setattr__(
+                self,
+                "epistemic_class",
+                classify_search_outcome(self.error_kind, self.http_status),
+            )
+        if self.search_contract is None:
+            object.__setattr__(
+                self,
+                "search_contract",
+                {
+                    "url": self.official_url,
+                    "error_kind": self.error_kind,
+                    "http_status": self.http_status,
+                    "bound": "single_official_url",
+                },
+            )
 
     def as_dict(self) -> dict[str, Any]:
         return jsonable(self.__dict__)
@@ -196,6 +226,12 @@ def observation_from_mapping(raw: dict[str, Any]) -> OfficialContractObservation
     amendment_type = raw.get("amendment_type")
     if amendment_type:
         _check_enum(str(amendment_type), AMENDMENT_TYPES, "amendment_type")
+    epistemic = str(raw.get("epistemic_class") or EPISTEMIC_FACT_OFFICIAL)
+    if epistemic:
+        _check_enum(epistemic, EPISTEMIC_CLASSES, "epistemic_class")
+    field_epistemics = dict(raw.get("field_epistemics") or {})
+    for field_name, field_class in field_epistemics.items():
+        _check_enum(str(field_class), (*FIELD_EPISTEMIC_CLASSES, *SEARCH_EPISTEMIC_CLASSES), f"field_epistemic:{field_name}")
     from scripts.official_contract_semantics.identity import parse_optional_decimal
 
     return OfficialContractObservation(
@@ -239,5 +275,8 @@ def observation_from_mapping(raw: dict[str, Any]) -> OfficialContractObservation
         extraction_rule_version=raw.get("extraction_rule_version"),
         supersedes_document_id=raw.get("supersedes_document_id"),
         supersedes_observation_id=raw.get("supersedes_observation_id"),
+        epistemic_class=epistemic,
+        field_epistemics=field_epistemics,
+        derivation_method=raw.get("derivation_method"),
         extra=dict(raw.get("extra") or {}),
     )

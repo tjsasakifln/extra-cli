@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-SCHEMA_VERSION = "official-contract-observation/1.0"
-EXTRACTOR_VERSION = "official-contract-semantics-extract/1.0"
+SCHEMA_VERSION = "official-contract-observation/1.1"
+EXTRACTOR_VERSION = "official-contract-semantics-extract/1.1"
 RECONCILE_VERSION = "official-contract-semantics-reconcile/1.0"
-EXPORT_COMPARABLES_VERSION = "official-contract-semantics-export-comparables/1.0"
-EXPORT_PUBLICATION_VERSION = "official-contract-semantics-export-publication/1.0"
+EXPORT_COMPARABLES_VERSION = "official-contract-semantics-export-comparables/1.1"
+EXPORT_PUBLICATION_VERSION = "official-contract-semantics-export-publication/1.1"
 LIVE_VERSION = "official-contract-semantics-live-readonly/1.0"
-POLICY_VERSION = "official-contract-semantics-policy/1.0"
+POLICY_VERSION = "official-contract-semantics-policy/1.1"
 
 PACKAGE_NAME = "official_contract_semantics"
 USER_AGENT = (
@@ -50,6 +50,64 @@ CONFIDENCE_CLASSES = (
     "explicit_labeled_text",
     "explicit_table_cell",
     "unknown",
+)
+
+# Epistemic taxonomy. Independent of reconcile status (observed/conflicted/...).
+# FACT_OFFICIAL: explicitly supported by an official source field/label.
+# OBSERVATION_DERIVED: deterministic transform of official facts; method must be named.
+# UNKNOWN / HOLD_FOR_DATA: required field or contract not demonstrated.
+# NOT_APPLICABLE: only when the official source demonstrates inapplicability.
+# NOT_FOUND: delimited search of a specific official URL/bound returned empty/404.
+# UNAVAILABLE: transport/DSN/timeout — not a search result, not world absence.
+EPISTEMIC_FACT_OFFICIAL = "FACT_OFFICIAL"
+EPISTEMIC_OBSERVATION_DERIVED = "OBSERVATION_DERIVED"
+EPISTEMIC_UNKNOWN = "UNKNOWN"
+EPISTEMIC_HOLD_FOR_DATA = "HOLD_FOR_DATA"
+EPISTEMIC_NOT_APPLICABLE = "NOT_APPLICABLE"
+EPISTEMIC_NOT_FOUND = "NOT_FOUND"
+EPISTEMIC_UNAVAILABLE = "UNAVAILABLE"
+EPISTEMIC_ABSENT = "ABSENT"
+
+EPISTEMIC_CLASSES = (
+    EPISTEMIC_FACT_OFFICIAL,
+    EPISTEMIC_OBSERVATION_DERIVED,
+    EPISTEMIC_UNKNOWN,
+    EPISTEMIC_HOLD_FOR_DATA,
+    EPISTEMIC_NOT_APPLICABLE,
+    EPISTEMIC_NOT_FOUND,
+    EPISTEMIC_UNAVAILABLE,
+    EPISTEMIC_ABSENT,
+)
+
+FIELD_EPISTEMIC_CLASSES = (
+    EPISTEMIC_FACT_OFFICIAL,
+    EPISTEMIC_OBSERVATION_DERIVED,
+    EPISTEMIC_UNKNOWN,
+    EPISTEMIC_NOT_APPLICABLE,
+)
+
+SEARCH_EPISTEMIC_CLASSES = (
+    EPISTEMIC_NOT_FOUND,
+    EPISTEMIC_UNAVAILABLE,
+    EPISTEMIC_ABSENT,
+)
+
+NOT_APPLICABLE_TOKENS = frozenset(
+    {
+        "not_applicable",
+        "n/a",
+        "na",
+        "nao_se_aplica",
+        "não_se_aplica",
+        "nao se aplica",
+        "não se aplica",
+        "inaplicavel",
+        "inaplicável",
+    }
+)
+
+DERIVATION_COMPARABLES_CANONICAL = (
+    "export_comparables/valor_global_or_contratado_to_valor_integral_nominal/1.1"
 )
 
 AMENDMENT_TYPES = (
@@ -124,6 +182,12 @@ FORBIDDEN_PUBLIC_STATES = frozenset({"INDEX", "PUBLISHABLE_INDEX", "PUBLISHABLE_
 
 REASON_MISSING_OFFICIAL_IDENTITY = "missing_official_identity"
 REASON_VALUE_WITHOUT_SEMANTIC = "value_without_semantic"
+REASON_CONFLICTING_VALUE_FIELDS = "conflicting_value_fields"
+REASON_CONFLICTING_LABELED_VALUES = "conflicting_labeled_values"
+REASON_AMBIGUOUS_DATE = "ambiguous_date"
+REASON_INVALID_AMENDMENT_TYPE = "invalid_amendment_type"
+REASON_INVALID_EPISTEMIC_CLASS = "invalid_epistemic_class"
+REASON_MASKED_IDENTIFIER = "masked_or_incomplete_identifier"
 REASON_INFERRED_UNIT_OR_QUANTITY = "inferred_unit_or_quantity"
 REASON_PRESUMED_PERIOD_OR_AMENDMENT = "presumed_period_or_amendment"
 REASON_INFERRED_FROM_ABSENCE = "inferred_from_absence"

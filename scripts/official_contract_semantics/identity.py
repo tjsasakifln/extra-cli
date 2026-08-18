@@ -69,12 +69,19 @@ def digits_only(value: str | None) -> str | None:
 
 
 def normalize_cnpj(value: str | None) -> str | None:
-    """Keep the official digit string as observed. Never expand root to establishment."""
-    digits = digits_only(value)
+    """Keep a complete official digit string. Masked or incomplete IDs stay unknown."""
+    if value is None:
+        return None
+    raw = str(value).strip()
+    if not raw:
+        return None
+    if any(marker in raw for marker in ("*", "#", "X", "x")):
+        return None
+    digits = digits_only(raw)
     if digits is None:
         return None
-    if len(digits) not in {8, 14}:
-        return digits
+    if len(digits) not in {8, 11, 14}:
+        return None
     return digits
 
 

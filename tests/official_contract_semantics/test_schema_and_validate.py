@@ -53,6 +53,9 @@ def test_schema_version_and_required_fields_exist() -> None:
         "confidence_class",
         "conflict_group_id",
         "status",
+        "epistemic_class",
+        "field_epistemics",
+        "derivation_method",
     ):
         assert key in payload
     assert payload["unit"] is None

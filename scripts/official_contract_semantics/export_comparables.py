@@ -7,6 +7,9 @@ from collections.abc import Iterable
 from scripts.official_contract_semantics.constants import (
     COMPARABLES_CANONICAL_SEMANTIC,
     COMPARABLES_CANONICAL_UNIT,
+    DERIVATION_COMPARABLES_CANONICAL,
+    EPISTEMIC_FACT_OFFICIAL,
+    EPISTEMIC_OBSERVATION_DERIVED,
     EXPORT_COMPARABLES_VERSION,
     EXPORT_SEMANTIC_TO_COMPARABLES,
 )
@@ -43,6 +46,9 @@ def _export_unit(item: OfficialContractObservation) -> str | None:
 def observation_to_contract_record(item: OfficialContractObservation) -> dict[str, object]:
     contract_id = item.contract_identifier or item.observation_id
     unknown_value = item.value_amount is None or item.status in {"conflicted", "unknown"}
+    mapped = bool(item.value_semantic and item.value_semantic in EXPORT_SEMANTIC_TO_COMPARABLES)
+    already_canonical = item.value_semantic == COMPARABLES_CANONICAL_SEMANTIC
+    derived = mapped and not already_canonical
     return {
         "contract_id": contract_id,
         "objeto": item.object_text or "",
@@ -67,6 +73,12 @@ def observation_to_contract_record(item: OfficialContractObservation) -> dict[st
         "extra_status": item.status,
         "extra_conflict_group_id": item.conflict_group_id,
         "extra_export_version": EXPORT_COMPARABLES_VERSION,
+        "extra_epistemic_class": (
+            EPISTEMIC_OBSERVATION_DERIVED if derived else (item.epistemic_class or EPISTEMIC_FACT_OFFICIAL)
+        ),
+        "extra_derivation_method": DERIVATION_COMPARABLES_CANONICAL if derived else item.derivation_method,
+        "extra_source_epistemic_class": item.epistemic_class,
+        "extra_field_epistemics": dict(item.field_epistemics or {}),
     }
 
 
@@ -100,8 +112,11 @@ def export_comparables_corpus(
         "does_not_authorize_publication": True,
         "projection_notes": {
             "valor_global_or_contratado_maps_to": COMPARABLES_CANONICAL_SEMANTIC,
+            "mapped_projection_is": EPISTEMIC_OBSERVATION_DERIVED,
+            "derivation_method": DERIVATION_COMPARABLES_CANONICAL,
             "other_semantics_pass_through": True,
             "conflict_and_unknown_remain_unknown": True,
+            "does_not_diagnose_credit_claim_or_default": True,
         },
         "cases": {
             case_id: {
