@@ -116,3 +116,5 @@ Prohibited conclusions: irregularidade, culpa, sobrepreço, fraude, case, client
 ## Code change
 
 Official-live was patched so that this campaign could reach a real AEC singularity instead of selecting locação/generic listings: AEC discard, SC scan vs AEC shortlist, `/termos` 204 as `not_found`, material term filter, contract PDF clause extract, BRL/m² calculation. No cosmetic-only commit.
+
+PR: https://github.com/tjsasakifln/extra-cli/pull/433
