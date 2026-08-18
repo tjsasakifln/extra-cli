@@ -570,10 +570,28 @@ def _analysis_sections(
     }
 
 
+def canonical_json_sha256(body: str | bytes) -> str | None:
+    """Stable hash for JSON official records whose key order changes between fetches."""
+    text = body.decode("utf-8", errors="replace") if isinstance(body, bytes) else body
+    try:
+        payload = json.loads(text)
+    except ValueError:
+        return None
+    if not isinstance(payload, (dict, list)):
+        return None
+    canonical = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return raw_record_hash_for(canonical)
+
+
 def claim_bound_to_retrieved_bytes(claim: dict[str, Any], body: bytes) -> bool:
     """True only when claim.sha256 is the hash of the bytes retrieved from claim.url."""
     digest = str(claim.get("sha256") or "")
-    return bool(digest) and digest == raw_record_hash_for(body)
+    if not digest:
+        return False
+    if digest == raw_record_hash_for(body):
+        return True
+    canonical = canonical_json_sha256(body)
+    return bool(canonical) and digest == canonical
 
 
 def verify_claim_url_hash(*, claim: dict[str, Any], cache_dir: Path | None = None) -> bool:
@@ -581,9 +599,10 @@ def verify_claim_url_hash(*, claim: dict[str, Any], cache_dir: Path | None = Non
     if not url:
         return False
     fetched = fetch_official(str(url), cache_dir=cache_dir, retries=0, rate_limit_s=0)
-    if not fetched.ok or not fetched.sha256:
+    if not fetched.ok or not fetched.body:
         return False
-    return fetched.sha256 == str(claim.get("sha256") or "")
+    raw = fetched.body.encode("utf-8")
+    return claim_bound_to_retrieved_bytes(claim, raw)
 
 
 def _json_items(body: str) -> list[Any]:
@@ -725,6 +744,7 @@ def deepen_one_contract_detail(
         payload["official_url"] = urls["detail"]
         payload.setdefault("recorded_as", "unavailable")
         return payload
+    digest = canonical_json_sha256(fetched.body) or fetched.sha256
     rebound: list[OfficialContractObservation] = []
     replaced = 0
     for item in grouped.get(contract_id, []):
@@ -739,8 +759,8 @@ def deepen_one_contract_detail(
             replace(
                 item,
                 official_url=urls["detail"],
-                source_document_sha256=fetched.sha256,
-                raw_record_hash=fetched.sha256,
+                source_document_sha256=digest,
+                raw_record_hash=digest,
                 retrieved_at=retrieved_at,
                 verified_at=retrieved_at,
                 extra=extra,
@@ -753,7 +773,7 @@ def deepen_one_contract_detail(
         "contract_id": contract_id,
         "official_url": urls["detail"],
         "error_kind": None,
-        "sha256": fetched.sha256,
+        "sha256": digest,
         "rebound": replaced,
     }
 

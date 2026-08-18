@@ -153,7 +153,8 @@ def test_listing_facts_rebind_to_contract_detail_bytes(monkeypatch) -> None:
     shifted_bytes = json.dumps(listing_shifted, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
     detail_bytes = json.dumps(detail, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
     listing_sha = raw_record_hash_for(listing_bytes)
-    detail_sha = raw_record_hash_for(detail_bytes)
+    detail_sha = official_live_mod.canonical_json_sha256(detail_bytes)
+    assert detail_sha is not None
     assert listing_sha != raw_record_hash_for(shifted_bytes)
     assert listing_sha != detail_sha
 
@@ -228,3 +229,14 @@ def test_listing_facts_rebind_to_contract_detail_bytes(monkeypatch) -> None:
     finally:
         server.shutdown()
         server.server_close()
+
+
+def test_json_key_order_does_not_change_listing_fact_hash() -> None:
+    from scripts.historical_contract_authority.official_live import canonical_json_sha256
+
+    left = '{"valorGlobal":719177.48,"objetoContrato":"pavimentacao"}'
+    right = '{"objetoContrato":"pavimentacao","valorGlobal":719177.48}'
+    assert left != right
+    assert canonical_json_sha256(left) == canonical_json_sha256(right)
+    claim = {"url": "https://example.invalid", "sha256": canonical_json_sha256(left)}
+    assert official_live_mod.claim_bound_to_retrieved_bytes(claim, right.encode("utf-8")) is True
