@@ -341,7 +341,13 @@ def extract_clause_excerpts(text: str | None) -> list[tuple[str, str]]:
         if kind == "indice":
             named = [item for item in matches if any(token in item.casefold() for token in _NAMED_INDEX_TOKENS)]
             if named:
-                excerpt = max(named, key=len)
+
+                def _indice_score(item: str) -> tuple[int, int, int]:
+                    starts_clause = 1 if re.match(r"\d+\.\d+", item) else 0
+                    starts_clean = 1 if item[:1].isupper() or item[:1].isdigit() else 0
+                    return (starts_clause, starts_clean, len(item))
+
+                excerpt = max(named, key=_indice_score)
         if kind in seen_kinds:
             continue
         seen_kinds.add(kind)
