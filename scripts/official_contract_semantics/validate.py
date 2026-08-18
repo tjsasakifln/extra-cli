@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from scripts.official_contract_semantics.constants import (
+    ACCEPTED_SCHEMA_VERSIONS,
     AMENDMENT_TYPES,
     CONFIDENCE_CLASSES,
     EPISTEMIC_CLASSES,
@@ -54,7 +55,7 @@ def _fail(code: str, message: str) -> None:
 
 
 def validate_mapping(raw: dict[str, Any]) -> OfficialContractObservation:
-    if raw.get("schema_version") not in {None, SCHEMA_VERSION} and raw.get("schema_version") != SCHEMA_VERSION:
+    if raw.get("schema_version") not in {None, *ACCEPTED_SCHEMA_VERSIONS}:
         _fail(REASON_INVALID_SCHEMA, str(raw.get("schema_version")))
     if raw.get("infer_from_absence") or raw.get("assume_missing_if_unpublished"):
         _fail(REASON_INFERRED_FROM_ABSENCE, "absence_is_not_a_fact")

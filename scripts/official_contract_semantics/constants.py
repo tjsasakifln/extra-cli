@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+SCHEMA_VERSION_V10 = "official-contract-observation/1.0"
 SCHEMA_VERSION = "official-contract-observation/1.1"
+ACCEPTED_SCHEMA_VERSIONS = frozenset({SCHEMA_VERSION_V10, SCHEMA_VERSION})
 EXTRACTOR_VERSION = "official-contract-semantics-extract/1.1"
 RECONCILE_VERSION = "official-contract-semantics-reconcile/1.0"
 EXPORT_COMPARABLES_VERSION = "official-contract-semantics-export-comparables/1.1"
 EXPORT_PUBLICATION_VERSION = "official-contract-semantics-export-publication/1.1"
-LIVE_VERSION = "official-contract-semantics-live-readonly/1.0"
+LIVE_VERSION = "official-contract-semantics-live-readonly/1.1"
 POLICY_VERSION = "official-contract-semantics-policy/1.1"
 
 PACKAGE_NAME = "official_contract_semantics"
@@ -106,9 +108,7 @@ NOT_APPLICABLE_TOKENS = frozenset(
     }
 )
 
-DERIVATION_COMPARABLES_CANONICAL = (
-    "export_comparables/valor_global_or_contratado_to_valor_integral_nominal/1.1"
-)
+DERIVATION_COMPARABLES_CANONICAL = "export_comparables/valor_global_or_contratado_to_valor_integral_nominal/1.1"
 
 AMENDMENT_TYPES = (
     "prazo",
@@ -119,7 +119,7 @@ AMENDMENT_TYPES = (
 )
 
 # Execution timestamps never enter the semantic hash or observation_id.
-EXECUTION_TIMESTAMP_FIELDS = frozenset({"extracted_at"})
+EXECUTION_TIMESTAMP_FIELDS = frozenset({"extracted_at", "retrieved_at", "verified_at"})
 
 SEMANTIC_FIELDS = (
     "object_text",

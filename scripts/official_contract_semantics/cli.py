@@ -13,7 +13,7 @@ from scripts.official_contract_semantics.coverage import coverage_matrix
 from scripts.official_contract_semantics.export_comparables import export_comparables_corpus
 from scripts.official_contract_semantics.export_publication import export_publication_evidence
 from scripts.official_contract_semantics.extract import extract_many_paths, extract_path
-from scripts.official_contract_semantics.live import run_live_readonly
+from scripts.official_contract_semantics.live import default_live_window, run_live_readonly
 from scripts.official_contract_semantics.models import OfficialContractObservation, observation_from_mapping
 from scripts.official_contract_semantics.persist import append_observations
 from scripts.official_contract_semantics.reconcile import reconcile
@@ -116,6 +116,32 @@ def cmd_export_publication(args: argparse.Namespace) -> int:
     return _print(document)
 
 
+def cmd_official_live_handoff(args: argparse.Namespace) -> int:
+    from pathlib import Path as PathType
+
+    from scripts.historical_contract_authority.official_live import run_official_live_handoff
+
+    result = run_official_live_handoff(
+        output=PathType(args.output) if args.output else None,
+        dsn=args.dsn,
+        limit=args.limit,
+        start_date=args.start_date,
+        end_date=args.end_date,
+        cache_dir=PathType(args.cache_dir) if args.cache_dir else None,
+        fetch_pages=not args.skip_pages,
+        as_of=args.as_of,
+    )
+    printable = {
+        "status": result["status"],
+        "output": result["output"],
+        "ready": [item["analysis_id"] for item in result["ready"]],
+        "replay_command": result["replay_command"],
+        "live": result["live"],
+        "window": default_live_window(start=args.start_date, end=args.end_date, as_of=args.as_of),
+    }
+    return _print(printable)
+
+
 def cmd_live(args: argparse.Namespace) -> int:
     manifest = run_live_readonly(
         dsn=args.dsn,
@@ -124,6 +150,8 @@ def cmd_live(args: argparse.Namespace) -> int:
         cache_dir=args.cache_dir,
         fetch_pages=not args.skip_pages,
         as_of=args.as_of,
+        start_date=args.start_date,
+        end_date=args.end_date,
     )
     printable = {key: value for key, value in manifest.items() if key != "observations"}
     printable["observation_ids"] = [item["observation_id"] for item in manifest.get("observations") or []]
@@ -203,8 +231,21 @@ def build_parser() -> argparse.ArgumentParser:
     live.add_argument("--out")
     live.add_argument("--cache-dir", dest="cache_dir")
     live.add_argument("--as-of", dest="as_of")
+    live.add_argument("--start-date", dest="start_date")
+    live.add_argument("--end-date", dest="end_date")
     live.add_argument("--skip-pages", action="store_true")
     live.set_defaults(func=cmd_live)
+
+    handoff = sub.add_parser("official-live-handoff")
+    handoff.add_argument("--dsn")
+    handoff.add_argument("--limit", type=int, default=DEFAULT_LIVE_LIMIT)
+    handoff.add_argument("--output")
+    handoff.add_argument("--cache-dir", dest="cache_dir")
+    handoff.add_argument("--as-of", dest="as_of")
+    handoff.add_argument("--start-date", dest="start_date")
+    handoff.add_argument("--end-date", dest="end_date")
+    handoff.add_argument("--skip-pages", action="store_true")
+    handoff.set_defaults(func=cmd_official_live_handoff)
 
     pipeline = sub.add_parser("pipeline")
     pipeline.add_argument("--input", nargs="+", required=True)

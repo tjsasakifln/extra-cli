@@ -39,6 +39,7 @@ from scripts.official_contract_semantics.models import (
     OfficialContractObservation,
     SourceUnavailability,
 )
+from scripts.official_contract_semantics.serialize import semantic_payload
 from scripts.official_contract_semantics.validate import ObservationValidationError, validate_mapping
 
 VALUE_FIELD_TO_SEMANTIC = {
@@ -204,7 +205,9 @@ def draft_from_record(raw: dict[str, Any], *, default_source: str = "fixture") -
     document_sha = _text(raw.get("source_document_sha256") or raw.get("sha256"))
     if document_sha is None:
         document_sha = raw_record_hash_for(document_text)
-    raw_hash = _text(raw.get("raw_record_hash")) or raw_record_hash_for(raw)
+    raw_hash = _text(raw.get("raw_record_hash")) or raw_record_hash_for(
+        semantic_payload(raw) if isinstance(raw, dict) else raw
+    )
     amendment_type = _text(raw.get("amendment_type"))
     if not amendment_type:
         if raw.get("amendment_value_delta") not in {None, ""} and raw.get("amendment_term_delta") not in {None, ""}:
@@ -218,8 +221,12 @@ def draft_from_record(raw: dict[str, Any], *, default_source: str = "fixture") -
         **dict(raw.get("extra") or {}),
         **{key: raw[key] for key in ("uf", "municipio") if raw.get(key)},
     }
-    orgao_raw = _raw_identifier(raw.get("contracting_entity_identifier") or raw.get("orgao_cnpj") or raw.get("orgao_id"))
-    supplier_raw = _raw_identifier(raw.get("supplier_identifier") or raw.get("fornecedor_cnpj") or raw.get("fornecedor_id"))
+    orgao_raw = _raw_identifier(
+        raw.get("contracting_entity_identifier") or raw.get("orgao_cnpj") or raw.get("orgao_id")
+    )
+    supplier_raw = _raw_identifier(
+        raw.get("supplier_identifier") or raw.get("fornecedor_cnpj") or raw.get("fornecedor_id")
+    )
     if identifier_is_masked(orgao_raw):
         extra["contracting_entity_identifier_raw"] = orgao_raw
         extra["contracting_entity_identifier_masked"] = True
@@ -275,6 +282,11 @@ def draft_from_record(raw: dict[str, Any], *, default_source: str = "fixture") -
         ),
         "observed_at": observed_at,
         "effective_at": effective_at,
+        "event_effective_at": _text(raw.get("event_effective_at")) or effective_at,
+        "source_published_at": _text(raw.get("source_published_at")) or observed_at,
+        "retrieved_at": _text(raw.get("retrieved_at")),
+        "verified_at": _text(raw.get("verified_at")),
+        "source_as_of": _text(raw.get("source_as_of")),
         "extractor_version": EXTRACTOR_VERSION,
         "locator": locator,
         "evidence_excerpt": clip_excerpt(excerpt_source),
@@ -404,14 +416,18 @@ def extract_record(raw: dict[str, Any], *, default_source: str = "fixture") -> E
         except ValueError as exc:
             rejections.append(
                 ExtractionRejection(
-                    code=REASON_CONFLICTING_VALUE_FIELDS if str(exc) == REASON_CONFLICTING_VALUE_FIELDS else REASON_PARSER_ERROR,
+                    code=REASON_CONFLICTING_VALUE_FIELDS
+                    if str(exc) == REASON_CONFLICTING_VALUE_FIELDS
+                    else REASON_PARSER_ERROR,
                     message=str(exc),
                     source_document_id=_text(raw.get("source_document_id") or raw.get("document_id")),
                     official_url=_text(raw.get("official_url") or raw.get("url")),
                 )
             )
     return ExtractResult(
-        observations=tuple(sorted({item.observation_id: item for item in observations}.values(), key=lambda item: item.observation_id)),
+        observations=tuple(
+            sorted({item.observation_id: item for item in observations}.values(), key=lambda item: item.observation_id)
+        ),
         rejections=tuple(rejections),
         document_errors=(),
     )

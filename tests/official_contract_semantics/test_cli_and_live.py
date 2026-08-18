@@ -34,6 +34,38 @@ def test_cli_extract_validate_reconcile(tmp_path: Path) -> None:
     assert reconciled["observations"][0]["status"] == "observed"
 
 
+def test_http_429_retries_and_is_not_cached(tmp_path: Path) -> None:
+    hits = {"n": 0}
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_GET(self) -> None:  # noqa: N802
+            hits["n"] += 1
+            if hits["n"] == 1:
+                self.send_response(429)
+                self.end_headers()
+                self.wfile.write(b"slow down")
+                return
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b'{"data":[]}')
+
+        def log_message(self, format: str, *args: object) -> None:  # noqa: A003
+            return
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+    thread = Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        url = f"http://127.0.0.1:{server.server_address[1]}/contratos"
+        result = fetch_official(url, retries=2, rate_limit_s=0, cache_dir=tmp_path / "cache", sleeper=lambda _s: None)
+    finally:
+        server.shutdown()
+        server.server_close()
+    assert result.ok is True
+    assert hits["n"] == 2
+    assert result.body is not None
+
+
 def test_http_404_is_unavailability_not_absence() -> None:
     class Handler(BaseHTTPRequestHandler):
         def do_GET(self) -> None:  # noqa: N802
@@ -113,9 +145,12 @@ def test_live_manifest_hash_matches_final_bytes_and_replay_argv(tmp_path: Path, 
     )
     assert "live-manifest.json" not in on_disk["artifact_sha256"]
     assert returned["manifest_file_sha256"] == hashlib.sha256(final).hexdigest()
+    from scripts.official_contract_semantics.live import default_live_window
+
+    window_start, window_end = default_live_window(as_of="2026-08-17")
     assert on_disk["replay_command"] == (
         "python3 -m scripts.official_contract_semantics live-readonly "
-        "--limit 2 --as-of 2026-08-17 "
+        f"--limit 2 --as-of 2026-08-17 --start-date {window_start} --end-date {window_end} "
         f"--skip-pages --cache-dir {cache} --out {out}"
     )
     assert on_disk["commands"] == [on_disk["replay_command"]]

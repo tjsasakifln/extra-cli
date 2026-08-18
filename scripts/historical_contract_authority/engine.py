@@ -9,6 +9,7 @@ from typing import Any
 from scripts.historical_contract_authority.acquire import attach_portal_locators, collect_documents
 from scripts.historical_contract_authority.adapters import compare_via_415
 from scripts.historical_contract_authority.extract import assemble_from_documents
+from scripts.historical_contract_authority.freshness import dossier_freshness
 from scripts.historical_contract_authority.gates import (
     admit,
     build_score,
@@ -373,17 +374,27 @@ def build_dossier(
         maintenance=maintenance,
         score=score,
         as_of=stamp,
-        freshness={
-            "as_of": stamp,
-            "max_age_hours": 48,
-            "policy": "authority-freshness/1.0",
-            "source_as_of": (working.get("dates") or {}).get("reference"),
-        },
+        freshness=dossier_freshness(
+            as_of=stamp,
+            event_effective_at=(working.get("dates") or {}).get("reference")
+            or (working.get("dates") or {}).get("assinatura"),
+            source_published_at=(working.get("dates") or {}).get("published_at")
+            or (working.get("dates") or {}).get("observed_at"),
+            retrieved_at=next((item.retrieved_at for item in documents if item.retrieved_at), None),
+            verified_at=next((item.verified_at for item in documents if item.verified_at), None),
+            source_as_of=(working.get("dates") or {}).get("source_as_of"),
+            bytes_obtained=any(item.bytes_len > 0 or item.text.strip() for item in documents),
+        ),
         source_snapshot_hash=snap,
         producer_sha=producer_sha(),
         catalog_mode=str(working.get("catalog_mode") or "fixture"),
         limitations=limitations,
         content_hash="",
+        analysis_mode=str(working.get("analysis_mode") or "DOCUMENT_CHAIN"),
+        official_live=False,
+        publication_authorization=False,
+        index_authorization=False,
+        commercial_relationship_claim=False,
     )
     return dossier
 

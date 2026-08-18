@@ -64,6 +64,9 @@ class DocumentRecord:
     superseded_by: str | None = None
     http_status: int | None = None
     redirect_chain: tuple[str, ...] = ()
+    retrieved_at: str | None = None
+    verified_at: str | None = None
+    source_as_of: str | None = None
     text: str = ""
 
     def as_dict(self) -> dict[str, Any]:
@@ -226,6 +229,11 @@ class Dossier:
     catalog_mode: str
     limitations: tuple[str, ...]
     content_hash: str
+    analysis_mode: str = "DOCUMENT_CHAIN"
+    official_live: bool = False
+    publication_authorization: bool = False
+    index_authorization: bool = False
+    commercial_relationship_claim: bool = False
 
     def as_dict(self) -> dict[str, Any]:
         payload = {
@@ -249,6 +257,11 @@ class Dossier:
             "producer_sha": self.producer_sha,
             "catalog_mode": self.catalog_mode,
             "limitations": list(self.limitations),
+            "analysis_mode": self.analysis_mode,
+            "official_live": self.official_live,
+            "publication_authorization": self.publication_authorization,
+            "index_authorization": self.index_authorization,
+            "commercial_relationship_claim": self.commercial_relationship_claim,
         }
         payload["content_hash"] = content_hash(payload)
         return jsonable(payload)
