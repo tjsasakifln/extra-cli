@@ -124,6 +124,81 @@ def _select_rows(dsn: str, limit: int) -> tuple[list[dict[str, Any]] | None, Sou
         )
 
 
+def records_from_consulta_listing(
+    *,
+    listing_url: str,
+    listing_body: str,
+    listing_sha256: str,
+    retrieved_at: str,
+    limit: int,
+) -> tuple[list[dict[str, Any]], list[SourceUnavailability], bool]:
+    """Bind each record to the listing URL whose bytes produced listing_sha256.
+
+    The HTML portal (/app/contratos/...) is kept as portal_url only. It must never
+    inherit the consulta listing hash. The bool is True when the listing page had items.
+    """
+    try:
+        payload = __import__("json").loads(listing_body)
+    except ValueError as exc:
+        return [], [SourceUnavailability(official_url=listing_url, error_kind="parser_error", message=str(exc))], False
+    data = payload.get("data") if isinstance(payload, dict) else payload
+    if not isinstance(data, list):
+        return (
+            [],
+            [SourceUnavailability(official_url=listing_url, error_kind="unexpected_shape", message="data_not_list")],
+            False,
+        )
+    records: list[dict[str, Any]] = []
+    for index, item in enumerate(data):
+        if not isinstance(item, dict):
+            continue
+        contrato_id = str(
+            item.get("numeroControlePncp") or item.get("numeroControlePNCP") or item.get("numeroContratoEmpenho") or ""
+        )
+        unidade = item.get("unidadeOrgao") if isinstance(item.get("unidadeOrgao"), dict) else {}
+        uf = str(item.get("uf") or item.get("siglaUf") or unidade.get("ufSigla") or unidade.get("uf") or "")
+        if uf.upper() not in {"SC", "SANTA CATARINA"}:
+            continue
+        portal_url = PNCP_CONTRACT_URL.format(contrato_id=contrato_id) if contrato_id else None
+        records.append(
+            {
+                "source_system": "pncp",
+                "source_kind": "contract",
+                "official_url": listing_url,
+                "source_document_id": contrato_id or None,
+                "contract_identifier": contrato_id or None,
+                "contracting_entity_identifier": (
+                    item.get("cnpjOrgao") or (item.get("orgaoEntidade") or {}).get("cnpj")
+                    if isinstance(item.get("orgaoEntidade"), dict)
+                    else item.get("cnpjOrgao")
+                ),
+                "supplier_identifier": item.get("niFornecedor")
+                or ((item.get("fornecedor") or {}).get("ni") if isinstance(item.get("fornecedor"), dict) else None),
+                "object_text": item.get("objetoContrato") or item.get("objeto"),
+                "valor_global": item.get("valorGlobal") or item.get("valorInicial"),
+                "period_start": item.get("dataVigenciaInicio"),
+                "period_end": item.get("dataVigenciaFim"),
+                "effective_at": item.get("dataAssinatura"),
+                "observed_at": item.get("dataPublicacaoPncp"),
+                "event_effective_at": item.get("dataAssinatura"),
+                "source_published_at": item.get("dataPublicacaoPncp"),
+                "retrieved_at": retrieved_at,
+                "verified_at": retrieved_at,
+                "source_document_sha256": listing_sha256,
+                "locator": {"json_path": f"$.data[{index}].objetoContrato"},
+                "extra": {
+                    "uf": "SC",
+                    "municipio": item.get("nomeUnidade") or unidade.get("municipioNome") or item.get("municipio"),
+                    "portal_url": portal_url,
+                    "listing_index": index,
+                },
+            }
+        )
+        if len(records) >= limit:
+            break
+    return records, [], bool(data)
+
+
 def _api_records(
     limit: int,
     cache_dir: Path | None,
@@ -143,72 +218,25 @@ def _api_records(
             f"&pagina={page}&tamanhoPagina=10"
         )
         fetched = fetch_official(url, cache_dir=cache_dir)
-        if not fetched.ok or not fetched.body:
+        if not fetched.ok or not fetched.body or not fetched.sha256:
             errors.append(
                 fetched.unavailability
                 or SourceUnavailability(official_url=url, error_kind="unavailable", message="empty_body")
             )
             break
-        try:
-            payload = __import__("json").loads(fetched.body)
-        except ValueError as exc:
-            errors.append(SourceUnavailability(official_url=url, error_kind="parser_error", message=str(exc)))
+        page_rows, page_errors, saw_items = records_from_consulta_listing(
+            listing_url=url,
+            listing_body=fetched.body,
+            listing_sha256=fetched.sha256,
+            retrieved_at=retrieved_at,
+            limit=limit - len(records),
+        )
+        errors.extend(page_errors)
+        if page_errors and not page_rows:
             break
-        data = payload.get("data") if isinstance(payload, dict) else payload
-        if not isinstance(data, list):
-            errors.append(
-                SourceUnavailability(official_url=url, error_kind="unexpected_shape", message="data_not_list")
-            )
+        records.extend(page_rows)
+        if not saw_items or len(records) >= limit:
             break
-        if not data:
-            break
-        for item in data:
-            if not isinstance(item, dict):
-                continue
-            contrato_id = str(
-                item.get("numeroControlePncp")
-                or item.get("numeroControlePNCP")
-                or item.get("numeroContratoEmpenho")
-                or ""
-            )
-            unidade = item.get("unidadeOrgao") if isinstance(item.get("unidadeOrgao"), dict) else {}
-            uf = str(item.get("uf") or item.get("siglaUf") or unidade.get("ufSigla") or unidade.get("uf") or "")
-            if uf.upper() not in {"SC", "SANTA CATARINA"}:
-                continue
-            records.append(
-                {
-                    "source_system": "pncp",
-                    "source_kind": "contract",
-                    "official_url": PNCP_CONTRACT_URL.format(contrato_id=contrato_id) if contrato_id else url,
-                    "source_document_id": contrato_id or None,
-                    "contract_identifier": contrato_id or None,
-                    "contracting_entity_identifier": (
-                        item.get("cnpjOrgao") or (item.get("orgaoEntidade") or {}).get("cnpj")
-                        if isinstance(item.get("orgaoEntidade"), dict)
-                        else item.get("cnpjOrgao")
-                    ),
-                    "supplier_identifier": item.get("niFornecedor")
-                    or ((item.get("fornecedor") or {}).get("ni") if isinstance(item.get("fornecedor"), dict) else None),
-                    "object_text": item.get("objetoContrato") or item.get("objeto"),
-                    "valor_global": item.get("valorGlobal") or item.get("valorInicial"),
-                    "period_start": item.get("dataVigenciaInicio"),
-                    "period_end": item.get("dataVigenciaFim"),
-                    "effective_at": item.get("dataAssinatura"),
-                    "observed_at": item.get("dataPublicacaoPncp"),
-                    "event_effective_at": item.get("dataAssinatura"),
-                    "source_published_at": item.get("dataPublicacaoPncp"),
-                    "retrieved_at": retrieved_at,
-                    "verified_at": retrieved_at,
-                    "source_document_sha256": fetched.sha256,
-                    "locator": {"json_path": "$.objetoContrato"},
-                    "extra": {
-                        "uf": "SC",
-                        "municipio": item.get("nomeUnidade") or unidade.get("municipioNome") or item.get("municipio"),
-                    },
-                }
-            )
-            if len(records) >= limit:
-                break
         page += 1
     return records, errors
 
@@ -299,20 +327,27 @@ def run_live_readonly(
             record["extra"] = {"uf": row.get("uf"), "municipio": row.get("municipio")}
         record.setdefault("event_effective_at", record.get("effective_at"))
         record.setdefault("source_published_at", record.get("observed_at"))
-        extract_inputs.append({**record, **(record.get("extra") or {})})
-        url = record.get("official_url")
-        if fetch_pages and url:
-            fetched = fetch_official(str(url), cache_dir=cache)
+        extra = dict(record.get("extra") or {})
+        extract_inputs.append({**record, **extra})
+        portal_url = extra.get("portal_url")
+        if fetch_pages and portal_url:
+            fetched = fetch_official(str(portal_url), cache_dir=cache)
             if fetched.ok and fetched.body:
                 obtained += 1
                 page_identity = {
-                    **record,
+                    "source_system": record.get("source_system"),
                     "source_kind": "official_page",
+                    "official_url": portal_url,
                     "source_document_id": f"{record.get('source_document_id')}:page",
                     "source_document_sha256": fetched.sha256,
+                    "contract_identifier": record.get("contract_identifier"),
+                    "contracting_entity_identifier": record.get("contracting_entity_identifier"),
+                    "supplier_identifier": record.get("supplier_identifier"),
                     "retrieved_at": started,
                     "verified_at": started,
+                    "locator": {"section": "official-page"},
                     "html": fetched.body,
+                    "extra": extra,
                 }
                 page_result = extract_record(page_identity)
                 observations.extend(page_result.observations)
@@ -320,11 +355,13 @@ def run_live_readonly(
             else:
                 failed.append(
                     (
-                        fetched.unavailability or SourceUnavailability(official_url=str(url), error_kind="unavailable")
+                        fetched.unavailability
+                        or SourceUnavailability(official_url=str(portal_url), error_kind="unavailable")
                     ).as_dict()
                 )
                 unavailabilities.append(
-                    fetched.unavailability or SourceUnavailability(official_url=str(url), error_kind="unavailable")
+                    fetched.unavailability
+                    or SourceUnavailability(official_url=str(portal_url), error_kind="unavailable")
                 )
 
     row_result = extract_payload(extract_inputs)
