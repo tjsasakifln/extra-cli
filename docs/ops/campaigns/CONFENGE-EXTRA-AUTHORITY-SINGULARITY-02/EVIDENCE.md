@@ -25,11 +25,12 @@ SC cohort first: 80 SC listings in the 30-day window were scanned. 0 entered as 
 
 ## Singularity
 
-Primary contract PDF (`/arquivos/1`, sha256 `64a238e6094f4d093f1ee970820fd277bcd34a66457d776a59225219b8e77604`) documents:
+Primary contract PDF (`/arquivos/1`, sha256 `64a238e6094f4d093f1ee970820fd277bcd34a66457d776a59225219b8e77604`) documents, quoted from the retrieved page text:
 
-- cláusula 12.2: reajuste após interregno de um ano, contado da data do orçamento a que a proposta se referir (páginas 14–15);
-- critério de reajuste em caso de atraso atribuível à contratada (página 15);
-- menção a medição de serviços (página 46).
+- cláusula 12.3: o índice de reajuste é o **Índice Nacional da Construção Civil – Coluna 35**, publicado pela Fundação Getúlio Vargas (página 14);
+- cláusula 12.2: reajuste após interregno de um ano, contado da data do orçamento a que a proposta se referir.
+
+The insight and PDF FACTs quote those strings. They do **not** name DNIT or reequilíbrio (those words are absent from this PDF).
 
 `/termos` for this contract returned HTTP 204 (empty). That is recorded as `not_found` on that URL, not as “there are no terms in the world”.
 
@@ -50,9 +51,9 @@ This is a unit price derived from published global value and published area. It 
 | Field | Value |
 |---|---|
 | `analysis_id` | `13ec615146b3d348190a9b0b9148831e` |
-| producer_commit | `c01e98f385ca5005e8ed77469d59b398dfb8bf0e` |
-| dossier `content_hash` | `faa83b82fb2ab7efa982a8caeb19f1d6ac50fbc42fa0ce87a7cf2399337cef0f` |
-| `READY.json` `root_content_hash` | `cca597f20bb5512b77cf611f60f3481cb81e89876794a0a730944808d37e0132` |
+| producer_commit | `7958f2048b36299d6f89f80faa3b4f208a7dbc63` |
+| dossier `content_hash` | `ee6e40fd903453438d3b6b9121dd1e8cba3877ac00bc32e7c845435022cb37b1` |
+| `READY.json` `root_content_hash` | `47a18e666040551f124b1edaa267bbb033878b68cf7925584b9529ac9297bd5a` |
 | manifest `content_hash` | see live rendezvous `manifest.json` (clocks excluded from `content_hash`) |
 | listing sha256 | `1ffbc82f73f8eca8eeac0b0ddc22860b2b3f261dba39191b7e77b87b8cde33ee` |
 | PDF sha256 | `64a238e6094f4d093f1ee970820fd277bcd34a66457d776a59225219b8e77604` |
@@ -69,10 +70,10 @@ Every FACT was checked with shipped `verify_claim_url_hash`: sha256 equals bytes
 
 ```
 python3 -m pytest tests/historical_contract_authority/ tests/official_contract_semantics/ -o addopts= -q
-# 108 passed
+# 109 passed
 ```
 
-New/updated gates: locação de veículos discarded; generic purchase discarded; `mão de obra` alone is not AEC; SPA cannot inherit listing sha256; READY requires located FACTs + singular insight; READY xor BLOCKED; two canaries share identity/hash; apostilamento gestor/fiscal is not insight; PDF reajuste page is material; Brazilian `4.710,00 m²` ratio.
+New/updated gates: locação de veículos discarded; generic purchase discarded; `mão de obra` alone is not AEC; SPA cannot inherit listing sha256; READY requires located FACTs + singular insight; READY xor BLOCKED; two canaries share identity/hash; apostilamento gestor/fiscal is not insight; PDF reajuste page is material; Brazilian `4.710,00 m²` ratio; FGV Coluna 35 page text does not invent DNIT or reequilíbrio; process_document FACTs are `fact-indice`/`fact-reajuste`/`fact-data_base`, not `Objeto oficial`.
 
 ## Rendezvous (outside git)
 
