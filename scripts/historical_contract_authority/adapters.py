@@ -176,6 +176,7 @@ def to_public_read(dossier: dict[str, Any]) -> dict[str, Any]:
             "data_ready_is_not_index_permission": True,
             "no_index_authorization": True,
             "no_publication_authorization": True,
+            "not_publication_value_score": True,
         },
         "data_state": data_state,
         "data_state_facts": {"dossier_state": state, "data_ready_is_not_index_permission": True},

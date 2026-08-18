@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+import shutil
 from pathlib import Path
 from typing import Any
 
@@ -18,6 +20,39 @@ from scripts.historical_contract_authority.schema import (
     producer_sha,
     sha256_bytes,
 )
+
+_HANDOFF_LEAVES = (
+    "dossiers",
+    "public-read",
+    "source-claim-matrix",
+    "editorial-briefs",
+    "manifest.json",
+    "status.json",
+    "lineage.json",
+    "SHA256SUMS",
+)
+
+
+def refuse_catalog_mode_collision(root: Path, catalog_mode: str) -> None:
+    manifest = root / "manifest.json"
+    if not manifest.is_file():
+        return
+    try:
+        existing = json.loads(manifest.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return
+    previous = existing.get("catalog_mode")
+    if previous and previous != catalog_mode:
+        raise ValueError(f"handoff_catalog_mode_collision:{previous}->{catalog_mode}")
+
+
+def reset_handoff_root(root: Path) -> None:
+    for name in _HANDOFF_LEAVES:
+        path = root / name
+        if path.is_file():
+            path.unlink()
+        elif path.is_dir():
+            shutil.rmtree(path)
 
 
 def _write(path: Path, payload: Any) -> None:
@@ -105,6 +140,8 @@ def write_handoff(
 ) -> dict[str, Any]:
     root = output_dir or HANDOFF_DIR
     root.mkdir(parents=True, exist_ok=True)
+    refuse_catalog_mode_collision(root, catalog_mode)
+    reset_handoff_root(root)
     exported = select_for_handoff(dossiers)
     for dossier in exported:
         dossier_id = str(dossier["dossier_id"])

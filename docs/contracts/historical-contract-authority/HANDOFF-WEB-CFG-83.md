@@ -53,6 +53,14 @@ Two launches on the same snapshot produce identical `SHA256SUMS`.
 
 `fetch_official_sc_snapshot` was invoked. Result: `source_kind=blocked`, `reason_codes=["dsn_connect_failed"]`, `error_class=OperationalError`, `official_live=false`, `HANDOFF_READY=0`. Gate was not lowered.
 
+## Consumer verification
+
+1. Read `manifest.json` `schema` = `authority-handoff-contract-analysis/1.0` and `version` = `1.0`. Other versions are incompatible — fail closed.
+2. Accept a dossier only when `state=HANDOFF_READY`, `catalog_mode=fixture|official_projection`, and `official_live` is absent or false unless a later contract says otherwise. Fixture `HANDOFF_READY` is not official-live evidence.
+3. Public-read `data_state=DATA_READY` is not index or publication permission. `candidate_score.schema` is `dossier-authority-score/1.0`, not `publication-value-score/1.0`. Do not run `#400` `evaluate_readiness` on this pack expecting a publication score — that path must fail closed.
+4. Confirm `no_index_authorization` and `no_publication_authorization` remain true. Refuse any `PUBLISHABLE_*` or `INDEX`.
+5. Verify `SHA256SUMS` against file bytes before ingest.
+
 ## Limitations
 
 - Fixture handoff is not official-live and does not authorize publication or indexation.
@@ -60,3 +68,4 @@ Two launches on the same snapshot produce identical `SHA256SUMS`.
 - Outlier is a statistical difference, not irregularity.
 - No article, CTA, brand or SEO copy is produced.
 - Engines #414 / #415 / #400 are imported, not rewritten.
+- `--mode live` must use an isolated `--output`; it refuses to overwrite this fixture export.
