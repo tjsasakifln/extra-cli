@@ -50,9 +50,10 @@ This is a unit price derived from published global value and published area. It 
 | Field | Value |
 |---|---|
 | `analysis_id` | `13ec615146b3d348190a9b0b9148831e` |
-| dossier `content_hash` | `2c58e7f2ed2626dbd297c48ee6fb88e3afcf61b81d15119de165f9886797575f` |
-| `READY.json` `root_content_hash` | `8eb6a00aa9d1c7c159bea57e25c7c687e428f587f075be6db86bf630e7f1430e` |
-| manifest `content_hash` | `f8d4f9dec7f801cd653e49c540b6f783bb79a7862e62b613a29a196d6dfda314` |
+| producer_commit | `c01e98f385ca5005e8ed77469d59b398dfb8bf0e` |
+| dossier `content_hash` | `faa83b82fb2ab7efa982a8caeb19f1d6ac50fbc42fa0ce87a7cf2399337cef0f` |
+| `READY.json` `root_content_hash` | `cca597f20bb5512b77cf611f60f3481cb81e89876794a0a730944808d37e0132` |
+| manifest `content_hash` | see live rendezvous `manifest.json` (clocks excluded from `content_hash`) |
 | listing sha256 | `1ffbc82f73f8eca8eeac0b0ddc22860b2b3f261dba39191b7e77b87b8cde33ee` |
 | PDF sha256 | `64a238e6094f4d093f1ee970820fd277bcd34a66457d776a59225219b8e77604` |
 
