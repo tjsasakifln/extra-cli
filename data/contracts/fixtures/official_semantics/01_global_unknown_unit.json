@@ -1,0 +1,21 @@
+{
+  "source_system": "pncp",
+  "source_kind": "contract",
+  "official_url": "https://pncp.gov.br/app/contratos/83102277000152-1-000001/2025",
+  "source_document_id": "doc-global-unknown-unit",
+  "contract_identifier": "83102277000152-1-000001/2025",
+  "process_identifier": "001/2025",
+  "contracting_entity_identifier": "83102277000152",
+  "supplier_identifier": "11222333000181",
+  "object_text": "Pavimentação asfáltica em CBUQ — contrato global sem itens discriminados",
+  "valor_global": "750000.00",
+  "currency": "BRL",
+  "period_start": "2025-02-01",
+  "period_end": "2026-02-01",
+  "effective_at": "2025-01-15",
+  "observed_at": "2025-01-20",
+  "execution_regime": "empreitada_global",
+  "procurement_modality": "pregao_eletronico",
+  "uf": "SC",
+  "municipio": "Florianopolis"
+}

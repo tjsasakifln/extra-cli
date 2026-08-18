@@ -1,0 +1,41 @@
+{
+  "records": [
+    {
+      "source_system": "pncp",
+      "source_kind": "contract",
+      "official_url": "https://pncp.gov.br/app/contratos/83102277000152-1-000007/2025?rev=1",
+      "source_document_id": "doc-supersede-old",
+      "contract_identifier": "83102277000152-1-000007/2025",
+      "contracting_entity_identifier": "83102277000152",
+      "supplier_identifier": "66777888000136",
+      "object_text": "Contrato original — versão publicada e posteriormente retificada",
+      "valor_contratado": "610000.00",
+      "currency": "BRL",
+      "period_start": "2025-06-01",
+      "period_end": "2026-06-01",
+      "execution_regime": "empreitada_global",
+      "procurement_modality": "pregao_eletronico",
+      "uf": "SC",
+      "municipio": "Sao Jose"
+    },
+    {
+      "source_system": "pncp",
+      "source_kind": "contract",
+      "official_url": "https://pncp.gov.br/app/contratos/83102277000152-1-000007/2025?rev=2",
+      "source_document_id": "doc-supersede-new",
+      "supersedes_document_id": "doc-supersede-old",
+      "contract_identifier": "83102277000152-1-000007/2025",
+      "contracting_entity_identifier": "83102277000152",
+      "supplier_identifier": "66777888000136",
+      "object_text": "Contrato retificado — substitui expressamente a versão anterior",
+      "valor_contratado": "640000.00",
+      "currency": "BRL",
+      "period_start": "2025-06-01",
+      "period_end": "2026-06-01",
+      "execution_regime": "empreitada_global",
+      "procurement_modality": "pregao_eletronico",
+      "uf": "SC",
+      "municipio": "Sao Jose"
+    }
+  ]
+}

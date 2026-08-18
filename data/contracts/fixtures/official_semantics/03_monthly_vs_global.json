@@ -1,0 +1,40 @@
+{
+  "records": [
+    {
+      "source_system": "pncp",
+      "source_kind": "contract",
+      "official_url": "https://pncp.gov.br/app/contratos/83102277000152-1-000003/2025",
+      "source_document_id": "doc-monthly-value",
+      "contract_identifier": "83102277000152-1-000003/2025",
+      "contracting_entity_identifier": "83102277000152",
+      "supplier_identifier": "22333444000172",
+      "object_text": "Serviço contínuo de conservação de vias urbanas",
+      "valor_mensal": "45000.00",
+      "currency": "BRL",
+      "period_start": "2025-01-01",
+      "period_end": "2025-12-31",
+      "execution_regime": "empreitada_global",
+      "procurement_modality": "pregao_eletronico",
+      "uf": "SC",
+      "municipio": "Palhoca"
+    },
+    {
+      "source_system": "pncp",
+      "source_kind": "contract",
+      "official_url": "https://pncp.gov.br/app/contratos/83102277000152-1-000003/2025",
+      "source_document_id": "doc-global-value",
+      "contract_identifier": "83102277000152-1-000003/2025",
+      "contracting_entity_identifier": "83102277000152",
+      "supplier_identifier": "22333444000172",
+      "object_text": "Serviço contínuo de conservação de vias urbanas",
+      "valor_global": "540000.00",
+      "currency": "BRL",
+      "period_start": "2025-01-01",
+      "period_end": "2025-12-31",
+      "execution_regime": "empreitada_global",
+      "procurement_modality": "pregao_eletronico",
+      "uf": "SC",
+      "municipio": "Palhoca"
+    }
+  ]
+}

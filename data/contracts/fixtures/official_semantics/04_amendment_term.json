@@ -1,0 +1,20 @@
+{
+  "source_system": "pncp",
+  "source_kind": "amendment",
+  "official_url": "https://pncp.gov.br/app/contratos/83102277000152-1-000004/2025/aditivos/1",
+  "source_document_id": "doc-aditivo-prazo-01",
+  "contract_identifier": "83102277000152-1-000004/2025",
+  "process_identifier": "004/2025",
+  "contracting_entity_identifier": "83102277000152",
+  "supplier_identifier": "33444555000163",
+  "object_text": "1º Termo Aditivo — prorrogação de prazo",
+  "amendment_type": "prazo",
+  "amendment_term_delta": "P180D",
+  "period_start": "2026-02-01",
+  "period_end": "2026-07-31",
+  "effective_at": "2026-01-20",
+  "observed_at": "2026-01-21",
+  "evidence_excerpt": "Aditivo de prazo: 180 dias",
+  "uf": "SC",
+  "municipio": "Biguaçu"
+}

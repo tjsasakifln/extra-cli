@@ -1,0 +1,14 @@
+{
+  "source_system": "pncp",
+  "source_kind": "contract",
+  "official_url": "https://pncp.gov.br/app/contratos/83102277000152-1-000013/2025",
+  "source_document_id": "doc-absence-inference",
+  "contract_identifier": "83102277000152-1-000013/2025",
+  "contracting_entity_identifier": "83102277000152",
+  "object_text": "Contrato sem aditivo publicado",
+  "valor_global": "300000.00",
+  "currency": "BRL",
+  "infer_from_absence": true,
+  "assume_missing_if_unpublished": true,
+  "amendment_presumed": true
+}
