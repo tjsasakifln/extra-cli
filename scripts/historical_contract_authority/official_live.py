@@ -6,6 +6,7 @@ import json
 import os
 import re
 import shutil
+from dataclasses import replace
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
@@ -35,7 +36,7 @@ from scripts.official_contract_semantics.live import (
     resolve_dsn,
     run_live_readonly,
 )
-from scripts.official_contract_semantics.models import OfficialContractObservation, observation_from_mapping
+from scripts.official_contract_semantics.models import Locator, OfficialContractObservation, observation_from_mapping
 
 OFFICIAL_LIVE_HANDOFF_SCHEMA = "official-live-authority-handoff/1.1"
 MAX_LIVE_CANDIDATES = 20
@@ -376,9 +377,7 @@ def _insight_for(items: list[OfficialContractObservation], facts: list[dict[str,
                 by_kind[kind] = excerpt
             elif kind == "indice" and _indice_excerpt_score(excerpt) > _indice_excerpt_score(current):
                 by_kind[kind] = excerpt
-        quoted = " ".join(
-            excerpt for kind in ("indice", "reajuste", "data_base") if (excerpt := by_kind.get(kind))
-        )
+        quoted = " ".join(excerpt for kind in ("indice", "reajuste", "data_base") if (excerpt := by_kind.get(kind)))
         if not quoted:
             quoted = excerpts[0][1]
         return (
@@ -547,7 +546,11 @@ def _analysis_sections(
             "timeline": timeline,
         },
         "worth_checking": (
-            [f"Conferir o teor integral do termo em {item.official_url}" for item in items if item.source_kind == "amendment"]
+            [
+                f"Conferir o teor integral do termo em {item.official_url}"
+                for item in items
+                if item.source_kind == "amendment"
+            ]
             or ["Nenhum termo primário para conferência nesta execução."]
         ),
         "limitations": [
@@ -616,7 +619,11 @@ def _amendment_type_from_term(item: dict[str, Any]) -> str | None:
 
 def term_is_material(item: dict[str, Any]) -> bool:
     """Apostilamento de gestor/fiscal or a zero-delta empty term is not a singularity."""
-    if item.get("qualificacaoAcrescimoSupressao") or item.get("qualificacaoVigencia") or item.get("qualificacaoReajuste"):
+    if (
+        item.get("qualificacaoAcrescimoSupressao")
+        or item.get("qualificacaoVigencia")
+        or item.get("qualificacaoReajuste")
+    ):
         return True
     prazo = item.get("prazoAditadoDias")
     if prazo not in {None, "", 0, 0.0, "0", "0.0"}:
@@ -689,6 +696,66 @@ def termos_to_records(
             }
         )
     return records
+
+
+def deepen_one_contract_detail(
+    grouped: dict[str, list[OfficialContractObservation]],
+    contract_id: str,
+    *,
+    cache_dir: Path | None,
+    retrieved_at: str,
+    artifact_budget: dict[str, int],
+) -> dict[str, Any]:
+    """Rebind listing FACTs to the contract-specific PNCP detail URL.
+
+    Consulta pagination pages share ~175k contracts and change between fetches.
+    READY listing FACTs must verify from this contract's own official bytes.
+    """
+    if artifact_budget["used"] >= artifact_budget["max"]:
+        return {"contract_id": contract_id, "error_kind": "artifact_budget_exhausted", "recorded_as": "unavailable"}
+    urls = pncp_contract_urls(contract_id)
+    if not urls:
+        return {"contract_id": contract_id, "error_kind": "contrato_id_unparseable", "recorded_as": "unavailable"}
+    fetched = fetch_official(urls["detail"], cache_dir=cache_dir)
+    artifact_budget["used"] += 1
+    if not fetched.ok or not fetched.body or not fetched.sha256:
+        unav = fetched.unavailability
+        payload = unav.as_dict() if unav is not None else {"error_kind": "unavailable"}
+        payload["contract_id"] = contract_id
+        payload["official_url"] = urls["detail"]
+        payload.setdefault("recorded_as", "unavailable")
+        return payload
+    rebound: list[OfficialContractObservation] = []
+    replaced = 0
+    for item in grouped.get(contract_id, []):
+        if item.source_kind != "contract":
+            rebound.append(item)
+            continue
+        extra = dict(item.extra or {})
+        extra.pop("listing_index", None)
+        extra["discovery_listing_url"] = item.official_url
+        extra["detail_url"] = urls["detail"]
+        rebound.append(
+            replace(
+                item,
+                official_url=urls["detail"],
+                source_document_sha256=fetched.sha256,
+                raw_record_hash=fetched.sha256,
+                retrieved_at=retrieved_at,
+                verified_at=retrieved_at,
+                extra=extra,
+                locator=Locator(json_path="$.objetoContrato"),
+            )
+        )
+        replaced += 1
+    grouped[contract_id] = rebound
+    return {
+        "contract_id": contract_id,
+        "official_url": urls["detail"],
+        "error_kind": None,
+        "sha256": fetched.sha256,
+        "rebound": replaced,
+    }
 
 
 def deepen_one_contract_terms(
@@ -876,7 +943,12 @@ def deepen_one_contract_pdf(
     if error or not raw or not digest:
         return error or {"contract_id": contract_id, "official_url": pdf_url, "error_kind": "unavailable"}
     if raw[:4] != b"%PDF":
-        return {"contract_id": contract_id, "official_url": pdf_url, "error_kind": "not_found", "recorded_as": "not_found"}
+        return {
+            "contract_id": contract_id,
+            "official_url": pdf_url,
+            "error_kind": "not_found",
+            "recorded_as": "not_found",
+        }
     base = next((item for item in grouped.get(contract_id, []) if item.source_kind != "official_page"), None)
     records = pdf_clause_records(
         contract_id=contract_id,
@@ -1013,7 +1085,9 @@ def dossier_from_group(
         "sources": sections["sources"],
         "prohibited_conclusions": sections["cannot_conclude"],
     }
-    payload["content_hash"] = content_hash(strip_temporal_for_hash({k: v for k, v in payload.items() if k != "content_hash"}))
+    payload["content_hash"] = content_hash(
+        strip_temporal_for_hash({k: v for k, v in payload.items() if k != "content_hash"})
+    )
     return payload
 
 
@@ -1236,9 +1310,7 @@ def run_official_live_handoff(
         national_chosen, national_log = select_candidates(national_grouped, limit=bounded)
         for item in national_log:
             item["geography"] = item.get("geography") or "BR"
-        candidate_log.extend(
-            [{**item, "reason": f"sc_exhausted:{item.get('reason')}"} for item in national_log]
-        )
+        candidate_log.extend([{**item, "reason": f"sc_exhausted:{item.get('reason')}"} for item in national_log])
         if national_chosen:
             grouped.update(national_grouped)
             chosen = national_chosen
@@ -1269,6 +1341,15 @@ def run_official_live_handoff(
     deepen_log: list[dict[str, Any]] = []
     dossiers: list[dict[str, Any]] = []
     for contract_id in chosen:
+        deepen_log.append(
+            deepen_one_contract_detail(
+                grouped,
+                contract_id,
+                cache_dir=cache_dir,
+                retrieved_at=retrieved_at,
+                artifact_budget=artifact_budget,
+            )
+        )
         deepen_log.append(
             deepen_one_contract_terms(
                 grouped,
@@ -1338,7 +1419,9 @@ def run_official_live_handoff(
                 "primary_artifacts": MAX_PRIMARY_ARTIFACTS,
             },
         },
-        "smallest_next_verifiable_step": _default_next_step(candidate_log=candidate_log, live_meta={"deepen": deepen_log, "dsn_present": bool(resolve_dsn(dsn))}),
+        "smallest_next_verifiable_step": _default_next_step(
+            candidate_log=candidate_log, live_meta={"deepen": deepen_log, "dsn_present": bool(resolve_dsn(dsn))}
+        ),
     }
     files = build_rendezvous_files(
         dossiers,
