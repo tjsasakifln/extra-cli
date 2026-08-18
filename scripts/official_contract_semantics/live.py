@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import os
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -45,6 +45,36 @@ SC_TOKENS = ("%paviment%", "%recapeamento%", "%cbuq%", "%asfalt%", "%microrevest
 
 def _now() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def default_live_window(
+    *,
+    start: str | None = None,
+    end: str | None = None,
+    as_of: str | None = None,
+    days: int = 30,
+) -> tuple[str, str]:
+    """Current configurable window. Never depends on a hardcoded campaign date."""
+    if start and end:
+        return start[:10], end[:10]
+    if as_of:
+        try:
+            end_dt = datetime.fromisoformat(as_of.replace("Z", "+00:00")).date()
+        except ValueError:
+            end_dt = datetime.now(UTC).date()
+    else:
+        end_dt = datetime.now(UTC).date()
+    start_dt = end_dt - timedelta(days=max(1, days))
+    if start:
+        return start[:10], end_dt.isoformat()
+    if end:
+        end_dt = datetime.fromisoformat(end[:10]).date()
+        start_dt = end_dt - timedelta(days=max(1, days))
+    return start_dt.isoformat(), end_dt.isoformat()
+
+
+def pncp_ymd(iso_date: str) -> str:
+    return iso_date.replace("-", "")[:8]
 
 
 def resolve_dsn(explicit: str | None = None) -> str | None:
@@ -94,60 +124,93 @@ def _select_rows(dsn: str, limit: int) -> tuple[list[dict[str, Any]] | None, Sou
         )
 
 
-def _api_records(limit: int, cache_dir: Path | None) -> tuple[list[dict[str, Any]], list[SourceUnavailability]]:
-    url = PNCP_API_URL.format(start="20260701", end="20260707")
-    fetched = fetch_official(url, cache_dir=cache_dir)
-    if not fetched.ok or not fetched.body:
-        return [], [fetched.unavailability] if fetched.unavailability else [
-            SourceUnavailability(official_url=url, error_kind="unavailable", message="empty_body")
-        ]
-    try:
-        payload = __import__("json").loads(fetched.body)
-    except ValueError as exc:
-        return [], [SourceUnavailability(official_url=url, error_kind="parser_error", message=str(exc))]
-    data = payload.get("data") if isinstance(payload, dict) else payload
-    if not isinstance(data, list):
-        return [], [SourceUnavailability(official_url=url, error_kind="unexpected_shape", message="data_not_list")]
+def _api_records(
+    limit: int,
+    cache_dir: Path | None,
+    *,
+    start: str,
+    end: str,
+    retrieved_at: str,
+) -> tuple[list[dict[str, Any]], list[SourceUnavailability]]:
     records: list[dict[str, Any]] = []
-    for item in data:
-        if not isinstance(item, dict):
-            continue
-        contrato_id = str(
-            item.get("numeroControlePncp") or item.get("numeroControlePNCP") or item.get("numeroContratoEmpenho") or ""
+    errors: list[SourceUnavailability] = []
+    page = 1
+    max_pages = 3
+    while len(records) < limit and page <= max_pages:
+        url = (
+            "https://pncp.gov.br/api/consulta/v1/contratos"
+            f"?dataInicial={pncp_ymd(start)}&dataFinal={pncp_ymd(end)}"
+            f"&pagina={page}&tamanhoPagina=10"
         )
-        unidade = item.get("unidadeOrgao") if isinstance(item.get("unidadeOrgao"), dict) else {}
-        uf = str(item.get("uf") or item.get("siglaUf") or unidade.get("ufSigla") or unidade.get("uf") or "")
-        if uf.upper() not in {"SC", "SANTA CATARINA"}:
-            continue
-        records.append(
-            {
-                "source_system": "pncp",
-                "source_kind": "contract",
-                "official_url": PNCP_CONTRACT_URL.format(contrato_id=contrato_id) if contrato_id else url,
-                "source_document_id": contrato_id or None,
-                "contract_identifier": contrato_id or None,
-                "contracting_entity_identifier": (
-                    item.get("cnpjOrgao") or (item.get("orgaoEntidade") or {}).get("cnpj")
-                    if isinstance(item.get("orgaoEntidade"), dict)
-                    else item.get("cnpjOrgao")
-                ),
-                "supplier_identifier": item.get("niFornecedor")
-                or ((item.get("fornecedor") or {}).get("ni") if isinstance(item.get("fornecedor"), dict) else None),
-                "object_text": item.get("objetoContrato") or item.get("objeto"),
-                "valor_global": item.get("valorGlobal") or item.get("valorInicial"),
-                "period_start": item.get("dataVigenciaInicio"),
-                "period_end": item.get("dataVigenciaFim"),
-                "effective_at": item.get("dataAssinatura"),
-                "observed_at": item.get("dataPublicacaoPncp"),
-                "extra": {
-                    "uf": "SC",
-                    "municipio": item.get("nomeUnidade") or unidade.get("municipioNome") or item.get("municipio"),
-                },
-            }
-        )
-        if len(records) >= limit:
+        fetched = fetch_official(url, cache_dir=cache_dir)
+        if not fetched.ok or not fetched.body:
+            errors.append(
+                fetched.unavailability
+                or SourceUnavailability(official_url=url, error_kind="unavailable", message="empty_body")
+            )
             break
-    return records, []
+        try:
+            payload = __import__("json").loads(fetched.body)
+        except ValueError as exc:
+            errors.append(SourceUnavailability(official_url=url, error_kind="parser_error", message=str(exc)))
+            break
+        data = payload.get("data") if isinstance(payload, dict) else payload
+        if not isinstance(data, list):
+            errors.append(
+                SourceUnavailability(official_url=url, error_kind="unexpected_shape", message="data_not_list")
+            )
+            break
+        if not data:
+            break
+        for item in data:
+            if not isinstance(item, dict):
+                continue
+            contrato_id = str(
+                item.get("numeroControlePncp")
+                or item.get("numeroControlePNCP")
+                or item.get("numeroContratoEmpenho")
+                or ""
+            )
+            unidade = item.get("unidadeOrgao") if isinstance(item.get("unidadeOrgao"), dict) else {}
+            uf = str(item.get("uf") or item.get("siglaUf") or unidade.get("ufSigla") or unidade.get("uf") or "")
+            if uf.upper() not in {"SC", "SANTA CATARINA"}:
+                continue
+            records.append(
+                {
+                    "source_system": "pncp",
+                    "source_kind": "contract",
+                    "official_url": PNCP_CONTRACT_URL.format(contrato_id=contrato_id) if contrato_id else url,
+                    "source_document_id": contrato_id or None,
+                    "contract_identifier": contrato_id or None,
+                    "contracting_entity_identifier": (
+                        item.get("cnpjOrgao") or (item.get("orgaoEntidade") or {}).get("cnpj")
+                        if isinstance(item.get("orgaoEntidade"), dict)
+                        else item.get("cnpjOrgao")
+                    ),
+                    "supplier_identifier": item.get("niFornecedor")
+                    or ((item.get("fornecedor") or {}).get("ni") if isinstance(item.get("fornecedor"), dict) else None),
+                    "object_text": item.get("objetoContrato") or item.get("objeto"),
+                    "valor_global": item.get("valorGlobal") or item.get("valorInicial"),
+                    "period_start": item.get("dataVigenciaInicio"),
+                    "period_end": item.get("dataVigenciaFim"),
+                    "effective_at": item.get("dataAssinatura"),
+                    "observed_at": item.get("dataPublicacaoPncp"),
+                    "event_effective_at": item.get("dataAssinatura"),
+                    "source_published_at": item.get("dataPublicacaoPncp"),
+                    "retrieved_at": retrieved_at,
+                    "verified_at": retrieved_at,
+                    "source_document_sha256": fetched.sha256,
+                    "locator": {"json_path": "$.objetoContrato"},
+                    "extra": {
+                        "uf": "SC",
+                        "municipio": item.get("nomeUnidade") or unidade.get("municipioNome") or item.get("municipio"),
+                    },
+                }
+            )
+            if len(records) >= limit:
+                break
+        page += 1
+    return records, errors
 
 
 def build_replay_command(
@@ -157,12 +220,18 @@ def build_replay_command(
     out_dir: str | Path | None = None,
     cache_dir: str | Path | None = None,
     fetch_pages: bool = True,
+    start_date: str | None = None,
+    end_date: str | None = None,
 ) -> str:
     parts = [
         "python3 -m scripts.official_contract_semantics live-readonly",
         f"--limit {int(limit)}",
         f"--as-of {as_of}",
     ]
+    if start_date:
+        parts.append(f"--start-date {start_date}")
+    if end_date:
+        parts.append(f"--end-date {end_date}")
     if not fetch_pages:
         parts.append("--skip-pages")
     if cache_dir is not None:
@@ -180,10 +249,13 @@ def run_live_readonly(
     cache_dir: str | Path | None = None,
     fetch_pages: bool = True,
     as_of: str | None = None,
+    start_date: str | None = None,
+    end_date: str | None = None,
 ) -> dict[str, Any]:
     bounded = max(1, min(int(limit), MAX_LIVE_LIMIT))
     started = _now()
     stamp = as_of or started
+    window_start, window_end = default_live_window(start=start_date, end=end_date, as_of=stamp)
     cache = Path(cache_dir) if cache_dir else None
     considered = 0
     obtained = 0
@@ -213,10 +285,11 @@ def run_live_readonly(
 
     if not rows:
         sources_used.append("pncp_consulta_api")
-        api_rows, api_errors = _api_records(bounded, cache)
+        api_rows, api_errors = _api_records(bounded, cache, start=window_start, end=window_end, retrieved_at=started)
         unavailabilities.extend(api_errors)
         failed.extend(item.as_dict() for item in api_errors)
         rows = api_rows
+        obtained += sum(1 for item in api_rows if item.get("source_document_sha256"))
 
     considered = len(rows)
     extract_inputs: list[dict[str, Any]] = []
@@ -224,6 +297,8 @@ def run_live_readonly(
         record = _row_to_record(row) if "contrato_id" in row else row
         if record.get("extra") is None and row.get("uf"):
             record["extra"] = {"uf": row.get("uf"), "municipio": row.get("municipio")}
+        record.setdefault("event_effective_at", record.get("effective_at"))
+        record.setdefault("source_published_at", record.get("observed_at"))
         extract_inputs.append({**record, **(record.get("extra") or {})})
         url = record.get("official_url")
         if fetch_pages and url:
@@ -235,6 +310,8 @@ def run_live_readonly(
                     "source_kind": "official_page",
                     "source_document_id": f"{record.get('source_document_id')}:page",
                     "source_document_sha256": fetched.sha256,
+                    "retrieved_at": started,
+                    "verified_at": started,
                     "html": fetched.body,
                 }
                 page_result = extract_record(page_identity)
@@ -249,8 +326,6 @@ def run_live_readonly(
                 unavailabilities.append(
                     fetched.unavailability or SourceUnavailability(official_url=str(url), error_kind="unavailable")
                 )
-        else:
-            obtained += 1
 
     row_result = extract_payload(extract_inputs)
     observations.extend(row_result.observations)
@@ -263,6 +338,8 @@ def run_live_readonly(
         out_dir=out_dir,
         cache_dir=cache_dir,
         fetch_pages=fetch_pages,
+        start_date=window_start,
+        end_date=window_end,
     )
     artifact_sha256: dict[str, str] = {}
     if out_dir is not None:
@@ -271,13 +348,13 @@ def run_live_readonly(
             out / "live-observations.jsonl", [item.as_dict() for item in reconciled]
         )
     manifest: dict[str, Any] = {
-        "schema": "official-contract-semantics-live-manifest/1.0",
+        "schema": "official-contract-semantics-live-manifest/1.1",
         "live_version": LIVE_VERSION,
         "user_agent": USER_AGENT,
         "started_at": started,
         "finished_at": _now(),
         "as_of": stamp,
-        "period": {"start": "2026-07-01", "end": "2026-07-07", "uf": "SC"},
+        "period": {"start": window_start, "end": window_end, "uf": "SC"},
         "limit": bounded,
         "sources": sources_used,
         "commands": [replay],
@@ -291,6 +368,7 @@ def run_live_readonly(
         "production_write": False,
         "backfill": False,
         "inferred_from_absence": False,
+        "official_live": obtained > 0,
         "note": "unavailability is recorded as unavailability, never as absence of a fact",
         "artifact_sha256": artifact_sha256,
     }

@@ -142,6 +142,9 @@ def fetch_official(
                 http_status=int(exc.code),
                 message=str(exc.reason),
             )
+            if int(exc.code) == 429:
+                _sleep(rate_limit_s * (attempt + 2), sleeper)
+                continue
             if int(exc.code) < 500:
                 break
         except urllib.error.URLError as exc:
@@ -162,5 +165,7 @@ def fetch_official(
         sha256=None,
         unavailability=last_error,
     )
-    _store_cache(cache_dir, failure)
+    transient = last_error is not None and last_error.http_status in {429, 500, 502, 503, 504}
+    if not transient:
+        _store_cache(cache_dir, failure)
     return failure

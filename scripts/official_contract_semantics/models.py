@@ -90,6 +90,11 @@ class OfficialContractObservation:
     field_epistemics: dict[str, str] = field(default_factory=dict)
     derivation_method: str | None = None
     extra: dict[str, Any] = field(default_factory=dict)
+    event_effective_at: str | None = None
+    source_published_at: str | None = None
+    retrieved_at: str | None = None
+    verified_at: str | None = None
+    source_as_of: str | None = None
 
     def as_dict(self) -> dict[str, Any]:
         payload: dict[str, Any] = {}
@@ -107,6 +112,8 @@ class OfficialContractObservation:
     def semantic_dict(self) -> dict[str, Any]:
         payload = self.as_dict()
         payload.pop("extracted_at", None)
+        payload.pop("retrieved_at", None)
+        payload.pop("verified_at", None)
         return payload
 
 
@@ -231,7 +238,9 @@ def observation_from_mapping(raw: dict[str, Any]) -> OfficialContractObservation
         _check_enum(epistemic, EPISTEMIC_CLASSES, "epistemic_class")
     field_epistemics = dict(raw.get("field_epistemics") or {})
     for field_name, field_class in field_epistemics.items():
-        _check_enum(str(field_class), (*FIELD_EPISTEMIC_CLASSES, *SEARCH_EPISTEMIC_CLASSES), f"field_epistemic:{field_name}")
+        _check_enum(
+            str(field_class), (*FIELD_EPISTEMIC_CLASSES, *SEARCH_EPISTEMIC_CLASSES), f"field_epistemic:{field_name}"
+        )
     from scripts.official_contract_semantics.identity import parse_optional_decimal
 
     return OfficialContractObservation(
@@ -279,4 +288,9 @@ def observation_from_mapping(raw: dict[str, Any]) -> OfficialContractObservation
         field_epistemics=field_epistemics,
         derivation_method=raw.get("derivation_method"),
         extra=dict(raw.get("extra") or {}),
+        event_effective_at=raw.get("event_effective_at") or raw.get("effective_at"),
+        source_published_at=raw.get("source_published_at") or raw.get("observed_at"),
+        retrieved_at=raw.get("retrieved_at"),
+        verified_at=raw.get("verified_at"),
+        source_as_of=raw.get("source_as_of"),
     )
