@@ -52,9 +52,19 @@ def test_cli_fixture_two_launches_same_hashes(tmp_path: Path) -> None:
     assert 0 <= ready <= 5
     status = json.loads((first / "status.json").read_text(encoding="utf-8"))
     assert status["no_index_authorization"] is True
+    assert manifest["catalog_mode"] == "fixture"
+    assert status["catalog_mode"] == "fixture"
+    assert manifest.get("official_live") is not True
+    assert (status.get("live") or {}).get("official_live") is not True
     blob = (first / "manifest.json").read_text(encoding="utf-8") + (first / "status.json").read_text(encoding="utf-8")
     assert "PUBLISHABLE" not in blob
     assert "INDEX" not in blob
+    for name in left:
+        if name.startswith("dossiers/"):
+            payload = json.loads((first / name).read_text(encoding="utf-8"))
+            assert payload["catalog_mode"] == "fixture"
+            assert payload.get("official_live") is not True
+            assert payload["state"] == "HANDOFF_READY"
 
 
 def test_write_handoff_exports_only_ready(tmp_path: Path) -> None:
@@ -77,3 +87,65 @@ def test_write_handoff_exports_only_ready(tmp_path: Path) -> None:
         public = json.loads((tmp_path / "public-read" / path.name).read_text(encoding="utf-8"))
         assert public["data_state"] == "DATA_READY"
         assert public["safety_flags"]["no_index_authorization"] is True
+        assert public["catalog_mode"] == "fixture"
+        assert public["safety_flags"]["not_publication_value_score"] is True
+
+
+def test_unique_question_exports_one_clone(tmp_path: Path) -> None:
+    dossiers = process_cases(fixture_corpus(), as_of="2026-08-17T12:00:00Z", snapshot_hash="snap-dedup")
+    ready = [item for item in dossiers if item.get("state") == "HANDOFF_READY"]
+    questions = {str((item.get("editorial") or {}).get("central_question") or item.get("dossier_id")) for item in ready}
+    assert len(ready) > 1
+    assert len(questions) < len(ready)
+    write_handoff(
+        dossiers,
+        output_dir=tmp_path,
+        as_of="2026-08-17T12:00:00Z",
+        snapshot_hash="snap-dedup",
+        replay_command="replay",
+        catalog_mode="fixture",
+    )
+    exported = list((tmp_path / "dossiers").glob("*.json"))
+    assert len(exported) == 1
+
+
+def test_write_handoff_drops_stale_dossiers(tmp_path: Path) -> None:
+    stale = tmp_path / "dossiers" / "stale-id.json"
+    stale.parent.mkdir(parents=True)
+    stale.write_text('{"state":"HANDOFF_READY","dossier_id":"stale-id"}\n', encoding="utf-8")
+    dossiers = process_cases([case_handoff_ready()], as_of="2026-08-17T12:00:00Z", snapshot_hash="snap-clean")
+    write_handoff(
+        dossiers,
+        output_dir=tmp_path,
+        as_of="2026-08-17T12:00:00Z",
+        snapshot_hash="snap-clean",
+        replay_command="replay",
+        catalog_mode="fixture",
+    )
+    names = {path.name for path in (tmp_path / "dossiers").glob("*.json")}
+    assert "stale-id.json" not in names
+    sums = (tmp_path / "SHA256SUMS").read_text(encoding="utf-8")
+    assert "stale-id" not in sums
+
+
+def test_write_handoff_refuses_catalog_mode_collision(tmp_path: Path) -> None:
+    dossiers = process_cases([case_handoff_ready()], as_of="2026-08-17T12:00:00Z", snapshot_hash="snap-col")
+    write_handoff(
+        dossiers,
+        output_dir=tmp_path,
+        as_of="2026-08-17T12:00:00Z",
+        snapshot_hash="snap-col",
+        replay_command="replay",
+        catalog_mode="fixture",
+    )
+    import pytest
+
+    with pytest.raises(ValueError, match="handoff_catalog_mode_collision"):
+        write_handoff(
+            [],
+            output_dir=tmp_path,
+            as_of="2026-08-17T12:00:00Z",
+            snapshot_hash="snap-col",
+            replay_command="replay",
+            catalog_mode="official_projection",
+        )

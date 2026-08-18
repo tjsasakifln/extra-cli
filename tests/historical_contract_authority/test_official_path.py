@@ -111,7 +111,68 @@ def test_fetch_and_assemble_from_official_docs(tmp_path: Path) -> None:
     assert any(item.kind == "amendment_term" for item in dossier.chronology)
     assert dossier.editorial.central_question
     assert "what is the contract value?" not in dossier.editorial.central_question.lower()
-    assert dossier.state != "REJECT"
+    assert dossier.state == "HOLD_FOR_DATA"
+    assert dossier.catalog_mode == "official_projection"
+    assert dossier.state != "HANDOFF_READY"
+
+
+def test_klass_without_supporting_text_does_not_invent_fact() -> None:
+    case = record_to_case(_snapshot_row())
+    case["documents"] = [
+        {
+            "document_id": "empty-adt",
+            "class": "amendment_term",
+            "family": "amendment",
+            "url": "https://pncp.gov.br/app/contratos/empty-adt",
+            "locator": {"page": "1", "section": "art.1"},
+            "text": "Documento administrativo sem mencao a prazo ou valor.",
+        },
+        {
+            "document_id": "inst-plain",
+            "class": "instrument",
+            "family": "instrument",
+            "url": "https://pncp.gov.br/app/contratos/inst-plain",
+            "locator": {"page": "1", "section": "cl.1"},
+            "text": "Contrato de pavimentacao asfaltica. Assinatura registrada.",
+        },
+    ]
+    dossier = build_dossier(case, as_of="2026-08-17T12:00:00Z", fetch=False, snapshot_hash="snap-klass")
+    assert not any(item.claim_id.startswith("fact-prazo") for item in dossier.claims)
+    assert not any(item.kind == "amendment_term" for item in dossier.chronology)
+    assert dossier.state != "HANDOFF_READY"
+
+
+def test_run_live_missing_dsn_is_unavailable_not_success(tmp_path: Path, monkeypatch) -> None:
+    from scripts.historical_contract_authority.cli import run_live
+
+    monkeypatch.delenv("LOCAL_DATALAKE_DSN", raising=False)
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    result = run_live(
+        output=tmp_path,
+        dsn=None,
+        limit=2,
+        as_of="2026-08-17T12:00:00Z",
+    )
+    live = result["live"]
+    assert live["official_live"] is False
+    assert live["source_kind"] == "blocked"
+    assert "dsn_absent" in live["reason_codes"]
+    assert result["handoff"]["status"]["handoff_ready_count"] == 0
+    assert result["handoff"]["status"]["catalog_mode"] == "official_unavailable"
+    assert result["handoff"]["manifest"]["catalog_mode"] == "official_unavailable"
+    assert all(item.get("catalog_mode") != "fixture" for item in result["dossiers"])
+    assert not (tmp_path / "dossiers").exists() or not list((tmp_path / "dossiers").glob("*.json"))
+
+
+def test_run_live_refuses_committed_fixture_dir() -> None:
+    import pytest
+
+    from scripts.historical_contract_authority.cli import LIVE_OVERWRITE_FIXTURE, main, run_live
+    from scripts.historical_contract_authority.schema import HANDOFF_DIR
+
+    with pytest.raises(ValueError, match=LIVE_OVERWRITE_FIXTURE):
+        run_live(output=HANDOFF_DIR, dsn="postgresql://invalid:invalid@127.0.0.1:1/nope", limit=1)
+    assert main(["--mode", "live", "--limit", "1"]) == 2
 
 
 def test_handoff_ready_official_refs_use_real_sha256() -> None:

@@ -21,6 +21,13 @@ from scripts.historical_contract_authority.schema import (
     producer_sha,
 )
 
+LIVE_OVERWRITE_FIXTURE = "live_output_must_not_overwrite_fixture_handoff"
+
+
+def refuse_live_fixture_overwrite(output: Path) -> None:
+    if output.resolve() == HANDOFF_DIR.resolve():
+        raise ValueError(LIVE_OVERWRITE_FIXTURE)
+
 
 def _stamp() -> str:
     from datetime import UTC, datetime
@@ -96,7 +103,17 @@ def run_fixture(*, output: Path, as_of: str | None = None) -> dict[str, Any]:
     return {"dossiers": dossiers, "handoff": written, "snapshot_hash": snap, "as_of": stamp}
 
 
+def _live_catalog_mode(snapshot: dict[str, Any]) -> str:
+    snap_mode = str(snapshot.get("catalog_mode") or "")
+    if snap_mode == "official_unavailable" or snapshot.get("source_kind") == "blocked":
+        return "official_unavailable"
+    if snapshot.get("live_select_executed") and snapshot.get("records"):
+        return "official_projection"
+    return snap_mode or "official_unavailable"
+
+
 def run_live(*, output: Path, dsn: str | None, limit: int, as_of: str | None = None) -> dict[str, Any]:
+    refuse_live_fixture_overwrite(output)
     stamp = as_of or _stamp()
     started = time.perf_counter()
     snapshot = fetch_official_sc_snapshot(resolve_dsn(dsn), limit=limit, as_of=stamp)
@@ -108,6 +125,8 @@ def run_live(*, output: Path, dsn: str | None, limit: int, as_of: str | None = N
         "geography": snapshot.get("geography"),
         "live_select_executed": snapshot.get("live_select_executed"),
         "official_live": False,
+        "error_class": snapshot.get("error_class"),
+        "catalog_mode": snapshot.get("catalog_mode"),
     }
     records = list(snapshot.get("records") or [])
     cases = [record_to_case(record) for record in records]
@@ -134,14 +153,14 @@ def run_live(*, output: Path, dsn: str | None, limit: int, as_of: str | None = N
         "deepened": len(deepen),
         "note": "bounded_fetch_on_shortlist",
     }
-    replay = "python3 -m scripts.historical_contract_authority --mode live --limit 40"
+    replay = "python3 -m scripts.historical_contract_authority --mode live --limit 40 --output <isolated-dir>"
     written = write_handoff(
         dossiers,
         output_dir=output,
         as_of=stamp,
         snapshot_hash=snap,
         replay_command=replay,
-        catalog_mode="official_projection",
+        catalog_mode=_live_catalog_mode(snapshot),
         live_meta=live_meta,
     )
     return {
@@ -174,7 +193,13 @@ def main(argv: list[str] | None = None) -> int:
         sys.stdout.write(canonical_dumps(dossier) + "\n")
         return 0
     if args.mode == "live":
-        result = run_live(output=args.output, dsn=args.dsn, limit=args.limit, as_of=args.as_of)
+        try:
+            result = run_live(output=args.output, dsn=args.dsn, limit=args.limit, as_of=args.as_of)
+        except ValueError as exc:
+            if str(exc) == LIVE_OVERWRITE_FIXTURE:
+                sys.stderr.write(f"{LIVE_OVERWRITE_FIXTURE}: use --output to an isolated directory\n")
+                return 2
+            raise
     else:
         result = run_fixture(output=args.output, as_of=args.as_of)
     summary = {

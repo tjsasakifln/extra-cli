@@ -63,7 +63,7 @@ def assemble_from_documents(documents: tuple[DocumentRecord, ...], case: dict[st
                     publication_fit="internal",
                 )
             )
-        if _ADT_PRAZO.search(text) or doc.klass == "amendment_term":
+        if _ADT_PRAZO.search(text):
             found_prazo = True
             days = _DAYS.search(text)
             events.append(
@@ -88,7 +88,7 @@ def assemble_from_documents(documents: tuple[DocumentRecord, ...], case: dict[st
                     publication_fit="internal",
                 )
             )
-        if _ADT_VALOR.search(text) or doc.klass == "amendment_value":
+        if _ADT_VALOR.search(text):
             found_valor_adt = True
             events.append(
                 TimelineEvent(
@@ -112,7 +112,7 @@ def assemble_from_documents(documents: tuple[DocumentRecord, ...], case: dict[st
                     publication_fit="internal",
                 )
             )
-        if _ESCOPO.search(text) or doc.klass == "amendment_scope":
+        if _ESCOPO.search(text):
             found_escopo = True
             events.append(
                 TimelineEvent(
