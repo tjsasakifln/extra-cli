@@ -20,6 +20,8 @@ from scripts.historical_contract_authority.schema import (
     sha256_text,
 )
 from scripts.official_contract_semantics.export_publication import observation_to_snapshot_record
+from scripts.official_contract_semantics.http_client import fetch_official
+from scripts.official_contract_semantics.identity import raw_record_hash_for
 from scripts.official_contract_semantics.live import (
     default_live_window,
     resolve_dsn,
@@ -159,10 +161,14 @@ def _claims_from_observations(
     unknowns: list[dict[str, Any]] = []
     inferences: list[dict[str, Any]] = []
     for item in items:
+        if item.source_kind == "official_page":
+            continue
         artifact = artifact_by_doc.get(str(item.source_document_id or item.observation_id)) or {}
         url = item.official_url or artifact.get("url")
         digest = item.source_document_sha256 or artifact.get("sha256")
-        locator = _locator_for(item)
+        listing_index = (item.extra or {}).get("listing_index")
+        prefix = f"$.data[{listing_index}]" if listing_index is not None else "$"
+        locator = item.locator.as_dict() or {"json_path": f"{prefix}.objetoContrato"}
         evidence_id = str(item.source_document_id or item.contract_identifier or item.observation_id)
         stable = str(item.contract_identifier or evidence_id).replace("/", "-")
         base = {
@@ -179,7 +185,7 @@ def _claims_from_observations(
                     "claim_id": f"fact-object-{stable}",
                     "class": "FACT",
                     "text": f"Objeto oficial: {item.object_text[:240]}",
-                    "locator": {"json_path": "$.objetoContrato"},
+                    "locator": {"json_path": f"{prefix}.objetoContrato"},
                 }
             )
         if item.value_amount is not None and item.value_semantic:
@@ -189,7 +195,7 @@ def _claims_from_observations(
                     "claim_id": f"fact-value-{stable}",
                     "class": "FACT",
                     "text": f"Valor {item.value_semantic} publicado: {format(item.value_amount, 'f')} {item.currency or 'BRL'}.",
-                    "locator": {"json_path": "$.valorGlobal"},
+                    "locator": {"json_path": f"{prefix}.valorGlobal"},
                 }
             )
         if item.period_start or item.period_end:
@@ -199,7 +205,7 @@ def _claims_from_observations(
                     "claim_id": f"fact-period-{stable}",
                     "class": "FACT",
                     "text": f"Vigência oficial {item.period_start or 'UNKNOWN'} a {item.period_end or 'UNKNOWN'}.",
-                    "locator": {"json_path": "$.dataVigenciaInicio"},
+                    "locator": {"json_path": f"{prefix}.dataVigenciaInicio"},
                 }
             )
         if item.amendment_type:
@@ -275,6 +281,22 @@ def _insight_for(items: list[OfficialContractObservation], facts: list[dict[str,
     return ""
 
 
+def claim_bound_to_retrieved_bytes(claim: dict[str, Any], body: bytes) -> bool:
+    """True only when claim.sha256 is the hash of the bytes retrieved from claim.url."""
+    digest = str(claim.get("sha256") or "")
+    return bool(digest) and digest == raw_record_hash_for(body)
+
+
+def verify_claim_url_hash(*, claim: dict[str, Any], cache_dir: Path | None = None) -> bool:
+    url = claim.get("url")
+    if not url:
+        return False
+    fetched = fetch_official(str(url), cache_dir=cache_dir, retries=0, rate_limit_s=0)
+    if not fetched.ok or not fetched.sha256:
+        return False
+    return fetched.sha256 == str(claim.get("sha256") or "")
+
+
 def _artifact(
     obs: OfficialContractObservation, *, retrieved_at: str | None, verified_at: str | None
 ) -> dict[str, Any] | None:
@@ -308,7 +330,7 @@ def dossier_from_group(
     disposition: str,
     disposition_reason: str,
 ) -> dict[str, Any]:
-    first = items[0]
+    first = next((item for item in items if item.source_kind != "official_page"), items[0])
     artifacts = [
         item for item in (_artifact(obs, retrieved_at=retrieved_at, verified_at=verified_at) for obs in items) if item
     ]
@@ -330,7 +352,15 @@ def dossier_from_group(
         "uf": (first.extra or {}).get("uf"),
         "municipio": (first.extra or {}).get("municipio"),
         "source_system": first.source_system,
-        "official_urls": sorted({item.official_url for item in items if item.official_url}),
+        "official_urls": sorted(
+            {
+                *(item.official_url for item in items if item.official_url),
+                *((item.extra or {}).get("portal_url") for item in items if (item.extra or {}).get("portal_url")),
+            }
+        ),
+        "evidence_urls": sorted(
+            {item.official_url for item in items if item.official_url and item.source_kind != "official_page"}
+        ),
         "event_effective_at": first.effective_at,
         "source_published_at": first.observed_at,
     }

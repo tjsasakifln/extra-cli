@@ -38,10 +38,10 @@ Status: **BLOCKED** (not READY).
 - Window: 2026-07-18 .. 2026-08-17, UF SC, limit 12
 - Documents considered: 1; obtained: 2 (listing + page)
 - Partial dossier: `242dc2e35e5523e01f64a57cb3058b35` `DATA_HOLD`
-- Contract observed: PNCP `08184785000101-2-000459/2026` (GLP / registro de preços, Joinville)
+- Contract actually written: PNCP `15537199000169-2-000008/2026` (locação de veículos, Itajaí). An earlier canary saw GLP Joinville `08184785000101-2-000459/2026`; that is **not** the rendezvous dossier.
 - Reason codes: `HOLD_FOR_DATA`, `missing_singular_insight`
 - `publication_authorization=false`, `index_authorization=false`, `production_write=false`, `backfill=false`
-- Two canaries: same `BLOCKED` status, same dossier content hash `8054ea40c0b84ca40f51021793f29ff4ae42b48851a8a7e7625177eb72b2ba13`
+- Two canaries after the insight tighten: same `BLOCKED` status and the same dossier id `242dc2e35e5523e01f64a57cb3058b35`
 
 Rendezvous (atomic, outside git):
 
@@ -57,6 +57,8 @@ Contains `BLOCKED.json`, `manifest.json`, `dossiers/<id>.json` (DATA_HOLD), `SHA
 
 ## Residual
 
-The bounded official window verified one SC contract. It has official identity, value and term, but no documentary singularity (aditivo, reajuste, reequilíbrio, prazo material, BDI, medição/glosa). That is not HANDOFF_READY.
+The bounded official window verified one SC contract (`15537199000169-2-000008/2026`, locação de veículos em Itajaí). It has official identity, value and term, but no documentary singularity (aditivo, reajuste, reequilíbrio, prazo material, BDI, medição/glosa). That is not HANDOFF_READY.
+
+FACT claims must cite the consulta listing URL whose bytes produced the sha256, never the `/app/contratos` HTML shell.
 
 Smallest next verifiable step: rerun the same official-live entry on a window that actually contains those documentary families, or with DSN already present. Do not fabricate READY.

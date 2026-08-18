@@ -312,3 +312,96 @@ def test_no_production_write_and_no_backfill_flags() -> None:
     assert manifest["backfill"] is False
     assert manifest["publication_authorization"] is False
     assert manifest["index_authorization"] is False
+
+
+def test_claim_sha256_equals_hash_of_bytes_fetched_from_claim_url() -> None:
+    """Drive the shipped listing assembler. Fail if claim.hash is not the cited URL body."""
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from threading import Thread
+
+    from scripts.historical_contract_authority.official_live import (
+        dossier_from_group,
+        verify_claim_url_hash,
+    )
+    from scripts.official_contract_semantics.extract import extract_payload
+    from scripts.official_contract_semantics.identity import raw_record_hash_for
+    from scripts.official_contract_semantics.live import records_from_consulta_listing
+
+    listing = {
+        "data": [
+            {
+                "numeroControlePncp": "15537199000169-2-000008/2026",
+                "objetoContrato": "Locacao de veiculos automotores sem motorista.",
+                "valorGlobal": 36792.0,
+                "dataVigenciaInicio": "2026-07-20",
+                "dataVigenciaFim": "2026-12-31",
+                "dataAssinatura": "2026-07-18",
+                "dataPublicacaoPncp": "2026-07-19T10:00:00",
+                "cnpjOrgao": "15537199000169",
+                "niFornecedor": "12345678000199",
+                "unidadeOrgao": {"ufSigla": "SC", "municipioNome": "Itajai"},
+            }
+        ]
+    }
+    listing_bytes = json.dumps(listing, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    spa_bytes = b"<!doctype html><html><body>angular-shell</body></html>"
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_GET(self) -> None:  # noqa: N802
+            if self.path.startswith("/consulta"):
+                payload, mime = listing_bytes, "application/json"
+            else:
+                payload, mime = spa_bytes, "text/html"
+            self.send_response(200)
+            self.send_header("Content-Type", mime)
+            self.end_headers()
+            self.wfile.write(payload)
+
+        def log_message(self, format: str, *args: object) -> None:  # noqa: A003
+            return
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+    thread = Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        listing_url = f"http://127.0.0.1:{server.server_address[1]}/consulta"
+        portal_url = f"http://127.0.0.1:{server.server_address[1]}/app/contratos/15537199000169-2-000008/2026"
+        listing_sha = raw_record_hash_for(listing_bytes)
+        records, errors, saw_items = records_from_consulta_listing(
+            listing_url=listing_url,
+            listing_body=listing_bytes.decode("utf-8"),
+            listing_sha256=listing_sha,
+            retrieved_at="2026-08-17T12:00:00Z",
+            limit=3,
+        )
+        assert errors == []
+        assert saw_items is True
+        assert records
+        assert records[0]["official_url"] == listing_url
+        assert records[0]["source_document_sha256"] == listing_sha
+        assert records[0]["official_url"] != portal_url
+        extracted = extract_payload(records)
+        dossier = dossier_from_group(
+            str(records[0]["contract_identifier"]),
+            list(extracted.observations),
+            retrieved_at="2026-08-17T12:00:00Z",
+            verified_at="2026-08-17T12:00:00Z",
+            source_as_of=None,
+            as_of="2026-08-17T12:00:00Z",
+            producer={"repo": "tjsasakifln/extra-cli", "branch": "fix", "commit": "abc"},
+            replay_command="replay",
+            query_window={"start": "2026-07-18", "end": "2026-08-17", "uf": "SC"},
+            bytes_obtained=True,
+            disposition="entered",
+            disposition_reason="test",
+        )
+        facts = [item for item in dossier["factual_matrix"]["claims"] if item.get("class") == "FACT"]
+        assert facts
+        for claim in facts:
+            assert claim["url"] == listing_url
+            assert claim["sha256"] == listing_sha
+            assert verify_claim_url_hash(claim=claim) is True
+            assert claim["sha256"] != raw_record_hash_for(spa_bytes)
+    finally:
+        server.shutdown()
+        server.server_close()
