@@ -202,17 +202,28 @@ def _claims_from_observations(
             "locator": locator,
             "source_refs": [evidence_id],
         }
+        if item.source_kind == "process_document" and item.object_text and url and digest and locator:
+            page_tag = locator.get("page") if isinstance(locator, dict) else None
+            suffix = f"{stable}-p{page_tag}" if page_tag is not None else stable
+            for kind, excerpt in extract_clause_excerpts(item.object_text):
+                facts.append(
+                    {
+                        **base,
+                        "claim_id": f"fact-{kind}-{suffix}",
+                        "class": "FACT",
+                        "text": excerpt,
+                        "locator": locator,
+                    }
+                )
+            continue
         if item.object_text and url and digest and locator:
-            object_locator = (
-                locator if item.source_kind == "process_document" else {"json_path": f"{prefix}.objetoContrato"}
-            )
             facts.append(
                 {
                     **base,
                     "claim_id": f"fact-object-{stable}",
                     "class": "FACT",
                     "text": f"Objeto oficial: {item.object_text[:240]}",
-                    "locator": object_locator,
+                    "locator": {"json_path": f"{prefix}.objetoContrato"},
                 }
             )
         if item.value_amount is not None and item.value_semantic:
@@ -290,23 +301,77 @@ def _claims_from_observations(
     return facts, inferences, unknowns
 
 
+_CLAUSE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    ("reajuste", re.compile(r".{0,60}reajust\w*.{0,180}", re.I | re.S)),
+    (
+        "indice",
+        re.compile(
+            r".{0,40}[íi]ndice(?:\s+nacional|\s+de\s+reajuste|\s+relativo|\s+inicial)?.{0,200}",
+            re.I | re.S,
+        ),
+    ),
+    ("data_base", re.compile(r".{0,40}data do or[cç]amento.{0,140}", re.I | re.S)),
+)
+
+
+_NAMED_INDEX_TOKENS = (
+    "nacional",
+    "coluna",
+    "funda",
+    "getúlio",
+    "getulio",
+    "fgv",
+    "incc",
+    "dnit",
+    "sinapi",
+)
+
+
+def extract_clause_excerpts(text: str | None) -> list[tuple[str, str]]:
+    """Quote clause fragments present in official page text. Never invent an index family."""
+    if not text:
+        return []
+    found: list[tuple[str, str]] = []
+    seen_kinds: set[str] = set()
+    for kind, pattern in _CLAUSE_PATTERNS:
+        matches = [re.sub(r"\s+", " ", item.group(0)).strip() for item in pattern.finditer(text)]
+        if not matches:
+            continue
+        excerpt = matches[0]
+        if kind == "indice":
+            named = [item for item in matches if any(token in item.casefold() for token in _NAMED_INDEX_TOKENS)]
+            if named:
+                excerpt = max(named, key=len)
+        if kind in seen_kinds:
+            continue
+        seen_kinds.add(kind)
+        found.append((kind, excerpt[:320]))
+    return found
+
+
 def _insight_for(items: list[OfficialContractObservation], facts: list[dict[str, Any]]) -> str:
     """Insight only from retrieved primary documents — never from listing keywords alone."""
     primary = next(
         (item.object_text for item in items if item.source_kind == "contract" and item.object_text),
-        next((item.object_text for item in items if item.object_text), ""),
+        "",
     )
-    pdf_pages = [
-        item
-        for item in items
-        if item.source_kind == "process_document"
-        and re.search(r"reajuste|reequilibr|incc|dnit|sinapi|\bbdi\b", item.object_text or "", re.I)
-    ]
-    if pdf_pages:
+    excerpts: list[tuple[str, str]] = []
+    for item in items:
+        if item.source_kind == "process_document":
+            excerpts.extend(extract_clause_excerpts(item.object_text))
+    if not excerpts:
+        for fact in facts:
+            excerpts.extend(extract_clause_excerpts(str(fact.get("text") or "")))
+    if excerpts:
+        by_kind = {kind: excerpt for kind, excerpt in excerpts}
+        quoted = " ".join(
+            excerpt for kind in ("indice", "reajuste", "data_base") if (excerpt := by_kind.get(kind))
+        )
+        if not quoted:
+            quoted = excerpts[0][1]
         return (
-            f"O contrato oficial de «{(primary or '')[:160]}» documenta cláusula de "
-            "reajuste/reequilíbrio e índice (DNIT/INCC ou equivalente) no PDF primário. "
-            "A leitura é documental, sem comparação e sem afirmação de direito."
+            f"O contrato oficial de «{(primary or '')[:120]}» documenta no PDF primário: "
+            f"{quoted[:480]} A leitura é documental, sem comparação e sem afirmação de direito."
         )
     amendments = [
         item

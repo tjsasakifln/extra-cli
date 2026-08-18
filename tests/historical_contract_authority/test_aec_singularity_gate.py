@@ -17,6 +17,7 @@ from scripts.historical_contract_authority.official_live import (
     _insight_for,
     build_rendezvous_files,
     dossier_from_group,
+    extract_clause_excerpts,
     parse_pncp_contrato_id,
     pncp_contract_urls,
     select_candidates,
@@ -308,6 +309,84 @@ def test_area_m2_ratio_uses_brazilian_thousands() -> None:
     assert calcs
     assert calcs[0]["inputs"]["area_m2"] == "4710.00"
     assert calcs[0]["result"] == format(expected, "f")
+
+
+FGV_COLUNA_35_PAGE = (
+    "12.2. Dentro do prazo de vigência do contrato e mediante solicitação da contratada, "
+    "os preços contratados poderão sofrer reajuste após o interregno de um ano, contado a "
+    "partir da data do orçamento a que a proposta se referir, conforme a seguinte fórmula: "
+    "R = Valor do reajuste procurado; V = Valor contratual da obra/serviço a ser reajustado; "
+    "Io = Índice inicial. 12.3. O índice de reajuste empregado na fórmula acima será o "
+    "Índice Nacional da Construção Civil – Coluna 35, calculado e publicado pela Fundação "
+    "Getúlio Vargas na revista Conjuntura Econômica, salvo de outro índice for indicado na "
+    "Parte Específica deste Contrato. 12.4. Nos reajustes subsequentes ao primeiro, o "
+    "interregno mínimo de um ano será contado a partir dos efeitos financeiros do último reajuste."
+)
+
+
+def test_fgv_coluna_35_page_does_not_invent_dnit_or_reequilibrio() -> None:
+    """Drive shipped insight/FACT assembly with the retrieved FGV Coluna 35 clause.
+
+    The live PDF names Fundação Getúlio Vargas / Coluna 35 and does not mention
+    DNIT or reequilíbrio. A templated family string must fail this test.
+    """
+    assert "dnit" not in FGV_COLUNA_35_PAGE.casefold()
+    assert "reequilibr" not in FGV_COLUNA_35_PAGE.casefold()
+    excerpts = extract_clause_excerpts(FGV_COLUNA_35_PAGE)
+    kinds = {kind for kind, _excerpt in excerpts}
+    assert "indice" in kinds
+    assert any("coluna 35" in excerpt.casefold() for _kind, excerpt in excerpts)
+    listing = _obs(
+        contract_id="14862788000150-2-000069/2026",
+        objeto="Pavimentação em Paralelepípedo de 4.710,00 m² de ruas no município de São Gonçalo do Piauí",
+        value_amount="719177.48",
+    )
+    page = _obs(
+        contract_id="14862788000150-2-000069/2026",
+        objeto=FGV_COLUNA_35_PAGE,
+        source_kind="process_document",
+        official_url="https://pncp.gov.br/pncp-api/v1/orgaos/14862788000150/contratos/2026/69/arquivos/1",
+        locator={"page": 14, "section": "contrato-oficial"},
+    )
+    insight = _insight_for([listing, page], [])
+    blob = insight.casefold()
+    assert "dnit" not in blob
+    assert "reequilibr" not in blob
+    assert "coluna 35" in blob
+    assert "índice nacional da construção civil" in blob or "indice nacional da construcao civil" in blob
+    dossier = dossier_from_group(
+        "14862788000150-2-000069/2026",
+        [listing, page],
+        retrieved_at="2026-08-18T12:00:00Z",
+        verified_at="2026-08-18T12:00:00Z",
+        source_as_of=None,
+        as_of="2026-08-18T12:00:00Z",
+        producer={"repo": "tjsasakifln/extra-cli", "branch": "goal/x", "commit": "abc"},
+        replay_command="replay",
+        query_window={"start": "2026-07-19", "end": "2026-08-18", "uf": "BR"},
+        bytes_obtained=True,
+        disposition="entered",
+        disposition_reason="aec_engineering_or_construction",
+    )
+    assert dossier["handoff_status"] == "HANDOFF_READY"
+    facts = [item for item in dossier["factual_matrix"]["claims"] if item.get("class") == "FACT"]
+    pdf_facts = [item for item in facts if "arquivos/1" in str(item.get("url"))]
+    assert pdf_facts
+    assert all(not str(item.get("claim_id")).startswith("fact-object-") for item in pdf_facts)
+    assert all(not str(item.get("text")).startswith("Objeto oficial:") for item in pdf_facts)
+    joined = " ".join(str(item.get("text") or "") for item in pdf_facts).casefold()
+    assert "dnit" not in joined
+    assert "reequilibr" not in joined
+    assert "coluna 35" in joined
+    analysis_blob = " ".join(
+        [
+            str(dossier["analysis"].get("singular_insight") or ""),
+            str(dossier["analysis"].get("what_documents_show") or ""),
+        ]
+    ).casefold()
+    assert "dnit" not in analysis_blob
+    assert "reequilibr" not in analysis_blob
+    assert "coluna 35" in analysis_blob
 
 
 def test_termos_bytes_drive_insight_and_ratio() -> None:
