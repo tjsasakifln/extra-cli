@@ -599,10 +599,15 @@ def verify_claim_url_hash(*, claim: dict[str, Any], cache_dir: Path | None = Non
     if not url:
         return False
     fetched = fetch_official(str(url), cache_dir=cache_dir, retries=0, rate_limit_s=0)
-    if not fetched.ok or not fetched.body:
+    if not fetched.ok:
         return False
-    raw = fetched.body.encode("utf-8")
-    return claim_bound_to_retrieved_bytes(claim, raw)
+    digest = str(claim.get("sha256") or "")
+    if fetched.sha256 and fetched.sha256 == digest:
+        return True
+    if fetched.body:
+        canonical = canonical_json_sha256(fetched.body)
+        return bool(canonical) and canonical == digest
+    return False
 
 
 def _json_items(body: str) -> list[Any]:

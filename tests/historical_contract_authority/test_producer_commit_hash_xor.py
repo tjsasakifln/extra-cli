@@ -231,6 +231,16 @@ def test_listing_facts_rebind_to_contract_detail_bytes(monkeypatch) -> None:
         server.server_close()
 
 
+def test_pdf_raw_sha_still_verifies_without_utf8_roundtrip() -> None:
+    raw = b"%PDF-1.4 binary \xff\xfe not utf8"
+    digest = raw_record_hash_for(raw)
+    claim = {"url": "https://example.invalid/file.pdf", "sha256": digest}
+    assert official_live_mod.claim_bound_to_retrieved_bytes(claim, raw) is True
+    corrupted = raw.decode("utf-8", errors="replace").encode("utf-8")
+    assert corrupted != raw
+    assert official_live_mod.claim_bound_to_retrieved_bytes(claim, corrupted) is False
+
+
 def test_json_key_order_does_not_change_listing_fact_hash() -> None:
     from scripts.historical_contract_authority.official_live import canonical_json_sha256
 

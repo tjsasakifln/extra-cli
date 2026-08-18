@@ -51,29 +51,32 @@ This is a unit price derived from published global value and published area. It 
 | Field | Value |
 |---|---|
 | `analysis_id` | `13ec615146b3d348190a9b0b9148831e` |
-| producer_commit | `7958f2048b36299d6f89f80faa3b4f208a7dbc63` |
-| dossier `content_hash` | `ee6e40fd903453438d3b6b9121dd1e8cba3877ac00bc32e7c845435022cb37b1` |
-| `READY.json` `root_content_hash` | `47a18e666040551f124b1edaa267bbb033878b68cf7925584b9529ac9297bd5a` |
-| manifest `content_hash` | see live rendezvous `manifest.json` (clocks excluded from `content_hash`) |
-| listing sha256 | `1ffbc82f73f8eca8eeac0b0ddc22860b2b3f261dba39191b7e77b87b8cde33ee` |
+| producer_commit | `5984750c14a4653bf64e16ba7547063f3e1cdab9` |
+| dossier `content_hash` | `f7ed6bcc70a74e274c222b89293afaf430ed88679264c4189bbe4c033fabcb1b` |
+| `READY.json` `root_content_hash` | `5957e02b7982e000ca7dda2a9a06b88769085bc2a163eadcd8d59bd134b26b3e` |
+| listing sha256 (contract detail JSON, canonical) | `89a3ba4c49eac6a83d74030981248f352528c115aebb193013e0048ced620303` |
 | PDF sha256 | `64a238e6094f4d093f1ee970820fd277bcd34a66457d776a59225219b8e77604` |
+| final-run manifest SHA-256 | `75684cd66f95bffb0df4867530d0b86129e47e1bbee0908e889cdba5eb28b586` |
+| final-run manifest `content_hash` | `96761c84f17a370fef7e8187f2d2a09b7e998c4fab7d0891bc8bbdf2ec18258c` |
 
-Two identical bounded canaries (`--limit 20 --start-date 2026-07-19 --end-date 2026-08-18 --as-of 2026-08-18T12:00:00Z --skip-pages`) produced the same `analysis_id`, dossier `content_hash` and `root_content_hash`. Manifest `generated_at` differs; temporal clocks are excluded from content hashes.
+`producer_commit` is the git SHA of the tree that emitted the pack (`git rev-parse HEAD` at run time). It is not required to equal a later docs-only or verify-only PR tip. Ancestry: `5984750c` is a descendant of `7958f204` (the previous emission SHA) and of `2fcff236` (docs-only FGV record). A later closeout commit that only updates this report does not change pack identity.
+
+Two bounded canaries (`--limit 20 --start-date 2026-07-19 --end-date 2026-08-18 --as-of 2026-08-18T12:00:00Z --skip-pages`) from `5984750c` produced the same `analysis_id`, dossier `content_hash`, `root_content_hash`, listing sha256 and PDF sha256. `generated_at` differs (`2026-08-18T12:37:46Z` vs `2026-08-18T12:38:35Z`); `generated_at` / `retrieved_at` / `verified_at` are excluded by `strip_temporal_for_hash`. Manifest `content_hash` also includes the SC scan `candidate_log` of non-selected listings, which changes with the live consulta page; it is not part of READY pack identity (`root_content_hash` is `ids` + dossier hashes only).
 
 `publication_authorization=false`, `index_authorization=false`, `production_write=false`, `backfill=false`. No human approval was simulated.
 
 ## FACT binding
 
-Every FACT was checked with shipped `verify_claim_url_hash`: sha256 equals bytes retrieved from that FACT’s own URL. Listing FACTs use the consulta JSON. PDF FACTs use the `/arquivos/1` URL and page locators. The SPA `/app/contratos/...` is `portal_url` only and does not inherit another endpoint’s hash.
+Every FACT was checked with shipped `verify_claim_url_hash`: sha256 equals bytes retrieved from that FACT’s own URL (JSON records use the canonical sorted-key digest; PDFs use the raw byte digest). Listing FACTs use the contract-specific PNCP detail URL `https://pncp.gov.br/api/pncp/v1/orgaos/14862788000150/contratos/2026/69` (`$.objetoContrato` / `$.valorGlobal` / `$.dataVigenciaInicio`). PDF FACTs use the `/arquivos/1` URL and page locators. The SPA `/app/contratos/...` is `portal_url` only and does not inherit another endpoint’s hash. A shared consulta pagination page is not the listing FACT URL.
 
 ## Tests
 
 ```
 python3 -m pytest tests/historical_contract_authority/ tests/official_contract_semantics/ -o addopts= -q
-# 109 passed
+# 117 passed
 ```
 
-New/updated gates: locação de veículos discarded; generic purchase discarded; `mão de obra` alone is not AEC; SPA cannot inherit listing sha256; READY requires located FACTs + singular insight; READY xor BLOCKED; two canaries share identity/hash; apostilamento gestor/fiscal is not insight; PDF reajuste page is material; Brazilian `4.710,00 m²` ratio; FGV Coluna 35 page text does not invent DNIT or reequilíbrio; process_document FACTs are `fact-indice`/`fact-reajuste`/`fact-data_base`, not `Objeto oficial`.
+New/updated gates: locação de veículos discarded; generic purchase discarded; `mão de obra` alone is not AEC; SPA cannot inherit listing sha256; READY requires located FACTs + singular insight; READY xor BLOCKED; two canaries share identity/hash; apostilamento gestor/fiscal is not insight; PDF reajuste page is material; Brazilian `4.710,00 m²` ratio; FGV Coluna 35 page text does not invent DNIT or reequilíbrio; process_document FACTs are `fact-indice`/`fact-reajuste`/`fact-data_base`, not `Objeto oficial`; `producer_commit` is emission HEAD; listing FACTs rebind to contract detail JSON; JSON key order is canonicalized; READY xor BLOCKED.
 
 ## Rendezvous (outside git)
 
