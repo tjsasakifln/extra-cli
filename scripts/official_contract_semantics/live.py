@@ -7,9 +7,12 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+from scripts.historical_contract_authority.aec import aec_disposition
 from scripts.official_contract_semantics.constants import (
+    CONSULTA_PAGE_SIZE,
     DEFAULT_LIVE_LIMIT,
     LIVE_VERSION,
+    MAX_CONSULTA_PAGES,
     MAX_LIVE_LIMIT,
     USER_AGENT,
 )
@@ -131,6 +134,7 @@ def records_from_consulta_listing(
     listing_sha256: str,
     retrieved_at: str,
     limit: int,
+    uf_filter: str | None = "SC",
 ) -> tuple[list[dict[str, Any]], list[SourceUnavailability], bool]:
     """Bind each record to the listing URL whose bytes produced listing_sha256.
 
@@ -157,8 +161,11 @@ def records_from_consulta_listing(
         )
         unidade = item.get("unidadeOrgao") if isinstance(item.get("unidadeOrgao"), dict) else {}
         uf = str(item.get("uf") or item.get("siglaUf") or unidade.get("ufSigla") or unidade.get("uf") or "")
-        if uf.upper() not in {"SC", "SANTA CATARINA"}:
-            continue
+        uf_norm = uf.upper()
+        if uf_filter:
+            allowed = {uf_filter.upper(), "SANTA CATARINA"} if uf_filter.upper() == "SC" else {uf_filter.upper()}
+            if uf_norm not in allowed:
+                continue
         portal_url = PNCP_CONTRACT_URL.format(contrato_id=contrato_id) if contrato_id else None
         records.append(
             {
@@ -187,7 +194,7 @@ def records_from_consulta_listing(
                 "source_document_sha256": listing_sha256,
                 "locator": {"json_path": f"$.data[{index}].objetoContrato"},
                 "extra": {
-                    "uf": "SC",
+                    "uf": "SC" if uf_norm in {"SC", "SANTA CATARINA"} else (uf_norm or None),
                     "municipio": item.get("nomeUnidade") or unidade.get("municipioNome") or item.get("municipio"),
                     "portal_url": portal_url,
                     "listing_index": index,
@@ -206,16 +213,21 @@ def _api_records(
     start: str,
     end: str,
     retrieved_at: str,
+    scan_limit: int | None = None,
+    uf_filter: str | None = "SC",
+    aec_only: bool = False,
 ) -> tuple[list[dict[str, Any]], list[SourceUnavailability]]:
     records: list[dict[str, Any]] = []
     errors: list[SourceUnavailability] = []
     page = 1
-    max_pages = 3
-    while len(records) < limit and page <= max_pages:
+    max_pages = MAX_CONSULTA_PAGES
+    page_size = CONSULTA_PAGE_SIZE
+    target = max(int(limit), int(scan_limit or limit))
+    while len(records) < target and page <= max_pages:
         url = (
             "https://pncp.gov.br/api/consulta/v1/contratos"
             f"?dataInicial={pncp_ymd(start)}&dataFinal={pncp_ymd(end)}"
-            f"&pagina={page}&tamanhoPagina=10"
+            f"&pagina={page}&tamanhoPagina={page_size}"
         )
         fetched = fetch_official(url, cache_dir=cache_dir)
         if not fetched.ok or not fetched.body or not fetched.sha256:
@@ -229,13 +241,17 @@ def _api_records(
             listing_body=fetched.body,
             listing_sha256=fetched.sha256,
             retrieved_at=retrieved_at,
-            limit=limit - len(records),
+            limit=10**6,
+            uf_filter=uf_filter,
         )
         errors.extend(page_errors)
-        if page_errors and not page_rows:
+        if page_errors and not page_rows and not saw_items:
             break
-        records.extend(page_rows)
-        if not saw_items or len(records) >= limit:
+        if aec_only:
+            page_rows = [row for row in page_rows if aec_disposition(str(row.get("object_text") or ""))[0]]
+        remaining = target - len(records)
+        records.extend(page_rows[:remaining])
+        if not saw_items or len(records) >= target:
             break
         page += 1
     return records, errors
@@ -279,6 +295,9 @@ def run_live_readonly(
     as_of: str | None = None,
     start_date: str | None = None,
     end_date: str | None = None,
+    scan_limit: int | None = None,
+    uf_filter: str | None = "SC",
+    aec_only: bool = False,
 ) -> dict[str, Any]:
     bounded = max(1, min(int(limit), MAX_LIVE_LIMIT))
     started = _now()
@@ -313,7 +332,16 @@ def run_live_readonly(
 
     if not rows:
         sources_used.append("pncp_consulta_api")
-        api_rows, api_errors = _api_records(bounded, cache, start=window_start, end=window_end, retrieved_at=started)
+        api_rows, api_errors = _api_records(
+            bounded,
+            cache,
+            start=window_start,
+            end=window_end,
+            retrieved_at=started,
+            scan_limit=scan_limit,
+            uf_filter=uf_filter,
+            aec_only=aec_only,
+        )
         unavailabilities.extend(api_errors)
         failed.extend(item.as_dict() for item in api_errors)
         rows = api_rows
