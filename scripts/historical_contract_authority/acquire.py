@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import time
+from datetime import UTC, datetime
 from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
@@ -22,6 +23,10 @@ from scripts.historical_contract_authority.schema import (
 )
 from scripts.process_documents.inventory_pipeline import detect_mime, extract_text
 from scripts.process_documents.inventory_pipeline import sha256_bytes as inventory_sha256
+
+
+def _now() -> str:
+    return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
 def locator_from(raw: dict[str, Any]) -> Locator:
@@ -74,6 +79,9 @@ def document_from_mapping(raw: dict[str, Any]) -> DocumentRecord:
         superseded_by=raw.get("superseded_by"),
         http_status=raw.get("http_status"),
         redirect_chain=tuple(raw.get("redirect_chain") or ()),
+        retrieved_at=raw.get("retrieved_at"),
+        verified_at=raw.get("verified_at"),
+        source_as_of=raw.get("source_as_of"),
         text=text,
     )
 
@@ -113,6 +121,7 @@ def bounded_fetch(
                     data, response.headers.get_content_type() if response.headers else "application/octet-stream"
                 )
                 text, usable = extract_native(data, mime, locator=url)
+                stamp = _now()
                 record = {
                     "ok": True,
                     "url": url,
@@ -124,6 +133,8 @@ def bounded_fetch(
                     "extract_status": "ok" if usable else "no_native_text",
                     "ocr_used": False,
                     "redirect_chain": tuple(getattr(response, "url", url) for _ in (0,)),
+                    "retrieved_at": stamp,
+                    "verified_at": stamp,
                 }
                 cache[url] = record
                 if not url.startswith("file:"):

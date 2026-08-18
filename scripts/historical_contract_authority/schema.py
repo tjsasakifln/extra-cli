@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 SCHEMA = "historical-contract-authority-dossier/1.0"
+SCHEMA_V11 = "historical-contract-authority-dossier/1.1"
 METHOD_VERSION = "historical-contract-authority-method/1.0"
 EXTRACTOR_VERSION = "historical-contract-authority-extract/1.0"
 SCORE_VERSION = "dossier-authority-score/1.0"
@@ -16,16 +17,18 @@ CONTRACT_VERSION = "v1.0.0"
 CONSUMER_SCHEMA = "public-read-contract-analysis/1.0"
 CONSUMER_ID = "web-cfg#83"
 HANDOFF_SCHEMA = "authority-handoff-contract-analysis/1.0"
+HANDOFF_SCHEMA_V11 = "official-live-authority-handoff/1.1"
 
 DossierState = Literal["REJECT", "HOLD_FOR_DATA", "HANDOFF_READY"]
 ClaimClass = Literal["FACT", "CALCULATION", "INFERENCE", "UNKNOWN"]
 DataState = Literal["DATA_READY", "DATA_HOLD", "DATA_REJECT"]
-ComparabilityState = Literal["COMPARABLE", "HOLD_FOR_DATA", "NOT_COMPARABLE"]
+ComparabilityState = Literal["COMPARABLE", "HOLD_FOR_DATA", "NOT_COMPARABLE", "NOT_APPLICABLE"]
 
 DOSSIER_STATES: tuple[str, ...] = ("REJECT", "HOLD_FOR_DATA", "HANDOFF_READY")
 CLAIM_CLASSES: tuple[str, ...] = ("FACT", "CALCULATION", "INFERENCE", "UNKNOWN")
 DATA_STATES: tuple[str, ...] = ("DATA_READY", "DATA_HOLD", "DATA_REJECT")
-COMPARABILITY_STATES: tuple[str, ...] = ("COMPARABLE", "HOLD_FOR_DATA", "NOT_COMPARABLE")
+COMPARABILITY_STATES: tuple[str, ...] = ("COMPARABLE", "HOLD_FOR_DATA", "NOT_COMPARABLE", "NOT_APPLICABLE")
+ANALYSIS_MODES: tuple[str, ...] = ("DOCUMENT_CHAIN", "TIMELINE", "COMPARATIVE")
 
 FORBIDDEN_PUBLIC_STATES = frozenset(
     {"INDEX", "PUBLISHABLE_INDEX", "PUBLISHABLE_NOINDEX", "PUBLISHABLE", "REVIEW_CANDIDATE"}
@@ -64,6 +67,8 @@ HANDOFF_MIN_DIMENSION = 75
 MIN_MATERIAL_CLAIMS = 5
 MIN_EVIDENCE_FAMILIES = 3
 MAX_HANDOFF_READY = 5
+MAX_OFFICIAL_LIVE_READY = 3
+MAX_OFFICIAL_LIVE_CANDIDATES = 12
 
 USER_AGENT = (
     "Extra-CLI-historical-contract-authority/1.0 "

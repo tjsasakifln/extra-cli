@@ -13,6 +13,7 @@ from scripts.historical_contract_authority.adapters import rank_via_414
 from scripts.historical_contract_authority.cases import CASE_BUILDERS, fixture_corpus
 from scripts.historical_contract_authority.engine import build_dossier, dossier_dict, process_cases
 from scripts.historical_contract_authority.handoff import write_handoff
+from scripts.historical_contract_authority.official_live import run_official_live_handoff
 from scripts.historical_contract_authority.schema import (
     HANDOFF_DIR,
     MAX_CONTRACTS,
@@ -175,11 +176,15 @@ def run_live(*, output: Path, dsn: str | None, limit: int, as_of: str | None = N
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="historical-contract-authority")
-    parser.add_argument("--mode", choices=("fixture", "live"), default="fixture")
+    parser.add_argument("--mode", choices=("fixture", "live", "official-live"), default="fixture")
     parser.add_argument("--output", type=Path, default=HANDOFF_DIR)
     parser.add_argument("--dsn", default=None)
     parser.add_argument("--limit", type=int, default=40)
     parser.add_argument("--as-of", dest="as_of", default=None)
+    parser.add_argument("--start-date", dest="start_date", default=None)
+    parser.add_argument("--end-date", dest="end_date", default=None)
+    parser.add_argument("--cache-dir", dest="cache_dir", default=None)
+    parser.add_argument("--skip-pages", action="store_true")
     parser.add_argument("--case", choices=sorted(CASE_BUILDERS), default=None)
     return parser
 
@@ -192,6 +197,29 @@ def main(argv: list[str] | None = None) -> int:
         dossier = dossier_dict(build_dossier(case, as_of=stamp))
         sys.stdout.write(canonical_dumps(dossier) + "\n")
         return 0
+    if args.mode == "official-live":
+        result = run_official_live_handoff(
+            output=args.output,
+            dsn=args.dsn,
+            limit=args.limit,
+            start_date=args.start_date,
+            end_date=args.end_date,
+            cache_dir=Path(args.cache_dir) if args.cache_dir else None,
+            fetch_pages=not args.skip_pages,
+            as_of=args.as_of,
+        )
+        summary = {
+            "as_of": result["as_of"],
+            "status": result["status"],
+            "output": result["output"],
+            "ready": len(result["ready"]),
+            "ids": [item["analysis_id"] for item in result["ready"]],
+            "replay_command": result["replay_command"],
+            "live": result["live"],
+            "producer": result["producer"],
+        }
+        sys.stdout.write(canonical_dumps(summary) + "\n")
+        return 0 if result["status"] in {"READY", "BLOCKED"} else 1
     if args.mode == "live":
         try:
             result = run_live(output=args.output, dsn=args.dsn, limit=args.limit, as_of=args.as_of)
