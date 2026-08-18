@@ -1,0 +1,126 @@
+# Hermetic real-PostgreSQL live proof of #350 source-wide vs entity-scoped identity.
+# Manual by default. Optional PR trigger only when this campaign's files change.
+# No external secrets. No production environment. contents: read only.
+
+name: Coverage live proof
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "scripts/ops/coverage_live_proof/**"
+      - "tests/coverage_live_proof/**"
+      - "docs/ops/coverage-live-proof.md"
+      - ".github/workflows/coverage-live-proof.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: coverage-live-proof-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.12"
+  LOCAL_DATALAKE_DSN: postgresql://proof:proof@127.0.0.1:5432/coverage_live_proof
+  REQUIRE_REAL_DB: "1"
+
+jobs:
+  live-proof:
+    name: Real PostgreSQL live proof
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: proof
+          POSTGRES_PASSWORD: proof
+          POSTGRES_DB: coverage_live_proof
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U proof -d coverage_live_proof"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install existing dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Orchestrator unit tests
+        run: python3 -m pytest tests/coverage_live_proof -o addopts='' -m 'not real_db' --tb=short
+
+      - name: Existing #350 identity suite
+        run: python3 -m pytest tests/test_coverage_formula_and_identity.py -o addopts='' --tb=short
+
+      - name: Real-db acceptance
+        run: python3 -m pytest tests/coverage_live_proof -o addopts='' -m real_db --tb=short
+
+      - name: Live-proof runner
+        run: |
+          mkdir -p "${RUNNER_TEMP}/coverage-proof"
+          python3 -m scripts.ops.coverage_live_proof run --output "${RUNNER_TEMP}/coverage-proof"
+          python3 -m scripts.ops.coverage_live_proof run --output "${RUNNER_TEMP}/coverage-proof-2"
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          tmp = Path(os.environ["RUNNER_TEMP"])
+          first = (tmp / "coverage-proof" / "evidence.normalized.json").read_bytes()
+          second = (tmp / "coverage-proof-2" / "evidence.normalized.json").read_bytes()
+          raise SystemExit(0 if first == second else 1)
+          PY
+
+      - name: Upload evidence pack
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-live-proof
+          if-no-files-found: warn
+          path: |
+            ${{ runner.temp }}/coverage-proof/evidence.json
+            ${{ runner.temp }}/coverage-proof/evidence.normalized.json
+            ${{ runner.temp }}/coverage-proof/SHA256SUMS
+            ${{ runner.temp }}/coverage-proof/coverage-live-proof.log
+            ${{ runner.temp }}/coverage-proof/golden_path_ledger.json
+
+      - name: Teardown leftover campaign databases
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import os
+
+          from scripts.ops.coverage_live_proof.runner import (
+              is_campaign_database,
+              teardown_ephemeral,
+          )
+          import psycopg2
+
+          dsn = os.environ["LOCAL_DATALAKE_DSN"]
+          conn = psycopg2.connect(dsn)
+          conn.autocommit = True
+          cur = conn.cursor()
+          cur.execute(
+              "SELECT datname FROM pg_database WHERE datname LIKE 'coverage_live_proof_%'"
+          )
+          names = [row[0] for row in cur.fetchall() or []]
+          cur.close()
+          conn.close()
+          for name in names:
+              if is_campaign_database(name):
+                  teardown_ephemeral(dsn, name)
+                  print("dropped", name)
+          PY
