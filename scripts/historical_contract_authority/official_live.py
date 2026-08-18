@@ -327,6 +327,12 @@ _NAMED_INDEX_TOKENS = (
 )
 
 
+def _indice_excerpt_score(item: str) -> tuple[int, int, int]:
+    starts_clause = 1 if re.match(r"\d+\.\d+", item) else 0
+    starts_clean = 1 if item[:1].isupper() or item[:1].isdigit() else 0
+    return (starts_clause, starts_clean, len(item))
+
+
 def extract_clause_excerpts(text: str | None) -> list[tuple[str, str]]:
     """Quote clause fragments present in official page text. Never invent an index family."""
     if not text:
@@ -341,13 +347,7 @@ def extract_clause_excerpts(text: str | None) -> list[tuple[str, str]]:
         if kind == "indice":
             named = [item for item in matches if any(token in item.casefold() for token in _NAMED_INDEX_TOKENS)]
             if named:
-
-                def _indice_score(item: str) -> tuple[int, int, int]:
-                    starts_clause = 1 if re.match(r"\d+\.\d+", item) else 0
-                    starts_clean = 1 if item[:1].isupper() or item[:1].isdigit() else 0
-                    return (starts_clause, starts_clean, len(item))
-
-                excerpt = max(named, key=_indice_score)
+                excerpt = max(named, key=_indice_excerpt_score)
         if kind in seen_kinds:
             continue
         seen_kinds.add(kind)
@@ -369,7 +369,13 @@ def _insight_for(items: list[OfficialContractObservation], facts: list[dict[str,
         for fact in facts:
             excerpts.extend(extract_clause_excerpts(str(fact.get("text") or "")))
     if excerpts:
-        by_kind = {kind: excerpt for kind, excerpt in excerpts}
+        by_kind: dict[str, str] = {}
+        for kind, excerpt in excerpts:
+            current = by_kind.get(kind)
+            if current is None:
+                by_kind[kind] = excerpt
+            elif kind == "indice" and _indice_excerpt_score(excerpt) > _indice_excerpt_score(current):
+                by_kind[kind] = excerpt
         quoted = " ".join(
             excerpt for kind in ("indice", "reajuste", "data_base") if (excerpt := by_kind.get(kind))
         )

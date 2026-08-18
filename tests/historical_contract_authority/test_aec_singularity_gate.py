@@ -348,12 +348,24 @@ def test_fgv_coluna_35_page_does_not_invent_dnit_or_reequilibrio() -> None:
         official_url="https://pncp.gov.br/pncp-api/v1/orgaos/14862788000150/contratos/2026/69/arquivos/1",
         locator={"page": 14, "section": "contrato-oficial"},
     )
-    insight = _insight_for([listing, page], [])
+    messy = _obs(
+        contract_id="14862788000150-2-000069/2026",
+        objeto=(
+            "te do valor contratual será utilizado o Índice Nacional da Construção Civil – Coluna 35, "
+            "calculado e publicado pela Fundação Getúlio Vargas, conforme já indicado na Parte Geral."
+        ),
+        source_kind="process_document",
+        official_url="https://pncp.gov.br/pncp-api/v1/orgaos/14862788000150/contratos/2026/69/arquivos/1",
+        locator={"page": 46, "section": "contrato-oficial"},
+    )
+    insight = _insight_for([listing, page, messy], [])
     blob = insight.casefold()
     assert "dnit" not in blob
     assert "reequilibr" not in blob
     assert "coluna 35" in blob
     assert "índice nacional da construção civil" in blob or "indice nacional da construcao civil" in blob
+    assert "12.3" in insight
+    assert not insight.casefold().startswith("te do valor")
     dossier = dossier_from_group(
         "14862788000150-2-000069/2026",
         [listing, page],
