@@ -306,7 +306,7 @@ _CLAUSE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
         "indice",
         re.compile(
-            r".{0,40}[íi]ndice(?:\s+nacional|\s+de\s+reajuste|\s+relativo|\s+inicial)?.{0,200}",
+            r"(?:\d+\.\d+[^\n]{0,48})?[íi]ndice\s+(?:nacional|de reajuste).{0,200}",
             re.I | re.S,
         ),
     ),
