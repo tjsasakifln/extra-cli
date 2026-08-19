@@ -1,0 +1,17 @@
+{
+  "catalog_mode": "live_candidate",
+  "handoff_decision": "READY",
+  "index_authorization": false,
+  "metrics_produced": [],
+  "official_live": true,
+  "publication_authorization": false,
+  "reason_codes": [
+    "live_columns_unavailable",
+    "fields_unavailable",
+    "unit_unknown"
+  ],
+  "status": "HOLD_FOR_DATA",
+  "total_eligible": 1,
+  "total_found": 1,
+  "total_used": 0
+}

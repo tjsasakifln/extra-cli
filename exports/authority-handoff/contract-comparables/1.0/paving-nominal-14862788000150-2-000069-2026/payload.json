@@ -1,0 +1,276 @@
+{
+  "as_of": "2026-08-19",
+  "canary_id": "paving-nominal-14862788000150-2-000069-2026",
+  "catalog_mode": "live_candidate",
+  "claim_scope": "valor_integral_nominal of official paving contracts in the focal UF, grain=contrato; not a national ranking and not a physical-unit price",
+  "consumer": "web-cfg#83|#84",
+  "content_hash": "5b05592fc83a2c2216800beb7d2c25f616dca4fcf6ef0c0c319a8f481c53044d",
+  "coverage": {
+    "eligible_n": 0,
+    "missingness": 1.0,
+    "usable_over_total": 0.0
+  },
+  "document": {
+    "accepted_schemas": [
+      "comparable-contracts/1.0",
+      "public-read-comparable-contracts/1.0"
+    ],
+    "as_of": "2026-08-19",
+    "canonical_contract_ids": [
+      "14862788000150-2-000069/2026"
+    ],
+    "catalog_mode": "live_candidate",
+    "comparisons": [],
+    "consumer": {
+      "family": "web-cfg / contract-analysis family",
+      "id": "web-cfg#83|#84"
+    },
+    "content_hash": "183da0f63dd681669fd1eebeba40604770b7801039a4c05bbf87777e03579f1c",
+    "contract_id": "14862788000150-2-000069/2026",
+    "contract_version": "v1.0.0",
+    "coverage": {
+      "eligible_n": 0,
+      "missingness": 1.0,
+      "usable_over_total": 0.0
+    },
+    "denominator": {
+      "kind": "usable_known_valor_integral_nominal",
+      "n": 0,
+      "unknown_policy": "UNKNOWN_never_zero_never_silent_denominator"
+    },
+    "evidence_refs": [
+      "14862788000150-2-000069/2026"
+    ],
+    "exclusion_rules": [
+      "incompatible unit, typology, scope, regime, geography, period, value semantic",
+      "original vs atualizado mix without explicit method",
+      "unresolved duplicate or superseded identity",
+      "pequeno vs grande porte",
+      "text similarity or embeddings as inclusion key",
+      "physical unit price without verified quantity/unit/scope/normalization/sample"
+    ],
+    "exclusions": [],
+    "freshness": {
+      "as_of": "2026-08-19",
+      "max_age_hours": 48,
+      "policy": "contracts-freshness-slo-v1"
+    },
+    "geography": {
+      "municipio": "Teresina",
+      "region": "NE",
+      "uf": "PI"
+    },
+    "inclusion_rules": [
+      "typology=pavimentacao AND typology_confidence>=0.80",
+      "unit=BRL_TOTAL (valor integral nominal; never km or m2)",
+      "value_semantic=valor_integral_nominal",
+      "regime identical and known",
+      "geography=same UF",
+      "period=|year_delta|<=1",
+      "UNKNOWN valor excluded from denominator",
+      "highest revision only"
+    ],
+    "limitations": [
+      "Canary answers only the nominal total-value position question for paving contracts.",
+      "This is not a physical-unit cost, a productivity benchmark, or a legal accusation.",
+      "UNKNOWN is never coerced to zero and never enters the denominator.",
+      "Fixture output is never official_live.",
+      "No national ranking or complete-universe share claim is licensed by this document.",
+      "Metrics withheld because the peer-group gate did not pass."
+    ],
+    "match_quality": [],
+    "method": {
+      "id": "comparable-contracts-peer-group/1.0",
+      "no_embeddings_authority": true,
+      "no_llm": true,
+      "policy": "contract-comparables-policy/1.0",
+      "question_id": "paving_nominal_total_value_position"
+    },
+    "method_version": "comparable-contracts-peer-group/1.0",
+    "metrics": {},
+    "missingness": {
+      "ratio": 1.0,
+      "unknown_excluded": true
+    },
+    "modality": "unknown",
+    "monetary_normalization": null,
+    "outlier_treatment": "outliers remain in the sample; IQR 1.5 and MAD robust distance are descriptive; no legal accusation is emitted",
+    "peer_count": 0,
+    "peer_group_id": "pg-1ee8488f3bfb0291",
+    "peer_ids": [],
+    "peer_refs": [],
+    "peers": [],
+    "percentiles": {},
+    "period": {
+      "data_referencia": "2026-07-08",
+      "year": 2026
+    },
+    "policy_version": "contract-comparables-policy/1.0",
+    "porte": "medio",
+    "producer_sha": "db73775c6340925d34b48cfe8128dd94e5fd8d69",
+    "question": "Como o valor integral nominal de um contrato público de pavimentação se posiciona frente a contratos comparáveis?",
+    "question_id": "paving_nominal_total_value_position",
+    "reason_codes": [
+      "live_columns_unavailable",
+      "fields_unavailable",
+      "unit_unknown"
+    ],
+    "regime": "unknown",
+    "schema": "comparable-contracts/1.0",
+    "source": "pncp_contrato_api",
+    "status": "HOLD_FOR_DATA",
+    "suppression": {
+      "aggregate_only": false,
+      "peer_ids_emitted": true
+    },
+    "target_contract_id": "14862788000150-2-000069/2026",
+    "total_n": 0,
+    "typology": {
+      "confidence": 0.95,
+      "label": "pavimentacao",
+      "scope": "paving_works"
+    },
+    "typology_confidence": 0.95,
+    "unit": "unknown",
+    "universe": {
+      "eligible_n": 0,
+      "source": "pncp_contrato_api",
+      "total_n": 0,
+      "usable_n": 0
+    },
+    "usable_n": 0,
+    "value_semantic": "valor_integral_nominal"
+  },
+  "evidence_refs": [
+    {
+      "contract_id": "14862788000150-2-000069/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "f14acac4716dcbba1d4cd4a3da0b163d61543572ac7845f2c63fc8ba34f9e39c",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/14862788000150/contratos/2026/69"
+    }
+  ],
+  "exclusion_rules": [
+    "incompatible unit, typology, scope, regime, geography, period, value semantic",
+    "original vs atualizado mix without explicit method",
+    "unresolved duplicate or superseded identity",
+    "pequeno vs grande porte",
+    "text similarity or embeddings as inclusion key",
+    "physical unit price without verified quantity/unit/scope/normalization/sample"
+  ],
+  "geography": {
+    "municipio": "Teresina",
+    "region": "NE",
+    "uf": "PI"
+  },
+  "grain": "contrato",
+  "inclusion_rules": [
+    "typology=pavimentacao AND typology_confidence>=0.80",
+    "unit=BRL_TOTAL (valor integral nominal; never km or m2)",
+    "value_semantic=valor_integral_nominal",
+    "regime identical and known",
+    "geography=same UF",
+    "period=|year_delta|<=1",
+    "UNKNOWN valor excluded from denominator",
+    "highest revision only"
+  ],
+  "index_authorization": false,
+  "invalidation_keys": [
+    "contract_id",
+    "source_document_sha256",
+    "as_of",
+    "policy_version",
+    "focal_contract_id"
+  ],
+  "live": {
+    "backfill": false,
+    "cache_used": false,
+    "consulta_paving_found": 0,
+    "cutoff": "2026-08-19",
+    "dsn_available": false,
+    "focal_fetch_ok": true,
+    "focal_sha256": "f14acac4716dcbba1d4cd4a3da0b163d61543572ac7845f2c63fc8ba34f9e39c",
+    "focal_url": "https://pncp.gov.br/api/pncp/v1/orgaos/14862788000150/contratos/2026/69",
+    "index": false,
+    "official_live": true,
+    "production_write": false,
+    "publication": false,
+    "source_kind": "pncp_contrato_api",
+    "window": {
+      "end": "2026-08-19",
+      "start": "2026-07-01"
+    }
+  },
+  "match_quality": [],
+  "method": {
+    "id": "comparable-contracts-peer-group/1.0",
+    "no_embeddings_authority": true,
+    "no_llm": true,
+    "policy": "contract-comparables-policy/1.0",
+    "question_id": "paving_nominal_total_value_position"
+  },
+  "method_version": "comparable-contracts-peer-group/1.0",
+  "metric": "valor_integral_nominal",
+  "metrics_produced": [],
+  "missingness": {
+    "ratio": 1.0,
+    "unknown_excluded": true
+  },
+  "modality": "unknown",
+  "monetary_normalization": null,
+  "national_claim_authorized": false,
+  "no_cross_repo_write": true,
+  "official_live": true,
+  "outlier_treatment": "outliers remain in the sample; IQR 1.5 and MAD robust distance are descriptive; no legal accusation is emitted",
+  "peer_group_id": "pg-1ee8488f3bfb0291",
+  "period": {
+    "data_referencia": "2026-07-08",
+    "year": 2026
+  },
+  "policy_version": "contract-comparables-policy/1.0",
+  "porte": "medio",
+  "producer": "extra-cli",
+  "publication_authorization": false,
+  "question": "Como o valor integral nominal de um contrato público de pavimentação se posiciona frente a contratos comparáveis?",
+  "question_id": "paving_nominal_total_value_position",
+  "reason_codes": [
+    "live_columns_unavailable",
+    "fields_unavailable",
+    "unit_unknown"
+  ],
+  "regime": "unknown",
+  "schema": "authority-handoff-contract-comparables/1.0",
+  "source_kind": "pncp_contrato_api",
+  "status": "HOLD_FOR_DATA",
+  "suppression": {
+    "aggregate_only": false,
+    "peer_ids_emitted": true
+  },
+  "target_contract_id": "14862788000150-2-000069/2026",
+  "total_eligible": 1,
+  "total_found": 1,
+  "total_used": 0,
+  "typology": {
+    "confidence": 0.95,
+    "label": "pavimentacao",
+    "scope": "paving_works"
+  },
+  "unit": "unknown",
+  "unit_metrics": {
+    "emitted": false,
+    "note": "Primary metric is valor_integral_nominal. BRL/m2 is not emitted.",
+    "reason_codes": []
+  },
+  "universe": {
+    "consulta_paving_found": 0,
+    "consulted": "pncp_contrato_api",
+    "dsn_available": false,
+    "window": {
+      "end": "2026-08-19",
+      "start": "2026-07-01"
+    }
+  },
+  "value_semantic": "valor_integral_nominal"
+}

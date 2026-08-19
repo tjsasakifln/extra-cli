@@ -1,0 +1,7 @@
+{
+  "reason_codes": [
+    "live_columns_unavailable",
+    "fields_unavailable",
+    "unit_unknown"
+  ]
+}

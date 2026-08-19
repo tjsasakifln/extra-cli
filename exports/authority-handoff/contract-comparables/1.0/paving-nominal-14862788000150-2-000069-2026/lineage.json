@@ -1,0 +1,39 @@
+{
+  "consumer": "web-cfg#83|#84",
+  "does_not_rewrite": [
+    "#400",
+    "#414",
+    "#302",
+    "web-cfg"
+  ],
+  "imports": [
+    "scripts.contract_comparables.engine.build_peer_group",
+    "scripts.official_contract_semantics.export_comparables.observation_to_contract_record",
+    "scripts.official_contract_semantics.extract.extract_record",
+    "scripts.official_contract_semantics.live.records_from_consulta_listing"
+  ],
+  "live": {
+    "backfill": false,
+    "cache_used": false,
+    "consulta_paving_found": 0,
+    "cutoff": "2026-08-19",
+    "dsn_available": false,
+    "focal_fetch_ok": true,
+    "focal_sha256": "f14acac4716dcbba1d4cd4a3da0b163d61543572ac7845f2c63fc8ba34f9e39c",
+    "focal_url": "https://pncp.gov.br/api/pncp/v1/orgaos/14862788000150/contratos/2026/69",
+    "index": false,
+    "official_live": true,
+    "production_write": false,
+    "publication": false,
+    "source_kind": "pncp_contrato_api",
+    "window": {
+      "end": "2026-08-19",
+      "start": "2026-07-01"
+    }
+  },
+  "official_live": true,
+  "producer": "extra-cli",
+  "replay_command": "python3 -m scripts.contract_comparables live-paving-handoff --focal 14862788000150-2-000069/2026 --as-of 2026-08-19 --start-date 2026-07-01 --end-date 2026-08-19 --limit 200 --metric valor_integral_nominal",
+  "schema": "authority-handoff-lineage/1.0",
+  "source_kind": "pncp_contrato_api"
+}

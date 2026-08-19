@@ -1,0 +1,18 @@
+{
+  "limitations": [
+    "Canary answers only the nominal total-value position question for paving contracts.",
+    "This is not a physical-unit cost, a productivity benchmark, or a legal accusation.",
+    "UNKNOWN is never coerced to zero and never enters the denominator.",
+    "Fixture output is never official_live.",
+    "No national ranking or complete-universe share claim is licensed by this document.",
+    "Metrics withheld because the peer-group gate did not pass.",
+    "Engine document catalog_mode is never official_live until semantic columns exist on official locators.",
+    "Envelope official_live is true only when official PNCP bytes were retrieved.",
+    "BRL/m2 is withheld unless COMPARABLE and every used peer documents area/unit/scope.",
+    "Physical-unit cost metrics are refused without verified quantity and scope.",
+    "UNKNOWN is never coerced to zero and never stored as inapplicable.",
+    "Difference is statistical only. Legal accusation language is out of scope.",
+    "national_claim_authorized is false. The Extra 1.093 slice is not a national denominator.",
+    "MIN_USABLE_N_COMPARABLE=5 is not lowered."
+  ]
+}
