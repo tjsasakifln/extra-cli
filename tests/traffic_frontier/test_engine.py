@@ -331,6 +331,53 @@ def test_high_score_cannot_ready_incomplete_coverage():
     assert record["score"] >= 0
 
 
+def test_fixture_source_access_is_never_labeled_live(tmp_path: Path, monkeypatch):
+    """Fixtures and optional DSN probes must never present the pack as live.
+
+    Drives the shipped pack builder and CLI. Fails if source_access is live,
+    if MARKET_JOB is labeled as keyword volume, or if the written manifest
+    invents a live/GSC snapshot.
+    """
+    pack = build_frontier_pack(as_of=CATALOG_AS_OF)
+    assert pack["manifest"]["source_access"] == "fixtures"
+    assert pack["manifest"]["source_access"] != "live"
+    forbidden_sources = {
+        "live",
+        "keyword_volume",
+        "external_volume",
+        "keyword_tool",
+        "semrush",
+        "ahrefs",
+    }
+    for item in pack["scored"]:
+        signal = item["epistemic"]["SEARCH_SIGNAL"]
+        assert signal["source"] not in forbidden_sources
+        if not signal["gsc_present"]:
+            assert signal["source"] in {"inferred_market_job", "none"}
+            assert signal["impressions"] == 0
+            assert signal["clicks"] == 0
+        job = item["epistemic"]["MARKET_JOB"]
+        assert "keyword_volume" not in json.dumps(job, sort_keys=True)
+
+    probed = build_frontier_pack(as_of=CATALOG_AS_OF, source_access="dsn_ok")
+    assert probed["manifest"]["source_access"] == "dsn_ok"
+    assert probed["manifest"]["source_access"] != "live"
+
+    monkeypatch.delenv("LOCAL_DATALAKE_DSN", raising=False)
+    from scripts.traffic_frontier.cli import main
+
+    dest = tmp_path / "fixture-pack"
+    assert main(["--out", str(dest), "--as-of", CATALOG_AS_OF]) == 0
+    written = json.loads((dest / "manifest.json").read_text(encoding="utf-8"))
+    assert written["source_access"] == "fixtures"
+    assert written["source_access"] != "live"
+    readme = (dest / "README.md").read_text(encoding="utf-8")
+    assert "live" not in readme.lower()
+    assert written["schema"] == "traffic-opportunity-frontier/1.0"
+    assert written["no_publication_authorization"] is True
+    assert written["no_index_authorization"] is True
+
+
 def test_pick_top3_skips_fingerprint_clones():
     ready = [
         {
