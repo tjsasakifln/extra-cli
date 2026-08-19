@@ -15,8 +15,16 @@ from scripts.contract_comparables.corpus import (
     load_corpus,
 )
 from scripts.contract_comparables.engine import build_peer_group
+from scripts.contract_comparables.handoff import write_comparables_handoff
 from scripts.contract_comparables.live import live_or_fixture_only, live_smoke_instructions
 from scripts.contract_comparables.official_canary import run_official_canary
+from scripts.contract_comparables.official_paving import (
+    DEFAULT_AS_OF,
+    DEFAULT_LIMIT,
+    FOCAL_CANARY_CONTRACT_ID,
+    LIVE_PAVING_CANARY_ID,
+    run_live_paving_canary,
+)
 from scripts.contract_comparables.report import evaluate_corpus
 from scripts.contract_comparables.serialize import validate_against_schema
 
@@ -93,6 +101,26 @@ def _cmd_official_canary(args: argparse.Namespace) -> int:
         path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     if payload.get("catalog_mode") == "official_live":
         raise SystemExit("official-canary refused to emit catalog_mode=official_live")
+    return _dump(payload)
+
+
+def _cmd_live_paving_handoff(args: argparse.Namespace) -> int:
+    payload = run_live_paving_canary(
+        dsn=args.dsn,
+        focal_id=args.focal,
+        as_of=args.as_of,
+        start_date=args.start_date,
+        end_date=args.end_date,
+        limit=args.limit,
+        metric=args.metric,
+        max_pages=args.max_pages,
+        cache_dir=Path(args.cache_dir) if args.cache_dir else None,
+    )
+    if payload.get("catalog_mode") == "official_live":
+        raise SystemExit("live-paving-handoff refused to emit catalog_mode=official_live")
+    if args.output:
+        write_comparables_handoff(payload, Path(args.output))
+        payload = {**payload, "handoff_dir": str(Path(args.output))}
     return _dump(payload)
 
 
@@ -175,6 +203,26 @@ def build_parser() -> argparse.ArgumentParser:
     official.add_argument("--metric", default="valor_integral_nominal")
     official.add_argument("--out", default=None)
     official.set_defaults(func=_cmd_official_canary)
+
+    paving = sub.add_parser(
+        "live-paving-handoff",
+        help="Prove one official-live paving peer group or a named fail-closed refusal (#415)",
+    )
+    paving.add_argument("--dsn", default=None)
+    paving.add_argument("--focal", default=FOCAL_CANARY_CONTRACT_ID)
+    paving.add_argument("--as-of", dest="as_of", default=DEFAULT_AS_OF)
+    paving.add_argument("--start-date", dest="start_date", default=None)
+    paving.add_argument("--end-date", dest="end_date", default=None)
+    paving.add_argument("--limit", type=int, default=DEFAULT_LIMIT)
+    paving.add_argument("--metric", default="valor_integral_nominal")
+    paving.add_argument("--max-pages", dest="max_pages", type=int, default=8)
+    paving.add_argument("--cache-dir", dest="cache_dir", default=None)
+    paving.add_argument(
+        "--output",
+        default=None,
+        help=f"Handoff directory. Default: exports/authority-handoff/contract-comparables/1.0/{LIVE_PAVING_CANARY_ID}",
+    )
+    paving.set_defaults(func=_cmd_live_paving_handoff)
     return parser
 
 
