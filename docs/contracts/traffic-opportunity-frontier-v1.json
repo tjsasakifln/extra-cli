@@ -1,0 +1,101 @@
+{
+  "schema": "traffic-opportunity-frontier/1.0",
+  "contract_version": "v1.0.0",
+  "producer": {
+    "id": "extra-cli/traffic-frontier",
+    "entrypoint": "python3 -m scripts.traffic_frontier",
+    "mode": "producer-only",
+    "query_policy": "SELECT-only, bounded, optional",
+    "backfill": false,
+    "publication_authorization": false,
+    "index_authorization": false
+  },
+  "consumer": {
+    "id": "web-cfg/traffic-opportunity-frontier",
+    "repository": "tjsasakifln/web-cfg",
+    "issues_ref": ["#65", "#73"],
+    "producer_issues_ref": ["#415", "#302", "#400"],
+    "decision": "MAY consume the pack for editorial planning; MUST NOT publish or index from this artifact alone"
+  },
+  "score": {
+    "model": "traffic-frontier-score/1.0",
+    "range": [0, 100],
+    "weights": {
+      "search_question_demand": 20,
+      "commercial_pain_ticket": 20,
+      "data_coverage_freshness": 20,
+      "proprietary_differentiation": 15,
+      "citability": 10,
+      "time_to_publish": 10,
+      "maintenance_cost": 5
+    },
+    "maintenance_cost_inverted": true,
+    "distinct_from": "scripts.organic.score.CONTENT_VALUE_WEIGHTS"
+  },
+  "states": ["READY", "HOLD_FOR_DATA", "REJECT"],
+  "campaign_statuses": [
+    "READY_FOR_WEB_CONSUMER",
+    "BLOCKED_DATA_COVERAGE",
+    "BLOCKED_SOURCE_ACCESS",
+    "BLOCKED_CI"
+  ],
+  "hard_gates": [
+    "question_clear",
+    "independent_utility",
+    "coverage_sufficient",
+    "no_misleading_claim",
+    "method_reproducible",
+    "cta_natural",
+    "not_doorway",
+    "not_duplicate_asset"
+  ],
+  "epistemic_fields": [
+    "SEARCH_SIGNAL",
+    "MARKET_JOB",
+    "DATA_COVERAGE",
+    "COMMERCIAL_FIT",
+    "DISTINCTIVE_EDGE",
+    "UNKNOWN",
+    "PROHIBITED_CLAIM"
+  ],
+  "families": ["A", "B", "C", "D", "E"],
+  "family_labels": {
+    "A": "preco_ticket_referencia",
+    "B": "reajuste_reequilibrio_margem",
+    "C": "licitacao_proposta",
+    "D": "execucao_contratual",
+    "E": "inteligencia_mercado"
+  },
+  "forbidden_denominators": [
+    "Extra commercial 1093-entity universe",
+    "4-UF published-market slice claimed as BR",
+    "any recorte claimed as BR without nacional_completo"
+  ],
+  "as_of": "snapshot cutoff from the input catalog; never wall-clock",
+  "max_prioritized": 12,
+  "top3_rules": {
+    "materially_distinct_questions": true,
+    "min_funnel_stages": 2,
+    "no_uf_cnpj_clones": true,
+    "non_branded_or_plausible_market_job": true,
+    "insufficient_coverage_never_ready": true
+  },
+  "authorization": {
+    "no_publication_authorization": true,
+    "no_index_authorization": true
+  },
+  "reuse": [
+    "scripts.organic.demand_graph",
+    "scripts.organic.gates",
+    "scripts.public_read.claim_gate",
+    "scripts.public_read.export.canonical_dumps",
+    "scripts.pseo.comparison",
+    "scripts.pseo.provenance",
+    "scripts.coverage.states",
+    "scripts.ops.contract_market_intelligence",
+    "scripts.national_contract_truth",
+    "scripts.commercial.reajuste_14133.domain.data_base_exact",
+    "scripts.lib.value_semantics",
+    "config/commercial_profiles/confenge.yaml"
+  ]
+}
