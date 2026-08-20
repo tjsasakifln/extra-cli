@@ -1,0 +1,123 @@
+{
+  "schema": "public-read-bofu-evidence/1.0",
+  "contract_version": "v1.0.0",
+  "producer": {
+    "id": "extra-cli/bofu-evidence",
+    "entrypoint": "python3 -m scripts.bofu_evidence",
+    "mode": "producer-only",
+    "query_policy": "frozen-fixture only; no SQL write",
+    "backfill": false,
+    "publication": false,
+    "index": false,
+    "national": false
+  },
+  "consumer": {
+    "id": "web-cfg/bofu-evidence",
+    "repository": "tjsasakifln/web-cfg",
+    "decision": "MAY read packs later. MUST NOT publish, index, or treat this artifact as INDEX authority."
+  },
+  "families": [
+    "reequilibrio",
+    "aditivos",
+    "medicoes_glosas",
+    "atrasos_prorrogacoes",
+    "defesa_tecnica",
+    "orcamento_bdi",
+    "pre_licitacao_bid_room",
+    "gestao_acompanhamento"
+  ],
+  "family_labels": {
+    "reequilibrio": "reequilibrio",
+    "aditivos": "aditivos",
+    "medicoes_glosas": "medicoes/glosas",
+    "atrasos_prorrogacoes": "atrasos/prorrogacoes",
+    "defesa_tecnica": "defesa tecnica",
+    "orcamento_bdi": "orcamento/BDI",
+    "pre_licitacao_bid_room": "pre-licitacao/Bid Room",
+    "gestao_acompanhamento": "gestao/acompanhamento"
+  },
+  "required_pack_fields": [
+    "schema",
+    "pack_id",
+    "version",
+    "family",
+    "question",
+    "as_of",
+    "expires",
+    "source",
+    "method",
+    "coverage",
+    "claims",
+    "calculations",
+    "limitations",
+    "prohibited_claims",
+    "state",
+    "publication",
+    "index",
+    "national",
+    "content_hash"
+  ],
+  "epistemic_classes": ["FACT", "CALCULATION", "OBSERVATION", "UNKNOWN"],
+  "states": ["READY", "HOLD", "REJECT"],
+  "authorization": {
+    "publication": false,
+    "index": false,
+    "national": false,
+    "default_false_including_ready": true
+  },
+  "value_semantics": {
+    "comparable_unit": "BRL_TOTAL",
+    "comparable_metric": "valor_integral_nominal",
+    "not": [
+      "unit price",
+      "cost per km",
+      "cost per m2",
+      "BDI coefficient inference",
+      "adjustment due",
+      "margin"
+    ]
+  },
+  "comparable_attachment": {
+    "source_pr": 435,
+    "state": "COMPARABLE",
+    "paving_family": "paralelepipedo",
+    "n_used": 12,
+    "unit": "BRL_TOTAL",
+    "pertinent_families": ["orcamento_bdi"]
+  },
+  "national_coverage": {
+    "source_pr": 437,
+    "verdict": "PARTIAL",
+    "national_claim_authorized": false,
+    "blocks_national_claim": true
+  },
+  "unknown_policy": "Absence of a document or event is UNKNOWN, never a negative FACT",
+  "as_of": "snapshot cutoff from the frozen input; never wall-clock",
+  "freshness": {
+    "max_age_hours": 48,
+    "expired_or_wall_clock_blocks_ready": true
+  },
+  "hash": {
+    "algorithm": "sha256",
+    "encoding": "canonical JSON sort_keys compact separators",
+    "excludes": ["content_hash"]
+  },
+  "forbidden_fields": [
+    "has_right",
+    "irregular",
+    "fraude",
+    "should_adjust",
+    "seo_title",
+    "cta",
+    "INDEX"
+  ],
+  "forbidden_tokens": [
+    "custo/km",
+    "nacional completo"
+  ],
+  "reuse": [],
+  "does_not_import": [
+    "scripts.contract_comparables",
+    "scripts.national_coverage"
+  ]
+}

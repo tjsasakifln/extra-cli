@@ -1,0 +1,18 @@
+{
+  "pr": 435,
+  "state": "COMPARABLE",
+  "paving_family": "paralelepipedo",
+  "target": "14862788000150-2-000069/2026",
+  "n_found": 16,
+  "n_eligible": 13,
+  "n_used": 12,
+  "metric": "valor_integral_nominal",
+  "unit": "BRL_TOTAL",
+  "median": "891625.26",
+  "p25": "519720.89",
+  "p75": "963403.82",
+  "content_hash": "4f71782994e2821e363b7651ce24f6f1d673014cf8cd765adee431acfa437f73",
+  "publication_authorization": false,
+  "index_authorization": false,
+  "national_claim_authorized": false
+}
