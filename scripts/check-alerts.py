@@ -59,9 +59,7 @@ ALERT_DISK_WARN_PCT = int(os.getenv("ALERT_DISK_WARN_PCT", "80"))
 ALERT_BACKUP_MAX_HOURS = int(os.getenv("ALERT_BACKUP_MAX_HOURS", "28"))
 
 BACKUP_LOG_FILE = os.getenv("BACKUP_LOG_FILE", "/var/log/backup-database.log")
-LOCAL_BACKUP_DIR = os.getenv(
-    "LOCAL_BACKUP_DIR", "/var/lib/extra-consultoria/backups/postgresql"
-)
+LOCAL_BACKUP_DIR = os.getenv("LOCAL_BACKUP_DIR", "/var/lib/extra-consultoria/backups/postgresql")
 STORAGE_BOX_MOUNT = os.getenv("BACKUP_MOUNT_POINT", "/mnt/storage-box")
 # Align with health_check: off-site mount optional until provisioned.
 REQUIRE_STORAGE_BOX = os.getenv("REQUIRE_STORAGE_BOX", "0").lower() in {
@@ -279,8 +277,7 @@ def check_storage_box(registry: AlertRegistry) -> None:
                 category="storage",
                 title="Storage Box desmontado",
                 message=(
-                    f"O ponto de montagem {STORAGE_BOX_MOUNT} nao esta montado. "
-                    "Backups para Storage Box podem falhar."
+                    f"O ponto de montagem {STORAGE_BOX_MOUNT} nao esta montado. Backups para Storage Box podem falhar."
                 ),
             )
         else:
@@ -321,7 +318,9 @@ def check_backup(registry: AlertRegistry) -> None:
     if not log_path.exists():
         # Fallback: recent local dump files count as local-backup proof
         dump_dir = Path(LOCAL_BACKUP_DIR)
-        dumps = sorted(dump_dir.glob("*.dump"), key=lambda x: x.stat().st_mtime, reverse=True) if dump_dir.is_dir() else []
+        dumps = (
+            sorted(dump_dir.glob("*.dump"), key=lambda x: x.stat().st_mtime, reverse=True) if dump_dir.is_dir() else []
+        )
         if dumps:
             age_h = (datetime.now(UTC).timestamp() - dumps[0].stat().st_mtime) / 3600
             if age_h <= ALERT_BACKUP_MAX_HOURS:
@@ -439,6 +438,77 @@ def check_api_keys(registry: AlertRegistry) -> None:
         )
 
 
+def _should_check_pncp_contract_freshness() -> bool:
+    raw = (os.getenv("PNCP_FRESHNESS_ALERTS") or "").strip().lower()
+    if raw in {"0", "false", "no"}:
+        return False
+    if raw in {"1", "true", "yes"}:
+        return True
+    return Path("/opt/extra-consultoria").is_dir() and Path("/var/lib/extra-consultoria").is_dir()
+
+
+def check_pncp_contract_freshness(
+    registry: AlertRegistry,
+    contract: dict[str, Any] | None = None,
+) -> None:
+    """Fail-closed PNCP contracts freshness via the versioned contract producer.
+
+    Host-only by default (or PNCP_FRESHNESS_ALERTS=1). UNKNOWN/STALE are critical;
+    DEGRADED is a warning. An active timer is not treated as FRESH.
+    """
+    if contract is None and not _should_check_pncp_contract_freshness():
+        return
+    from scripts.ops.pncp_contract_freshness import (  # noqa: PLC0415
+        build_contract,
+        collect_snapshot,
+        evaluate_for_alerts,
+    )
+
+    artifact = contract
+    if artifact is None:
+        snapshot_env = (os.getenv("PNCP_FRESHNESS_SNAPSHOT") or "").strip()
+        snapshot_path = Path(snapshot_env) if snapshot_env else None
+        try:
+            snapshot = collect_snapshot(live=True, snapshot_path=snapshot_path)
+            artifact = build_contract(snapshot)
+        except Exception as exc:
+            registry.add(
+                severity=2,
+                category="freshness",
+                title="PNCP contracts freshness UNKNOWN",
+                message="Freshness contract producer failed; absence of evidence is not FRESH.",
+                details=str(exc),
+            )
+            return
+    severity, title, message = evaluate_for_alerts(artifact)
+    if severity <= 0:
+        return
+    registry.add(
+        severity=severity,
+        category="freshness",
+        title=title,
+        message=message,
+        details=json.dumps(
+            {
+                "status": artifact.get("status"),
+                "reason_codes": artifact.get("reason_codes"),
+                "current_lag_hours": artifact.get("current_lag_hours"),
+                "latest_successful_closed_window": artifact.get("latest_successful_closed_window"),
+                "unresolved_window_count": artifact.get("unresolved_window_count"),
+                "oldest_unresolved_gap": artifact.get("oldest_unresolved_gap"),
+                "last_run_at": artifact.get("last_run_at"),
+                "next_run_at": artifact.get("next_run_at"),
+                "last_error": artifact.get("last_error"),
+                "backup_freshness": artifact.get("backup_freshness"),
+                "checkpoint_health": artifact.get("checkpoint_health"),
+                "deployed_sha": artifact.get("deployed_sha"),
+                "health_exit": artifact.get("health_exit"),
+            },
+            default=str,
+        ),
+    )
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -464,6 +534,8 @@ def run_checks(dry_run: bool = False) -> AlertRegistry:
     # Crawl checks (requires DB — skip if DB is down)
     if not any(a["category"] == "db" and a["severity"] >= 2 for a in registry.alerts):
         check_consecutive_crawl_failures(registry, ALERT_CONSECUTIVE_FAILURES)
+
+    check_pncp_contract_freshness(registry)
 
     # API key checks
     check_api_keys(registry)

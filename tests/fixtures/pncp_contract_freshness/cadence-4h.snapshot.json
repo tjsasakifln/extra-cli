@@ -1,0 +1,77 @@
+{
+  "as_of": "2026-08-20T15:00:00Z",
+  "live": true,
+  "has_evidence": true,
+  "deployed_sha": "post-cadence-remediation",
+  "policy_version": "pncp-contracts.timer/*-*-* 00,04,08,12,16,20:00:00 America/Sao_Paulo",
+  "run_id": "contracts-90d-20260820T150000Z-cadence4h",
+  "attempt_id": "contracts-90d-20260820T150000Z-cadence4h",
+  "source_publication_or_update_at": "2026-08-20T12:00:10Z",
+  "first_observed_at": "2026-08-20T12:21:00Z",
+  "persisted_at": "2026-08-20T12:21:00Z",
+  "windows": [
+    {
+      "window_key": "20260813_20260820",
+      "status": "completed",
+      "source_window": {"start": "2026-08-13", "end": "2026-08-20"},
+      "pages_expected": 92,
+      "pages_fetched": 92,
+      "expected": 45000,
+      "fetched": 45000,
+      "persisted": 18000,
+      "deduplicated": 27000,
+      "failed": 0,
+      "closed_at": "2026-08-20T12:21:00Z",
+      "run_id": "contracts-90d-20260820T150000Z-cadence4h"
+    }
+  ],
+  "checkpoint": {
+    "path": "/var/lib/extra-consultoria/checkpoints/contracts/contracts_full.json",
+    "in_worktree": false,
+    "sha256": "cadence4h",
+    "completed_windows": ["20260812_20260819", "20260813_20260820"],
+    "blocked_windows": [],
+    "failed_windows": [],
+    "logical_job_id": "pncp-contracts-incremental",
+    "attempt_run_id": "contracts-90d-20260820T150000Z-cadence4h",
+    "updated_at": "2026-08-20T12:21:00Z",
+    "before": {"completed_windows": ["20260812_20260819"]},
+    "after": {"completed_windows": ["20260812_20260819", "20260813_20260820"]}
+  },
+  "timer": {
+    "unit": "pncp-contracts.timer",
+    "active": true,
+    "enabled": true,
+    "last_run_at": "2026-08-20T12:00:00Z",
+    "next_run_at": "2026-08-20T16:00:00Z",
+    "last_result": "success",
+    "last_exec_status": 0,
+    "on_calendar": "*-*-* 00,04,08,12,16,20:00:00 America/Sao_Paulo",
+    "timezone": "America/Sao_Paulo",
+    "persistent": true
+  },
+  "db": {
+    "available": true,
+    "columns": [
+      "contrato_id",
+      "ingested_at",
+      "data_publicacao_fonte",
+      "data_atualizacao_fonte",
+      "first_seen_at"
+    ],
+    "latest_ingested_at": "2026-08-20T12:21:00Z",
+    "latest_source_publication_or_update_at": "2026-08-20T12:00:10Z",
+    "row_count": 4591752
+  },
+  "lags_hours": [0.35, 0.4, 0.5],
+  "backup": {
+    "available": true,
+    "latest_age_hours": 9.0,
+    "restore_hash_identical": true
+  },
+  "evidence_only": {
+    "timer_active": false,
+    "http_200": false,
+    "single_recent_row": false
+  }
+}

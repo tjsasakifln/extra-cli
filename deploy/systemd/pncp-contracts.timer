@@ -1,12 +1,19 @@
 # /etc/systemd/system/pncp-contracts.timer
-# PNCP contracts crawler — Mon, Wed, Fri at 06:00 UTC
+# PNCP contracts incremental — every 4 hours, timezone explicit.
+# Timezone: America/Sao_Paulo (not the host's implicit local clock).
+# Capacity (ec-prod 2026-08-20): last success ~21 min / 92 pages / 45703 rows /
+# 44M RSS / 1min CPU; host load 0.15 on 8 cores. 4h duty cycle ~9%.
+# HARD: max inter-run 4h <= 24h. TARGET 95% <= 6h: 4h + ~21min + RandomizedDelay
+# 300s still < 6h. LOCK_BUSY retry = next 4h slot (not a closed window).
+# Persistent=true catches missed/reboot. extra-db-backup ~06:01 local does not
+# collide with 00/04/08/12/16/20.
 
 [Unit]
 Description=PNCP Contracts Crawler Timer — Extra Consultoria
 Requires=pncp-contracts.service
 
 [Timer]
-OnCalendar=Mon,Wed,Fri *-*-* 06:00:00
+OnCalendar=*-*-* 00,04,08,12,16,20:00:00 America/Sao_Paulo
 RandomizedDelaySec=300
 Persistent=true
 

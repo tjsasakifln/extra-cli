@@ -1,0 +1,93 @@
+{
+  "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
+  "status": "STALE",
+  "reason_codes": [
+    "CADENCE_CANNOT_MEET_6H",
+    "CADENCE_CANNOT_MEET_24H",
+    "LAG_ABOVE_HARD_GUARDRAIL"
+  ],
+  "as_of": "2026-08-20T14:10:00Z",
+  "deployed_sha": "9c5e7d47f99902d9d97cf479aefbba8cd391a14d",
+  "policy_version": "pncp-contracts.timer/Mon,Wed,Fri *-*-* 06:00:00",
+  "slo": {
+    "desired_operational_target_hours": 6.0,
+    "desired_operational_percentile": 95,
+    "desired_hard_guardrail_hours": 24.0,
+    "timer_unit": "pncp-contracts.timer",
+    "timer_on_calendar": "Mon,Wed,Fri *-*-* 06:00:00",
+    "timer_timezone_note": "unit does not set UTC; host local America/Sao_Paulo",
+    "timer_max_inter_run_hours": 72.0,
+    "sustainable_operational_target": false,
+    "sustainable_hard_guardrail": false,
+    "honest_note": "95% <= 6h and 100% <= 24h are campaign targets, not the live cadence. pncp-contracts.timer runs Mon/Wed/Fri 06:00 local (max Fri→Mon 72h). Status is evaluated against the desired 6h/24h SLOs and will not claim FRESH when the timer cannot meet them."
+  },
+  "source_publication_or_update_at": "2026-08-19T00:00:47Z",
+  "first_observed_at": "2026-08-19T09:21:09Z",
+  "persisted_at": "2026-08-19T09:21:09Z",
+  "run_id": "contracts-90d-20260819T090020Z-2d53827e9d",
+  "attempt_id": "contracts-90d-20260819T090020Z-2d53827e9d",
+  "source_window": {
+    "start": "2026-08-12",
+    "end": "2026-08-19"
+  },
+  "expected": 45703,
+  "fetched": 45703,
+  "persisted": 18495,
+  "deduplicated": 27208,
+  "failed": 0,
+  "pages_expected": 92,
+  "pages_fetched": 92,
+  "checkpoint_before": {
+    "completed_windows": [
+      "20260807_20260814"
+    ],
+    "attempt_run_id": "contracts-90d-20260817T090320Z-1762326015"
+  },
+  "checkpoint_after": {
+    "completed_windows": [
+      "20260807_20260814",
+      "20260812_20260819"
+    ],
+    "attempt_run_id": "contracts-90d-20260819T090020Z-2d53827e9d"
+  },
+  "latest_successful_closed_window": "20260812_20260819",
+  "oldest_unresolved_gap": "20260810_20260817",
+  "unresolved_window_count": 1,
+  "current_lag_hours": 28.81277777777778,
+  "lag_p50_hours": 8.85,
+  "lag_p95_hours": 9.34,
+  "lag_p99_hours": 9.34,
+  "lag_sample_n": 5,
+  "last_run_at": "2026-08-19T09:00:20Z",
+  "next_run_at": "2026-08-21T09:00:00Z",
+  "last_error": "source_population_drift:totalRegistros 44515 -> 44517",
+  "timer": {
+    "unit": "pncp-contracts.timer",
+    "active": true,
+    "enabled": true,
+    "last_run_at": "2026-08-19T09:00:20Z",
+    "next_run_at": "2026-08-21T09:00:00Z",
+    "last_result": "success",
+    "last_exec_status": 0,
+    "on_calendar": "Mon,Wed,Fri *-*-* 06:00:00"
+  },
+  "spot_checks": [
+    {
+      "numeroControlePNCP": "83102277000152-2-000663/2026",
+      "pncp_publication": "2026-08-19T00:00:47",
+      "pncp_objeto": "AQUISIÇÃO DE ARMÁRIOS DE METAL PARA ARMAZENAMENTO",
+      "db_present": true,
+      "db_objeto": "AQUISIÇÃO DE ARMÁRIOS DE METAL PARA ARMAZENAMENTO",
+      "reason_code": null
+    },
+    {
+      "numeroControlePNCP": "95782793000154-2-000833/2026",
+      "pncp_publication": "2026-08-20T00:00:39",
+      "pncp_objeto": "MATERIAIS AMBULATORIAIS E INSUMOS HOSPITALARES - LEI 14.133/2021",
+      "db_present": false,
+      "reason_code": "UNCLOSED_CURRENT_WINDOW"
+    }
+  ],
+  "health_exit": 2,
+  "campaign_verdict_hint": "FRESHNESS_DEGRADED"
+}

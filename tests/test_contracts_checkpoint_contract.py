@@ -1,4 +1,5 @@
 """Tests for contracts checkpoint v2 contract and writer lock."""
+
 from __future__ import annotations
 
 import json
@@ -159,9 +160,7 @@ def test_apply_via_pilot_helper(tmp_path: Path, monkeypatch: pytest.MonkeyPatch)
     assert cp.completed_windows == ["20260701_20260707"]
 
 
-def test_incremental_cli_rebind_with_mocked_pilot(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_incremental_cli_rebind_with_mocked_pilot(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """Drive real entry point: rebind stale run_id then invoke pilot with logical job."""
     from scripts.crawl import run_contracts_90d_pilot as pilot
     from scripts.crawl import run_contracts_incremental as inc_mod
@@ -250,3 +249,50 @@ def test_writer_lock_nonblock_busy(tmp_path: Path, monkeypatch: pytest.MonkeyPat
     assert b.acquire() is True
     b.release()
     assert EXIT_LOCK_BUSY == 75
+
+
+def test_restart_preserves_completed_and_archives_conflict(tmp_path: Path) -> None:
+    from scripts.crawl.contracts_checkpoint_contract import archive_checkpoint
+    from scripts.ops.pncp_contract_freshness import resume_units
+
+    path = tmp_path / "contracts_full.json"
+    data = {
+        "source": "pncp_contracts",
+        "mode": "full",
+        "completed_windows": ["20260807_20260814"],
+        "current_window": "20260812_20260819",
+        "meta": {
+            "logical_job_id": LOGICAL_JOB_INCREMENTAL,
+            "attempt_run_id": "attempt-1",
+            "campaign_id": "historical_contracts_incremental",
+            "incremental_days": 7,
+            "checkpoint_version": 2,
+        },
+    }
+    save_raw(path, data)
+    rebound = apply_attempt_to_checkpoint_dict(
+        load_raw(path),
+        "attempt-2-after-restart",
+        logical_job_id=LOGICAL_JOB_INCREMENTAL,
+        campaign_id="historical_contracts_incremental",
+        incremental_days=7,
+    )
+    assert rebound["completed_windows"] == ["20260807_20260814"]
+    pending = resume_units(
+        planned=["20260807_20260814", "20260812_20260819"],
+        completed=rebound["completed_windows"],
+    )
+    assert pending["next_unit"] == "20260812_20260819"
+    assert pending["next_unit"] not in pending["skipped_resume"]
+    bak = archive_checkpoint(path, reason="campaign-mismatch")
+    assert bak is not None and bak.is_file()
+    assert bak.read_text(encoding="utf-8")
+    with pytest.raises(CheckpointContractError):
+        apply_attempt_to_checkpoint_dict(
+            load_raw(path),
+            "foreign",
+            logical_job_id=LOGICAL_JOB_INCREMENTAL,
+            campaign_id="OTHER-CAMPAIGN",
+            incremental_days=7,
+            allow_foreign=False,
+        )

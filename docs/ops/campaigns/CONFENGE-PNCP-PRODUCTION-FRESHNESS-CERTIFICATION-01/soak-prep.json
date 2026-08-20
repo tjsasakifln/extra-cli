@@ -1,0 +1,24 @@
+{
+  "issue": 248,
+  "campaign": "CONFENGE-PNCP-PRODUCTION-FRESHNESS-CERTIFICATION-01",
+  "STATUS": "NOT_STARTED",
+  "SOAK_STARTED_AT": "NOT_STARTED",
+  "SOAK_ENDS_AT": "NOT_STARTED",
+  "exact_sha": "UNSET",
+  "deployed_sha_observed": "9c5e7d47f99902d9d97cf479aefbba8cd391a14d",
+  "host_of_record": "ec-prod / 159.195.18.88 / v2202607385716487230",
+  "workload_policy_version": "pncp-contracts.timer/Mon,Wed,Fri *-*-* 06:00:00",
+  "failure_criteria": [
+    "deploy SHA mismatch",
+    "non-recoverable reboot",
+    "failed restore",
+    "freshness/worker failure",
+    "truth gate violation"
+  ],
+  "restart_conditions": "any invalidating deploy/config/policy change or failure resets the full approved window",
+  "evidence_path": "docs/ops/campaigns/CONFENGE-PNCP-PRODUCTION-FRESHNESS-CERTIFICATION-01/",
+  "current_elapsed_duration": 0,
+  "final_human_verdict": "PENDING",
+  "vps_operational_declared": false,
+  "note": "Preparing evidence is not starting soak. extra-contracts-soak.timer is enabled for EXTRA-OPERATIONAL-RELIABILITY-AND-COVERAGE-CLOSURE-01 and does not stamp issue #248."
+}

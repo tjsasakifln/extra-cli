@@ -1,0 +1,97 @@
+{
+  "as_of": "2026-08-20T14:10:00Z",
+  "live": true,
+  "has_evidence": true,
+  "deployed_sha": "9c5e7d47f99902d9d97cf479aefbba8cd391a14d",
+  "policy_version": "pncp-contracts.timer/Mon,Wed,Fri *-*-* 06:00:00",
+  "run_id": "contracts-90d-20260819T090020Z-2d53827e9d",
+  "attempt_id": "contracts-90d-20260819T090020Z-2d53827e9d",
+  "source_publication_or_update_at": "2026-08-19T00:00:47Z",
+  "first_observed_at": "2026-08-19T09:21:09Z",
+  "persisted_at": "2026-08-19T09:21:09Z",
+  "windows": [
+    {
+      "window_key": "20260812_20260819",
+      "status": "completed",
+      "source_window": {"start": "2026-08-12", "end": "2026-08-19"},
+      "pages_expected": 92,
+      "pages_fetched": 92,
+      "expected": 45703,
+      "fetched": 45703,
+      "persisted": 18495,
+      "deduplicated": 27208,
+      "failed": 0,
+      "closed_at": "2026-08-19T09:21:14Z",
+      "run_id": "contracts-90d-20260819T090020Z-2d53827e9d"
+    }
+  ],
+  "checkpoint": {
+    "path": "/var/lib/extra-consultoria/checkpoints/contracts/contracts_full.json",
+    "in_worktree": false,
+    "sha256": "963550a83f54d53d476babf9a47c91dbc574a29e9805b3e95935d217600daa83",
+    "uid": 1000,
+    "gid": 1000,
+    "mode": "0o644",
+    "completed_windows": ["20260807_20260814", "20260812_20260819"],
+    "blocked_windows": ["20260810_20260817"],
+    "failed_windows": [],
+    "logical_job_id": "pncp-contracts-incremental",
+    "attempt_run_id": "contracts-90d-20260819T090020Z-2d53827e9d",
+    "last_error": "source_population_drift:totalRegistros 44515 -> 44517",
+    "updated_at": "2026-08-19T09:21:14Z",
+    "before": {
+      "completed_windows": ["20260807_20260814"],
+      "attempt_run_id": "contracts-90d-20260817T090320Z-1762326015"
+    },
+    "after": {
+      "completed_windows": ["20260807_20260814", "20260812_20260819"],
+      "attempt_run_id": "contracts-90d-20260819T090020Z-2d53827e9d"
+    }
+  },
+  "timer": {
+    "unit": "pncp-contracts.timer",
+    "active": true,
+    "enabled": true,
+    "last_run_at": "2026-08-19T09:00:20Z",
+    "next_run_at": "2026-08-21T09:00:00Z",
+    "last_result": "success",
+    "last_exec_status": 0,
+    "on_calendar": "Mon,Wed,Fri *-*-* 06:00:00"
+  },
+  "db": {
+    "available": true,
+    "columns": [
+      "contrato_id",
+      "ingested_at",
+      "data_publicacao_fonte",
+      "data_atualizacao_fonte",
+      "first_seen_at"
+    ],
+    "latest_ingested_at": "2026-08-19T09:21:09Z",
+    "latest_source_publication_or_update_at": "2026-08-19T00:00:47Z",
+    "row_count": 4591752
+  },
+  "lags_hours": [9.34, 8.85, 8.85, 8.85, 8.85],
+  "spot_checks": [
+    {
+      "numeroControlePNCP": "83102277000152-2-000663/2026",
+      "pncp_publication": "2026-08-19T00:00:47",
+      "pncp_objeto": "AQUISIÇÃO DE ARMÁRIOS DE METAL PARA ARMAZENAMENTO",
+      "db_present": true,
+      "db_objeto": "AQUISIÇÃO DE ARMÁRIOS DE METAL PARA ARMAZENAMENTO",
+      "reason_code": null
+    },
+    {
+      "numeroControlePNCP": "95782793000154-2-000833/2026",
+      "pncp_publication": "2026-08-20T00:00:39",
+      "pncp_objeto": "MATERIAIS AMBULATORIAIS E INSUMOS HOSPITALARES - LEI 14.133/2021",
+      "db_present": false,
+      "reason_code": "UNCLOSED_CURRENT_WINDOW"
+    }
+  ],
+  "evidence_only": {
+    "timer_active": false,
+    "http_200": false,
+    "single_recent_row": false
+  }
+}
