@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from scripts.bid_readiness_public.hashing import attach_hash
 from scripts.bid_readiness_public.models import SCHEMA_VERSION
 
 REDACTED_CNPJ = "[REDACTED_CNPJ]"
@@ -54,7 +55,7 @@ def redact_value(value: Any) -> Any:
 
 
 def public_envelope(payload: dict[str, Any]) -> dict[str, Any]:
-    """Copy a private envelope with PII redacted and source_access forced."""
+    """Copy a private envelope with PII redacted, then re-hash the public body."""
     copied = redact_value(payload)
     if not isinstance(copied, dict):
         raise TypeError("envelope must be an object")
@@ -64,4 +65,5 @@ def public_envelope(payload: dict[str, Any]) -> dict[str, Any]:
     copied["human_review_required"] = True
     copied["not_legal_conclusion"] = True
     copied["schema_version"] = payload.get("schema_version") or SCHEMA_VERSION
-    return copied
+    copied.pop("content_hash", None)
+    return attach_hash(copied)

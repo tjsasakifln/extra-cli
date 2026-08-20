@@ -1,6 +1,6 @@
 {
   "as_of": "2026-08-20T12:00:00Z",
-  "content_hash": "e1a20f3635dab7e123e4f5a01862ba89ff4a73d2a93fadc2f9e940bab43b085f",
+  "content_hash": "fc714350762bc1d0dbc3ccc096f188e33c552c13372468c2237f557d4ac0bae3",
   "engine_versions": {
     "bid_readiness": "0.1.0",
     "bid_readiness_public": "public-read-bid-readiness-producer/1.0",
@@ -48,8 +48,8 @@
         "evaluated": 1,
         "ratio": 1.0
       },
-      "evidence_hash": "d0b11dfdf19673db803a24b6c9cc6ffa6197fde2aba508109a08b9eadefe740f",
-      "evidence_ref": "sha256:d0b11dfdf19673db803a24b6c9cc6ffa6197fde2aba508109a08b9eadefe740f",
+      "evidence_hash": "84ca307577afe554e4bb6e3a8a9f38fab3cae2a6c983f38fa32557b2c643aedc",
+      "evidence_ref": "sha256:84ca307577afe554e4bb6e3a8a9f38fab3cae2a6c983f38fa32557b2c643aedc",
       "finding_id": "BD-0001",
       "human_review_required": true,
       "interpretive_limit": "Observation bound to the cited locator and method. Not a legal conclusion.",
@@ -137,8 +137,8 @@
         "evaluated": 1,
         "ratio": 1.0
       },
-      "evidence_hash": "96d334829f835da9371174bd6659ac2c7261a09324790a7a2d69646cfddda88f",
-      "evidence_ref": "bid_readiness:MISSING",
+      "evidence_hash": "eb25d73d18cfb1f3b3c4bc229de31a0fef40d5a9794986275da06834e43f8af3",
+      "evidence_ref": "bid_readiness:NEEDS_HUMAN",
       "finding_id": "BR-0002",
       "human_review_required": true,
       "interpretive_limit": "Observation bound to the cited locator and method. Not a legal conclusion.",
@@ -146,15 +146,15 @@
         "page": 2,
         "section": "10"
       },
-      "method": "bid_readiness.match:MISSING",
+      "method": "bid_readiness.match:NEEDS_HUMAN",
       "reason_codes": [
-        "missing_document"
+        "bid_needs_human"
       ],
       "requirement_id": "REQ-TEC-001",
-      "rule": "bid_readiness.match:MISSING",
-      "source_document_id": "requirement:REQ-TEC-001",
-      "state": "UNKNOWN",
-      "statement": "Requirement REQ-TEC-001 has no matching document in the submitted package. Absence is recorded as UNKNOWN coverage, not as an eligibility denial."
+      "rule": "bid_readiness.match:NEEDS_HUMAN",
+      "source_document_id": "doc-02_atestado",
+      "state": "RISK",
+      "statement": "Requirement REQ-TEC-001 is in technical state NEEDS_HUMAN under bid_readiness.match. This is not a legal conclusion."
     }
   ],
   "generated_at": "2026-08-20T12:00:00Z",
@@ -177,15 +177,15 @@
         "filename": "planilha.xlsx",
         "present": true,
         "role": "planilha",
-        "sha256": "d0b11dfdf19673db803a24b6c9cc6ffa6197fde2aba508109a08b9eadefe740f"
+        "sha256": "84ca307577afe554e4bb6e3a8a9f38fab3cae2a6c983f38fa32557b2c643aedc"
       },
       {
-        "bytes": 278,
+        "bytes": 665,
         "content_type": "directory",
         "filename": "documents",
         "present": true,
         "role": "documents",
-        "sha256": "a0c7ca3ebeaea1498d1bea7f33d5d193238c1a4b044beb81f060bb7481cfe0c2"
+        "sha256": "ea8791e45b38ddecfbf670ac515f2d6e4a4f9db77fd6f623cadd99567e871a7d"
       },
       {
         "bytes": 2124,
@@ -238,19 +238,19 @@
     "completeness_without_denominator"
   ],
   "publication_authorization": false,
-  "query_id": "prbr1-5ae876a27ca7845a",
+  "query_id": "prbr1-19c9ce911273faa8",
   "reason_codes": [
-    "BLOCKED_BY_MISSING_DOCUMENT",
-    "mapped_from_blocked_by_missing_document",
-    "missing_document",
+    "BLOCKED_BY_HUMAN_DECISION",
+    "bid_needs_human",
+    "mapped_from_blocked_by_human_decision",
     "requirement_supported"
   ],
-  "run_id": "prbr1-5ae876a27ca7845a",
+  "run_id": "prbr1-19c9ce911273faa8",
   "schema_version": "public-read-bid-readiness/1.0",
   "source_access": "redacted_fixture",
   "summary": {
     "blockers": [
-      "BLOCKED_BY_MISSING_DOCUMENT"
+      "BLOCKED_BY_HUMAN_DECISION"
     ],
     "conflicts": [],
     "covered_items": [
@@ -264,9 +264,7 @@
       "Review RISK items against the cited method and locator.",
       "Do not treat this envelope as authorization to submit, publish, or index."
     ],
-    "missing_items": [
-      "REQ-TEC-001"
-    ],
+    "missing_items": [],
     "observable_review": {
       "estimated_review_minutes": 15,
       "estimated_review_minutes_per_finding": 3,

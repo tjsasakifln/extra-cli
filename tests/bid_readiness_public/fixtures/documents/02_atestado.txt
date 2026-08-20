@@ -1,0 +1,14 @@
+---META---
+{"document_type": "ATESTADO_CAPACIDADE_TECNICA"}
+---ENDMETA---
+
+Atestado de Capacidade Tecnica
+Atestamos para os devidos fins que a empresa EMPRESA FICTICIA LTDA
+executou pavimentacao asfaltica
+Contratante: ORGAO FICTICIO
+Contratada: EMPRESA FICTICIA LTDA
+CNPJ: 12.345.678/0001-99
+Quantidade: 6000
+Unidade: m2
+Objeto: pavimentacao asfaltica em vias urbanas
+Periodo: 2022-2023

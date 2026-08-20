@@ -104,6 +104,8 @@ HOLD_REASON_CODES: frozenset[str] = frozenset(
         "missing_planilha",
         "missing_acervo",
         "missing_documents",
+        "missing_document",
+        "missing_acervo_match",
         "engine_unavailable",
         "unreadable_pdf",
         "incomplete_document",
@@ -111,6 +113,8 @@ HOLD_REASON_CODES: frozenset[str] = frozenset(
         "contradictory_requirement",
         "locator_missing",
         "sensitive_acervo",
+        "fact_refused",
+        "risk_refused",
     }
 )
 

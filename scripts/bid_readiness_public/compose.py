@@ -133,6 +133,20 @@ def _query_id(manifest: dict[str, Any], policy: dict[str, Any], as_of: str) -> s
     )
 
 
+def _is_hold_reason(code: str) -> bool:
+    """Missing data / unevaluated coverage is HOLD. Evaluated RISK stays READY."""
+    normalized = str(code or "")
+    if normalized in HOLD_REASON_CODES:
+        return True
+    upper = normalized.upper()
+    if upper in {"BLOCKED_BY_MISSING_DOCUMENT", "NOT_READY"}:
+        return True
+    lowered = normalized.lower()
+    if lowered in {"mapped_from_blocked_by_missing_document", "mapped_from_not_ready"}:
+        return True
+    return False
+
+
 def _overall_state(
     *,
     rejected: list[str],
@@ -144,7 +158,9 @@ def _overall_state(
     for bundle in bundles:
         codes.extend(bundle.reason_codes)
         codes.extend(bundle.blockers)
-    hold = [code for code in codes if code in HOLD_REASON_CODES]
+        if bundle.missing:
+            codes.append("insufficient_coverage")
+    hold = [code for code in codes if _is_hold_reason(code)]
     if hold:
         return "HOLD_FOR_DATA", sorted(set(hold))
     return "READY_FOR_HUMAN_REVIEW", sorted(set(codes))

@@ -7,10 +7,17 @@ from pathlib import Path
 
 from scripts.bid_readiness_public.cli import main
 from scripts.bid_readiness_public.forbidden import scan_payload
+from scripts.bid_readiness_public.hashing import content_hash
 from scripts.bid_readiness_public.models import OVERALL_STATES, SCHEMA_VERSION
 from scripts.bid_readiness_public.pii import scan_payload_for_pii
 from scripts.bid_readiness_public.redaction import public_envelope
-from tests.bid_readiness_public.helpers import CLOCK, FIXTURES, clean_workbook, produce_happy
+from tests.bid_readiness_public.helpers import (
+    CLOCK,
+    FIXTURES,
+    clean_workbook,
+    incomplete_documents,
+    produce_happy,
+)
 from tests.budget_audit.build_fixtures import build_golden
 
 
@@ -26,11 +33,13 @@ def _assert_flags(payload: dict) -> None:
     assert scan_payload_for_pii(payload) == []
 
 
-def test_happy_path_on_fictional_fixture(tmp_path: Path) -> None:
+def test_happy_path_on_complete_fictional_fixture(tmp_path: Path) -> None:
     payload = produce_happy(tmp_path)
     _assert_flags(payload)
-    assert payload["overall_state"] in {"READY_FOR_HUMAN_REVIEW", "HOLD_FOR_DATA"}
+    assert payload["overall_state"] == "READY_FOR_HUMAN_REVIEW"
     assert payload["source_access"] == "private_local"
+    assert "REQ-TEC-001" not in payload["summary"]["missing_items"]
+    assert "BLOCKED_BY_MISSING_DOCUMENT" not in payload["summary"]["blockers"]
     modules = {finding["finding_id"][:2] for finding in payload["findings"]}
     assert "ED" in modules
     assert "BD" in modules
@@ -40,6 +49,26 @@ def test_happy_path_on_fictional_fixture(tmp_path: Path) -> None:
     assert public["source_access"] == "redacted_fixture"
     assert public["publication_authorization"] is False
     assert public["index_authorization"] is False
+    public_body = {key: value for key, value in public.items() if key != "content_hash"}
+    assert public["content_hash"] == content_hash(public_body)
+    assert public["content_hash"] != payload["content_hash"]
+
+
+def test_incomplete_package_is_hold_for_data(tmp_path: Path) -> None:
+    docs = incomplete_documents(tmp_path / "docs-incomplete")
+    payload = produce_happy(tmp_path, documents=docs)
+    _assert_flags(payload)
+    assert payload["overall_state"] == "HOLD_FOR_DATA"
+    reasons = set(payload["reason_codes"])
+    assert reasons & {
+        "missing_document",
+        "insufficient_coverage",
+        "BLOCKED_BY_MISSING_DOCUMENT",
+        "mapped_from_blocked_by_missing_document",
+    }
+    assert "REQ-TEC-001" in payload["summary"]["missing_items"] or any(
+        "BLOCKED_BY_MISSING_DOCUMENT" in str(item) for item in payload["summary"]["blockers"]
+    )
 
 
 def test_missing_edital_is_hold_unknown_not_negative(tmp_path: Path) -> None:
@@ -219,8 +248,6 @@ def test_cli_run_twice_and_validate(tmp_path: Path) -> None:
                 str(tmp_path / "run3.json"),
                 "--public-out",
                 str(public_out),
-                "--source-access",
-                "redacted_fixture",
             ]
         )
         == 0
@@ -228,3 +255,43 @@ def test_cli_run_twice_and_validate(tmp_path: Path) -> None:
     public = json.loads(public_out.read_text(encoding="utf-8"))
     assert public["source_access"] == "redacted_fixture"
     assert public["publication_authorization"] is False
+    public_body = {key: value for key, value in public.items() if key != "content_hash"}
+    assert public["content_hash"] == content_hash(public_body)
+    private = json.loads((tmp_path / "run3.json").read_text(encoding="utf-8"))
+    assert private["source_access"] == "private_local"
+    assert public["content_hash"] != private["content_hash"]
+
+
+def test_cli_incomplete_package_holds(tmp_path: Path) -> None:
+    planilha = tmp_path / "planilha.xlsx"
+    clean_workbook(planilha)
+    docs = incomplete_documents(tmp_path / "docs-incomplete")
+    out = tmp_path / "hold.json"
+    assert (
+        main(
+            [
+                "run",
+                "--edital",
+                str(FIXTURES / "edital.txt"),
+                "--planilha",
+                str(planilha),
+                "--documents",
+                str(docs),
+                "--acervo",
+                str(FIXTURES / "acervo.json"),
+                "--requirements",
+                str(FIXTURES / "requirements.json"),
+                "--as-of",
+                CLOCK,
+                "--entity",
+                str(FIXTURES / "entity.json"),
+                "--work-dir",
+                str(tmp_path / "hold-work"),
+                "--out",
+                str(out),
+            ]
+        )
+        == 0
+    )
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["overall_state"] == "HOLD_FOR_DATA"

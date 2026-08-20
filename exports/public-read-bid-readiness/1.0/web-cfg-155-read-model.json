@@ -18,7 +18,7 @@
   "not_live": true,
   "overall_state": "READY_FOR_HUMAN_REVIEW",
   "page_authorized": false,
-  "payload_content_hash": "e1a20f3635dab7e123e4f5a01862ba89ff4a73d2a93fadc2f9e940bab43b085f",
+  "payload_content_hash": "fc714350762bc1d0dbc3ccc096f188e33c552c13372468c2237f557d4ac0bae3",
   "publication_authority": false,
   "publication_authorization": false,
   "read_sql": "SELECT\n  schema_version,\n  run_id,\n  query_id,\n  overall_state,\n  generated_at,\n  as_of,\n  expires_at,\n  human_review_required,\n  not_legal_conclusion,\n  publication_authorization,\n  index_authorization,\n  content_hash,\n  producer_version\nFROM public_read_bid_readiness_v1.envelopes\nWHERE query_id = $1\nLIMIT 1",

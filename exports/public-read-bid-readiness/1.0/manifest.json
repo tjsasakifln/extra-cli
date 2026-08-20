@@ -1,6 +1,6 @@
 {
   "consumer": "web-cfg#155",
-  "content_hash": "e829ecc183f511045cd0eb9e6754417b51a0b9a04fcca6572d96ac24a4354900",
+  "content_hash": "450996a9c5327877c1dc74456132dc110de0a34bcd7d381f5bd8df29c64e81d0",
   "files": [
     "web-cfg-155-read-model.json",
     "web-cfg-155-read-model.sql",

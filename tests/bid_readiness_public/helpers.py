@@ -26,6 +26,14 @@ def clean_workbook(path: Path) -> Path:
     return path
 
 
+def incomplete_documents(dest: Path) -> Path:
+    """Package missing the technical atestado — coverage must HOLD."""
+    dest.mkdir(parents=True, exist_ok=True)
+    src = FIXTURES / "documents" / "01_contrato_social.txt"
+    (dest / src.name).write_bytes(src.read_bytes())
+    return dest
+
+
 def produce_happy(tmp_path: Path, **overrides: Any) -> dict[str, Any]:
     if "planilha" not in overrides:
         planilha = tmp_path / "planilha.xlsx"
