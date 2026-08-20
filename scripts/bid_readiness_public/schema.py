@@ -14,12 +14,19 @@ CONTRACT_JSON = CONTRACT_DIR / "public-read-bid-readiness-v1.json"
 CONTRACT_SCHEMA = CONTRACT_DIR / "public-read-bid-readiness-v1.schema.json"
 
 
+def _load_object(path: Path) -> dict[str, Any]:
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(data, dict):
+        raise TypeError(f"expected object JSON in {path}")
+    return data
+
+
 def load_contract() -> dict[str, Any]:
-    return json.loads(CONTRACT_JSON.read_text(encoding="utf-8"))
+    return _load_object(CONTRACT_JSON)
 
 
 def load_schema() -> dict[str, Any]:
-    return json.loads(CONTRACT_SCHEMA.read_text(encoding="utf-8"))
+    return _load_object(CONTRACT_SCHEMA)
 
 
 def validate_payload(payload: dict[str, Any]) -> list[str]:

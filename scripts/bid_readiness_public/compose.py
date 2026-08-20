@@ -184,7 +184,10 @@ def _summary(bundles: list[AdapterBundle]) -> dict[str, Any]:
 
 
 def load_authorized_manifest(path: Path) -> dict[str, Path | None]:
-    payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    raw = json.loads(Path(path).read_text(encoding="utf-8"))
+    if not isinstance(raw, dict):
+        raise RejectedInputError("unauthorized_manifest", "manifest must be an object")
+    payload = raw
     if payload.get("authorized") is not True:
         raise RejectedInputError("unauthorized_manifest", "manifest is not authorized")
     base = Path(path).resolve().parent

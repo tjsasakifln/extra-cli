@@ -8,6 +8,8 @@ Future consumer: **web-cfg #155** (not closed).
 ```
 CAMPAIGN=CONFENGE-EXTRA-BID-READINESS-PUBLIC-READ-V1-01
 BASE_SHA=9c5e7d47f99902d9d97cf479aefbba8cd391a14d
+FINAL_HEAD_SHA=87ff36008ab88f4f85c7900d3a91519ff7ce7302
+PR=https://github.com/tjsasakifln/extra-cli/pull/442
 SCHEMA=public-read-bid-readiness/1.0
 CLI=python3 -m scripts.bid_readiness_public
 MODULES_REUSED=edital_case,budget_audit,technical_acervo,bid_readiness
@@ -20,11 +22,13 @@ PUBLICATION_AUTHORIZATION=false
 INDEX_AUTHORIZATION=false
 HUMAN_REVIEW_REQUIRED=true
 DETERMINISTIC_REPLAY=true
+TESTS=tests/bid_readiness_public 31 passed; reused edital_case 34, budget_audit 21, technical_acervo 25, bid_readiness 35
+CI=opened-on-pr-442
 MERGED=false
 DEPLOYED=false
+FINAL_VERDICT=PUBLIC_READ_V1_READY_FOR_WEB_CONSUMER_IMPLEMENTATION
+EXACT_RESIDUALS=engine CLIs remain campaign-isolated (adapters use library entry points); default extra acervo path refused; bid_readiness BLOCKED_* mapped into the public-read trio; empty engine locators degrade FACT to UNKNOWN
 ```
-
-`FINAL_HEAD_SHA`, `PR`, `TESTS`, `CI` are stamped after the reviewable PR exists.
 
 ## Semantics
 
