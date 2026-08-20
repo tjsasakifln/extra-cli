@@ -9,7 +9,7 @@ from typing import Any
 from scripts.bofu_evidence.claims import build_family_claims
 from scripts.bofu_evidence.fixtures import load_comparable, load_national_coverage, load_snapshot
 from scripts.bofu_evidence.gates import evaluate_gates
-from scripts.bofu_evidence.hashutil import canonical_dumps, content_hash, stamp_hash
+from scripts.bofu_evidence.hashutil import canonical_dumps, sha256_text, stamp_hash
 from scripts.bofu_evidence.models import (
     CONTRACT_PATH,
     CONTRACT_VERSION,
@@ -238,9 +238,9 @@ def build_packs(
     pack_files: dict[str, str] = {}
     for item in packs:
         pack_files[f"packs/{item['family']}.json"] = canonical_dumps(item) + "\n"
-    checksum_rows = [(content_hash(files["manifest.json"]), "manifest.json")]
+    checksum_rows = [(sha256_text(files["manifest.json"]), "manifest.json")]
     for name, body in sorted(pack_files.items()):
-        checksum_rows.append((content_hash(body), name))
+        checksum_rows.append((sha256_text(body), name))
         files[name] = body
     checksum_rows.sort(key=lambda row: row[1])
     sha_body = "".join(f"{digest}  {name}\n" for digest, name in checksum_rows)

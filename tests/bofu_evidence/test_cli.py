@@ -38,3 +38,31 @@ def test_cli_main_twice_same_hashes(tmp_path: Path, capsys) -> None:
         pack = json.loads(pack_path.read_text(encoding="utf-8"))
         assert pack["family"] == family
         assert pack["as_of"] == as_of
+
+
+def test_sha256sums_match_written_file_bytes(tmp_path: Path) -> None:
+    """SHA256SUMS must hash UTF-8 file bytes so `sha256sum -c` succeeds."""
+    import hashlib
+    import subprocess
+
+    dest = tmp_path / "out"
+    assert main(["--out", str(dest), "--as-of", "2026-08-19T00:00:00Z"]) == 0
+    sums = dest / "SHA256SUMS.txt"
+    rows = []
+    for line in sums.read_text(encoding="utf-8").splitlines():
+        digest, name = line.split("  ", 1)
+        payload = dest / name
+        assert payload.is_file(), name
+        assert digest == hashlib.sha256(payload.read_bytes()).hexdigest(), name
+        rows.append(name)
+    assert "manifest.json" in rows
+    assert len(rows) == 9
+    checked = subprocess.run(
+        ["sha256sum", "-c", "SHA256SUMS.txt"],
+        cwd=dest,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert checked.returncode == 0
+    assert checked.stdout.count("OK") == 9
