@@ -1,0 +1,20 @@
+{
+  "status": "pending_merge",
+  "host": "ec-prod",
+  "remote_dir": "/opt/extra-consultoria",
+  "service_user": "extra-consultoria",
+  "preflight_deployed_sha": "bbc4b6b7db295909d773f5a0e1f3314085a2f26c",
+  "preflight_lock": "absent",
+  "target_main_sha": null,
+  "lock": "/var/lock/confenge-production-deploy",
+  "forbidden": [
+    "full-scale",
+    "process_documents cycles",
+    "recrawl",
+    "backfill",
+    "4.5M rewrite",
+    "web-cfg write",
+    "Warmbly write",
+    ".env reset"
+  ]
+}

@@ -1,0 +1,146 @@
+{
+  "contract_version": "public-read-integrity/1.0",
+  "schema_version": "public-read-integrity/1.0",
+  "producer_version": "public-read-integrity-producer/1.0",
+  "freshness_policy": "public-read-integrity-ttl/1.0",
+  "ttl_seconds": 86400,
+  "aggregate_states": [
+    "MATCHES_FOUND",
+    "NO_MATCH_CONFIRMED",
+    "PARTIAL",
+    "UNKNOWN"
+  ],
+  "source_states": [
+    "MATCHES_FOUND",
+    "NO_MATCH_CONFIRMED",
+    "PARTIAL",
+    "UNKNOWN"
+  ],
+  "contracted_sources": ["CEIS", "CNEP"],
+  "uncontracted_sources": ["CEPIM", "CEAF", "TCU", "CNJ", "SICAF"],
+  "freshness_statuses": ["current", "stale", "expired"],
+  "pagination": {
+    "param": "pagina",
+    "base": 1,
+    "complete_only_after_successful_terminal_page": true,
+    "failed_request_is_not_terminal": true,
+    "page_cap_is_incomplete": true,
+    "max_pages": 50
+  },
+  "retry": {
+    "max_retries": 3,
+    "retry_on": ["timeout", "429", "5xx"]
+  },
+  "reason_codes": [
+    "invalid_cnpj",
+    "timeout",
+    "rate_limit_exhausted",
+    "http_5xx",
+    "schema_drift",
+    "parse_incomplete",
+    "pagination_incomplete",
+    "page_cap_hit",
+    "source_unavailable",
+    "retry_exhausted",
+    "stale_cache",
+    "cache_expired",
+    "not_current",
+    "coverage_incomplete",
+    "missing_value_not_negative",
+    "uncontracted_source_ignored",
+    "duplicate_official_id",
+    "duplicate_normalized_fingerprint",
+    "terminal_page_required"
+  ],
+  "payload_fields": [
+    "schema",
+    "schema_version",
+    "query_id",
+    "queried_cnpj",
+    "checked_at",
+    "as_of",
+    "expires_at",
+    "freshness",
+    "aggregate_state",
+    "sources",
+    "records",
+    "limitations",
+    "reason_codes",
+    "not_legal_conclusion",
+    "content_hash",
+    "producer_version",
+    "contracted_sources"
+  ],
+  "source_fields": [
+    "source_id",
+    "official_url",
+    "api_url",
+    "authority",
+    "status",
+    "pages_expected",
+    "pages_fetched",
+    "coverage_complete",
+    "raw_count",
+    "normalized_count",
+    "deduped_count",
+    "reason_codes",
+    "as_of"
+  ],
+  "record_fields": [
+    "source_id",
+    "official_id",
+    "record_type",
+    "authority",
+    "start_date",
+    "end_date",
+    "observed_status",
+    "source_url",
+    "captured_at",
+    "original"
+  ],
+  "forbidden_payload_fields": [
+    "score",
+    "risk_score",
+    "legal_score",
+    "commercial_score",
+    "recommendation",
+    "legal_conclusion",
+    "hire",
+    "reject",
+    "index",
+    "noindex",
+    "canonical"
+  ],
+  "forbidden_copy": "encoded_in_scripts.public_integrity.forbidden",
+  "not_legal_conclusion": true,
+  "notes": {
+    "no_match_requires_full_coverage": true,
+    "failure_is_never_no_match": true,
+    "missing_value_is_not_negative": true,
+    "stale_cache_is_never_current": true,
+    "uncontracted_sources_excluded": true,
+    "sanctions_py_is_not_authority": true,
+    "consumer": "web-cfg#156",
+    "consumer_is_not_live": true,
+    "no_publication_authority": true
+  },
+  "cli": "python3 -m scripts.public_integrity replay --fixture FIXTURE --cnpj DIGITS --out PAYLOAD",
+  "sources": {
+    "CEIS": {
+      "source_id": "CEIS",
+      "path": "/ceis",
+      "api_url": "https://api.portaldatransparencia.gov.br/api-de-dados/ceis",
+      "official_url": "https://portaldatransparencia.gov.br/sancoes/ceis",
+      "authority": "Controladoria-Geral da Uniao (CGU) / Portal da Transparencia",
+      "query_param": "codigoSancionado"
+    },
+    "CNEP": {
+      "source_id": "CNEP",
+      "path": "/cnep",
+      "api_url": "https://api.portaldatransparencia.gov.br/api-de-dados/cnep",
+      "official_url": "https://portaldatransparencia.gov.br/sancoes/cnep",
+      "authority": "Controladoria-Geral da Uniao (CGU) / Portal da Transparencia",
+      "query_param": "codigoSancionado"
+    }
+  }
+}

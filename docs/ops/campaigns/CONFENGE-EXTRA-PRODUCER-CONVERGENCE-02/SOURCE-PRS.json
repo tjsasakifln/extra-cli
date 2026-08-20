@@ -1,0 +1,67 @@
+{
+  "campaign": "CONFENGE-EXTRA-PRODUCER-CONVERGENCE-02",
+  "base_sha": "cfe14234a08f39a4a288e57f184cb23e758667c2",
+  "cut_claimed_main": "b132582cf31629b328e8483175ad6e08bf4e6f89",
+  "sources": [
+    {
+      "source_pr": 435,
+      "head_sha": "b132582cf31629b328e8483175ad6e08bf4e6f89",
+      "unique_commits": [],
+      "unique_files": [],
+      "dependency": "comparables authority already on main",
+      "disposition": "consumed_not_reapplied",
+      "transplanted_sha": null,
+      "tests": "existing tests/contract_comparables remain the authority",
+      "production_proof": "not this campaign's merge",
+      "residual": "issue #415 stays open until consumer/indexation authorized"
+    },
+    {
+      "source_pr": 437,
+      "head_sha": "cfe14234a08f39a4a288e57f184cb23e758667c2",
+      "unique_commits": ["cfe14234a08f39a4a288e57f184cb23e758667c2"],
+      "unique_files": ["already on origin/main including db/migrations/097_national_coverage.sql"],
+      "dependency": "none; already merged",
+      "disposition": "absorbed_on_main_then_hardened",
+      "transplanted_sha": null,
+      "tests": "tests/national_coverage including real_db persist/select/view",
+      "production_proof": "pending host deploy of converged SHA",
+      "residual": "issue #302 stays PARTIAL_RESIDUAL; no 98k census"
+    },
+    {
+      "source_pr": 438,
+      "head_sha": "4c85594b",
+      "unique_commits": [
+        "f65f82ae feat(bofu-evidence): emit public-read-bofu-evidence/1.0 packs",
+        "141f7628 fix(bofu-evidence): hash SHA256SUMS from UTF-8 file bytes"
+      ],
+      "unique_files": ["scripts/bofu_evidence/**", "tests/bofu_evidence/**", "docs/contracts/bofu-evidence-v1.*"],
+      "dependency": "consumes #435 and #437 versioned public schemas",
+      "disposition": "transplanted_then_hardened",
+      "transplanted_sha": ["fb831f6f", "cf8795f2"],
+      "tests": "tests/bofu_evidence including live schema validation",
+      "production_proof": "pending",
+      "residual": "READY is producer-ready, not page authority; web-cfg #156 untouched"
+    },
+    {
+      "source_pr": 439,
+      "head_sha": "e1c74c44",
+      "unique_commits": [
+        "02f84c80 feat(public-integrity): fail-closed CEIS/CNEP producer (#436)",
+        "edebe578 fix(public-integrity): keep pytest fast and surface dedupe reasons"
+      ],
+      "unique_files": ["scripts/public_integrity/**", "tests/public_integrity/**", "docs/contracts/public-read-integrity-v1.*"],
+      "dependency": "independent of #438; shares fail-closed producer posture",
+      "disposition": "transplanted_then_hardened",
+      "transplanted_sha": ["d0bdf5a6", "95e665d5"],
+      "tests": "tests/public_integrity 40+ plus adversarial + live-safe UNKNOWN canary",
+      "production_proof": "pending",
+      "residual": "issue #436 close only after production DoD"
+    },
+    {
+      "source_pr": 413,
+      "disposition": "ignored_untouched",
+      "transplanted_sha": null,
+      "residual": "out of campaign scope"
+    }
+  ]
+}

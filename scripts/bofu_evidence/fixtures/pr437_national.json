@@ -1,0 +1,14 @@
+{
+  "pr": 437,
+  "verdict": "PARTIAL",
+  "national_claim_authorized": false,
+  "national_universe_id": "ncv-pncp-contratos-2026-e1cdad4bf99c2d3b",
+  "catalog_hash": "f2189e7b8b3ee3d8d272d6b404fb10615aa38af80baa54585979f15e12575744",
+  "expected": 3,
+  "closed": 2,
+  "cutoff": "2026-08-16T00:00:00Z",
+  "reason_codes": [
+    "partitions_not_closed",
+    "unconsulted_partitions_remain"
+  ]
+}

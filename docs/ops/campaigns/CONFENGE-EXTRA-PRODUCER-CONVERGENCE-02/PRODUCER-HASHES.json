@@ -1,0 +1,42 @@
+{
+  "bofu": {
+    "index": false,
+    "manifest_hash": "6913d43597a3efa31d47385ddeb43e3699482aaad236c2f1b8f7220e0c0644f0",
+    "national": false,
+    "pack_hashes": {
+      "bofu-aditivos-1.0": "838ff72ce6b860df3bf36ed6266d9804d2ddfadeca0c75d10a16b5e425e52986",
+      "bofu-atrasos_prorrogacoes-1.0": "8828daf58f6bf0934f9573285e97b98c2bb38bb3e1117c56c0f64894f30ef1b4",
+      "bofu-defesa_tecnica-1.0": "443e737050489359e187f7c9af077b5b5b577b5d856004bf3ce7d0bd44607f6e",
+      "bofu-gestao_acompanhamento-1.0": "fd475c5e93d52c662f763d4541599deabb9e45f18ee48abbd4584d329ef52e55",
+      "bofu-medicoes_glosas-1.0": "db7f6c3274ce16e9e7df74b65601962b63cc33f08d342744c7396448dbc454fe",
+      "bofu-orcamento_bdi-1.0": "93d6b05eb1250b0f8cac81c6a28e380997bc733c4a8e36820d2592f69911240f",
+      "bofu-pre_licitacao_bid_room-1.0": "8b1fbe0cbd1da39710040edd905f305e261511660285f09d59fde95523fcebcd",
+      "bofu-reequilibrio-1.0": "18badef6b4a7f941b4f8b36667a339f0e9ece2e55481c6883a8ec97a12632495"
+    },
+    "publication": false,
+    "sha256sums_match": true,
+    "wall_clock_states": {
+      "aditivos": "HOLD",
+      "atrasos_prorrogacoes": "HOLD",
+      "defesa_tecnica": "HOLD",
+      "gestao_acompanhamento": "HOLD",
+      "medicoes_glosas": "HOLD",
+      "orcamento_bdi": "HOLD",
+      "pre_licitacao_bid_room": "HOLD",
+      "reequilibrio": "HOLD"
+    }
+  },
+  "national_coverage": {
+    "catalog_hash": "7f862c1d5f7c262091601b69c15f400c3b3b12d048e202dce79c665c2ad8abed",
+    "content_hash": "92d5ad20f0694b45be92d03df2f04c24db9ca599e7f5b3d8c2b664837420af16",
+    "national_claim_authorized": false,
+    "replay_match": true,
+    "verdict": "BLOCKED"
+  },
+  "public_integrity": {
+    "empty_complete_hash": "02f87568306df4871ec07801767717e6c975eebd73d9db458d39546803e6abc1",
+    "empty_complete_state": "NO_MATCH_CONFIRMED",
+    "replay_match": true,
+    "timeout_state": "PARTIAL"
+  }
+}

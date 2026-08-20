@@ -98,6 +98,10 @@ def reconcile(
         request=request,
         measured=measured,
     )
+    if authorized and freshness.stale_found > 0:
+        authorized = False
+        verdict = "PARTIAL"
+        reasons = tuple([*reasons, "stale_universe"])
     seed = {
         "schema_version": SCHEMA_VERSION,
         "national_universe_id": universe.national_universe_id,
