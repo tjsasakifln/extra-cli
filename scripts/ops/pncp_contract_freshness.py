@@ -3,9 +3,11 @@
 
 Pure classification over timestamps, window counts and checkpoint snapshots.
 HTTP/systemd/PostgreSQL I/O stay behind collect_snapshot so tests do not need
-the VPS. Status is fail-closed against the *desired* 6h/24h SLOs. The Mon/Wed/Fri
-timer cannot meet those SLOs; the artifact records that honestly and never
-relabels UNKNOWN, an active timer, HTTP 200 or a single recent row as FRESH.
+the VPS. Status is fail-closed against the *desired* 6h/24h SLOs. Honesty flags
+(`sustainable_*`, max inter-run) are derived from the shipped
+`pncp-contracts.timer` calendar so they cannot drift from the unit file.
+LOCK_BUSY / exit 75 is never a closed window and never FRESH. UNKNOWN, an
+active timer, HTTP 200 or a single recent row never become FRESH.
 """
 
 from __future__ import annotations
@@ -48,16 +50,17 @@ from scripts.crawl.pncp_entity_pagination import (  # noqa: E402
 CONTRACT_VERSION = "PNCP_CONTRACT_FRESHNESS/1.0"
 STATUSES = ("FRESH", "DEGRADED", "STALE", "UNKNOWN")
 
-# Desired SLOs from the campaign. Not rewritten to match the timer.
+# Desired SLOs from the campaign. Cadence honesty is computed from the unit file.
 DESIRED_OPERATIONAL_TARGET_HOURS = 6.0
 DESIRED_OPERATIONAL_PERCENTILE = 95
 DESIRED_HARD_GUARDRAIL_HOURS = 24.0
-# pncp-contracts.timer: Mon,Wed,Fri 06:00 local (unit does not set UTC).
-TIMER_ON_CALENDAR = "Mon,Wed,Fri *-*-* 06:00:00"
-TIMER_MAX_INTER_RUN_HOURS = 72.0  # Fri 06:00 → Mon 06:00
 TIMER_UNIT = "pncp-contracts.timer"
 SERVICE_UNIT = "pncp-contracts.service"
+TIMER_UNIT_PATH = _PROJECT_ROOT / "deploy" / "systemd" / "pncp-contracts.timer"
+SERVICE_UNIT_PATH = _PROJECT_ROOT / "deploy" / "systemd" / "pncp-contracts.service"
 LOGICAL_JOB_ID = "pncp-contracts-incremental"
+LOCK_BUSY_EXIT = 75
+EXPLICIT_TIMEZONES = frozenset({"UTC", "GMT", "Z", "America/Sao_Paulo"})
 
 REQUIRED_CONTRACT_COLUMNS = (
     "contrato_id",
@@ -97,6 +100,180 @@ REASON_CADENCE_CANNOT_MEET_24H = "CADENCE_CANNOT_MEET_24H"
 REASON_LOCK_BUSY_NO_CLOSE = "LOCK_BUSY_NO_CLOSE"
 REASON_UNCLOSED_CURRENT_WINDOW = "UNCLOSED_CURRENT_WINDOW"
 REASON_EXTERNAL_TRANSIENT = "EXTERNAL_TRANSIENT"
+REASON_TIMER_TIMEZONE_AMBIGUOUS = "TIMER_TIMEZONE_AMBIGUOUS"
+REASON_BACKUP_UNAVAILABLE = "BACKUP_UNAVAILABLE"
+REASON_RESTORE_MISMATCH = "RESTORE_MISMATCH"
+REASON_MISSED_TIMER = "MISSED_TIMER"
+REASON_REBOOT_CATCHUP_REQUIRED = "REBOOT_CATCHUP_REQUIRED"
+
+_ONCALENDAR_RE = re.compile(r"^OnCalendar=(?P<spec>.+?)\s*$", re.MULTILINE)
+_PERSISTENT_RE = re.compile(r"^Persistent=(?P<val>\S+)", re.MULTILINE | re.IGNORECASE)
+_SUCCESS_EXIT_RE = re.compile(r"^SuccessExitStatus=(?P<val>.+)$", re.MULTILINE)
+_DOW_ORDER = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+
+
+def _is_timezone_token(token: str) -> bool:
+    raw = token.strip()
+    if not raw or raw in {"*-*-*", "*", "n/a"}:
+        return False
+    if raw in EXPLICIT_TIMEZONES or raw.startswith("America/") or raw.startswith("UTC"):
+        return True
+    if ":" in raw or raw[0].isdigit() or raw[0] in "+-" or "," in raw or "/" in raw and raw[0].isdigit():
+        return False
+    if raw[:3].title() in _DOW_ORDER or "," in raw:
+        return False
+    return "/" in raw
+
+
+def parse_oncalendar_spec(spec: str) -> dict[str, Any]:
+    """Parse one systemd OnCalendar= value into hours, timezone, max inter-run."""
+    text = spec.strip()
+    tokens = text.split()
+    timezone = None
+    if tokens and _is_timezone_token(tokens[-1]):
+        timezone = tokens[-1]
+        tokens = tokens[:-1]
+    dow = None
+    if tokens and tokens[0][0].isalpha():
+        dow = tokens[0]
+        tokens = tokens[1:]
+    time_part = tokens[-1] if tokens else ""
+    hours = _hours_from_time_part(time_part)
+    max_inter = _max_inter_run_hours(hours, dow)
+    return {
+        "on_calendar": text,
+        "timezone": timezone,
+        "dow": dow,
+        "hours": hours,
+        "max_inter_run_hours": max_inter,
+        "timezone_explicit": timezone in EXPLICIT_TIMEZONES or (timezone or "").startswith("America/"),
+    }
+
+
+def _hours_from_time_part(time_part: str) -> list[int]:
+    if not time_part or time_part in {"hourly", "daily", "weekly"}:
+        if time_part == "hourly":
+            return list(range(24))
+        if time_part == "daily":
+            return [0]
+        if time_part == "weekly":
+            return [0]
+        return []
+    clock = time_part.split(":")[0]
+    if clock == "*":
+        return list(range(24))
+    if "/" in clock:
+        start_raw, step_raw = clock.split("/", 1)
+        start_h = 0 if start_raw in {"", "*"} else int(start_raw)
+        step_h = int(step_raw)
+        if step_h <= 0:
+            return []
+        return list(range(start_h, 24, step_h))
+    out: list[int] = []
+    for piece in clock.split(","):
+        piece = piece.strip()
+        if piece == "*":
+            return list(range(24))
+        out.append(int(piece))
+    return out
+
+
+def _max_inter_run_hours(hours: Sequence[int], dow: str | None) -> float:
+    if dow:
+        names = {name.lower(): idx for idx, name in enumerate(_DOW_ORDER)}
+        days: list[int] = []
+        for token in dow.split(","):
+            key = token.strip()[:3].lower()
+            if key in names:
+                days.append(names[key])
+        if days:
+            ordered_days = sorted(set(days))
+            gaps: list[int] = []
+            for i, day in enumerate(ordered_days):
+                nxt = ordered_days[(i + 1) % len(ordered_days)]
+                gap_days = (nxt - day) % 7
+                if gap_days == 0:
+                    gap_days = 7
+                gaps.append(gap_days * 24)
+            return float(max(gaps))
+    if not hours:
+        return 168.0
+    ordered = sorted({int(h) % 24 for h in hours})
+    gaps = []
+    for i, hour in enumerate(ordered):
+        nxt = ordered[(i + 1) % len(ordered)]
+        gap = (nxt - hour) % 24
+        if gap == 0:
+            gap = 24
+        gaps.append(gap)
+    return float(max(gaps))
+
+
+def cadence_from_unit_text(text: str) -> dict[str, Any]:
+    """Derive cadence honesty from a systemd timer unit file."""
+    specs = [match.group("spec").strip() for match in _ONCALENDAR_RE.finditer(text)]
+    parsed = [parse_oncalendar_spec(spec) for spec in specs if spec]
+    persistent_match = _PERSISTENT_RE.search(text)
+    persistent = False
+    if persistent_match:
+        persistent = persistent_match.group("val").strip().lower() in {"true", "yes", "1", "on"}
+    if not parsed:
+        return {
+            "on_calendar": "",
+            "timezone": None,
+            "dow": None,
+            "hours": [],
+            "max_inter_run_hours": 168.0,
+            "timezone_explicit": False,
+            "persistent": persistent,
+            "specs": [],
+        }
+    worst = max(parsed, key=lambda item: float(item["max_inter_run_hours"]))
+    return {**worst, "persistent": persistent, "specs": [item["on_calendar"] for item in parsed]}
+
+
+def parse_success_exit_statuses(text: str) -> list[int]:
+    found: list[int] = []
+    for match in _SUCCESS_EXIT_RE.finditer(text):
+        for piece in match.group("val").split():
+            piece = piece.strip()
+            if piece.isdigit():
+                found.append(int(piece))
+    return found
+
+
+def load_shipped_cadence(*, timer_path: Path | None = None) -> dict[str, Any]:
+    path = timer_path or TIMER_UNIT_PATH
+    return cadence_from_unit_text(path.read_text(encoding="utf-8"))
+
+
+def load_shipped_service_text(*, service_path: Path | None = None) -> str:
+    path = service_path or SERVICE_UNIT_PATH
+    return path.read_text(encoding="utf-8")
+
+
+def classify_backup(
+    *,
+    available: bool | None,
+    restore_hash_identical: bool | None = None,
+    latest_age_hours: float | None = None,
+    max_age_hours: float = 28.0,
+) -> str | None:
+    """Named backup/restore reason. Absence of a snapshot is not a PNCP FRESH proof."""
+    if available is False:
+        return REASON_BACKUP_UNAVAILABLE
+    if restore_hash_identical is False:
+        return REASON_RESTORE_MISMATCH
+    if latest_age_hours is not None and float(latest_age_hours) > float(max_age_hours):
+        return REASON_BACKUP_UNAVAILABLE
+    return None
+
+
+_SHIPPED_CADENCE = load_shipped_cadence()
+TIMER_ON_CALENDAR = str(_SHIPPED_CADENCE.get("on_calendar") or "")
+TIMER_MAX_INTER_RUN_HOURS = float(_SHIPPED_CADENCE.get("max_inter_run_hours") or 168.0)
+TIMER_TIMEZONE = _SHIPPED_CADENCE.get("timezone")
+TIMER_PERSISTENT = bool(_SHIPPED_CADENCE.get("persistent"))
 
 
 _SYSTEMD_TS = re.compile(
@@ -458,8 +635,15 @@ def classify_status(
     if current_lag_hours > hard_guardrail_hours:
         reasons = _unique([*reasons, REASON_LAG_ABOVE_HARD_GUARDRAIL])
         return "STALE", reasons
+    if lock_busy_no_close:
+        # systemd SuccessExitStatus=75 must not mint FRESH / a closed window.
+        return "DEGRADED", reasons
     if current_lag_hours > operational_target_hours:
         reasons = _unique([*reasons, REASON_LAG_ABOVE_OPERATIONAL_TARGET])
+        return "DEGRADED", reasons
+    if cadence_max_inter_run_hours > hard_guardrail_hours:
+        return "STALE", reasons
+    if cadence_max_inter_run_hours > operational_target_hours:
         return "DEGRADED", reasons
     return "FRESH", reasons
 
@@ -472,30 +656,68 @@ def health_exit(status: str) -> int:
     return 2
 
 
-def slo_block() -> dict[str, Any]:
+def slo_block(cadence: Mapping[str, Any] | None = None) -> dict[str, Any]:
+    resolved = dict(cadence) if cadence is not None else load_shipped_cadence()
+    max_hours = float(resolved.get("max_inter_run_hours") or TIMER_MAX_INTER_RUN_HOURS)
+    timezone = resolved.get("timezone")
+    on_calendar = str(resolved.get("on_calendar") or TIMER_ON_CALENDAR)
+    sustainable_hard = max_hours <= DESIRED_HARD_GUARDRAIL_HOURS
+    sustainable_ops = max_hours <= DESIRED_OPERATIONAL_TARGET_HOURS
+    if timezone in EXPLICIT_TIMEZONES or str(timezone or "").startswith("America/"):
+        tz_note = f"explicit {timezone}"
+    else:
+        tz_note = "unit does not set an explicit timezone; host local clock is ambiguous"
+    if sustainable_hard and sustainable_ops:
+        honest = (
+            f"pncp-contracts.timer OnCalendar={on_calendar} (max inter-run {max_hours}h). "
+            "HARD <=24h and 95% <=6h are sustainable on this calendar if a run finishes "
+            "inside the remaining slack (measured incremental ~21min vs 4h slot)."
+        )
+    elif sustainable_hard:
+        honest = (
+            f"pncp-contracts.timer OnCalendar={on_calendar} (max inter-run {max_hours}h) "
+            "meets HARD <=24h but cannot honestly set sustainable_operational_target "
+            "for 95% <=6h."
+        )
+    else:
+        honest = (
+            f"pncp-contracts.timer OnCalendar={on_calendar} (max inter-run {max_hours}h) "
+            "cannot meet 95% <=6h nor 100% <=24h. Status is evaluated against the desired "
+            "6h/24h SLOs and will not claim FRESH when the timer cannot meet them."
+        )
     return {
         "desired_operational_target_hours": DESIRED_OPERATIONAL_TARGET_HOURS,
         "desired_operational_percentile": DESIRED_OPERATIONAL_PERCENTILE,
         "desired_hard_guardrail_hours": DESIRED_HARD_GUARDRAIL_HOURS,
         "timer_unit": TIMER_UNIT,
-        "timer_on_calendar": TIMER_ON_CALENDAR,
-        "timer_timezone_note": "unit does not set UTC; host local America/Sao_Paulo",
-        "timer_max_inter_run_hours": TIMER_MAX_INTER_RUN_HOURS,
-        "sustainable_operational_target": False,
-        "sustainable_hard_guardrail": False,
-        "honest_note": (
-            "95% <= 6h and 100% <= 24h are campaign targets, not the live cadence. "
-            "pncp-contracts.timer runs Mon/Wed/Fri 06:00 local (max Fri→Mon 72h). "
-            "Status is evaluated against the desired 6h/24h SLOs and will not claim FRESH "
-            "when the timer cannot meet them."
-        ),
+        "timer_on_calendar": on_calendar,
+        "timer_timezone_note": tz_note,
+        "timer_max_inter_run_hours": max_hours,
+        "timer_persistent": bool(resolved.get("persistent", TIMER_PERSISTENT)),
+        "sustainable_operational_target": sustainable_ops,
+        "sustainable_hard_guardrail": sustainable_hard,
+        "honest_note": honest,
     }
+
+
+def resolve_effective_cadence(timer: Mapping[str, Any] | None = None) -> dict[str, Any]:
+    """Shipped calendar is the policy. A worse live OnCalendar stays fail-closed."""
+    shipped = load_shipped_cadence()
+    live_spec = str((timer or {}).get("on_calendar") or "").strip()
+    if not live_spec:
+        return {**shipped, "source": "shipped"}
+    live = parse_oncalendar_spec(live_spec)
+    live["persistent"] = shipped.get("persistent")
+    if float(live["max_inter_run_hours"]) > float(shipped["max_inter_run_hours"]):
+        return {**live, "source": "live_worse_than_shipped"}
+    return {**shipped, "source": "shipped", "live_on_calendar": live_spec}
 
 
 def build_contract(snapshot: Mapping[str, Any]) -> dict[str, Any]:
     """Build the versioned artifact from a collected or fixture snapshot."""
     as_of = parse_dt(snapshot.get("as_of")) or datetime.now(UTC)
     timer = dict(snapshot.get("timer") or {})
+    cadence = resolve_effective_cadence(timer)
     checkpoint = dict(snapshot.get("checkpoint") or {})
     db = dict(snapshot.get("db") or {})
     evidence_only = dict(snapshot.get("evidence_only") or {})
@@ -589,16 +811,38 @@ def build_contract(snapshot: Mapping[str, Any]) -> dict[str, Any]:
 
     last_run_at = parse_dt(timer.get("last_run_at"))
     next_run_at = parse_dt(timer.get("next_run_at"))
+    cadence_max = float(cadence.get("max_inter_run_hours") or TIMER_MAX_INTER_RUN_HOURS)
     timer_delayed = False
     if next_run_at is not None and next_run_at < as_of - timedelta(minutes=10):
         timer_delayed = True
-    if last_run_at is not None and (as_of - last_run_at).total_seconds() / 3600.0 > TIMER_MAX_INTER_RUN_HOURS + 1:
+        extra_reasons.append(REASON_MISSED_TIMER)
+    if last_run_at is not None and (as_of - last_run_at).total_seconds() / 3600.0 > cadence_max + 1:
         timer_delayed = True
-    if timer.get("last_exec_status") == 75 and not closed:
+    if snapshot.get("reboot_without_persistent"):
+        extra_reasons.append(REASON_REBOOT_CATCHUP_REQUIRED)
+        timer_delayed = True
+    exec_status = timer.get("last_exec_status")
+    try:
+        exec_status_i = int(exec_status) if exec_status is not None and str(exec_status) != "" else None
+    except (TypeError, ValueError):
+        exec_status_i = None
+    if exec_status_i == LOCK_BUSY_EXIT or bool(timer.get("lock_busy")):
         extra_reasons.append(REASON_LOCK_BUSY_NO_CLOSE)
+    if not cadence.get("timezone_explicit", bool(cadence.get("timezone"))):
+        extra_reasons.append(REASON_TIMER_TIMEZONE_AMBIGUOUS)
 
     if not closed and last_run_at is not None:
         extra_reasons.append(REASON_UNCLOSED_CURRENT_WINDOW)
+
+    backup = dict(snapshot.get("backup") or {})
+    backup_reason = classify_backup(
+        available=backup.get("available"),
+        restore_hash_identical=backup.get("restore_hash_identical"),
+        latest_age_hours=backup.get("latest_age_hours"),
+        max_age_hours=float(backup.get("max_age_hours") or 28.0),
+    )
+    if backup_reason:
+        extra_reasons.append(backup_reason)
 
     status, reasons = classify_status(
         has_evidence=has_evidence and not timer_active_only and not http_200_only and not single_row_only,
@@ -619,6 +863,7 @@ def build_contract(snapshot: Mapping[str, Any]) -> dict[str, Any]:
         timer_delayed=timer_delayed,
         lock_busy_no_close=REASON_LOCK_BUSY_NO_CLOSE in extra_reasons,
         extra_reasons=extra_reasons,
+        cadence_max_inter_run_hours=cadence_max,
     )
 
     latest_window = None
@@ -643,8 +888,9 @@ def build_contract(snapshot: Mapping[str, Any]) -> dict[str, Any]:
         "reason_codes": reasons,
         "as_of": as_of.isoformat().replace("+00:00", "Z"),
         "deployed_sha": snapshot.get("deployed_sha"),
-        "policy_version": snapshot.get("policy_version") or f"{TIMER_UNIT}/{TIMER_ON_CALENDAR}",
-        "slo": slo_block(),
+        "policy_version": snapshot.get("policy_version")
+        or f"{TIMER_UNIT}/{cadence.get('on_calendar') or TIMER_ON_CALENDAR}",
+        "slo": slo_block(cadence),
         "source_publication_or_update_at": source_at.isoformat().replace("+00:00", "Z") if source_at else None,
         "first_observed_at": first_observed.isoformat().replace("+00:00", "Z") if first_observed else None,
         "persisted_at": persisted.isoformat().replace("+00:00", "Z") if persisted else None,
@@ -681,6 +927,26 @@ def build_contract(snapshot: Mapping[str, Any]) -> dict[str, Any]:
         "last_error": checkpoint.get("last_error") or snapshot.get("last_error"),
         "timer": timer,
         "spot_checks": spot_checks,
+        "checkpoint_health": {
+            "path": checkpoint.get("path"),
+            "sha256": checkpoint.get("sha256"),
+            "ok": not bool(
+                checkpoint.get("inconsistent") or checkpoint.get("in_worktree") or checkpoint.get("conflict")
+            ),
+            "in_worktree": bool(checkpoint.get("in_worktree")),
+            "conflict": bool(checkpoint.get("conflict")),
+            "inconsistent": bool(checkpoint.get("inconsistent")),
+            "uid": checkpoint.get("uid"),
+            "gid": checkpoint.get("gid"),
+            "logical_job_id": checkpoint.get("logical_job_id"),
+            "updated_at": checkpoint.get("updated_at"),
+        },
+        "backup_freshness": {
+            "available": backup.get("available"),
+            "latest_age_hours": backup.get("latest_age_hours"),
+            "restore_hash_identical": backup.get("restore_hash_identical"),
+            "reason_code": backup_reason,
+        },
         "health_exit": health_exit(status),
         "campaign_verdict_hint": _verdict_hint(status, has_live=bool(snapshot.get("live"))),
     }
@@ -813,6 +1079,9 @@ def collect_timer_snapshot(
         "last_result": service.get("Result"),
         "last_exec_status": int(status_raw) if status_raw.isdigit() else None,
         "on_calendar": TIMER_ON_CALENDAR,
+        "timezone": TIMER_TIMEZONE,
+        "persistent": TIMER_PERSISTENT,
+        "lock_busy": status_raw.isdigit() and int(status_raw) == LOCK_BUSY_EXIT,
         "raw_last_run_at": last_raw or None,
         "raw_next_run_at": next_raw or None,
     }
@@ -1020,7 +1289,10 @@ def evaluate_for_alerts(contract: Mapping[str, Any]) -> tuple[int, str, str]:
     title = f"PNCP contracts freshness {status}"
     message = (
         f"status={status} lag={lag_txt} closed={contract.get('latest_successful_closed_window')} "
-        f"gaps={contract.get('unresolved_window_count')} reasons={reasons}"
+        f"gaps={contract.get('unresolved_window_count')} next={contract.get('next_run_at')} "
+        f"last_error={contract.get('last_error')} "
+        f"backup={((contract.get('backup_freshness') or {}).get('reason_code') or ((contract.get('backup_freshness') or {}).get('available')))} "
+        f"checkpoint_ok={((contract.get('checkpoint_health') or {}).get('ok'))} reasons={reasons}"
     )
     if status == "FRESH":
         return 0, title, message

@@ -15,6 +15,11 @@ EnvironmentFile=/opt/extra-consultoria/.env
 # ONE_PRODUCTION_LOCK_DOMAIN — lock acquired inside run_contracts_incremental
 # (/run/lock/extra-contracts-writer.lock). Do NOT wrap with outer flock on the
 # same path (would always exit 75). Exit 75 = lock busy (not a source failure).
+# SuccessExitStatus=75 keeps systemd from treating expected writer contention as
+# a unit failure (avoids OnFailure storms). It is NOT a closed window and NOT
+# freshness success: PNCP_CONTRACT_FRESHNESS classifies LOCK_BUSY_NO_CLOSE and
+# the next 4h OnCalendar is the catch-up/retry. --days 7 is overlap for late
+# arrivals/retificações; checkpoint skips already-completed windows.
 SuccessExitStatus=75
 ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.crawl.run_contracts_incremental --days 7
 User=extra-consultoria

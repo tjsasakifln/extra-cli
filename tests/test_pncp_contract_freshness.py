@@ -14,6 +14,10 @@ from scripts.ops.pncp_contract_freshness import (
     CONTRACT_VERSION,
     DESIRED_HARD_GUARDRAIL_HOURS,
     DESIRED_OPERATIONAL_TARGET_HOURS,
+    LOCK_BUSY_EXIT,
+    REASON_BACKUP_UNAVAILABLE,
+    REASON_CADENCE_CANNOT_MEET_6H,
+    REASON_CADENCE_CANNOT_MEET_24H,
     REASON_CHECKPOINT_CONFLICT,
     REASON_CHECKPOINT_IN_WORKTREE,
     REASON_DB_UNAVAILABLE,
@@ -24,9 +28,13 @@ from scripts.ops.pncp_contract_freshness import (
     REASON_LAG_ABOVE_HARD_GUARDRAIL,
     REASON_LAG_ABOVE_OPERATIONAL_TARGET,
     REASON_LATE_ARRIVAL,
+    REASON_LOCK_BUSY_NO_CLOSE,
+    REASON_MISSED_TIMER,
     REASON_MISSING_EVIDENCE,
     REASON_MISSING_SOURCE_TIMESTAMP,
     REASON_PAGINATION_INCOMPLETE,
+    REASON_REBOOT_CATCHUP_REQUIRED,
+    REASON_RESTORE_MISMATCH,
     REASON_RETIFICACAO,
     REASON_SCHEMA_DRIFT,
     REASON_SINGLE_ROW_NOT_PROOF,
@@ -37,7 +45,10 @@ from scripts.ops.pncp_contract_freshness import (
     REASON_WINDOW_EMPTY_INCOMPLETE,
     REASON_WINDOW_INCOMPLETE,
     STATUSES,
+    TIMER_UNIT_PATH,
     build_contract,
+    cadence_from_unit_text,
+    classify_backup,
     classify_ingest_http,
     classify_late_arrival,
     classify_replay,
@@ -52,8 +63,13 @@ from scripts.ops.pncp_contract_freshness import (
     health_exit,
     lag_percentiles,
     legal_page_size,
+    load_shipped_cadence,
+    load_shipped_service_text,
     main,
     parse_dt,
+    parse_oncalendar_spec,
+    parse_success_exit_statuses,
+    resolve_effective_cadence,
     resume_units,
 )
 from scripts.ops.source_contract_tests import classify_http_outcome
@@ -224,7 +240,10 @@ def test_lag_above_target_degraded_and_24h_stale() -> None:
     assert live["status"] == "STALE"
     assert live["current_lag_hours"] is not None
     assert live["current_lag_hours"] > DESIRED_HARD_GUARDRAIL_HOURS
-    assert live["slo"]["sustainable_operational_target"] is False
+    assert live["slo"]["sustainable_operational_target"] is True
+    assert live["slo"]["sustainable_hard_guardrail"] is True
+    assert live["slo"]["timer_max_inter_run_hours"] <= DESIRED_OPERATIONAL_TARGET_HOURS
+    assert REASON_CADENCE_CANNOT_MEET_24H not in live["reason_codes"]
     assert live["slo"]["desired_operational_target_hours"] == DESIRED_OPERATIONAL_TARGET_HOURS
 
 
@@ -433,6 +452,20 @@ def test_overlapped_blocked_window_is_not_material_incomplete() -> None:
     artifact = build_contract(_snapshot())
     assert artifact["unresolved_window_count"] == 1
     assert REASON_WINDOW_INCOMPLETE not in artifact["reason_codes"]
+
+
+def test_cadence_4h_fixture_does_not_claim_cannot_meet_24h(tmp_path: Path) -> None:
+    fixture = Path("tests/fixtures/pncp_contract_freshness/cadence-4h.snapshot.json")
+    out = tmp_path / "cadence-4h.json"
+    rc = main(["--from-snapshot", str(fixture), "--output", str(out), "--json", "--health"])
+    artifact = json.loads(out.read_text(encoding="utf-8"))
+    assert artifact["contract_version"] == CONTRACT_VERSION
+    assert artifact["slo"]["timer_max_inter_run_hours"] == 4.0
+    assert artifact["slo"]["sustainable_hard_guardrail"] is True
+    assert artifact["slo"]["sustainable_operational_target"] is True
+    assert REASON_CADENCE_CANNOT_MEET_24H not in artifact["reason_codes"]
+    assert artifact["status"] == "FRESH"
+    assert rc == artifact["health_exit"] == 0
 
 
 def test_committed_host_fixture_drives_shipped_cli(tmp_path: Path) -> None:
@@ -690,3 +723,143 @@ def test_real_db_marker_not_mocked_in_this_module() -> None:
     assert "unittest.mock" not in source
     assert "pytest.mark.real_db" not in source
     assert "psycopg2.connect = " not in source
+
+
+def test_shipped_timer_is_every_4h_or_6h_with_explicit_timezone() -> None:
+    cadence = load_shipped_cadence()
+    text = TIMER_UNIT_PATH.read_text(encoding="utf-8")
+    parsed = cadence_from_unit_text(text)
+    assert parsed["on_calendar"] == cadence["on_calendar"]
+    assert cadence["timezone"] in {"America/Sao_Paulo", "UTC"}
+    assert cadence["timezone_explicit"] is True
+    assert cadence["persistent"] is True
+    assert cadence["max_inter_run_hours"] in {4.0, 6.0}
+    assert cadence["max_inter_run_hours"] <= DESIRED_HARD_GUARDRAIL_HOURS
+    four = parse_oncalendar_spec("*-*-* 00,04,08,12,16,20:00:00 America/Sao_Paulo")
+    six = parse_oncalendar_spec("*-*-* 00,06,12,18:00:00 America/Sao_Paulo")
+    weekly = parse_oncalendar_spec("Mon,Wed,Fri *-*-* 06:00:00")
+    assert four["max_inter_run_hours"] == 4.0
+    assert six["max_inter_run_hours"] == 6.0
+    assert weekly["max_inter_run_hours"] == 72.0
+    assert four["timezone"] == "America/Sao_Paulo"
+    assert "Mon,Wed,Fri" not in cadence["on_calendar"]
+    slo = build_contract(_snapshot(timer={"active": True, "last_exec_status": 0})).get("slo")
+    assert slo["timer_on_calendar"] == cadence["on_calendar"]
+    assert slo["sustainable_hard_guardrail"] is True
+    if cadence["max_inter_run_hours"] <= DESIRED_OPERATIONAL_TARGET_HOURS:
+        assert slo["sustainable_operational_target"] is True
+        assert REASON_CADENCE_CANNOT_MEET_6H not in build_contract(_snapshot()).get("reason_codes")
+    assert REASON_CADENCE_CANNOT_MEET_24H not in build_contract(_snapshot()).get("reason_codes")
+
+
+def test_lock_busy_exit_75_is_not_fresh_or_closed_window() -> None:
+    service = load_shipped_service_text()
+    assert LOCK_BUSY_EXIT in parse_success_exit_statuses(service)
+    status, reasons = classify_status(
+        has_evidence=True,
+        current_lag_hours=2.0,
+        lock_busy_no_close=True,
+    )
+    assert status != "FRESH"
+    assert status == "DEGRADED"
+    assert REASON_LOCK_BUSY_NO_CLOSE in reasons
+    artifact = build_contract(
+        _snapshot(
+            windows=[_closed_window(closed_at="2026-08-20T12:00:00Z")],
+            timer={
+                "active": True,
+                "last_run_at": "2026-08-20T12:00:00Z",
+                "next_run_at": "2026-08-20T16:00:00Z",
+                "last_exec_status": 75,
+                "last_result": "success",
+                "lock_busy": True,
+                "on_calendar": "*-*-* 00,04,08,12,16,20:00:00 America/Sao_Paulo",
+            },
+            as_of="2026-08-20T12:30:00Z",
+        )
+    )
+    assert artifact["status"] != "FRESH"
+    assert REASON_LOCK_BUSY_NO_CLOSE in artifact["reason_codes"]
+    assert health_exit(artifact["status"]) != 0
+
+
+def test_delayed_missed_reboot_and_overlap_are_named() -> None:
+    missed = build_contract(
+        _snapshot(
+            timer={
+                "active": True,
+                "last_run_at": "2026-08-20T08:00:00Z",
+                "next_run_at": "2026-08-20T12:00:00Z",
+                "last_exec_status": 0,
+                "on_calendar": "*-*-* 00,04,08,12,16,20:00:00 America/Sao_Paulo",
+            },
+            as_of="2026-08-20T14:00:00Z",
+        )
+    )
+    assert REASON_MISSED_TIMER in missed["reason_codes"] or REASON_TIMER_DELAYED in missed["reason_codes"]
+    reboot = build_contract(_snapshot(reboot_without_persistent=True))
+    assert REASON_REBOOT_CATCHUP_REQUIRED in reboot["reason_codes"]
+    assert cadence_from_unit_text(TIMER_UNIT_PATH.read_text(encoding="utf-8"))["persistent"] is True
+    overlap_status, _ = classify_status(
+        has_evidence=True,
+        current_lag_hours=1.0,
+        lock_busy_no_close=True,
+    )
+    assert overlap_status != "FRESH"
+
+
+def test_backup_unavailable_and_restore_mismatch_named() -> None:
+    assert classify_backup(available=False) == REASON_BACKUP_UNAVAILABLE
+    assert classify_backup(available=True, restore_hash_identical=False) == REASON_RESTORE_MISMATCH
+    assert classify_backup(available=True, restore_hash_identical=True, latest_age_hours=2.0) is None
+    assert classify_backup(available=True, latest_age_hours=40.0) == REASON_BACKUP_UNAVAILABLE
+    missing = build_contract(_snapshot(backup={"available": False}))
+    assert REASON_BACKUP_UNAVAILABLE in missing["reason_codes"]
+    assert missing["backup_freshness"]["reason_code"] == REASON_BACKUP_UNAVAILABLE
+    mismatch = build_contract(_snapshot(backup={"available": True, "restore_hash_identical": False}))
+    assert REASON_RESTORE_MISMATCH in mismatch["reason_codes"]
+    assert mismatch["status"] in STATUSES
+
+
+def test_alerts_details_include_detectability_fields() -> None:
+    alerts = _load_check_alerts()
+    registry = alerts.AlertRegistry()
+    artifact = build_contract(_snapshot())
+    assert "checkpoint_health" in artifact
+    assert "backup_freshness" in artifact
+    alerts.check_pncp_contract_freshness(registry, contract=artifact)
+    freshness = [a for a in registry.alerts if a["category"] == "freshness"]
+    assert freshness
+    details = freshness[0]["details"]
+    assert "latest_successful_closed_window" in details
+    assert "current_lag_hours" in details
+    assert "next_run_at" in details
+    assert "last_error" in details
+    assert "backup_freshness" in details
+    assert "checkpoint_health" in details
+
+
+def test_every_4h_does_not_claim_cadence_cannot_meet_24h() -> None:
+    four = resolve_effective_cadence({"on_calendar": "*-*-* 00,04,08,12,16,20:00:00 America/Sao_Paulo"})
+    assert four["max_inter_run_hours"] == 4.0
+    status, reasons = classify_status(
+        has_evidence=True,
+        current_lag_hours=3.0,
+        cadence_max_inter_run_hours=4.0,
+    )
+    assert status == "FRESH"
+    assert REASON_CADENCE_CANNOT_MEET_24H not in reasons
+    assert REASON_CADENCE_CANNOT_MEET_6H not in reasons
+    weekly = resolve_effective_cadence({"on_calendar": "Mon,Wed,Fri *-*-* 06:00:00"})
+    assert weekly["max_inter_run_hours"] == 72.0
+    stale_status, stale_reasons = classify_status(
+        has_evidence=True,
+        current_lag_hours=3.0,
+        cadence_max_inter_run_hours=72.0,
+    )
+    assert stale_status != "FRESH"
+    assert REASON_CADENCE_CANNOT_MEET_24H in stale_reasons
+    assert health_exit("FRESH") == 0
+    assert health_exit("DEGRADED") == 1
+    assert health_exit("STALE") == 2
+    assert health_exit("UNKNOWN") == 2
