@@ -1,0 +1,157 @@
+{
+  "refs": [
+    {
+      "contract_id": "14862788000150-2-000069/2026",
+      "locator": {
+        "json_path": "$.modalidadeNome"
+      },
+      "sha256": "ede0b62a12c34643c93d72bb3c98b08b01b9b595c212738bf9e3cce7b0df42e0",
+      "source_kind": "compra",
+      "url": "https://pncp.gov.br/api/consulta/v1/orgaos/14862788000150/compras/2026/82"
+    },
+    {
+      "contract_id": "14862788000150-2-000065/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000066/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000067/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000069/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000070/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000071/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000072/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000074/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000076/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000077/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000078/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000079/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000083/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000088/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000089/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000090/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    }
+  ]
+}

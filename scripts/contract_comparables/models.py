@@ -130,6 +130,7 @@ class PeerRequest:
     producer_sha: str | None = None
     live_semantic_columns_present: bool = True
     monetary_normalization: str | None = None
+    require_known_regime: bool = True
 
 
 @dataclass(frozen=True)

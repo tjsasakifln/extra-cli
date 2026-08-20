@@ -1,0 +1,8 @@
+{
+  "reason_codes": [
+    "paving_family_mismatch",
+    "unit_from_official_total_field",
+    "regime_unpublished_on_locator",
+    "consulta_cnpj_orgao_bounded"
+  ]
+}

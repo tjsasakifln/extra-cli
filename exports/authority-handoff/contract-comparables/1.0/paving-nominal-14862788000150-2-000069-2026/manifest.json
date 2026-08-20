@@ -1,0 +1,33 @@
+{
+  "canary_id": "paving-nominal-14862788000150-2-000069-2026",
+  "claim_scope": "valor_integral_nominal of official paving contracts in the focal UF, grain=contrato; not a national ranking and not a physical-unit price",
+  "consumer": "web-cfg#83|#84",
+  "content_hash": "4f71782994e2821e363b7651ce24f6f1d673014cf8cd765adee431acfa437f73",
+  "files": [
+    "payload.json",
+    "manifest.json",
+    "lineage.json",
+    "evidence_refs.json",
+    "peer_list.json",
+    "limitations.json",
+    "state.json",
+    "reason_codes.json",
+    "replay.txt",
+    "consumer_instructions.json",
+    "READY.json",
+    "SHA256SUMS"
+  ],
+  "handoff_decision": "READY",
+  "index_authorization": false,
+  "national_claim_authorized": false,
+  "no_cross_repo_write": true,
+  "official_live": true,
+  "peer_group_id": "pg-5b9cbe630a7febe3",
+  "producer": "extra-cli",
+  "publication_authorization": false,
+  "replay_command": "python3 -m scripts.contract_comparables live-paving-handoff --focal 14862788000150-2-000069/2026 --as-of 2026-08-19 --start-date 2026-07-01 --end-date 2026-08-19 --limit 200 --metric valor_integral_nominal",
+  "schema": "authority-handoff-contract-comparables/1.0",
+  "source_kind": "pncp_consulta_api",
+  "status": "COMPARABLE",
+  "target_contract_id": "14862788000150-2-000069/2026"
+}
