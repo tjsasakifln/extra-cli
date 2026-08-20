@@ -2,12 +2,41 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 SCHEMA = "public-read-bofu-evidence/1.0"
 CONTRACT_VERSION = "v1.0.0"
 PACK_VERSION = "1.0"
 CONTRACT_PATH = "docs/contracts/bofu-evidence-v1.json"
+NATIONAL_SCHEMA = "national-coverage/1.0"
+NATIONAL_CONTRACT_PATH = Path("docs/contracts/national-coverage/national-coverage-v1.json")
+COMPARABLE_ACCEPTED_SCHEMAS = frozenset(
+    {
+        "comparable-contracts/1.0",
+        "public-read-comparable-contracts/1.0",
+        "authority-handoff-contract-comparables/1.0",
+    }
+)
+NATIONAL_VERDICTS = frozenset({"NATIONAL_CLAIM_AUTHORIZED", "PARTIAL", "NOT_MEASURED", "BLOCKED"})
+FORBIDDEN_NATIONAL_SOURCES = frozenset(
+    {
+        "extra_1093",
+        "extra-1093",
+        "extra_1093_monitored",
+        "extra-canonical-seed",
+        "sc_public_entities.raio_200km",
+        "icp_commercial",
+        "observed_corpus",
+        "raw_national",
+        "row_count",
+    }
+)
+
+
+class BofuInputError(ValueError):
+    """Expired, incompatible, missing, or fixture-as-live input."""
+
 
 FAMILIES: tuple[str, ...] = (
     "reequilibrio",
@@ -53,6 +82,7 @@ REQUIRED_PACK_FIELDS: tuple[str, ...] = (
     "question",
     "as_of",
     "expires",
+    "expires_at",
     "source",
     "method",
     "coverage",

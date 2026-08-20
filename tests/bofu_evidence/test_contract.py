@@ -41,5 +41,6 @@ def test_contract_lists_eight_families_and_default_false_flags() -> None:
     assert contract["national_coverage"]["verdict"] == "PARTIAL"
     assert contract["national_coverage"]["national_claim_authorized"] is False
     assert list(contract["required_pack_fields"]) == list(REQUIRED_PACK_FIELDS)
-    assert "scripts.contract_comparables" in contract["does_not_import"]
-    assert "scripts.national_coverage" in contract["does_not_import"]
+    assert "expires_at" in contract["required_pack_fields"]
+    assert "docs/contracts/national-coverage/national-coverage-v1.json" in contract["consumes_public_contracts"]
+    assert "scripts.contract_comparables.engine" in contract["does_not_import"]

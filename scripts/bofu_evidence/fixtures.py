@@ -1,4 +1,9 @@
-"""Load frozen snapshot and live-state fixtures for #435 / #437."""
+"""Load frozen snapshot and synthetic #435 / #437 copies.
+
+These copies are test-only. Live packs must consume versioned public
+schemas/hashes/state from scripts.national_coverage and
+scripts.contract_comparables contracts.
+"""
 
 from __future__ import annotations
 

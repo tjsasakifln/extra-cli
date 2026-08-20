@@ -1,15 +1,15 @@
 {
   "schema_version": "1.1",
   "active": {
-    "reason": "PR #325 closes one coordinated fail-closed data-truth wave whose migrations, canonical runtime consumers, pilot gate, and commercial CNPJ-only consumers must change atomically. Splitting after adversarial validation would temporarily reintroduce incompatible supplier identity and pilot-coverage semantics. The human owner explicitly authorized the necessary exception on 2026-08-13. No file-count, line-count, binary, generated-artifact, lint, test, or CI gate is waived.",
+    "reason": "CONFENGE-EXTRA-PRODUCER-CONVERGENCE-02 one-PR mandate: transplant unique #438/#439 onto origin/main that already contains #437, plus fail-closed hardening tests. Generated BOFU pack dumps are omitted. No binary, generated-artifact, coverage, skip-policy, or CI gate is waived.",
     "owner": "tjsasakifln",
-    "deadline": "2026-08-20",
-    "approved_by": "tjsasakifln",
+    "deadline": "2026-08-27",
+    "approved_by": "OWNER_CONDITIONAL_PREAPPROVAL_CONFENGE_EXTRA_PRODUCER_CONVERGENCE_02",
     "waives": [
-      "multi_capability_mix"
+      "too_many_files"
     ],
-    "pr": 325,
-    "branch": "agent/critical-issues-wave-1"
+    "pr": null,
+    "branch": "integration/confenge-extra-producer-convergence-02"
   },
   "path_sha_exceptions": [
     {

@@ -10,6 +10,7 @@ from scripts.bofu_evidence.claims import build_family_claims
 from scripts.bofu_evidence.fixtures import load_comparable, load_national_coverage, load_snapshot
 from scripts.bofu_evidence.gates import evaluate_gates
 from scripts.bofu_evidence.hashutil import canonical_dumps, sha256_text, stamp_hash
+from scripts.bofu_evidence.inputs import validate_comparable_input, validate_national_input
 from scripts.bofu_evidence.models import (
     CONTRACT_PATH,
     CONTRACT_VERSION,
@@ -19,6 +20,7 @@ from scripts.bofu_evidence.models import (
     PACK_VERSION,
     PROHIBITED_CLAIMS,
     SCHEMA,
+    BofuInputError,
     pack_id_for,
     validate_pack,
 )
@@ -40,6 +42,8 @@ def _resolve_as_of(
 
 
 def _expires_for(snapshot: dict[str, Any], as_of: str) -> str:
+    if snapshot.get("expires_at"):
+        return str(snapshot["expires_at"])
     if snapshot.get("expires"):
         return str(snapshot["expires"])
     from scripts.bofu_evidence.gates import parse_iso
@@ -47,18 +51,25 @@ def _expires_for(snapshot: dict[str, Any], as_of: str) -> str:
     return (parse_iso(as_of) + timedelta(hours=FRESHNESS_MAX_AGE_HOURS)).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def _source_block(family: str, comparable_attached: bool) -> dict[str, Any]:
+def _source_block(family: str, comparable_attached: bool, *, synthetic: bool) -> dict[str, Any]:
     refs = [
-        "scripts/bofu_evidence/fixtures/snapshot.json",
-        "scripts/bofu_evidence/fixtures/pr437_national.json",
+        "docs/contracts/national-coverage/national-coverage-v1.json",
     ]
     if comparable_attached:
-        refs.append("scripts/bofu_evidence/fixtures/pr435_comparable.json")
+        refs.append("docs/contracts/contract-comparables/comparable-contracts-v1.json")
+    if synthetic:
+        refs = [
+            "scripts/bofu_evidence/fixtures/snapshot.json",
+            "scripts/bofu_evidence/fixtures/pr437_national.json",
+        ]
+        if comparable_attached:
+            refs.append("scripts/bofu_evidence/fixtures/pr435_comparable.json")
     return {
-        "id": "bofu-evidence-frozen-snapshot",
-        "kind": "fixture",
+        "id": "bofu-evidence-frozen-snapshot" if synthetic else "bofu-evidence-versioned-inputs",
+        "kind": "fixture" if synthetic else "versioned_public_contract",
         "family": family,
         "refs": refs,
+        "synthetic": synthetic,
     }
 
 
@@ -110,6 +121,7 @@ def assemble_pack(
     expires: str,
     as_of_source: str,
     now: str,
+    synthetic: bool = False,
 ) -> dict[str, Any]:
     draft = {
         "schema": SCHEMA,
@@ -119,8 +131,9 @@ def assemble_pack(
         "question": FAMILY_QUESTIONS[family],
         "as_of": as_of,
         "expires": expires,
+        "expires_at": expires,
         "as_of_source": as_of_source,
-        "source": _source_block(family, comparable_attached),
+        "source": _source_block(family, comparable_attached, synthetic=synthetic),
         "method": _method_block(),
         "coverage": _coverage_block(national_coverage),
         "claims": claims,
@@ -150,6 +163,30 @@ def assemble_pack(
     return stamped
 
 
+def _load_inputs(
+    *,
+    snapshot: dict[str, Any] | None,
+    comparable: dict[str, Any] | None,
+    national_coverage: dict[str, Any] | None,
+    synthetic: bool,
+    now: str | None,
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any] | None]:
+    if snapshot is None or national_coverage is None:
+        if not synthetic:
+            raise BofuInputError("missing_input")
+        snap = snapshot if snapshot is not None else load_snapshot()
+        cov = national_coverage if national_coverage is not None else load_national_coverage()
+        peers = comparable if comparable is not None else load_comparable()
+    else:
+        snap = snapshot
+        cov = national_coverage
+        peers = comparable
+    cov = validate_national_input(cov, synthetic=synthetic, now=now)
+    if peers is not None:
+        peers = validate_comparable_input(peers, synthetic=synthetic, now=now)
+    return snap, cov, peers
+
+
 def build_family_pack(
     family: str,
     *,
@@ -160,15 +197,20 @@ def build_family_pack(
     now: str | None = None,
     as_of_source: str | None = None,
     force_comparable: bool = False,
+    synthetic: bool = False,
 ) -> dict[str, Any]:
-    snap = snapshot if snapshot is not None else load_snapshot()
-    cov = national_coverage if national_coverage is not None else load_national_coverage()
-    peers = comparable if comparable is not None else load_comparable()
+    snap, cov, peers = _load_inputs(
+        snapshot=snapshot,
+        comparable=comparable,
+        national_coverage=national_coverage,
+        synthetic=synthetic,
+        now=now,
+    )
     resolved_as_of, source = _resolve_as_of(snap, as_of, as_of_source)
     expires = _expires_for(snap, resolved_as_of) if resolved_as_of else ""
     evaluation_now = now or resolved_as_of
     attach_peers = peers if (force_comparable or family == "orcamento_bdi") else None
-    claims, calculations, attached = build_family_claims(family, snap, attach_peers)
+    claims, calculations, attached = build_family_claims(family, snap, attach_peers, synthetic=synthetic)
     if force_comparable:
         attached = True
     return assemble_pack(
@@ -182,6 +224,7 @@ def build_family_pack(
         expires=expires,
         as_of_source=source,
         now=evaluation_now,
+        synthetic=synthetic,
     )
 
 
@@ -193,10 +236,15 @@ def build_packs(
     as_of: str | None = None,
     now: str | None = None,
     as_of_source: str | None = None,
+    synthetic: bool = False,
 ) -> dict[str, Any]:
-    snap = snapshot if snapshot is not None else load_snapshot()
-    cov = national_coverage if national_coverage is not None else load_national_coverage()
-    peers = comparable if comparable is not None else load_comparable()
+    snap, cov, peers = _load_inputs(
+        snapshot=snapshot,
+        comparable=comparable,
+        national_coverage=national_coverage,
+        synthetic=synthetic,
+        now=now,
+    )
     resolved_as_of, source = _resolve_as_of(snap, as_of, as_of_source)
     packs = [
         build_family_pack(
@@ -207,6 +255,7 @@ def build_packs(
             as_of=resolved_as_of,
             now=now,
             as_of_source=source,
+            synthetic=synthetic,
         )
         for family in FAMILIES
     ]

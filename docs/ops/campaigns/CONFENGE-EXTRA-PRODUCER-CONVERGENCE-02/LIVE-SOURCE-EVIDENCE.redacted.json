@@ -1,0 +1,40 @@
+{
+  "aggregate_state": "UNKNOWN",
+  "api_key_present": false,
+  "cnpj_in_stderr": false,
+  "cnpj_in_stdout": false,
+  "content_hash": "a07fcb3cfeb2a0a1df737e9fdcf71d75945bb8c0963022035407ccab08c15851",
+  "false_no_match_confirmed": false,
+  "freshness": {
+    "is_current": true,
+    "policy": "public-read-integrity-ttl/1.0",
+    "status": "current",
+    "ttl_seconds": 86400
+  },
+  "not_legal_conclusion": true,
+  "ran": true,
+  "sources": {
+    "CEIS": {
+      "coverage_complete": false,
+      "pages_expected": null,
+      "pages_fetched": 1,
+      "reason_codes": [
+        "source_unavailable",
+        "pagination_incomplete"
+      ],
+      "status": "UNKNOWN"
+    },
+    "CNEP": {
+      "coverage_complete": false,
+      "pages_expected": null,
+      "pages_fetched": 1,
+      "reason_codes": [
+        "source_unavailable",
+        "pagination_incomplete"
+      ],
+      "status": "UNKNOWN"
+    }
+  },
+  "stderr_redacted": "",
+  "stdout_redacted": "{\"aggregate_state\": \"UNKNOWN\", \"content_hash\": \"a07fcb3cfeb2a0a1df737e9fdcf71d75945bb8c0963022035407ccab08c15851\", \"live\": true, \"schema\": \"public-read-integrity/1.0\"}\n"
+}

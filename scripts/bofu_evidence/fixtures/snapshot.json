@@ -1,6 +1,7 @@
 {
   "as_of": "2026-08-19T00:00:00Z",
   "expires": "2026-08-21T00:00:00Z",
+  "expires_at": "2026-08-21T00:00:00Z",
   "as_of_source": "snapshot",
   "focal_contract_id": "14862788000150-2-000069/2026",
   "geographic_scope": {

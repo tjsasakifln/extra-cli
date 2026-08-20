@@ -5,7 +5,7 @@
     "id": "extra-cli/bofu-evidence",
     "entrypoint": "python3 -m scripts.bofu_evidence",
     "mode": "producer-only",
-    "query_policy": "frozen-fixture only; no SQL write",
+    "query_policy": "versioned public inputs or explicit synthetic fixtures; no SQL write",
     "backfill": false,
     "publication": false,
     "index": false,
@@ -44,6 +44,7 @@
     "question",
     "as_of",
     "expires",
+    "expires_at",
     "source",
     "method",
     "coverage",
@@ -116,8 +117,13 @@
     "nacional completo"
   ],
   "reuse": [],
+  "consumes_public_contracts": [
+    "docs/contracts/national-coverage/national-coverage-v1.json",
+    "docs/contracts/contract-comparables/comparable-contracts-v1.json"
+  ],
   "does_not_import": [
-    "scripts.contract_comparables",
-    "scripts.national_coverage"
+    "scripts.contract_comparables.engine",
+    "scripts.contract_comparables.live",
+    "scripts.national_coverage.store"
   ]
 }

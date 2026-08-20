@@ -125,14 +125,14 @@ def evaluate_gates(
     if as_of_source == "wall_clock":
         hold.append("as_of_wall_clock")
 
-    expires = draft.get("expires")
+    expires = draft.get("expires_at") or draft.get("expires")
     if expires and now:
         if parse_iso(now) > parse_iso(str(expires)):
             hold.append("freshness_expired")
 
     authorized = bool(national_coverage.get("national_claim_authorized"))
     verdict = str(national_coverage.get("verdict") or "")
-    if (not authorized or verdict == "PARTIAL") and _has_national_attempt(draft):
+    if (not authorized or verdict in {"PARTIAL", "BLOCKED", "NOT_MEASURED"}) and _has_national_attempt(draft):
         hold.append("national_claim_blocked")
 
     if _has_unit_promotion(draft):

@@ -87,15 +87,23 @@ def _decimal(value: str) -> Decimal:
     return Decimal(value)
 
 
-def build_comparable_claims(comparable: dict[str, Any]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    ref = f"{EVIDENCE_PREFIX}/pr435_comparable.json"
-    hash_ref = f"pr435:{comparable.get('content_hash')}"
+def build_comparable_claims(
+    comparable: dict[str, Any],
+    *,
+    synthetic: bool = False,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    hash_ref = f"comparable:{comparable.get('content_hash')}"
+    ref = (
+        f"{EVIDENCE_PREFIX}/pr435_comparable.json"
+        if synthetic
+        else str(comparable.get("source_ref") or "comparable-contracts/1.0")
+    )
     refs = (ref, hash_ref)
     claims = [
         make_claim(
             "orcamento-comparable-state",
             "FACT",
-            "O fixture #435 declara estado COMPARABLE para o grupo de pares de paralelepipedo.",
+            "O comparavel #435 declara estado COMPARABLE para o grupo de pares de paralelepipedo.",
             value=comparable.get("state"),
             refs=refs,
             reason_code="comparable_state",
@@ -103,7 +111,7 @@ def build_comparable_claims(comparable: dict[str, Any]) -> tuple[list[dict[str, 
         make_claim(
             "orcamento-comparable-n-used",
             "FACT",
-            "O fixture #435 declara n_used=12 pares no grupo COMPARABLE.",
+            "O comparavel #435 declara n_used pares no grupo COMPARABLE.",
             value=comparable.get("n_used"),
             refs=refs,
             reason_code="comparable_n_used",
@@ -120,7 +128,7 @@ def build_comparable_claims(comparable: dict[str, Any]) -> tuple[list[dict[str, 
         make_claim(
             "orcamento-comparable-median",
             "FACT",
-            "O fixture #435 declara mediana de valor_integral_nominal no grupo COMPARABLE.",
+            "O comparavel #435 declara mediana de valor_integral_nominal no grupo COMPARABLE.",
             value=comparable.get("median"),
             unit=COMPARABLE_UNIT,
             refs=refs,
@@ -150,7 +158,7 @@ def build_comparable_claims(comparable: dict[str, Any]) -> tuple[list[dict[str, 
         make_claim(
             "orcamento-comparable-iqr",
             "CALCULATION",
-            "Amplitude interquartil (p75 - p25) do fixture #435 em BRL_TOTAL.",
+            "Amplitude interquartil (p75 - p25) do comparavel #435 em BRL_TOTAL.",
             value=format(iqr, "f"),
             unit=COMPARABLE_UNIT,
             refs=refs,
@@ -168,6 +176,8 @@ def build_family_claims(
     family: str,
     snapshot: dict[str, Any],
     comparable: dict[str, Any] | None,
+    *,
+    synthetic: bool = False,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], bool]:
     if family == "orcamento_bdi" and comparable_is_pertinent(family) and comparable:
         if comparable.get("unit") != COMPARABLE_UNIT:
@@ -178,7 +188,7 @@ def build_family_claims(
                         "UNKNOWN",
                         "Unidade do comparavel nao e BRL_TOTAL; o pack nao promove a unidade.",
                         value=comparable.get("unit"),
-                        refs=(f"{EVIDENCE_PREFIX}/pr435_comparable.json",),
+                        refs=(f"{EVIDENCE_PREFIX}/pr435_comparable.json" if synthetic else "comparable-contracts/1.0",),
                         reason_code="comparable_unit_not_brl_total",
                     )
                 ],
@@ -193,13 +203,13 @@ def build_family_claims(
                         "UNKNOWN",
                         "Metrica do comparavel nao e valor_integral_nominal.",
                         value=comparable.get("metric"),
-                        refs=(f"{EVIDENCE_PREFIX}/pr435_comparable.json",),
+                        refs=(f"{EVIDENCE_PREFIX}/pr435_comparable.json" if synthetic else "comparable-contracts/1.0",),
                         reason_code="comparable_metric_mismatch",
                     )
                 ],
                 [],
                 False,
             )
-        claims, calculations = build_comparable_claims(comparable)
+        claims, calculations = build_comparable_claims(comparable, synthetic=synthetic)
         return claims, calculations, True
     return build_observed_claims(family, snapshot), [], False

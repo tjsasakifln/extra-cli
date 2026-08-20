@@ -15,14 +15,15 @@ BOFU service families. It is not a page publisher, indexer, SEO brief, CTA
 surface, crawler, datalake writer, or legal opinion.
 
 - Inputs are a frozen snapshot (`as_of` from the snapshot or CLI, never
-  wall-clock).
+  wall-clock) plus versioned public schemas from `#435` and `#437`.
+- Copied fixtures are allowed only in tests marked synthetic/fixture.
+  Expired, incompatible, or missing input is refused.
 - No backfill, no SQL write, no recensus of the live PNCP catalog.
-- `#435` is consumed only as a local COMPARABLE fixture (paralelepípedo,
-  12 peers, metric `valor_integral_nominal`, unit `BRL_TOTAL`).
-- `#437` is consumed only as a local coverage fixture (`PARTIAL`,
-  `national_claim_authorized=false`).
-- `scripts.contract_comparables` and `scripts.national_coverage` are not
-  imported and not reimplemented.
+- `#435` comparables attach only to `orcamento_bdi` as
+  `valor_integral_nominal` / `BRL_TOTAL`.
+- `#437` PARTIAL/BLOCKED blocks any national claim
+  (`national_claim_authorized=false`).
+- Packs serialize both `expires` and `expires_at` to the same timestamp.
 
 `publication`, `index` and `national` are **false by default**, including
 when the pack state is `READY`.

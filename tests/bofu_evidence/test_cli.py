@@ -5,17 +5,24 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from scripts.bofu_evidence.cli import main
-from scripts.bofu_evidence.models import FAMILIES, SCHEMA
+from scripts.bofu_evidence.models import FAMILIES, SCHEMA, BofuInputError
+
+
+def test_cli_without_synthetic_or_versioned_inputs_refuses(tmp_path: Path) -> None:
+    with pytest.raises(BofuInputError, match="missing_input"):
+        main(["--out", str(tmp_path / "missing")])
 
 
 def test_cli_main_twice_same_hashes(tmp_path: Path, capsys) -> None:
     one = tmp_path / "run1"
     two = tmp_path / "run2"
     as_of = "2026-08-19T00:00:00Z"
-    assert main(["--out", str(one), "--as-of", as_of]) == 0
+    assert main(["--out", str(one), "--as-of", as_of, "--synthetic-fixture"]) == 0
     first = json.loads(capsys.readouterr().out)
-    assert main(["--out", str(two), "--as-of", as_of]) == 0
+    assert main(["--out", str(two), "--as-of", as_of, "--synthetic-fixture"]) == 0
     second = json.loads(capsys.readouterr().out)
 
     assert first["ok"] is True
@@ -46,7 +53,7 @@ def test_sha256sums_match_written_file_bytes(tmp_path: Path) -> None:
     import subprocess
 
     dest = tmp_path / "out"
-    assert main(["--out", str(dest), "--as-of", "2026-08-19T00:00:00Z"]) == 0
+    assert main(["--out", str(dest), "--as-of", "2026-08-19T00:00:00Z", "--synthetic-fixture"]) == 0
     sums = dest / "SHA256SUMS.txt"
     rows = []
     for line in sums.read_text(encoding="utf-8").splitlines():

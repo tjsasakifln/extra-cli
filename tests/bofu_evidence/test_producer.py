@@ -16,7 +16,7 @@ from scripts.bofu_evidence.producer import build_family_pack, build_packs
 
 
 def test_build_packs_emits_eight_nominal_families() -> None:
-    bundle = build_packs()
+    bundle = build_packs(synthetic=True)
     assert bundle["schema"] == SCHEMA
     assert len(bundle["packs"]) == 8
     assert [item["family"] for item in bundle["packs"]] == list(FAMILIES)
@@ -25,7 +25,7 @@ def test_build_packs_emits_eight_nominal_families() -> None:
 
 
 def test_each_pack_has_contract_fields_and_epistemic_classes() -> None:
-    bundle = build_packs()
+    bundle = build_packs(synthetic=True)
     for pack in bundle["packs"]:
         for field in REQUIRED_PACK_FIELDS:
             assert field in pack
@@ -34,6 +34,7 @@ def test_each_pack_has_contract_fields_and_epistemic_classes() -> None:
         assert pack["index"] is False
         assert pack["national"] is False
         assert pack["as_of"] == bundle["as_of"]
+        assert pack["expires_at"] == pack["expires"]
         labeled = list(pack["claims"]) + list(pack["calculations"])
         assert labeled
         for item in labeled:
@@ -43,8 +44,8 @@ def test_each_pack_has_contract_fields_and_epistemic_classes() -> None:
 
 
 def test_replay_same_input_same_content_hash() -> None:
-    first = build_packs()
-    second = build_packs()
+    first = build_packs(synthetic=True)
+    second = build_packs(synthetic=True)
     assert first["as_of"] == second["as_of"]
     assert first["sha256sums"] == second["sha256sums"]
     for left, right in zip(first["packs"], second["packs"], strict=True):
@@ -55,7 +56,7 @@ def test_replay_same_input_same_content_hash() -> None:
 
 
 def test_as_of_comes_from_snapshot_not_wall_clock() -> None:
-    bundle = build_packs(as_of="2026-08-19T00:00:00Z")
+    bundle = build_packs(as_of="2026-08-19T00:00:00Z", synthetic=True)
     assert bundle["as_of"] == "2026-08-19T00:00:00Z"
     for pack in bundle["packs"]:
         assert pack["as_of"] == "2026-08-19T00:00:00Z"
@@ -63,7 +64,7 @@ def test_as_of_comes_from_snapshot_not_wall_clock() -> None:
 
 
 def test_pr435_attached_only_where_pertinent_and_stays_brl_total() -> None:
-    bundle = build_packs()
+    bundle = build_packs(synthetic=True)
     attached = [item for item in bundle["packs"] if item["comparable_attached"]]
     assert attached
     assert {item["family"] for item in attached} <= set(COMPARABLE_PERTINENT_FAMILIES)
@@ -78,7 +79,7 @@ def test_pr435_attached_only_where_pertinent_and_stays_brl_total() -> None:
 
 
 def test_absence_is_unknown_not_negative_fact() -> None:
-    pack = build_family_pack("aditivos")
+    pack = build_family_pack("aditivos", synthetic=True)
     unknowns = [item for item in pack["claims"] if item["epistemic_class"] == "UNKNOWN"]
     assert unknowns
     assert any(item["reason_code"] == "document_not_observed" for item in unknowns)

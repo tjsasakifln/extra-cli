@@ -12,13 +12,13 @@ def test_pr437_partial_keeps_national_false_and_blocks_national_claim() -> None:
     coverage = load_national_coverage()
     assert coverage["verdict"] == "PARTIAL"
     assert coverage["national_claim_authorized"] is False
-    bundle = build_packs(national_coverage=coverage)
+    bundle = build_packs(national_coverage=coverage, synthetic=True)
     for pack in bundle["packs"]:
         assert pack["national"] is False
         assert pack["coverage"]["national_claim_authorized"] is False
         assert pack["coverage"]["national_verdict"] == "PARTIAL"
 
-    base = build_family_pack("reequilibrio")
+    base = build_family_pack("reequilibrio", synthetic=True)
     drafted = {key: value for key, value in base.items() if key != "content_hash"}
     drafted["national"] = True
     drafted["coverage"] = {**drafted["coverage"], "kind": "BR"}
@@ -67,19 +67,19 @@ def test_unit_promotion_of_brl_total_holds() -> None:
 
 
 def test_freshness_expired_or_wall_clock_blocks_ready() -> None:
-    expired = build_family_pack("defesa_tecnica", now="2026-08-22T00:00:00Z")
+    expired = build_family_pack("defesa_tecnica", now="2026-08-22T00:00:00Z", synthetic=True)
     assert expired["state"] == "HOLD"
     assert "freshness_expired" in expired["reason_codes"]
     assert expired["publication"] is False
 
-    wall = build_family_pack("defesa_tecnica", as_of_source="wall_clock")
+    wall = build_family_pack("defesa_tecnica", as_of_source="wall_clock", synthetic=True)
     assert wall["state"] == "HOLD"
     assert "as_of_wall_clock" in wall["reason_codes"]
     assert wall["state"] != "READY"
 
 
 def test_comparable_on_non_pertinent_family_holds() -> None:
-    pack = build_family_pack("medicoes_glosas", force_comparable=True)
+    pack = build_family_pack("medicoes_glosas", force_comparable=True, synthetic=True)
     assert pack["comparable_attached"] is True
     assert pack["state"] == "HOLD"
     assert "comparable_not_pertinent" in pack["reason_codes"]

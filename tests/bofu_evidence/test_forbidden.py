@@ -32,14 +32,15 @@ PII_PATTERNS = (
 PRODUCER_ROOT = Path(__file__).resolve().parents[2] / "scripts" / "bofu_evidence"
 FORBIDDEN_IMPORTS = frozenset(
     {
-        "scripts.contract_comparables",
-        "scripts.national_coverage",
+        "scripts.contract_comparables.engine",
+        "scripts.contract_comparables.live",
+        "scripts.national_coverage.store",
     }
 )
 
 
 def test_emitted_packs_omit_forbidden_tokens_and_pii() -> None:
-    bundle = build_packs()
+    bundle = build_packs(synthetic=True)
     blob = canonical_dumps(bundle["manifest"]) + "".join(canonical_dumps(pack) for pack in bundle["packs"])
     for token in FORBIDDEN_TOKENS:
         assert token not in blob
@@ -62,5 +63,6 @@ def test_producer_does_not_import_forbidden_engines() -> None:
                 imported.add(node.module)
     assert imported.isdisjoint(FORBIDDEN_IMPORTS)
     for module in imported:
-        assert not module.startswith("scripts.contract_comparables")
-        assert not module.startswith("scripts.national_coverage")
+        assert module not in FORBIDDEN_IMPORTS
+        assert not module.startswith("scripts.contract_comparables.engine")
+        assert not module.startswith("scripts.contract_comparables.live")
