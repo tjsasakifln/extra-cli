@@ -445,6 +445,20 @@ def parse_window_key(key: str) -> tuple[date, date] | None:
     return start, end
 
 
+def latest_completed_window_key(keys: Sequence[str]) -> str | None:
+    """Most recent completed window by end date, not list insertion order."""
+    best_key: str | None = None
+    best_end: date | None = None
+    for key in keys:
+        span = parse_window_key(str(key))
+        if span is None:
+            continue
+        if best_end is None or span[1] > best_end:
+            best_end = span[1]
+            best_key = str(key)
+    return best_key
+
+
 def last_successful_close_at(
     *,
     latest_closed: Mapping[str, Any] | None,
@@ -459,8 +473,9 @@ def last_successful_close_at(
     explicit = parse_dt(snapshot.get("last_successful_closed_at"))
     if explicit is not None:
         return explicit
-    if completed_keys:
-        span = parse_window_key(str(completed_keys[-1]))
+    latest_key = latest_completed_window_key(completed_keys)
+    if latest_key:
+        span = parse_window_key(latest_key)
         if span is not None:
             end = span[1]
             return datetime(end.year, end.month, end.day, tzinfo=UTC)
@@ -834,12 +849,23 @@ def build_contract(snapshot: Mapping[str, Any]) -> dict[str, Any]:
         if isinstance(w, dict)
         and str(w.get("status") or "").lower() in {"failed", "blocked", "incomplete", "partial", "partial_or_failed"}
     ]
-    latest_closed = closed[-1] if closed else None
     completed_keys = [str(w.get("window_key")) for w in closed if w.get("window_key")]
     for key in checkpoint.get("completed_windows") or []:
         text = str(key)
         if text and text not in completed_keys:
             completed_keys.append(text)
+    latest_key = latest_completed_window_key(completed_keys)
+    latest_closed = None
+    if latest_key:
+        for window in reversed(closed):
+            if str(window.get("window_key") or "") == latest_key:
+                latest_closed = window
+                break
+    if latest_closed is None and closed:
+        latest_closed = max(
+            closed,
+            key=lambda window: parse_window_key(str(window.get("window_key") or "")) or (date.min, date.min),
+        )
     blocked = [str(k) for k in (checkpoint.get("blocked_windows") or [])]
     failed = [str(k) for k in (checkpoint.get("failed_windows") or [])]
     unresolved = [k for k in [*blocked, *failed] if k]
@@ -967,8 +993,8 @@ def build_contract(snapshot: Mapping[str, Any]) -> dict[str, Any]:
     latest_window = None
     if latest_closed:
         latest_window = latest_closed.get("window_key") or latest_closed.get("source_window")
-    elif completed_keys:
-        latest_window = completed_keys[-1]
+    elif latest_key:
+        latest_window = latest_key
 
     counts = {
         "expected": (latest_closed or {}).get("expected"),

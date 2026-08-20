@@ -841,9 +841,10 @@ def test_failed_upsert_lag_is_last_successful_close_not_checkpoint_updated_at(tm
     close = last_successful_close_at(
         latest_closed=None,
         snapshot=snapshot,
-        completed_keys=["20260807_20260814", "20260812_20260819"],
+        completed_keys=["20260619_20260718", "20260807_20260814", "20260812_20260819"],
     )
     assert close == datetime(2026, 8, 19, tzinfo=UTC)
+    assert artifact["latest_successful_closed_window"] == "20260812_20260819"
 
 
 def test_collect_backup_snapshot_stale_offsite_is_unavailable(tmp_path: Path) -> None:
