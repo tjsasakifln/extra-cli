@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://extra.local/contracts/public-read-integrity-v1.schema.json",
+  "title": "public-read-integrity/1.0 payload",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "schema_version",
+    "query_id",
+    "queried_cnpj",
+    "checked_at",
+    "as_of",
+    "expires_at",
+    "freshness",
+    "aggregate_state",
+    "sources",
+    "records",
+    "limitations",
+    "reason_codes",
+    "not_legal_conclusion",
+    "content_hash",
+    "producer_version",
+    "contracted_sources"
+  ],
+  "properties": {
+    "schema": { "const": "public-read-integrity/1.0" },
+    "schema_version": { "const": "public-read-integrity/1.0" },
+    "query_id": { "type": "string", "minLength": 8 },
+    "queried_cnpj": { "type": "string", "pattern": "^[0-9]{14}$" },
+    "checked_at": { "type": "string" },
+    "as_of": { "type": "string" },
+    "expires_at": { "type": "string" },
+    "freshness": {
+      "type": "object",
+      "required": ["policy", "ttl_seconds", "status", "is_current"],
+      "properties": {
+        "policy": { "const": "public-read-integrity-ttl/1.0" },
+        "ttl_seconds": { "type": "integer", "minimum": 1 },
+        "status": { "enum": ["current", "stale", "expired"] },
+        "is_current": { "type": "boolean" }
+      }
+    },
+    "aggregate_state": {
+      "enum": ["MATCHES_FOUND", "NO_MATCH_CONFIRMED", "PARTIAL", "UNKNOWN"]
+    },
+    "sources": {
+      "type": "object",
+      "required": ["CEIS", "CNEP"],
+      "additionalProperties": false,
+      "properties": {
+        "CEIS": { "$ref": "#/$defs/source" },
+        "CNEP": { "$ref": "#/$defs/source" }
+      }
+    },
+    "records": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/record" }
+    },
+    "limitations": { "type": "array", "items": { "type": "string" } },
+    "reason_codes": { "type": "array", "items": { "type": "string" } },
+    "not_legal_conclusion": { "const": true },
+    "content_hash": { "type": "string", "minLength": 64, "maxLength": 64 },
+    "producer_version": { "const": "public-read-integrity-producer/1.0" },
+    "contracted_sources": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "prefixItems": [{ "const": "CEIS" }, { "const": "CNEP" }]
+    }
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "required": [
+        "source_id",
+        "official_url",
+        "api_url",
+        "authority",
+        "status",
+        "pages_expected",
+        "pages_fetched",
+        "coverage_complete",
+        "raw_count",
+        "normalized_count",
+        "deduped_count",
+        "reason_codes",
+        "as_of"
+      ],
+      "properties": {
+        "source_id": { "enum": ["CEIS", "CNEP"] },
+        "official_url": { "type": "string" },
+        "api_url": { "type": "string" },
+        "authority": { "type": "string" },
+        "status": {
+          "enum": ["MATCHES_FOUND", "NO_MATCH_CONFIRMED", "PARTIAL", "UNKNOWN"]
+        },
+        "pages_expected": { "type": ["integer", "null"], "minimum": 0 },
+        "pages_fetched": { "type": "integer", "minimum": 0 },
+        "coverage_complete": { "type": "boolean" },
+        "raw_count": { "type": "integer", "minimum": 0 },
+        "normalized_count": { "type": "integer", "minimum": 0 },
+        "deduped_count": { "type": "integer", "minimum": 0 },
+        "reason_codes": { "type": "array", "items": { "type": "string" } },
+        "as_of": { "type": ["string", "null"] },
+        "error_class": { "type": ["string", "null"] },
+        "attempts": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "record": {
+      "type": "object",
+      "required": [
+        "source_id",
+        "official_id",
+        "record_type",
+        "authority",
+        "start_date",
+        "end_date",
+        "observed_status",
+        "source_url",
+        "captured_at",
+        "original"
+      ],
+      "properties": {
+        "source_id": { "enum": ["CEIS", "CNEP"] },
+        "official_id": { "type": "string", "minLength": 1 },
+        "record_type": { "type": "string" },
+        "authority": { "type": "string" },
+        "start_date": { "type": ["string", "null"] },
+        "end_date": { "type": ["string", "null"] },
+        "observed_status": { "type": "string" },
+        "source_url": { "type": "string" },
+        "captured_at": { "type": "string" },
+        "original": { "type": "object" }
+      }
+    }
+  }
+}

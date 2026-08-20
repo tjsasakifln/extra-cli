@@ -1,0 +1,15 @@
+{
+  "schema": "public-read-integrity-fixture/1.0",
+  "queried_cnpj_redacted": "[REDACTED_CNPJ]",
+  "clock": "2026-08-10T12:00:00+00:00",
+  "ttl_seconds": 86400,
+  "cache": {
+    "stored_at": "2026-08-01T12:00:00+00:00",
+    "expires_at": "2026-08-02T12:00:00+00:00",
+    "payload": {
+      "aggregate_state": "NO_MATCH_CONFIRMED",
+      "freshness": { "status": "current", "is_current": true }
+    }
+  },
+  "sources": {}
+}

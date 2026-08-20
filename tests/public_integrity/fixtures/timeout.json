@@ -1,0 +1,18 @@
+{
+  "schema": "public-read-integrity-fixture/1.0",
+  "queried_cnpj_redacted": "[REDACTED_CNPJ]",
+  "clock": "2026-08-01T12:00:00+00:00",
+  "ttl_seconds": 86400,
+  "sources": {
+    "CEIS": {
+      "pages": {
+        "1": { "error": "timeout" }
+      }
+    },
+    "CNEP": {
+      "pages": {
+        "1": { "status_code": 200, "body": [] }
+      }
+    }
+  }
+}
