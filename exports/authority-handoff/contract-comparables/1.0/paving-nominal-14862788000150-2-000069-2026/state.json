@@ -1,0 +1,26 @@
+{
+  "catalog_mode": "live_candidate",
+  "handoff_decision": "READY",
+  "index_authorization": false,
+  "metrics_produced": [
+    "valor_integral_nominal",
+    "median",
+    "p25",
+    "p75",
+    "iqr",
+    "mad",
+    "focal_percentile"
+  ],
+  "official_live": true,
+  "publication_authorization": false,
+  "reason_codes": [
+    "paving_family_mismatch",
+    "unit_from_official_total_field",
+    "regime_unpublished_on_locator",
+    "consulta_cnpj_orgao_bounded"
+  ],
+  "status": "COMPARABLE",
+  "total_eligible": 13,
+  "total_found": 16,
+  "total_used": 12
+}

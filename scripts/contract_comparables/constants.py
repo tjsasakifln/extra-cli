@@ -90,6 +90,27 @@ REASON_TABLE_MISSING = "official_table_missing"
 REASON_DATASET_EMPTY = "official_dataset_empty"
 REASON_PAVING_SAMPLE_EMPTY = "official_paving_sample_empty"
 REASON_LIVE_PROBE_FAILED = "live_probe_failed"
+REASON_IDENTITY_SWAP = "identity_swap"
+REASON_CNPJ_IN_MUNICIPIO = "cnpj_in_municipio"
+REASON_INVERTED_DATES = "inverted_dates"
+REASON_CONFLICTING_OFFICIAL_VALUES = "conflicting_official_values"
+REASON_GRAIN_MISMATCH = "grain_mismatch"
+REASON_NATIONALIZED_STATE_SAMPLE = "nationalized_state_sample"
+REASON_AREA_MISSING = "area_missing_for_unit_price"
+REASON_PNCP_UNAVAILABLE = "pncp_unavailable"
+REASON_STALE_HASH = "stale_hash_after_rectification"
+REASON_FIXTURE_LABELED_LIVE = "fixture_labeled_official_live"
+REASON_ZERO_FROM_MISSING = "missing_field_coerced"
+REASON_REGIME_UNPUBLISHED = "regime_unpublished_on_locator"
+REASON_CONSULTA_CNPJ_ORGAO = "consulta_cnpj_orgao_bounded"
+REASON_PAVING_FAMILY_MISMATCH = "paving_family_mismatch"
+REASON_UNIT_FROM_OFFICIAL_TOTAL = "unit_from_official_total_field"
+LIVE_PAVING_ENVELOPE_SCHEMA = "comparable-contracts-live-paving-handoff/1.0"
+LIVE_PAVING_HANDOFF_SCHEMA = "authority-handoff-contract-comparables/1.0"
+FOCAL_CANARY_CONTRACT_ID = "14862788000150-2-000069/2026"
+LIVE_PAVING_CANARY_ID = "paving-nominal-14862788000150-2-000069-2026"
+CONSUMER_WEB_CFG = "web-cfg#83|#84"
+PRODUCER_EXTRA_CLI = "extra-cli"
 
 HARD_REFUSAL_REASONS = frozenset(
     {
@@ -105,6 +126,14 @@ HARD_REFUSAL_REASONS = frozenset(
         REASON_PORTE_NOT_COMPARABLE,
         REASON_TEXT_SIMILARITY_ONLY,
         REASON_EMBEDDING_NOT_AUTHORITY,
+        REASON_IDENTITY_SWAP,
+        REASON_CNPJ_IN_MUNICIPIO,
+        REASON_INVERTED_DATES,
+        REASON_CONFLICTING_OFFICIAL_VALUES,
+        REASON_GRAIN_MISMATCH,
+        REASON_NATIONALIZED_STATE_SAMPLE,
+        REASON_FIXTURE_LABELED_LIVE,
+        REASON_ZERO_FROM_MISSING,
     }
 )
 
@@ -118,6 +147,7 @@ HOLD_REASONS = frozenset(
         REASON_UNIT_UNKNOWN,
         REASON_FIELDS_UNAVAILABLE,
         REASON_UNKNOWN_EXCLUDED,
+        REASON_AREA_MISSING,
     }
 )
 
@@ -168,6 +198,14 @@ PAVING_KEYWORDS = (
     "asfaltamento",
     "concreto betuminoso usinado",
 )
+
+PAVING_FAMILY_PARALELEPIPEDO = "paralelepipedo"
+PAVING_FAMILY_CBUQ = "cbuq"
+PAVING_FAMILY_TSD = "tsd"
+PAVING_FAMILY_RECAPEAMENTO = "recapeamento"
+PAVING_FAMILY_ASFALTICO = "asfaltico"
+PAVING_FAMILY_GENERIC = "pavimentacao"
+DERIVATION_UNIT_FROM_OFFICIAL_TOTAL = "official_total_value_field_is_instrument_total/1.0"
 
 AMBIGUOUS_TYPOLOGY_KEYWORDS = (
     "infraestrutura viaria",
