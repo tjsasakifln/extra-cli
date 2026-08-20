@@ -26,15 +26,16 @@ DEFAULT_DSN = (
 
 
 def _get_conn():
-    """Connect to PostgreSQL or skip. Refs #343: name the connection used."""
-    from scripts.testing.connection_policy import refuse_silent_mock
+    """Connect to PostgreSQL after named preflight. Refs #343: never MagicMock."""
+    from scripts.testing.connection_policy import OPPORTUNITY_TABLES
+    from scripts.testing.real_db_guard import admit_ready_connection
 
-    try:
-        conn = psycopg2.connect(DEFAULT_DSN)
-        conn.autocommit = True
-    except psycopg2.Error as e:
-        pytest.skip(f"No database connection: {e}")
-    refuse_silent_mock(conn, required=True, context="opportunity_integration")
+    conn, _dsn = admit_ready_connection(
+        dsn=DEFAULT_DSN,
+        required_tables=OPPORTUNITY_TABLES,
+        context="opportunity_integration",
+    )
+    conn.autocommit = True
     return conn
 
 

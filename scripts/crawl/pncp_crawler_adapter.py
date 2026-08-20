@@ -24,12 +24,12 @@ from scripts.crawl.pncp_contract import (
     DEFAULT_MODALIDADES,
     PNCP_CONSULTA_BASE,
     PNCP_SAFE_WINDOW_DAYS,
-    PNCP_TAMANHO_PAGINA_MAX,
     PNCP_TAMANHO_PAGINA_MAX_CONTRATOS,
     PNCP_TAMANHO_PAGINA_MIN,
     build_pncp_public_link,
     digits_only,
     format_pncp_date,
+    legal_pncp_page_size,
     parse_modalidades_from_env,
     parse_target,
 )
@@ -38,10 +38,7 @@ from scripts.crawl.watermark_sync import watermark_commit, watermark_read
 
 _logger = logging.getLogger(__name__)
 
-PNCP_PAGE_SIZE = max(
-    PNCP_TAMANHO_PAGINA_MIN,
-    min(PNCP_TAMANHO_PAGINA_MAX, int(os.getenv("PNCP_PAGE_SIZE", str(PNCP_TAMANHO_PAGINA_MAX)))),
-)
+PNCP_PAGE_SIZE = legal_pncp_page_size()
 PNCP_CONTRATOS_PAGE_SIZE = max(
     PNCP_TAMANHO_PAGINA_MIN,
     min(
@@ -846,8 +843,10 @@ def transform_contracts(raw_records: list[dict[str, Any]]) -> list[dict[str, Any
             parent_procurement_id=str(numero_controle).strip() if numero_controle else None,
             fallback_parts=contrato_id_parts,
         )
-        contrato_id = ident.source_contract_id if ident.method == "official" else (
-            "|".join(contrato_id_parts) if all(contrato_id_parts) else ident.source_contract_id
+        contrato_id = (
+            ident.source_contract_id
+            if ident.method == "official"
+            else ("|".join(contrato_id_parts) if all(contrato_id_parts) else ident.source_contract_id)
         )
 
         import hashlib

@@ -11,10 +11,12 @@ from unittest.mock import MagicMock
 import pytest
 
 from scripts.testing.real_db_guard import (
+    DB_UNAVAILABLE,
     canonical_dsn,
     connection_type_name,
     decide_connection_strategy,
     is_magic_mock,
+    refuse_magic_mock_sql,
 )
 
 
@@ -32,30 +34,13 @@ def test_real_db_strategy_never_returns_mock() -> None:
             db_available=available,
         )
         assert strategy != "mock"
-    assert decide_connection_strategy(
-        real_db_marker=False, require_real=False, db_available=False
-    ) == "mock"
+    assert decide_connection_strategy(real_db_marker=False, require_real=False, db_available=False) == "mock"
 
 
 def test_missing_opt_in_is_skip_not_fake_missing_table() -> None:
-    assert (
-        decide_connection_strategy(
-            real_db_marker=True, require_real=False, db_available=True
-        )
-        == "skip"
-    )
-    assert (
-        decide_connection_strategy(
-            real_db_marker=True, require_real=True, db_available=False
-        )
-        == "config_error"
-    )
-    assert (
-        decide_connection_strategy(
-            real_db_marker=True, require_real=True, db_available=True
-        )
-        == "real"
-    )
+    assert decide_connection_strategy(real_db_marker=True, require_real=False, db_available=True) == "skip"
+    assert decide_connection_strategy(real_db_marker=True, require_real=True, db_available=False) == "config_error"
+    assert decide_connection_strategy(real_db_marker=True, require_real=True, db_available=True) == "real"
 
 
 def test_live_strategy_connection_type_is_not_magicmock() -> None:
@@ -70,9 +55,7 @@ def test_live_strategy_connection_type_is_not_magicmock() -> None:
     assert is_magic_mock(mock) is True
     assert connection_type_name(mock) == "MagicMock"
 
-    strategy = decide_connection_strategy(
-        real_db_marker=True, require_real=True, db_available=True
-    )
+    strategy = decide_connection_strategy(real_db_marker=True, require_real=True, db_available=True)
     assert strategy == "real"
     # The shipped live type is the psycopg2 connection class, not MagicMock.
     live_type = extensions.connection
@@ -81,3 +64,5 @@ def test_live_strategy_connection_type_is_not_magicmock() -> None:
     assert not issubclass(live_type, MagicMock)
     assert canonical_dsn()
     assert hasattr(psycopg2, "connect")
+    with pytest.raises(RuntimeError, match=DB_UNAVAILABLE):
+        refuse_magic_mock_sql(MagicMock(), context="real_db")

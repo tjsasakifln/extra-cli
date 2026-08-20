@@ -20,23 +20,21 @@ from datetime import date, timedelta
 from typing import Any
 from urllib.parse import urlencode
 
-from scripts.crawl.pncp_contract import DEFAULT_MODALIDADES, format_pncp_date
+from scripts.crawl.pncp_contract import DEFAULT_MODALIDADES, format_pncp_date, legal_pncp_page_size
 from scripts.opportunity_intel.crawler_base import BaseOpportunityCrawler, CrawlRequest
 
 _logger = logging.getLogger(__name__)
 
 # Constants
 PNCP_CONSULTA_BASE = "https://pncp.gov.br/api/consulta/v1"
-PNCP_PAGE_SIZE = min(50, max(10, int(os.getenv("PNCP_PAGE_SIZE", "50"))))
+PNCP_PAGE_SIZE = legal_pncp_page_size()
 PNCP_MAX_PAGES = int(os.getenv("PNCP_MAX_PAGES", "200"))
 PNCP_REQUEST_DELAY = float(os.getenv("PNCP_REQUEST_DELAY", "0.5"))
 # /contratacoes/proposta: dataFinal is the UPPER BOUND of proposal-end dates among
 # currently open tenders (verified live 2026-07-28). Using "today" only returns
 # same-day closings (which become DEADLINE_PASSED on the next consulting cut) or
 # fails under load. Default horizon keeps a 30-day forward window of open SC tenders.
-PNCP_OPEN_PROPOSAL_HORIZON_DAYS = max(
-    1, min(365, int(os.getenv("PNCP_OPEN_PROPOSAL_HORIZON_DAYS", "30")))
-)
+PNCP_OPEN_PROPOSAL_HORIZON_DAYS = max(1, min(365, int(os.getenv("PNCP_OPEN_PROPOSAL_HORIZON_DAYS", "30"))))
 
 
 class PncpOpportunityCrawler(BaseOpportunityCrawler):

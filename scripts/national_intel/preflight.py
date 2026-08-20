@@ -12,6 +12,13 @@ import os
 from dataclasses import dataclass
 from typing import Any, Literal
 
+from scripts.testing.real_db_guard import (
+    DB_REACHABLE_SCHEMA_MISSING,
+    DB_READY,
+    DB_UNAVAILABLE,
+    connection_kind,
+)
+
 CONNECT_TIMEOUT_SECONDS = 2
 REQUIRED_TABLES: tuple[str, ...] = ("pncp_supplier_contracts",)
 REQUIRED_VIEWS: tuple[str, ...] = (
@@ -52,10 +59,11 @@ class PreflightResult:
     dsn_host: str
     missing_tables: tuple[str, ...] = ()
     missing_views: tuple[str, ...] = ()
+    state: str = ""
 
     @property
     def ready(self) -> bool:
-        return self.outcome == "ready"
+        return self.outcome == "ready" and self.state == DB_READY
 
 
 def _dsn_host(dsn: str) -> str:
@@ -149,16 +157,17 @@ def probe_national_intel(
     except Exception as exc:
         reason = f"national_intel preflight: database unreachable at {host}: {type(exc).__name__}"
         if required and explicit:
-            return PreflightResult("fail", reason, host)
-        return PreflightResult("skip", reason, host)
+            return PreflightResult("fail", reason, host, state=DB_UNAVAILABLE)
+        return PreflightResult("skip", reason, host, state=DB_UNAVAILABLE)
 
-    from unittest.mock import MagicMock
-
-    if isinstance(conn, MagicMock):
+    if connection_kind(conn) == "MagicMock":
         reason = f"national_intel preflight: database unreachable at {host}: MagicMock"
+        closer = getattr(conn, "close", None)
+        if callable(closer):
+            closer()
         if required and explicit:
-            return PreflightResult("fail", reason, host)
-        return PreflightResult("skip", reason, host)
+            return PreflightResult("fail", reason, host, state=DB_UNAVAILABLE)
+        return PreflightResult("skip", reason, host, state=DB_UNAVAILABLE)
 
     try:
         missing_tables, missing_views = inspect_schema(conn)
@@ -168,21 +177,35 @@ def probe_national_intel(
         if callable(closer):
             closer()
         if required and explicit:
-            return PreflightResult("fail", reason, host)
-        return PreflightResult("skip", reason, host)
+            return PreflightResult("fail", reason, host, state=DB_REACHABLE_SCHEMA_MISSING)
+        return PreflightResult("skip", reason, host, state=DB_REACHABLE_SCHEMA_MISSING)
 
     closer = getattr(conn, "close", None)
     if callable(closer):
         closer()
 
-    if missing_tables:
+    if missing_tables or missing_views:
         reason = (
             "national_intel preflight: required schema missing at "
             f"{host}: tables={list(missing_tables)} views={list(missing_views)}"
         )
         if required and explicit:
-            return PreflightResult("fail", reason, host, missing_tables, missing_views)
-        return PreflightResult("skip", reason, host, missing_tables, missing_views)
+            return PreflightResult(
+                "fail",
+                reason,
+                host,
+                missing_tables,
+                missing_views,
+                state=DB_REACHABLE_SCHEMA_MISSING,
+            )
+        return PreflightResult(
+            "skip",
+            reason,
+            host,
+            missing_tables,
+            missing_views,
+            state=DB_REACHABLE_SCHEMA_MISSING,
+        )
 
     return PreflightResult(
         "ready",
@@ -190,6 +213,7 @@ def probe_national_intel(
         host,
         missing_tables,
         missing_views,
+        state=DB_READY,
     )
 
 
@@ -197,9 +221,10 @@ def admit_or_raise(result: PreflightResult) -> PreflightResult:
     """Translate a preflight result into pytest skip/fail before the test body."""
     import pytest
 
-    if result.outcome == "ready":
+    if result.outcome == "ready" and result.state == DB_READY:
         return result
+    message = f"{result.state or result.outcome}: {result.reason}"
     if result.outcome == "skip":
-        pytest.skip(result.reason)
-    pytest.fail(result.reason)
+        pytest.skip(message)
+    pytest.fail(message)
     raise AssertionError("unreachable")

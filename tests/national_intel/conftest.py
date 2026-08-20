@@ -16,11 +16,9 @@ from scripts.national_intel.preflight import (
 
 @pytest.fixture(scope="session")
 def national_intel_dsn() -> str:
-    dsn = resolve_probe_dsn()
-    # Refuse accidental HC writer if env forces it without override flag
-    if ":5433/" in dsn and os.environ.get("ALLOW_NI_ON_5433") != "1":
-        pytest.skip("Refusing tests on port 5433 without ALLOW_NI_ON_5433=1")
-    return dsn
+    # Explicit DATABASE_URL / LOCAL_DATALAKE_DSN wins, including canonical :5433.
+    # Port 5436 is only the isolated-campaign fallback inside resolve_probe_dsn.
+    return resolve_probe_dsn()
 
 
 @pytest.fixture(scope="function")
@@ -31,6 +29,11 @@ def pg_conn(national_intel_dsn: str) -> Iterator:
         from scripts.national_intel.db import connect
     except Exception as exc:  # pragma: no cover
         pytest.skip(f"db helper unavailable: {exc}")
+    require_real = os.environ.get("REQUIRE_REAL_DB", "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+    }
     try:
         with connect(national_intel_dsn, connect_timeout=2) as conn:
             if hasattr(conn, "rollback"):
@@ -39,4 +42,10 @@ def pg_conn(national_intel_dsn: str) -> Iterator:
             if hasattr(conn, "rollback"):
                 conn.rollback()
     except Exception as exc:
-        pytest.skip(f"isolated Postgres unavailable after preflight: {exc}")
+        from scripts.testing.real_db_guard import DB_UNAVAILABLE, dsn_host_for_logs
+
+        host = dsn_host_for_logs(national_intel_dsn)
+        message = f"{DB_UNAVAILABLE}: connect failed after preflight at {host}: {type(exc).__name__}"
+        if require_real:
+            pytest.fail(message)
+        pytest.skip(message)

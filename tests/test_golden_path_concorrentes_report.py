@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import csv
 import json
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -30,17 +29,14 @@ def test_help_documents_execute_concorrentes_report_only() -> None:
 
 
 def test_write_concorrentes_report_domain_file(tmp_path: Path) -> None:
-    dsn = os.getenv("LOCAL_DATALAKE_DSN", "postgresql://test:test@127.0.0.1:5433/extra_test")
-    try:
-        import psycopg2
+    from scripts.testing.connection_policy import GOLDEN_PATH_TABLES
+    from scripts.testing.real_db_guard import admit_ready_connection
 
-        from scripts.testing.connection_policy import refuse_silent_mock
-
-        probe = psycopg2.connect(dsn, connect_timeout=3)
-        refuse_silent_mock(probe, required=True, context="golden_path_concorrentes")
-        probe.close()
-    except Exception:
-        pytest.skip("no test-db")
+    conn, dsn = admit_ready_connection(
+        required_tables=GOLDEN_PATH_TABLES,
+        context="golden_path_concorrentes",
+    )
+    conn.close()
 
     out = write_concorrentes_report(dsn, out_dir=tmp_path)
     assert out.get("ok") is True
@@ -62,13 +58,14 @@ def test_write_concorrentes_report_domain_file(tmp_path: Path) -> None:
 
 
 def test_cli_execute_concorrentes_report_only(tmp_path: Path) -> None:
-    dsn = os.getenv("LOCAL_DATALAKE_DSN", "postgresql://test:test@127.0.0.1:5433/extra_test")
-    try:
-        import psycopg2
+    from scripts.testing.connection_policy import GOLDEN_PATH_TABLES
+    from scripts.testing.real_db_guard import admit_ready_connection
 
-        psycopg2.connect(dsn, connect_timeout=3).close()
-    except Exception:
-        pytest.skip("no test-db")
+    conn, dsn = admit_ready_connection(
+        required_tables=GOLDEN_PATH_TABLES,
+        context="golden_path_concorrentes_cli",
+    )
+    conn.close()
 
     ledger = tmp_path / "ledger-concorrentes.json"
     r = subprocess.run(

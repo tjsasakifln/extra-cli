@@ -53,8 +53,13 @@ ruff check .
 python3 -m scripts.ops.source_contract_tests --json
 
 # Testes @pytest.mark.real_db — NUNCA recebem MagicMock (#285)
-# Sem opt-in: skip explícito. Com opt-in e DSN fora do ar: erro de configuração.
-# Com opt-in e DSN canônico no ar: conexão real (psycopg2, não mock).
+# Política única (REAL_DB_MOCK_ALLOWED=false sob opt-in):
+#   REQUIRE_REAL_DB=1 + DSN explícito (LOCAL_DATALAKE_DSN ou DATABASE_URL):
+#     psycopg2 real obrigatório; MagicMock é recusado; ausência de conexão/schema
+#     é preflight acionável (DB_UNAVAILABLE / DB_REACHABLE_SCHEMA_MISSING), não skip.
+#   Sem opt-in: skip rápido com o reason code nomeado (nunca hang, nunca UndefinedTable tardio).
+#   Banco plenamente migrado: DB_READY e os testes reais executam.
+# Porta 5436 NÃO é exclusiva — o DSN canônico vence.
 export REQUIRE_REAL_DB=1
 export LOCAL_DATALAKE_DSN="${LOCAL_DATALAKE_DSN:-postgresql://test:test@127.0.0.1:5433/extra_test}"
 python3 -m pytest tests/ -m real_db -q --tb=short

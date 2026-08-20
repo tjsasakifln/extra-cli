@@ -37,7 +37,7 @@ def real_pg(pg_conn):
     if not _require_real_db():
         pytest.skip("REQUIRE_REAL_DB not set")
     if not _is_real_conn(pg_conn):
-        pytest.skip("psycopg2 mocked or unavailable")
+        pytest.fail("DB_UNAVAILABLE: psycopg2 mocked or unavailable")
     return pg_conn
 
 
