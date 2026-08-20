@@ -1,13 +1,47 @@
 {
-  "status": "pending_merge",
+  "status": "deployed",
   "host": "ec-prod",
+  "hostname": "v2202607385716487230",
   "remote_dir": "/opt/extra-consultoria",
   "service_user": "extra-consultoria",
-  "preflight_deployed_sha": "bbc4b6b7db295909d773f5a0e1f3314085a2f26c",
-  "preflight_lock": "absent",
-  "target_main_sha": null,
   "lock": "/var/lock/confenge-production-deploy",
-  "forbidden": [
+  "previous_deployed_sha": "bbc4b6b7db295909d773f5a0e1f3314085a2f26c",
+  "main_sha": "8e15f94fb641a79954a8c909417bb9df18c0d491",
+  "deployed_sha": "8e15f94fb641a79954a8c909417bb9df18c0d491",
+  "git_head": "8e15f94fb641a79954a8c909417bb9df18c0d491",
+  "backup": {
+    "code_sha": "bbc4b6b7db295909d773f5a0e1f3314085a2f26c",
+    "pg_dump_bytes": 3328490750,
+    "pg_dump_ok": true
+  },
+  "migrations": ["097", "098"],
+  "view": {
+    "name": "public.national_coverage_consumer_v1",
+    "is_insertable_into": "NO",
+    "mutation_denied": true,
+    "select_ok": true
+  },
+  "national": {
+    "verdict": "BLOCKED",
+    "national_claim_authorized": false,
+    "coverage_pct": null,
+    "content_hash": "92d5ad20f0694b45be92d03df2f04c24db9ca599e7f5b3d8c2b664837420af16"
+  },
+  "bofu": {
+    "pack_count": 8,
+    "publication": false,
+    "index": false,
+    "national": false,
+    "hashes_match_local_frozen": true
+  },
+  "integrity": {
+    "timeout_state": "PARTIAL",
+    "empty_complete_state": "NO_MATCH_CONFIRMED",
+    "live_without_api_key": "UNKNOWN",
+    "false_no_match_on_failure": false
+  },
+  "imports_ok": true,
+  "forbidden_not_run": [
     "full-scale",
     "process_documents cycles",
     "recrawl",
