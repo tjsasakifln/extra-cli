@@ -252,6 +252,78 @@ def load_shipped_service_text(*, service_path: Path | None = None) -> str:
     return path.read_text(encoding="utf-8")
 
 
+BACKUP_MAX_AGE_HOURS = 28.0
+LOCAL_BACKUP_DIR = os.getenv("LOCAL_BACKUP_DIR", "/var/lib/extra-consultoria/backups/postgresql")
+OFFSITE_BACKUP_DIR = os.getenv(
+    "OFFSITE_BACKUP_DIR",
+    str(Path(os.getenv("BACKUP_MOUNT_POINT", "/mnt/storage-box")) / "backups" / "postgresql"),
+)
+BACKUP_LOG_FILE = os.getenv("BACKUP_LOG_FILE", "/var/log/backup-database.log")
+
+
+def _newest_dump(directory: Path) -> Path | None:
+    if not directory.is_dir():
+        return None
+    found: list[Path] = []
+    for pattern in ("*.dump", "*.dump.gz"):
+        found.extend(directory.glob(pattern))
+        found.extend(directory.glob(f"*/{pattern}"))
+    if not found:
+        return None
+    return max(found, key=lambda path: path.stat().st_mtime)
+
+
+def collect_backup_snapshot(
+    *,
+    as_of: datetime | None = None,
+    local_dir: str | Path | None = None,
+    offsite_dir: str | Path | None = None,
+    restore_hash_identical: bool | None = None,
+    restore_proof_path: str | Path | None = None,
+) -> dict[str, Any]:
+    """Observe local + off-host dumps. Stale/missing off-host is BACKUP_UNAVAILABLE."""
+    now = as_of or datetime.now(UTC)
+    local_root = Path(local_dir or LOCAL_BACKUP_DIR)
+    offsite_root = Path(offsite_dir or OFFSITE_BACKUP_DIR)
+    local_dump = _newest_dump(local_root)
+    offsite_dump = _newest_dump(offsite_root)
+    local_age = None
+    if local_dump is not None:
+        local_age = (now.timestamp() - local_dump.stat().st_mtime) / 3600.0
+    offsite_age = None
+    if offsite_dump is not None:
+        offsite_age = (now.timestamp() - offsite_dump.stat().st_mtime) / 3600.0
+    identical = restore_hash_identical
+    proof = Path(restore_proof_path) if restore_proof_path else None
+    if identical is None and proof is not None and proof.is_file():
+        try:
+            payload = json.loads(proof.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            payload = {}
+        if "hash_identical" in payload:
+            identical = bool(payload.get("hash_identical"))
+    # Recoverability for soak is off-host. Local-only is not enough.
+    if offsite_age is not None:
+        latest_age = offsite_age
+        available = offsite_age <= BACKUP_MAX_AGE_HOURS
+    elif local_age is not None:
+        latest_age = local_age
+        available = False  # off-host missing
+    else:
+        latest_age = None
+        available = False
+    return {
+        "available": available,
+        "latest_age_hours": latest_age,
+        "local_age_hours": local_age,
+        "offsite_age_hours": offsite_age,
+        "local_path": str(local_dump) if local_dump else None,
+        "offsite_path": str(offsite_dump) if offsite_dump else None,
+        "restore_hash_identical": identical,
+        "max_age_hours": BACKUP_MAX_AGE_HOURS,
+    }
+
+
 def classify_backup(
     *,
     available: bool | None,
@@ -371,6 +443,43 @@ def parse_window_key(key: str) -> tuple[date, date] | None:
     except ValueError:
         return None
     return start, end
+
+
+def latest_completed_window_key(keys: Sequence[str]) -> str | None:
+    """Most recent completed window by end date, not list insertion order."""
+    best_key: str | None = None
+    best_end: date | None = None
+    for key in keys:
+        span = parse_window_key(str(key))
+        if span is None:
+            continue
+        if best_end is None or span[1] > best_end:
+            best_end = span[1]
+            best_key = str(key)
+    return best_key
+
+
+def last_successful_close_at(
+    *,
+    latest_closed: Mapping[str, Any] | None,
+    snapshot: Mapping[str, Any],
+    completed_keys: Sequence[str],
+) -> datetime | None:
+    """Lag clock is the last *successful* close. Failed attempt updated_at is not a close."""
+    if latest_closed:
+        closed = parse_dt(latest_closed.get("closed_at"))
+        if closed is not None:
+            return closed
+    explicit = parse_dt(snapshot.get("last_successful_closed_at"))
+    if explicit is not None:
+        return explicit
+    latest_key = latest_completed_window_key(completed_keys)
+    if latest_key:
+        span = parse_window_key(latest_key)
+        if span is not None:
+            end = span[1]
+            return datetime(end.year, end.month, end.day, tzinfo=UTC)
+    return None
 
 
 def lag_percentiles(samples: Sequence[float]) -> dict[str, float | None]:
@@ -623,6 +732,10 @@ def classify_status(
         reasons.append(REASON_WINDOW_INCOMPLETE)
     if pagination_incomplete:
         reasons.append(REASON_PAGINATION_INCOMPLETE)
+    if current_lag_hours is not None and current_lag_hours > hard_guardrail_hours:
+        reasons.append(REASON_LAG_ABOVE_HARD_GUARDRAIL)
+    elif current_lag_hours is not None and current_lag_hours > operational_target_hours:
+        reasons.append(REASON_LAG_ABOVE_OPERATIONAL_TARGET)
 
     reasons = _unique(reasons)
     if untrustworthy:
@@ -736,12 +849,23 @@ def build_contract(snapshot: Mapping[str, Any]) -> dict[str, Any]:
         if isinstance(w, dict)
         and str(w.get("status") or "").lower() in {"failed", "blocked", "incomplete", "partial", "partial_or_failed"}
     ]
-    latest_closed = closed[-1] if closed else None
     completed_keys = [str(w.get("window_key")) for w in closed if w.get("window_key")]
     for key in checkpoint.get("completed_windows") or []:
         text = str(key)
         if text and text not in completed_keys:
             completed_keys.append(text)
+    latest_key = latest_completed_window_key(completed_keys)
+    latest_closed = None
+    if latest_key:
+        for window in reversed(closed):
+            if str(window.get("window_key") or "") == latest_key:
+                latest_closed = window
+                break
+    if latest_closed is None and closed:
+        latest_closed = max(
+            closed,
+            key=lambda window: parse_window_key(str(window.get("window_key") or "")) or (date.min, date.min),
+        )
     blocked = [str(k) for k in (checkpoint.get("blocked_windows") or [])]
     failed = [str(k) for k in (checkpoint.get("failed_windows") or [])]
     unresolved = [k for k in [*blocked, *failed] if k]
@@ -769,10 +893,10 @@ def build_contract(snapshot: Mapping[str, Any]) -> dict[str, Any]:
             pagination_incomplete = True
             extra_reasons.append(REASON_PAGINATION_INCOMPLETE)
 
-    closed_at = parse_dt(
-        (latest_closed or {}).get("closed_at")
-        or checkpoint.get("updated_at")
-        or snapshot.get("last_successful_closed_at")
+    closed_at = last_successful_close_at(
+        latest_closed=latest_closed,
+        snapshot=snapshot,
+        completed_keys=completed_keys,
     )
     current_lag_hours = None
     if closed_at is not None:
@@ -869,8 +993,8 @@ def build_contract(snapshot: Mapping[str, Any]) -> dict[str, Any]:
     latest_window = None
     if latest_closed:
         latest_window = latest_closed.get("window_key") or latest_closed.get("source_window")
-    elif completed_keys:
-        latest_window = completed_keys[-1]
+    elif latest_key:
+        latest_window = latest_key
 
     counts = {
         "expected": (latest_closed or {}).get("expected"),
@@ -1193,6 +1317,10 @@ def collect_snapshot(
     connect: Callable[[str], Any] | None = None,
     timer: Mapping[str, Any] | None = None,
     as_of: datetime | None = None,
+    backup: Mapping[str, Any] | None = None,
+    backup_local_dir: str | Path | None = None,
+    backup_offsite_dir: str | Path | None = None,
+    restore_proof_path: str | Path | None = None,
 ) -> dict[str, Any]:
     if snapshot_path is not None:
         data = json.loads(Path(snapshot_path).read_text(encoding="utf-8"))
@@ -1238,7 +1366,7 @@ def collect_snapshot(
                     "failed": (result or {}).get("page_errors") or 0,
                     "pages_expected": pages,
                     "pages_fetched": pages,
-                    "closed_at": checkpoint.get("updated_at") if terminal == "COMPLETE" else None,
+                    "closed_at": ((result or {}).get("closed_at") if terminal == "COMPLETE" else None),
                 }
             )
     for window in windows:
@@ -1247,13 +1375,25 @@ def collect_snapshot(
         if window.get("pages_fetched") is None and window.get("pages") is not None:
             window["pages_fetched"] = window["pages"]
         if window.get("status") == "completed" and not window.get("closed_at"):
-            window["closed_at"] = evidence.get("completed_at") or checkpoint.get("updated_at")
+            evidence_ok = str(evidence.get("status") or "").lower() in {"success", "completed", "complete", ""}
+            if evidence_ok and not checkpoint.get("last_error"):
+                window["closed_at"] = evidence.get("completed_at")
         if window.get("window_key") and not window.get("source_window"):
             span = parse_window_key(str(window["window_key"]))
             if span:
                 window["source_window"] = {"start": span[0].isoformat(), "end": span[1].isoformat()}
 
     db = collect_db_snapshot(dsn=dsn, connect=connect)
+    backup_snap = (
+        dict(backup)
+        if backup is not None
+        else collect_backup_snapshot(
+            as_of=now,
+            local_dir=backup_local_dir,
+            offsite_dir=backup_offsite_dir,
+            restore_proof_path=restore_proof_path,
+        )
+    )
     snapshot = {
         "as_of": now.isoformat().replace("+00:00", "Z"),
         "live": live,
@@ -1266,6 +1406,7 @@ def collect_snapshot(
         "checkpoint": checkpoint,
         "windows": windows,
         "db": db,
+        "backup": backup_snap,
         "source_publication_or_update_at": db.get("latest_source_publication_or_update_at"),
         "first_observed_at": db.get("latest_first_seen_at"),
         "persisted_at": db.get("latest_ingested_at"),

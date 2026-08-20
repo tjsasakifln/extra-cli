@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -55,6 +56,7 @@ from scripts.ops.pncp_contract_freshness import (
     classify_retificacao,
     classify_schema,
     classify_status,
+    collect_backup_snapshot,
     collect_checkpoint_snapshot,
     collect_db_snapshot,
     collect_snapshot,
@@ -62,6 +64,7 @@ from scripts.ops.pncp_contract_freshness import (
     empty_window_reason,
     health_exit,
     lag_percentiles,
+    last_successful_close_at,
     legal_page_size,
     load_shipped_cadence,
     load_shipped_service_text,
@@ -714,6 +717,178 @@ def test_collect_snapshot_live_shaped_is_stale_from_lag_not_unknown(tmp_path: Pa
     assert artifact["last_run_at"] == "2026-08-19T09:00:20Z"
     assert artifact["next_run_at"] == "2026-08-21T09:00:31Z"
     assert artifact["pages_expected"] == artifact["pages_fetched"] == 92
+
+
+def test_failed_upsert_lag_is_last_successful_close_not_checkpoint_updated_at(tmp_path: Path) -> None:
+    """Live 2026-08-20 shape: completed 20260812_20260819, failed 20260813_20260820.
+
+    checkpoint.updated_at is the FAILED attempt. Lag must stay >24h vs as_of 21:21Z.
+    """
+    as_of = datetime(2026, 8, 20, 21, 21, tzinfo=UTC)
+    evidence = tmp_path / "incremental-latest.json"
+    evidence.write_text(
+        json.dumps(
+            {
+                "run_id": "contracts-90d-20260820T190346Z-3b2e6f48ba",
+                "git_sha": "7ca6a8709e8e7dbf021b2f7aa12fbf4b88684428",
+                "status": "failed",
+                "completed_at": "2026-08-20T19:19:51Z",
+                "windows": [
+                    {
+                        "window_key": "20260813_20260820",
+                        "status": "failed",
+                        "pages": 61,
+                        "expected": 54005,
+                        "fetched": 30500,
+                        "persisted": 0,
+                        "skipped": 30000,
+                        "page_errors": 3,
+                        "error": "upsert failed window=20260813_20260820 page~61: out of shared memory",
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    ckpt_dir = tmp_path / "checkpoints"
+    ckpt_dir.mkdir()
+    (ckpt_dir / "contracts_full.json").write_text(
+        json.dumps(
+            {
+                "source": "pncp_contracts",
+                "mode": "full",
+                "completed_windows": ["20260807_20260814", "20260812_20260819"],
+                "blocked_windows": [],
+                "failed_windows": ["20260813_20260820"],
+                "updated_at": "2026-08-20T19:19:51Z",
+                "last_error": "upsert failed window=20260813_20260820 page~61: out of shared memory",
+                "window_results": {
+                    "20260812_20260819": {
+                        "terminal": "COMPLETE",
+                        "expected": 45703,
+                        "fetched": 45703,
+                        "persisted": 18495,
+                        "skipped": 27208,
+                        "page_errors": 0,
+                    },
+                    "20260813_20260820": {
+                        "terminal": "FAILED",
+                        "expected": 54005,
+                        "fetched": 30500,
+                        "persisted": 0,
+                        "page_errors": 3,
+                    },
+                },
+                "meta": {
+                    "logical_job_id": "pncp-contracts-incremental",
+                    "attempt_run_id": "contracts-90d-20260820T190346Z-3b2e6f48ba",
+                    "checkpoint_version": 2,
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    timer = collect_timer_snapshot(
+        show_timer={
+            "ActiveState": "active",
+            "UnitFileState": "enabled",
+            "LastTriggerUSec": "Thu 2026-08-20 16:03:46 -03",
+            "NextElapseUSecRealtime": "Thu 2026-08-20 20:01:34 -03",
+        },
+        show_service={
+            "ExecMainStartTimestamp": "Thu 2026-08-20 16:03:46 -03",
+            "ExecMainStatus": "1",
+            "Result": "exit-code",
+        },
+    )
+    local_dir = tmp_path / "local-backups"
+    offsite_dir = tmp_path / "offsite-backups"
+    local_dir.mkdir()
+    offsite_dir.mkdir()
+    (local_dir / "pncp.dump").write_bytes(b"dump")
+    old = offsite_dir / "daily"
+    old.mkdir()
+    stale = old / "pncp_datalake-2026-07-23.dump"
+    stale.write_bytes(b"old")
+    os.utime(stale, (as_of.timestamp() - 28 * 86400, as_of.timestamp() - 28 * 86400))
+    snapshot = collect_snapshot(
+        live=True,
+        evidence_path=evidence,
+        checkpoint_dir=ckpt_dir,
+        production=False,
+        repo_root=tmp_path,
+        state_root=tmp_path,
+        dsn="postgresql://test/pncp_datalake",
+        connect=_live_pg_connect,
+        timer=timer,
+        as_of=as_of,
+        backup_local_dir=local_dir,
+        backup_offsite_dir=offsite_dir,
+    )
+    artifact = build_contract(snapshot)
+    failed_stamp = parse_dt("2026-08-20T19:19:51Z")
+    assert failed_stamp is not None
+    fake_lag = (as_of - failed_stamp).total_seconds() / 3600.0
+    assert fake_lag < DESIRED_HARD_GUARDRAIL_HOURS
+    assert artifact["current_lag_hours"] is not None
+    assert artifact["current_lag_hours"] > DESIRED_HARD_GUARDRAIL_HOURS
+    assert artifact["current_lag_hours"] > fake_lag
+    assert artifact["status"] != "FRESH"
+    assert artifact["status"] == "STALE"
+    assert REASON_LAG_ABOVE_HARD_GUARDRAIL in artifact["reason_codes"]
+    assert artifact["latest_successful_closed_window"] == "20260812_20260819"
+    assert artifact["backup_freshness"]["reason_code"] == REASON_BACKUP_UNAVAILABLE
+    close = last_successful_close_at(
+        latest_closed=None,
+        snapshot=snapshot,
+        completed_keys=["20260619_20260718", "20260807_20260814", "20260812_20260819"],
+    )
+    assert close == datetime(2026, 8, 19, tzinfo=UTC)
+    assert artifact["latest_successful_closed_window"] == "20260812_20260819"
+
+
+def test_collect_backup_snapshot_stale_offsite_is_unavailable(tmp_path: Path) -> None:
+    as_of = datetime(2026, 8, 20, 21, 21, tzinfo=UTC)
+    local_dir = tmp_path / "local"
+    offsite_dir = tmp_path / "offsite" / "daily"
+    local_dir.mkdir()
+    offsite_dir.mkdir(parents=True)
+    recent = local_dir / "pncp_datalake-20260820.dump"
+    recent.write_bytes(b"local")
+    os.utime(recent, (as_of.timestamp() - 9 * 3600, as_of.timestamp() - 9 * 3600))
+    stale = offsite_dir / "pncp_datalake-2026-07-23.dump"
+    stale.write_bytes(b"offsite")
+    os.utime(stale, (as_of.timestamp() - 28 * 86400, as_of.timestamp() - 28 * 86400))
+    snap = collect_backup_snapshot(as_of=as_of, local_dir=local_dir, offsite_dir=offsite_dir.parent)
+    assert snap["offsite_age_hours"] is not None
+    assert snap["offsite_age_hours"] > 28
+    assert snap["available"] is False
+    assert (
+        classify_backup(
+            available=snap["available"],
+            latest_age_hours=snap["latest_age_hours"],
+            max_age_hours=float(snap["max_age_hours"]),
+        )
+        == REASON_BACKUP_UNAVAILABLE
+    )
+    missing_offsite = collect_backup_snapshot(as_of=as_of, local_dir=local_dir, offsite_dir=tmp_path / "no-offsite")
+    assert missing_offsite["available"] is False
+    proof = tmp_path / "restore.json"
+    proof.write_text(json.dumps({"hash_identical": False}), encoding="utf-8")
+    mismatch = collect_backup_snapshot(
+        as_of=as_of,
+        local_dir=local_dir,
+        offsite_dir=offsite_dir.parent,
+        restore_proof_path=proof,
+    )
+    assert mismatch["restore_hash_identical"] is False
+    assert (
+        classify_backup(
+            available=True,
+            restore_hash_identical=mismatch["restore_hash_identical"],
+        )
+        == REASON_RESTORE_MISMATCH
+    )
 
 
 def test_real_db_marker_not_mocked_in_this_module() -> None:
