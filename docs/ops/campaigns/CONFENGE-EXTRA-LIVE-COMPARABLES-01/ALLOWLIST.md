@@ -9,6 +9,8 @@ Worktree: `.worktrees/confenge-extra-live-comparables-01`
 - `scripts/contract_comparables/handoff.py`
 - `scripts/contract_comparables/cli.py`
 - `scripts/contract_comparables/constants.py`
+- `scripts/contract_comparables/gates.py`
+- `scripts/contract_comparables/models.py`
 - `tests/contract_comparables/test_live_paving_handoff.py`
 - `exports/authority-handoff/contract-comparables/1.0/paving-nominal-14862788000150-2-000069-2026/`
 - `docs/ops/campaigns/CONFENGE-EXTRA-LIVE-COMPARABLES-01/`

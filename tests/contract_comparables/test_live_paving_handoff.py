@@ -16,16 +16,21 @@ from scripts.contract_comparables.constants import (
     LIVE_PAVING_CANARY_ID,
     MIN_USABLE_N_COMPARABLE,
     OFFICIAL_LIVE,
+    PAVING_FAMILY_CBUQ,
+    PAVING_FAMILY_PARALELEPIPEDO,
     REASON_AREA_MISSING,
     REASON_CNPJ_IN_MUNICIPIO,
+    REASON_CONSULTA_CNPJ_ORGAO,
     REASON_DSN_UNAVAILABLE,
     REASON_FIXTURE_LABELED_LIVE,
     REASON_GRAIN_MISMATCH,
     REASON_IDENTITY_SWAP,
     REASON_INVERTED_DATES,
     REASON_NATIONALIZED_STATE_SAMPLE,
+    REASON_PAVING_FAMILY_MISMATCH,
     REASON_PHYSICAL_UNIT,
     REASON_PNCP_UNAVAILABLE,
+    REASON_REGIME_UNPUBLISHED,
     REASON_ZERO_FROM_MISSING,
     STATUS_BLOCKED,
     STATUS_COMPARABLE,
@@ -38,7 +43,9 @@ from scripts.contract_comparables.models import PeerRequest
 from scripts.contract_comparables.normalize import records_from_mappings
 from scripts.contract_comparables.official_paving import (
     adapter_refusals,
+    consulta_contratos_url,
     documented_area_m2,
+    paving_family,
     run_live_paving_canary,
 )
 from scripts.contract_comparables.serialize import fold_for_scan
@@ -113,11 +120,21 @@ def _item(
     return payload
 
 
-def _paving(index: int, *, uf: str = "PI", area: str | None = "1.200,00") -> dict[str, Any]:
+def _paving(
+    index: int,
+    *,
+    uf: str = "PI",
+    area: str | None = "1.200,00",
+    family: str = "cbuq",
+) -> dict[str, Any]:
     area_bit = f" de {area} m²" if area else ""
+    if family == "paralelepipedo":
+        objeto = f"Pavimentação em Paralelepípedo{area_bit} de ruas"
+    else:
+        objeto = f"Pavimentação asfáltica em CBUQ{area_bit} de vias urbanas"
     return _item(
         f"14862788000150-2-{index:06d}/2026",
-        f"Pavimentação asfáltica em CBUQ{area_bit} de vias urbanas",
+        objeto,
         500000 + index * 10000,
         uf=uf,
     )
@@ -211,16 +228,30 @@ def test_custo_km_is_refused_before_denominator() -> None:
     assert "custo_por_km" not in (payload.get("unit_metrics") or {})
 
 
-def test_live_path_hold_never_labels_engine_official_live(monkeypatch: Any) -> None:
+def test_consulta_url_uses_official_cnpj_orgao_param() -> None:
+    url = consulta_contratos_url(
+        start="2026-07-01",
+        end="2026-08-19",
+        page=1,
+        page_size=50,
+        cnpj_orgao="14862788000150",
+    )
+    assert "cnpjOrgao=14862788000150" in url
+    assert "uf=" not in url
+    assert paving_family("Pavimentação em Paralelepípedo de 4.710,00 m²") == PAVING_FAMILY_PARALELEPIPEDO
+    assert paving_family("Pavimentação asfáltica em CBUQ") == PAVING_FAMILY_CBUQ
+
+
+def test_live_path_comparable_never_labels_catalog_official_live(monkeypatch: Any) -> None:
     monkeypatch.delenv("LOCAL_DATALAKE_DSN", raising=False)
     monkeypatch.delenv("NATIONAL_INTEL_DSN", raising=False)
     items = [_item(FOCAL, "Pavimentação em Paralelepípedo de 4.710,00 m² de ruas", 719177.48)]
-    items.extend(_paving(index) for index in range(70, 78))
+    items.extend(_paving(index, family="paralelepipedo") for index in range(70, 78))
     opener = FakeOpener(_routes(items))
     first = _run(opener)
     second = _run(FakeOpener(_routes(items)))
-    assert first["status"] in {STATUS_HOLD, STATUS_NOT}
-    assert first["status"] != STATUS_COMPARABLE
+    assert first["status"] == STATUS_COMPARABLE
+    assert int(first["total_used"]) >= MIN_USABLE_N_COMPARABLE
     assert first["schema"] == "comparable-contracts-live-paving-handoff/1.0"
     assert first["official_live"] is True
     assert first["catalog_mode"] == CATALOG_LIVE_CANDIDATE
@@ -230,6 +261,7 @@ def test_live_path_hold_never_labels_engine_official_live(monkeypatch: Any) -> N
     assert first["peer_group_id"]
     assert first["grain"] == "contrato"
     assert first["value_semantic"] == "valor_integral_nominal"
+    assert first["unit"] == "BRL_TOTAL"
     assert first["publication_authorization"] is False
     assert first["index_authorization"] is False
     assert first["national_claim_authorized"] is False
@@ -242,12 +274,43 @@ def test_live_path_hold_never_labels_engine_official_live(monkeypatch: Any) -> N
     assert first["live"]["dsn_available"] is False
     assert first["live"]["production_write"] is False
     assert first["live"]["backfill"] is False
+    assert first["availability"]["class"] == "consulta_cnpj_orgao_bounded"
+    assert first["availability"]["dsn"]["class"] == "dsn_absent"
+    assert REASON_CONSULTA_CNPJ_ORGAO in first["reason_codes"]
+    assert REASON_REGIME_UNPUBLISHED in first["reason_codes"]
+    metrics = (first.get("document") or {}).get("metrics") or {}
+    assert metrics
+    assert "median" in metrics
+    assert "p25" in metrics
+    assert "p75" in metrics
+    for key in FORBIDDEN_METRIC_KEYS:
+        assert key not in metrics
     blob = _scan(first)
     for token in FORBIDDEN_CLAIM_TOKENS:
         assert fold_for_scan(token) not in blob
-    metrics = (first.get("document") or {}).get("metrics") or {}
-    for key in FORBIDDEN_METRIC_KEYS:
-        assert key not in metrics
+
+
+def test_distinct_paving_family_is_excluded(monkeypatch: Any) -> None:
+    monkeypatch.delenv("LOCAL_DATALAKE_DSN", raising=False)
+    monkeypatch.delenv("NATIONAL_INTEL_DSN", raising=False)
+    items = [_item(FOCAL, "Pavimentação em Paralelepípedo de 4.710,00 m² de ruas", 719177.48)]
+    items.extend(_paving(index, family="cbuq") for index in range(70, 78))
+    payload = _run(FakeOpener(_routes(items)))
+    peer_ids = {item.get("contract_id") for item in payload.get("peers") or []}
+    assert all("000070" not in str(item) for item in peer_ids)
+    assert payload["status"] != STATUS_COMPARABLE
+    assert REASON_PAVING_FAMILY_MISMATCH in payload["reason_codes"] or payload["total_used"] == 0
+
+
+def test_n_below_minimum_stays_hold(monkeypatch: Any) -> None:
+    monkeypatch.delenv("LOCAL_DATALAKE_DSN", raising=False)
+    monkeypatch.delenv("NATIONAL_INTEL_DSN", raising=False)
+    items = [_item(FOCAL, "Pavimentação em Paralelepípedo de 4.710,00 m² de ruas", 719177.48)]
+    items.extend(_paving(index, family="paralelepipedo") for index in range(70, 73))
+    payload = _run(FakeOpener(_routes(items)))
+    assert int(payload["total_used"]) < MIN_USABLE_N_COMPARABLE
+    assert payload["status"] != STATUS_COMPARABLE
+    assert payload["catalog_mode"] != OFFICIAL_LIVE
 
 
 def test_fixture_is_never_official_live_verdict() -> None:
@@ -265,11 +328,11 @@ def test_brl_m2_kill_gate_when_any_peer_lacks_area(monkeypatch: Any) -> None:
     monkeypatch.delenv("NATIONAL_INTEL_DSN", raising=False)
     items = [
         _item(FOCAL, "Pavimentação em Paralelepípedo de 4.710,00 m² de ruas", 719177.48),
-        _paving(70, area=None),
-        _paving(71, area="800,00"),
-        _paving(72, area=None),
-        _paving(73, area="900,00"),
-        _paving(74, area=None),
+        _paving(70, family="paralelepipedo", area=None),
+        _paving(71, family="paralelepipedo", area="800,00"),
+        _paving(72, family="paralelepipedo", area=None),
+        _paving(73, family="paralelepipedo", area="900,00"),
+        _paving(74, family="paralelepipedo", area=None),
     ]
     payload = _run(FakeOpener(_routes(items)), metric="BRL/m2")
     assert payload["unit_metrics"]["emitted"] is False
@@ -361,7 +424,7 @@ def test_late_arrival_invalidates_only_affected_group(monkeypatch: Any) -> None:
     monkeypatch.delenv("LOCAL_DATALAKE_DSN", raising=False)
     monkeypatch.delenv("NATIONAL_INTEL_DSN", raising=False)
     items = [_item(FOCAL, "Pavimentação asfáltica em CBUQ", 719177.48)]
-    items.extend(_paving(index) for index in range(100, 106))
+    items.extend(_paving(index, family="cbuq") for index in range(100, 106))
     payload = _run(FakeOpener(_routes(items)))
     late = payload["observability"]["late_arrivals"]
     assert late["affected_groups"]
@@ -373,7 +436,7 @@ def test_handoff_ready_xor_blocked_and_checksums(monkeypatch: Any, tmp_path: Any
     monkeypatch.delenv("LOCAL_DATALAKE_DSN", raising=False)
     monkeypatch.delenv("NATIONAL_INTEL_DSN", raising=False)
     items = [_item(FOCAL, "Pavimentação em Paralelepípedo de 4.710,00 m² de ruas", 719177.48)]
-    items.extend(_paving(index) for index in range(110, 116))
+    items.extend(_paving(index, family="paralelepipedo") for index in range(110, 116))
     envelope = _run(FakeOpener(_routes(items)))
     out = tmp_path / LIVE_PAVING_CANARY_ID
     result = write_comparables_handoff(envelope, out)
@@ -424,7 +487,7 @@ def test_cli_drives_real_opener_path(tmp_path: Any, monkeypatch: Any) -> None:
     monkeypatch.delenv("LOCAL_DATALAKE_DSN", raising=False)
     monkeypatch.delenv("NATIONAL_INTEL_DSN", raising=False)
     items = [_item(FOCAL, "Pavimentação asfáltica em CBUQ de 4.710,00 m²", 719177.48)]
-    items.extend(_paving(index) for index in range(120, 125))
+    items.extend(_paving(index, family="cbuq") for index in range(120, 125))
     opener = FakeOpener(_routes(items))
 
     def _fake_fetch(url: str, **kwargs: Any) -> Any:
@@ -517,6 +580,43 @@ def test_engine_still_refuses_incompatible_unit_and_missing_area_as_unknown() ->
 
 def test_min_usable_n_was_not_lowered() -> None:
     assert MIN_USABLE_N_COMPARABLE == 5
+
+
+def test_envelope_has_no_dsn_password_or_token(monkeypatch: Any) -> None:
+    monkeypatch.delenv("LOCAL_DATALAKE_DSN", raising=False)
+    monkeypatch.delenv("NATIONAL_INTEL_DSN", raising=False)
+    items = [_item(FOCAL, "Pavimentação em Paralelepípedo de 4.710,00 m² de ruas", 719177.48)]
+    items.extend(_paving(index, family="paralelepipedo") for index in range(70, 76))
+    payload = _run(FakeOpener(_routes(items)))
+    blob = json.dumps(payload, ensure_ascii=False).lower()
+    for token in ("password", "passwd", "token=", "postgresql://", "dsn="):
+        assert token not in blob
+
+
+def test_live_opener_calls_bounded_cnpj_orgao(monkeypatch: Any) -> None:
+    monkeypatch.delenv("LOCAL_DATALAKE_DSN", raising=False)
+    monkeypatch.delenv("NATIONAL_INTEL_DSN", raising=False)
+    items = [_item(FOCAL, "Pavimentação em Paralelepípedo de 4.710,00 m² de ruas", 719177.48)]
+    items.extend(_paving(index, family="paralelepipedo") for index in range(70, 76))
+    opener = FakeOpener(_routes(items))
+    _run(opener)
+    consulta_calls = [url for url in opener.calls if "api/consulta/v1/contratos" in url]
+    assert consulta_calls
+    assert any("cnpjOrgao=14862788000150" in url for url in consulta_calls)
+
+
+def test_evidence_refs_sorted_by_identity_for_hash() -> None:
+    from scripts.contract_comparables.official_paving import attach_live_hash, stabilize_evidence_refs
+
+    refs = [
+        {"contract_id": "b", "url": "u2", "sha256": "x", "locator": {"json_path": "$.data[9].objetoContrato"}, "source_kind": "contract"},
+        {"contract_id": "a", "url": "u1", "sha256": "y", "locator": {"json_path": "$.data[1].objetoContrato"}, "source_kind": "contract"},
+    ]
+    stable = stabilize_evidence_refs(refs)
+    assert [item["contract_id"] for item in stable] == ["a", "b"]
+    first = attach_live_hash({"evidence_refs": list(reversed(refs)), "status": STATUS_HOLD})
+    second = attach_live_hash({"evidence_refs": refs, "status": STATUS_HOLD})
+    assert first["content_hash"] == second["content_hash"]
 
 
 def test_envelope_hash_ignores_transport_byte_volatility() -> None:

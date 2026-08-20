@@ -5,7 +5,7 @@
     "UNKNOWN is never coerced to zero and never enters the denominator.",
     "Fixture output is never official_live.",
     "No national ranking or complete-universe share claim is licensed by this document.",
-    "Metrics withheld because the peer-group gate did not pass.",
+    "Metrics emitted only after gates: usable_n>=5, coverage>=0.5, typology_confidence>=0.8, unit=BRL_TOTAL, semantic=valor_integral_nominal.",
     "Engine document catalog_mode is never official_live until semantic columns exist on official locators.",
     "Envelope official_live is true only when official PNCP bytes were retrieved.",
     "BRL/m2 is withheld unless COMPARABLE and every used peer documents area/unit/scope.",

@@ -1,9 +1,9 @@
 {
   "canary_id": "paving-nominal-14862788000150-2-000069-2026",
-  "content_hash": "5b05592fc83a2c2216800beb7d2c25f616dca4fcf6ef0c0c319a8f481c53044d",
+  "content_hash": "4f71782994e2821e363b7651ce24f6f1d673014cf8cd765adee431acfa437f73",
   "index_authorization": false,
   "official_live": true,
-  "peer_status": "HOLD_FOR_DATA",
+  "peer_status": "COMPARABLE",
   "publication_authorization": false,
   "schema": "authority-handoff-contract-comparables/1.0",
   "status": "READY"

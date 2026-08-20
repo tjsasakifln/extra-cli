@@ -17,6 +17,7 @@ from typing import Any
 from scripts.contract_comparables.constants import (
     CATALOG_LIVE_CANDIDATE,
     CONSUMER_WEB_CFG,
+    DERIVATION_UNIT_FROM_OFFICIAL_TOTAL,
     FOCAL_CANARY_CONTRACT_ID,
     LIVE_MISSING_SEMANTIC_COLUMNS,
     LIVE_PAVING_CANARY_ID,
@@ -25,12 +26,19 @@ from scripts.contract_comparables.constants import (
     MIN_TYPOLOGY_CONFIDENCE,
     MIN_USABLE_N_COMPARABLE,
     OFFICIAL_LIVE,
+    PAVING_FAMILY_ASFALTICO,
+    PAVING_FAMILY_CBUQ,
+    PAVING_FAMILY_GENERIC,
+    PAVING_FAMILY_PARALELEPIPEDO,
+    PAVING_FAMILY_RECAPEAMENTO,
+    PAVING_FAMILY_TSD,
     PRODUCER_EXTRA_CLI,
     QUESTION,
     QUESTION_ID,
     REASON_AREA_MISSING,
     REASON_CNPJ_IN_MUNICIPIO,
     REASON_CONFLICTING_OFFICIAL_VALUES,
+    REASON_CONSULTA_CNPJ_ORGAO,
     REASON_DSN_UNAVAILABLE,
     REASON_FIXTURE_LABELED_LIVE,
     REASON_GRAIN_MISMATCH,
@@ -38,19 +46,24 @@ from scripts.contract_comparables.constants import (
     REASON_INVERTED_DATES,
     REASON_LIVE_COLUMNS,
     REASON_NATIONALIZED_STATE_SAMPLE,
+    REASON_PAVING_FAMILY_MISMATCH,
     REASON_PHYSICAL_UNIT,
     REASON_PNCP_UNAVAILABLE,
+    REASON_REGIME_UNPUBLISHED,
     REASON_STALE_HASH,
+    REASON_UNIT_FROM_OFFICIAL_TOTAL,
     REASON_ZERO_FROM_MISSING,
     STATUS_BLOCKED,
     STATUS_COMPARABLE,
     STATUS_HOLD,
     STATUS_NOT,
+    UNIT_CANONICAL,
+    VALUE_SEMANTIC_CANONICAL,
 )
 from scripts.contract_comparables.engine import build_peer_group, groups_changed_by_rectification
 from scripts.contract_comparables.live import resolve_dsn
 from scripts.contract_comparables.models import PeerRequest, RectificationEvent
-from scripts.contract_comparables.normalize import classify_typology, records_from_mappings
+from scripts.contract_comparables.normalize import classify_typology, fold_text, records_from_mappings
 from scripts.contract_comparables.official_canary import (
     blocked_envelope,
     requested_physical_unit_metric,
@@ -73,7 +86,10 @@ DEFAULT_AS_OF = "2026-08-19"
 DEFAULT_WINDOW_DAYS = 60
 DEFAULT_LIMIT = 200
 DEFAULT_CONSULTA_PAGES = 8
+CONSULTA_TIMEOUT_S = 30.0
 PNCP_API_CONTRACT = "https://pncp.gov.br/api/pncp/v1/orgaos/{cnpj}/contratos/{ano}/{seq}"
+PNCP_CONSULTA_COMPRA = "https://pncp.gov.br/api/consulta/v1/orgaos/{cnpj}/compras/{ano}/{seq}"
+OFFICIAL_TOTAL_SEMANTICS = frozenset({"valor_global", "valor_contratado", "valor_integral_nominal"})
 CNPJ_DIGITS = re.compile(r"^\d{14}$")
 AREA_M2 = re.compile(
     r"(\d{1,3}(?:\.\d{3})*,\d+|\d+(?:[.,]\d+)?)\s*m(?:²|2)\b",
@@ -125,6 +141,88 @@ def documented_area_m2(objeto: str | None) -> Decimal | None:
 def is_paving_text(text: str | None) -> bool:
     typology, confidence, _scope = classify_typology(str(text or ""))
     return typology == "pavimentacao" and confidence >= MIN_TYPOLOGY_CONFIDENCE
+
+
+def paving_family(text: str | None) -> str:
+    """Documented keyword family. Not embeddings. Used only after typology=pavimentacao."""
+    folded = fold_text(text)
+    if "paralelep" in folded or "piso intertrav" in folded:
+        return PAVING_FAMILY_PARALELEPIPEDO
+    if "cbuq" in folded or "concreto betuminoso" in folded:
+        return PAVING_FAMILY_CBUQ
+    if "tsd" in folded or "tratamento superficial" in folded:
+        return PAVING_FAMILY_TSD
+    if "recapeamento" in folded or "tapa buraco" in folded or "tapa-buraco" in folded:
+        return PAVING_FAMILY_RECAPEAMENTO
+    if "asfalt" in folded:
+        return PAVING_FAMILY_ASFALTICO
+    return PAVING_FAMILY_GENERIC
+
+
+def same_paving_family_stratum(mappings: list[dict[str, Any]], focal_id: str) -> list[dict[str, Any]]:
+    focal = next((item for item in mappings if str(item.get("contract_id")) == focal_id), None)
+    if focal is None:
+        return mappings
+    family = paving_family(str(focal.get("objeto") or focal.get("object_text") or ""))
+    kept: list[dict[str, Any]] = []
+    for item in mappings:
+        item_family = paving_family(str(item.get("objeto") or item.get("object_text") or ""))
+        row = {**item, "paving_family": item_family}
+        if str(item.get("contract_id")) == focal_id or item_family == family:
+            kept.append(row)
+    return kept
+
+
+def consulta_contratos_url(
+    *,
+    start: str,
+    end: str,
+    page: int,
+    page_size: int,
+    cnpj_orgao: str | None = None,
+) -> str:
+    url = (
+        "https://pncp.gov.br/api/consulta/v1/contratos"
+        f"?dataInicial={pncp_ymd(start)}&dataFinal={pncp_ymd(end)}"
+        f"&pagina={int(page)}&tamanhoPagina={int(page_size)}"
+    )
+    if cnpj_orgao:
+        url += f"&cnpjOrgao={cnpj_orgao}"
+    return url
+
+
+def parse_compra_control(control: str | None) -> tuple[str, str, str] | None:
+    parsed = parse_pncp_contrato_id(str(control or ""))
+    if parsed is None:
+        return None
+    return parsed
+
+
+def compra_ids_from_listing_body(body: str) -> dict[str, str]:
+    payload = json.loads(body)
+    items = payload.get("data") if isinstance(payload, dict) else payload
+    if not isinstance(items, list):
+        items = [payload] if isinstance(payload, dict) else []
+    mapping: dict[str, str] = {}
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        contract_id = str(item.get("numeroControlePNCP") or item.get("numeroControlePncp") or "")
+        compra_id = str(item.get("numeroControlePncpCompra") or "")
+        if contract_id and compra_id:
+            mapping[contract_id] = compra_id
+    return mapping
+
+
+def apply_instrument_total_semantics(mapping: dict[str, Any]) -> dict[str, Any]:
+    """Map official valorGlobal/valor_contratado to instrument-total unit. Not km/m2."""
+    row = dict(mapping)
+    source = str(row.get("extra_value_semantic_source") or row.get("valor_semantic") or "")
+    if source in OFFICIAL_TOTAL_SEMANTICS and row.get("valor") not in {None, ""}:
+        row["unidade"] = UNIT_CANONICAL
+        row["valor_semantic"] = VALUE_SEMANTIC_CANONICAL
+        row["extra_unit_derivation"] = DERIVATION_UNIT_FROM_OFFICIAL_TOTAL
+    return row
 
 
 def _digits(value: Any) -> str:
@@ -212,17 +310,22 @@ def fetch_consulta_paving(
     rate_limit_s: float = 0.0,
     retries: int = 2,
     cache_dir: Any = None,
-) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    cnpj_orgao: str | None = None,
+    timeout_s: float = CONSULTA_TIMEOUT_S,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, str]]:
     records: list[dict[str, Any]] = []
     errors: list[dict[str, Any]] = []
+    compra_by_contract: dict[str, str] = {}
     pages = min(max(1, max_pages), MAX_CONSULTA_PAGES)
     for page in range(1, pages + 1):
         if len(records) >= scan_limit:
             break
-        url = (
-            "https://pncp.gov.br/api/consulta/v1/contratos"
-            f"?dataInicial={pncp_ymd(start)}&dataFinal={pncp_ymd(end)}"
-            f"&pagina={page}&tamanhoPagina={page_size}"
+        url = consulta_contratos_url(
+            start=start,
+            end=end,
+            page=page,
+            page_size=page_size,
+            cnpj_orgao=cnpj_orgao,
         )
         fetched = fetch_official(
             url,
@@ -231,6 +334,7 @@ def fetch_consulta_paving(
             rate_limit_s=rate_limit_s,
             retries=retries,
             cache_dir=cache_dir,
+            timeout_s=timeout_s,
         )
         if not fetched.ok or not fetched.body or not fetched.sha256:
             unavailable = fetched.unavailability
@@ -240,6 +344,7 @@ def fetch_consulta_paving(
                 else {"official_url": url, "error_kind": "unavailable", "message": "empty_body"}
             )
             break
+        compra_by_contract.update(compra_ids_from_listing_body(fetched.body))
         rows, page_errors = listing_records_from_fetch(
             url=url,
             body=fetched.body,
@@ -253,7 +358,58 @@ def fetch_consulta_paving(
         records.extend(paving[:remaining])
         if not rows:
             break
-    return records, errors
+        if cnpj_orgao and not rows:
+            break
+    return records, errors, compra_by_contract
+
+
+def fetch_linked_compra(
+    compra_id: str,
+    *,
+    opener: Callable[..., object] | None = None,
+    sleeper: Callable[[float], None] | None = None,
+    rate_limit_s: float = 0.0,
+    retries: int = 1,
+    cache_dir: Any = None,
+    timeout_s: float = CONSULTA_TIMEOUT_S,
+) -> dict[str, Any]:
+    parsed = parse_compra_control(compra_id)
+    if parsed is None:
+        return {"ok": False, "reason": "unparseable_compra_id", "compra_id": compra_id}
+    cnpj, ano, seq = parsed
+    url = PNCP_CONSULTA_COMPRA.format(cnpj=cnpj, ano=ano, seq=seq)
+    fetched = fetch_official(
+        url,
+        opener=opener,
+        sleeper=sleeper,
+        rate_limit_s=rate_limit_s,
+        retries=retries,
+        cache_dir=cache_dir,
+        timeout_s=timeout_s,
+    )
+    if not fetched.ok or not fetched.body:
+        unavailable = fetched.unavailability
+        return {
+            "ok": False,
+            "url": url,
+            "reason": unavailable.error_kind if unavailable else "unavailable",
+            "compra_id": compra_id,
+        }
+    try:
+        payload = json.loads(fetched.body)
+    except json.JSONDecodeError:
+        return {"ok": False, "url": url, "reason": "parser_error", "compra_id": compra_id}
+    if not isinstance(payload, dict):
+        return {"ok": False, "url": url, "reason": "unexpected_shape", "compra_id": compra_id}
+    return {
+        "ok": True,
+        "url": url,
+        "compra_id": compra_id,
+        "sha256": fetched.sha256,
+        "modalidade": payload.get("modalidadeNome"),
+        "modalidade_id": payload.get("modalidadeId"),
+        "objeto": payload.get("objetoCompra"),
+    }
 
 
 def fetch_focal_contract(
@@ -278,6 +434,7 @@ def fetch_focal_contract(
         rate_limit_s=rate_limit_s,
         retries=retries,
         cache_dir=cache_dir,
+        timeout_s=CONSULTA_TIMEOUT_S,
     )
     if not fetched.ok or not fetched.body or not fetched.sha256:
         unavailable = fetched.unavailability
@@ -335,7 +492,7 @@ def mappings_from_observations(observations: tuple[Any, ...]) -> list[dict[str, 
         row["documented_area_m2"] = (
             str(documented_area_m2(item.object_text)) if documented_area_m2(item.object_text) else None
         )
-        mappings.append(row)
+        mappings.append(apply_instrument_total_semantics(row))
     return mappings
 
 
@@ -445,7 +602,26 @@ def envelope_hashable(payload: dict[str, Any]) -> dict[str, Any]:
     return copy
 
 
+def stabilize_evidence_refs(refs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    unique: dict[tuple[str, str], dict[str, Any]] = {}
+    for item in refs:
+        if not isinstance(item, dict):
+            continue
+        key = (str(item.get("source_kind") or "contract"), str(item.get("contract_id") or ""))
+        locator = item.get("locator") if isinstance(item.get("locator"), dict) else {}
+        unique[key] = {
+            "contract_id": item.get("contract_id"),
+            "url": item.get("url"),
+            "sha256": item.get("sha256"),
+            "locator": {"json_path": locator.get("json_path") or "$.valorGlobal"},
+            "source_kind": item.get("source_kind") or "contract",
+        }
+    return [unique[key] for key in sorted(unique)]
+
+
 def attach_live_hash(payload: dict[str, Any]) -> dict[str, Any]:
+    if isinstance(payload.get("evidence_refs"), list):
+        payload["evidence_refs"] = stabilize_evidence_refs(payload["evidence_refs"])
     payload["content_hash"] = content_hash_for(envelope_hashable(payload))
     return payload
 
@@ -561,8 +737,11 @@ def run_live_paving_canary(
         extract_rows = [row for row in extract_rows if str(row.get("contract_identifier")) != focal]
         extract_rows.insert(0, focal_fetch["record"])
 
-    if not dsn_available or not extract_rows or len(extract_rows) < 2:
-        consulta_rows, consulta_errors = fetch_consulta_paving(
+    parsed_focal = parse_pncp_contrato_id(focal)
+    cnpj_orgao = parsed_focal[0] if parsed_focal else None
+    compra_by_contract: dict[str, str] = {}
+    if not dsn_available or not extract_rows or len(extract_rows) < 2 or cnpj_orgao:
+        consulta_rows, consulta_errors, compra_by_contract = fetch_consulta_paving(
             start=window_start,
             end=window_end,
             retrieved_at=retrieved_at,
@@ -573,6 +752,8 @@ def run_live_paving_canary(
             rate_limit_s=rate_limit_s,
             retries=retries,
             cache_dir=cache_dir,
+            cnpj_orgao=cnpj_orgao,
+            timeout_s=CONSULTA_TIMEOUT_S,
         )
         unavailabilities.extend(consulta_errors)
         consulta_found = len(consulta_rows)
@@ -588,17 +769,22 @@ def run_live_paving_canary(
                 if cid and cid not in known:
                     extract_rows.append(row)
                     known.add(cid)
-            for row in consulta_rows[:20]:
-                if row.get("source_document_sha256") and row.get("official_url"):
-                    evidence_refs.append(
-                        {
-                            "contract_id": row.get("contract_identifier"),
-                            "url": row.get("official_url"),
-                            "sha256": row.get("source_document_sha256"),
-                            "locator": row.get("locator") or {"json_path": "$.data[].objetoContrato"},
-                            "source_kind": "contract",
-                        }
-                    )
+            for row in sorted(
+                consulta_rows,
+                key=lambda item: str(item.get("contract_identifier") or ""),
+            ):
+                cid = str(row.get("contract_identifier") or "")
+                if not cid:
+                    continue
+                evidence_refs.append(
+                    {
+                        "contract_id": cid,
+                        "url": row.get("official_url"),
+                        "sha256": row.get("source_document_sha256"),
+                        "locator": {"json_path": "$.valorGlobal"},
+                        "source_kind": "contract",
+                    }
+                )
 
     if not extract_rows and not focal_fetch.get("ok"):
         payload = blocked_envelope(
@@ -631,6 +817,63 @@ def run_live_paving_canary(
         adapter_reasons.append(REASON_NATIONALIZED_STATE_SAMPLE)
 
     paving_mappings = [item for item in mappings if is_paving_text(str(item.get("objeto") or ""))]
+    family_exclusions: list[dict[str, Any]] = []
+    family_filtered = same_paving_family_stratum(paving_mappings, focal)
+    family = paving_family(
+        str(
+            (
+                next((item for item in paving_mappings if str(item.get("contract_id")) == focal), paving_mappings[0] if paving_mappings else {})
+            ).get("objeto")
+            or ""
+        )
+    )
+    kept_ids = {str(item.get("contract_id")) for item in family_filtered}
+    for item in paving_mappings:
+        cid = str(item.get("contract_id") or "")
+        if cid and cid not in kept_ids:
+            family_exclusions.append(
+                {
+                    "contract_id": cid,
+                    "reason_codes": [REASON_PAVING_FAMILY_MISMATCH],
+                    "paving_family": paving_family(str(item.get("objeto") or "")),
+                    "focal_family": family,
+                }
+            )
+    paving_mappings = family_filtered
+    family_exclusions.sort(key=lambda item: str(item.get("contract_id") or ""))
+    compra_id = compra_by_contract.get(focal)
+    if not compra_id and focal_fetch.get("ok"):
+        raw_record = focal_fetch.get("record") or {}
+        extra = raw_record.get("extra") if isinstance(raw_record.get("extra"), dict) else {}
+        compra_id = extra.get("numeroControlePncpCompra") or raw_record.get("numeroControlePncpCompra")
+    compra_fetch = (
+        fetch_linked_compra(
+            str(compra_id),
+            opener=opener,
+            sleeper=sleeper,
+            rate_limit_s=rate_limit_s,
+            retries=retries,
+            cache_dir=cache_dir,
+        )
+        if compra_id
+        else {"ok": False, "reason": "compra_id_absent"}
+    )
+    if compra_fetch.get("ok") and compra_fetch.get("modalidade"):
+        for item in mappings:
+            if str(item.get("contract_id")) == focal:
+                item["modalidade"] = compra_fetch["modalidade"]
+        for item in paving_mappings:
+            if str(item.get("contract_id")) == focal:
+                item["modalidade"] = compra_fetch["modalidade"]
+        evidence_refs.append(
+            {
+                "contract_id": focal,
+                "url": compra_fetch.get("url"),
+                "sha256": compra_fetch.get("sha256"),
+                "locator": {"json_path": "$.modalidadeNome"},
+                "source_kind": "compra",
+            }
+        )
     total_found = len(mappings)
     total_eligible = len(paving_mappings)
     if not paving_mappings:
@@ -655,7 +898,12 @@ def run_live_paving_canary(
         return attach_live_hash(payload)
 
     stratum = same_uf_stratum(paving_mappings, focal)
-    live_semantic = False
+    totals_mapped = all(
+        item.get("unidade") == UNIT_CANONICAL and item.get("valor_semantic") == VALUE_SEMANTIC_CANONICAL
+        for item in stratum
+        if item.get("valor") not in {None, ""}
+    ) and any(item.get("extra_unit_derivation") == DERIVATION_UNIT_FROM_OFFICIAL_TOTAL for item in stratum)
+    live_semantic = bool(totals_mapped)
     request = PeerRequest(
         focal_contract_id=focal,
         as_of=as_of,
@@ -664,6 +912,7 @@ def run_live_paving_canary(
         source=source_kind,
         producer_sha=producer_sha,
         live_semantic_columns_present=live_semantic,
+        require_known_regime=False,
     )
     _result, document = build_peer_group(records_from_mappings(stratum), request)
     if document.get("catalog_mode") == OFFICIAL_LIVE:
@@ -671,8 +920,17 @@ def run_live_paving_canary(
 
     merged_reasons = list(document.get("reason_codes") or [])
     merged_reasons.extend(adapter_reasons)
-    if REASON_LIVE_COLUMNS not in merged_reasons:
-        merged_reasons.append(REASON_LIVE_COLUMNS)
+    if family_exclusions:
+        merged_reasons.append(REASON_PAVING_FAMILY_MISMATCH)
+    if not live_semantic:
+        if REASON_LIVE_COLUMNS not in merged_reasons:
+            merged_reasons.append(REASON_LIVE_COLUMNS)
+    else:
+        merged_reasons = [code for code in merged_reasons if code != REASON_LIVE_COLUMNS]
+        merged_reasons.append(REASON_UNIT_FROM_OFFICIAL_TOTAL)
+        merged_reasons.append(REASON_REGIME_UNPUBLISHED)
+        if cnpj_orgao:
+            merged_reasons.append(REASON_CONSULTA_CNPJ_ORGAO)
     unique_reasons = list(dict.fromkeys(merged_reasons))
     status = document["status"]
     if any(
@@ -734,7 +992,8 @@ def run_live_paving_canary(
                 as_of=as_of,
                 catalog_mode=CATALOG_LIVE_CANDIDATE,
                 source=source_kind,
-                live_semantic_columns_present=False,
+                live_semantic_columns_present=live_semantic,
+                require_known_regime=False,
                 producer_sha=producer_sha,
             ),
             PeerRequest(
@@ -742,7 +1001,8 @@ def run_live_paving_canary(
                 as_of=as_of,
                 catalog_mode=CATALOG_LIVE_CANDIDATE,
                 source=source_kind,
-                live_semantic_columns_present=False,
+                live_semantic_columns_present=live_semantic,
+                require_known_regime=False,
                 producer_sha=producer_sha,
             ),
         )
@@ -783,6 +1043,48 @@ def run_live_paving_canary(
         metrics_produced = ["valor_integral_nominal", "median", "p25", "p75", "iqr", "mad", "focal_percentile"]
         if unit_metrics.get("emitted"):
             metrics_produced.append("BRL/m2")
+    document["inclusion_rules"] = [
+        "typology=pavimentacao AND typology_confidence>=0.80",
+        f"paving_family={family} (documented keyword family; not embeddings)",
+        "unit=BRL_TOTAL derived from official valorGlobal/valor_contratado field identity",
+        "value_semantic=valor_integral_nominal via export_comparables/valor_global_or_contratado_to_valor_integral_nominal/1.1",
+        "regime identical when published; unpublished regime stays UNKNOWN and is not an inclusion key",
+        "geography=same UF",
+        "period=|year_delta|<=1",
+        "UNKNOWN valor excluded from denominator",
+        "highest revision only",
+    ]
+    availability = {
+        "class": (
+            "consulta_cnpj_orgao_bounded"
+            if cnpj_orgao and consulta_found
+            else ("dsn_absent" if not dsn_available else "live_candidate")
+        ),
+        "dsn": {"configured": dsn_available, "class": "present" if dsn_available else "dsn_absent"},
+        "schema": {"probed": dsn_available, "reason": None if dsn_available else "dsn_absent"},
+        "query": {
+            "endpoint": "/api/consulta/v1/contratos",
+            "official_param": "cnpjOrgao",
+            "cnpj_orgao": cnpj_orgao,
+            "note": "Swagger /v1/contratos accepts cnpjOrgao. uf and cnpj are ignored.",
+        },
+        "api_window": {"start": window_start, "end": window_end, "timeout_s": CONSULTA_TIMEOUT_S},
+        "semantic": {
+            "valor_global": "FACT_OFFICIAL",
+            "valor_integral_nominal": "OBSERVATION_DERIVED",
+            "unit_brl_total": "OBSERVATION_DERIVED" if live_semantic else "UNKNOWN",
+            "unit_derivation": DERIVATION_UNIT_FROM_OFFICIAL_TOTAL if live_semantic else None,
+            "regime": "UNKNOWN_unpublished_on_contract_locator",
+            "modalidade": "FACT_OFFICIAL_from_linked_compra" if compra_fetch.get("ok") else "UNKNOWN",
+        },
+        "focal_pairs": {
+            "consulta_paving_found": consulta_found,
+            "family": family,
+            "family_eligible": total_eligible,
+            "family_exclusions": len(family_exclusions),
+        },
+        "public_source": "available" if official_live else "unavailable",
+    }
     payload: dict[str, Any] = {
         "schema": LIVE_PAVING_ENVELOPE_SCHEMA,
         "canary_id": LIVE_PAVING_CANARY_ID,
@@ -829,7 +1131,12 @@ def run_live_paving_canary(
             "window": {"start": window_start, "end": window_end},
             "consulta_paving_found": consulta_found,
             "dsn_available": dsn_available,
+            "cnpj_orgao": cnpj_orgao,
+            "paving_family": family,
         },
+        "availability": availability,
+        "paving_family": family,
+        "family_exclusions": family_exclusions,
         "total_found": total_found,
         "total_eligible": total_eligible,
         "total_used": int(document.get("usable_n") or 0),
@@ -863,9 +1170,13 @@ def run_live_paving_canary(
             "window": {"start": window_start, "end": window_end},
             "cutoff": as_of,
             "consulta_paving_found": consulta_found,
+            "cnpj_orgao": cnpj_orgao,
+            "consulta_param": "cnpjOrgao",
+            "paving_family": family,
             "focal_fetch_ok": bool(focal_fetch.get("ok")),
             "focal_sha256": focal_fetch.get("sha256"),
             "focal_url": focal_fetch.get("url"),
+            "compra_fetch_ok": bool(compra_fetch.get("ok")),
             "production_write": False,
             "backfill": False,
             "publication": False,

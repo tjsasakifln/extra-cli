@@ -4,11 +4,11 @@
   "catalog_mode": "live_candidate",
   "claim_scope": "valor_integral_nominal of official paving contracts in the focal UF, grain=contrato; not a national ranking and not a physical-unit price",
   "consumer": "web-cfg#83|#84",
-  "content_hash": "5b05592fc83a2c2216800beb7d2c25f616dca4fcf6ef0c0c319a8f481c53044d",
+  "content_hash": "4f71782994e2821e363b7651ce24f6f1d673014cf8cd765adee431acfa437f73",
   "coverage": {
-    "eligible_n": 0,
-    "missingness": 1.0,
-    "usable_over_total": 0.0
+    "eligible_n": 12,
+    "missingness": 0.0,
+    "usable_over_total": 1.0
   },
   "document": {
     "accepted_schemas": [
@@ -20,26 +20,303 @@
       "14862788000150-2-000069/2026"
     ],
     "catalog_mode": "live_candidate",
-    "comparisons": [],
+    "comparisons": [
+      {
+        "contract_id": "14862788000150-2-000067/2026",
+        "evidence_ref": "14862788000150-2-000067/2026",
+        "match_distance": 0.0,
+        "match_quality": "exact_stratum",
+        "modalidade": "unknown",
+        "porte": "medio",
+        "regime": "unknown",
+        "region": "NE",
+        "scope": "paving_works",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "PI",
+        "unit": "BRL_TOTAL",
+        "unknown_fields": [
+          "regime"
+        ],
+        "valor": "996225.26",
+        "value_basis": "original",
+        "value_semantic": "valor_integral_nominal",
+        "year": 2026
+      },
+      {
+        "contract_id": "14862788000150-2-000070/2026",
+        "evidence_ref": "14862788000150-2-000070/2026",
+        "match_distance": 0.15,
+        "match_quality": "near_stratum",
+        "modalidade": "unknown",
+        "porte": "pequeno",
+        "regime": "unknown",
+        "region": "NE",
+        "scope": "paving_works",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "PI",
+        "unit": "BRL_TOTAL",
+        "unknown_fields": [
+          "regime"
+        ],
+        "valor": "331031.78",
+        "value_basis": "original",
+        "value_semantic": "valor_integral_nominal",
+        "year": 2026
+      },
+      {
+        "contract_id": "14862788000150-2-000071/2026",
+        "evidence_ref": "14862788000150-2-000071/2026",
+        "match_distance": 0.15,
+        "match_quality": "near_stratum",
+        "modalidade": "unknown",
+        "porte": "pequeno",
+        "regime": "unknown",
+        "region": "NE",
+        "scope": "paving_works",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "PI",
+        "unit": "BRL_TOTAL",
+        "unknown_fields": [
+          "regime"
+        ],
+        "valor": "156483.45",
+        "value_basis": "original",
+        "value_semantic": "valor_integral_nominal",
+        "year": 2026
+      },
+      {
+        "contract_id": "14862788000150-2-000072/2026",
+        "evidence_ref": "14862788000150-2-000072/2026",
+        "match_distance": 0.0,
+        "match_quality": "exact_stratum",
+        "modalidade": "unknown",
+        "porte": "medio",
+        "regime": "unknown",
+        "region": "NE",
+        "scope": "paving_works",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "PI",
+        "unit": "BRL_TOTAL",
+        "unknown_fields": [
+          "regime"
+        ],
+        "valor": "1048157.60",
+        "value_basis": "original",
+        "value_semantic": "valor_integral_nominal",
+        "year": 2026
+      },
+      {
+        "contract_id": "14862788000150-2-000074/2026",
+        "evidence_ref": "14862788000150-2-000074/2026",
+        "match_distance": 0.0,
+        "match_quality": "exact_stratum",
+        "modalidade": "unknown",
+        "porte": "medio",
+        "regime": "unknown",
+        "region": "NE",
+        "scope": "paving_works",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "PI",
+        "unit": "BRL_TOTAL",
+        "unknown_fields": [
+          "regime"
+        ],
+        "valor": "536873.09",
+        "value_basis": "original",
+        "value_semantic": "valor_integral_nominal",
+        "year": 2026
+      },
+      {
+        "contract_id": "14862788000150-2-000076/2026",
+        "evidence_ref": "14862788000150-2-000076/2026",
+        "match_distance": 0.0,
+        "match_quality": "exact_stratum",
+        "modalidade": "unknown",
+        "porte": "medio",
+        "regime": "unknown",
+        "region": "NE",
+        "scope": "paving_works",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "PI",
+        "unit": "BRL_TOTAL",
+        "unknown_fields": [
+          "regime"
+        ],
+        "valor": "546899.81",
+        "value_basis": "original",
+        "value_semantic": "valor_integral_nominal",
+        "year": 2026
+      },
+      {
+        "contract_id": "14862788000150-2-000077/2026",
+        "evidence_ref": "14862788000150-2-000077/2026",
+        "match_distance": 0.0,
+        "match_quality": "exact_stratum",
+        "modalidade": "unknown",
+        "porte": "medio",
+        "regime": "unknown",
+        "region": "NE",
+        "scope": "paving_works",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "PI",
+        "unit": "BRL_TOTAL",
+        "unknown_fields": [
+          "regime"
+        ],
+        "valor": "929200.45",
+        "value_basis": "original",
+        "value_semantic": "valor_integral_nominal",
+        "year": 2026
+      },
+      {
+        "contract_id": "14862788000150-2-000078/2026",
+        "evidence_ref": "14862788000150-2-000078/2026",
+        "match_distance": 0.0,
+        "match_quality": "exact_stratum",
+        "modalidade": "unknown",
+        "porte": "medio",
+        "regime": "unknown",
+        "region": "NE",
+        "scope": "paving_works",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "PI",
+        "unit": "BRL_TOTAL",
+        "unknown_fields": [
+          "regime"
+        ],
+        "valor": "904701.36",
+        "value_basis": "original",
+        "value_semantic": "valor_integral_nominal",
+        "year": 2026
+      },
+      {
+        "contract_id": "14862788000150-2-000079/2026",
+        "evidence_ref": "14862788000150-2-000079/2026",
+        "match_distance": 0.0,
+        "match_quality": "exact_stratum",
+        "modalidade": "unknown",
+        "porte": "medio",
+        "regime": "unknown",
+        "region": "NE",
+        "scope": "paving_works",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "PI",
+        "unit": "BRL_TOTAL",
+        "unknown_fields": [
+          "regime"
+        ],
+        "valor": "878549.16",
+        "value_basis": "original",
+        "value_semantic": "valor_integral_nominal",
+        "year": 2026
+      },
+      {
+        "contract_id": "14862788000150-2-000083/2026",
+        "evidence_ref": "14862788000150-2-000083/2026",
+        "match_distance": 0.15,
+        "match_quality": "near_stratum",
+        "modalidade": "unknown",
+        "porte": "pequeno",
+        "regime": "unknown",
+        "region": "NE",
+        "scope": "paving_works",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "PI",
+        "unit": "BRL_TOTAL",
+        "unknown_fields": [
+          "regime"
+        ],
+        "valor": "468264.28",
+        "value_basis": "original",
+        "value_semantic": "valor_integral_nominal",
+        "year": 2026
+      },
+      {
+        "contract_id": "14862788000150-2-000088/2026",
+        "evidence_ref": "14862788000150-2-000088/2026",
+        "match_distance": 0.0,
+        "match_quality": "exact_stratum",
+        "modalidade": "unknown",
+        "porte": "medio",
+        "regime": "unknown",
+        "region": "NE",
+        "scope": "paving_works",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "PI",
+        "unit": "BRL_TOTAL",
+        "unknown_fields": [
+          "regime"
+        ],
+        "valor": "1132415.11",
+        "value_basis": "original",
+        "value_semantic": "valor_integral_nominal",
+        "year": 2026
+      },
+      {
+        "contract_id": "14862788000150-2-000090/2026",
+        "evidence_ref": "14862788000150-2-000090/2026",
+        "match_distance": 0.0,
+        "match_quality": "exact_stratum",
+        "modalidade": "unknown",
+        "porte": "medio",
+        "regime": "unknown",
+        "region": "NE",
+        "scope": "paving_works",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "PI",
+        "unit": "BRL_TOTAL",
+        "unknown_fields": [
+          "regime"
+        ],
+        "valor": "952463.34",
+        "value_basis": "original",
+        "value_semantic": "valor_integral_nominal",
+        "year": 2026
+      }
+    ],
     "consumer": {
       "family": "web-cfg / contract-analysis family",
       "id": "web-cfg#83|#84"
     },
-    "content_hash": "183da0f63dd681669fd1eebeba40604770b7801039a4c05bbf87777e03579f1c",
+    "content_hash": "10c22eeb469d835021623e190debb686a3dad1cfc147ee5fd7b7da469006f5be",
     "contract_id": "14862788000150-2-000069/2026",
     "contract_version": "v1.0.0",
     "coverage": {
-      "eligible_n": 0,
-      "missingness": 1.0,
-      "usable_over_total": 0.0
+      "eligible_n": 12,
+      "missingness": 0.0,
+      "usable_over_total": 1.0
     },
     "denominator": {
       "kind": "usable_known_valor_integral_nominal",
-      "n": 0,
+      "n": 12,
       "unknown_policy": "UNKNOWN_never_zero_never_silent_denominator"
     },
     "evidence_refs": [
-      "14862788000150-2-000069/2026"
+      "14862788000150-2-000069/2026",
+      "14862788000150-2-000067/2026",
+      "14862788000150-2-000070/2026",
+      "14862788000150-2-000071/2026",
+      "14862788000150-2-000072/2026",
+      "14862788000150-2-000074/2026",
+      "14862788000150-2-000076/2026",
+      "14862788000150-2-000077/2026",
+      "14862788000150-2-000078/2026",
+      "14862788000150-2-000079/2026",
+      "14862788000150-2-000083/2026",
+      "14862788000150-2-000088/2026",
+      "14862788000150-2-000090/2026"
     ],
     "exclusion_rules": [
       "incompatible unit, typology, scope, regime, geography, period, value semantic",
@@ -62,9 +339,10 @@
     },
     "inclusion_rules": [
       "typology=pavimentacao AND typology_confidence>=0.80",
-      "unit=BRL_TOTAL (valor integral nominal; never km or m2)",
-      "value_semantic=valor_integral_nominal",
-      "regime identical and known",
+      "paving_family=paralelepipedo (documented keyword family; not embeddings)",
+      "unit=BRL_TOTAL derived from official valorGlobal/valor_contratado field identity",
+      "value_semantic=valor_integral_nominal via export_comparables/valor_global_or_contratado_to_valor_integral_nominal/1.1",
+      "regime identical when published; unpublished regime stays UNKNOWN and is not an inclusion key",
       "geography=same UF",
       "period=|year_delta|<=1",
       "UNKNOWN valor excluded from denominator",
@@ -76,9 +354,70 @@
       "UNKNOWN is never coerced to zero and never enters the denominator.",
       "Fixture output is never official_live.",
       "No national ranking or complete-universe share claim is licensed by this document.",
-      "Metrics withheld because the peer-group gate did not pass."
+      "Metrics emitted only after gates: usable_n>=5, coverage>=0.5, typology_confidence>=0.8, unit=BRL_TOTAL, semantic=valor_integral_nominal."
     ],
-    "match_quality": [],
+    "match_quality": [
+      {
+        "contract_id": "14862788000150-2-000067/2026",
+        "distance": 0.0,
+        "quality": "exact_stratum"
+      },
+      {
+        "contract_id": "14862788000150-2-000070/2026",
+        "distance": 0.15,
+        "quality": "near_stratum"
+      },
+      {
+        "contract_id": "14862788000150-2-000071/2026",
+        "distance": 0.15,
+        "quality": "near_stratum"
+      },
+      {
+        "contract_id": "14862788000150-2-000072/2026",
+        "distance": 0.0,
+        "quality": "exact_stratum"
+      },
+      {
+        "contract_id": "14862788000150-2-000074/2026",
+        "distance": 0.0,
+        "quality": "exact_stratum"
+      },
+      {
+        "contract_id": "14862788000150-2-000076/2026",
+        "distance": 0.0,
+        "quality": "exact_stratum"
+      },
+      {
+        "contract_id": "14862788000150-2-000077/2026",
+        "distance": 0.0,
+        "quality": "exact_stratum"
+      },
+      {
+        "contract_id": "14862788000150-2-000078/2026",
+        "distance": 0.0,
+        "quality": "exact_stratum"
+      },
+      {
+        "contract_id": "14862788000150-2-000079/2026",
+        "distance": 0.0,
+        "quality": "exact_stratum"
+      },
+      {
+        "contract_id": "14862788000150-2-000083/2026",
+        "distance": 0.15,
+        "quality": "near_stratum"
+      },
+      {
+        "contract_id": "14862788000150-2-000088/2026",
+        "distance": 0.0,
+        "quality": "exact_stratum"
+      },
+      {
+        "contract_id": "14862788000150-2-000090/2026",
+        "distance": 0.0,
+        "quality": "exact_stratum"
+      }
+    ],
     "method": {
       "id": "comparable-contracts-peer-group/1.0",
       "no_embeddings_authority": true,
@@ -87,69 +426,569 @@
       "question_id": "paving_nominal_total_value_position"
     },
     "method_version": "comparable-contracts-peer-group/1.0",
-    "metrics": {},
+    "metrics": {
+      "coverage": 1.0,
+      "focal_percentile": 41.6667,
+      "iqr": "443682.93",
+      "mad": "198661.10",
+      "max": "1132415.11",
+      "median": "891625.26",
+      "min": "156483.45",
+      "min_max_caution": "min_max_are_sample_extremes_not_market_bounds",
+      "missingness": 0.0,
+      "n": 12,
+      "outlier_flag": false,
+      "outlier_method": "iqr_1.5_and_mad_robust_distance",
+      "p25": "519720.89",
+      "p75": "963403.82",
+      "robust_distance": -0.8681,
+      "stratum": {
+        "PI": 12
+      },
+      "unit": "BRL_TOTAL",
+      "valor": {
+        "n": 12,
+        "percentiles": {
+          "median": "891625.26",
+          "p25": "519720.89",
+          "p75": "963403.82"
+        }
+      },
+      "value_semantic": "valor_integral_nominal"
+    },
     "missingness": {
-      "ratio": 1.0,
+      "ratio": 0.0,
       "unknown_excluded": true
     },
-    "modality": "unknown",
+    "modality": "concorrencia_-_eletronica",
     "monetary_normalization": null,
     "outlier_treatment": "outliers remain in the sample; IQR 1.5 and MAD robust distance are descriptive; no legal accusation is emitted",
-    "peer_count": 0,
-    "peer_group_id": "pg-1ee8488f3bfb0291",
-    "peer_ids": [],
-    "peer_refs": [],
-    "peers": [],
-    "percentiles": {},
+    "peer_count": 12,
+    "peer_group_id": "pg-5b9cbe630a7febe3",
+    "peer_ids": [
+      "14862788000150-2-000067/2026",
+      "14862788000150-2-000070/2026",
+      "14862788000150-2-000071/2026",
+      "14862788000150-2-000072/2026",
+      "14862788000150-2-000074/2026",
+      "14862788000150-2-000076/2026",
+      "14862788000150-2-000077/2026",
+      "14862788000150-2-000078/2026",
+      "14862788000150-2-000079/2026",
+      "14862788000150-2-000083/2026",
+      "14862788000150-2-000088/2026",
+      "14862788000150-2-000090/2026"
+    ],
+    "peer_refs": [
+      {
+        "authorized": true,
+        "contract_id": "14862788000150-2-000067/2026"
+      },
+      {
+        "authorized": true,
+        "contract_id": "14862788000150-2-000070/2026"
+      },
+      {
+        "authorized": true,
+        "contract_id": "14862788000150-2-000071/2026"
+      },
+      {
+        "authorized": true,
+        "contract_id": "14862788000150-2-000072/2026"
+      },
+      {
+        "authorized": true,
+        "contract_id": "14862788000150-2-000074/2026"
+      },
+      {
+        "authorized": true,
+        "contract_id": "14862788000150-2-000076/2026"
+      },
+      {
+        "authorized": true,
+        "contract_id": "14862788000150-2-000077/2026"
+      },
+      {
+        "authorized": true,
+        "contract_id": "14862788000150-2-000078/2026"
+      },
+      {
+        "authorized": true,
+        "contract_id": "14862788000150-2-000079/2026"
+      },
+      {
+        "authorized": true,
+        "contract_id": "14862788000150-2-000083/2026"
+      },
+      {
+        "authorized": true,
+        "contract_id": "14862788000150-2-000088/2026"
+      },
+      {
+        "authorized": true,
+        "contract_id": "14862788000150-2-000090/2026"
+      }
+    ],
+    "peers": [
+      {
+        "contract_id": "14862788000150-2-000067/2026",
+        "evidence_ref": "14862788000150-2-000067/2026",
+        "match_distance": 0.0,
+        "match_quality": "exact_stratum",
+        "modalidade": "unknown",
+        "porte": "medio",
+        "regime": "unknown",
+        "region": "NE",
+        "scope": "paving_works",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "PI",
+        "unit": "BRL_TOTAL",
+        "unknown_fields": [
+          "regime"
+        ],
+        "valor": "996225.26",
+        "value_basis": "original",
+        "value_semantic": "valor_integral_nominal",
+        "year": 2026
+      },
+      {
+        "contract_id": "14862788000150-2-000070/2026",
+        "evidence_ref": "14862788000150-2-000070/2026",
+        "match_distance": 0.15,
+        "match_quality": "near_stratum",
+        "modalidade": "unknown",
+        "porte": "pequeno",
+        "regime": "unknown",
+        "region": "NE",
+        "scope": "paving_works",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "PI",
+        "unit": "BRL_TOTAL",
+        "unknown_fields": [
+          "regime"
+        ],
+        "valor": "331031.78",
+        "value_basis": "original",
+        "value_semantic": "valor_integral_nominal",
+        "year": 2026
+      },
+      {
+        "contract_id": "14862788000150-2-000071/2026",
+        "evidence_ref": "14862788000150-2-000071/2026",
+        "match_distance": 0.15,
+        "match_quality": "near_stratum",
+        "modalidade": "unknown",
+        "porte": "pequeno",
+        "regime": "unknown",
+        "region": "NE",
+        "scope": "paving_works",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "PI",
+        "unit": "BRL_TOTAL",
+        "unknown_fields": [
+          "regime"
+        ],
+        "valor": "156483.45",
+        "value_basis": "original",
+        "value_semantic": "valor_integral_nominal",
+        "year": 2026
+      },
+      {
+        "contract_id": "14862788000150-2-000072/2026",
+        "evidence_ref": "14862788000150-2-000072/2026",
+        "match_distance": 0.0,
+        "match_quality": "exact_stratum",
+        "modalidade": "unknown",
+        "porte": "medio",
+        "regime": "unknown",
+        "region": "NE",
+        "scope": "paving_works",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "PI",
+        "unit": "BRL_TOTAL",
+        "unknown_fields": [
+          "regime"
+        ],
+        "valor": "1048157.60",
+        "value_basis": "original",
+        "value_semantic": "valor_integral_nominal",
+        "year": 2026
+      },
+      {
+        "contract_id": "14862788000150-2-000074/2026",
+        "evidence_ref": "14862788000150-2-000074/2026",
+        "match_distance": 0.0,
+        "match_quality": "exact_stratum",
+        "modalidade": "unknown",
+        "porte": "medio",
+        "regime": "unknown",
+        "region": "NE",
+        "scope": "paving_works",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "PI",
+        "unit": "BRL_TOTAL",
+        "unknown_fields": [
+          "regime"
+        ],
+        "valor": "536873.09",
+        "value_basis": "original",
+        "value_semantic": "valor_integral_nominal",
+        "year": 2026
+      },
+      {
+        "contract_id": "14862788000150-2-000076/2026",
+        "evidence_ref": "14862788000150-2-000076/2026",
+        "match_distance": 0.0,
+        "match_quality": "exact_stratum",
+        "modalidade": "unknown",
+        "porte": "medio",
+        "regime": "unknown",
+        "region": "NE",
+        "scope": "paving_works",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "PI",
+        "unit": "BRL_TOTAL",
+        "unknown_fields": [
+          "regime"
+        ],
+        "valor": "546899.81",
+        "value_basis": "original",
+        "value_semantic": "valor_integral_nominal",
+        "year": 2026
+      },
+      {
+        "contract_id": "14862788000150-2-000077/2026",
+        "evidence_ref": "14862788000150-2-000077/2026",
+        "match_distance": 0.0,
+        "match_quality": "exact_stratum",
+        "modalidade": "unknown",
+        "porte": "medio",
+        "regime": "unknown",
+        "region": "NE",
+        "scope": "paving_works",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "PI",
+        "unit": "BRL_TOTAL",
+        "unknown_fields": [
+          "regime"
+        ],
+        "valor": "929200.45",
+        "value_basis": "original",
+        "value_semantic": "valor_integral_nominal",
+        "year": 2026
+      },
+      {
+        "contract_id": "14862788000150-2-000078/2026",
+        "evidence_ref": "14862788000150-2-000078/2026",
+        "match_distance": 0.0,
+        "match_quality": "exact_stratum",
+        "modalidade": "unknown",
+        "porte": "medio",
+        "regime": "unknown",
+        "region": "NE",
+        "scope": "paving_works",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "PI",
+        "unit": "BRL_TOTAL",
+        "unknown_fields": [
+          "regime"
+        ],
+        "valor": "904701.36",
+        "value_basis": "original",
+        "value_semantic": "valor_integral_nominal",
+        "year": 2026
+      },
+      {
+        "contract_id": "14862788000150-2-000079/2026",
+        "evidence_ref": "14862788000150-2-000079/2026",
+        "match_distance": 0.0,
+        "match_quality": "exact_stratum",
+        "modalidade": "unknown",
+        "porte": "medio",
+        "regime": "unknown",
+        "region": "NE",
+        "scope": "paving_works",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "PI",
+        "unit": "BRL_TOTAL",
+        "unknown_fields": [
+          "regime"
+        ],
+        "valor": "878549.16",
+        "value_basis": "original",
+        "value_semantic": "valor_integral_nominal",
+        "year": 2026
+      },
+      {
+        "contract_id": "14862788000150-2-000083/2026",
+        "evidence_ref": "14862788000150-2-000083/2026",
+        "match_distance": 0.15,
+        "match_quality": "near_stratum",
+        "modalidade": "unknown",
+        "porte": "pequeno",
+        "regime": "unknown",
+        "region": "NE",
+        "scope": "paving_works",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "PI",
+        "unit": "BRL_TOTAL",
+        "unknown_fields": [
+          "regime"
+        ],
+        "valor": "468264.28",
+        "value_basis": "original",
+        "value_semantic": "valor_integral_nominal",
+        "year": 2026
+      },
+      {
+        "contract_id": "14862788000150-2-000088/2026",
+        "evidence_ref": "14862788000150-2-000088/2026",
+        "match_distance": 0.0,
+        "match_quality": "exact_stratum",
+        "modalidade": "unknown",
+        "porte": "medio",
+        "regime": "unknown",
+        "region": "NE",
+        "scope": "paving_works",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "PI",
+        "unit": "BRL_TOTAL",
+        "unknown_fields": [
+          "regime"
+        ],
+        "valor": "1132415.11",
+        "value_basis": "original",
+        "value_semantic": "valor_integral_nominal",
+        "year": 2026
+      },
+      {
+        "contract_id": "14862788000150-2-000090/2026",
+        "evidence_ref": "14862788000150-2-000090/2026",
+        "match_distance": 0.0,
+        "match_quality": "exact_stratum",
+        "modalidade": "unknown",
+        "porte": "medio",
+        "regime": "unknown",
+        "region": "NE",
+        "scope": "paving_works",
+        "typology": "pavimentacao",
+        "typology_confidence": 0.95,
+        "uf": "PI",
+        "unit": "BRL_TOTAL",
+        "unknown_fields": [
+          "regime"
+        ],
+        "valor": "952463.34",
+        "value_basis": "original",
+        "value_semantic": "valor_integral_nominal",
+        "year": 2026
+      }
+    ],
+    "percentiles": {
+      "median": "891625.26",
+      "p25": "519720.89",
+      "p75": "963403.82"
+    },
     "period": {
       "data_referencia": "2026-07-08",
       "year": 2026
     },
     "policy_version": "contract-comparables-policy/1.0",
     "porte": "medio",
-    "producer_sha": "db73775c6340925d34b48cfe8128dd94e5fd8d69",
+    "producer_sha": "a81186795d9bb616143f1737d86726f3d35595d0-dirty",
     "question": "Como o valor integral nominal de um contrato público de pavimentação se posiciona frente a contratos comparáveis?",
     "question_id": "paving_nominal_total_value_position",
-    "reason_codes": [
-      "live_columns_unavailable",
-      "fields_unavailable",
-      "unit_unknown"
-    ],
+    "reason_codes": [],
     "regime": "unknown",
     "schema": "comparable-contracts/1.0",
-    "source": "pncp_contrato_api",
-    "status": "HOLD_FOR_DATA",
+    "source": "pncp_consulta_api",
+    "status": "COMPARABLE",
     "suppression": {
       "aggregate_only": false,
       "peer_ids_emitted": true
     },
     "target_contract_id": "14862788000150-2-000069/2026",
-    "total_n": 0,
+    "total_n": 12,
     "typology": {
       "confidence": 0.95,
       "label": "pavimentacao",
       "scope": "paving_works"
     },
     "typology_confidence": 0.95,
-    "unit": "unknown",
+    "unit": "BRL_TOTAL",
     "universe": {
-      "eligible_n": 0,
-      "source": "pncp_contrato_api",
-      "total_n": 0,
-      "usable_n": 0
+      "eligible_n": 12,
+      "source": "pncp_consulta_api",
+      "total_n": 12,
+      "usable_n": 12
     },
-    "usable_n": 0,
+    "usable_n": 12,
     "value_semantic": "valor_integral_nominal"
   },
   "evidence_refs": [
     {
       "contract_id": "14862788000150-2-000069/2026",
       "locator": {
+        "json_path": "$.modalidadeNome"
+      },
+      "sha256": "ede0b62a12c34643c93d72bb3c98b08b01b9b595c212738bf9e3cce7b0df42e0",
+      "source_kind": "compra",
+      "url": "https://pncp.gov.br/api/consulta/v1/orgaos/14862788000150/compras/2026/82"
+    },
+    {
+      "contract_id": "14862788000150-2-000065/2026",
+      "locator": {
         "json_path": "$.valorGlobal"
       },
-      "sha256": "f14acac4716dcbba1d4cd4a3da0b163d61543572ac7845f2c63fc8ba34f9e39c",
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
       "source_kind": "contract",
-      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/14862788000150/contratos/2026/69"
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000066/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000067/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000069/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000070/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000071/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000072/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000074/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000076/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000077/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000078/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000079/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000083/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000088/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000089/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
+    },
+    {
+      "contract_id": "14862788000150-2-000090/2026",
+      "locator": {
+        "json_path": "$.valorGlobal"
+      },
+      "sha256": "73e5a41f36d73a4d67954387c5d819ec3ef19f8311227f57e97cc15fe8a8c617",
+      "source_kind": "contract",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260701&dataFinal=20260819&pagina=1&tamanhoPagina=50&cnpjOrgao=14862788000150"
     }
   ],
   "exclusion_rules": [
@@ -168,9 +1007,10 @@
   "grain": "contrato",
   "inclusion_rules": [
     "typology=pavimentacao AND typology_confidence>=0.80",
-    "unit=BRL_TOTAL (valor integral nominal; never km or m2)",
-    "value_semantic=valor_integral_nominal",
-    "regime identical and known",
+    "paving_family=paralelepipedo (documented keyword family; not embeddings)",
+    "unit=BRL_TOTAL derived from official valorGlobal/valor_contratado field identity",
+    "value_semantic=valor_integral_nominal via export_comparables/valor_global_or_contratado_to_valor_integral_nominal/1.1",
+    "regime identical when published; unpublished regime stays UNKNOWN and is not an inclusion key",
     "geography=same UF",
     "period=|year_delta|<=1",
     "UNKNOWN valor excluded from denominator",
@@ -187,23 +1027,88 @@
   "live": {
     "backfill": false,
     "cache_used": false,
-    "consulta_paving_found": 0,
+    "cnpj_orgao": "14862788000150",
+    "compra_fetch_ok": true,
+    "consulta_param": "cnpjOrgao",
+    "consulta_paving_found": 16,
     "cutoff": "2026-08-19",
     "dsn_available": false,
     "focal_fetch_ok": true,
-    "focal_sha256": "f14acac4716dcbba1d4cd4a3da0b163d61543572ac7845f2c63fc8ba34f9e39c",
+    "focal_sha256": "e6ad7b21b60d9e654e4505b8335c39be3957b6b2f2b013e35887b807b582281d",
     "focal_url": "https://pncp.gov.br/api/pncp/v1/orgaos/14862788000150/contratos/2026/69",
     "index": false,
     "official_live": true,
+    "paving_family": "paralelepipedo",
     "production_write": false,
     "publication": false,
-    "source_kind": "pncp_contrato_api",
+    "source_kind": "pncp_consulta_api",
     "window": {
       "end": "2026-08-19",
       "start": "2026-07-01"
     }
   },
-  "match_quality": [],
+  "match_quality": [
+    {
+      "contract_id": "14862788000150-2-000067/2026",
+      "distance": 0.0,
+      "quality": "exact_stratum"
+    },
+    {
+      "contract_id": "14862788000150-2-000070/2026",
+      "distance": 0.15,
+      "quality": "near_stratum"
+    },
+    {
+      "contract_id": "14862788000150-2-000071/2026",
+      "distance": 0.15,
+      "quality": "near_stratum"
+    },
+    {
+      "contract_id": "14862788000150-2-000072/2026",
+      "distance": 0.0,
+      "quality": "exact_stratum"
+    },
+    {
+      "contract_id": "14862788000150-2-000074/2026",
+      "distance": 0.0,
+      "quality": "exact_stratum"
+    },
+    {
+      "contract_id": "14862788000150-2-000076/2026",
+      "distance": 0.0,
+      "quality": "exact_stratum"
+    },
+    {
+      "contract_id": "14862788000150-2-000077/2026",
+      "distance": 0.0,
+      "quality": "exact_stratum"
+    },
+    {
+      "contract_id": "14862788000150-2-000078/2026",
+      "distance": 0.0,
+      "quality": "exact_stratum"
+    },
+    {
+      "contract_id": "14862788000150-2-000079/2026",
+      "distance": 0.0,
+      "quality": "exact_stratum"
+    },
+    {
+      "contract_id": "14862788000150-2-000083/2026",
+      "distance": 0.15,
+      "quality": "near_stratum"
+    },
+    {
+      "contract_id": "14862788000150-2-000088/2026",
+      "distance": 0.0,
+      "quality": "exact_stratum"
+    },
+    {
+      "contract_id": "14862788000150-2-000090/2026",
+      "distance": 0.0,
+      "quality": "exact_stratum"
+    }
+  ],
   "method": {
     "id": "comparable-contracts-peer-group/1.0",
     "no_embeddings_authority": true,
@@ -213,18 +1118,26 @@
   },
   "method_version": "comparable-contracts-peer-group/1.0",
   "metric": "valor_integral_nominal",
-  "metrics_produced": [],
+  "metrics_produced": [
+    "valor_integral_nominal",
+    "median",
+    "p25",
+    "p75",
+    "iqr",
+    "mad",
+    "focal_percentile"
+  ],
   "missingness": {
-    "ratio": 1.0,
+    "ratio": 0.0,
     "unknown_excluded": true
   },
-  "modality": "unknown",
+  "modality": "concorrencia_-_eletronica",
   "monetary_normalization": null,
   "national_claim_authorized": false,
   "no_cross_repo_write": true,
   "official_live": true,
   "outlier_treatment": "outliers remain in the sample; IQR 1.5 and MAD robust distance are descriptive; no legal accusation is emitted",
-  "peer_group_id": "pg-1ee8488f3bfb0291",
+  "peer_group_id": "pg-5b9cbe630a7febe3",
   "period": {
     "data_referencia": "2026-07-08",
     "year": 2026
@@ -236,37 +1149,56 @@
   "question": "Como o valor integral nominal de um contrato público de pavimentação se posiciona frente a contratos comparáveis?",
   "question_id": "paving_nominal_total_value_position",
   "reason_codes": [
-    "live_columns_unavailable",
-    "fields_unavailable",
-    "unit_unknown"
+    "paving_family_mismatch",
+    "unit_from_official_total_field",
+    "regime_unpublished_on_locator",
+    "consulta_cnpj_orgao_bounded"
   ],
   "regime": "unknown",
   "schema": "authority-handoff-contract-comparables/1.0",
-  "source_kind": "pncp_contrato_api",
-  "status": "HOLD_FOR_DATA",
+  "source_kind": "pncp_consulta_api",
+  "status": "COMPARABLE",
   "suppression": {
     "aggregate_only": false,
     "peer_ids_emitted": true
   },
   "target_contract_id": "14862788000150-2-000069/2026",
-  "total_eligible": 1,
-  "total_found": 1,
-  "total_used": 0,
+  "total_eligible": 13,
+  "total_found": 16,
+  "total_used": 12,
   "typology": {
     "confidence": 0.95,
     "label": "pavimentacao",
     "scope": "paving_works"
   },
-  "unit": "unknown",
+  "unit": "BRL_TOTAL",
   "unit_metrics": {
     "emitted": false,
-    "note": "Primary metric is valor_integral_nominal. BRL/m2 is not emitted.",
-    "reason_codes": []
+    "missing_contract_ids": [
+      "14862788000150-2-000067/2026",
+      "14862788000150-2-000070/2026",
+      "14862788000150-2-000071/2026",
+      "14862788000150-2-000072/2026",
+      "14862788000150-2-000074/2026",
+      "14862788000150-2-000076/2026",
+      "14862788000150-2-000077/2026",
+      "14862788000150-2-000078/2026",
+      "14862788000150-2-000079/2026",
+      "14862788000150-2-000083/2026",
+      "14862788000150-2-000088/2026",
+      "14862788000150-2-000090/2026"
+    ],
+    "reason_codes": [
+      "area_missing_for_unit_price",
+      "physical_unit_price_not_verified"
+    ]
   },
   "universe": {
-    "consulta_paving_found": 0,
-    "consulted": "pncp_contrato_api",
+    "cnpj_orgao": "14862788000150",
+    "consulta_paving_found": 16,
+    "consulted": "pncp_consulta_api",
     "dsn_available": false,
+    "paving_family": "paralelepipedo",
     "window": {
       "end": "2026-08-19",
       "start": "2026-07-01"

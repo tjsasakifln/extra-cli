@@ -101,6 +101,10 @@ REASON_PNCP_UNAVAILABLE = "pncp_unavailable"
 REASON_STALE_HASH = "stale_hash_after_rectification"
 REASON_FIXTURE_LABELED_LIVE = "fixture_labeled_official_live"
 REASON_ZERO_FROM_MISSING = "missing_field_coerced"
+REASON_REGIME_UNPUBLISHED = "regime_unpublished_on_locator"
+REASON_CONSULTA_CNPJ_ORGAO = "consulta_cnpj_orgao_bounded"
+REASON_PAVING_FAMILY_MISMATCH = "paving_family_mismatch"
+REASON_UNIT_FROM_OFFICIAL_TOTAL = "unit_from_official_total_field"
 LIVE_PAVING_ENVELOPE_SCHEMA = "comparable-contracts-live-paving-handoff/1.0"
 LIVE_PAVING_HANDOFF_SCHEMA = "authority-handoff-contract-comparables/1.0"
 FOCAL_CANARY_CONTRACT_ID = "14862788000150-2-000069/2026"
@@ -194,6 +198,14 @@ PAVING_KEYWORDS = (
     "asfaltamento",
     "concreto betuminoso usinado",
 )
+
+PAVING_FAMILY_PARALELEPIPEDO = "paralelepipedo"
+PAVING_FAMILY_CBUQ = "cbuq"
+PAVING_FAMILY_TSD = "tsd"
+PAVING_FAMILY_RECAPEAMENTO = "recapeamento"
+PAVING_FAMILY_ASFALTICO = "asfaltico"
+PAVING_FAMILY_GENERIC = "pavimentacao"
+DERIVATION_UNIT_FROM_OFFICIAL_TOTAL = "official_total_value_field_is_instrument_total/1.0"
 
 AMBIGUOUS_TYPOLOGY_KEYWORDS = (
     "infraestrutura viaria",
