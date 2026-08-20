@@ -1,6 +1,6 @@
 # Story: Recover PNCP contracts freshness cadence and dispose live residuals
 
-Status: InProgress
+Status: Done
 Risk: HIGH-RISK (produção, timer, backup/restore)
 Campaign: CONFENGE-PNCP-FRESHNESS-RECOVERY-AND-SOAK-01
 Issues: #241 #248 #319 #277 (disposition); reuse PR #443 / #444
