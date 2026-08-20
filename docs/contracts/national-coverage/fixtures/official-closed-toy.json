@@ -1,0 +1,44 @@
+{
+  "schema_version": "national-coverage/1.0",
+  "official": {
+    "status": "AVAILABLE",
+    "source": "pncp",
+    "source_url": "https://pncp.gov.br/api/pncp/v1/orgaos",
+    "competence": "contratos-2026",
+    "cutoff": "2026-08-16T00:00:00Z",
+    "as_of": "2026-08-16T00:00:00Z",
+    "raw_hash": "fixture-official-closed-toy-raw",
+    "method_version": "pncp-orgaos-publicantes-v1",
+    "orgs": [
+      {"org_id": "11111111000191", "name": "Orgao A", "unit_count": 1, "uf": "SC"},
+      {"org_id": "22222222000191", "name": "Orgao B", "unit_count": 1, "uf": "SP"}
+    ]
+  },
+  "corpus": {
+    "as_of": "2026-08-16T00:00:00Z",
+    "source": "pncp_supplier_contracts",
+    "publishers": [
+      {
+        "raw_org_id": "11111111000191",
+        "contract_count": 3,
+        "uf": "SC",
+        "last_seen": "2026-08-15T12:00:00Z"
+      }
+    ]
+  },
+  "consulted": {
+    "zero_confirmed": {
+      "22222222000191": "raw:empty-complete"
+    }
+  },
+  "request": {
+    "geography": "BR",
+    "period": "2026-01/2026-08",
+    "source": "pncp",
+    "grain": "publishing_org"
+  },
+  "freshness": {
+    "as_of": "2026-08-16T00:00:00Z",
+    "window_hours": 48
+  }
+}
