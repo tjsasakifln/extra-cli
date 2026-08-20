@@ -1,0 +1,33 @@
+{
+  "schema": "public-read-integrity-fixture/1.0",
+  "queried_cnpj_redacted": "[REDACTED_CNPJ]",
+  "clock": "2026-08-01T12:00:00+00:00",
+  "ttl_seconds": 86400,
+  "sources": {
+    "CEIS": {
+      "pages": {
+        "1": {
+          "status_code": 200,
+          "body": [
+            {
+              "id": 9001,
+              "dataInicioSancao": "01/03/2024",
+              "tipo": { "descricaoResumida": "Impedimento de licitar e contratar" },
+              "sancionado": { "nome": "Empresa Exemplo LTDA", "codigoFormatado": "[REDACTED_CNPJ]" },
+              "orgaoSancionador": { "nome": "Orgao Sancionador Exemplo" }
+            },
+            {
+              "tipo": { "descricaoResumida": "Impedimento de licitar e contratar" },
+              "sancionado": { "nome": "Registro sem identificador oficial" }
+            }
+          ]
+        }
+      }
+    },
+    "CNEP": {
+      "pages": {
+        "1": { "status_code": 200, "body": [] }
+      }
+    }
+  }
+}
