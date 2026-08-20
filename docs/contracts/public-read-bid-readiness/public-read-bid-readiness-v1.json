@@ -1,0 +1,33 @@
+{
+  "schema_version": "public-read-bid-readiness/1.0",
+  "producer_version": "public-read-bid-readiness-producer/1.0",
+  "policy_version": "public-read-bid-readiness-policy/1.0",
+  "consumer": "web-cfg#155",
+  "overall_states": [
+    "READY_FOR_HUMAN_REVIEW",
+    "HOLD_FOR_DATA",
+    "REJECT"
+  ],
+  "finding_states": [
+    "FACT",
+    "RISK",
+    "UNKNOWN"
+  ],
+  "source_access": [
+    "private_local",
+    "redacted_fixture"
+  ],
+  "modules_reused": [
+    "edital_case",
+    "budget_audit",
+    "technical_acervo",
+    "bid_readiness"
+  ],
+  "flags": {
+    "human_review_required": true,
+    "not_legal_conclusion": true,
+    "publication_authorization": false,
+    "index_authorization": false
+  },
+  "cli": "python3 -m scripts.bid_readiness_public"
+}

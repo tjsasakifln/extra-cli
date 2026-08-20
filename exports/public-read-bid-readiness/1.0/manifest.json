@@ -1,0 +1,16 @@
+{
+  "consumer": "web-cfg#155",
+  "content_hash": "e829ecc183f511045cd0eb9e6754417b51a0b9a04fcca6572d96ac24a4354900",
+  "files": [
+    "web-cfg-155-read-model.json",
+    "web-cfg-155-read-model.sql",
+    "fixture.public.json"
+  ],
+  "index_authorization": false,
+  "no_index": true,
+  "not_live": true,
+  "page_authorized": false,
+  "publication_authority": false,
+  "publication_authorization": false,
+  "select_only": true
+}

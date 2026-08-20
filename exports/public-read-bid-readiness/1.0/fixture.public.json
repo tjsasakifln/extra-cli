@@ -1,0 +1,278 @@
+{
+  "as_of": "2026-08-20T12:00:00Z",
+  "content_hash": "e1a20f3635dab7e123e4f5a01862ba89ff4a73d2a93fadc2f9e940bab43b085f",
+  "engine_versions": {
+    "bid_readiness": "0.1.0",
+    "bid_readiness_public": "public-read-bid-readiness-producer/1.0",
+    "budget_audit": "0.1.0",
+    "edital_case": "0.1.0",
+    "technical_acervo": "0.1.0"
+  },
+  "expires_at": "2026-08-21T12:00:00Z",
+  "findings": [
+    {
+      "category": "edital",
+      "confidence": 0.8,
+      "contradiction_links": [],
+      "coverage": {
+        "denominator": 1,
+        "evaluated": 1,
+        "ratio": 1.0
+      },
+      "evidence_hash": "18ee487ae26e5c2fb391f65d32bd4c07b41741c1018b391b464bf2907129f7e6",
+      "evidence_ref": "sha256:79ba71ef89274384b0698d966f79ceef58891fa8d705781ab786c3a1d03d2841",
+      "finding_id": "ED-FACT-001",
+      "human_review_required": true,
+      "interpretive_limit": "Observation bound to the cited locator and method. Not a legal conclusion.",
+      "locator": {
+        "cell": null,
+        "page": null,
+        "paragraph": null,
+        "section": "objeto",
+        "sheet": null
+      },
+      "reason_codes": [
+        "edital_extracted"
+      ],
+      "requirement_id": "edital.text",
+      "source_document_id": "edital:edital.txt",
+      "state": "FACT",
+      "statement": "Edital text was extracted with an explicit locator. Human review of scope remains required."
+    },
+    {
+      "category": "budget",
+      "confidence": 0.7,
+      "contradiction_links": [],
+      "coverage": {
+        "denominator": 1,
+        "evaluated": 1,
+        "ratio": 1.0
+      },
+      "evidence_hash": "d0b11dfdf19673db803a24b6c9cc6ffa6197fde2aba508109a08b9eadefe740f",
+      "evidence_ref": "sha256:d0b11dfdf19673db803a24b6c9cc6ffa6197fde2aba508109a08b9eadefe740f",
+      "finding_id": "BD-0001",
+      "human_review_required": true,
+      "interpretive_limit": "Observation bound to the cited locator and method. Not a legal conclusion.",
+      "locator": {
+        "cell": "Orcamento Analitico!A2",
+        "page": null,
+        "paragraph": null,
+        "section": null,
+        "sheet": "Orcamento Analitico"
+      },
+      "reason_codes": [
+        "budget_items_classified"
+      ],
+      "requirement_id": "budget.items",
+      "source_document_id": "planilha:planilha.xlsx",
+      "state": "FACT",
+      "statement": "1 budget item(s) classified from the workbook under budget_audit.normalize_case."
+    },
+    {
+      "category": "acervo",
+      "confidence": 0.6,
+      "contradiction_links": [],
+      "coverage": {
+        "denominator": 1,
+        "evaluated": 1,
+        "ratio": 1.0
+      },
+      "evidence_hash": "f5c0e856658b5a7b1786a25a49ce407fb36b0aee6bf9c887341f39dab2b9900f",
+      "evidence_ref": "adherence:full_individual",
+      "finding_id": "AC-MATCH-001",
+      "human_review_required": true,
+      "interpretive_limit": "Observation bound to the cited locator and method. Not a legal conclusion.",
+      "locator": {
+        "cell": null,
+        "page": 1,
+        "paragraph": null,
+        "section": "pavimentacao asfaltica",
+        "sheet": null
+      },
+      "method": "technical_acervo.match.match_requirement",
+      "reason_codes": [
+        "acervo_match",
+        "full_individual"
+      ],
+      "requirement_id": "pavimentacao asfaltica",
+      "rule": "technical_acervo.match.match_requirement",
+      "source_document_id": "000000000001",
+      "state": "FACT",
+      "statement": "technical_acervo.match_requirement returned adherence=full_individual for the supplied service. This is documentary coverage, not a qualification decision."
+    },
+    {
+      "category": "JURIDICA",
+      "confidence": 0.7,
+      "contradiction_links": [],
+      "coverage": {
+        "denominator": 1,
+        "evaluated": 1,
+        "ratio": 1.0
+      },
+      "evidence_hash": "87370711dc5bb12e40054365968fe6a933728dcd510ef398ecb7ba778d86c135",
+      "evidence_ref": "bid_readiness:SATISFIED",
+      "finding_id": "BR-0001",
+      "human_review_required": true,
+      "interpretive_limit": "Observation bound to the cited locator and method. Not a legal conclusion.",
+      "locator": {
+        "page": 1,
+        "section": "7"
+      },
+      "method": "bid_readiness.match:SATISFIED",
+      "reason_codes": [
+        "requirement_supported"
+      ],
+      "requirement_id": "REQ-JUR-001",
+      "rule": "bid_readiness.match:SATISFIED",
+      "source_document_id": "doc-01_contrato_social",
+      "state": "FACT",
+      "statement": "Requirement REQ-JUR-001 is supported by document doc-01_contrato_social with an evidence hash. Human review remains required."
+    },
+    {
+      "category": "TECNICA",
+      "confidence": 0.4,
+      "contradiction_links": [],
+      "coverage": {
+        "denominator": 1,
+        "evaluated": 1,
+        "ratio": 1.0
+      },
+      "evidence_hash": "96d334829f835da9371174bd6659ac2c7261a09324790a7a2d69646cfddda88f",
+      "evidence_ref": "bid_readiness:MISSING",
+      "finding_id": "BR-0002",
+      "human_review_required": true,
+      "interpretive_limit": "Observation bound to the cited locator and method. Not a legal conclusion.",
+      "locator": {
+        "page": 2,
+        "section": "10"
+      },
+      "method": "bid_readiness.match:MISSING",
+      "reason_codes": [
+        "missing_document"
+      ],
+      "requirement_id": "REQ-TEC-001",
+      "rule": "bid_readiness.match:MISSING",
+      "source_document_id": "requirement:REQ-TEC-001",
+      "state": "UNKNOWN",
+      "statement": "Requirement REQ-TEC-001 has no matching document in the submitted package. Absence is recorded as UNKNOWN coverage, not as an eligibility denial."
+    }
+  ],
+  "generated_at": "2026-08-20T12:00:00Z",
+  "human_review_required": true,
+  "index_authorization": false,
+  "input_manifest": {
+    "content_included": false,
+    "inputs": [
+      {
+        "bytes": 638,
+        "content_type": "txt",
+        "filename": "edital.txt",
+        "present": true,
+        "role": "edital",
+        "sha256": "79ba71ef89274384b0698d966f79ceef58891fa8d705781ab786c3a1d03d2841"
+      },
+      {
+        "bytes": 5022,
+        "content_type": "xlsx",
+        "filename": "planilha.xlsx",
+        "present": true,
+        "role": "planilha",
+        "sha256": "d0b11dfdf19673db803a24b6c9cc6ffa6197fde2aba508109a08b9eadefe740f"
+      },
+      {
+        "bytes": 278,
+        "content_type": "directory",
+        "filename": "documents",
+        "present": true,
+        "role": "documents",
+        "sha256": "a0c7ca3ebeaea1498d1bea7f33d5d193238c1a4b044beb81f060bb7481cfe0c2"
+      },
+      {
+        "bytes": 2124,
+        "content_type": "json",
+        "filename": "acervo.json",
+        "present": true,
+        "role": "acervo",
+        "sha256": "f5c0e856658b5a7b1786a25a49ce407fb36b0aee6bf9c887341f39dab2b9900f"
+      },
+      {
+        "bytes": 1983,
+        "content_type": "json",
+        "filename": "requirements.json",
+        "present": true,
+        "role": "requirements",
+        "sha256": "501f3a1767a93b457a2933a3f0d2069a20ae672cb4f37a03252b211f8ba92fda"
+      }
+    ]
+  },
+  "limitations": [
+    "Operational coverage envelope only. Not a legal opinion.",
+    "Human review is mandatory before any bid decision.",
+    "Absence of a document is not a silent eligibility denial.",
+    "RISK is a technical condition for human review, not illegality.",
+    "No publication, index, or commercial GO is authorized by this producer."
+  ],
+  "modules_reused": [
+    "edital_case",
+    "budget_audit",
+    "technical_acervo",
+    "bid_readiness"
+  ],
+  "not_legal_conclusion": true,
+  "overall_state": "READY_FOR_HUMAN_REVIEW",
+  "policy": {
+    "allow_llm": false,
+    "deterministic": true,
+    "policy_version": "public-read-bid-readiness-policy/1.0"
+  },
+  "policy_version": "public-read-bid-readiness-policy/1.0",
+  "producer_version": "public-read-bid-readiness-producer/1.0",
+  "prohibited_claims": [
+    "eligibility_conclusion",
+    "inexequibility_decision",
+    "illegality_label",
+    "unscoped_bdi_correctness",
+    "win_probability",
+    "legal_opinion",
+    "autonomous_participate_or_impugn",
+    "completeness_without_denominator"
+  ],
+  "publication_authorization": false,
+  "query_id": "prbr1-5ae876a27ca7845a",
+  "reason_codes": [
+    "BLOCKED_BY_MISSING_DOCUMENT",
+    "mapped_from_blocked_by_missing_document",
+    "missing_document",
+    "requirement_supported"
+  ],
+  "run_id": "prbr1-5ae876a27ca7845a",
+  "schema_version": "public-read-bid-readiness/1.0",
+  "source_access": "redacted_fixture",
+  "summary": {
+    "blockers": [
+      "BLOCKED_BY_MISSING_DOCUMENT"
+    ],
+    "conflicts": [],
+    "covered_items": [
+      "edital.text",
+      "budget.items",
+      "pavimentacao asfaltica",
+      "REQ-JUR-001"
+    ],
+    "human_next_steps": [
+      "Review UNKNOWN items and supply missing local files when applicable.",
+      "Review RISK items against the cited method and locator.",
+      "Do not treat this envelope as authorization to submit, publish, or index."
+    ],
+    "missing_items": [
+      "REQ-TEC-001"
+    ],
+    "observable_review": {
+      "estimated_review_minutes": 15,
+      "estimated_review_minutes_per_finding": 3,
+      "finding_count": 5,
+      "module_count": 4
+    },
+    "unevaluated": []
+  }
+}
