@@ -15,11 +15,12 @@ import hashlib
 import json
 import math
 import os
+import re
 import stat
 import subprocess
 import sys
-from collections.abc import Iterable, Mapping, Sequence
-from datetime import UTC, date, datetime, timedelta
+from collections.abc import Callable, Iterable, Mapping, Sequence
+from datetime import UTC, date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -98,8 +99,43 @@ REASON_UNCLOSED_CURRENT_WINDOW = "UNCLOSED_CURRENT_WINDOW"
 REASON_EXTERNAL_TRANSIENT = "EXTERNAL_TRANSIENT"
 
 
+_SYSTEMD_TS = re.compile(
+    r"^(?:(?P<dow>[A-Za-z]{3}) )?"
+    r"(?P<date>\d{4}-\d{2}-\d{2}) "
+    r"(?P<time>\d{2}:\d{2}:\d{2})"
+    r"(?: (?P<tz>\S+))?$"
+)
+
+
+def _tzinfo_from_token(token: str) -> timezone | None:
+    raw = token.strip()
+    if not raw or raw in {"n/a", "-", "None"}:
+        return None
+    if raw in {"UTC", "Z", "gmt", "GMT"}:
+        return UTC
+    if re.fullmatch(r"[+-]\d{2}", raw):
+        hours = int(raw)
+        return timezone(timedelta(hours=hours))
+    if re.fullmatch(r"[+-]\d{2}:\d{2}", raw):
+        sign = 1 if raw[0] == "+" else -1
+        hours = int(raw[1:3])
+        minutes = int(raw[4:6])
+        return timezone(sign * timedelta(hours=hours, minutes=minutes))
+    if re.fullmatch(r"[+-]\d{4}", raw):
+        sign = 1 if raw[0] == "+" else -1
+        hours = int(raw[1:3])
+        minutes = int(raw[3:5])
+        return timezone(sign * timedelta(hours=hours, minutes=minutes))
+    try:
+        from zoneinfo import ZoneInfo
+
+        return ZoneInfo(raw)
+    except Exception:
+        return None
+
+
 def parse_dt(value: Any) -> datetime | None:
-    """Parse ISO / date-only timestamps to aware UTC. Missing → None."""
+    """Parse ISO, date-only, unix epoch, or systemd show stamps to aware UTC."""
     if value is None or value == "":
         return None
     if isinstance(value, datetime):
@@ -107,9 +143,25 @@ def parse_dt(value: Any) -> datetime | None:
         if dt.tzinfo is None:
             dt = dt.replace(tzinfo=UTC)
         return dt.astimezone(UTC)
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        number = float(value)
+        if number > 1e14:
+            number = number / 1_000_000.0
+        elif number > 1e11:
+            number = number / 1_000.0
+        return datetime.fromtimestamp(number, tz=UTC)
     text = str(value).strip()
-    if not text:
+    if not text or text in {"n/a", "-", "None"}:
         return None
+    if text.isdigit():
+        return parse_dt(int(text))
+    systemd = _SYSTEMD_TS.match(text)
+    if systemd:
+        stamp = f"{systemd.group('date')}T{systemd.group('time')}"
+        tzinfo = _tzinfo_from_token(systemd.group("tz") or "UTC")
+        dt = datetime.fromisoformat(stamp)
+        dt = dt.replace(tzinfo=tzinfo or UTC)
+        return dt.astimezone(UTC)
     if text.endswith("Z"):
         text = text[:-1] + "+00:00"
     try:
@@ -123,6 +175,13 @@ def parse_dt(value: Any) -> datetime | None:
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=UTC)
     return dt.astimezone(UTC)
+
+
+def _iso_z(value: Any) -> str | None:
+    parsed = parse_dt(value)
+    if parsed is None:
+        return None
+    return parsed.isoformat().replace("+00:00", "Z")
 
 
 def parse_window_key(key: str) -> tuple[date, date] | None:
@@ -733,24 +792,139 @@ def collect_checkpoint_snapshot(
     return payload
 
 
-def collect_timer_snapshot() -> dict[str, Any]:
-    timer = _systemctl_show(TIMER_UNIT)
-    service = _systemctl_show(SERVICE_UNIT)
-    last_run = service.get("ExecMainStartTimestamp") or timer.get("LastTriggerUSec")
-    next_run = timer.get("NextElapseUSecRealtime") or timer.get("NextElapseUSec")
+def collect_timer_snapshot(
+    *,
+    show_timer: Mapping[str, str] | None = None,
+    show_service: Mapping[str, str] | None = None,
+) -> dict[str, Any]:
+    timer = dict(show_timer) if show_timer is not None else _systemctl_show(TIMER_UNIT)
+    service = dict(show_service) if show_service is not None else _systemctl_show(SERVICE_UNIT)
+    last_raw = service.get("ExecMainStartTimestamp") or timer.get("LastTriggerUSec")
+    next_raw = timer.get("NextElapseUSecRealtime") or timer.get("NextElapseUSec")
+    last_run = _iso_z(last_raw)
+    next_run = _iso_z(next_raw)
+    status_raw = service.get("ExecMainStatus") or ""
     return {
         "unit": TIMER_UNIT,
         "active": timer.get("ActiveState") == "active",
         "enabled": timer.get("UnitFileState") == "enabled" or "enabled" in (timer.get("ActiveState") or ""),
-        "last_run_at": last_run or None,
-        "next_run_at": next_run or None,
+        "last_run_at": last_run,
+        "next_run_at": next_run,
         "last_result": service.get("Result"),
-        "last_exec_status": int(service["ExecMainStatus"]) if service.get("ExecMainStatus", "").isdigit() else None,
+        "last_exec_status": int(status_raw) if status_raw.isdigit() else None,
         "on_calendar": TIMER_ON_CALENDAR,
+        "raw_last_run_at": last_raw or None,
+        "raw_next_run_at": next_raw or None,
     }
 
 
-def collect_snapshot(*, live: bool = False, snapshot_path: Path | None = None) -> dict[str, Any]:
+def _psycopg2_connect(dsn: str) -> Any:
+    import psycopg2
+
+    conn = psycopg2.connect(dsn)
+    conn.autocommit = True
+    return conn
+
+
+def collect_db_snapshot(
+    *,
+    dsn: str | None = None,
+    connect: Callable[[str], Any] | None = None,
+) -> dict[str, Any]:
+    """Read source/first_seen/ingested timestamps from pncp_supplier_contracts."""
+    effective = (dsn or os.getenv("LOCAL_DATALAKE_DSN") or os.getenv("DATABASE_URL") or "").strip()
+    if not effective:
+        return {"available": False, "columns": None, "error": "NO_DSN"}
+    connect_fn = connect or _psycopg2_connect
+    conn: Any = None
+    try:
+        conn = connect_fn(effective)
+        cur = conn.cursor()
+        try:
+            cur.execute(
+                """
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = %s
+                ORDER BY ordinal_position
+                """,
+                ("pncp_supplier_contracts",),
+            )
+            col_rows = cur.fetchall() or []
+            columns: list[str] = []
+            for row in col_rows:
+                if isinstance(row, dict):
+                    columns.append(str(row.get("column_name") or next(iter(row.values()))))
+                elif isinstance(row, (tuple, list)):
+                    columns.append(str(row[0]))
+                else:
+                    columns.append(str(row))
+            have = set(columns)
+            missing = classify_schema(columns)
+            wanted = {
+                "ingested_at": "latest_ingested_at",
+                "first_seen_at": "latest_first_seen_at",
+                "data_publicacao_fonte": "max_data_publicacao_fonte",
+                "data_atualizacao_fonte": "max_data_atualizacao_fonte",
+                "data_publicacao": "max_data_publicacao",
+            }
+            select_parts = ["COUNT(*) AS row_count"]
+            for column, alias in wanted.items():
+                if column in have:
+                    select_parts.append(f"MAX({column}) AS {alias}")
+            # Identifiers come from the allowlisted `wanted` map, never user input.
+            agg_sql = "SELECT " + ", ".join(select_parts) + " FROM pncp_supplier_contracts"  # noqa: S608
+            cur.execute(agg_sql)
+            fetched = cur.fetchone() or {}
+            if isinstance(fetched, (tuple, list)):
+                keys = ["row_count"] + [wanted[c] for c in wanted if c in have]
+                fetched = dict(zip(keys, fetched, strict=False))
+            payload = dict(fetched) if isinstance(fetched, dict) else {}
+        finally:
+            close = getattr(cur, "close", None)
+            if callable(close):
+                close()
+    except Exception as exc:
+        return {"available": False, "columns": None, "error": str(exc)}
+    finally:
+        if conn is not None:
+            closer = getattr(conn, "close", None)
+            if callable(closer):
+                closer()
+
+    ingested = _iso_z(payload.get("latest_ingested_at"))
+    first_seen = _iso_z(payload.get("latest_first_seen_at")) or ingested
+    source = _iso_z(
+        payload.get("max_data_atualizacao_fonte")
+        or payload.get("max_data_publicacao_fonte")
+        or payload.get("max_data_publicacao")
+    )
+    return {
+        "available": True,
+        "columns": columns,
+        "schema_drift": missing is not None,
+        "row_count": int(payload.get("row_count") or 0),
+        "latest_ingested_at": ingested,
+        "latest_first_seen_at": first_seen,
+        "latest_source_publication_or_update_at": source,
+        "error": None,
+    }
+
+
+def collect_snapshot(
+    *,
+    live: bool = False,
+    snapshot_path: Path | None = None,
+    evidence_path: Path | None = None,
+    checkpoint_dir: str | Path | None = None,
+    production: bool | None = None,
+    repo_root: Path | None = None,
+    state_root: Path | None = None,
+    dsn: str | None = None,
+    connect: Callable[[str], Any] | None = None,
+    timer: Mapping[str, Any] | None = None,
+    as_of: datetime | None = None,
+) -> dict[str, Any]:
     if snapshot_path is not None:
         data = json.loads(Path(snapshot_path).read_text(encoding="utf-8"))
         if not isinstance(data, dict):
@@ -758,8 +932,10 @@ def collect_snapshot(*, live: bool = False, snapshot_path: Path | None = None) -
         data.setdefault("live", live)
         return data
 
-    as_of = datetime.now(UTC)
-    evidence_json = Path("output/contracts/incremental-latest.json")
+    now = as_of or datetime.now(UTC)
+    evidence_json = (
+        Path(evidence_path) if evidence_path is not None else Path("output/contracts/incremental-latest.json")
+    )
     evidence: dict[str, Any] = {}
     if evidence_json.is_file():
         try:
@@ -769,13 +945,19 @@ def collect_snapshot(*, live: bool = False, snapshot_path: Path | None = None) -
         except json.JSONDecodeError:
             evidence = {}
 
-    checkpoint = collect_checkpoint_snapshot()
-    timer = collect_timer_snapshot()
+    checkpoint = collect_checkpoint_snapshot(
+        requested=checkpoint_dir,
+        production=production,
+        repo_root=repo_root,
+        state_root=state_root,
+    )
+    timer_snap = dict(timer) if timer is not None else collect_timer_snapshot()
     windows = list(evidence.get("windows") or [])
     if not windows and checkpoint.get("window_results"):
         for key, result in dict(checkpoint["window_results"]).items():
             terminal = str((result or {}).get("terminal") or "").upper()
             status = "completed" if terminal == "COMPLETE" else terminal.lower() or "unknown"
+            pages = (result or {}).get("pages")
             windows.append(
                 {
                     "window_key": key,
@@ -785,12 +967,16 @@ def collect_snapshot(*, live: bool = False, snapshot_path: Path | None = None) -
                     "persisted": (result or {}).get("persisted"),
                     "deduplicated": (result or {}).get("skipped"),
                     "failed": (result or {}).get("page_errors") or 0,
-                    "pages_expected": (result or {}).get("pages"),
-                    "pages_fetched": (result or {}).get("pages"),
+                    "pages_expected": pages,
+                    "pages_fetched": pages,
                     "closed_at": checkpoint.get("updated_at") if terminal == "COMPLETE" else None,
                 }
             )
     for window in windows:
+        if window.get("pages_expected") is None and window.get("pages") is not None:
+            window["pages_expected"] = window["pages"]
+        if window.get("pages_fetched") is None and window.get("pages") is not None:
+            window["pages_fetched"] = window["pages"]
         if window.get("status") == "completed" and not window.get("closed_at"):
             window["closed_at"] = evidence.get("completed_at") or checkpoint.get("updated_at")
         if window.get("window_key") and not window.get("source_window"):
@@ -798,23 +984,26 @@ def collect_snapshot(*, live: bool = False, snapshot_path: Path | None = None) -
             if span:
                 window["source_window"] = {"start": span[0].isoformat(), "end": span[1].isoformat()}
 
-    db = {"available": None, "columns": None}
+    db = collect_db_snapshot(dsn=dsn, connect=connect)
     snapshot = {
-        "as_of": as_of.isoformat().replace("+00:00", "Z"),
+        "as_of": now.isoformat().replace("+00:00", "Z"),
         "live": live,
         "has_evidence": bool(windows) or bool(checkpoint.get("completed_windows")),
-        "deployed_sha": evidence.get("git_sha") or _deployed_sha(),
+        "deployed_sha": evidence.get("git_sha") or _deployed_sha(repo_root),
         "policy_version": f"{TIMER_UNIT}/{TIMER_ON_CALENDAR}",
         "run_id": evidence.get("run_id") or checkpoint.get("attempt_run_id"),
         "attempt_id": checkpoint.get("attempt_run_id"),
-        "timer": timer,
+        "timer": timer_snap,
         "checkpoint": checkpoint,
         "windows": windows,
         "db": db,
+        "source_publication_or_update_at": db.get("latest_source_publication_or_update_at"),
+        "first_observed_at": db.get("latest_first_seen_at"),
+        "persisted_at": db.get("latest_ingested_at"),
         "last_error": checkpoint.get("last_error") or (evidence.get("errors") or [None])[0],
         "lags_hours": [],
         "evidence_only": {
-            "timer_active": bool(timer.get("active")) and not windows,
+            "timer_active": bool(timer_snap.get("active")) and not windows,
             "http_200": False,
             "single_recent_row": False,
         },

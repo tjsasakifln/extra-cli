@@ -45,11 +45,15 @@ from scripts.ops.pncp_contract_freshness import (
     classify_schema,
     classify_status,
     collect_checkpoint_snapshot,
+    collect_db_snapshot,
+    collect_snapshot,
+    collect_timer_snapshot,
     empty_window_reason,
     health_exit,
     lag_percentiles,
     legal_page_size,
     main,
+    parse_dt,
     resume_units,
 )
 from scripts.ops.source_contract_tests import classify_http_outcome
@@ -492,6 +496,191 @@ def test_alerts_use_shipped_evaluate() -> None:
     )
     assert not registry2.has_critical()
     assert not registry2.has_warnings()
+
+
+def test_parse_dt_systemd_show_stamp() -> None:
+    parsed = parse_dt("Wed 2026-08-19 06:00:20 -03")
+    assert parsed == datetime(2026, 8, 19, 9, 0, 20, tzinfo=UTC)
+    nxt = parse_dt("Fri 2026-08-21 06:00:31 -03")
+    assert nxt == datetime(2026, 8, 21, 9, 0, 31, tzinfo=UTC)
+    assert parse_dt("n/a") is None
+
+
+def test_collect_timer_snapshot_parses_systemd_stamps() -> None:
+    snap = collect_timer_snapshot(
+        show_timer={
+            "ActiveState": "active",
+            "UnitFileState": "enabled",
+            "LastTriggerUSec": "Wed 2026-08-19 06:00:20 -03",
+            "NextElapseUSecRealtime": "Fri 2026-08-21 06:00:31 -03",
+        },
+        show_service={
+            "ExecMainStartTimestamp": "Wed 2026-08-19 06:00:20 -03",
+            "ExecMainStatus": "0",
+            "Result": "success",
+        },
+    )
+    assert snap["last_run_at"] == "2026-08-19T09:00:20Z"
+    assert snap["next_run_at"] == "2026-08-21T09:00:31Z"
+    assert snap["last_exec_status"] == 0
+
+
+class _FakePgConn:
+    def __init__(self, columns: list[str], aggregate: dict) -> None:
+        self.columns = columns
+        self.aggregate = aggregate
+        self.statements: list[str] = []
+        self.closed = False
+
+    def cursor(self, *args: object, **kwargs: object) -> _FakePgCursor:
+        return _FakePgCursor(self)
+
+    def close(self) -> None:
+        self.closed = True
+
+
+class _FakePgCursor:
+    def __init__(self, conn: _FakePgConn) -> None:
+        self.conn = conn
+        self._rows: list[tuple[str, ...]] = []
+        self._row: dict | None = None
+
+    def execute(self, sql: str, params=None) -> None:
+        self.conn.statements.append(sql)
+        low = sql.lower()
+        if "information_schema.columns" in low:
+            self._rows = [(name,) for name in self.conn.columns]
+            self._row = None
+            return
+        if "from pncp_supplier_contracts" in low:
+            self._rows = []
+            self._row = dict(self.conn.aggregate)
+            return
+        self._rows = []
+        self._row = None
+
+    def fetchall(self) -> list[tuple[str, ...]]:
+        return self._rows
+
+    def fetchone(self) -> dict | None:
+        return self._row
+
+    def close(self) -> None:
+        return None
+
+
+def _live_pg_connect(_dsn: str) -> _FakePgConn:
+    return _FakePgConn(
+        columns=[
+            "contrato_id",
+            "ingested_at",
+            "data_publicacao_fonte",
+            "data_atualizacao_fonte",
+            "first_seen_at",
+        ],
+        aggregate={
+            "row_count": 4591752,
+            "latest_ingested_at": datetime(2026, 8, 19, 9, 21, 9, tzinfo=UTC),
+            "latest_first_seen_at": datetime(2026, 8, 19, 9, 21, 9, tzinfo=UTC),
+            "max_data_publicacao_fonte": datetime(2026, 8, 19, tzinfo=UTC).date(),
+            "max_data_atualizacao_fonte": datetime(2026, 8, 19, tzinfo=UTC).date(),
+        },
+    )
+
+
+def test_collect_db_snapshot_fills_source_first_seen_ingested() -> None:
+    db = collect_db_snapshot(dsn="postgresql://test/pncp_datalake", connect=_live_pg_connect)
+    assert db["available"] is True
+    assert db["latest_ingested_at"] == "2026-08-19T09:21:09Z"
+    assert db["latest_first_seen_at"] == "2026-08-19T09:21:09Z"
+    assert db["latest_source_publication_or_update_at"] == "2026-08-19T00:00:00Z"
+
+
+def test_collect_snapshot_live_shaped_is_stale_from_lag_not_unknown(tmp_path: Path) -> None:
+    """Drive collect_snapshot (not a hand-filled artifact) with host-shaped inputs."""
+    evidence = tmp_path / "incremental-latest.json"
+    evidence.write_text(
+        json.dumps(
+            {
+                "run_id": "contracts-90d-20260819T090020Z-2d53827e9d",
+                "git_sha": "9c5e7d47f99902d9d97cf479aefbba8cd391a14d",
+                "completed_at": "2026-08-19T09:21:14Z",
+                "windows": [
+                    {
+                        "window_key": "20260812_20260819",
+                        "status": "completed",
+                        "pages": 92,
+                        "expected": 45703,
+                        "fetched": 45703,
+                        "persisted": 18495,
+                        "skipped": 27208,
+                        "page_errors": 0,
+                        "closed_at": "2026-08-19T09:21:14Z",
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    ckpt_dir = tmp_path / "checkpoints"
+    ckpt_dir.mkdir()
+    (ckpt_dir / "contracts_full.json").write_text(
+        json.dumps(
+            {
+                "source": "pncp_contracts",
+                "mode": "full",
+                "completed_windows": ["20260807_20260814", "20260812_20260819"],
+                "blocked_windows": ["20260810_20260817"],
+                "failed_windows": [],
+                "updated_at": "2026-08-19T09:21:14Z",
+                "last_error": "source_population_drift:totalRegistros 44515 -> 44517",
+                "meta": {
+                    "logical_job_id": "pncp-contracts-incremental",
+                    "attempt_run_id": "contracts-90d-20260819T090020Z-2d53827e9d",
+                    "checkpoint_version": 2,
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    timer = collect_timer_snapshot(
+        show_timer={
+            "ActiveState": "active",
+            "UnitFileState": "enabled",
+            "LastTriggerUSec": "Wed 2026-08-19 06:00:20 -03",
+            "NextElapseUSecRealtime": "Fri 2026-08-21 06:00:31 -03",
+        },
+        show_service={
+            "ExecMainStartTimestamp": "Wed 2026-08-19 06:00:20 -03",
+            "ExecMainStatus": "0",
+            "Result": "success",
+        },
+    )
+    snapshot = collect_snapshot(
+        live=True,
+        evidence_path=evidence,
+        checkpoint_dir=ckpt_dir,
+        production=False,
+        repo_root=tmp_path,
+        state_root=tmp_path,
+        dsn="postgresql://test/pncp_datalake",
+        connect=_live_pg_connect,
+        timer=timer,
+        as_of=NOW,
+    )
+    assert snapshot["db"]["available"] is True
+    assert snapshot["source_publication_or_update_at"]
+    assert snapshot["persisted_at"]
+    artifact = build_contract(snapshot)
+    assert artifact["status"] == "STALE"
+    assert artifact["status"] != "UNKNOWN"
+    assert REASON_LAG_ABOVE_HARD_GUARDRAIL in artifact["reason_codes"]
+    assert REASON_MISSING_SOURCE_TIMESTAMP not in artifact["reason_codes"]
+    assert artifact["current_lag_hours"] is not None
+    assert artifact["current_lag_hours"] > DESIRED_HARD_GUARDRAIL_HOURS
+    assert artifact["last_run_at"] == "2026-08-19T09:00:20Z"
+    assert artifact["next_run_at"] == "2026-08-21T09:00:31Z"
+    assert artifact["pages_expected"] == artifact["pages_fetched"] == 92
 
 
 def test_real_db_marker_not_mocked_in_this_module() -> None:
