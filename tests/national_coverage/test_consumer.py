@@ -37,6 +37,8 @@ def test_consumer_fields_and_omitted_coverage_pct_when_official_blocked() -> Non
     for field in REQUIRED_CONSUMER:
         assert field in consumer
     assert consumer["coverage_pct"] is None
+    assert consumer["provenance"]["retrieved_at"]
+    assert consumer["provenance"]["as_of"]
     assert consumer["provenance"]["indexation_authorized"] is False
     assert consumer["provenance"]["internal_tables_exposed"] is False
     assert "indexation_not_authorized" in consumer["limitations"]

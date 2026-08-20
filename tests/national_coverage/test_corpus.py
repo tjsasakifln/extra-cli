@@ -8,6 +8,7 @@ from scripts.national_coverage.corpus import (
     CORPUS_SELECT_SQL,
     aggregate_contract_rows,
     map_publishers,
+    observed_orgs_from_mapping,
     snapshot_from_publishers,
 )
 from scripts.national_coverage.models import (
@@ -75,16 +76,21 @@ def test_mapping_mapped_unmapped_alias_duplicate_conflict() -> None:
     snapshot = snapshot_from_publishers(
         (
             CorpusPublisher("11111111000191", 2, "SC"),
+            CorpusPublisher("11111111000191", 5, "PR"),
             CorpusPublisher("11111111", 1, "SC"),
             CorpusPublisher("unmapped-org", 1, "SC"),
             CorpusPublisher("dup-org", 1, "SC"),
-            CorpusPublisher("dup-org", 3, "PR"),
+            CorpusPublisher("dup-org", 3, "SC"),
             CorpusPublisher("shared-alias", 1, "RS"),
         ),
         as_of="2026-08-16T00:00:00Z",
         source="fixture",
     )
     mapping = map_publishers(snapshot, universe)
+    uf_slices = [record for record in mapping.records if record.raw_org_id == "11111111000191"]
+    assert len(uf_slices) == 2
+    assert {record.status for record in uf_slices} == {"MAPPED"}
+    assert "11111111000191" in observed_orgs_from_mapping(mapping)
     assert mapping.mapped >= 1
     assert mapping.unmapped >= 1
     assert mapping.duplicate >= 1

@@ -115,6 +115,7 @@ def evaluate_from_dict(payload: dict[str, Any]) -> dict[str, Any]:
     competence = str(official.get("competence") or payload.get("competence") or "contratos-2026")
     cutoff = str(official.get("cutoff") or payload.get("cutoff") or "")
     as_of = str(official.get("as_of") or corpus_raw.get("as_of") or cutoff)
+    retrieved_at = str(official.get("retrieved_at") or as_of or cutoff)
     source = str(official.get("source") or "pncp")
     request = _request(payload.get("request"))
     publishers = _publishers(list(corpus_raw.get("publishers") or []))
@@ -138,6 +139,7 @@ def evaluate_from_dict(payload: dict[str, Any]) -> dict[str, Any]:
             competence=competence,
             cutoff=cutoff,
             as_of=as_of or cutoff,
+            retrieved_at=retrieved_at or as_of or cutoff,
             raw_hash=raw_hash,
             orgs=orgs,
             method_version=str(official.get("method_version") or CORE_METHOD_VERSION),
@@ -154,17 +156,23 @@ def evaluate_from_dict(payload: dict[str, Any]) -> dict[str, Any]:
         partitions = assign_partition_statuses(universe, consulted, request)
     else:
         cause = str(official.get("block_cause") or "official_catalog_not_provided")
-        observed_orgs = tuple(
-            PublishingOrg(
-                org_id=pub.raw_org_id,
-                name=pub.raw_org_id,
-                unit_count=1,
-                uf=pub.uf,
-                esfera=pub.esfera,
-                aliases=pub.aliases,
+        seen_observed: set[str] = set()
+        observed_list: list[PublishingOrg] = []
+        for pub in publishers:
+            if pub.raw_org_id in seen_observed:
+                continue
+            seen_observed.add(pub.raw_org_id)
+            observed_list.append(
+                PublishingOrg(
+                    org_id=pub.raw_org_id,
+                    name=pub.raw_org_id,
+                    unit_count=1,
+                    uf=pub.uf,
+                    esfera=pub.esfera,
+                    aliases=pub.aliases,
+                )
             )
-            for pub in publishers
-        )
+        observed_orgs = tuple(observed_list)
         observed_hash = str(
             corpus_raw.get("raw_hash") or (corpus.snapshot_hash if corpus else digest({"blocked": cause}))
         )
@@ -173,6 +181,7 @@ def evaluate_from_dict(payload: dict[str, Any]) -> dict[str, Any]:
             competence=competence,
             cutoff=cutoff or as_of or "unspecified",
             as_of=as_of or cutoff or corpus_as_of or "unspecified",
+            retrieved_at=retrieved_at or as_of or cutoff or corpus_as_of or "unspecified",
             raw_hash=observed_hash,
             orgs=observed_orgs,
             official_block_cause=cause,

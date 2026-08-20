@@ -33,13 +33,13 @@ def persist_coverage(conn: Any, payload: dict[str, Any]) -> None:
             """
             INSERT INTO national_coverage_universe (
                 universe_id, universe_kind, official_source, official_source_url,
-                competence, cutoff, as_of, raw_hash, catalog_hash, method_version,
+                competence, cutoff, retrieved_at, as_of, raw_hash, catalog_hash, method_version,
                 schema_version, grain, expected_partitions, expected_units,
                 official_status, official_block_cause, inclusion_rules,
                 exclusion_rules, owner, next_refresh, payload
             ) VALUES (
                 %s, %s, %s, %s,
-                %s, %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s, %s, %s,
                 %s, %s, %s, %s,
                 %s, %s, %s::jsonb,
                 %s::jsonb, %s, %s, %s::jsonb
@@ -55,6 +55,7 @@ def persist_coverage(conn: Any, payload: dict[str, Any]) -> None:
                 universe.get("official_source_url"),
                 universe["competence"],
                 universe["cutoff"],
+                universe["retrieved_at"],
                 universe["as_of"],
                 universe["raw_hash"],
                 universe["catalog_hash"],

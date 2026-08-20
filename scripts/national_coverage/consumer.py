@@ -93,6 +93,7 @@ def consumer_answer(record: CoverageRecord) -> dict[str, Any]:
             "official_source": record.universe.official_source,
             "official_source_url": record.universe.official_source_url,
             "cutoff": record.universe.cutoff,
+            "retrieved_at": record.universe.retrieved_at,
             "as_of": record.universe.as_of,
             "raw_hash": record.universe.raw_hash,
             "catalog_hash": record.universe.catalog_hash,

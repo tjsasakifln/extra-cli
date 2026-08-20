@@ -98,6 +98,7 @@ class VersionedUniverse:
     official_source_url: str | None
     competence: str
     cutoff: str
+    retrieved_at: str
     as_of: str
     raw_hash: str
     catalog_hash: str

@@ -37,13 +37,13 @@ When the official enumerator is unavailable, the official denominator is
 ## Required metadata
 
 Each universe version carries `national_universe_id`, schema/method version,
-official source URL or identifier, competence/cutoff, `as_of`, raw/source
-hash, inclusion/exclusion, grain, expected vs observed partitions,
-expected/queried/closed counts, missingness, relation to a corpus snapshot,
-verdict, reason codes, owner and next refresh.
+official source URL or identifier, competence/cutoff, `retrieved_at` and
+`as_of`, raw/source hash, inclusion/exclusion, grain, expected vs observed
+partitions, expected/queried/closed counts, missingness, relation to a
+corpus snapshot, verdict, reason codes, owner and next refresh.
 
 Same source + catalog hash + policy reproduces the same `universe_id` and
-counts. `content_hash` excludes wall-clock.
+counts. `content_hash` excludes wall-clock, including nested `retrieved_at`.
 
 ## Corpus snapshot
 

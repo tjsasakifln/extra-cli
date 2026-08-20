@@ -28,6 +28,15 @@ def digest(obj: Any) -> str:
     return sha256_payload(obj)
 
 
+def _strip_clock(obj: Any) -> Any:
+    if isinstance(obj, dict):
+        return {key: _strip_clock(value) for key, value in obj.items() if key not in CONTENT_HASH_EXCLUDED}
+    if isinstance(obj, list):
+        return [_strip_clock(item) for item in obj]
+    if isinstance(obj, tuple):
+        return [_strip_clock(item) for item in obj]
+    return obj
+
+
 def content_hash(payload: dict[str, Any]) -> str:
-    filtered = {key: value for key, value in payload.items() if key not in CONTENT_HASH_EXCLUDED}
-    return digest(filtered)
+    return digest(_strip_clock(payload))

@@ -93,6 +93,7 @@ def build_official_universe(
     as_of: str,
     raw_hash: str,
     orgs: tuple[PublishingOrg, ...],
+    retrieved_at: str | None = None,
     method_version: str = CORE_METHOD_VERSION,
     coverage_method_version: str = METHOD_VERSION,
     grain: str = DEFAULT_GRAIN,
@@ -136,6 +137,7 @@ def build_official_universe(
         official_source_url=source_url or OFFICIAL_SOURCE_URL_PNCP,
         competence=competence,
         cutoff=cutoff,
+        retrieved_at=retrieved_at or as_of,
         as_of=as_of,
         raw_hash=raw_hash,
         catalog_hash=core.catalog_hash,
@@ -163,6 +165,7 @@ def build_observed_corpus_universe(
     raw_hash: str,
     orgs: tuple[PublishingOrg, ...],
     official_block_cause: str,
+    retrieved_at: str | None = None,
     grain: str = DEFAULT_GRAIN,
     owner: str = DEFAULT_OWNER,
     next_refresh: str = DEFAULT_NEXT_REFRESH,
@@ -201,6 +204,7 @@ def build_observed_corpus_universe(
         official_source_url=None,
         competence=competence,
         cutoff=cutoff,
+        retrieved_at=retrieved_at or as_of,
         as_of=as_of,
         raw_hash=raw_hash,
         catalog_hash=catalog_hash,
@@ -227,6 +231,7 @@ def blocked_official(
     competence: str,
     cutoff: str,
     as_of: str,
+    retrieved_at: str | None = None,
 ) -> dict[str, str | None]:
     if not cause:
         raise NationalCoverageError("official BLOCKED requires a cause")
@@ -237,6 +242,7 @@ def blocked_official(
         "official_source_url": source_url,
         "competence": competence,
         "cutoff": cutoff,
+        "retrieved_at": retrieved_at or as_of,
         "as_of": as_of,
     }
 
@@ -252,6 +258,7 @@ def universe_to_dict(universe: VersionedUniverse) -> dict[str, object]:
         "official_source_url": universe.official_source_url,
         "competence": universe.competence,
         "cutoff": universe.cutoff,
+        "retrieved_at": universe.retrieved_at,
         "as_of": universe.as_of,
         "raw_hash": universe.raw_hash,
         "catalog_hash": universe.catalog_hash,

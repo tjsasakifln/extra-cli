@@ -48,7 +48,21 @@ def test_official_universe_is_deterministic() -> None:
     assert first.expected_units == 4
     assert first.universe_kind == "OFFICIAL"
     assert first.official_status == "AVAILABLE"
+    assert first.retrieved_at == "2026-08-16T00:00:00Z"
+    assert first.as_of == "2026-08-16T00:00:00Z"
     assert "extra_1093_monitored_entes" in first.exclusion_rules
+    shifted = build_official_universe(
+        source="pncp",
+        source_url="https://pncp.gov.br/api/pncp/v1/orgaos",
+        competence="contratos-2026",
+        cutoff="2026-08-16T00:00:00Z",
+        as_of="2026-08-16T00:00:00Z",
+        retrieved_at="2026-08-17T12:00:00Z",
+        raw_hash="raw-abc",
+        orgs=_orgs(),
+    )
+    assert shifted.national_universe_id == first.national_universe_id
+    assert shifted.retrieved_at == "2026-08-17T12:00:00Z"
 
 
 def test_required_source_hash_cutoff_version() -> None:

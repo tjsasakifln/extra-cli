@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS public.national_coverage_universe (
     official_source_url    TEXT,
     competence             TEXT NOT NULL,
     cutoff                 TEXT NOT NULL,
+    retrieved_at           TEXT NOT NULL,
     as_of                  TEXT NOT NULL,
     raw_hash               TEXT NOT NULL,
     catalog_hash           TEXT NOT NULL,
