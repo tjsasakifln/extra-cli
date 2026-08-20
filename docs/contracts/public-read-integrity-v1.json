@@ -111,18 +111,7 @@
     "noindex",
     "canonical"
   ],
-  "forbidden_copy": [
-    "limpa",
-    "idônea",
-    "idonea",
-    "idôneo",
-    "idoneo",
-    "regular",
-    "apta",
-    "sem risco",
-    "certidão",
-    "certidao"
-  ],
+  "forbidden_copy": "encoded_in_scripts.public_integrity.forbidden",
   "not_legal_conclusion": true,
   "notes": {
     "no_match_requires_full_coverage": true,

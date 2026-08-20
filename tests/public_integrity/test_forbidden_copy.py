@@ -31,21 +31,15 @@ def _iter_text_files() -> list[Path]:
 
 
 def test_exclusive_area_has_no_forbidden_copy_as_claim() -> None:
-    # The contract lists forbidden tokens as a deny-list; skip that file's deny array.
-    skip = {
-        "public-read-integrity-v1.json",
-        "forbidden.py",
-        "test_forbidden_copy.py",
-        "models.py",
-    }
     hits: list[str] = []
+    scanned = 0
     for path in _iter_text_files():
-        if path.name in skip:
-            continue
         text = path.read_text(encoding="utf-8")
         found = scan_forbidden_copy(text)
+        scanned += 1
         if found:
             hits.append(f"{path}:{found}")
+    assert scanned >= 8
     assert hits == []
 
 

@@ -149,7 +149,8 @@ def run_cadastro(
     if not coverage_complete and "pagination_incomplete" not in unique and unique:
         unique = (*unique, "pagination_incomplete")
 
-    deduped = dedupe_records(tuple(parsed))
+    deduped, dedupe_codes = dedupe_records(tuple(parsed))
+    unique = tuple(dict.fromkeys([*unique, *dedupe_codes]))
     status = _source_status(
         coverage_complete=coverage_complete and error_class is None,
         records=deduped,
