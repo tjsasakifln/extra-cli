@@ -1,0 +1,50 @@
+{
+  "contract_version": "national-coverage/1.0",
+  "method_version": "national-coverage-v1",
+  "core_method_version": "pncp-orgaos-publicantes-v1",
+  "verdict_tokens": [
+    "NATIONAL_CLAIM_AUTHORIZED",
+    "PARTIAL",
+    "NOT_MEASURED",
+    "BLOCKED"
+  ],
+  "partition_statuses": [
+    "FOUND",
+    "ZERO_CONFIRMED",
+    "BLOCKED",
+    "FAILED",
+    "NOT_APPLICABLE"
+  ],
+  "universe_kinds": [
+    "OFFICIAL",
+    "OBSERVED_CORPUS"
+  ],
+  "forbidden_national_sources": [
+    "extra_1093",
+    "extra_1093_monitored",
+    "icp_commercial",
+    "observed_corpus",
+    "raw_national",
+    "row_count"
+  ],
+  "consumer_fields": [
+    "requested_geography",
+    "requested_period",
+    "requested_source",
+    "requested_grain",
+    "universe_id",
+    "expected_partitions",
+    "closed_partitions",
+    "coverage_pct",
+    "data_freshness",
+    "missingness",
+    "national_claim_authorized",
+    "verdict",
+    "reason_codes",
+    "limitations",
+    "provenance",
+    "content_hash"
+  ],
+  "select_view": "public.national_coverage_consumer_v1",
+  "indexation_authorized": false
+}

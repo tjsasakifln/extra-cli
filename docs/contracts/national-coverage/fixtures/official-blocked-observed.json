@@ -1,0 +1,36 @@
+{
+  "schema_version": "national-coverage/1.0",
+  "official": {
+    "status": "BLOCKED",
+    "block_cause": "official_catalog_not_provided",
+    "source": "pncp",
+    "source_url": "https://pncp.gov.br/api/pncp/v1/orgaos",
+    "competence": "contratos-2026",
+    "cutoff": "2026-08-16T00:00:00Z",
+    "as_of": "2026-08-16T00:00:00Z"
+  },
+  "corpus": {
+    "as_of": "2026-08-16T00:00:00Z",
+    "source": "pncp_supplier_contracts",
+    "publishers": [
+      {
+        "raw_org_id": "11111111000191",
+        "contract_count": 4,
+        "uf": "SC",
+        "last_seen": "2026-08-15T00:00:00Z"
+      },
+      {
+        "raw_org_id": "44444444000191",
+        "contract_count": 2,
+        "uf": "PR",
+        "last_seen": "2026-07-01T00:00:00Z"
+      }
+    ]
+  },
+  "request": {
+    "geography": "BR",
+    "period": "2026-01/2026-08",
+    "source": "pncp",
+    "grain": "publishing_org"
+  }
+}
