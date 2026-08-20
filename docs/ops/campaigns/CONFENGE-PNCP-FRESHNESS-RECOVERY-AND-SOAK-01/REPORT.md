@@ -14,7 +14,7 @@
 |---|---|
 | #443 | **merged** squash `43579c84` 2026-08-20T15:55:19Z CI verde |
 | #444 | rebased em main+#443; cadence 4h landed na mesma linha; **merged** squash `7ca6a870` 2026-08-20T16:09:24Z CI verde |
-| Terceiro PR | **não aberto** |
+| #445 | docs-only do veredito desta campanha — **não** reimplementa #443/#444 |
 
 ## Cadence
 
