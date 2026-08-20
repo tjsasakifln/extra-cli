@@ -74,8 +74,13 @@ def quality_from_distance(distance: float) -> str:
     return "weak_stratum"
 
 
-def peer_dimension_reasons(focal: Recorte, peer: Recorte) -> tuple[str, ...]:
+def peer_dimension_reasons(
+    focal: Recorte,
+    peer: Recorte,
+    request: PeerRequest | None = None,
+) -> tuple[str, ...]:
     reasons: list[str] = []
+    require_regime = True if request is None else request.require_known_regime
     if peer.typology != "pavimentacao" or peer.typology_confidence < MIN_TYPOLOGY_CONFIDENCE:
         if peer.typology in {"ambiguo", "desconhecido"}:
             reasons.append(REASON_AMBIGUOUS_TYPOLOGY)
@@ -90,11 +95,13 @@ def peer_dimension_reasons(focal: Recorte, peer: Recorte) -> tuple[str, ...]:
             reasons.append(REASON_UNIT_UNKNOWN)
         else:
             reasons.append(REASON_INCOMPATIBLE_UNIT)
-    if peer.regime != focal.regime or peer.regime == "unknown" or focal.regime == "unknown":
-        if peer.regime == "unknown" or focal.regime == "unknown":
+    if peer.regime == "unknown" and focal.regime == "unknown":
+        if require_regime:
             reasons.append(REASON_FIELDS_UNAVAILABLE)
-        elif peer.regime != focal.regime:
-            reasons.append(REASON_INCOMPATIBLE_REGIME)
+    elif peer.regime == "unknown" or focal.regime == "unknown":
+        reasons.append(REASON_FIELDS_UNAVAILABLE)
+    elif peer.regime != focal.regime:
+        reasons.append(REASON_INCOMPATIBLE_REGIME)
     if focal.uf and peer.uf:
         if focal.uf != peer.uf:
             if focal.region and peer.region and focal.region == peer.region:
@@ -146,7 +153,7 @@ def focal_gate_reasons(focal: Recorte, request: PeerRequest) -> tuple[str, ...]:
         reasons.append(REASON_AMBIGUOUS_TYPOLOGY)
     if focal.unit != UNIT_CANONICAL:
         reasons.append(REASON_INCOMPATIBLE_UNIT if focal.unit != "unknown" else REASON_UNIT_UNKNOWN)
-    if focal.regime == "unknown":
+    if focal.regime == "unknown" and request.require_known_regime:
         reasons.append(REASON_FIELDS_UNAVAILABLE)
     if focal.value_semantic == "unknown":
         reasons.append(REASON_FIELDS_UNAVAILABLE)
@@ -228,7 +235,7 @@ def select_peers(
     for recorte in candidates:
         if recorte.contract.contract_id == focal.contract.contract_id:
             continue
-        reasons = peer_dimension_reasons(focal, recorte)
+        reasons = peer_dimension_reasons(focal, recorte, request)
         if reasons:
             exclusions.append(
                 Exclusion(

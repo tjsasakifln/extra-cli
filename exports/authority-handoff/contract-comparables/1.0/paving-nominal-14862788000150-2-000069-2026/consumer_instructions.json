@@ -1,0 +1,21 @@
+{
+  "claim_scope": "valor_integral_nominal of official paving contracts in the focal UF, grain=contrato; not a national ranking and not a physical-unit price",
+  "consumer": "web-cfg#83|#84",
+  "do_not_write": [
+    "narrative",
+    "title",
+    "meta",
+    "cta",
+    "html",
+    "sitemap",
+    "INDEX",
+    "publication"
+  ],
+  "index_authorization": false,
+  "national_claim_authorized": false,
+  "next_consumer_action": "Read payload.json and state.json. Do not INDEX or publish. Do not treat HOLD_FOR_DATA or NOT_COMPARABLE as a ranking.",
+  "no_cross_repo_write": true,
+  "official_live": true,
+  "producer": "extra-cli",
+  "publication_authorization": false
+}
