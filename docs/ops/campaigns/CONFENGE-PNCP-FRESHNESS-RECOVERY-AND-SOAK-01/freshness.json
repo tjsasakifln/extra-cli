@@ -1,0 +1,98 @@
+{
+  "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
+  "status": "STALE",
+  "reason_codes": [
+    "UNCLOSED_CURRENT_WINDOW",
+    "WINDOW_INCOMPLETE"
+  ],
+  "as_of": "2026-08-20T21:21:20.945295Z",
+  "deployed_sha": "7ca6a8709e8e7dbf021b2f7aa12fbf4b88684428",
+  "policy_version": "pncp-contracts.timer/*-*-* 00,04,08,12,16,20:00:00 America/Sao_Paulo",
+  "slo": {
+    "desired_operational_target_hours": 6.0,
+    "desired_operational_percentile": 95,
+    "desired_hard_guardrail_hours": 24.0,
+    "timer_unit": "pncp-contracts.timer",
+    "timer_on_calendar": "*-*-* 00,04,08,12,16,20:00:00 America/Sao_Paulo",
+    "timer_timezone_note": "explicit America/Sao_Paulo",
+    "timer_max_inter_run_hours": 4.0,
+    "timer_persistent": true,
+    "sustainable_operational_target": true,
+    "sustainable_hard_guardrail": true,
+    "honest_note": "pncp-contracts.timer OnCalendar=*-*-* 00,04,08,12,16,20:00:00 America/Sao_Paulo (max inter-run 4.0h). HARD <=24h and 95% <=6h are sustainable on this calendar if a run finishes inside the remaining slack (measured incremental ~21min vs 4h slot)."
+  },
+  "source_publication_or_update_at": "2026-08-19T00:00:00Z",
+  "first_observed_at": "2026-08-19T09:21:09.265463Z",
+  "persisted_at": "2026-08-19T09:21:09.265463Z",
+  "run_id": "contracts-90d-20260820T190346Z-3b2e6f48ba",
+  "attempt_id": "contracts-90d-20260820T190346Z-3b2e6f48ba",
+  "source_window": "20260812_20260819",
+  "expected": null,
+  "fetched": null,
+  "persisted": null,
+  "deduplicated": null,
+  "failed": 0,
+  "pages_expected": null,
+  "pages_fetched": null,
+  "checkpoint_before": {
+    "completed_windows": [
+      "20260807_20260814",
+      "20260812_20260819"
+    ],
+    "attempt_run_id": "contracts-90d-20260820T190346Z-3b2e6f48ba"
+  },
+  "checkpoint_after": {
+    "completed_windows": [
+      "20260807_20260814",
+      "20260812_20260819"
+    ],
+    "attempt_run_id": "contracts-90d-20260820T190346Z-3b2e6f48ba"
+  },
+  "latest_successful_closed_window": "20260812_20260819",
+  "oldest_unresolved_gap": null,
+  "unresolved_window_count": 0,
+  "current_lag_hours": 2.024984804166667,
+  "lag_p50_hours": null,
+  "lag_p95_hours": null,
+  "lag_p99_hours": null,
+  "lag_sample_n": 0,
+  "last_run_at": "2026-08-20T19:03:46Z",
+  "next_run_at": "2026-08-20T23:01:34Z",
+  "last_error": "upsert failed window=20260813_20260820 page~61: out of shared memory\nHINT:  You might need to increase \"max_locks_per_transaction\".\nCONTEXT:  SQL statement \"INSERT INTO public.contract_version_history (\n        contrato_id, version, changed_by, change_type, snapshot\n    ) VALUES (\n        COALESCE(NEW.contrato_id, OLD.contrato_id),\n        max_version,\n        current_user,\n        CASE\n            WHEN TG_OP = 'DELETE' THEN 'deletion'\n            WHEN TG_OP = 'UPDATE' THEN 'snapshot'\n            ELSE 'snapshot'\n        END,\n        row_to_json(COALESCE(NEW, OLD))::JSONB\n    )\"\nPL/pgSQL function fn_capture_contract_snapshot() line 10 at SQL statement\n; source_population_drift:source_population_drift:persistence_failed,growth_above_budget:totalRegistros 53625 -> 54005; source_population_drift:totalRegistros 53625 -> 54005",
+  "timer": {
+    "unit": "pncp-contracts.timer",
+    "active": true,
+    "enabled": true,
+    "last_run_at": "2026-08-20T19:03:46Z",
+    "next_run_at": "2026-08-20T23:01:34Z",
+    "last_result": "exit-code",
+    "last_exec_status": 1,
+    "on_calendar": "*-*-* 00,04,08,12,16,20:00:00 America/Sao_Paulo",
+    "timezone": "America/Sao_Paulo",
+    "persistent": true,
+    "lock_busy": false,
+    "raw_last_run_at": "Thu 2026-08-20 16:03:46 -03",
+    "raw_next_run_at": "Thu 2026-08-20 20:01:34 -03"
+  },
+  "spot_checks": [],
+  "checkpoint_health": {
+    "path": "/var/lib/extra-consultoria/checkpoints/contracts/contracts_full.json",
+    "sha256": "db73d171c1600f68a268c77218155e19f3fbbbc4ba72decaaf694e120a0d3a32",
+    "ok": true,
+    "in_worktree": false,
+    "conflict": false,
+    "inconsistent": false,
+    "uid": 1000,
+    "gid": 1000,
+    "logical_job_id": "pncp-contracts-incremental",
+    "updated_at": "2026-08-20T19:19:51Z"
+  },
+  "backup_freshness": {
+    "available": null,
+    "latest_age_hours": null,
+    "restore_hash_identical": null,
+    "reason_code": null
+  },
+  "health_exit": 2,
+  "campaign_verdict_hint": "FRESHNESS_DEGRADED"
+}

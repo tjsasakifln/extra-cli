@@ -1,0 +1,29 @@
+{
+  "issue": 248,
+  "campaign": "CONFENGE-PNCP-FRESHNESS-RECOVERY-AND-SOAK-01",
+  "STATUS": "SOAK_BLOCKED_BY_OFFSITE_BACKUP_STALE_AND_UNCLOSED_WINDOW",
+  "SOAK_STARTED_AT": "NOT_STARTED",
+  "SOAK_ENDS_AT": "NOT_STARTED",
+  "exact_sha": "7ca6a8709e8e7dbf021b2f7aa12fbf4b88684428",
+  "deployed_sha_observed": "7ca6a8709e8e7dbf021b2f7aa12fbf4b88684428",
+  "host_of_record": "ec-prod / 159.195.18.88 / v2202607385716487230",
+  "workload_policy_version": "pncp-contracts.timer/*-*-* 00,04,08,12,16,20:00:00 America/Sao_Paulo",
+  "failure_criteria": [
+    "deploy SHA mismatch",
+    "non-recoverable reboot",
+    "failed restore",
+    "freshness/worker failure",
+    "truth gate violation"
+  ],
+  "restart_conditions": "any invalidating deploy/config/policy change or failure resets the full approved window",
+  "evidence_path": "docs/ops/campaigns/CONFENGE-PNCP-FRESHNESS-RECOVERY-AND-SOAK-01/",
+  "current_elapsed_duration": 0,
+  "final_human_verdict": "PENDING",
+  "vps_operational_declared": false,
+  "blockers": [
+    "off-host postgresql daily dump on storage-box dated 2026-07-23",
+    "extra-joint-offsite-backup unit not installed",
+    "isolated restore DB extra_restore_proof is 2026-08-01 and row-count mismatched vs live",
+    "live incremental window 20260813_20260820 unclosed (upsert out of shared memory)"
+  ]
+}
