@@ -1,0 +1,32 @@
+{
+  "as_of": "2026-08-19T00:00:00Z",
+  "expires": "2026-08-21T00:00:00Z",
+  "as_of_source": "snapshot",
+  "focal_contract_id": "14862788000150-2-000069/2026",
+  "geographic_scope": {
+    "kind": "scoped",
+    "label": "focal_contract"
+  },
+  "documents": [
+    {
+      "doc_id": "doc-parecer-tecnico-001",
+      "kind": "technical_opinion",
+      "locator": "pncp:14862788000150-2-000069/2026#parecer-tecnico",
+      "observed_at": "2026-08-10T00:00:00Z"
+    },
+    {
+      "doc_id": "doc-ata-acompanhamento-001",
+      "kind": "management_record",
+      "locator": "pncp:14862788000150-2-000069/2026#ata-acompanhamento",
+      "observed_at": "2026-08-12T00:00:00Z"
+    }
+  ],
+  "events": [
+    {
+      "event_id": "evt-gestao-001",
+      "kind": "management_followup",
+      "locator": "pncp:14862788000150-2-000069/2026#evt-gestao",
+      "observed_at": "2026-08-12T00:00:00Z"
+    }
+  ]
+}
