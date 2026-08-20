@@ -3,6 +3,11 @@
 from __future__ import annotations
 
 from scripts.crawl.contracts_crawler import CrawlCheckpoint
+from scripts.ops.pncp_contract_freshness import (
+    REASON_WINDOW_EMPTY_COMPLETE,
+    REASON_WINDOW_EMPTY_INCOMPLETE,
+    empty_window_reason,
+)
 
 
 def test_checkpoint_does_not_claim_partial_as_complete_logic():
@@ -39,3 +44,26 @@ def test_checkpoint_roundtrip_fields():
     assert "20240101_20240130" in d["completed_windows"]
     restored = CrawlCheckpoint.from_dict(d)
     assert restored.total_windows_completed == 1
+
+
+def test_empty_window_zero_only_when_pagination_finished() -> None:
+    assert (
+        empty_window_reason(
+            pages_expected=1,
+            pages_fetched=1,
+            found_count=0,
+            query_complete=True,
+            page_size=50,
+        )
+        == REASON_WINDOW_EMPTY_COMPLETE
+    )
+    assert (
+        empty_window_reason(
+            pages_expected=4,
+            pages_fetched=1,
+            found_count=0,
+            query_complete=False,
+            page_size=50,
+        )
+        == REASON_WINDOW_EMPTY_INCOMPLETE
+    )
