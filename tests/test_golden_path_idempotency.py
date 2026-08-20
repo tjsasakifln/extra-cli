@@ -1,7 +1,6 @@
 """DoD §12.1 — golden path can re-run without duplicating stable keys."""
-from __future__ import annotations
 
-import os
+from __future__ import annotations
 
 import pytest
 
@@ -9,25 +8,20 @@ pytestmark = pytest.mark.real_db
 
 
 def test_dual_seed_and_bid_table_no_duplicate_keys() -> None:
-    dsn = os.getenv("LOCAL_DATALAKE_DSN", "postgresql://test:test@127.0.0.1:5433/extra_test")
-    try:
-        import psycopg2
-    except Exception:
-        pytest.skip("no psycopg2")
+    from scripts.testing.connection_policy import IDEMPOTENCY_TABLES
+    from scripts.testing.real_db_guard import admit_ready_connection
 
-    conn = psycopg2.connect(dsn, connect_timeout=5)
-    from scripts.testing.connection_policy import refuse_silent_mock
-
-    refuse_silent_mock(conn, required=True, context="golden_path_idempotency")
+    conn, dsn = admit_ready_connection(
+        required_tables=IDEMPOTENCY_TABLES,
+        context="golden_path_idempotency",
+    )
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT count(*), count(distinct cnpj_8) FROM sc_public_entities")
             n, d = cur.fetchone()
             assert n == d, "sc_public_entities must not have duplicate cnpj_8 keys"
             assert n >= 1000
-            cur.execute(
-                "SELECT count(*), count(distinct pncp_id) FROM pncp_raw_bids"
-            )
+            cur.execute("SELECT count(*), count(distinct pncp_id) FROM pncp_raw_bids")
             bn, bd = cur.fetchone()
             assert bn == bd, "pncp_raw_bids must not have duplicate pncp_id"
             # Dual seed: re-run seed should not inflate entity count beyond uniqueness
@@ -46,23 +40,24 @@ def test_dual_seed_and_bid_table_no_duplicate_keys() -> None:
 
 
 def test_dual_snapshot_stable_ids_sha() -> None:
-    dsn = os.getenv("LOCAL_DATALAKE_DSN", "postgresql://test:test@127.0.0.1:5433/extra_test")
     import tempfile
     from pathlib import Path
 
     from scripts.golden_path import run_snapshot_reconciliation
+    from scripts.testing.connection_policy import IDEMPOTENCY_TABLES
+    from scripts.testing.real_db_guard import admit_ready_connection
 
+    conn, dsn = admit_ready_connection(
+        required_tables=IDEMPOTENCY_TABLES,
+        context="golden_path_idempotency_snapshot",
+    )
     try:
-        import psycopg2
-
-        conn = psycopg2.connect(dsn, connect_timeout=3)
         with conn.cursor() as cur:
             cur.execute("SELECT count(*) FROM pncp_raw_bids")
             if int(cur.fetchone()[0]) == 0:
                 pytest.skip("no bids")
+    finally:
         conn.close()
-    except Exception:
-        pytest.skip("no db")
 
     with tempfile.TemporaryDirectory() as td:
         snap = Path(td)

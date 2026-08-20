@@ -6,10 +6,16 @@ database or schema fails or skips with a named preflight reason.
 
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass
 from typing import Any, Literal
-from unittest.mock import MagicMock
+
+from scripts.testing.real_db_guard import (
+    DB_UNAVAILABLE,
+    canonical_dsn,
+    connection_kind,
+    dsn_host_for_logs,
+    env_flag,
+)
 
 Strategy = Literal["real", "skip", "fail", "mock"]
 
@@ -23,6 +29,7 @@ CANONICAL_REAL_SUITES: frozenset[str] = frozenset(
 )
 
 GOLDEN_PATH_TABLES: tuple[str, ...] = ("sc_public_entities",)
+IDEMPOTENCY_TABLES: tuple[str, ...] = ("sc_public_entities", "pncp_raw_bids")
 OPPORTUNITY_TABLES: tuple[str, ...] = (
     "opportunity_intel",
     "opportunity_runs",
@@ -31,51 +38,15 @@ OPPORTUNITY_TABLES: tuple[str, ...] = (
 )
 
 
-def env_flag(name: str) -> bool:
-    return os.environ.get(name, "").strip().lower() in {"1", "true", "yes"}
-
-
-def canonical_dsn() -> str:
-    return (
-        os.environ.get("LOCAL_DATALAKE_DSN")
-        or os.environ.get("DATABASE_URL")
-        or "postgresql://test:test@127.0.0.1:5433/extra_test"
-    )
-
-
 def dsn_is_required() -> bool:
     return env_flag("REQUIRE_REAL_DB") or env_flag("REQUIRE_OPPORTUNITY_DB")
-
-
-def connection_kind(conn: object) -> str:
-    """Name the live connection type. MagicMock is never reported as PostgreSQL."""
-    if conn is None:
-        return "none"
-    if isinstance(conn, MagicMock):
-        return "MagicMock"
-    module = type(conn).__module__ or ""
-    name = type(conn).__name__
-    if "mock" in module.lower() or name in {"MagicMock", "AsyncMock", "NonCallableMagicMock"}:
-        return "MagicMock"
-    if "psycopg2" in module:
-        return "psycopg2"
-    if module.startswith("psycopg.") or module == "psycopg":
-        return "psycopg"
-    return name
-
-
-def is_magic_mock(conn: object) -> bool:
-    return connection_kind(conn) == "MagicMock"
 
 
 def refuse_silent_mock(conn: object, *, required: bool, context: str) -> str:
     """Reject a MagicMock when a real DSN is required. Returns the kind used."""
     kind = connection_kind(conn)
     if required and kind == "MagicMock":
-        raise RuntimeError(
-            f"{context}: required real DSN was silently replaced by MagicMock "
-            f"(dsn={canonical_dsn()!r})"
-        )
+        raise RuntimeError(f"{DB_UNAVAILABLE}: {context}: required real DSN was silently replaced by MagicMock")
     return kind
 
 
@@ -93,7 +64,7 @@ def preflight_tables(conn: object, tables: tuple[str, ...], *, context: str) -> 
     if kind == "MagicMock":
         return SchemaPreflight(
             False,
-            f"{context}: preflight refused MagicMock (not a schema miss)",
+            f"{DB_UNAVAILABLE}: {context}: preflight refused MagicMock (not a schema miss)",
             tables,
             kind,
         )
@@ -168,6 +139,7 @@ def open_canonical_connection(
     import pytest
 
     target = dsn or canonical_dsn()
+    host = dsn_host_for_logs(target)
     must_be_real = dsn_is_required() if required is None else required
     connect = opener
     if connect is None:
@@ -175,8 +147,8 @@ def open_canonical_connection(
             import psycopg2
         except ImportError as exc:
             if must_be_real:
-                raise pytest.UsageError(f"psycopg2 unavailable but real DSN required: {exc}") from exc
-            pytest.skip(f"psycopg2 unavailable: {exc}")
+                raise pytest.UsageError(f"{DB_UNAVAILABLE}: psycopg2 unavailable but real DSN required") from exc
+            pytest.skip(f"{DB_UNAVAILABLE}: psycopg2 unavailable")
         connect = psycopg2.connect
     try:
         conn = connect(target, connect_timeout=connect_timeout)
@@ -186,14 +158,14 @@ def open_canonical_connection(
         except Exception as exc:
             if must_be_real:
                 raise pytest.UsageError(
-                    f"required DSN not reachable ({target!r}): {type(exc).__name__}"
+                    f"{DB_UNAVAILABLE}: required DSN not reachable at {host}: {type(exc).__name__}"
                 ) from exc
-            pytest.skip(f"database unreachable: {exc}")
+            pytest.skip(f"{DB_UNAVAILABLE}: database unreachable at {host}: {type(exc).__name__}")
     except Exception as exc:
         if must_be_real:
             raise pytest.UsageError(
-                f"required DSN not reachable ({target!r}): {type(exc).__name__}"
+                f"{DB_UNAVAILABLE}: required DSN not reachable at {host}: {type(exc).__name__}"
             ) from exc
-        pytest.skip(f"database unreachable: {exc}")
+        pytest.skip(f"{DB_UNAVAILABLE}: database unreachable at {host}: {type(exc).__name__}")
     kind = refuse_silent_mock(conn, required=must_be_real, context="open_canonical_connection")
     return conn, kind, target

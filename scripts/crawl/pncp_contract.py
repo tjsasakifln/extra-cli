@@ -43,6 +43,72 @@ PNCP_TAMANHO_PAGINA_MAX_CONTRATOS = 500
 PNCP_TAMANHO_PAGINA_MAX = PNCP_TAMANHO_PAGINA_MAX_CONTRATACOES  # legacy compat
 PNCP_SAFE_WINDOW_DAYS = int(os.getenv("PNCP_SAFE_WINDOW_DAYS", "7"))
 
+
+class PNCPPageSizeError(ValueError):
+    """Illegal tamanhoPagina. Probe paths must fail before any HTTP call."""
+
+    def __init__(self, message: str, *, code: str) -> None:
+        super().__init__(message)
+        self.code = code
+
+
+def legal_pncp_page_size(*, max_size: int | None = None) -> int:
+    """Crawler clamp: always in [PNCP_TAMANHO_PAGINA_MIN, max_size].
+
+    Production crawlers keep this clamp. The live probe must not send an
+    illegal size: use require_legal_pncp_page_size instead.
+    """
+    ceiling = PNCP_TAMANHO_PAGINA_MAX if max_size is None else max_size
+    return max(
+        PNCP_TAMANHO_PAGINA_MIN,
+        min(ceiling, int(os.getenv("PNCP_PAGE_SIZE", str(ceiling)))),
+    )
+
+
+def require_legal_pncp_page_size(requested: int | None = None) -> int:
+    """Return a PNCP-legal page size or raise before the network.
+
+    An explicit requested size below the minimum is INTERNAL_DEFECT (we
+    built an illegal request). An illegal PNCP_PAGE_SIZE env value is
+    CONFIGURATION_ERROR. Neither is clamped here — clamping is crawler-only.
+    """
+    if requested is not None:
+        size = int(requested)
+        if size < PNCP_TAMANHO_PAGINA_MIN:
+            raise PNCPPageSizeError(
+                f"INTERNAL_DEFECT: tamanhoPagina={size} < PNCP minimum {PNCP_TAMANHO_PAGINA_MIN}",
+                code="INTERNAL_DEFECT",
+            )
+        if size > PNCP_TAMANHO_PAGINA_MAX:
+            raise PNCPPageSizeError(
+                f"INTERNAL_DEFECT: tamanhoPagina={size} > PNCP maximum {PNCP_TAMANHO_PAGINA_MAX}",
+                code="INTERNAL_DEFECT",
+            )
+        return size
+
+    raw = os.getenv("PNCP_PAGE_SIZE")
+    if raw is None or not str(raw).strip():
+        return PNCP_TAMANHO_PAGINA_MAX
+    try:
+        size = int(raw)
+    except ValueError as exc:
+        raise PNCPPageSizeError(
+            f"CONFIGURATION_ERROR: PNCP_PAGE_SIZE={raw!r} is not an integer",
+            code="CONFIGURATION_ERROR",
+        ) from exc
+    if size < PNCP_TAMANHO_PAGINA_MIN:
+        raise PNCPPageSizeError(
+            f"CONFIGURATION_ERROR: PNCP_PAGE_SIZE={size} < PNCP minimum {PNCP_TAMANHO_PAGINA_MIN}",
+            code="CONFIGURATION_ERROR",
+        )
+    if size > PNCP_TAMANHO_PAGINA_MAX:
+        raise PNCPPageSizeError(
+            f"CONFIGURATION_ERROR: PNCP_PAGE_SIZE={size} > PNCP maximum {PNCP_TAMANHO_PAGINA_MAX}",
+            code="CONFIGURATION_ERROR",
+        )
+    return size
+
+
 DEFAULT_MODALIDADES = tuple(mod.value for mod in ModalidadePNCP)
 
 

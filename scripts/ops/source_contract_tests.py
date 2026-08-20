@@ -3,6 +3,7 @@
 
 Live network optional via --live. Offline mode validates schemas and registry wiring.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -20,8 +21,10 @@ if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
 from scripts.crawl.pncp_contract import (  # noqa: E402
-    PNCP_TAMANHO_PAGINA_MAX,
     PNCP_TAMANHO_PAGINA_MIN,
+    PNCPPageSizeError,
+    legal_pncp_page_size,
+    require_legal_pncp_page_size,
 )
 from scripts.crawl.registry import export_registry, lookup  # noqa: E402
 
@@ -132,14 +135,20 @@ def fixture_pncp_payload() -> dict[str, Any]:
     }
 
 
-def pncp_live_page_size() -> int:
-    """Page size for the live PNCP probe — same clamp as the PNCP crawler."""
-    raw = os.getenv("PNCP_PAGE_SIZE", str(PNCP_TAMANHO_PAGINA_MAX))
+def _crawler_legal_page_size() -> int | None:
     try:
-        configured = int(raw)
-    except ValueError:
-        configured = PNCP_TAMANHO_PAGINA_MAX
-    return max(PNCP_TAMANHO_PAGINA_MIN, min(PNCP_TAMANHO_PAGINA_MAX, configured))
+        return legal_pncp_page_size()
+    except (TypeError, ValueError):
+        return None
+
+
+def pncp_live_page_size() -> int:
+    """Legal page size for the live PNCP probe.
+
+    Shares the crawler default/minimum (`legal_pncp_page_size`). An illegal
+    PNCP_PAGE_SIZE fails closed here instead of being clamped onto the wire.
+    """
+    return require_legal_pncp_page_size()
 
 
 def build_pncp_live_probe_url(
@@ -151,12 +160,8 @@ def build_pncp_live_probe_url(
     pagina: int = 1,
     tamanho_pagina: int | None = None,
 ) -> str:
-    """Build the PNCP publicacao URL using the crawler's legal page size."""
-    size = pncp_live_page_size() if tamanho_pagina is None else int(tamanho_pagina)
-    if size < PNCP_TAMANHO_PAGINA_MIN:
-        raise ValueError(
-            f"INTERNAL_DEFECT: tamanhoPagina={size} < PNCP minimum {PNCP_TAMANHO_PAGINA_MIN}"
-        )
+    """Build the PNCP publicacao URL using a legal page size. Never hits the network."""
+    size = require_legal_pncp_page_size(tamanho_pagina)
     return (
         f"{PNCP_PUBLICACOES}?dataInicial={data_inicial}&dataFinal={data_final}"
         f"&codigoModalidadeContratacao={modalidade}&uf={uf}"
@@ -301,47 +306,97 @@ def run_contract_suite(*, live: bool = False) -> dict[str, Any]:
 
         d_fim = date.today().strftime("%Y%m%d")
         d_ini = (date.today() - timedelta(days=2)).strftime("%Y%m%d")
-        page_size = pncp_live_page_size()
-        url = build_pncp_live_probe_url(data_inicial=d_ini, data_final=d_fim)
-        probe = http_probe(url)
-        probe["requested_page_size"] = page_size
-        probe["min_page_size"] = PNCP_TAMANHO_PAGINA_MIN
-        probe["outcome"] = classify_http_outcome(
-            probe.get("status"),
-            probe.get("kind"),
-            body=str(probe.get("body") or probe.get("body_prefix") or ""),
-            requested_page_size=page_size,
-            url=url,
-        )
-        results["checks"]["pncp_live_page_size"] = {
-            "ok": page_size >= PNCP_TAMANHO_PAGINA_MIN
-            and parse_tamanho_pagina(url) == page_size
-            and parse_tamanho_pagina(url) is not None
-            and int(parse_tamanho_pagina(url) or 0) >= PNCP_TAMANHO_PAGINA_MIN,
-            "tamanhoPagina": page_size,
-            "min": PNCP_TAMANHO_PAGINA_MIN,
-            "canonical_crawler_page_size": pncp_live_page_size(),
-            "url": url,
-        }
-        results["checks"]["pncp_endpoint_live"] = probe
-        if probe.get("ok") and probe.get("bytes", 0) > 0:
-            try:
-                # re-fetch full for schema — use body from second call
-                req = Request(url, headers={"User-Agent": "extra-consultoria-contract-test/1.0"})  # noqa: S310 — public PNCP probe
-                with urlopen(req, timeout=20) as resp:  # noqa: S310 — public PNCP probe
-                    payload = json.loads(resp.read().decode("utf-8", errors="replace"))
-                results["checks"]["pncp_schema_live"] = validate_pncp_schema(payload)
-                results["checks"]["pncp_pagination_live"] = {
-                    "ok": validate_pncp_schema(payload).get("pagination_ok"),
-                    "totalPaginas": payload.get("totalPaginas"),
-                    "numeroPagina": payload.get("numeroPagina"),
-                }
-            except Exception as exc:  # noqa: BLE001
-                results["checks"]["pncp_schema_live"] = {"ok": False, "error": str(exc)}
+        try:
+            page_size = pncp_live_page_size()
+            url = build_pncp_live_probe_url(data_inicial=d_ini, data_final=d_fim)
+            parsed = parse_tamanho_pagina(url)
+            if parsed is None or parsed < PNCP_TAMANHO_PAGINA_MIN:
+                raise PNCPPageSizeError(
+                    f"INTERNAL_DEFECT: constructed URL tamanhoPagina={parsed!r} "
+                    f"< PNCP minimum {PNCP_TAMANHO_PAGINA_MIN}",
+                    code="INTERNAL_DEFECT",
+                )
+        except PNCPPageSizeError as exc:
+            # Illegal request we would have built ourselves — never hit the network.
+            results["checks"]["pncp_live_page_size"] = {
+                "ok": False,
+                "class": exc.code,
+                "error": str(exc),
+                "tamanhoPagina": None,
+                "min": PNCP_TAMANHO_PAGINA_MIN,
+                "canonical_crawler_page_size": _crawler_legal_page_size(),
+                "page_size_source": ("scripts.crawl.pncp_contract.require_legal_pncp_page_size"),
+            }
+            results["checks"]["pncp_endpoint_live"] = {
+                "ok": False,
+                "status": None,
+                "url": None,
+                "bytes": 0,
+                "error": str(exc),
+                "outcome": exc.code,
+                "note": "illegal page size failed before HTTP; not a live schema pass",
+            }
+            results["checks"]["pncp_schema_live"] = {
+                "ok": False,
+                "error": str(exc),
+                "note": "empty or missing live body is not schema proof",
+            }
         else:
-            results["checks"]["pncp_endpoint_live"]["note"] = (
-                "Endpoint probe failed or non-200 — not counted as schema pass"
+            probe = http_probe(url)
+            probe["requested_page_size"] = page_size
+            probe["min_page_size"] = PNCP_TAMANHO_PAGINA_MIN
+            probe["outcome"] = classify_http_outcome(
+                probe.get("status"),
+                probe.get("kind"),
+                body=str(probe.get("body") or probe.get("body_prefix") or ""),
+                requested_page_size=page_size,
+                url=url,
             )
+            results["checks"]["pncp_live_page_size"] = {
+                "ok": page_size >= PNCP_TAMANHO_PAGINA_MIN
+                and parsed == page_size
+                and parsed >= PNCP_TAMANHO_PAGINA_MIN,
+                "tamanhoPagina": page_size,
+                "min": PNCP_TAMANHO_PAGINA_MIN,
+                "canonical_crawler_page_size": _crawler_legal_page_size(),
+                "page_size_source": ("scripts.crawl.pncp_contract.require_legal_pncp_page_size"),
+                "url": url,
+            }
+            results["checks"]["pncp_endpoint_live"] = probe
+            if probe.get("ok") and probe.get("bytes", 0) > 0:
+                try:
+                    # re-fetch full for schema — use body from second call
+                    req = Request(url, headers={"User-Agent": "extra-consultoria-contract-test/1.0"})  # noqa: S310 — public PNCP probe
+                    with urlopen(req, timeout=20) as resp:  # noqa: S310 — public PNCP probe
+                        raw = resp.read().decode("utf-8", errors="replace")
+                    if not raw.strip():
+                        results["checks"]["pncp_schema_live"] = {
+                            "ok": False,
+                            "error": "empty live body is not schema proof",
+                            "n_items": 0,
+                        }
+                    else:
+                        payload = json.loads(raw)
+                        schema = validate_pncp_schema(payload)
+                        n_items = int(schema.get("n_items") or 0)
+                        # Envelope may be valid with data=[] — that is success_zero,
+                        # not live schema proof.
+                        results["checks"]["pncp_schema_live"] = {
+                            **schema,
+                            "ok": bool(schema.get("ok")) and n_items >= 1,
+                            "empty_body_not_proof": n_items < 1,
+                        }
+                        results["checks"]["pncp_pagination_live"] = {
+                            "ok": bool(schema.get("pagination_ok")) and n_items >= 1,
+                            "totalPaginas": payload.get("totalPaginas"),
+                            "numeroPagina": payload.get("numeroPagina"),
+                        }
+                except Exception as exc:  # noqa: BLE001
+                    results["checks"]["pncp_schema_live"] = {"ok": False, "error": str(exc)}
+            else:
+                results["checks"]["pncp_endpoint_live"]["note"] = (
+                    "Endpoint probe failed or non-200 — not counted as schema pass"
+                )
     else:
         results["checks"]["pncp_endpoint_offline"] = {
             "ok": True,
@@ -442,26 +497,40 @@ def run_contract_suite(*, live: bool = False) -> dict[str, Any]:
         "timeout": classify_http_outcome(None, "timeout"),
         "zero": classify_http_outcome(200, None, 0),
     }
-    probe_size = pncp_live_page_size()
     illegal_400 = classify_http_outcome(
         400,
         "http_400",
         body='{"message":"must be greater than or equal to 10","status":"400"}',
         requested_page_size=5,
     )
-    results["checks"]["pncp_probe_page_size"] = {
-        "ok": probe_size >= PNCP_TAMANHO_PAGINA_MIN
-        and parse_tamanho_pagina(
-            build_pncp_live_probe_url(data_inicial="20260101", data_final="20260102")
-        )
-        == probe_size,
-        "tamanhoPagina": probe_size,
-        "min": PNCP_TAMANHO_PAGINA_MIN,
-        "canonical_crawler_page_size": probe_size,
-    }
+    try:
+        probe_size = pncp_live_page_size()
+        constructed = build_pncp_live_probe_url(data_inicial="20260101", data_final="20260102")
+        parsed = parse_tamanho_pagina(constructed)
+        results["checks"]["pncp_probe_page_size"] = {
+            "ok": probe_size >= PNCP_TAMANHO_PAGINA_MIN
+            and parsed == probe_size
+            and parsed is not None
+            and parsed >= PNCP_TAMANHO_PAGINA_MIN,
+            "tamanhoPagina": probe_size,
+            "min": PNCP_TAMANHO_PAGINA_MIN,
+            "canonical_crawler_page_size": _crawler_legal_page_size(),
+            "page_size_source": "scripts.crawl.pncp_contract.require_legal_pncp_page_size",
+            "url": constructed,
+        }
+    except PNCPPageSizeError as exc:
+        results["checks"]["pncp_probe_page_size"] = {
+            "ok": False,
+            "class": exc.code,
+            "error": str(exc),
+            "tamanhoPagina": None,
+            "min": PNCP_TAMANHO_PAGINA_MIN,
+            "canonical_crawler_page_size": _crawler_legal_page_size(),
+            "page_size_source": "scripts.crawl.pncp_contract.require_legal_pncp_page_size",
+        }
     results["checks"]["pncp_invalid_page_is_internal_defect"] = {
         "ok": illegal_400 == "INTERNAL_DEFECT"
-        and illegal_400 not in {"EXTERNAL_TRANSIENT", "success_zero_records"},
+        and illegal_400 not in {"EXTERNAL_TRANSIENT", "success_zero_records", "success_with_records"},
         "outcome": illegal_400,
     }
 
