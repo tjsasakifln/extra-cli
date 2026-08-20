@@ -30,10 +30,13 @@ def _sort_key(record: ObservedRecord) -> tuple[str, str, str, str]:
     )
 
 
-def dedupe_records(records: tuple[ObservedRecord, ...] | list[ObservedRecord]) -> tuple[ObservedRecord, ...]:
+def dedupe_records(
+    records: tuple[ObservedRecord, ...] | list[ObservedRecord],
+) -> tuple[tuple[ObservedRecord, ...], tuple[str, ...]]:
     seen_ids: set[tuple[str, str]] = set()
     seen_fps: set[str] = set()
     kept: list[ObservedRecord] = []
+    dropped: list[str] = []
     for record in sorted(records, key=_sort_key):
         id_key = (record.source_id, record.official_id)
         fingerprint = _fingerprint(record)
@@ -43,8 +46,9 @@ def dedupe_records(records: tuple[ObservedRecord, ...] | list[ObservedRecord]) -
         if fingerprint in seen_fps:
             reasons.append("duplicate_normalized_fingerprint")
         if reasons:
+            dropped.extend(reasons)
             continue
         seen_ids.add(id_key)
         seen_fps.add(fingerprint)
-        kept.append(replace(record, dedupe_reasons=tuple(reasons)))
-    return tuple(kept)
+        kept.append(replace(record, dedupe_reasons=()))
+    return tuple(kept), tuple(dict.fromkeys(dropped))

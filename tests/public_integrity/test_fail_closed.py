@@ -27,6 +27,18 @@ def test_occurrence_is_matches_found_with_official_record() -> None:
     assert record["original"]
     assert payload["sources"]["CEIS"]["official_url"]
     assert payload["sources"]["CEIS"]["authority"]
+    assert len(payload["records"]) == 1
+    assert "duplicate_official_id" in payload["sources"]["CEIS"]["reason_codes"]
+
+
+def test_cnep_occurrence_is_matches_found() -> None:
+    payload = _replay("cnep-occurrence.json")
+    assert payload["aggregate_state"] == "MATCHES_FOUND"
+    assert payload["sources"]["CNEP"]["coverage_complete"] is True
+    assert payload["sources"]["CEIS"]["coverage_complete"] is True
+    assert payload["records"][0]["source_id"] == "CNEP"
+    assert payload["records"][0]["official_id"] == "8001"
+    assert payload["records"][0]["source_url"]
 
 
 def test_both_sources_complete_empty_is_no_match_confirmed() -> None:

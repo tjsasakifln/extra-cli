@@ -17,6 +17,15 @@
               "sancionado": { "nome": "Empresa Exemplo LTDA", "codigoFormatado": "[REDACTED_CNPJ]" },
               "orgaoSancionador": { "nome": "Orgao Sancionador Exemplo" },
               "fundamentacao": { "descricao": "Lei 14.133/2021" }
+            },
+            {
+              "id": 9001,
+              "dataInicioSancao": "01/03/2024",
+              "dataFinalSancao": null,
+              "tipo": { "descricaoResumida": "Impedimento de licitar e contratar" },
+              "sancionado": { "nome": "Empresa Exemplo LTDA", "codigoFormatado": "[REDACTED_CNPJ]" },
+              "orgaoSancionador": { "nome": "Orgao Sancionador Exemplo" },
+              "fundamentacao": { "descricao": "Lei 14.133/2021" }
             }
           ]
         },

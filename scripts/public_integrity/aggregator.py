@@ -29,12 +29,12 @@ def aggregate(source_runs: tuple[SourceRun, ...] | list[SourceRun]) -> Aggregate
     if missing:
         extra_reasons.extend(["source_unavailable", "coverage_incomplete"])
 
-    records = dedupe_records(tuple(record for run in ordered for record in run.records))
+    records, dedupe_codes = dedupe_records(tuple(record for run in ordered for record in run.records))
     all_present = len(ordered) == len(CONTRACTED_SOURCES)
     all_complete = all_present and all(run.coverage_complete and run.error_class is None for run in ordered)
     any_complete = any(run.coverage_complete and run.error_class is None for run in ordered)
     any_records = bool(records)
-    source_reasons = _codes(*(run.reason_codes for run in ordered), tuple(extra_reasons))
+    source_reasons = _codes(*(run.reason_codes for run in ordered), tuple(extra_reasons), dedupe_codes)
 
     state: IntegrityState
     reasons: list[str]
