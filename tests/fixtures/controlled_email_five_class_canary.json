@@ -85,7 +85,7 @@
           "third_party_type": "",
           "confidence": "",
           "enrollable": false,
-          "recommended": false,
+          "recommended": true,
           "provenance": {
             "source_type": "",
             "source_url": "https://empresaexemplo.com.br/contato",
@@ -458,6 +458,10 @@
       ],
       "construction_universe_member": true,
       "email_send_ready": false,
+      "mailbox_purpose": "UNKNOWN",
+      "recipient_commercial_suitability": "UNSUITABLE_PROVENANCE",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OFFICIAL_SOURCE",
       "service_code": "REAJUSTE_14133"
     }
   ]

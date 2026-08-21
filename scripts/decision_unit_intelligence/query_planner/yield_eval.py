@@ -8,9 +8,11 @@ from collections.abc import Iterable
 from typing import Any
 from urllib.parse import urlsplit
 
+from scripts.confenge_contact_resolution.mailbox_purpose import is_mailbox_controlled_eligible
 from scripts.decision_unit_intelligence.email_discovery import is_third_party_echo_source
 from scripts.decision_unit_intelligence.models import fold_text, normalize_email, normalize_name
 from scripts.decision_unit_intelligence.query_planner.spec import QueryExecution, QueryFamily, YieldSignals, host_of
+from scripts.decision_unit_intelligence.reachability import is_freemail, is_generic_mailbox, is_role_mailbox
 from scripts.decision_unit_intelligence.web_discovery import SearchHit
 
 _EMAIL_RE = re.compile(r"(?<![\w.+-])([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})(?![\w-])", re.I)
@@ -37,6 +39,7 @@ def evaluate_serp_yield(
 ) -> YieldSignals:
     useful: list[str] = []
     observed: list[str] = []
+    control_eligible: list[str] = []
     identity: list[str] = []
     weak: list[str] = []
     correct_domain = False
@@ -90,10 +93,20 @@ def evaluate_serp_yield(
             observed.append(email)
             if _identity_in_snippet(email, people, haystack):
                 identity.append(f"{email}")
+            email_host = email.split("@", 1)[-1]
+            on_known_domain = bool(domain and email_host == domain)
+            official_page = bool(domain and host == domain)
+            if (
+                is_mailbox_controlled_eligible(email)
+                and (is_role_mailbox(email) or is_generic_mailbox(email) or (is_freemail(email) and official_page))
+                and (on_known_domain or (is_freemail(email) and official_page))
+            ):
+                control_eligible.append(email)
 
     return YieldSignals(
         useful_urls=tuple(dict.fromkeys(useful)),
         observed_emails=tuple(dict.fromkeys(observed)),
+        control_eligible_emails=tuple(dict.fromkeys(control_eligible)),
         identity_associated=tuple(dict.fromkeys(identity)),
         weak_source_urls=tuple(dict.fromkeys(weak)),
         correct_domain=correct_domain,
@@ -123,6 +136,8 @@ def apply_yield(execution: QueryExecution, signals: YieldSignals) -> QueryExecut
     execution.useful_url_count = len(signals.useful_urls)
     execution.observed_emails = signals.observed_emails
     execution.observed_email_count = len(signals.observed_emails)
+    execution.control_eligible_emails = signals.control_eligible_emails
+    execution.control_eligible_email_count = len(signals.control_eligible_emails)
     execution.identity_associated = signals.identity_associated
     execution.identity_associated_count = len(signals.identity_associated)
     execution.weak_source_urls = signals.weak_source_urls

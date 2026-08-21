@@ -378,8 +378,8 @@ def test_resolution_cache_signature_includes_contract_and_discovery_budget():
     assert "schema=" in ContactResolver(low)._adapters_sig()
 
 
-def test_cascade_does_not_stop_early_on_functional_public_doc(monkeypatch):
-    """A functional address in a public document is not a human recipient."""
+def test_cascade_stops_early_on_functional_control_eligible_doc(monkeypatch):
+    """Observed licitacoes@ on a CNPJ-linked document is a company-route success."""
     from scripts.confenge_contact_resolution.discovery.budget import InvestigationOutcome
     from scripts.confenge_contact_resolution.discovery.cascade import DiscoveryCascade
 
@@ -411,11 +411,12 @@ def test_cascade_does_not_stop_early_on_functional_public_doc(monkeypatch):
         stop_when_strong_contact=True,
     )
     assert result.stats.outcome == InvestigationOutcome.CONTACT_FOUND.value
-    assert result.stats.stop_reason == "discovery_contacts"
+    assert result.stats.stop_reason == "controlled_eligible_public_doc"
     assert result.stats.search_queries == 0
     assert calls["search"] == 0
     assert calls["probe"] == 0
     assert not any(a["reason_code"] == "named_human_contact_found" for a in result.source_attempts)
+    assert any(a["reason_code"] == "controlled_eligible_company_route_found" for a in result.source_attempts)
     assert all(
         {
             "cnpj14",

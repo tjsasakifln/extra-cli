@@ -643,10 +643,13 @@ def map_lead(
     contacts[:] = stamped
     lead["contacts"] = contacts
 
-    # Exactly one principal recipient, selected deterministically. A rerun over
-    # identical inputs cannot flip the recommendation because observation time
-    # is excluded from the ordering and evidence hash.
-    if ready_contacts:
+    # Canonical principal is preferred_initial. `recommended` is a compatibility
+    # alias of that same unique principal (including generic/role mailboxes that
+    # are controlled-eligible but not named-person email_send_ready). Do not
+    # write recommended onto pre-stamp object identity — stamp clones contacts.
+    preferred = next((c for c in contacts if c.get("preferred_initial")), None)
+    display = preferred
+    if display is None and ready_contacts:
         ready_contacts.sort(
             key=lambda c: (
                 -float(c.get("confidence") or 0),
@@ -655,12 +658,12 @@ def map_lead(
                 str(c.get("email") or "").lower(),
             )
         )
-        principal = ready_contacts[0]
-        principal["recommended"] = True
-        best_purpose = _as_str(principal.get("mailbox_purpose"))
-        best_suitability = _as_str(principal.get("recipient_commercial_suitability"))
-        best_own = _as_str(principal.get("ownership_status"))
-        best_ver = _as_str(principal.get("verification_status"))
+        display = ready_contacts[0]
+    if display is not None:
+        best_purpose = _as_str(display.get("mailbox_purpose")) or best_purpose
+        best_suitability = _as_str(display.get("recipient_commercial_suitability")) or best_suitability
+        best_own = _as_str(display.get("ownership_status")) or best_own
+        best_ver = _as_str(display.get("verification_status")) or best_ver
 
     lead["email_send_ready"] = best_ready
     if best_purpose:

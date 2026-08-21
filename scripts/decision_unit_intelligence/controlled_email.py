@@ -18,7 +18,9 @@ from typing import Any
 from scripts.confenge_contact_resolution.mailbox_purpose import (
     CONTROLLED_BLOCKED_PURPOSES,
     classify_mailbox_purpose,
+    is_mailbox_controlled_eligible,
 )
+from scripts.decision_unit_intelligence.email_resolution import is_third_party_professional_domain
 from scripts.decision_unit_intelligence.models import (
     AccountInvestigation,
     ActionMode,
@@ -33,11 +35,21 @@ from scripts.decision_unit_intelligence.models import (
     SuppressionState,
 )
 from scripts.decision_unit_intelligence.reachability import (
+    email_domain,
     is_brand_mailbox,
     is_freemail,
     is_generic_mailbox,
     is_role_mailbox,
     looks_nominal_local,
+)
+
+MAX_DEPARTMENTAL_HYPOTHESES = 3
+DEPARTMENTAL_HYPOTHESIS_LOCALS: tuple[str, ...] = (
+    "licitacao",
+    "comercial",
+    "contratos",
+    "engenharia",
+    "contato",
 )
 
 CONTROLLED_EMAIL_POLICY_VERSION = "controlled-email-policy.v1"
@@ -276,6 +288,12 @@ def classify_email_route_class(
         return EmailRouteClass.PROBABILISTIC_OR_RISKY
 
     value = route.channel_value
+    domain = email_domain(value)
+    if domain and is_third_party_professional_domain(domain):
+        return EmailRouteClass.PROBABILISTIC_OR_RISKY
+    if _impossible_domain(route):
+        return EmailRouteClass.PROBABILISTIC_OR_RISKY
+
     company_ev = mailbox_company_evidence(route)
     person_ev = mailbox_person_evidence(route, person)
     discovery = _discovery_class(route)
@@ -310,6 +328,91 @@ def classify_email_route_class(
     if company_ev == EVIDENCE_OBSERVED:
         return EmailRouteClass.GENERIC_COMPANY
     return EmailRouteClass.PROBABILISTIC_OR_RISKY
+
+
+def _verification_blob(route: ReachabilityRoute) -> dict[str, Any]:
+    extra = route.extra if isinstance(route.extra, dict) else {}
+    blob = extra.get("email_verification")
+    return blob if isinstance(blob, dict) else extra
+
+
+def _impossible_domain(route: ReachabilityRoute) -> bool:
+    blob = _verification_blob(route)
+    dns = str(blob.get("dns") or "").upper()
+    mx = str(blob.get("mx") or "").upper()
+    reasons = {str(code).upper() for code in (blob.get("reason_codes") or ())}
+    return dns == "NXDOMAIN" or mx == "NULL_MX" or "NXDOMAIN" in reasons or "NULL_MX_DECLINES_EMAIL" in reasons
+
+
+def is_actionable_controlled_company_route(item: ClassifiedEmailRoute) -> bool:
+    """Operational success: a control-eligible company route, not a named person."""
+    if not item.controlled_email_eligible:
+        return False
+    return item.route_class in DEFAULT_PILOT_ROUTE_CLASSES
+
+
+def discovery_should_stop_for_commercial_value(
+    classified: list[ClassifiedEmailRoute],
+    *,
+    deepen: bool = False,
+) -> bool:
+    """Stop PERSON-family spend once a control-eligible company route exists."""
+    if deepen:
+        return False
+    return any(is_actionable_controlled_company_route(item) for item in classified)
+
+
+def observed_channels_have_controlled_eligible_route(channels: list[Any]) -> bool:
+    """True when an observed public mailbox is already a control-eligible company route."""
+    for channel in channels or []:
+        email = str(getattr(channel, "channel_value", None) or "")
+        if "@" not in email:
+            continue
+        epistemic = getattr(channel, "epistemic_class", None)
+        if epistemic == EpistemicClass.INFERRED:
+            continue
+        extra = getattr(channel, "extra", None) or {}
+        if extra.get("email_discovery_class") and str(extra.get("email_discovery_class")).startswith("INFERRED"):
+            continue
+        if not is_mailbox_controlled_eligible(email):
+            continue
+        source = str(getattr(channel, "source_type", "") or extra.get("source") or "").lower()
+        if extra.get("mailbox_company_evidence") == EVIDENCE_OBSERVED or extra.get("company_associated") is True:
+            return True
+        if source in COMPANY_ASSOCIATION_SOURCES:
+            return True
+        ownership = getattr(channel, "ownership", None)
+        if ownership == OwnershipStatus.COMPANY_OWNED:
+            return True
+    return False
+
+
+def departmental_hypothesis_mailboxes(
+    *,
+    domain: str,
+    already: frozenset[str] | set[str] = frozenset(),
+    icp: bool = True,
+    trigger: bool = True,
+    proven_business_domain: bool = True,
+    has_observed_usable_route: bool = False,
+    limit: int = MAX_DEPARTMENTAL_HYPOTHESES,
+) -> tuple[str, ...]:
+    """Optional RISKY hypotheses. Never OBSERVED. Never default-eligible."""
+    if not icp or not trigger or not proven_business_domain or has_observed_usable_route:
+        return ()
+    host = (domain or "").lower().removeprefix("www.").strip()
+    if not host or "." not in host:
+        return ()
+    existing = {canonicalize_mailbox(item) for item in already}
+    out: list[str] = []
+    for local in DEPARTMENTAL_HYPOTHESIS_LOCALS:
+        mailbox = f"{local}@{host}"
+        if mailbox in existing:
+            continue
+        out.append(mailbox)
+        if len(out) >= max(1, min(limit, MAX_DEPARTMENTAL_HYPOTHESES)):
+            break
+    return tuple(out)
 
 
 def _provenance_label(route: ReachabilityRoute, route_class: EmailRouteClass) -> str:
@@ -377,6 +480,21 @@ def evaluate_controlled_email_eligible(
     if extra.get("opt_out") is True:
         eligible = False
         reasons.append("opt_out")
+    if _impossible_domain(route):
+        eligible = False
+        reasons.append("impossible_domain")
+        domain = email_domain(mailbox)
+        blob = _verification_blob(route)
+        if str(blob.get("dns") or "").upper() == "NXDOMAIN":
+            reasons.append("nxdomain")
+        if str(blob.get("mx") or "").upper() == "NULL_MX":
+            reasons.append("null_mx")
+        if domain and is_third_party_professional_domain(domain):
+            reasons.append("third_party_professional_domain")
+    domain = email_domain(mailbox)
+    if domain and is_third_party_professional_domain(domain):
+        eligible = False
+        reasons.append("third_party_professional_domain")
     if freshness == FreshnessState.STALE.value:
         eligible = False
         reasons.append("stale")
@@ -625,6 +743,79 @@ def route_from_feed_contact(contact: dict[str, Any], *, account_id: str) -> Reac
     )
 
 
+def canonicalize_mailbox(email: str | None) -> str:
+    return str(email or "").strip().lower()
+
+
+def apply_preferred_recommended_alias(contacts: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """`recommended` is a compatibility alias of the unique preferred_initial principal.
+
+    Historical Warmbly/v1 consumers read `recommended=true` as the single principal
+    recipient. The canonical field is now `preferred_initial`. They must agree.
+    A preferred generic/role mailbox may be recommended even when it is not
+    `email_send_ready` (named-person EMAIL_VALIDATED).
+    """
+    stamped: list[dict[str, Any]] = []
+    for contact in contacts:
+        if not isinstance(contact, dict):
+            stamped.append(contact)
+            continue
+        updated = dict(contact)
+        updated["recommended"] = bool(updated.get("preferred_initial"))
+        stamped.append(updated)
+    return stamped
+
+
+def _merge_feed_contact(primary: dict[str, Any], extra: dict[str, Any]) -> dict[str, Any]:
+    """Keep one mailbox row; secondary sources become corroboration, not rivals."""
+    merged = dict(primary)
+    sources: list[str] = list(merged.get("corroborating_sources") or [])
+    for key in ("source_url", "source", "source_document"):
+        value = extra.get(key)
+        if value and str(value) not in sources and str(value) != str(merged.get(key) or ""):
+            sources.append(str(value))
+    if extra.get("source_url") and not merged.get("source_url"):
+        merged["source_url"] = extra["source_url"]
+    if sources:
+        merged["corroborating_sources"] = sources
+        merged["corroborated"] = True
+    for flag in (
+        "email_explicitly_published",
+        "name_explicitly_published",
+        "role_explicitly_published",
+        "human_identity_evidence_valid",
+        "identity_explicitly_associated",
+    ):
+        if extra.get(flag) and not merged.get(flag):
+            merged[flag] = extra[flag]
+    if extra.get("name") and not merged.get("name"):
+        merged["name"] = extra["name"]
+    if extra.get("person_id") and not merged.get("person_id"):
+        merged["person_id"] = extra["person_id"]
+    return merged
+
+
+def dedupe_feed_contacts_by_mailbox(contacts: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Canonicalize mailboxes. One row per address; later sources corroborate."""
+    order: list[str] = []
+    by_mailbox: dict[str, dict[str, Any]] = {}
+    passthrough: list[dict[str, Any]] = []
+    for contact in contacts:
+        if not isinstance(contact, dict):
+            continue
+        email = canonicalize_mailbox(str(contact.get("email") or ""))
+        if not email or "@" not in email:
+            passthrough.append(contact)
+            continue
+        if email in by_mailbox:
+            by_mailbox[email] = _merge_feed_contact(by_mailbox[email], contact)
+            continue
+        order.append(email)
+        by_mailbox[email] = dict(contact)
+        by_mailbox[email]["email"] = email
+    return [by_mailbox[email] for email in order] + passthrough
+
+
 def feed_contact_from_classified(item: ClassifiedEmailRoute) -> dict[str, Any]:
     """Shape one classified route as a confenge.outreach.v1 contact for Warmbly ingest."""
     person_unknown = item.person_id is None and not item.person_name
@@ -634,6 +825,7 @@ def feed_contact_from_classified(item: ClassifiedEmailRoute) -> dict[str, Any]:
         "route_class": item.route_class.value,
         "controlled_email_eligible": item.controlled_email_eligible,
         "preferred_initial": item.preferred_initial,
+        "recommended": item.preferred_initial,
         "preferred_rank": item.preferred_rank,
         "mailbox_company_evidence": item.mailbox_company_evidence,
         "mailbox_person_evidence": item.mailbox_person_evidence,
@@ -662,12 +854,13 @@ def stamp_and_rank_feed_contacts(
     account_id: str,
 ) -> list[dict[str, Any]]:
     """Stamp route_class + controlled_email_eligible on ingestible contacts[]."""
+    unique = dedupe_feed_contacts_by_mailbox(contacts)
     classified: list[ClassifiedEmailRoute] = []
     indexed: list[dict[str, Any]] = []
-    for contact in contacts:
+    for contact in unique:
         if not isinstance(contact, dict):
             continue
-        email = str(contact.get("email") or "")
+        email = canonicalize_mailbox(str(contact.get("email") or ""))
         if not email or "@" not in email:
             indexed.append(contact)
             continue
@@ -679,10 +872,14 @@ def stamp_and_rank_feed_contacts(
     by_mailbox = {item.mailbox: item for item in ranking.classified_routes}
     stamped: list[dict[str, Any]] = []
     for contact in indexed:
-        email = str(contact.get("email") or "").strip().lower()
+        email = canonicalize_mailbox(str(contact.get("email") or ""))
         item = by_mailbox.get(email)
         if item is None:
             stamped.append(contact)
             continue
-        stamped.append({**contact, **feed_contact_from_classified(item)})
-    return stamped
+        merged = {**contact, **feed_contact_from_classified(item)}
+        if contact.get("corroborating_sources"):
+            merged["corroborating_sources"] = list(contact["corroborating_sources"])
+            merged["corroborated"] = True
+        stamped.append(merged)
+    return apply_preferred_recommended_alias(stamped)

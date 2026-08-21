@@ -19,6 +19,7 @@ from scripts.decision_unit_intelligence.batch_snapshot import publish_snapshot
 from scripts.decision_unit_intelligence.batch_worker import ContactDiscoveryWorker
 from scripts.decision_unit_intelligence.benchmark import funnel, replay_report
 from scripts.decision_unit_intelligence.cohort import TRACK_A_CNPJS, build_manifest
+from scripts.decision_unit_intelligence.controlled_email_cohort import run_cohort_funnel
 from scripts.decision_unit_intelligence.email_discovery import summarize_email_discovery
 from scripts.decision_unit_intelligence.operator_pack import build_card, write_operator_pack
 from scripts.decision_unit_intelligence.projection import project_warmbly_outreach
@@ -217,6 +218,16 @@ def cmd_replay(args: argparse.Namespace) -> int:
     first = JsonRunRepository(Path(args.run_a)).load_accounts()
     second = JsonRunRepository(Path(args.run_b)).load_accounts()
     print(json.dumps(replay_report(first, second), indent=2))
+    return 0
+
+
+def cmd_email_reachability_funnel(args: argparse.Namespace) -> int:
+    payload = run_cohort_funnel(args.n)
+    if args.out:
+        out = Path(args.out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps(payload, ensure_ascii=False, indent=2))
     return 0
 
 
@@ -442,6 +453,11 @@ def build_parser() -> argparse.ArgumentParser:
     replay.add_argument("--run-a", required=True)
     replay.add_argument("--run-b", required=True)
     replay.set_defaults(func=cmd_replay)
+
+    email_funnel = sub.add_parser("email-reachability-funnel")
+    email_funnel.add_argument("--n", type=int, default=120)
+    email_funnel.add_argument("--out")
+    email_funnel.set_defaults(func=cmd_email_reachability_funnel)
 
     batch = sub.add_parser("batch", help="Durable contact-discovery cohort operations")
     batch_sub = batch.add_subparsers(dest="batch_cmd", required=True)

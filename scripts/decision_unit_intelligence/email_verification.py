@@ -109,7 +109,7 @@ class PassiveEmailVerifier:
                 mx_hosts=tuple(cached.get("mx_hosts") or []),
                 catch_all="UNKNOWN_NOT_PROBED",
                 smtp="SKIPPED_POLICY",
-                final_classification=_final_classification(email),
+                final_classification=_final_classification(email, dns=str(cached["dns"]), mx=str(cached["mx"])),
                 checked_at=str(cached["checked_at"]),
                 reason_codes=tuple(cached.get("reason_codes") or []) + ("CACHE_HIT",),
                 cache_hit=True,
@@ -157,7 +157,7 @@ class PassiveEmailVerifier:
             mx_hosts=mx_hosts,
             catch_all="UNKNOWN_NOT_PROBED",
             smtp="SKIPPED_POLICY",
-            final_classification=_final_classification(email),
+            final_classification=_final_classification(email, dns=dns_status, mx=mx_status),
             checked_at=checked_at,
             reason_codes=tuple(reasons),
         )
@@ -172,7 +172,9 @@ class PassiveEmailVerifier:
         return "MISSING", "MISSING", "NO_MX_OR_ADDRESS_RECORD"
 
 
-def _final_classification(email: str) -> str:
+def _final_classification(email: str, *, dns: str = "", mx: str = "") -> str:
+    if dns == "NXDOMAIN" or mx == "NULL_MX":
+        return "REJECTED_IMPOSSIBLE_DOMAIN"
     if is_role_mailbox(email):
         return "GENERIC_ROLE_MAILBOX"
     if is_generic_mailbox(email):
@@ -194,4 +196,8 @@ def verify_email_routes(
         report = reports.setdefault(email, verifier.verify(email))
         route.extra["email_verification"] = report.to_dict()
         route.extra["identity_proven_by_verification"] = False
+        route.extra["dns"] = report.dns
+        route.extra["mx"] = report.mx
+        if report.final_classification == "REJECTED_IMPOSSIBLE_DOMAIN":
+            route.extra["impossible_domain"] = True
     return list(reports.values())

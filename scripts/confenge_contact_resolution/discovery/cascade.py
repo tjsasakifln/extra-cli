@@ -35,6 +35,7 @@ from scripts.confenge_contact_resolution.discovery.web_search_providers import (
     build_source_ladder_queries,
     build_web_search_provider,
 )
+from scripts.confenge_contact_resolution.mailbox_purpose import is_mailbox_controlled_eligible
 
 
 @dataclass
@@ -271,18 +272,30 @@ class DiscoveryCascade:
                     if contactish:
                         ctx.contact_pages = list(ctx.contact_pages or []) + contactish
                 named_site = _contacts_have_named_human(crawl.contacts)
+                actionable_site = _contacts_have_actionable_company_route(crawl.contacts)
+                site_success = named_site or actionable_site
                 self._attempt(
                     result,
                     cnpj14=cnpj14,
                     source_adapter="official_site",
                     source_url=f"https://{result.domain.domain}/",
-                    outcome="FOUND" if named_site else "NO_VALID_HUMAN_RECIPIENT",
-                    reason_code="named_human_contact_found" if named_site else "site_has_no_explicit_named_email_role",
-                    limitations=[] if named_site else ["generic_or_unassociated_contacts_do_not_count"],
+                    outcome="FOUND" if site_success else "NO_VALID_HUMAN_RECIPIENT",
+                    reason_code=(
+                        "named_human_contact_found"
+                        if named_site
+                        else "controlled_eligible_company_route_found"
+                        if actionable_site
+                        else "site_has_no_explicit_named_email_role"
+                    ),
+                    limitations=[]
+                    if site_success
+                    else ["generic_or_unassociated_contacts_do_not_count", "no_controlled_eligible_company_route"],
                 )
-                if named_site and stop_when_strong_contact:
+                if site_success and stop_when_strong_contact:
                     stats.outcome = InvestigationOutcome.CONTACT_FOUND.value
-                    stats.stop_reason = "official_site_named_human_contact"
+                    stats.stop_reason = (
+                        "official_site_named_human_contact" if named_site else "official_site_controlled_eligible_route"
+                    )
                     ctx.extra["discovery"] = result.as_meta()
                     ctx.extra["economic_group_id"] = economic_group_id
                     ctx.extra["investigation_outcome"] = stats.outcome
@@ -301,6 +314,8 @@ class DiscoveryCascade:
         # 2) Company-authored administrative/public-process documents already
         # tied to this CNPJ by the datalake.
         named_doc = _has_strong_doc_contact(ctx.public_docs, cnpj14=cnpj14)
+        actionable_doc = _has_actionable_doc_route(ctx.public_docs, cnpj14=cnpj14)
+        doc_success = named_doc or actionable_doc
         self._attempt(
             result,
             cnpj14=cnpj14,
@@ -313,12 +328,18 @@ class DiscoveryCascade:
                 ),
                 None,
             ),
-            outcome="FOUND" if named_doc else "NO_VALID_HUMAN_RECIPIENT",
-            reason_code="named_human_contact_found" if named_doc else "documents_have_no_explicit_named_email_role",
+            outcome="FOUND" if doc_success else "NO_VALID_HUMAN_RECIPIENT",
+            reason_code=(
+                "named_human_contact_found"
+                if named_doc
+                else "controlled_eligible_company_route_found"
+                if actionable_doc
+                else "documents_have_no_explicit_named_email_role"
+            ),
         )
-        if named_doc and stop_when_strong_contact:
+        if doc_success and stop_when_strong_contact:
             stats.outcome = InvestigationOutcome.CONTACT_FOUND.value
-            stats.stop_reason = "strong_named_public_doc"
+            stats.stop_reason = "strong_named_public_doc" if named_doc else "controlled_eligible_public_doc"
             ctx.extra["discovery"] = result.as_meta()
             ctx.extra["economic_group_id"] = economic_group_id
             ctx.extra["investigation_outcome"] = stats.outcome
@@ -412,13 +433,15 @@ class DiscoveryCascade:
                 if validated_docs:
                     ctx.public_docs = list(ctx.public_docs or []) + validated_docs
                 named_validated = _has_strong_doc_contact(validated_docs, cnpj14=cnpj14)
+                actionable_validated = _has_actionable_doc_route(validated_docs, cnpj14=cnpj14)
+                validated_success = named_validated or actionable_validated
                 provider_blocked = not bool(getattr(provider, "available", True))
                 unresolved_external = (
                     search_failed or provider_blocked or bool(relevant_batch and fetch_errors and not validated_docs)
                 )
                 outcome = (
                     "FOUND"
-                    if named_validated
+                    if validated_success
                     else "EXTERNAL_BLOCKER"
                     if unresolved_external
                     else "NO_VALID_HUMAN_RECIPIENT"
@@ -434,6 +457,8 @@ class DiscoveryCascade:
                     reason_code=(
                         "named_human_contact_found"
                         if named_validated
+                        else "controlled_eligible_company_route_found"
+                        if actionable_validated
                         else "source_document_fetch_failed"
                         if relevant_batch and unresolved_external
                         else "search_provider_unavailable"
@@ -448,9 +473,13 @@ class DiscoveryCascade:
                         None,
                     ),
                 )
-                if named_validated and stop_when_strong_contact:
+                if validated_success and stop_when_strong_contact:
                     stats.outcome = InvestigationOutcome.CONTACT_FOUND.value
-                    stats.stop_reason = f"{adapter_name}_named_human_contact"
+                    stats.stop_reason = (
+                        f"{adapter_name}_named_human_contact"
+                        if named_validated
+                        else f"{adapter_name}_controlled_eligible_route"
+                    )
                     ctx.extra["discovery"] = result.as_meta()
                     ctx.extra["economic_group_id"] = economic_group_id
                     ctx.extra["investigation_outcome"] = stats.outcome
@@ -596,6 +625,39 @@ def _contacts_have_named_human(contacts: list[dict[str, Any]] | None) -> bool:
         and not c.get("pattern_guessed_email")
         for c in (contacts or [])
     )
+
+
+def _contacts_have_actionable_company_route(contacts: list[dict[str, Any]] | None) -> bool:
+    """Observed control-eligible company/role/generic/associated mailbox is success.
+
+    Person may be UNKNOWN. Pattern-guessed addresses never count.
+    """
+    return any(
+        c.get("email") and not c.get("pattern_guessed_email") and is_mailbox_controlled_eligible(str(c.get("email")))
+        for c in (contacts or [])
+    )
+
+
+def _has_actionable_doc_route(docs: list[dict[str, Any]] | None, *, cnpj14: str) -> bool:
+    target = re.sub(r"\D", "", cnpj14 or "")[:14]
+    for d in docs or []:
+        document_cnpj = re.sub(
+            r"\D",
+            "",
+            str(d.get("cnpj14") or d.get("cnpj") or d.get("supplier_cnpj") or ""),
+        )[:14]
+        email = str(d.get("email") or "")
+        if (
+            len(target) == 14
+            and document_cnpj == target
+            and email
+            and not d.get("pattern_guessed_email")
+            and is_mailbox_controlled_eligible(email)
+            and (d.get("url") or d.get("source_url") or d.get("document_id") or d.get("document"))
+            and d.get("evidence_strength") in {"company_authored_document", "official_cnpj_linked_document"}
+        ):
+            return True
+    return False
 
 
 def _search_has_email(hits: list[dict[str, Any]]) -> bool:

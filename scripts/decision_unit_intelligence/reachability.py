@@ -35,6 +35,7 @@ ROLE_MAILBOX_LOCALS = frozenset(
     {
         "licitacoes",
         "licitacao",
+        "licita",
         "comercial",
         "orcamentos",
         "orcamento",

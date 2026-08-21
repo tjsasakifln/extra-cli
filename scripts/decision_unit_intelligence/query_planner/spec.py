@@ -143,6 +143,8 @@ class QueryExecution:
     useful_urls: tuple[str, ...] = ()
     observed_email_count: int = 0
     observed_emails: tuple[str, ...] = ()
+    control_eligible_email_count: int = 0
+    control_eligible_emails: tuple[str, ...] = ()
     identity_associated_count: int = 0
     identity_associated: tuple[str, ...] = ()
     weak_source_count: int = 0
@@ -171,6 +173,8 @@ class QueryExecution:
             "useful_urls": list(self.useful_urls),
             "observed_email_count": self.observed_email_count,
             "observed_emails": list(self.observed_emails),
+            "control_eligible_email_count": self.control_eligible_email_count,
+            "control_eligible_emails": list(self.control_eligible_emails),
             "identity_associated_count": self.identity_associated_count,
             "identity_associated": list(self.identity_associated),
             "weak_source_count": self.weak_source_count,
@@ -216,6 +220,7 @@ class QueryPlan:
 class YieldSignals:
     useful_urls: tuple[str, ...] = ()
     observed_emails: tuple[str, ...] = ()
+    control_eligible_emails: tuple[str, ...] = ()
     identity_associated: tuple[str, ...] = ()
     weak_source_urls: tuple[str, ...] = ()
     correct_domain: bool = False
@@ -246,6 +251,7 @@ class QueryPolicy:
     disabled_families: frozenset[QueryFamily] = frozenset()
     min_identity_associated: int = 1
     min_observed_email: int = 2
+    min_control_eligible_email: int = 1
     max_zero_yield_streak: int = 2
     known_person_and_domain_families: tuple[QueryFamily, ...] = (
         QueryFamily.PERSON,
@@ -269,6 +275,7 @@ class QueryPolicy:
             "early_stop": {
                 "min_identity_associated": self.min_identity_associated,
                 "min_observed_email": self.min_observed_email,
+                "min_control_eligible_email": self.min_control_eligible_email,
                 "max_zero_yield_streak": self.max_zero_yield_streak,
             },
             "adaptive": {
@@ -292,6 +299,7 @@ class QueryPolicy:
             disabled_families=frozenset(QueryFamily(item) for item in disabled_raw),
             min_identity_associated=int(early.get("min_identity_associated", 1)),
             min_observed_email=int(early.get("min_observed_email", 2)),
+            min_control_eligible_email=int(early.get("min_control_eligible_email", 1)),
             max_zero_yield_streak=int(early.get("max_zero_yield_streak", 2)),
             known_person_and_domain_families=tuple(
                 QueryFamily(item) for item in (adaptive.get("known_person_and_domain") or [])
