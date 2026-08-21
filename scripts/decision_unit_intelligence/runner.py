@@ -154,13 +154,25 @@ def run_account(
     why_now = None
     site = None
     blocked = False
+    from scripts.decision_unit_intelligence.controlled_email import (
+        observed_channels_have_controlled_eligible_route,
+    )
+
+    site_provider = next((p for p in providers if getattr(p, "provider_id", "") == "company_website"), None)
+    site_needs_domain_retry = False
+    commercial_success = False
     for provider in providers:
+        provider_id = getattr(provider, "provider_id", "")
+        if commercial_success and provider_id in {"public_search", "external_enrichment"}:
+            continue
         try:
             result = provider.collect(ctx)
         except Exception as exc:
             ledger.blocked_sources.append(f"{provider.provider_id}:{type(exc).__name__}")
             ledger.provider_attempts += 1
             continue
+        if provider_id == "company_website" and result.attempts and result.attempts[0].reason == "no_defensible_domain":
+            site_needs_domain_retry = True
         people.extend(result.people)
         channels.extend(result.channels)
         evidence.extend(result.evidence)
@@ -206,9 +218,24 @@ def run_account(
             p.provider_id for p in providers if getattr(p, "first_class", False) and getattr(p, "enabled", False)
         }
         attempted = {attempt.provider_id for attempt in ledger.attempts}
-        # Positive stop only after every enabled first-class provider ran.
+        commercial_success = observed_channels_have_controlled_eligible_route(channels)
+        # Positive stop: a control-eligible company route is enough. Named person
+        # is not required. Still require enabled first-class providers unless the
+        # remaining work is public-search PERSON spend after a usable route.
+        if commercial_success:
+            break
         if people and channels and required.issubset(attempted):
             break
+    if site_needs_domain_retry and site_provider is not None and ctx.extra.get("domain_resolution"):
+        try:
+            result = site_provider.collect(ctx)
+        except Exception:
+            result = None
+        if result is not None:
+            people.extend(result.people)
+            channels.extend(result.channels)
+            evidence.extend(result.evidence)
+            ledger.attempts.extend(result.attempts)
     ledger.duration_ms = int((perf_counter() - started) * 1000)
     account = investigate_account(
         cnpj=cnpj,

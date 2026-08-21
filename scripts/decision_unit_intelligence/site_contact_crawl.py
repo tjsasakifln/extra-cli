@@ -53,6 +53,7 @@ from scripts.decision_unit_intelligence.reachability import (
     classify_observed_email_channel,
     email_domain,
     is_brand_mailbox,
+    is_freemail,
     is_generic_mailbox,
     is_role_mailbox,
 )
@@ -553,10 +554,13 @@ def seed_corporate_site_urls(
         if skip:
             return
         seen.add(clean)
+        score = score_high_value_path(clean, anchor)
+        if origin == "search_hit":
+            score += 20
         seeds.append(
             SiteUrlSeed(
                 url=clean,
-                score=score_high_value_path(clean, anchor),
+                score=score,
                 depth=depth,
                 origin=origin,
                 anchor_text=anchor,
@@ -565,6 +569,21 @@ def seed_corporate_site_urls(
 
     if homepage:
         _add(homepage, origin="homepage", depth=0)
+    for path in (
+        "/contato",
+        "/fale-conosco",
+        "/comercial",
+        "/licitacoes",
+        "/contratos",
+        "/engenharia",
+        "/equipe",
+        "/diretoria",
+        "/institucional",
+        "/unidades",
+        "/quem-somos",
+        "/sobre",
+    ):
+        _add(f"https://{expected}{path}", origin="seed_path", depth=0)
     _add(f"https://{expected}/robots.txt", origin="robots", depth=0)
     _add(f"https://{expected}/sitemap.xml", origin="sitemap", depth=0)
     for url in extra_urls:
@@ -825,7 +844,9 @@ def associate_site_email(
     """Return (associated, candidate, reason_codes, method). Never uses text-window proximity."""
     reasons: list[str] = []
     if generic or in_footer:
-        return False, False, [SITE_GENERIC_ONLY], "rejected_generic_or_footer"
+        # Footer/header of the official site is not person identity, but it is
+        # still a company mailbox. Do not treat chrome as commercial junk.
+        return False, False, [SITE_GENERIC_ONLY], "company_mailbox_unbound_to_person"
     if js_blocked:
         return False, False, [SITE_JS_BLOCKED], "js_blocked"
     if stale or foreign_domain:
@@ -1057,8 +1078,11 @@ def extract_site_contacts(
 def contacts_to_observations(
     context: InvestigationContext,
     records: list[SiteContactRecord],
+    *,
+    canonical_domain: str | None = None,
 ) -> tuple[list[PersonObservation], list[ChannelObservation], list[FieldEvidence]]:
     cnpj = normalize_cnpj(context.cnpj)
+    expected = (canonical_domain or "").lower().removeprefix("www.")
     people: list[PersonObservation] = []
     channels: list[ChannelObservation] = []
     evidence: list[FieldEvidence] = []
@@ -1104,6 +1128,8 @@ def contacts_to_observations(
             identity_associated=associated,
             ambiguous=record.candidate and not associated,
         )
+        foreign = bool(expected and _foreign_or_generic_domain(record.email, expected))
+        company_owned = not foreign or is_freemail(record.email)
         email_evidence = make_evidence(
             field="email",
             value=record.email,
@@ -1135,17 +1161,23 @@ def contacts_to_observations(
                 snippet=record.snippet,
                 observed_at=now_iso(),
                 epistemic_class=EpistemicClass.OBSERVED,
-                ownership=OwnershipStatus.COMPANY_OWNED,
+                ownership=OwnershipStatus.COMPANY_OWNED if company_owned else OwnershipStatus.UNKNOWN,
                 evidence_id=email_evidence.evidence_id,
                 extra={
                     "identity_explicitly_associated": associated,
                     "identity_ambiguous": bool(record.candidate and not associated),
+                    "company_associated": company_owned,
+                    "mailbox_company_evidence": "OBSERVED" if company_owned else "UNKNOWN",
                     "email_discovery_class": discovery.value,
                     "association_reason_codes": list(record.reason_codes),
                     "extraction_method": record.extraction_method,
                     "site_association_strength": "strong"
                     if associated
-                    else ("candidate" if record.candidate else "rejected"),
+                    else (
+                        "candidate"
+                        if record.candidate
+                        else ("company_only" if SITE_GENERIC_ONLY in record.reason_codes else "rejected")
+                    ),
                     "candidate_person_name": record.person_name if record.candidate and not associated else None,
                     "page_title": record.page_title,
                     "page_type": record.page_type,
@@ -1259,7 +1291,7 @@ def run_site_contact_crawl(
         if _looks_markup(document):
             contacts = extract_site_contacts(document, canonical_domain=expected)
             result.contacts.extend(contacts)
-            people, channels, evidence = contacts_to_observations(context, contacts)
+            people, channels, evidence = contacts_to_observations(context, contacts, canonical_domain=expected)
             result.people.extend(people)
             result.channels.extend(channels)
             result.evidence.extend(evidence)

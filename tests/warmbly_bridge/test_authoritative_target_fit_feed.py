@@ -218,9 +218,16 @@ def test_full_snapshot_publishes_negative_decisions_and_temporal_order(tmp_path:
     assert by_cnpj["11222333000181"]["construction_universe_member"] is True
     assert by_cnpj["11222333000181"]["target_fit_fresh"] is True
     assert by_cnpj["11222333000181"]["email_send_ready"] is True
-    ready_contacts = [c for c in by_cnpj["11222333000181"]["contacts"] if c.get("email_send_ready")]
+    all_contacts = by_cnpj["11222333000181"]["contacts"]
+    ready_contacts = [c for c in all_contacts if c.get("email_send_ready")]
     assert len(ready_contacts) == 2
+    preferred_contacts = [c for c in all_contacts if c.get("preferred_initial")]
+    recommended_contacts = [c for c in all_contacts if c.get("recommended")]
+    assert len(preferred_contacts) == 1
+    assert sum(1 for c in all_contacts if c.get("preferred_initial")) == 1
+    assert recommended_contacts == preferred_contacts
     assert sum(bool(c.get("recommended")) for c in ready_contacts) == 1
+    assert preferred_contacts[0].get("email_send_ready") is True
     assert all(c["source_date"] == "2026-08-12" for c in ready_contacts)
     assert all(c["source_date_semantics"] == "observed_at" for c in ready_contacts)
     assert all(not c.get("source_published_at") for c in ready_contacts)

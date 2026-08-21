@@ -627,6 +627,9 @@ def seed_paths_for_domain(domain: str) -> list[str]:
         "/sobre",
         "/quem-somos",
         "/equipe",
+        "/diretoria",
+        "/institucional",
+        "/unidades",
         "/licitacoes",
         "/licitações",
         "/comercial",
@@ -636,6 +639,7 @@ def seed_paths_for_domain(domain: str) -> list[str]:
         "/contratos",
         "/contato.html",
         "/contact",
+        "/sitemap.xml",
     ]
     return [base + p for p in paths]
 

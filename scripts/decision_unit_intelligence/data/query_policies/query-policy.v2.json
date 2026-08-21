@@ -14,6 +14,7 @@
   "early_stop": {
     "min_identity_associated": 1,
     "min_observed_email": 2,
+    "min_control_eligible_email": 1,
     "max_zero_yield_streak": 2
   },
   "adaptive": {

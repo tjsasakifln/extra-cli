@@ -47,7 +47,7 @@ def test_null_mx_and_generic_role_mailbox_remain_unsuitable_for_named_identity()
     verifier = PassiveEmailVerifier(FakeDns({("empresa.example", "MX"): ["0 ."]}))
     report = verifier.verify("licitacoes@empresa.example")
     assert report.mx == "NULL_MX"
-    assert report.final_classification == "GENERIC_ROLE_MAILBOX"
+    assert report.final_classification == "REJECTED_IMPOSSIBLE_DOMAIN"
     assert "NULL_MX_DECLINES_EMAIL" in report.reason_codes
 
 

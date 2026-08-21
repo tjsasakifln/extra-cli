@@ -27,6 +27,8 @@ PURPOSE_PRIVACY_DPO = "PRIVACY_DPO"
 PURPOSE_NOREPLY = "NOREPLY"
 PURPOSE_PRESS = "PRESS"
 PURPOSE_SOCIAL_PROGRAM = "SOCIAL_PROGRAM"
+PURPOSE_ETHICS_OMBUDSMAN = "ETHICS_OMBUDSMAN"
+PURPOSE_WEBMASTER_ABUSE = "WEBMASTER_ABUSE"
 PURPOSE_UNKNOWN = "UNKNOWN"
 
 ALL_PURPOSES = frozenset(
@@ -45,6 +47,8 @@ ALL_PURPOSES = frozenset(
         PURPOSE_NOREPLY,
         PURPOSE_PRESS,
         PURPOSE_SOCIAL_PROGRAM,
+        PURPOSE_ETHICS_OMBUDSMAN,
+        PURPOSE_WEBMASTER_ABUSE,
         PURPOSE_UNKNOWN,
     }
 )
@@ -98,6 +102,35 @@ _BLOCKED_SUPPORT = frozenset(
         "e-commerce",
         "store",
         "shop",
+        "ouvidoria",
+    }
+)
+_BLOCKED_ETHICS = frozenset(
+    {
+        "etica",
+        "ética",
+        "ethics",
+        "denuncia",
+        "denúncia",
+        "denuncias",
+        "denúncias",
+        "compliance",
+        "integridade",
+        "canaldenuncia",
+        "canal-denuncia",
+        "whistleblower",
+    }
+)
+_BLOCKED_WEBMASTER = frozenset(
+    {
+        "webmaster",
+        "hostmaster",
+        "abuse",
+        "sysadmin",
+        "postmaster",
+        "root",
+        "noc",
+        "isp",
     }
 )
 _BLOCKED_PRIVACY = frozenset(
@@ -174,6 +207,7 @@ _BLOCKED_SOCIAL_PROGRAM = frozenset(
 _CONTRATOS = frozenset({"contratos", "contrato", "contract", "contracts", "aditivos", "aditivo"})
 _LICITACOES = frozenset(
     {
+        "licita",
         "licitacao",
         "licitacoes",
         "licitações",
@@ -296,27 +330,46 @@ _GENERIC = frozenset(
 
 # Preference rank for picking among several valid addresses (lower = better for CONFENGE).
 PURPOSE_RANK: dict[str, int] = {
-    PURPOSE_UNKNOWN: 0,
-    PURPOSE_CONTRATOS: 900,
-    PURPOSE_LICITACOES: 901,
-    PURPOSE_ENGENHARIA: 902,
-    PURPOSE_ORCAMENTO: 903,
-    PURPOSE_COMERCIAL: 904,
+    PURPOSE_LICITACOES: 900,
+    PURPOSE_CONTRATOS: 901,
+    PURPOSE_COMERCIAL: 902,
+    PURPOSE_ENGENHARIA: 903,
+    PURPOSE_ORCAMENTO: 904,
     PURPOSE_DIRETORIA: 905,
-    PURPOSE_FINANCEIRO: 906,
-    PURPOSE_GENERIC_CONTACT: 907,
-    PURPOSE_HR_RECRUITING: 900,
-    PURPOSE_SUPPORT_SAC: 910,
-    PURPOSE_PRIVACY_DPO: 920,
-    PURPOSE_NOREPLY: 930,
-    PURPOSE_PRESS: 940,
-    PURPOSE_SOCIAL_PROGRAM: 950,
+    PURPOSE_GENERIC_CONTACT: 906,
+    PURPOSE_UNKNOWN: 907,
+    PURPOSE_FINANCEIRO: 908,
+    PURPOSE_HR_RECRUITING: 920,
+    PURPOSE_SUPPORT_SAC: 921,
+    PURPOSE_PRIVACY_DPO: 922,
+    PURPOSE_NOREPLY: 923,
+    PURPOSE_PRESS: 924,
+    PURPOSE_SOCIAL_PROGRAM: 925,
+    PURPOSE_ETHICS_OMBUDSMAN: 926,
+    PURPOSE_WEBMASTER_ABUSE: 927,
 }
 
 BLOCKED_PURPOSES = ALL_PURPOSES - {PURPOSE_UNKNOWN}
 
-# Allowed for commercial autorun when other gates pass.
+# Allowed for commercial autorun when other gates pass (named-person EMAIL_SEND_READY).
 SEND_ALLOWED_PURPOSES = frozenset({PURPOSE_UNKNOWN})
+
+# Controlled outreach (not auto-send) may use functional company/role mailboxes.
+# HR / support / privacy / noreply / press / social stay blocked.
+CONTROLLED_BLOCKED_PURPOSES = frozenset(
+    {
+        PURPOSE_HR_RECRUITING,
+        PURPOSE_SUPPORT_SAC,
+        PURPOSE_PRIVACY_DPO,
+        PURPOSE_NOREPLY,
+        PURPOSE_PRESS,
+        PURPOSE_SOCIAL_PROGRAM,
+        PURPOSE_ETHICS_OMBUDSMAN,
+        PURPOSE_WEBMASTER_ABUSE,
+        PURPOSE_FINANCEIRO,
+    }
+)
+CONTROLLED_ELIGIBLE_PURPOSES = ALL_PURPOSES - CONTROLLED_BLOCKED_PURPOSES
 
 _LOCAL_CLEAN_RE = re.compile(r"[^a-z0-9+\-_.]")
 
@@ -400,6 +453,10 @@ def classify_mailbox_purpose(email: str | None) -> MailboxPurposeResult:
         purpose = PURPOSE_PRESS
     elif _match(_BLOCKED_SOCIAL_PROGRAM):
         purpose = PURPOSE_SOCIAL_PROGRAM
+    elif _match(_BLOCKED_ETHICS):
+        purpose = PURPOSE_ETHICS_OMBUDSMAN
+    elif _match(_BLOCKED_WEBMASTER):
+        purpose = PURPOSE_WEBMASTER_ABUSE
     elif _match(_BLOCKED_SUPPORT):
         purpose = PURPOSE_SUPPORT_SAC
     elif _match(_CONTRATOS):
@@ -434,6 +491,11 @@ def classify_mailbox_purpose(email: str | None) -> MailboxPurposeResult:
 
 def is_mailbox_send_allowed(email: str | None) -> bool:
     return not classify_mailbox_purpose(email).send_blocked
+
+
+def is_mailbox_controlled_eligible(email: str | None) -> bool:
+    """Functional company/role inboxes may be controlled-eligible; HR/noreply may not."""
+    return classify_mailbox_purpose(email).purpose not in CONTROLLED_BLOCKED_PURPOSES
 
 
 def purpose_preference_rank(email: str | None) -> int:

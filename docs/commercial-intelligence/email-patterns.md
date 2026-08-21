@@ -19,7 +19,7 @@ Provenance on every pattern: supporting emails, people, source URLs, `observed_a
 
 ## Invariants
 
-- Ingest drops non-`OBSERVED`, generic/role/brand, third-party professional, freemail, and wrong-domain rows.
+- Ingest of this **pattern** engine drops non-`OBSERVED`, generic/role/brand, third-party professional, freemail, and wrong-domain rows (those addresses are not named-person pattern seeds). Observed generic/role/freemail-as-company-route are **not** discarded from outreach eligibility; that path is extra-cli #370 (`controlled email eligibility` by route class), not this module.
 - Candidates only for already known/corroborated people who do not already own an observed mailbox.
 - No blind walk of unused `KNOWN_PATTERNS`. Per-person budget (default 2).
 - Brazilian folding: accents, particles (`da/de/do/das/dos/e`), compound surnames, titles, abbreviations.

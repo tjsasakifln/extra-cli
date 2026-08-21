@@ -287,7 +287,10 @@ def should_early_stop(executions: list[QueryExecution], policy: QueryPolicy) -> 
         return False
     identity = sum(row.identity_associated_count for row in ran)
     observed = sum(row.observed_email_count for row in ran)
+    control_eligible = sum(getattr(row, "control_eligible_email_count", 0) for row in ran)
     if identity >= policy.min_identity_associated:
+        return True
+    if control_eligible >= policy.min_control_eligible_email:
         return True
     if observed >= policy.min_observed_email:
         return True

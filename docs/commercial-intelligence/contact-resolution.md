@@ -18,7 +18,7 @@ extra-cli facts + public web
 - **extra-cli owns intelligence:** canonical account identity, domain resolution, people, observed roles, contact candidates, derivation, verification, provenance, freshness, suitability, and consumer-agnostic projections.
 - **Warmbly owns activation:** operator review, approval/rejection, messages, campaigns, mailbox effects, replies, outcomes, suppression, and the commercial action ledger.
 - Warmbly may materialize the exact projection needed for audit and execution. It does not repeat search or become the identity/reachability source of truth.
-- Contact intelligence never grants permission to send. `EMAIL_VALIDATED` is defined operationally by `dui.email-validated-promotion.v1` (see `docs/commercial-intelligence/email-validated-promotion.md`): real known person, defensible affiliation, observed professional-public email or an explicit policy exception, provenance, freshness, suppression clear, no technical hard-fail. Score ≥ X and MX/DNS never promote. Inference does not become observation. A gold-set label is a benchmark verdict, not send authorization.
+- Contact intelligence never grants permission to send. `EMAIL_VALIDATED` (see `docs/commercial-intelligence/email-validated-promotion.md`) remains the **named-person quality class**. Controlled email eligibility is a **separate** decision (`company reachability + provenance + route class + observed risk`; extra-cli #370): ROLE/DEPARTMENT, GENERIC_COMPANY and PUBLIC_COMPANY_FREEMAIL may be pilot-eligible without being `EMAIL_VALIDATED`. Score ≥ X and MX/DNS never prove identity. Inference does not become observation. A gold-set label is a benchmark verdict, not send authorization.
 
 ## Epistemic and route model
 

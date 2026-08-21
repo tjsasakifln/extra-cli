@@ -200,6 +200,16 @@ def _map_contact(item: dict[str, Any], *, idx: int, cnpj: str) -> dict[str, Any]
         out["channel_send_eligibility"] = bool(item.get("channel_send_eligibility"))
     if item.get("email_send_ready") is not None:
         out["email_send_ready"] = bool(item.get("email_send_ready"))
+    if item.get("identity_explicitly_associated") is not None:
+        out["identity_explicitly_associated"] = bool(item.get("identity_explicitly_associated"))
+    if item.get("email_discovery_class"):
+        out["email_discovery_class"] = _as_str(item.get("email_discovery_class"))
+    if item.get("email_derivation"):
+        out["email_derivation"] = _as_str(item.get("email_derivation"))
+    if item.get("mailbox_company_evidence"):
+        out["mailbox_company_evidence"] = _as_str(item.get("mailbox_company_evidence"))
+    if item.get("person_id"):
+        out["person_id"] = _as_str(item.get("person_id"))
     return out
 
 
@@ -516,9 +526,7 @@ def map_lead(
                 tier="OUT_OF_SCOPE",
                 reasons=["TARGET_FIT_MISSING", "live_store_miss"],
                 sector_fit="",
-                canonical_universe_member=bool(
-                    company_ctx.get("canonical_universe_member") is True
-                ),
+                canonical_universe_member=bool(company_ctx.get("canonical_universe_member") is True),
             )
             lead["target_fit_class"] = None
             lead["target_fit_confidence"] = None
@@ -536,9 +544,7 @@ def map_lead(
                 tier="OUT_OF_SCOPE",
                 reasons=[f"published_path_error:{type(exc).__name__}", "fail_closed"],
                 sector_fit="",
-                canonical_universe_member=bool(
-                    company_ctx.get("canonical_universe_member") is True
-                ),
+                canonical_universe_member=bool(company_ctx.get("canonical_universe_member") is True),
             )
             lead["target_fit_class"] = None
             lead["target_fit_confidence"] = None
@@ -608,6 +614,7 @@ def map_lead(
         c["root_source_type"] = r.root_source_type
         c["derived_from_fixture"] = r.derived_from_fixture
         c["human_recipient_evidence_valid"] = r.human_recipient_evidence_valid
+        c["controlled_email_eligible"] = r.controlled_email_eligible
         # EMAIL_ONLY: enrollable for auto send queue means email_send_ready, not phone
         if r.email_send_ready:
             c["enrollable"] = True
@@ -630,10 +637,19 @@ def map_lead(
                 c["enrollable"] = False
                 c["recommended"] = False
 
-    # Exactly one principal recipient, selected deterministically. A rerun over
-    # identical inputs cannot flip the recommendation because observation time
-    # is excluded from the ordering and evidence hash.
-    if ready_contacts:
+    from scripts.decision_unit_intelligence.controlled_email import stamp_and_rank_feed_contacts
+
+    stamped = stamp_and_rank_feed_contacts(contacts, account_id=cnpj)
+    contacts[:] = stamped
+    lead["contacts"] = contacts
+
+    # Canonical principal is preferred_initial. `recommended` is a compatibility
+    # alias of that same unique principal (including generic/role mailboxes that
+    # are controlled-eligible but not named-person email_send_ready). Do not
+    # write recommended onto pre-stamp object identity — stamp clones contacts.
+    preferred = next((c for c in contacts if c.get("preferred_initial")), None)
+    display = preferred
+    if display is None and ready_contacts:
         ready_contacts.sort(
             key=lambda c: (
                 -float(c.get("confidence") or 0),
@@ -642,12 +658,12 @@ def map_lead(
                 str(c.get("email") or "").lower(),
             )
         )
-        principal = ready_contacts[0]
-        principal["recommended"] = True
-        best_purpose = _as_str(principal.get("mailbox_purpose"))
-        best_suitability = _as_str(principal.get("recipient_commercial_suitability"))
-        best_own = _as_str(principal.get("ownership_status"))
-        best_ver = _as_str(principal.get("verification_status"))
+        display = ready_contacts[0]
+    if display is not None:
+        best_purpose = _as_str(display.get("mailbox_purpose")) or best_purpose
+        best_suitability = _as_str(display.get("recipient_commercial_suitability")) or best_suitability
+        best_own = _as_str(display.get("ownership_status")) or best_own
+        best_ver = _as_str(display.get("verification_status")) or best_ver
 
     lead["email_send_ready"] = best_ready
     if best_purpose:

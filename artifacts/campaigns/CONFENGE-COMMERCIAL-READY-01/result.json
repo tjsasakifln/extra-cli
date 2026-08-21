@@ -1,46 +1,31 @@
 {
   "status": "BLOCKED",
-  "reason": "BLOCKED_CODE_EXECUTION_SHA_MISMATCH",
-  "terminal_reason": "BLOCKED_CODE_EXECUTION_SHA_MISMATCH",
-  "terminal_declaration": "BLOCKED_CODE_EXECUTION_SHA_MISMATCH",
+  "reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
+  "terminal_reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
+  "terminal_declaration": "BLOCKED_ONLY_OFFICIAL_REGISTRY_AND_HUMAN_REVIEW",
   "technical_status": "BLOCKED",
   "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
-  "pr_head_sha": "26d32410395ddef1d8babdb853617132372bb230",
-  "current_pr_head_sha": "26d32410395ddef1d8babdb853617132372bb230",
+  "pr_head_sha": "0da81cce8892f4eb705db34fbd6edd160af9dde4",
+  "current_pr_head_sha": "0da81cce8892f4eb705db34fbd6edd160af9dde4",
   "workflow_merge_sha": null,
-  "checked_out_sha": "26d32410395ddef1d8babdb853617132372bb230",
-  "executed_code_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
-  "final_code_freeze_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
-  "final_integrity_code_freeze_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
-  "freeze_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
-  "evidence_commit_sha": "26d32410395ddef1d8babdb853617132372bb230",
-  "workflow_head_sha": "26d32410395ddef1d8babdb853617132372bb230",
+  "checked_out_sha": "0da81cce8892f4eb705db34fbd6edd160af9dde4",
+  "executed_code_sha": "0da81cce8892f4eb705db34fbd6edd160af9dde4",
+  "final_code_freeze_sha": "0da81cce8892f4eb705db34fbd6edd160af9dde4",
+  "final_integrity_code_freeze_sha": "0da81cce8892f4eb705db34fbd6edd160af9dde4",
+  "freeze_sha": "0da81cce8892f4eb705db34fbd6edd160af9dde4",
+  "evidence_commit_sha": "0da81cce8892f4eb705db34fbd6edd160af9dde4",
+  "workflow_head_sha": "0da81cce8892f4eb705db34fbd6edd160af9dde4",
   "workflow_artifact_head_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6",
-  "artifact_git_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
-  "run_git_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
-  "gate_git_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
-  "review_git_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
-  "git_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
-  "match_run_to_head": false,
+  "artifact_git_sha": "0da81cce8892f4eb705db34fbd6edd160af9dde4",
+  "run_git_sha": "0da81cce8892f4eb705db34fbd6edd160af9dde4",
+  "gate_git_sha": "0da81cce8892f4eb705db34fbd6edd160af9dde4",
+  "review_git_sha": "0da81cce8892f4eb705db34fbd6edd160af9dde4",
+  "git_sha": "0da81cce8892f4eb705db34fbd6edd160af9dde4",
+  "match_run_to_head": true,
   "code_changed_after_execution": false,
-  "artifact_only_commits_after_execution": true,
-  "non_artifact_files_changed_after_execution": [
-    "Makefile",
-    "artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/actionable-all.json",
-    "artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/actionable-summary.json",
-    "artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/decision-loop-state.json",
-    "artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/executive-summary.md",
-    "artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/result.json",
-    "artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/shortlist.json",
-    "docs/handoffs/extra-cli-strategic-execution-20260730.md",
-    "scripts/ops/extra_actionable.py",
-    "scripts/ops/extra_decision_loop.py",
-    "scripts/ops/extra_decision_review.py",
-    "scripts/ops/extra_profile.py",
-    "tests/test_extra_decision_loop.py"
-  ],
+  "artifact_only_commits_after_execution": false,
+  "non_artifact_files_changed_after_execution": [],
   "machine_blockers": [
-    "BLOCKED_CODE_EXECUTION_SHA_MISMATCH",
     "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE"
   ],
   "human_blockers": [
@@ -48,9 +33,7 @@
     "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
     "BLOCKED_PENDING_HUMAN_ACCEPTANCE"
   ],
-  "all_other_machine_blockers": [
-    "BLOCKED_CODE_EXECUTION_SHA_MISMATCH"
-  ],
+  "all_other_machine_blockers": [],
   "official_registry_coverage": 0.05319148936170213,
   "structural_ci_status": "PASS",
   "real_historical_ci_status": "NOT_EXECUTED",
@@ -66,7 +49,7 @@
   "workflow_run_id": "30217720692",
   "human_review_artifact_id": 8636290007,
   "machine_evidence_artifact_id": 8636294876,
-  "code_merge_ready": false,
+  "code_merge_ready": true,
   "commercial_release_ready": false,
   "human_metrics": {
     "precision_at_10": null,
@@ -75,24 +58,7 @@
     "labels_are_human": false
   },
   "commercial_status": "BLOCKED_PENDING_HUMAN_ACCEPTANCE",
-  "pr_draft": true,
+  "pr_draft": false,
   "branch": "campaign/confenge-commercial-ready-01",
-  "updated_at": "2026-07-30T14:46:39Z",
-  "sha_binding": {
-    "bound_to": "d469b87bf16df033e80e69ee706d96e400c87340",
-    "match_run_to_head": false,
-    "freeze_code_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
-    "pre_squash_bound_sha": "bf94eb877861d405b70ee164a44d1c3fcadd0e38",
-    "note": "Canonical rebind after squash ancestry break: protected CONFENGE inputs equivalent between bf94eb877861 and d469b87bf16d (0 digest diffs); bf94eb877861 not ancestor of HEAD; d469b87bf16d is.",
-    "proof_artifact": "squash-ancestry-rebind-proof.json"
-  },
-  "binding_rebind_at": "2026-07-30T14:45:32Z",
-  "squash_ancestry_rebind": {
-    "previous_bound": "bf94eb877861d405b70ee164a44d1c3fcadd0e38",
-    "new_bound": "d469b87bf16df033e80e69ee706d96e400c87340",
-    "reason": "bound_sha_not_ancestor_of_head after squash of confenge skeptic tip into main (#179)",
-    "protected_inputs_equivalent": true,
-    "full_tree_equivalent": false,
-    "commercial_reexecution": false
-  }
+  "updated_at": "2026-08-21T21:55:44Z"
 }

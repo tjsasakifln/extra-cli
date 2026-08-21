@@ -30,7 +30,9 @@ from typing import Any
 from scripts.confenge_contact_resolution.email_policy import domain_of, is_freemail
 from scripts.confenge_contact_resolution.mailbox_purpose import (
     BLOCKED_PURPOSES,
+    CONTROLLED_BLOCKED_PURPOSES,
     classify_mailbox_purpose,
+    is_mailbox_controlled_eligible,
 )
 from scripts.confenge_contact_resolution.models import (
     ENROLLABLE_OWNERSHIP,
@@ -338,6 +340,7 @@ class EmailSendReadyResult:
     root_source_type: str = ""
     derived_from_fixture: bool = False
     human_recipient_evidence_valid: bool = False
+    controlled_email_eligible: bool = False
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -359,6 +362,7 @@ class EmailSendReadyResult:
             "root_source_type": self.root_source_type,
             "derived_from_fixture": self.derived_from_fixture,
             "human_recipient_evidence_valid": self.human_recipient_evidence_valid,
+            "controlled_email_eligible": self.controlled_email_eligible,
         }
 
 
@@ -1220,8 +1224,9 @@ def evaluate_email_send_ready(
             suitability = UNSUITABLE_MAILBOX
         channel_ok = False
 
-    # Literal recipient contract: a mailbox is not a person. A final recipient
-    # needs explicit, auditable person+role+email evidence and semantic dates.
+    # Named-person evidence remains required for EMAIL_SEND_READY (autorun quality).
+    # It is NOT the universal transport gate: ROLE/GENERIC/FREEMAIL may be
+    # controlled_email_eligible without a fabricated person.
     c = contact if isinstance(contact, dict) else {}
     c_source = c.get("source") if isinstance(c.get("source"), dict) else {}
     c_prov = c.get("provenance") if isinstance(c.get("provenance"), dict) else {}
@@ -1446,6 +1451,27 @@ def evaluate_email_send_ready(
         reasons.append("all_gates_pass")
         reasons.append(f"provenance_trust:{prov_res.provenance_trust}")
 
+    # Controlled eligibility: company-associated mailbox of an allowed purpose.
+    # Named-person evidence is not required. HR/noreply/opt-out/bounce still block.
+    controlled_mailbox_ok = is_mailbox_controlled_eligible(email_norm) and mp.purpose not in CONTROLLED_BLOCKED_PURPOSES
+    controlled_email_eligible = (
+        bool(email_norm)
+        and own in {OwnershipStatus.COMPANY_OWNED.value, OwnershipStatus.HUMAN_CONFIRMED.value}
+        and not dnc
+        and not bounce
+        and not account_blocked
+        and contact_fresh
+        and controlled_mailbox_ok
+        and not published_blocks_send
+        and prov_ok
+        and identity_ok
+        and ver not in _BAD_VERIFICATION
+    )
+    if controlled_email_eligible:
+        reasons.append("controlled_email_eligible")
+    else:
+        reasons.append("controlled_email_not_eligible")
+
     return EmailSendReadyResult(
         email_send_ready=email_ready,
         target_fit_send_tier=fit.tier,
@@ -1465,6 +1491,7 @@ def evaluate_email_send_ready(
         root_source_type=prov_res.root_source_type,
         derived_from_fixture=prov_res.derived_from_fixture,
         human_recipient_evidence_valid=human_evidence_ok,
+        controlled_email_eligible=controlled_email_eligible,
     )
 
 

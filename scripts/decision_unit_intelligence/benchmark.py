@@ -5,6 +5,10 @@ from __future__ import annotations
 from collections import Counter
 from typing import Any
 
+from scripts.decision_unit_intelligence.controlled_email import (
+    EmailRouteClass,
+    classify_account_email_routes,
+)
 from scripts.decision_unit_intelligence.models import (
     AccountInvestigation,
     AccountTerminal,
@@ -59,6 +63,88 @@ def funnel(accounts: list[AccountInvestigation]) -> dict[str, Any]:
     named = sum(1 for a in denom if any(c.person_name for c in a.candidates))
     role = sum(1 for a in denom if any(c.observed_roles for c in a.candidates))
     reachable = sum(1 for a in denom if any(is_actionable_route(r) for r in a.routes))
+    classified_email_reachable = 0
+    preferred_initial_accounts = 0
+    double_preferred = 0
+    route_class_counts: Counter[str] = Counter()
+    account_class_counts: Counter[str] = Counter()
+    official_domain_proven = 0
+    any_public_email_observed = 0
+    exclusion_reasons: Counter[str] = Counter()
+    pages = 0
+    requests = 0
+    no_domain = 0
+    no_email = 0
+    inferred_only = 0
+    blocked_mailbox = 0
+    stale = 0
+    suppression = 0
+    duplicates = 0
+    for account in denom:
+        ranking = classify_account_email_routes(account)
+        preferred_flags = [item for item in ranking.classified_routes if item.preferred_initial]
+        if ranking.preferred_initial_route is not None:
+            preferred_initial_accounts += 1
+        if len(preferred_flags) > 1:
+            double_preferred += 1
+        if any(item.controlled_email_eligible for item in ranking.classified_routes):
+            classified_email_reachable += 1
+        seen_classes: set[str] = set()
+        observed_any = False
+        inferred_seen = False
+        observed_non_inferred = False
+        mailboxes: set[str] = set()
+        for item in ranking.classified_routes:
+            route_class_counts[item.route_class.value] += 1
+            seen_classes.add(item.route_class.value)
+            if item.mailbox in mailboxes:
+                duplicates += 1
+            mailboxes.add(item.mailbox)
+            if item.epistemic_class == "INFERRED" or item.route_class == EmailRouteClass.PROBABILISTIC_OR_RISKY:
+                inferred_seen = True
+            else:
+                observed_non_inferred = True
+                observed_any = True
+            if item.freshness == "STALE":
+                stale += 1
+            if item.suppression_state not in {"NONE", "", None}:
+                suppression += 1
+            if not item.controlled_email_eligible:
+                for code in item.reason_codes:
+                    if code.startswith("mailbox_purpose") or code in {
+                        "stale",
+                        "opt_out",
+                        "hard_bounce",
+                        "dnc",
+                        "inferred_or_catch_all",
+                        "unassociated_freemail",
+                        "impossible_domain",
+                        "third_party_professional_domain",
+                        "risky_excluded_from_default_pilot",
+                    }:
+                        exclusion_reasons[code] += 1
+                if any("mailbox_purpose" in code or "human_recipient" in code for code in item.reason_codes):
+                    blocked_mailbox += 1
+        for klass in seen_classes:
+            account_class_counts[klass] += 1
+        if observed_any:
+            any_public_email_observed += 1
+        if inferred_seen and not observed_non_inferred:
+            inferred_only += 1
+        if not ranking.classified_routes:
+            no_email += 1
+        domain = (account.extra or {}).get("domain_resolution") or {}
+        if isinstance(domain, dict) and domain.get("canonical_domain"):
+            official_domain_proven += 1
+        elif account.legal_name and any("@" in str(r.channel_value or "") for r in account.routes):
+            official_domain_proven += 0
+        else:
+            if not domain.get("canonical_domain") if isinstance(domain, dict) else True:
+                no_domain += 1
+        pages += int((account.ledger.attempts and sum(a.documents_checked for a in account.ledger.attempts)) or 0)
+        requests += int(account.ledger.provider_attempts or 0)
+        if account.terminal.value == "EXHAUSTED":
+            exclusion_reasons["source_exhaustion"] += 1
     classes = Counter(_best_class(a) for a in accounts)
     actions = Counter(
         (a.recommendation.action_mode.value if a.recommendation else "NEEDS_ENRICHMENT") for a in accounts
@@ -106,6 +192,34 @@ def funnel(accounts: list[AccountInvestigation]) -> dict[str, Any]:
         "named_person_found": named,
         "relevant_role_found": role,
         "decision_unit_reachability_rate": rate,
+        "classified_email_reachable_per_account": (classified_email_reachable / denom_n) if denom_n else None,
+        "classified_email_route_classes": dict(route_class_counts),
+        "official_domain_proven": official_domain_proven,
+        "any_public_email_observed": any_public_email_observed,
+        "DIRECT_PERSON": account_class_counts.get(EmailRouteClass.DIRECT_PERSON.value, 0),
+        "ROLE_OR_DEPARTMENT": account_class_counts.get(EmailRouteClass.ROLE_OR_DEPARTMENT.value, 0),
+        "GENERIC_COMPANY": account_class_counts.get(EmailRouteClass.GENERIC_COMPANY.value, 0),
+        "PUBLIC_COMPANY_FREEMAIL": account_class_counts.get(EmailRouteClass.PUBLIC_COMPANY_FREEMAIL.value, 0),
+        "PROBABILISTIC_OR_RISKY": account_class_counts.get(EmailRouteClass.PROBABILISTIC_OR_RISKY.value, 0),
+        "controlled_email_eligible": classified_email_reachable,
+        "preferred_initial_route": preferred_initial_accounts,
+        "double_preferred_accounts": double_preferred,
+        "no_domain": no_domain,
+        "no_email": no_email,
+        "generic_found": account_class_counts.get(EmailRouteClass.GENERIC_COMPANY.value, 0),
+        "role_found": account_class_counts.get(EmailRouteClass.ROLE_OR_DEPARTMENT.value, 0),
+        "freemail_found": account_class_counts.get(EmailRouteClass.PUBLIC_COMPANY_FREEMAIL.value, 0),
+        "named_found": account_class_counts.get(EmailRouteClass.DIRECT_PERSON.value, 0),
+        "inferred_only": inferred_only,
+        "blocked_mailbox": blocked_mailbox,
+        "stale": stale,
+        "suppression": suppression,
+        "duplicates": duplicates,
+        "source_exhaustion": exclusion_reasons.get("source_exhaustion", 0),
+        "exclusion_reason_codes": dict(exclusion_reasons),
+        "pages": pages,
+        "requests": requests,
+        "auto_send": False,
         "actionable_route_per_account": (reachable / denom_n) if denom_n else None,
         "routed_call_per_account": (routed / denom_n) if denom_n else None,
         "decision_unit_known_per_account": (du / denom_n) if denom_n else None,

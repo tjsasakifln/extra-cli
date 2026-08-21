@@ -603,6 +603,12 @@ def investigate_account(
         normalized_channels.append(ch)
     routes = build_routes(normalized_channels, candidates, company_entity_id=entity_id)
     if infer_email:
+        from scripts.decision_unit_intelligence.controlled_email import (
+            departmental_hypothesis_mailboxes,
+            observed_channels_have_controlled_eligible_route,
+        )
+
+        has_observed_usable = observed_channels_have_controlled_eligible_route(normalized_channels)
         routes.extend(
             maybe_infer_emails(
                 candidates=candidates,
@@ -614,6 +620,39 @@ def investigate_account(
                 public_hits=public_email_hits,
             )
         )
+        already = {str(route.channel_value or "").strip().lower() for route in routes if route.channel_value} | {
+            str(channel.channel_value or "").strip().lower() for channel in normalized_channels if channel.channel_value
+        }
+        domain = None
+        if company_site:
+            host = str(company_site).lower().removeprefix("https://").removeprefix("http://").split("/", 1)[0]
+            domain = host.removeprefix("www.")
+        if domain:
+            for mailbox in departmental_hypothesis_mailboxes(
+                domain=domain,
+                already=already,
+                icp=True,
+                trigger=bool(why_now or service),
+                proven_business_domain=True,
+                has_observed_usable_route=has_observed_usable,
+            ):
+                obs = ChannelObservation(
+                    observation_id=stable_id("dept-hyp", entity_id, mailbox),
+                    company_entity_id=entity_id,
+                    channel_type=ChannelType.INFERRED_DIRECT_EMAIL,
+                    channel_value=mailbox,
+                    source_type="departmental_hypothesis",
+                    epistemic_class=EpistemicClass.INFERRED,
+                    extra={
+                        "email_discovery_class": EmailDiscoveryClass.INFERRED_PATTERN_EMAIL.value,
+                        "identity_explicitly_associated": False,
+                        "company_associated": False,
+                        "mailbox_company_evidence": "UNKNOWN",
+                        "hypothesis_lane": "departmental",
+                    },
+                )
+                draft = classify_channel_observation(obs, candidate=None, suitable_person=False)
+                routes.append(draft_to_route(draft, company_entity_id=entity_id))
     affiliation_records = _corroborate_candidates(
         candidates,
         people=people,

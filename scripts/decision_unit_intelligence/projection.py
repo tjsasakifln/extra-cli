@@ -1,13 +1,16 @@
-"""Projections. Warmbly gets only the email-safe subset already supported.
+"""Projections. Warmbly consumes classified email routes plus named-person quality.
 
-CALL / WhatsApp / profile / form stay upstream as manual Decision-Unit output.
-This is not a second scoring of people.
+`is_email_safe_for_warmbly` is named-person EMAIL_VALIDATED quality — not the
+universal transport gate. Controlled eligibility is `controlled_email_eligible`
+by route class. CALL / WhatsApp / profile / form stay upstream as manual
+Decision-Unit output. This is not a second scoring of people.
 """
 
 from __future__ import annotations
 
 from typing import Any
 
+from scripts.decision_unit_intelligence.controlled_email import classify_account_email_routes
 from scripts.decision_unit_intelligence.models import (
     AccountInvestigation,
     ChannelType,
@@ -28,7 +31,11 @@ def associated_person_name(route: ReachabilityRoute) -> str | None:
 
 
 def is_email_safe_for_warmbly(route: ReachabilityRoute) -> bool:
-    """Named observed corporate email only. Inferred never qualifies."""
+    """Named-person EMAIL_VALIDATED quality only. Not universal sendability.
+
+    ROLE / GENERIC / PUBLIC_COMPANY_FREEMAIL use controlled_email_eligible.
+    Inferred never qualifies as EMAIL_VALIDATED.
+    """
     extra = route.extra or {}
     discovery = str(extra.get("email_discovery_class") or extra.get("inferred_pattern_state") or "")
     if discovery.startswith("INFERRED_PATTERN_"):
@@ -46,6 +53,13 @@ def is_email_safe_for_warmbly(route: ReachabilityRoute) -> bool:
     if "INFERRED" in route.reason_codes:
         return False
     return bool(route.channel_value and route.decision_unit_candidate_id)
+
+
+def is_controlled_email_eligible_for_warmbly(route: ReachabilityRoute, account: AccountInvestigation) -> bool:
+    """Transport-facing eligibility: allowed route class, not named-person-only."""
+    ranking = classify_account_email_routes(account, named_person_safe=is_email_safe_for_warmbly)
+    mailbox = str(route.channel_value or "").strip().lower()
+    return any(item.mailbox == mailbox and item.controlled_email_eligible for item in ranking.classified_routes)
 
 
 def project_warmbly_outreach(account: AccountInvestigation) -> dict[str, Any]:
@@ -134,6 +148,11 @@ def project_warmbly_outreach(account: AccountInvestigation) -> dict[str, Any]:
                 "person_name": associated_person_name(route) or (person.person_name if person else None),
             }
         )
+    ranking = classify_account_email_routes(account, named_person_safe=is_email_safe_for_warmbly)
+    ranking_payload = ranking.to_dict()
+    from scripts.decision_unit_intelligence.controlled_email import feed_contact_from_classified
+
+    ranking_payload["contacts"] = [feed_contact_from_classified(item) for item in ranking.classified_routes]
     return {
         "schema_id": WARMBLY_SCHEMA,
         "account_id": account.company_entity_id,
@@ -147,4 +166,5 @@ def project_warmbly_outreach(account: AccountInvestigation) -> dict[str, Any]:
         "first_class_routes": first_class_routes,
         "non_email_routes_remain_upstream": True,
         "auto_send": False,
+        **ranking_payload,
     }
