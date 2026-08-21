@@ -479,3 +479,88 @@ def test_projection_auto_send_false_and_policy_version() -> None:
     assert generic["controlled_email_eligible"] is True
     assert generic["email_validated"] is False
     assert generic["person_id"] is None
+
+
+def test_five_class_synthetic_canary_snapshot() -> None:
+    """Real-path classified snapshot for Warmbly ingest. No SMTP."""
+    person = _person()
+    routes = [
+        _route(
+            "ana.souza@empresaexemplo.com.br",
+            channel=ChannelType.DIRECT_EMAIL,
+            relation=RouteRelation.PERSON_OWNS_CHANNEL,
+            reachability=ReachabilityClass.R1_DIRECT,
+            action=ActionMode.HUMAN_REVIEW_EMAIL,
+            candidate_id=person.candidate_id,
+            extra={"identity_explicitly_associated": True, "email_discovery_class": "EMAIL_VALIDATED"},
+        ),
+        _route(
+            "comercial@empresaexemplo.com.br",
+            channel=ChannelType.ROLE_MAILBOX,
+            relation=RouteRelation.ROUTES_TO_ROLE,
+            reachability=ReachabilityClass.R4_ROLE_ROUTE,
+            action=ActionMode.ROLE_EMAIL,
+        ),
+        _route("contato@empresaexemplo.com.br"),
+        _route(
+            "empresa@gmail.com",
+            extra={"company_associated": True, "mailbox_company_evidence": "OBSERVED"},
+            source_type="company_website",
+        ),
+        _route(
+            "joao.silva@empresaexemplo.com.br",
+            channel=ChannelType.INFERRED_DIRECT_EMAIL,
+            epistemic=EpistemicClass.INFERRED,
+            extra={"email_discovery_class": "INFERRED_PATTERN_EMAIL"},
+            reason_codes=["INFERRED"],
+        ),
+    ]
+    payload = project_warmbly_outreach(_account(routes, [person]))
+    classes = {item["route_class"] for item in payload["classified_email_routes"]}
+    assert classes == {
+        EmailRouteClass.DIRECT_PERSON.value,
+        EmailRouteClass.ROLE_OR_DEPARTMENT.value,
+        EmailRouteClass.GENERIC_COMPANY.value,
+        EmailRouteClass.PUBLIC_COMPANY_FREEMAIL.value,
+        EmailRouteClass.PROBABILISTIC_OR_RISKY.value,
+    }
+    assert payload["auto_send"] is False
+    preferred = payload["preferred_initial_route"]
+    assert preferred["mailbox"] == "ana.souza@empresaexemplo.com.br"
+    assert sum(1 for item in payload["classified_email_routes"] if item.get("preferred_initial")) == 1
+    risky = next(
+        item
+        for item in payload["classified_email_routes"]
+        if item["route_class"] == EmailRouteClass.PROBABILISTIC_OR_RISKY.value
+    )
+    assert risky["controlled_email_eligible"] is False
+    generic = next(
+        item
+        for item in payload["classified_email_routes"]
+        if item["mailbox"].startswith("contato@")
+    )
+    assert generic["person_id"] is None
+    assert generic["person_name"] is None
+    gmail = next(item for item in payload["classified_email_routes"] if "gmail.com" in item["mailbox"])
+    assert gmail["route_class"] == EmailRouteClass.PUBLIC_COMPANY_FREEMAIL.value
+    assert gmail["person_id"] is None
+    contacts = stamp_and_rank_feed_contacts(
+        [
+            {"email": r.channel_value, "ownership_status": "COMPANY_OWNED", "source_url": r.source_url}
+            for r in routes
+        ],
+        account_id=ACCOUNT_ID,
+    )
+    stamped_classes = {c["route_class"] for c in contacts}
+    assert EmailRouteClass.ROLE_OR_DEPARTMENT.value in stamped_classes
+    assert EmailRouteClass.GENERIC_COMPANY.value in stamped_classes
+    assert EmailRouteClass.PUBLIC_COMPANY_FREEMAIL.value in stamped_classes
+    assert EmailRouteClass.PROBABILISTIC_OR_RISKY.value in stamped_classes
+    for contact in contacts:
+        if contact["route_class"] != EmailRouteClass.DIRECT_PERSON.value:
+            assert not contact.get("person_id")
+            assert not contact.get("person_name")
+    payload["contacts"] = contacts
+    payload["schema_version"] = payload.get("schema_id") or "confenge.outreach.v1"
+    payload["synthetic"] = True
+    payload["smtp"] = "none"
