@@ -1,15 +1,15 @@
 {
   "ok": true,
   "status": "PASS",
-  "current_pr_head_sha": "90348c66d4309578aae3058579303adf7e4c7f81",
-  "pr_head_sha": "90348c66d4309578aae3058579303adf7e4c7f81",
-  "checked_out_sha": "90348c66d4309578aae3058579303adf7e4c7f81",
+  "current_pr_head_sha": "0da81cce8892f4eb705db34fbd6edd160af9dde4",
+  "pr_head_sha": "0da81cce8892f4eb705db34fbd6edd160af9dde4",
+  "checked_out_sha": "0da81cce8892f4eb705db34fbd6edd160af9dde4",
   "workflow_merge_sha": null,
-  "final_code_freeze_sha": "90348c66d4309578aae3058579303adf7e4c7f81",
-  "final_integrity_code_freeze_sha": "90348c66d4309578aae3058579303adf7e4c7f81",
-  "executed_code_sha": "90348c66d4309578aae3058579303adf7e4c7f81",
-  "code_tree_hash_at_execution": "f37c9e5b42bb0e97fb331f66bc00eff2d80aaded745d71da5a6c35b4dae7fe0f",
-  "code_tree_hash_at_current_head": "f37c9e5b42bb0e97fb331f66bc00eff2d80aaded745d71da5a6c35b4dae7fe0f",
+  "final_code_freeze_sha": "0da81cce8892f4eb705db34fbd6edd160af9dde4",
+  "final_integrity_code_freeze_sha": "0da81cce8892f4eb705db34fbd6edd160af9dde4",
+  "executed_code_sha": "0da81cce8892f4eb705db34fbd6edd160af9dde4",
+  "code_tree_hash_at_execution": "db00841eb9a255cca9b7ceb33890def131c2bd524a26e6c39e25c13d27617319",
+  "code_tree_hash_at_current_head": "db00841eb9a255cca9b7ceb33890def131c2bd524a26e6c39e25c13d27617319",
   "code_changed_after_execution": false,
   "artifact_only_commits_after_execution": false,
   "files_changed_after_freeze": [],
@@ -23,9 +23,9 @@
   "frozen_inputs_eval": {
     "ok": true,
     "status": "PASS",
-    "protected_input_count": 85,
-    "manifest_freeze_sha": "90348c66d4309578aae3058579303adf7e4c7f81"
+    "protected_input_count": 101,
+    "manifest_freeze_sha": "0da81cce8892f4eb705db34fbd6edd160af9dde4"
   },
-  "verified_at": "2026-08-13T19:37:23Z",
+  "verified_at": "2026-08-21T21:55:44Z",
   "note": "pr_head from CONFENGE_PR_HEAD_SHA when set; never label merge checkout as pr_head; freeze protects explicit CONFENGE inputs only (not monorepo-wide allowlist)"
 }

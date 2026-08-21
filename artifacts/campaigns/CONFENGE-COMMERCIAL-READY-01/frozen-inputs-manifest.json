@@ -1,7 +1,7 @@
 {
   "schema_version": "confenge-frozen-inputs/1.0",
   "campaign": "CONFENGE-COMMERCIAL-READY-01",
-  "freeze_sha": "90348c66d4309578aae3058579303adf7e4c7f81",
+  "freeze_sha": "0da81cce8892f4eb705db34fbd6edd160af9dde4",
   "policy": "frozen_confenge_inputs_v1",
   "inputs": [
     {
@@ -219,8 +219,8 @@
     {
       "path": "scripts/confenge_contact_resolution/discovery/official_domain.py",
       "kind": "file",
-      "blob_sha": "b67991ec6d336617128be764a2cfc90d1dd63fce",
-      "sha256": "682ed721145ac54271e2c4061554a94b2b3369d7c193d13939741b25ea48f154"
+      "blob_sha": "0d79fb807e44c9e99ef40bd30f5746ca85f3f7ee",
+      "sha256": "16ae77800ff4a9ff96153c2cc3cd7ae5eb8e79a4a1cc193010ec52c9e2318065"
     },
     {
       "path": "scripts/confenge_contact_resolution/discovery_state.py",
@@ -243,8 +243,8 @@
     {
       "path": "scripts/confenge_contact_resolution/mailbox_purpose.py",
       "kind": "file",
-      "blob_sha": "d39caf55f8661e89a49a22fb17c484bc2efce2b4",
-      "sha256": "a98d2d13ea0d739ab6ebf5fcd9f7267f19d4b27ad8becd0fd7849e8307bc6935"
+      "blob_sha": "7c665d0b89adcc036700dcc3ae136f3cf5eba70f",
+      "sha256": "68db55f0b6b18512d2f144ef9874fb60d5284a6e70650640808e125526c891d1"
     },
     {
       "path": "scripts/confenge_contact_resolution/models.py",
@@ -267,8 +267,8 @@
     {
       "path": "scripts/confenge_contact_resolution/send_readiness.py",
       "kind": "file",
-      "blob_sha": "02969fa1cb919ea4c9a82b44ed3d989ce11996c3",
-      "sha256": "3a463b9da32056209309bb02cb14d58be78f817f98894effa977ca6cf1d33911"
+      "blob_sha": "3a67c771f357850c5d773b91f313ac9924c7580b",
+      "sha256": "312b54e4b4646e44ea54e3020b4c35e87ea6cf8122f8aa192e9c0f032ce48488"
     },
     {
       "path": "scripts/confenge_sector/__init__.py",
@@ -371,6 +371,102 @@
       "kind": "file",
       "blob_sha": "1fa8b557e2b291243de89ff4da79051ac7d14bf7",
       "sha256": "3f7609e32652f0828730e7b0a2ea3232a139f069a4b7046752f2c8604108e351"
+    },
+    {
+      "path": "scripts/decision_unit_intelligence/affiliation_policy.py",
+      "kind": "file",
+      "blob_sha": "5595711a2d1e156141ea342c9fe8d552988bd9b4",
+      "sha256": "0c2bb44788d561039acf1c4e6131efa81b738065ba06ba1053f34b2d059f3d87"
+    },
+    {
+      "path": "scripts/decision_unit_intelligence/controlled_email.py",
+      "kind": "file",
+      "blob_sha": "7f060ef0b16b8f8c8938c70234d945baa19a0e0e",
+      "sha256": "34187f450c351ee6b63ab02f901f25357dea1956c9bbd7d6ed04ab4663accc8c"
+    },
+    {
+      "path": "scripts/decision_unit_intelligence/corroboration.py",
+      "kind": "file",
+      "blob_sha": "676fae1331246a1b34a86aaa6eef9c409c67835a",
+      "sha256": "76eed52cc5200908093d7fba194812b2f27c8288aedf6327bcb866caf3c2bf20"
+    },
+    {
+      "path": "scripts/decision_unit_intelligence/decision_policy.py",
+      "kind": "file",
+      "blob_sha": "10ef9c8959b1af7e4c6fc5b598d217e835a4f7b5",
+      "sha256": "02b6e86bc2a229e8393016eb42012e73d7e26c880abf68344c92689d327ffcc5"
+    },
+    {
+      "path": "scripts/decision_unit_intelligence/email_discovery.py",
+      "kind": "file",
+      "blob_sha": "f9ca6b49a243827bcbc1c648aed527e1865ef6e1",
+      "sha256": "fed251fe1e9f7e67307b2c24df4ce83f08e8839df17e1ef19f9958a55372acfa"
+    },
+    {
+      "path": "scripts/decision_unit_intelligence/email_patterns/engine.py",
+      "kind": "file",
+      "blob_sha": "76438e5979a45461ecdf12c5608c2c6d64f302fe",
+      "sha256": "09eae11913829c61352e351d89922374f69ba8b3f1ec01140f5dd8494dfb139a"
+    },
+    {
+      "path": "scripts/decision_unit_intelligence/email_patterns/names.py",
+      "kind": "file",
+      "blob_sha": "23fea66268f227fe7fae9868ff41ecdf54811fcd",
+      "sha256": "a40517c3be35b9ecbe659548ac5b87a2db1a31de23b8addf064cb83a21f4f5fe"
+    },
+    {
+      "path": "scripts/decision_unit_intelligence/email_patterns/types.py",
+      "kind": "file",
+      "blob_sha": "36d889870010770f41d741605b4ecadab5ea4374",
+      "sha256": "80ba890799cd538db3b223779110fa57b1aa620c3846a36f1d0fa24dc5cb7889"
+    },
+    {
+      "path": "scripts/decision_unit_intelligence/email_resolution.py",
+      "kind": "file",
+      "blob_sha": "f2603420b1d69317dbcbb31c673246fa77f066a0",
+      "sha256": "4566323a891c2ed4356c884533f8e03a7496e409d22f02ba752d1c2d6ee03588"
+    },
+    {
+      "path": "scripts/decision_unit_intelligence/email_verification.py",
+      "kind": "file",
+      "blob_sha": "05e57c0b23f942fc78d82f75888645639513edd5",
+      "sha256": "44b15a3df5dc0f1e39ff38c3fa7028e0ebc447adf19b1ac311b5903c3a3172b9"
+    },
+    {
+      "path": "scripts/decision_unit_intelligence/evidence.py",
+      "kind": "file",
+      "blob_sha": "f92289ff6ccd9cae9f78f314deb6aecefd72b16b",
+      "sha256": "59ea066340d2faa7e85de375fe4f038619cd2e7d68b4d0ef6beaf1e96d843d64"
+    },
+    {
+      "path": "scripts/decision_unit_intelligence/models.py",
+      "kind": "file",
+      "blob_sha": "4c5213ffdd089f6c48cf1e7b9531cc0f01c520d0",
+      "sha256": "b1f7223668ba235b5112a9cfaed7fa93add320cda70826ed54dadc0989758ec0"
+    },
+    {
+      "path": "scripts/decision_unit_intelligence/providers/base.py",
+      "kind": "file",
+      "blob_sha": "a4c20705e1ee92b6baaf2cfd3927b72e37611e4d",
+      "sha256": "64179d96b8b39ca23d412f3d23dbca14e47cb90c2a049a5b4319e34e12c7d1d6"
+    },
+    {
+      "path": "scripts/decision_unit_intelligence/reachability.py",
+      "kind": "file",
+      "blob_sha": "ed2ddbd8c6c9f41747066713a6ee90d1f627ec0e",
+      "sha256": "a15fa63d89490d5af901a583264866ae7f466d80c276a54e985f9d81467f264b"
+    },
+    {
+      "path": "scripts/decision_unit_intelligence/route_class.py",
+      "kind": "file",
+      "blob_sha": "04c070a25fc54da4cb584b14734641dad2b54bc0",
+      "sha256": "139ef1cc64a597e7720eb4e34607451e5935893c5f1405496585176506cf18c8"
+    },
+    {
+      "path": "scripts/decision_unit_intelligence/web_discovery.py",
+      "kind": "file",
+      "blob_sha": "d7a46ffbe301219ad8a0cd2f6bbf2d7b2d5758c7",
+      "sha256": "879c7b9026b23aa64a0ba8f1ee32baaeb4827ae2fa71a16ec744dd1cc7cb0338"
     },
     {
       "path": "scripts/linkage/keys.py",
@@ -525,8 +621,8 @@
     {
       "path": "scripts/warmbly_bridge/mapping.py",
       "kind": "file",
-      "blob_sha": "ab3364086036674ef55fe668469504e0e9744d30",
-      "sha256": "bc5f14024bfb2c735df27676a2f169c729eb9a6c1a34632206ecfb5c1530e195"
+      "blob_sha": "ac87ccb984757250f17412ccc7de910ff115dbd6",
+      "sha256": "0dc9bc4ca0bbadb674ddbad15e198fa02f47f2021aaa7b4d1ad2025e1d7b561e"
     }
   ],
   "missing_at_build": [],

@@ -1,33 +1,33 @@
 # MERGE READINESS — CONFENGE-COMMERCIAL-READY-01
 
-Generated: 2026-07-30T14:46:39Z
+Generated: 2026-08-21T21:55:44Z
 Aggregator: `build_final_campaign_status()`
 
 ## Declaration
 
 ```text
-BLOCKED_CODE_EXECUTION_SHA_MISMATCH
+CODE_MERGE_READY_COMMERCIAL_RELEASE_BLOCKED
 ```
 
 | Field | Value |
 |-------|-------|
-| code_merge_ready | `False` |
+| code_merge_ready | `True` |
 | commercial_release_ready | `False` |
 | status | `BLOCKED` |
-| terminal_reason | `BLOCKED_CODE_EXECUTION_SHA_MISMATCH` |
-| terminal_declaration | `BLOCKED_CODE_EXECUTION_SHA_MISMATCH` |
+| terminal_reason | `BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE` |
+| terminal_declaration | `BLOCKED_ONLY_OFFICIAL_REGISTRY_AND_HUMAN_REVIEW` |
 
 ## SHAs
 
 | Role | Value |
 |------|-------|
-| actual_pr_head_sha | `26d32410395ddef1d8babdb853617132372bb230` |
+| actual_pr_head_sha | `0da81cce8892f4eb705db34fbd6edd160af9dde4` |
 | workflow_merge_sha | `None` |
-| freeze_sha | `d469b87bf16df033e80e69ee706d96e400c87340` |
-| executed_code_sha | `d469b87bf16df033e80e69ee706d96e400c87340` |
-| match_run_to_head | `False` |
+| freeze_sha | `0da81cce8892f4eb705db34fbd6edd160af9dde4` |
+| executed_code_sha | `0da81cce8892f4eb705db34fbd6edd160af9dde4` |
+| match_run_to_head | `True` |
 | artifact_only_diff | `False` |
-| non_artifact_changes | `['Makefile', 'artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/actionable-all.json', 'artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/actionable-summary.json', 'artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/decision-loop-state.json', 'artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/executive-summary.md', 'artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/result.json', 'artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/shortlist.json', 'docs/handoffs/extra-cli-strategic-execution-20260730.md', 'scripts/ops/extra_actionable.py', 'scripts/ops/extra_decision_loop.py', 'scripts/ops/extra_decision_review.py', 'scripts/ops/extra_profile.py', 'tests/test_extra_decision_loop.py']` |
+| non_artifact_changes | `[]` |
 
 ## Workflow / artifacts
 
@@ -55,19 +55,19 @@ BLOCKED_CODE_EXECUTION_SHA_MISMATCH
 
 ## Answers (objective §15)
 
-1. HEAD real da PR: `26d32410395ddef1d8babdb853617132372bb230`
+1. HEAD real da PR: `0da81cce8892f4eb705db34fbd6edd160af9dde4`
 2. Merge SHA Actions: `None`
 3. Execução comercial == freeze: `True`
-4. Código alterado após freeze: `True`
+4. Código alterado após freeze: `False`
 5. Jobs real-data executados (PASS): `[]`
 6. Jobs NOT_EXECUTED: `['real_historical_ci_status', 'real_registry_ci_status', 'real_full_pipeline_ci_status', 'real_snapshot_restore_ci_status']`
 7. Publicação de pacotes: `True`
 8. Arquivos de status concordam: `True`
-9. PR pronta para merge de código: `False`
+9. PR pronta para merge de código: `True`
 10. Liberação comercial: `False`
 
 ## Residual blockers
 
-Machine: `BLOCKED_CODE_EXECUTION_SHA_MISMATCH`, `BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE`
+Machine: `BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE`
 
 Human: `BLOCKED_REAL_HOLDOUT_NOT_REVIEWED`, `BLOCKED_INSUFFICIENT_HUMAN_LABELS`, `BLOCKED_PENDING_HUMAN_ACCEPTANCE`

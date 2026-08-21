@@ -11,7 +11,10 @@ from scripts.commercial_leads.scoring import (
     diagnose_offer_distribution,
 )
 from scripts.ops.confenge_code_freeze import (
+    ART,
     compute_match_run_to_head,
+    verify_code_freeze,
+    verify_final_integrity_code_freeze,
     verify_sha_semantics,
 )
 from scripts.ops.confenge_offer_sensitivity import evaluate_offer_pass
@@ -899,3 +902,90 @@ def test_inventory_allows_pr_head_ne_workflow_artifact_head(tmp_path) -> None:
     bad = verify_package_inventory(art_dir=art, expected_pr_head=pkg_tip, run_head_sha=pkg_tip)
     assert bad["ok"] is False
     assert any("workflow_run_head_mismatch" in i for i in bad["issues"])
+
+
+_STALE_FREEZE_SHA = "90348c66d4309578aae3058579303adf7e4c7f81"
+
+
+def test_rebound_freeze_drives_shipped_verifiers_on_campaign_tree() -> None:
+    """PR #447 closeout: rebound freeze/executed SHAs are not the stale 90348c66 execution.
+
+    Drives shipped verify_code_freeze / verify_final_integrity_code_freeze /
+    verify_sha_semantics against the live campaign tree (not a reimplementation).
+    """
+    from pathlib import Path
+
+    from scripts.ops.confenge_frozen_inputs import (
+        discover_frozen_input_paths,
+        load_frozen_inputs_manifest,
+        protected_path_set,
+    )
+
+    executed = (ART / "EXECUTED_CODE_SHA.txt").read_text(encoding="utf-8").strip().split()[0]
+    freeze = (ART / "FINAL_CODE_FREEZE_SHA.txt").read_text(encoding="utf-8").strip().split()[0]
+    integrity = (ART / "FINAL_INTEGRITY_CODE_FREEZE_SHA.txt").read_text(encoding="utf-8").strip().split()[0]
+    assert executed != _STALE_FREEZE_SHA
+    assert freeze != _STALE_FREEZE_SHA
+    assert integrity != _STALE_FREEZE_SHA
+    assert executed == freeze == integrity
+
+    root = Path(__file__).resolve().parents[2]
+    discovered = set(discover_frozen_input_paths(root))
+    assert "scripts/decision_unit_intelligence/controlled_email.py" in discovered
+    assert "scripts/warmbly_bridge/mapping.py" in discovered
+    assert "scripts/confenge_contact_resolution/mailbox_purpose.py" in discovered
+    assert "scripts/confenge_contact_resolution/send_readiness.py" in discovered
+
+    freeze_rep = verify_code_freeze()
+    integrity_rep = verify_final_integrity_code_freeze()
+    sem = verify_sha_semantics(
+        executed_code_sha=integrity_rep.get("executed_code_sha"),
+        current_pr_head_sha=integrity_rep.get("current_pr_head_sha"),
+        workflow_merge_sha=integrity_rep.get("workflow_merge_sha"),
+        match_run_to_head=integrity_rep.get("match_run_to_head"),
+        code_changed_after_execution=integrity_rep.get("code_changed_after_execution"),
+        artifact_only_commits_after_execution=integrity_rep.get("artifact_only_commits_after_execution"),
+        write_artifact=True,
+    )
+
+    assert freeze_rep["ok"] is True, freeze_rep
+    assert integrity_rep["ok"] is True, integrity_rep
+    assert sem["ok"] is True, sem
+    assert freeze_rep.get("protected_changed") == []
+    assert integrity_rep.get("protected_changed") == []
+    assert freeze_rep["executed_code_sha"] != _STALE_FREEZE_SHA
+    assert integrity_rep["executed_code_sha"] != _STALE_FREEZE_SHA
+    assert freeze_rep["final_code_freeze_sha"] != _STALE_FREEZE_SHA
+
+    man = load_frozen_inputs_manifest(art_dir=ART)
+    assert man.get("freeze_sha") != _STALE_FREEZE_SHA
+    protected = protected_path_set(man)
+    assert "scripts/decision_unit_intelligence/controlled_email.py" in protected
+    assert "scripts/warmbly_bridge/mapping.py" in protected
+
+    pr_head = str(integrity_rep["current_pr_head_sha"] or "")
+    merge = integrity_rep.get("workflow_merge_sha")
+    if merge and merge != pr_head:
+        assert pr_head != merge
+
+    derived = compute_match_run_to_head(
+        executed_code_sha=str(integrity_rep["executed_code_sha"]),
+        current_pr_head_sha=pr_head,
+    )
+    if integrity_rep["executed_code_sha"] != pr_head:
+        assert derived is False
+        assert integrity_rep.get("match_run_to_head") is False
+        assert integrity_rep.get("artifact_only_commits_after_execution") is True
+    else:
+        assert derived is True
+        assert integrity_rep.get("match_run_to_head") is True
+
+    forbidden = verify_sha_semantics(
+        executed_code_sha=str(integrity_rep["executed_code_sha"]),
+        current_pr_head_sha="ffffffffffffffffffffffffffffffffffffffff",
+        match_run_to_head=True,
+        write_artifact=False,
+    )
+    assert forbidden["ok"] is False
+    assert forbidden.get("match_run_to_head") is True
+    assert forbidden["executed_code_sha"] != forbidden["current_pr_head_sha"]
