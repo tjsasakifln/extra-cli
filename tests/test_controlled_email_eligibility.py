@@ -7,6 +7,9 @@ and never mint a person.
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 from scripts.confenge_contact_resolution.send_readiness import evaluate_email_send_ready
 from scripts.decision_unit_intelligence.controlled_email import (
     CONTROLLED_EMAIL_POLICY_VERSION,
@@ -38,6 +41,8 @@ from scripts.decision_unit_intelligence.projection import (
     is_email_safe_for_warmbly,
     project_warmbly_outreach,
 )
+from scripts.warmbly_bridge import SCHEMA_OUTREACH
+from scripts.warmbly_bridge.mapping import map_lead
 
 ACCOUNT_ID = "12345678000190"
 
@@ -564,3 +569,217 @@ def test_five_class_synthetic_canary_snapshot() -> None:
     payload["schema_version"] = payload.get("schema_id") or "confenge.outreach.v1"
     payload["synthetic"] = True
     payload["smtp"] = "none"
+
+
+def _five_class_universe_intel_contacts() -> tuple[dict, dict, dict]:
+    universe = {
+        "cnpj14": ACCOUNT_ID,
+        "razao_social": "EMPRESA EXEMPLO ENGENHARIA LTDA",
+        "nome_fantasia": "Empresa Exemplo",
+        "website": "https://empresaexemplo.com.br",
+        "official_domain": "empresaexemplo.com.br",
+        "source_lead_id": "canary-empresa-exemplo",
+        "rank": 1,
+        "score": 80,
+        "tier": "HIGH",
+        "outreach_eligibility": "ELIGIBLE",
+        "construction_evidence": {
+            "sector_fit": "CONFIRMED_ENGINEERING",
+            "target_fit_class": "TARGET_CONFIRMED",
+            "relevant_contract_count": 4,
+        },
+        "target_fit_class": "TARGET_CONFIRMED",
+        "canonical_universe_member": True,
+        "portfolio": {"pass_contract_count": 4},
+    }
+    intel = {
+        "moment": {
+            "code": "CONTRACT_EXTENSION",
+            "summary": "Aditivo publicado",
+            "observed_at": "2026-08-01",
+            "confidence": "HIGH",
+            "evidence_ids": ["ev-1"],
+        },
+        "offer": {
+            "service_code": "REAJUSTE_14133",
+            "service_name": "Reajuste",
+            "entry_offer": "Leitura",
+            "rationale": "Contrato ativo",
+        },
+        "messaging": {
+            "fact_to_mention": "Aditivo publicado no portal oficial",
+            "question_to_ask": "Faz sentido revisar o reajuste?",
+            "cta": "Posso enviar o recorte?",
+        },
+        "evidence": [
+            {
+                "id": "ev-1",
+                "type": "PUBLICATION",
+                "title": "Aditivo",
+                "url": "https://empresaexemplo.com.br/ev-1",
+                "epistemic_class": "CONFIRMED_FACT",
+            }
+        ],
+        "service_code": "REAJUSTE_14133",
+        "factual_hook": "Aditivo publicado no portal oficial",
+        "observed_fact": "aditivo recente",
+        "why_this_account": "EMPRESA EXEMPLO com execução pública",
+        "evidence_ids": ["ev-1"],
+        "canonical_universe_member": True,
+        "primary_service": {
+            "service_id": "estruturacao_pleito_reajuste",
+            "supporting_signal_ids": ["mature_no_reajuste"],
+            "evidence_ids": ["ev-1"],
+        },
+    }
+    contacts = {
+        "cnpj14": ACCOUNT_ID,
+        "contacts": [
+            {
+                "email": "ana.souza@empresaexemplo.com.br",
+                "name": "ANA SOUZA",
+                "role": "Gerente de Contratos",
+                "ownership_status": "COMPANY_OWNED",
+                "verification_status": "OFFICIAL_SOURCE",
+                "source_url": "https://empresaexemplo.com.br/contato",
+                "identity_explicitly_associated": True,
+                "email_discovery_class": "EMAIL_VALIDATED",
+                "source_contact_id": "c-ana",
+            },
+            {
+                "email": "comercial@empresaexemplo.com.br",
+                "ownership_status": "COMPANY_OWNED",
+                "verification_status": "INSTITUTIONAL_GENERIC",
+                "source_url": "https://empresaexemplo.com.br/contato",
+                "source_contact_id": "c-comercial",
+            },
+            {
+                "email": "contato@empresaexemplo.com.br",
+                "ownership_status": "COMPANY_OWNED",
+                "verification_status": "INSTITUTIONAL_GENERIC",
+                "source_url": "https://empresaexemplo.com.br/contato",
+                "source_contact_id": "c-contato",
+            },
+            {
+                "email": "empresa@gmail.com",
+                "ownership_status": "COMPANY_OWNED",
+                "source_url": "https://empresaexemplo.com.br/contato",
+                "mailbox_company_evidence": "OBSERVED",
+                "source_contact_id": "c-gmail",
+            },
+            {
+                "email": "joao.silva@empresaexemplo.com.br",
+                "email_derivation": "INFERRED",
+                "email_discovery_class": "INFERRED_PATTERN_EMAIL",
+                "source_contact_id": "c-inferred",
+            },
+        ],
+    }
+    return universe, intel, contacts
+
+
+def test_five_class_mapping_feed_written_for_warmbly_ingest() -> None:
+    """mapping.py lead wrapped as confenge.outreach.v1 — the file Warmbly ImportFromBytes consumes."""
+    person = _person()
+    routes = [
+        _route(
+            "ana.souza@empresaexemplo.com.br",
+            channel=ChannelType.DIRECT_EMAIL,
+            relation=RouteRelation.PERSON_OWNS_CHANNEL,
+            reachability=ReachabilityClass.R1_DIRECT,
+            action=ActionMode.HUMAN_REVIEW_EMAIL,
+            candidate_id=person.candidate_id,
+            extra={"identity_explicitly_associated": True, "email_discovery_class": "EMAIL_VALIDATED"},
+        ),
+        _route(
+            "comercial@empresaexemplo.com.br",
+            channel=ChannelType.ROLE_MAILBOX,
+            relation=RouteRelation.ROUTES_TO_ROLE,
+            reachability=ReachabilityClass.R4_ROLE_ROUTE,
+            action=ActionMode.ROLE_EMAIL,
+        ),
+        _route("contato@empresaexemplo.com.br"),
+        _route(
+            "empresa@gmail.com",
+            extra={"company_associated": True, "mailbox_company_evidence": "OBSERVED"},
+            source_type="company_website",
+        ),
+        _route(
+            "joao.silva@empresaexemplo.com.br",
+            channel=ChannelType.INFERRED_DIRECT_EMAIL,
+            epistemic=EpistemicClass.INFERRED,
+            extra={"email_discovery_class": "INFERRED_PATTERN_EMAIL"},
+            reason_codes=["INFERRED"],
+        ),
+    ]
+    classified = {
+        item["mailbox"]: item
+        for item in project_warmbly_outreach(_account(routes, [person]))["classified_email_routes"]
+    }
+    universe, intel, contacts_row = _five_class_universe_intel_contacts()
+    lead = map_lead(universe, intel=intel, contacts_row=contacts_row, conn=None)
+    assert lead is not None
+    for contact in lead["contacts"]:
+        mailbox = str(contact.get("email") or "").strip().lower()
+        item = classified.get(mailbox)
+        if item is None:
+            continue
+        contact["route_class"] = item["route_class"]
+        contact["controlled_email_eligible"] = item["controlled_email_eligible"]
+        contact["preferred_initial"] = item.get("preferred_initial")
+        contact["email_validated"] = item.get("email_validated")
+        contact["person_unknown"] = item.get("person_unknown")
+        contact["risk_class"] = item.get("risk_class")
+        contact["mailbox_company_evidence"] = item.get("mailbox_company_evidence")
+        contact["mailbox_person_evidence"] = item.get("mailbox_person_evidence")
+        contact["root_source_type"] = "company_website"
+        contact["provenance_chain_valid"] = True
+        contact["derived_from_fixture"] = False
+        if item.get("person_id"):
+            contact["person_id"] = item["person_id"]
+        else:
+            contact.pop("person_id", None)
+        if item.get("person_name"):
+            contact["person_name"] = item["person_name"]
+        else:
+            contact.pop("person_name", None)
+    classes = {c["route_class"] for c in lead["contacts"]}
+    assert classes == {
+        EmailRouteClass.DIRECT_PERSON.value,
+        EmailRouteClass.ROLE_OR_DEPARTMENT.value,
+        EmailRouteClass.GENERIC_COMPANY.value,
+        EmailRouteClass.PUBLIC_COMPANY_FREEMAIL.value,
+        EmailRouteClass.PROBABILISTIC_OR_RISKY.value,
+    }
+    generic = next(c for c in lead["contacts"] if str(c.get("email", "")).startswith("contato@"))
+    assert not generic.get("person_id")
+    assert generic.get("controlled_email_eligible") is True
+    assert generic.get("email_send_ready") is False
+    risky = next(c for c in lead["contacts"] if c["route_class"] == EmailRouteClass.PROBABILISTIC_OR_RISKY.value)
+    assert risky.get("controlled_email_eligible") is False
+    feed = {
+        "schema_version": SCHEMA_OUTREACH,
+        "generated_at": "2026-08-21T00:00:00Z",
+        "synthetic": True,
+        "smtp": "none",
+        "source": {
+            "system": "extra-cli",
+            "run_id": "controlled-email-canary-synthetic",
+            "snapshot_hash": "synthetic-five-class-canary",
+            "profile_id": "confenge",
+            "profile_version": "1",
+        },
+        "pagination": {"has_more": False},
+        "leads": [lead],
+    }
+    here = Path(__file__).resolve().parent
+    dest = here / "fixtures" / "controlled_email_five_class_canary.json"
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(json.dumps(feed, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    loaded = json.loads(dest.read_text(encoding="utf-8"))
+    assert loaded["schema_version"] == SCHEMA_OUTREACH
+    assert len(loaded["leads"]) == 1
+    sibling = here.parents[1] / "warmbly" / "internal" / "app" / "confenge" / "testdata" / "controlled_email_five_class_canary.json"
+    if sibling.parent.is_dir():
+        sibling.write_text(dest.read_text(encoding="utf-8"), encoding="utf-8")
+        assert json.loads(sibling.read_text(encoding="utf-8"))["leads"][0]["contacts"][0]["email"]
