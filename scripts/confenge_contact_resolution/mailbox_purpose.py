@@ -315,8 +315,22 @@ PURPOSE_RANK: dict[str, int] = {
 
 BLOCKED_PURPOSES = ALL_PURPOSES - {PURPOSE_UNKNOWN}
 
-# Allowed for commercial autorun when other gates pass.
+# Allowed for commercial autorun when other gates pass (named-person EMAIL_SEND_READY).
 SEND_ALLOWED_PURPOSES = frozenset({PURPOSE_UNKNOWN})
+
+# Controlled outreach (not auto-send) may use functional company/role mailboxes.
+# HR / support / privacy / noreply / press / social stay blocked.
+CONTROLLED_BLOCKED_PURPOSES = frozenset(
+    {
+        PURPOSE_HR_RECRUITING,
+        PURPOSE_SUPPORT_SAC,
+        PURPOSE_PRIVACY_DPO,
+        PURPOSE_NOREPLY,
+        PURPOSE_PRESS,
+        PURPOSE_SOCIAL_PROGRAM,
+    }
+)
+CONTROLLED_ELIGIBLE_PURPOSES = ALL_PURPOSES - CONTROLLED_BLOCKED_PURPOSES
 
 _LOCAL_CLEAN_RE = re.compile(r"[^a-z0-9+\-_.]")
 
@@ -434,6 +448,11 @@ def classify_mailbox_purpose(email: str | None) -> MailboxPurposeResult:
 
 def is_mailbox_send_allowed(email: str | None) -> bool:
     return not classify_mailbox_purpose(email).send_blocked
+
+
+def is_mailbox_controlled_eligible(email: str | None) -> bool:
+    """Functional company/role inboxes may be controlled-eligible; HR/noreply may not."""
+    return classify_mailbox_purpose(email).purpose not in CONTROLLED_BLOCKED_PURPOSES
 
 
 def purpose_preference_rank(email: str | None) -> int:

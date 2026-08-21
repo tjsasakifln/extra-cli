@@ -1,8 +1,10 @@
 # EMAIL_VALIDATED — definição operacional (v1)
 
+> **Backlog 2026-08-21 (extra-cli #370, Warmbly #39):** `EMAIL_VALIDATED` continua sendo a classe de **pessoa nominal** com evidência defensável. **Não** é o único caminho de elegibilidade de envio controlado. O paradigma vigente de transporte é `company reachability + provenance + route class + observed risk → controlled email eligibility`. ROLE/GENERIC/PUBLIC_COMPANY_FREEMAIL podem ser control-eligible **sem** promoção a `EMAIL_VALIDATED`. Inferência continua inferência. Suppression/opt-out/kill switch/`auto_send=false` permanecem. O código legado (`is_email_safe_for_warmbly`, `evaluate_email_send_ready`) ainda trata named-person como hard gate — isso é débito de #370, não política vigente de backlog.
+
 **Policy:** `dui.email-validated-promotion.v1`  
 **Gold set:** `email-validated-gold.v1`  
-**Pergunta que a política responde:** este email está associado à pessoa certa, na empresa certa, com evidência suficiente para entrar na lane de revisão humana?
+**Pergunta que a política responde:** este email está associado à pessoa certa, na empresa certa, com evidência suficiente para a classe `EMAIL_VALIDATED` (qualidade de identidade pessoal — não requisito universal de transporte)?
 
 Não é autorização de envio. Não é `HUMAN_REVIEW_APPROVED`. `auto_send` permanece false.
 

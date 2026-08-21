@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections import Counter
 from typing import Any
 
+from scripts.decision_unit_intelligence.controlled_email import classify_account_email_routes
 from scripts.decision_unit_intelligence.models import (
     AccountInvestigation,
     AccountTerminal,
@@ -59,6 +60,14 @@ def funnel(accounts: list[AccountInvestigation]) -> dict[str, Any]:
     named = sum(1 for a in denom if any(c.person_name for c in a.candidates))
     role = sum(1 for a in denom if any(c.observed_roles for c in a.candidates))
     reachable = sum(1 for a in denom if any(is_actionable_route(r) for r in a.routes))
+    classified_email_reachable = 0
+    route_class_counts: Counter[str] = Counter()
+    for account in denom:
+        ranking = classify_account_email_routes(account)
+        if any(item.controlled_email_eligible for item in ranking.classified_routes):
+            classified_email_reachable += 1
+        for item in ranking.classified_routes:
+            route_class_counts[item.route_class.value] += 1
     classes = Counter(_best_class(a) for a in accounts)
     actions = Counter(
         (a.recommendation.action_mode.value if a.recommendation else "NEEDS_ENRICHMENT") for a in accounts
@@ -106,6 +115,8 @@ def funnel(accounts: list[AccountInvestigation]) -> dict[str, Any]:
         "named_person_found": named,
         "relevant_role_found": role,
         "decision_unit_reachability_rate": rate,
+        "classified_email_reachable_per_account": (classified_email_reachable / denom_n) if denom_n else None,
+        "classified_email_route_classes": dict(route_class_counts),
         "actionable_route_per_account": (reachable / denom_n) if denom_n else None,
         "routed_call_per_account": (routed / denom_n) if denom_n else None,
         "decision_unit_known_per_account": (du / denom_n) if denom_n else None,
