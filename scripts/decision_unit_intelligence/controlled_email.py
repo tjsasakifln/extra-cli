@@ -18,7 +18,6 @@ from typing import Any
 from scripts.confenge_contact_resolution.mailbox_purpose import (
     CONTROLLED_BLOCKED_PURPOSES,
     classify_mailbox_purpose,
-    is_mailbox_controlled_eligible,
 )
 from scripts.decision_unit_intelligence.email_resolution import is_third_party_professional_domain
 from scripts.decision_unit_intelligence.models import (
@@ -362,27 +361,63 @@ def discovery_should_stop_for_commercial_value(
     return any(is_actionable_controlled_company_route(item) for item in classified)
 
 
+def observed_contact_is_controlled_eligible_company_route(
+    contact: dict[str, Any],
+    *,
+    account_id: str = "",
+    official_domain: str | None = None,
+) -> bool:
+    """Same gate as evaluate_controlled_email_eligible. Nominal/third-party are not success."""
+    if contact.get("pattern_guessed_email") or contact.get("email_derivation") == "INFERRED":
+        return False
+    email = canonicalize_mailbox(str(contact.get("email") or contact.get("value") or ""))
+    if not email or "@" not in email:
+        return False
+    if str(contact.get("channel_epistemic_class") or contact.get("epistemic_class") or "").upper() == "INFERRED":
+        return False
+    payload = dict(contact)
+    payload["email"] = email
+    domain = email_domain(email)
+    official = (official_domain or "").lower().removeprefix("www.")
+    source = str(payload.get("source") or payload.get("source_type") or "").lower()
+    if not source:
+        payload["source"] = "company_website" if official else "unknown"
+        source = payload["source"]
+    if official and domain == official:
+        payload.setdefault("ownership_status", OwnershipStatus.COMPANY_OWNED.value)
+    elif official and is_freemail(email) and source in COMPANY_ASSOCIATION_SOURCES:
+        payload.setdefault("ownership_status", OwnershipStatus.COMPANY_OWNED.value)
+        extra = dict(payload.get("extra") or {})
+        extra.setdefault("company_associated", True)
+        extra.setdefault("mailbox_company_evidence", EVIDENCE_OBSERVED)
+        payload["extra"] = extra
+    route = route_from_feed_contact(payload, account_id=account_id or "observed-contact")
+    return is_actionable_controlled_company_route(evaluate_controlled_email_eligible(route))
+
+
 def observed_channels_have_controlled_eligible_route(channels: list[Any]) -> bool:
     """True when an observed public mailbox is already a control-eligible company route."""
     for channel in channels or []:
-        email = str(getattr(channel, "channel_value", None) or "")
-        if "@" not in email:
+        extra = getattr(channel, "extra", None) or {}
+        if isinstance(channel, dict):
+            if observed_contact_is_controlled_eligible_company_route(channel):
+                return True
             continue
         epistemic = getattr(channel, "epistemic_class", None)
         if epistemic == EpistemicClass.INFERRED:
             continue
-        extra = getattr(channel, "extra", None) or {}
-        if extra.get("email_discovery_class") and str(extra.get("email_discovery_class")).startswith("INFERRED"):
-            continue
-        if not is_mailbox_controlled_eligible(email):
-            continue
-        source = str(getattr(channel, "source_type", "") or extra.get("source") or "").lower()
-        if extra.get("mailbox_company_evidence") == EVIDENCE_OBSERVED or extra.get("company_associated") is True:
-            return True
-        if source in COMPANY_ASSOCIATION_SOURCES:
-            return True
         ownership = getattr(channel, "ownership", None)
-        if ownership == OwnershipStatus.COMPANY_OWNED:
+        contact = {
+            "email": getattr(channel, "channel_value", None),
+            "name": getattr(channel, "person_name", None),
+            "ownership_status": ownership.value if hasattr(ownership, "value") else ownership,
+            "source": getattr(channel, "source_type", None),
+            "source_url": getattr(channel, "source_url", None),
+            "channel_epistemic_class": epistemic.value if hasattr(epistemic, "value") else epistemic,
+            "extra": extra,
+            "pattern_guessed_email": extra.get("pattern_guessed") or extra.get("pattern_guessed_email"),
+        }
+        if observed_contact_is_controlled_eligible_company_route(contact):
             return True
     return False
 

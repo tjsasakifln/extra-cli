@@ -6,6 +6,7 @@ functions. Does not send mail.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from scripts.confenge_contact_resolution.discovery.budget import DiscoveryBudget, InvestigationOutcome
@@ -30,9 +31,14 @@ from scripts.decision_unit_intelligence.controlled_email import (
     departmental_hypothesis_mailboxes,
     discovery_should_stop_for_commercial_value,
     evaluate_controlled_email_eligible,
+    observed_contact_is_controlled_eligible_company_route,
     stamp_and_rank_feed_contacts,
 )
-from scripts.decision_unit_intelligence.controlled_email_cohort import build_real_shaped_cohort, run_cohort_funnel
+from scripts.decision_unit_intelligence.controlled_email_cohort import (
+    STORED_ICP_INPUT,
+    load_stored_icp_accounts,
+    run_cohort_funnel,
+)
 from scripts.decision_unit_intelligence.email_patterns.engine import InjectedTechnicalAdapter
 from scripts.decision_unit_intelligence.email_verification import PassiveEmailVerifier
 from scripts.decision_unit_intelligence.models import (
@@ -444,6 +450,76 @@ def test_stop_early_on_observed_licitacao_skips_person_search(monkeypatch) -> No
     assert discovery_should_stop_for_commercial_value([classified]) is True
 
 
+def _cascade_with_site_email(monkeypatch, email: str):
+    search_calls = {"n": 0}
+
+    class _Provider:
+        available = True
+
+        def search(self, query, max_results=3):
+            search_calls["n"] += 1
+            return []
+
+    monkeypatch.setattr(
+        "scripts.confenge_contact_resolution.discovery.cascade.probe_official_domain",
+        lambda **kwargs: DomainResolution(
+            domain="alphaengenharia.com.br",
+            domain_class=DomainClass.OFFICIAL_CONFIRMED.value,
+            confidence=0.9,
+        ),
+    )
+    monkeypatch.setattr(
+        "scripts.confenge_contact_resolution.discovery.cascade.crawl_official_site",
+        lambda domain, **kwargs: SiteCrawlResult(
+            domain=domain,
+            contacts=[{"email": email, "source_url": f"https://{domain}/"}],
+            pages=[{"url": f"https://{domain}/", "contacts": [{"email": email}]}],
+        ),
+    )
+    monkeypatch.setattr(
+        "scripts.confenge_contact_resolution.discovery.cascade.lookup_public_docs_for_cnpj",
+        lambda *args, **kwargs: [],
+    )
+    cascade = DiscoveryCascade(
+        budget=DiscoveryBudget(max_search_queries=4, max_pages=4, max_total_requests=12),
+        web_provider=_Provider(),
+        allow_network=True,
+        dsn=None,
+    )
+    result = cascade.run(
+        cnpj14="11222333000181",
+        razao_social="ALPHA ENGENHARIA E CONSTRUCOES LTDA",
+        stop_when_strong_contact=True,
+    )
+    return result, search_calls
+
+
+def test_nominal_mailbox_without_person_does_not_stop_cascade(monkeypatch) -> None:
+    result, search_calls = _cascade_with_site_email(monkeypatch, "joao.silva@alphaengenharia.com.br")
+    assert result.stats.stop_reason != "official_site_controlled_eligible_route"
+    assert search_calls["n"] >= 1
+    assert (
+        observed_contact_is_controlled_eligible_company_route(
+            {"email": "joao.silva@alphaengenharia.com.br", "source": "company_website"},
+            official_domain="alphaengenharia.com.br",
+        )
+        is False
+    )
+
+
+def test_third_party_adv_br_on_site_does_not_stop_cascade(monkeypatch) -> None:
+    result, search_calls = _cascade_with_site_email(monkeypatch, "contato@silva.adv.br")
+    assert result.stats.stop_reason != "official_site_controlled_eligible_route"
+    assert search_calls["n"] >= 1
+    assert (
+        observed_contact_is_controlled_eligible_company_route(
+            {"email": "contato@silva.adv.br", "source": "company_website"},
+            official_domain="alphaengenharia.com.br",
+        )
+        is False
+    )
+
+
 def test_no_control_eligible_route_keeps_searching(monkeypatch) -> None:
     search_calls = {"n": 0}
 
@@ -549,9 +625,20 @@ def test_map_lead_recommended_aliases_preferred_initial() -> None:
     assert recommended == preferred
 
 
-def test_real_shaped_cohort_funnel_has_denominators() -> None:
-    accounts = build_real_shaped_cohort(120)
+def test_cohort_replays_stored_icp_observations() -> None:
+    assert STORED_ICP_INPUT.is_file()
+    accounts = load_stored_icp_accounts(limit=200)
     assert len(accounts) >= 100
+    stored_ids = []
+    for line in STORED_ICP_INPUT.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        stored_ids.append(json.loads(line)["cnpj14"])
+        if len(stored_ids) >= 200:
+            break
+    replay_ids = [account.cnpj for account in accounts]
+    assert replay_ids == stored_ids
+    assert len(set(replay_ids)) == len(accounts)
     payload = funnel(accounts)
     for key in (
         "accounts",
@@ -568,10 +655,12 @@ def test_real_shaped_cohort_funnel_has_denominators() -> None:
     ):
         assert key in payload
     assert payload["auto_send"] is False
-    assert payload["accounts"] == 120
+    assert payload["accounts"] == len(accounts) == 200
     assert payload["double_preferred_accounts"] == 0
-    first = run_cohort_funnel(120)
-    second = run_cohort_funnel(120)
+    first = run_cohort_funnel(200)
+    second = run_cohort_funnel(200)
+    assert first["hand_built_class_mix"] is False
     assert first["controlled_email_eligible"] == second["controlled_email_eligible"]
     assert first["REAL_EMAIL_SENT"] is False
     assert first["accounts_with_two_preferred"] == 0
+    assert first["observation_source"].endswith("real-1000-input.jsonl")

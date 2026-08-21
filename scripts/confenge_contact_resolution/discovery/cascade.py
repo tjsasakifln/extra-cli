@@ -35,7 +35,9 @@ from scripts.confenge_contact_resolution.discovery.web_search_providers import (
     build_source_ladder_queries,
     build_web_search_provider,
 )
-from scripts.confenge_contact_resolution.mailbox_purpose import is_mailbox_controlled_eligible
+from scripts.decision_unit_intelligence.controlled_email import (
+    observed_contact_is_controlled_eligible_company_route,
+)
 
 
 @dataclass
@@ -272,7 +274,11 @@ class DiscoveryCascade:
                     if contactish:
                         ctx.contact_pages = list(ctx.contact_pages or []) + contactish
                 named_site = _contacts_have_named_human(crawl.contacts)
-                actionable_site = _contacts_have_actionable_company_route(crawl.contacts)
+                actionable_site = _contacts_have_actionable_company_route(
+                    crawl.contacts,
+                    official_domain=result.domain.domain,
+                    source_type="company_website",
+                )
                 site_success = named_site or actionable_site
                 self._attempt(
                     result,
@@ -314,7 +320,11 @@ class DiscoveryCascade:
         # 2) Company-authored administrative/public-process documents already
         # tied to this CNPJ by the datalake.
         named_doc = _has_strong_doc_contact(ctx.public_docs, cnpj14=cnpj14)
-        actionable_doc = _has_actionable_doc_route(ctx.public_docs, cnpj14=cnpj14)
+        actionable_doc = _has_actionable_doc_route(
+            ctx.public_docs,
+            cnpj14=cnpj14,
+            official_domain=result.domain.domain,
+        )
         doc_success = named_doc or actionable_doc
         self._attempt(
             result,
@@ -433,7 +443,11 @@ class DiscoveryCascade:
                 if validated_docs:
                     ctx.public_docs = list(ctx.public_docs or []) + validated_docs
                 named_validated = _has_strong_doc_contact(validated_docs, cnpj14=cnpj14)
-                actionable_validated = _has_actionable_doc_route(validated_docs, cnpj14=cnpj14)
+                actionable_validated = _has_actionable_doc_route(
+                    validated_docs,
+                    cnpj14=cnpj14,
+                    official_domain=result.domain.domain,
+                )
                 validated_success = named_validated or actionable_validated
                 provider_blocked = not bool(getattr(provider, "available", True))
                 unresolved_external = (
@@ -627,18 +641,36 @@ def _contacts_have_named_human(contacts: list[dict[str, Any]] | None) -> bool:
     )
 
 
-def _contacts_have_actionable_company_route(contacts: list[dict[str, Any]] | None) -> bool:
+def _contacts_have_actionable_company_route(
+    contacts: list[dict[str, Any]] | None,
+    *,
+    official_domain: str | None = None,
+    source_type: str = "company_website",
+) -> bool:
     """Observed control-eligible company/role/generic/associated mailbox is success.
 
-    Person may be UNKNOWN. Pattern-guessed addresses never count.
+    Person may be UNKNOWN. Pattern-guessed, nominal-without-person, and
+    third-party professional domains are not success — same gate as
+    evaluate_controlled_email_eligible.
     """
-    return any(
-        c.get("email") and not c.get("pattern_guessed_email") and is_mailbox_controlled_eligible(str(c.get("email")))
-        for c in (contacts or [])
-    )
+    for contact in contacts or []:
+        payload = dict(contact)
+        payload.setdefault("source", source_type)
+        payload.setdefault("source_type", source_type)
+        if observed_contact_is_controlled_eligible_company_route(
+            payload,
+            official_domain=official_domain,
+        ):
+            return True
+    return False
 
 
-def _has_actionable_doc_route(docs: list[dict[str, Any]] | None, *, cnpj14: str) -> bool:
+def _has_actionable_doc_route(
+    docs: list[dict[str, Any]] | None,
+    *,
+    cnpj14: str,
+    official_domain: str | None = None,
+) -> bool:
     target = re.sub(r"\D", "", cnpj14 or "")[:14]
     for d in docs or []:
         document_cnpj = re.sub(
@@ -652,11 +684,19 @@ def _has_actionable_doc_route(docs: list[dict[str, Any]] | None, *, cnpj14: str)
             and document_cnpj == target
             and email
             and not d.get("pattern_guessed_email")
-            and is_mailbox_controlled_eligible(email)
             and (d.get("url") or d.get("source_url") or d.get("document_id") or d.get("document"))
             and d.get("evidence_strength") in {"company_authored_document", "official_cnpj_linked_document"}
         ):
-            return True
+            payload = dict(d)
+            payload["email"] = email
+            payload["source"] = "official_documents"
+            payload["source_type"] = "official_documents"
+            if observed_contact_is_controlled_eligible_company_route(
+                payload,
+                account_id=target,
+                official_domain=official_domain,
+            ):
+                return True
     return False
 
 
