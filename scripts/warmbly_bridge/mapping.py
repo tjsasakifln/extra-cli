@@ -516,9 +516,7 @@ def map_lead(
                 tier="OUT_OF_SCOPE",
                 reasons=["TARGET_FIT_MISSING", "live_store_miss"],
                 sector_fit="",
-                canonical_universe_member=bool(
-                    company_ctx.get("canonical_universe_member") is True
-                ),
+                canonical_universe_member=bool(company_ctx.get("canonical_universe_member") is True),
             )
             lead["target_fit_class"] = None
             lead["target_fit_confidence"] = None
@@ -536,9 +534,7 @@ def map_lead(
                 tier="OUT_OF_SCOPE",
                 reasons=[f"published_path_error:{type(exc).__name__}", "fail_closed"],
                 sector_fit="",
-                canonical_universe_member=bool(
-                    company_ctx.get("canonical_universe_member") is True
-                ),
+                canonical_universe_member=bool(company_ctx.get("canonical_universe_member") is True),
             )
             lead["target_fit_class"] = None
             lead["target_fit_confidence"] = None
@@ -608,6 +604,7 @@ def map_lead(
         c["root_source_type"] = r.root_source_type
         c["derived_from_fixture"] = r.derived_from_fixture
         c["human_recipient_evidence_valid"] = r.human_recipient_evidence_valid
+        c["controlled_email_eligible"] = r.controlled_email_eligible
         # EMAIL_ONLY: enrollable for auto send queue means email_send_ready, not phone
         if r.email_send_ready:
             c["enrollable"] = True
@@ -629,6 +626,12 @@ def map_lead(
             if not r.provenance_chain_valid:
                 c["enrollable"] = False
                 c["recommended"] = False
+
+    from scripts.decision_unit_intelligence.controlled_email import stamp_and_rank_feed_contacts
+
+    stamped = stamp_and_rank_feed_contacts(contacts, account_id=cnpj)
+    contacts[:] = stamped
+    lead["contacts"] = contacts
 
     # Exactly one principal recipient, selected deterministically. A rerun over
     # identical inputs cannot flip the recommendation because observation time

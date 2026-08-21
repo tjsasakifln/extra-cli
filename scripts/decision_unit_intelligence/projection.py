@@ -150,6 +150,9 @@ def project_warmbly_outreach(account: AccountInvestigation) -> dict[str, Any]:
         )
     ranking = classify_account_email_routes(account, named_person_safe=is_email_safe_for_warmbly)
     ranking_payload = ranking.to_dict()
+    from scripts.decision_unit_intelligence.controlled_email import feed_contact_from_classified
+
+    ranking_payload["contacts"] = [feed_contact_from_classified(item) for item in ranking.classified_routes]
     return {
         "schema_id": WARMBLY_SCHEMA,
         "account_id": account.company_entity_id,

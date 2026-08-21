@@ -15,6 +15,7 @@ from scripts.decision_unit_intelligence.controlled_email import (
     classify_account_email_routes,
     classify_email_route_class,
     evaluate_controlled_email_eligible,
+    stamp_and_rank_feed_contacts,
 )
 from scripts.decision_unit_intelligence.email_validated.policy import decide_promotion
 from scripts.decision_unit_intelligence.email_validated.schema import AdjudicationRecord
@@ -432,6 +433,41 @@ def test_hr_mailbox_not_controlled_eligible() -> None:
     classified = evaluate_controlled_email_eligible(route, person=None)
     assert classified.controlled_email_eligible is False
     assert any("mailbox_purpose" in code or "human_recipient" in code for code in classified.reason_codes)
+
+
+def test_stamp_and_rank_feed_contacts_emits_route_class_without_person() -> None:
+    stamped = stamp_and_rank_feed_contacts(
+        [
+            {
+                "email": "comercial@empresaexemplo.com.br",
+                "ownership_status": "COMPANY_OWNED",
+                "source_url": "https://empresaexemplo.com.br/contato",
+            },
+            {
+                "email": "contato@empresaexemplo.com.br",
+                "ownership_status": "COMPANY_OWNED",
+                "source_url": "https://empresaexemplo.com.br/contato",
+            },
+        ],
+        account_id=ACCOUNT_ID,
+    )
+    assert stamped[0]["route_class"] == EmailRouteClass.ROLE_OR_DEPARTMENT.value
+    assert stamped[0]["controlled_email_eligible"] is True
+    assert stamped[0]["person_unknown"] is True
+    assert stamped[0]["email_validated"] is False
+    assert sum(1 for c in stamped if c.get("preferred_initial")) == 1
+
+
+def test_projection_emits_ingestible_contacts_with_route_class() -> None:
+    payload = project_warmbly_outreach(_account([_route("contato@empresaexemplo.com.br")]))
+    contacts = payload["contacts"]
+    assert contacts
+    contato = next(c for c in contacts if c["email"].startswith("contato@"))
+    assert contato["route_class"] == EmailRouteClass.GENERIC_COMPANY.value
+    assert contato["controlled_email_eligible"] is True
+    assert contato["person_unknown"] is True
+    assert contato["email_validated"] is False
+    assert not contato.get("person_id")
 
 
 def test_projection_auto_send_false_and_policy_version() -> None:

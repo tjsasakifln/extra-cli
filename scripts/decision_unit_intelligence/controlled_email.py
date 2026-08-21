@@ -21,11 +21,13 @@ from scripts.confenge_contact_resolution.mailbox_purpose import (
 )
 from scripts.decision_unit_intelligence.models import (
     AccountInvestigation,
+    ActionMode,
     ChannelType,
     DecisionUnitCandidate,
     EpistemicClass,
     FreshnessState,
     OwnershipStatus,
+    ReachabilityClass,
     ReachabilityRoute,
     RouteRelation,
     SuppressionState,
@@ -532,3 +534,131 @@ def alternative_after_preferred_bounce(
     ]
     remaining = sorted(remaining, key=_sort_key)
     return remaining[0] if remaining else None
+
+
+def _channel_for_mailbox(mailbox: str) -> ChannelType:
+    if is_role_mailbox(mailbox):
+        return ChannelType.ROLE_MAILBOX
+    if is_generic_mailbox(mailbox) or is_brand_mailbox(mailbox) or is_freemail(mailbox):
+        return ChannelType.GENERIC_CORPORATE_EMAIL
+    return ChannelType.DIRECT_EMAIL
+
+
+def _relation_for_mailbox(mailbox: str) -> RouteRelation:
+    if is_role_mailbox(mailbox):
+        return RouteRelation.ROUTES_TO_ROLE
+    if looks_nominal_local(mailbox) and not is_generic_mailbox(mailbox):
+        return RouteRelation.PERSON_OWNS_CHANNEL
+    return RouteRelation.ACCOUNT_LEVEL_ONLY
+
+
+def route_from_feed_contact(contact: dict[str, Any], *, account_id: str) -> ReachabilityRoute:
+    """Build a ReachabilityRoute from an outreach contact dict. Does not mint people."""
+    mailbox = str(contact.get("email") or contact.get("channel_value") or "").strip().lower()
+    extra = dict(contact.get("extra") or {})
+    if contact.get("ownership_status") == OwnershipStatus.COMPANY_OWNED.value:
+        extra.setdefault("company_associated", True)
+        extra.setdefault("mailbox_company_evidence", EVIDENCE_OBSERVED)
+    if contact.get("mailbox_company_evidence"):
+        extra["mailbox_company_evidence"] = str(contact["mailbox_company_evidence"])
+    if contact.get("identity_explicitly_associated") is True or (
+        contact.get("name_explicitly_published") is True and contact.get("email_explicitly_published") is True
+    ):
+        extra.setdefault("identity_explicitly_associated", True)
+    discovery = contact.get("email_discovery_class") or contact.get("route_class")
+    if discovery:
+        extra.setdefault("email_discovery_class", str(discovery))
+    suppression = SuppressionState.NONE
+    raw_sup = str(contact.get("route_suppression") or contact.get("suppression_state") or "").upper()
+    if raw_sup in {s.value for s in SuppressionState}:
+        suppression = SuppressionState(raw_sup)
+    if contact.get("dnc") or contact.get("do_not_contact"):
+        suppression = SuppressionState.DNC
+    if contact.get("bounce") or contact.get("bounced"):
+        suppression = SuppressionState.HARD_BOUNCE
+    ownership = OwnershipStatus.UNKNOWN
+    raw_own = str(contact.get("ownership_status") or "").upper()
+    if raw_own in {o.value for o in OwnershipStatus}:
+        ownership = OwnershipStatus(raw_own)
+    epistemic = EpistemicClass.OBSERVED
+    if str(contact.get("channel_epistemic_class") or contact.get("epistemic_class") or "").upper() == "INFERRED":
+        epistemic = EpistemicClass.INFERRED
+    if str(contact.get("email_derivation") or "").upper() == "INFERRED":
+        epistemic = EpistemicClass.INFERRED
+    return ReachabilityRoute(
+        route_id=str(contact.get("source_contact_id") or contact.get("route_id") or mailbox),
+        company_entity_id=account_id,
+        channel_type=_channel_for_mailbox(mailbox),
+        reachability_class=ReachabilityClass.R5_CORPORATE_ONLY,
+        action_mode=ActionMode.GENERIC_EMAIL_LAST_RESORT,
+        channel_value=mailbox,
+        route_relation=_relation_for_mailbox(mailbox),
+        epistemic_class=epistemic,
+        source_type=str(contact.get("source") or "company_website"),
+        source_url=str(contact.get("source_url") or "") or None,
+        freshness=FreshnessState.FRESH,
+        ownership=ownership,
+        suppression=suppression,
+        observed_at=str(contact.get("observed_at") or contact.get("source_date") or "") or None,
+        extra=extra,
+    )
+
+
+def feed_contact_from_classified(item: ClassifiedEmailRoute) -> dict[str, Any]:
+    """Shape one classified route as a confenge.outreach.v1 contact for Warmbly ingest."""
+    person_unknown = item.person_id is None
+    return {
+        "source_contact_id": item.route_id or item.mailbox,
+        "email": item.mailbox,
+        "name": item.person_name or "",
+        "person_id": item.person_id or "",
+        "route_class": item.route_class.value,
+        "controlled_email_eligible": item.controlled_email_eligible,
+        "preferred_initial": item.preferred_initial,
+        "preferred_rank": item.preferred_rank,
+        "mailbox_company_evidence": item.mailbox_company_evidence,
+        "mailbox_person_evidence": item.mailbox_person_evidence,
+        "mailbox_department_evidence": item.mailbox_department_evidence,
+        "person_unknown": person_unknown,
+        "email_validated": item.email_validated,
+        "risk_class": item.risk_class.value,
+        "channel_epistemic_class": item.epistemic_class,
+        "route_freshness": item.freshness,
+        "route_suppression": item.suppression_state,
+        "ownership_status": "COMPANY_OWNED" if item.mailbox_company_evidence == EVIDENCE_OBSERVED else "UNKNOWN",
+        "policy_version": item.policy_version,
+        "schema_version": item.schema_version,
+        "reason_codes": list(item.reason_codes),
+    }
+
+
+def stamp_and_rank_feed_contacts(
+    contacts: list[dict[str, Any]],
+    *,
+    account_id: str,
+) -> list[dict[str, Any]]:
+    """Stamp route_class + controlled_email_eligible on ingestible contacts[]."""
+    classified: list[ClassifiedEmailRoute] = []
+    indexed: list[dict[str, Any]] = []
+    for contact in contacts:
+        if not isinstance(contact, dict):
+            continue
+        email = str(contact.get("email") or "")
+        if not email or "@" not in email:
+            indexed.append(contact)
+            continue
+        route = route_from_feed_contact(contact, account_id=account_id)
+        item = evaluate_controlled_email_eligible(route, person=None)
+        classified.append(item)
+        indexed.append(contact)
+    ranking = rank_account_email_routes(classified)
+    by_mailbox = {item.mailbox: item for item in ranking.classified_routes}
+    stamped: list[dict[str, Any]] = []
+    for contact in indexed:
+        email = str(contact.get("email") or "").strip().lower()
+        item = by_mailbox.get(email)
+        if item is None:
+            stamped.append(contact)
+            continue
+        stamped.append({**contact, **feed_contact_from_classified(item)})
+    return stamped
