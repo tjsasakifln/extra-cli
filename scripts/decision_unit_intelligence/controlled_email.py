@@ -246,12 +246,20 @@ def mailbox_department_evidence(route: ReachabilityRoute) -> str:
     return EVIDENCE_UNKNOWN
 
 
+def _observed_person_name(route: ReachabilityRoute, person: DecisionUnitCandidate | None) -> str:
+    extra = route.extra if isinstance(route.extra, dict) else {}
+    if person and str(person.person_name or "").strip():
+        return str(person.person_name).strip()
+    return str(extra.get("observed_person_name") or "").strip()
+
+
 def mailbox_person_evidence(route: ReachabilityRoute, person: DecisionUnitCandidate | None) -> str:
     extra = route.extra if isinstance(route.extra, dict) else {}
     explicit = str(extra.get("mailbox_person_evidence") or "").upper()
     if explicit in {EVIDENCE_OBSERVED, EVIDENCE_UNKNOWN}:
         return explicit
-    if extra.get("identity_explicitly_associated") is True and person and person.person_name:
+    name = _observed_person_name(route, person)
+    if extra.get("identity_explicitly_associated") is True and name:
         return EVIDENCE_OBSERVED
     if route.route_relation == RouteRelation.PERSON_OWNS_CHANNEL and person and person.person_name:
         return EVIDENCE_OBSERVED
@@ -293,7 +301,7 @@ def classify_email_route_class(
     ):
         return EmailRouteClass.GENERIC_COMPANY
 
-    if person_ev == EVIDENCE_OBSERVED and person and person.person_name:
+    if person_ev == EVIDENCE_OBSERVED and _observed_person_name(route, person):
         return EmailRouteClass.DIRECT_PERSON
 
     if looks_nominal_local(value) and person_ev != EVIDENCE_OBSERVED:
@@ -397,10 +405,17 @@ def evaluate_controlled_email_eligible(
 
     person_id = None
     person_name = None
-    if route_class == EmailRouteClass.DIRECT_PERSON and person_ev == EVIDENCE_OBSERVED and person:
-        person_id = person.person_id
-        person_name = person.person_name
-        reasons.append("named_person_evidence_present")
+    if route_class == EmailRouteClass.DIRECT_PERSON and person_ev == EVIDENCE_OBSERVED:
+        person_name = _observed_person_name(route, person) or None
+        extra_id = str(extra.get("observed_person_id") or "").strip()
+        if person and person.person_id:
+            person_id = person.person_id
+        elif extra_id:
+            person_id = extra_id
+        if person_name:
+            reasons.append("named_person_evidence_present")
+        else:
+            reasons.append("person_unknown")
     else:
         reasons.append("person_unknown")
 
@@ -565,6 +580,12 @@ def route_from_feed_contact(contact: dict[str, Any], *, account_id: str) -> Reac
         contact.get("name_explicitly_published") is True and contact.get("email_explicitly_published") is True
     ):
         extra.setdefault("identity_explicitly_associated", True)
+    observed_name = str(contact.get("name") or contact.get("person_name") or "").strip()
+    if observed_name:
+        extra.setdefault("observed_person_name", observed_name)
+    observed_id = str(contact.get("person_id") or "").strip()
+    if observed_id:
+        extra.setdefault("observed_person_id", observed_id)
     discovery = contact.get("email_discovery_class") or contact.get("route_class")
     if discovery:
         extra.setdefault("email_discovery_class", str(discovery))
@@ -606,12 +627,10 @@ def route_from_feed_contact(contact: dict[str, Any], *, account_id: str) -> Reac
 
 def feed_contact_from_classified(item: ClassifiedEmailRoute) -> dict[str, Any]:
     """Shape one classified route as a confenge.outreach.v1 contact for Warmbly ingest."""
-    person_unknown = item.person_id is None
-    return {
+    person_unknown = item.person_id is None and not item.person_name
+    out: dict[str, Any] = {
         "source_contact_id": item.route_id or item.mailbox,
         "email": item.mailbox,
-        "name": item.person_name or "",
-        "person_id": item.person_id or "",
         "route_class": item.route_class.value,
         "controlled_email_eligible": item.controlled_email_eligible,
         "preferred_initial": item.preferred_initial,
@@ -630,6 +649,11 @@ def feed_contact_from_classified(item: ClassifiedEmailRoute) -> dict[str, Any]:
         "schema_version": item.schema_version,
         "reason_codes": list(item.reason_codes),
     }
+    if item.person_name:
+        out["name"] = item.person_name
+    if item.person_id:
+        out["person_id"] = item.person_id
+    return out
 
 
 def stamp_and_rank_feed_contacts(

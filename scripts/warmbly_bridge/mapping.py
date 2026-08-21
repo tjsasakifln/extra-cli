@@ -200,6 +200,16 @@ def _map_contact(item: dict[str, Any], *, idx: int, cnpj: str) -> dict[str, Any]
         out["channel_send_eligibility"] = bool(item.get("channel_send_eligibility"))
     if item.get("email_send_ready") is not None:
         out["email_send_ready"] = bool(item.get("email_send_ready"))
+    if item.get("identity_explicitly_associated") is not None:
+        out["identity_explicitly_associated"] = bool(item.get("identity_explicitly_associated"))
+    if item.get("email_discovery_class"):
+        out["email_discovery_class"] = _as_str(item.get("email_discovery_class"))
+    if item.get("email_derivation"):
+        out["email_derivation"] = _as_str(item.get("email_derivation"))
+    if item.get("mailbox_company_evidence"):
+        out["mailbox_company_evidence"] = _as_str(item.get("mailbox_company_evidence"))
+    if item.get("person_id"):
+        out["person_id"] = _as_str(item.get("person_id"))
     return out
 
 

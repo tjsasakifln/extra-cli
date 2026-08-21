@@ -678,71 +678,41 @@ def _five_class_universe_intel_contacts() -> tuple[dict, dict, dict]:
     return universe, intel, contacts
 
 
+def test_stamp_and_rank_uses_observed_feed_name_for_direct_person() -> None:
+    stamped = stamp_and_rank_feed_contacts(
+        [
+            {
+                "email": "ana.souza@empresaexemplo.com.br",
+                "name": "ANA SOUZA",
+                "ownership_status": "COMPANY_OWNED",
+                "identity_explicitly_associated": True,
+                "email_discovery_class": "EMAIL_VALIDATED",
+                "source_url": "https://empresaexemplo.com.br/contato",
+            },
+            {
+                "email": "contato@empresaexemplo.com.br",
+                "ownership_status": "COMPANY_OWNED",
+                "source_url": "https://empresaexemplo.com.br/contato",
+            },
+        ],
+        account_id=ACCOUNT_ID,
+    )
+    ana = next(c for c in stamped if c["email"].startswith("ana.souza@"))
+    assert ana["route_class"] == EmailRouteClass.DIRECT_PERSON.value
+    assert ana["controlled_email_eligible"] is True
+    assert ana.get("name") == "ANA SOUZA"
+    assert not ana.get("person_id")
+    contato = next(c for c in stamped if c["email"].startswith("contato@"))
+    assert contato["route_class"] == EmailRouteClass.GENERIC_COMPANY.value
+    assert not contato.get("person_id")
+    assert not contato.get("name")
+
+
 def test_five_class_mapping_feed_written_for_warmbly_ingest() -> None:
-    """mapping.py lead wrapped as confenge.outreach.v1 — the file Warmbly ImportFromBytes consumes."""
-    person = _person()
-    routes = [
-        _route(
-            "ana.souza@empresaexemplo.com.br",
-            channel=ChannelType.DIRECT_EMAIL,
-            relation=RouteRelation.PERSON_OWNS_CHANNEL,
-            reachability=ReachabilityClass.R1_DIRECT,
-            action=ActionMode.HUMAN_REVIEW_EMAIL,
-            candidate_id=person.candidate_id,
-            extra={"identity_explicitly_associated": True, "email_discovery_class": "EMAIL_VALIDATED"},
-        ),
-        _route(
-            "comercial@empresaexemplo.com.br",
-            channel=ChannelType.ROLE_MAILBOX,
-            relation=RouteRelation.ROUTES_TO_ROLE,
-            reachability=ReachabilityClass.R4_ROLE_ROUTE,
-            action=ActionMode.ROLE_EMAIL,
-        ),
-        _route("contato@empresaexemplo.com.br"),
-        _route(
-            "empresa@gmail.com",
-            extra={"company_associated": True, "mailbox_company_evidence": "OBSERVED"},
-            source_type="company_website",
-        ),
-        _route(
-            "joao.silva@empresaexemplo.com.br",
-            channel=ChannelType.INFERRED_DIRECT_EMAIL,
-            epistemic=EpistemicClass.INFERRED,
-            extra={"email_discovery_class": "INFERRED_PATTERN_EMAIL"},
-            reason_codes=["INFERRED"],
-        ),
-    ]
-    classified = {
-        item["mailbox"]: item
-        for item in project_warmbly_outreach(_account(routes, [person]))["classified_email_routes"]
-    }
+    """Unmodified map_lead output (stamp_and_rank inside mapping.py) as confenge.outreach.v1."""
     universe, intel, contacts_row = _five_class_universe_intel_contacts()
     lead = map_lead(universe, intel=intel, contacts_row=contacts_row, conn=None)
     assert lead is not None
-    for contact in lead["contacts"]:
-        mailbox = str(contact.get("email") or "").strip().lower()
-        item = classified.get(mailbox)
-        if item is None:
-            continue
-        contact["route_class"] = item["route_class"]
-        contact["controlled_email_eligible"] = item["controlled_email_eligible"]
-        contact["preferred_initial"] = item.get("preferred_initial")
-        contact["email_validated"] = item.get("email_validated")
-        contact["person_unknown"] = item.get("person_unknown")
-        contact["risk_class"] = item.get("risk_class")
-        contact["mailbox_company_evidence"] = item.get("mailbox_company_evidence")
-        contact["mailbox_person_evidence"] = item.get("mailbox_person_evidence")
-        contact["root_source_type"] = "company_website"
-        contact["provenance_chain_valid"] = True
-        contact["derived_from_fixture"] = False
-        if item.get("person_id"):
-            contact["person_id"] = item["person_id"]
-        else:
-            contact.pop("person_id", None)
-        if item.get("person_name"):
-            contact["person_name"] = item["person_name"]
-        else:
-            contact.pop("person_name", None)
     classes = {c["route_class"] for c in lead["contacts"]}
     assert classes == {
         EmailRouteClass.DIRECT_PERSON.value,
@@ -751,6 +721,9 @@ def test_five_class_mapping_feed_written_for_warmbly_ingest() -> None:
         EmailRouteClass.PUBLIC_COMPANY_FREEMAIL.value,
         EmailRouteClass.PROBABILISTIC_OR_RISKY.value,
     }
+    ana = next(c for c in lead["contacts"] if str(c.get("email", "")).startswith("ana.souza@"))
+    assert ana["route_class"] == EmailRouteClass.DIRECT_PERSON.value
+    assert "route_class:PROBABILISTIC_OR_RISKY" not in (ana.get("reason_codes") or [])
     generic = next(c for c in lead["contacts"] if str(c.get("email", "")).startswith("contato@"))
     assert not generic.get("person_id")
     assert generic.get("controlled_email_eligible") is True
