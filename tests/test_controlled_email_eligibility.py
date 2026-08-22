@@ -15,6 +15,7 @@ from scripts.decision_unit_intelligence.controlled_email import (
     CONTROLLED_EMAIL_POLICY_VERSION,
     EmailRouteClass,
     alternative_after_preferred_bounce,
+    apply_cross_account_preferred_mailbox_gate,
     classify_account_email_routes,
     classify_email_route_class,
     evaluate_controlled_email_eligible,
@@ -42,7 +43,7 @@ from scripts.decision_unit_intelligence.projection import (
     project_warmbly_outreach,
 )
 from scripts.warmbly_bridge import SCHEMA_OUTREACH
-from scripts.warmbly_bridge.mapping import map_lead
+from scripts.warmbly_bridge.mapping import build_leads, map_lead
 
 ACCOUNT_ID = "12345678000190"
 
@@ -172,7 +173,11 @@ def test_contato_eligible_without_inventing_person() -> None:
 def test_associated_gmail_is_public_company_freemail() -> None:
     route = _route(
         "empresa@gmail.com",
-        extra={"company_associated": True, "mailbox_company_evidence": "OBSERVED"},
+        extra={
+            "company_associated": True,
+            "mailbox_company_evidence": "OBSERVED",
+            "official_domain": "empresaexemplo.com.br",
+        },
         source_type="company_website",
     )
     classified = evaluate_controlled_email_eligible(route, person=None)
@@ -263,7 +268,11 @@ def test_four_mailboxes_one_preferred_initial_route() -> None:
         _route("contato@empresaexemplo.com.br"),
         _route(
             "empresa@gmail.com",
-            extra={"company_associated": True, "mailbox_company_evidence": "OBSERVED"},
+            extra={
+                "company_associated": True,
+                "mailbox_company_evidence": "OBSERVED",
+                "official_domain": "empresaexemplo.com.br",
+            },
         ),
     ]
     ranking = classify_account_email_routes(_account(routes, [person]), named_person_safe=is_email_safe_for_warmbly)
@@ -326,7 +335,11 @@ def test_generic_mailbox_never_becomes_fake_person() -> None:
 def test_gmail_never_becomes_fake_corporate_domain() -> None:
     route = _route(
         "empresa@gmail.com",
-        extra={"company_associated": True, "mailbox_company_evidence": "OBSERVED"},
+        extra={
+            "company_associated": True,
+            "mailbox_company_evidence": "OBSERVED",
+            "official_domain": "empresaexemplo.com.br",
+        },
     )
     classified = evaluate_controlled_email_eligible(route, person=None)
     assert classified.route_class == EmailRouteClass.PUBLIC_COMPANY_FREEMAIL
@@ -541,6 +554,134 @@ def test_map_lead_rejects_unassociated_web_search_mailbox() -> None:
     assert not contact.get("preferred_initial")
 
 
+def test_empty_official_site_source_rejects_mailbox_host_mismatch() -> None:
+    """Live junk: site source with empty official_domain and mailbox≠page host."""
+    classified = evaluate_controlled_email_eligible(
+        _route(
+            "contato@smartclub.com.br",
+            source_type="site",
+            source_url="https://smartlink.com.br/contato",
+            ownership=OwnershipStatus.COMPANY_OWNED,
+            extra={"company_associated": True},
+        )
+    )
+    assert classified.controlled_email_eligible is False
+    assert classified.mailbox_company_evidence == "UNKNOWN"
+    assert "mailbox_source_host_mismatch" in classified.reason_codes
+    stamped = stamp_and_rank_feed_contacts(
+        [
+            {
+                "email": "contato@mattioli.eng.br",
+                "ownership_status": "COMPANY_OWNED",
+                "source_type": "site",
+                "source_url": "https://dinamica.com.br/contato",
+            }
+        ],
+        account_id=ACCOUNT_ID,
+        official_domain=None,
+    )
+    assert stamped[0]["controlled_email_eligible"] is False
+    assert not stamped[0].get("preferred_initial")
+    universe, intel, _ = _five_class_universe_intel_contacts()
+    universe = dict(universe)
+    universe["website"] = ""
+    universe["official_domain"] = ""
+    lead = map_lead(
+        universe,
+        intel=intel,
+        contacts_row={
+            "cnpj14": ACCOUNT_ID,
+            "contacts": [
+                {
+                    "email": "u003eancar@nectarc.com.br",
+                    "ownership_status": "COMPANY_OWNED",
+                    "source_type": "site",
+                    "source_url": "https://ancar.com.br/",
+                }
+            ],
+        },
+        conn=None,
+    )
+    assert lead is not None
+    assert lead["contacts"][0]["controlled_email_eligible"] is False
+
+
+def test_empty_official_freemail_from_aggregator_page_is_not_eligible() -> None:
+    classified = evaluate_controlled_email_eligible(
+        _route(
+            "empresa@terra.com.br",
+            source_type="contact_page",
+            source_url="https://cnpja.com/office/123",
+            extra={"company_associated": True, "mailbox_company_evidence": "OBSERVED"},
+        )
+    )
+    assert classified.controlled_email_eligible is False
+    assert classified.route_class == EmailRouteClass.PROBABILISTIC_OR_RISKY
+
+
+def test_parser_minted_mailbox_host_is_not_eligible() -> None:
+    classified = evaluate_controlled_email_eligible(
+        _route(
+            "1@model.phone.replace",
+            source_type="site",
+            source_url="https://amrconstrucoes.com.br/contato",
+            ownership=OwnershipStatus.COMPANY_OWNED,
+        )
+    )
+    assert classified.controlled_email_eligible is False
+    assert "implausible_mailbox_host" in classified.reason_codes
+    stamped = stamp_and_rank_feed_contacts(
+        [
+            {
+                "email": "1@model.phone.replace",
+                "ownership_status": "COMPANY_OWNED",
+                "source_type": "contact_page",
+                "source_url": "https://amrconstrucoes.com.br/",
+            }
+        ],
+        account_id=ACCOUNT_ID,
+    )
+    assert stamped[0]["controlled_email_eligible"] is False
+
+
+def test_duplicate_preferred_mailbox_across_accounts_keeps_one() -> None:
+    universe_a, intel, _ = _five_class_universe_intel_contacts()
+    universe_a = dict(universe_a)
+    universe_a["cnpj14"] = "11111111000191"
+    universe_a["website"] = "https://energia.com.br"
+    universe_a["official_domain"] = "energia.com.br"
+    universe_b = dict(universe_a)
+    universe_b["cnpj14"] = "22222222000172"
+    contacts = {
+        "contacts": [
+            {
+                "email": "secretaria@energia.com.br",
+                "ownership_status": "COMPANY_OWNED",
+                "source_type": "site",
+                "source_url": "https://energia.com.br/contato",
+            }
+        ]
+    }
+    leads = build_leads(
+        [universe_a, universe_b],
+        [],
+        [
+            {"cnpj14": "11111111000191", **contacts},
+            {"cnpj14": "22222222000172", **contacts},
+        ],
+    )
+    preferred = [
+        (lead["company"]["cnpj14"], c["email"])
+        for lead in leads
+        for c in lead["contacts"]
+        if c.get("preferred_initial") and c.get("email")
+    ]
+    assert len(preferred) == 1
+    assert preferred[0][1] == "secretaria@energia.com.br"
+    gated = apply_cross_account_preferred_mailbox_gate(leads)
+    assert sum(1 for lead in gated for c in lead["contacts"] if c.get("preferred_initial")) == 1
+
+
 def test_hr_mailbox_not_controlled_eligible() -> None:
     route = _route("vagas@empresaexemplo.com.br")
     classified = evaluate_controlled_email_eligible(route, person=None)
@@ -617,7 +758,11 @@ def test_five_class_synthetic_canary_snapshot() -> None:
         _route("contato@empresaexemplo.com.br"),
         _route(
             "empresa@gmail.com",
-            extra={"company_associated": True, "mailbox_company_evidence": "OBSERVED"},
+            extra={
+                "company_associated": True,
+                "mailbox_company_evidence": "OBSERVED",
+                "official_domain": "empresaexemplo.com.br",
+            },
             source_type="company_website",
         ),
         _route(
@@ -766,6 +911,7 @@ def _five_class_universe_intel_contacts() -> tuple[dict, dict, dict]:
                 "email": "empresa@gmail.com",
                 "ownership_status": "COMPANY_OWNED",
                 "source_url": "https://empresaexemplo.com.br/contato",
+                "source_type": "company_website",
                 "mailbox_company_evidence": "OBSERVED",
                 "source_contact_id": "c-gmail",
             },
@@ -866,3 +1012,50 @@ def test_five_class_mapping_feed_written_for_warmbly_ingest() -> None:
     if sibling.parent.is_dir():
         sibling.write_text(dest.read_text(encoding="utf-8"), encoding="utf-8")
         assert json.loads(sibling.read_text(encoding="utf-8"))["leads"][0]["contacts"][0]["email"]
+
+
+def _cnpj_linked_doc_route(
+    mailbox: str = "licitacoes@alphaengenharia.com.br",
+    *,
+    document_cnpj14: str = ACCOUNT_ID,
+    evidence_strength: str = "company_authored_document",
+) -> ReachabilityRoute:
+    """Company-authored document hosted on a datalake/portal host, not the company host."""
+    return _route(
+        mailbox,
+        channel=ChannelType.ROLE_MAILBOX,
+        ownership=OwnershipStatus.UNKNOWN,
+        source_type="official_documents",
+        source_url="https://datalake.example/doc/1",
+        extra={
+            "evidence_strength": evidence_strength,
+            "document_cnpj14": document_cnpj14,
+        },
+    )
+
+
+def test_cnpj_linked_company_document_survives_host_match_gate():
+    """Authorship binds the mailbox; a PNCP/portal host is never the company host."""
+    verdict = evaluate_controlled_email_eligible(_cnpj_linked_doc_route())
+    assert verdict.mailbox_company_evidence == "OBSERVED"
+    assert verdict.controlled_email_eligible is True
+    assert verdict.route_class == EmailRouteClass.ROLE_OR_DEPARTMENT
+
+
+def test_document_for_a_different_cnpj_is_not_associated():
+    verdict = evaluate_controlled_email_eligible(_cnpj_linked_doc_route(document_cnpj14="99887766000155"))
+    assert verdict.mailbox_company_evidence == "UNKNOWN"
+    assert verdict.controlled_email_eligible is False
+    assert "mailbox_company_evidence_unknown" in verdict.reason_codes
+
+
+def test_weak_document_evidence_does_not_bypass_host_match():
+    verdict = evaluate_controlled_email_eligible(_cnpj_linked_doc_route(evidence_strength="snippet_mention"))
+    assert verdict.mailbox_company_evidence == "UNKNOWN"
+    assert verdict.controlled_email_eligible is False
+
+
+def test_freemail_on_a_cnpj_linked_document_still_needs_a_company_page():
+    verdict = evaluate_controlled_email_eligible(_cnpj_linked_doc_route("alphaengenharia@gmail.com"))
+    assert verdict.mailbox_company_evidence == "UNKNOWN"
+    assert verdict.controlled_email_eligible is False

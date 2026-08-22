@@ -661,6 +661,11 @@ def map_lead(
     stamped = stamp_and_rank_feed_contacts(contacts, account_id=cnpj, official_domain=official or None)
     contacts[:] = stamped
     lead["contacts"] = contacts
+    # Publish the domain the classifier actually judged against. The universe
+    # website field is usually empty, so without this the consumer sees an
+    # association verdict it cannot re-derive, and a re-check downstream would
+    # judge the same mailbox with less evidence than the classifier had.
+    lead["company"]["official_domain"] = official or None
 
     # Canonical principal is preferred_initial. `recommended` is a compatibility
     # alias of that same unique principal (including generic/role mailboxes that
@@ -781,4 +786,6 @@ def build_leads(
             lead["source_lead_id"],
         )
     )
-    return leads
+    from scripts.decision_unit_intelligence.controlled_email import apply_cross_account_preferred_mailbox_gate
+
+    return apply_cross_account_preferred_mailbox_gate(leads)

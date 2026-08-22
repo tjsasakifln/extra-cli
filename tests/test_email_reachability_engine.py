@@ -183,7 +183,11 @@ def test_official_site_gmail_may_be_public_company_freemail() -> None:
     classified = evaluate_controlled_email_eligible(
         _route(
             "contato.empresa@gmail.com",
-            extra={"company_associated": True, "mailbox_company_evidence": "OBSERVED"},
+            extra={
+                "company_associated": True,
+                "mailbox_company_evidence": "OBSERVED",
+                "official_domain": "empresaexemplo.com.br",
+            },
         )
     )
     assert classified.route_class == EmailRouteClass.PUBLIC_COMPANY_FREEMAIL
@@ -476,7 +480,11 @@ def test_stop_early_on_observed_licitacao_skips_person_search(monkeypatch) -> No
     assert search_calls["n"] == 0
     classified = evaluate_controlled_email_eligible(
         _route(
-            "licitacao@alphaengenharia.com.br", channel=ChannelType.ROLE_MAILBOX, relation=RouteRelation.ROUTES_TO_ROLE
+            "licitacao@alphaengenharia.com.br",
+            channel=ChannelType.ROLE_MAILBOX,
+            relation=RouteRelation.ROUTES_TO_ROLE,
+            source_url="https://alphaengenharia.com.br/",
+            extra={"official_domain": "alphaengenharia.com.br"},
         )
     )
     assert discovery_should_stop_for_commercial_value([classified]) is True
