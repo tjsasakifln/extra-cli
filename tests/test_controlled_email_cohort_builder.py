@@ -199,3 +199,23 @@ def test_a_route_the_shipped_policy_confirms_still_passes():
         limit=50,
     )
     assert len(members) == 1
+
+
+def test_official_domain_ladder_matches_the_exporter():
+    from scripts.ops.build_controlled_email_cohort import resolve_official_domain
+
+    lead = _lead("11111111000191", [], website="https://www.Alpha.com.br/quem-somos")
+    assert resolve_official_domain(lead, {}) == "alpha.com.br"
+    assert resolve_official_domain(lead, {"official_domain": "beta.com.br"}) == "beta.com.br"
+    assert resolve_official_domain(_lead("11111111000191", []), {}) is None
+
+
+def test_a_route_on_its_own_official_domain_survives_the_recheck():
+    """The exporter's official domain must not be lost, or good routes die."""
+    contact = _contact(
+        "contato@alpha.com.br",
+        source_url="https://alpha.com.br/contato",
+        official_domain="alpha.com.br",
+    )
+    members, _ = select_cohort([_lead("11111111000191", [contact])], limit=50)
+    assert len(members) == 1

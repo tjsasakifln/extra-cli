@@ -68,8 +68,26 @@ def _host(url: str | None) -> str | None:
     raw = str(url or "").strip()
     if not raw:
         return None
-    host = (urlparse(raw).hostname or "").lower().removeprefix("www.")
+    parsed = urlparse(raw if "://" in raw else f"https://{raw}")
+    host = (parsed.hostname or raw.split("/")[0]).lower().removeprefix("www.").strip()
     return host or None
+
+
+def resolve_official_domain(lead: dict[str, Any], contact: dict[str, Any]) -> str | None:
+    """Same official-domain ladder the exporter used, so the recheck is faithful."""
+    company = lead.get("company") if isinstance(lead.get("company"), dict) else {}
+    extra = contact.get("extra") if isinstance(contact.get("extra"), dict) else {}
+    for candidate in (
+        contact.get("official_domain"),
+        extra.get("official_domain"),
+        extra.get("canonical_domain"),
+        company.get("website"),
+        company.get("site"),
+    ):
+        host = _host(str(candidate or ""))
+        if host:
+            return host
+    return None
 
 
 def load_feed_leads(feed_dir: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
@@ -184,7 +202,7 @@ def select_cohort(
         reason = _contact_blocked(
             contact,
             account_id=str(company.get("cnpj14") or lead.get("source_lead_id") or ""),
-            official_domain=_host(str(company.get("website") or "")),
+            official_domain=resolve_official_domain(lead, contact),
         )
         if reason is not None:
             funnel[f"blocked_{reason}"] += 1
@@ -225,8 +243,7 @@ def stratified_sample(members: list[dict[str, Any]]) -> list[dict[str, Any]]:
         if per_class[route_class] >= SAMPLE_PER_ROUTE_CLASS:
             continue
         per_class[route_class] += 1
-        company = member.get("company") if isinstance(member.get("company"), dict) else {}
-        official = _host(str(company.get("website") or "")) or None
+        official = resolve_official_domain(member, contact)
         mailbox_domain = email_domain(str(contact.get("email") or "")) or None
         source_host = _host(contact.get("source_url"))
         sample.append(
