@@ -239,3 +239,23 @@ def test_every_funnel_and_route_class_key_ships_even_at_zero():
         assert key in stats["funnel"], key
     assert stats["route_class_distribution"]["PROBABILISTIC_OR_RISKY"] == 0
     assert stats["route_class_distribution"]["DIRECT_PERSON"] == 0
+
+
+def test_the_published_official_domain_feeds_the_recheck():
+    """The exporter publishes the domain it judged against; the recheck reuses it."""
+    from scripts.ops.build_controlled_email_cohort import resolve_official_domain
+
+    lead = _lead("11111111000191", [])
+    lead["company"]["official_domain"] = "alpha.com.br"
+    assert resolve_official_domain(lead, {}) == "alpha.com.br"
+
+    contact = _contact(
+        "contato@alpha.com.br",
+        source_url="https://alpha.com.br/fale-conosco",
+    )
+    lead_with_contact = _lead("11111111000191", [contact])
+    lead_with_contact["company"]["official_domain"] = "alpha.com.br"
+    members, stats = select_cohort([lead_with_contact], limit=50)
+    assert len(members) == 1
+    assert stats["funnel"]["official_domain"] == 1
+    assert stats["funnel"]["no_domain"] == 0

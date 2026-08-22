@@ -97,6 +97,7 @@ def resolve_official_domain(lead: dict[str, Any], contact: dict[str, Any]) -> st
         contact.get("official_domain"),
         extra.get("official_domain"),
         extra.get("canonical_domain"),
+        company.get("official_domain"),
         company.get("website"),
         company.get("site"),
     ):
@@ -187,7 +188,7 @@ def select_cohort(
         contacts = [c for c in (lead.get("contacts") or []) if isinstance(c, dict)]
         emails = [c for c in contacts if canonicalize_mailbox(str(c.get("email") or ""))]
 
-        if company.get("website") or any(c.get("official_domain") for c in contacts):
+        if company.get("official_domain") or company.get("website") or any(c.get("official_domain") for c in contacts):
             funnel["official_domain"] += 1
         else:
             funnel["no_domain"] += 1
