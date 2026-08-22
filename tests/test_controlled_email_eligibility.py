@@ -1014,48 +1014,169 @@ def test_five_class_mapping_feed_written_for_warmbly_ingest() -> None:
         assert json.loads(sibling.read_text(encoding="utf-8"))["leads"][0]["contacts"][0]["email"]
 
 
-def _cnpj_linked_doc_route(
+def _doc_route(
     mailbox: str = "licitacoes@alphaengenharia.com.br",
     *,
-    document_cnpj14: str = ACCOUNT_ID,
+    official_domain: str = "alphaengenharia.com.br",
     evidence_strength: str = "company_authored_document",
 ) -> ReachabilityRoute:
-    """Company-authored document hosted on a datalake/portal host, not the company host."""
+    """Company-authored document hosted on a portal host, not the company host."""
+    extra: dict = {"evidence_strength": evidence_strength}
+    if official_domain:
+        extra["official_domain"] = official_domain
     return _route(
         mailbox,
         channel=ChannelType.ROLE_MAILBOX,
         ownership=OwnershipStatus.UNKNOWN,
         source_type="official_documents",
-        source_url="https://datalake.example/doc/1",
-        extra={
-            "evidence_strength": evidence_strength,
-            "document_cnpj14": document_cnpj14,
-        },
+        source_url="https://pncp.gov.br/app/editais/1",
+        extra=extra,
     )
 
 
-def test_cnpj_linked_company_document_survives_host_match_gate():
-    """Authorship binds the mailbox; a PNCP/portal host is never the company host."""
-    verdict = evaluate_controlled_email_eligible(_cnpj_linked_doc_route())
+def test_a_document_mailbox_on_the_proven_official_domain_is_associated():
+    """The account's own proven domain is what binds it, not the document host."""
+    verdict = evaluate_controlled_email_eligible(_doc_route())
     assert verdict.mailbox_company_evidence == "OBSERVED"
     assert verdict.controlled_email_eligible is True
     assert verdict.route_class == EmailRouteClass.ROLE_OR_DEPARTMENT
 
 
-def test_document_for_a_different_cnpj_is_not_associated():
-    verdict = evaluate_controlled_email_eligible(_cnpj_linked_doc_route(document_cnpj14="99887766000155"))
+def test_a_document_route_without_a_proven_domain_has_no_association_at_all():
+    """Extraction cannot say whose mailbox is printed in a document.
+
+    The document's CNPJ tag is the CNPJ that was queried and the company name is
+    producer-supplied, so neither can bind the mailbox. There is deliberately no
+    carve-out here: with no proven official domain there is simply no evidence.
+    """
+    verdict = evaluate_controlled_email_eligible(_doc_route(official_domain=""))
     assert verdict.mailbox_company_evidence == "UNKNOWN"
     assert verdict.controlled_email_eligible is False
     assert "mailbox_company_evidence_unknown" in verdict.reason_codes
 
 
-def test_weak_document_evidence_does_not_bypass_host_match():
-    verdict = evaluate_controlled_email_eligible(_cnpj_linked_doc_route(evidence_strength="snippet_mention"))
+def test_a_notice_that_merely_lists_the_company_cannot_bind_the_agency_mailbox():
+    verdict = evaluate_controlled_email_eligible(
+        _doc_route("licitacao@saojoaquim.sc.gov.br", evidence_strength="official_cnpj_linked_document")
+    )
     assert verdict.mailbox_company_evidence == "UNKNOWN"
     assert verdict.controlled_email_eligible is False
 
 
-def test_freemail_on_a_cnpj_linked_document_still_needs_a_company_page():
-    verdict = evaluate_controlled_email_eligible(_cnpj_linked_doc_route("alphaengenharia@gmail.com"))
+def test_a_consortium_partner_mailbox_in_our_document_is_not_ours():
+    verdict = evaluate_controlled_email_eligible(_doc_route("comercial@terraplenagemsulmg.com.br"))
     assert verdict.mailbox_company_evidence == "UNKNOWN"
     assert verdict.controlled_email_eligible is False
+
+
+def test_a_producer_supplied_company_name_cannot_create_an_association():
+    """razao_social arrives on the contact payload, so it can never be a binding."""
+    from scripts.decision_unit_intelligence.controlled_email import route_from_feed_contact
+
+    route = route_from_feed_contact(
+        {
+            "email": "comercial@grupohorizonte.com.br",
+            "source_type": "official_documents",
+            "source_url": "https://pncp.gov.br/app/editais/1",
+            "evidence_strength": "official_cnpj_linked_document",
+            "razao_social": "GRUPO HORIZONTE PARTICIPACOES LTDA",
+        },
+        account_id=ACCOUNT_ID,
+    )
+    verdict = evaluate_controlled_email_eligible(route)
+    assert verdict.mailbox_company_evidence == "UNKNOWN"
+    assert verdict.controlled_email_eligible is False
+
+
+def test_freemail_on_a_document_still_needs_a_company_page():
+    verdict = evaluate_controlled_email_eligible(_doc_route("alphaengenharia@gmail.com"))
+    assert verdict.controlled_email_eligible is False
+
+
+def test_suppression_is_read_fail_closed_across_producer_vocabularies():
+    """Reading two field names as the whole vocabulary let opted-out mail through."""
+    from scripts.decision_unit_intelligence.controlled_email import suppression_from_feed_contact
+
+    suppressing = [
+        {"suppression": "opt-out"},
+        {"suppression": "do_not_contact"},
+        {"suppression": "hard_bounce"},
+        {"suppression_state": "opt-out"},
+        {"route_suppression": "quarantined"},
+        {"suppression_reason": "unsubscribed"},
+        {"email_status": "unsubscribed"},
+        {"email_status": "hard_bounce"},
+        {"opt_out": True},
+        {"opt_out": "true"},
+        {"opt_out": 1},
+        {"opt_out": "yes"},
+        {"unsubscribed": True},
+        {"opted_out": True},
+        {"suppressed": True},
+        {"is_suppressed": True},
+        {"complained": True},
+        {"spam_complaint": True},
+        {"blocklisted": True},
+        {"do_not_contact": True},
+        {"dnc": True},
+        {"bounced": True},
+        # Nested shapes this schema already uses for provenance.
+        {"provenance": {"route_suppression": "OPT_OUT"}},
+        {"extra": {"route_suppression": "OPT_OUT"}},
+        {"extra": {"suppression": "opt-out"}},
+    ]
+    for payload in suppressing:
+        assert suppression_from_feed_contact(payload) != SuppressionState.NONE, payload
+
+    # A string "false" must not starve the cohort, and a clear token stays clear.
+    clear = [
+        {},
+        {"route_suppression": "NONE"},
+        {"route_suppression": "  none  "},
+        {"suppression": "clear"},
+        {"unsubscribed": "false"},
+        {"do_not_contact": "false"},
+        {"dnc": "false"},
+        {"bounced": "false"},
+        {"opt_out": False},
+        {"opt_out": 0},
+        # `status` is a generic field in this repo (READY, idle, backpressure).
+        # Failing closed on it would mark healthy contacts suppressed.
+        {"status": "READY"},
+        {"status": "new"},
+        {"status": "opt_out"},
+        # A hint field only suppresses on a recognized suppression word.
+        {"email_status": "valid"},
+        {"email_status": "verified"},
+    ]
+    for payload in clear:
+        assert suppression_from_feed_contact(payload) == SuppressionState.NONE, payload
+
+
+def test_a_suppressed_contact_never_reaches_eligibility():
+    from scripts.decision_unit_intelligence.controlled_email import route_from_feed_contact
+
+    base = {
+        "email": "contato@empresaexemplo.com.br",
+        "source": "contact_page",
+        "source_type": "contact_page",
+        "source_url": "https://empresaexemplo.com.br/contato",
+    }
+    for payload in ({"suppression": "opt-out"}, {"suppressed": True}, {"opt_out": "true"}):
+        route = route_from_feed_contact({**base, **payload}, account_id=ACCOUNT_ID)
+        assert evaluate_controlled_email_eligible(route).controlled_email_eligible is False, payload
+
+    route = route_from_feed_contact(base, account_id=ACCOUNT_ID)
+    assert evaluate_controlled_email_eligible(route).controlled_email_eligible is True
+
+
+def test_paraguayan_company_domain_is_not_a_parser_leftover():
+    verdict = evaluate_controlled_email_eligible(
+        _route(
+            "licitaciones@constructoraalvo.com.py",
+            source_type="contact_page",
+            source_url="https://constructoraalvo.com.py/contacto",
+            extra={"official_domain": "constructoraalvo.com.py"},
+        )
+    )
+    assert "implausible_mailbox_host" not in verdict.reason_codes

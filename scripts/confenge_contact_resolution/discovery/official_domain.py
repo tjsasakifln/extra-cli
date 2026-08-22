@@ -14,7 +14,56 @@ from scripts.confenge_contact_resolution.ownership import (
 )
 
 # Hosts that must never be treated as company official sites
+# Hosts nobody owns exclusively. A page on one of these proves nothing about
+# who owns a mailbox published on it, so it can never stand in for a company's
+# official domain. Link shorteners, archives and site builders included: they
+# are all "anyone can publish here".
+_SHARED_PUBLISHING_HOST_SUFFIXES = (
+    "blogspot.com",
+    "blogspot.com.br",
+    "wordpress.com",
+    "weebly.com",
+    "jimdosite.com",
+    "jimdofree.com",
+    "webnode.com",
+    "webnode.com.br",
+    "tumblr.com",
+    "myshopify.com",
+    "canva.site",
+    "godaddysites.com",
+    "negocio.site",
+    "notion.site",
+    "github.io",
+    "gitlab.io",
+    "medium.com",
+    "substack.com",
+    "linktr.ee",
+    "linkr.bio",
+    "beacons.ai",
+    "bio.link",
+    "bit.ly",
+    "tinyurl.com",
+    "t.me",
+    "wa.me",
+    "api.whatsapp.com",
+    "web.archive.org",
+    "archive.org",
+    "docs.google.com",
+    "drive.google.com",
+    "groups.google.com",
+    "google.com",
+    "goo.gl",
+    "s3.amazonaws.com",
+    "blob.core.windows.net",
+    "firebaseapp.com",
+    "web.app",
+    "netlify.app",
+    "vercel.app",
+    "pages.dev",
+)
+
 _BLOCKED_HOST_SUFFIXES = (
+    *_SHARED_PUBLISHING_HOST_SUFFIXES,
     "jusbrasil.com.br",
     "linkedin.com",
     "instagram.com",

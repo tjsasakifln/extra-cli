@@ -41,7 +41,7 @@ def _contact(
 def _lead(cnpj14: str, contacts: list[dict[str, Any]], *, website: str | None = None) -> dict[str, Any]:
     return {
         "source_lead_id": f"lead-{cnpj14}",
-        "company": {"cnpj14": cnpj14, "razao_social": f"EMPRESA {cnpj14}", "website": website},
+        "company": {"cnpj14": cnpj14, "razao_social": "CONSTRUTORA EXEMPLO LTDA", "website": website},
         "contacts": contacts,
     }
 
@@ -259,3 +259,102 @@ def test_the_published_official_domain_feeds_the_recheck():
     assert len(members) == 1
     assert stats["funnel"]["official_domain"] == 1
     assert stats["funnel"]["no_domain"] == 0
+
+
+def test_the_sample_lets_a_reviewer_catch_a_wrongly_resolved_domain(tmp_path):
+    """Host-vs-host fields all agree when the domain was guessed from the name.
+
+    A domain resolved by name-token overlap alone matches the page it was
+    crawled from and matches itself, so every host field reads green. The one
+    independent signal is whether the mailbox domain fits the company name.
+    """
+    lead = _lead(
+        "11111111000191",
+        [_contact("contact@ollama.com", source_url="https://ollama.com/contact")],
+        website="https://ollama.com",
+    )
+    lead["company"]["razao_social"] = "CONSTRUTORA ALVO ENGENHARIA LTDA"
+    feed_dir = _write_export(tmp_path, [lead])
+    manifest = build(
+        feed_dir=feed_dir,
+        private_root=tmp_path / "private",
+        limit=50,
+        as_of="2026-08-22",
+        run_stamp="20260822T000000Z",
+    )
+    sample = manifest["sample_qa"][0]
+    assert sample["mailbox_domain_matches_official"] is True
+    assert sample["source_host_matches_official"] is True
+    assert sample["mailbox_domain_fits_company_name"] is False
+
+
+def test_the_sample_never_carries_the_company_name(tmp_path):
+    """A Brazilian MEI's razao social is a natural person's name, often with a CPF."""
+    lead = _lead("11111111000191", [_contact("contato@alpha.com.br")], website="https://alpha.com.br")
+    lead["company"]["razao_social"] = "JOAO DA SILVA CONSTRUCOES"
+    feed_dir = _write_export(tmp_path, [lead])
+    manifest = build(
+        feed_dir=feed_dir,
+        private_root=tmp_path / "private",
+        limit=50,
+        as_of="2026-08-22",
+        run_stamp="20260822T000000Z",
+    )
+    redacted = Path(manifest["manifest_path"]).read_text(encoding="utf-8")
+    assert "JOAO DA SILVA" not in redacted
+    assert "mailbox_domain_fits_company_name" in redacted
+
+
+def test_the_producer_never_holds_the_whole_feed(tmp_path):
+    """The authoritative export covers the decision universe, not the hot set.
+
+    Materializing hundreds of thousands of leads is how the producer would run
+    the host out of memory, so it must stream chunk by chunk.
+    """
+    from scripts.ops.build_controlled_email_cohort import iter_feed_leads
+
+    feed_dir = tmp_path / "06_warmbly_feed"
+    feed_dir.mkdir(parents=True)
+    for idx in range(4):
+        (feed_dir / f"chunk_{idx:04d}.json").write_text(
+            json.dumps(
+                {
+                    "schema_version": SCHEMA_OUTREACH,
+                    "leads": [
+                        _lead(f"{idx}{n:010d}9"[:14], [_contact(f"contato@empresa{idx}x{n}.com.br")]) for n in range(3)
+                    ],
+                }
+            ),
+            encoding="utf-8",
+        )
+    (feed_dir / "manifest.json").write_text(json.dumps({"lead_count": 12}), encoding="utf-8")
+
+    stream = iter_feed_leads(feed_dir)
+    assert next(stream)["company"]["cnpj14"].startswith("0")
+    assert sum(1 for _ in iter_feed_leads(feed_dir)) == 12
+
+    manifest = build(
+        feed_dir=feed_dir,
+        private_root=tmp_path / "private",
+        limit=50,
+        as_of="2026-08-22",
+        run_stamp="20260822T000000Z",
+    )
+    assert manifest["member_count"] == 12
+    assert manifest["funnel"]["accounts_considered"] == 12
+
+
+def test_a_precomputed_owner_map_matches_the_whole_feed_gate():
+    """Streaming must not weaken the cross-account rule."""
+    from scripts.decision_unit_intelligence.controlled_email import shared_preferred_mailbox_owner
+
+    shared = "contato@grupo.com.br"
+    leads = [_lead("22222222000172", [_contact(shared)]), _lead("11111111000191", [_contact(shared)])]
+
+    whole, _ = select_cohort(list(leads), limit=50)
+    streamed, _ = select_cohort(
+        iter(list(leads)),
+        limit=50,
+        shared_mailbox_owner=shared_preferred_mailbox_owner(leads),
+    )
+    assert [m["company"]["cnpj14"] for m in whole] == [m["company"]["cnpj14"] for m in streamed] == ["11111111000191"]
