@@ -1,0 +1,147 @@
+{
+  "accepted_schemas": [
+    "public-read-confenge-dossier/1.0"
+  ],
+  "as_of": "2026-08-22",
+  "catalog_mode": "official_live",
+  "consumer": "web-cfg/contract-analysis",
+  "content_hash": "sha256:3332d3f020b9f5a21a37451b960cee934d1c628576ab585edb54074cfad8882b",
+  "contract_version": "v1.0.0",
+  "data_state": "DATA_READY",
+  "findings": [
+    {
+      "evidence_refs": [
+        "v_contract_intel_percentis:OBRAS"
+      ],
+      "fact": "Mediana dos contratos da empresa na categoria OBRAS: 1691351.30; referência p25/p50/p75 do painel: 25256.39/189000.00/910202.98.",
+      "finding_id": "value_position_in_category:1223e04da9b7",
+      "metrics": {
+        "focal_contract_count": 32,
+        "focal_position": "ABOVE_P75"
+      },
+      "question": "A posição observada corresponde ao porte de contrato que a empresa pretende disputar nesta categoria?",
+      "severity": "INFORMATIONAL",
+      "subject": "OBRAS"
+    }
+  ],
+  "grain": "anonymous_supplier_profile",
+  "limitations": [
+    "Campo ausente permanece UNKNOWN e não entra no denominador. UNKNOWN não é zero.",
+    "Os achados são fatos observados mais a pergunta que abrem. O dossiê não afirma direito, desequilíbrio econômico-financeiro, dano ou que um reajuste seja devido.",
+    "Contratos refletem o estado canônico do DataLake na data de observação; aditivos posteriores à última coleta podem não estar refletidos.",
+    "O painel de preços usa o conjunto de referência de órgãos públicos no raio de 200 km da base de referência; não é uma amostra nacional."
+  ],
+  "method_version": "confenge-dossier-compose/1.0",
+  "policy_version": "confenge-dossier-policy/1.0",
+  "producer": "extra-cli",
+  "publication_readiness": "DATA_READY",
+  "reason_codes": [
+    "focal_outside_panel_range",
+    "no_open_opportunities_for_buyers"
+  ],
+  "schema": "public-read-confenge-dossier/1.0",
+  "sections": {
+    "competitors": {
+      "missingness": 0.0,
+      "observed_at": "2026-08-22T03:00:00Z",
+      "payload": {
+        "competitor_count": 15,
+        "contract_count_band": "3-23",
+        "primary_category": "OBRAS",
+        "selection_rule": "fornecedores com contratos junto aos mesmos compradores e na categoria principal de contratos da própria empresa",
+        "shared_buyer_count_band": "3-16",
+        "value_bands": [
+          "<1.000.000",
+          "<10.000.000",
+          "<100.000.000"
+        ]
+      },
+      "reason_codes": [],
+      "row_count": 15,
+      "section_id": "competitors",
+      "sources": [
+        "v_contracts_canonical_v2"
+      ],
+      "state": "DATA_READY"
+    },
+    "open_opportunities": {
+      "missingness": null,
+      "observed_at": "2026-08-22T03:00:00Z",
+      "payload": {
+        "opportunities": [],
+        "opportunity_count": 0
+      },
+      "reason_codes": [
+        "no_open_opportunities_for_buyers"
+      ],
+      "row_count": 0,
+      "section_id": "open_opportunities",
+      "sources": [
+        "v_open_opportunities_canonical"
+      ],
+      "state": "DATA_HOLD"
+    },
+    "price_panel": {
+      "missingness": null,
+      "observed_at": "2026-08-22T03:00:00Z",
+      "payload": {
+        "categories": [
+          {
+            "bucket_precision": "NORMAL",
+            "categoria": "FACILITIES",
+            "focal_contract_count": 5,
+            "focal_contract_count_all": 6,
+            "focal_median": "20003608.86",
+            "focal_position": "OUT_OF_PANEL_RANGE",
+            "focal_valued_count": 5,
+            "reference_contract_count": 35050,
+            "reference_p25": "206.40",
+            "reference_p50": "1189.69",
+            "reference_p75": "20548.49",
+            "reference_ticket_medio": "13871430.11"
+          },
+          {
+            "bucket_precision": "NORMAL",
+            "categoria": "OBRAS",
+            "focal_contract_count": 32,
+            "focal_contract_count_all": 49,
+            "focal_median": "1691351.30",
+            "focal_position": "ABOVE_P75",
+            "focal_valued_count": 32,
+            "reference_contract_count": 18892,
+            "reference_p25": "25256.39",
+            "reference_p50": "189000.00",
+            "reference_p75": "910202.98",
+            "reference_ticket_medio": "33585770.07"
+          }
+        ],
+        "category_count": 2,
+        "comparable_category_count": 1,
+        "low_precision_categories": [
+          "TI"
+        ],
+        "out_of_range_category_count": 1,
+        "out_of_range_factor": 10,
+        "reference_scope": "contratos de órgãos públicos do conjunto de referência no raio de 200 km; não é amostra nacional",
+        "unit": "BRL_TOTAL",
+        "value_semantic": "valor_integral_nominal"
+      },
+      "reason_codes": [
+        "focal_outside_panel_range"
+      ],
+      "row_count": 2,
+      "section_id": "price_panel",
+      "sources": [
+        "v_contract_intel_percentis"
+      ],
+      "state": "DATA_READY"
+    }
+  },
+  "source_dossier_hash": "sha256:9be6bb57368066bfcbd72ba076a1a2c108e5e7ef4f837406baf6bd4f6650e48b",
+  "subject_profile": {
+    "buyer_count_band": "21-50",
+    "cnae_division": "71",
+    "contract_count_band": "51-200",
+    "uf": "SC"
+  }
+}

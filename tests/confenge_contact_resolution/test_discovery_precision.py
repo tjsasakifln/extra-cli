@@ -381,8 +381,12 @@ def test_resolution_cache_signature_includes_contract_and_discovery_budget():
 
 
 def test_cascade_stops_early_on_functional_control_eligible_doc(monkeypatch):
-    """Observed licitacoes@ on a CNPJ-linked document is a company-route success."""
-    from scripts.confenge_contact_resolution.discovery.budget import InvestigationOutcome
+    """A document mailbox is a company route only once a domain is proven.
+
+    With no network the cascade cannot prove an official domain, and extraction
+    cannot say whose mailbox is printed in a document, so this must NOT stop
+    early. Stopping here would end person discovery on an unbound mailbox.
+    """
     from scripts.confenge_contact_resolution.discovery.cascade import DiscoveryCascade
 
     calls = {"search": 0, "probe": 0, "crawl": 0}
@@ -393,6 +397,7 @@ def test_cascade_stops_early_on_functional_control_eligible_doc(monkeypatch):
                 "email": "licitacoes@alphaengenharia.com.br",
                 "cnpj14": cnpj14,
                 "evidence_strength": "company_authored_document",
+                "official_domain": "alphaengenharia.com.br",
                 "url": "https://datalake.example/doc/1",
                 "doc_type": "proposta",
             }
@@ -412,13 +417,12 @@ def test_cascade_stops_early_on_functional_control_eligible_doc(monkeypatch):
         razao_social="ALPHA ENGENHARIA E CONSTRUCOES LTDA",
         stop_when_strong_contact=True,
     )
-    assert result.stats.outcome == InvestigationOutcome.CONTACT_FOUND.value
-    assert result.stats.stop_reason == "controlled_eligible_public_doc"
+    assert result.stats.stop_reason != "controlled_eligible_public_doc"
     assert result.stats.search_queries == 0
     assert calls["search"] == 0
     assert calls["probe"] == 0
     assert not any(a["reason_code"] == "named_human_contact_found" for a in result.source_attempts)
-    assert any(a["reason_code"] == "controlled_eligible_company_route_found" for a in result.source_attempts)
+    assert not any(a["reason_code"] == "controlled_eligible_company_route_found" for a in result.source_attempts)
     assert all(
         {
             "cnpj14",
@@ -630,3 +634,60 @@ def test_build_web_search_provider_uses_private_searxng(monkeypatch) -> None:
     provider = build_web_search_provider()
     assert isinstance(provider, SearxngJSONProvider)
     assert provider.base_url == "http://127.0.0.1:18888"
+
+
+def test_cascade_does_not_stop_early_on_a_foreign_mailbox_in_our_document(monkeypatch):
+    """A notice that merely lists us carries the agency's mailbox, not ours.
+
+    The document's CNPJ tag is the CNPJ that was queried, so it cannot bind the
+    mailbox. Stopping discovery here would end the search on a wrong company.
+    """
+    from scripts.confenge_contact_resolution.discovery.cascade import DiscoveryCascade
+    from scripts.decision_unit_intelligence.controlled_email import (
+        observed_contact_is_controlled_eligible_company_route,
+    )
+
+    def fake_docs(cnpj14, **kwargs):
+        return [
+            {
+                "email": "licitacao@saojoaquim.sc.gov.br",
+                "cnpj14": cnpj14,
+                "evidence_strength": "official_cnpj_linked_document",
+                "url": "https://pncp.gov.br/app/editais/1",
+                "doc_type": "edital",
+            }
+        ]
+
+    monkeypatch.setattr(
+        "scripts.confenge_contact_resolution.discovery.cascade.lookup_public_docs_for_cnpj",
+        fake_docs,
+    )
+    cascade = DiscoveryCascade(
+        budget=DiscoveryBudget(max_search_queries=6, max_pages=8, max_total_requests=20),
+        allow_network=False,
+        dsn=None,
+    )
+    result = cascade.run(
+        cnpj14="11222333000181",
+        razao_social="CONSTRUTORA ALVO LTDA",
+        stop_when_strong_contact=True,
+    )
+    # The cascade may still record that some contact data exists — a mailbox was
+    # in the document. What it must not do is call it a company route for us.
+    assert result.stats.stop_reason != "controlled_eligible_public_doc"
+    assert not any(a["reason_code"] == "controlled_eligible_company_route_found" for a in result.source_attempts)
+    assert any(
+        a["reason_code"] == "documents_have_no_explicit_named_email_role"
+        for a in result.source_attempts
+        if a["source_adapter"] == "process_administrative_docs"
+    )
+    assert not observed_contact_is_controlled_eligible_company_route(
+        {
+            "email": "licitacao@saojoaquim.sc.gov.br",
+            "source": "official_documents",
+            "source_url": "https://pncp.gov.br/app/editais/1",
+            "evidence_strength": "official_cnpj_linked_document",
+            "cnpj14": "11222333000181",
+        },
+        account_id="11222333000181",
+    )

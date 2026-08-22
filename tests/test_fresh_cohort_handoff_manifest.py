@@ -42,20 +42,26 @@ def test_fresh_cohort_manifest_redacted_and_complete() -> None:
     assert manifest["auto_send"] is False
     assert manifest["REAL_EMAIL_SENT"] is False
     assert manifest["smtp"] == "none"
-    assert manifest["member_count"] == 50
     assert re.fullmatch(r"[0-9a-f]{64}", manifest["feed_sha256"])
     assert re.fullmatch(r"[0-9a-f]{40}", manifest["code_sha"])
     assert re.fullmatch(r"[0-9a-f]{40}", manifest["executed_sha"])
     assert manifest["schema_versions"]["outreach_schema"] == SCHEMA_OUTREACH
+
+    # The cohort is bounded and never padded: N is whatever the real run yielded.
+    members = manifest["member_count"]
+    assert isinstance(members, int)
+    assert 0 < members <= 50
     dist = manifest["route_class_distribution"]
     assert dist["PROBABILISTIC_OR_RISKY"] == 0
-    assert dist["GENERIC_COMPANY"] + dist["ROLE_OR_DEPARTMENT"] == 50
-    assert manifest["warmbly_import"]["leads_processed"] == 50
+    assert sum(dist.values()) == members
+    assert manifest["warmbly_import"]["leads_processed"] == members
     assert manifest["warmbly_import"]["errors"] == 0
     assert manifest["warmbly_import"]["auto_send_enabled"] is False
     assert re.fullmatch(r"[0-9a-f]{64}", manifest["warmbly_cohort"]["cohort_hash"])
     assert re.fullmatch(r"[0-9a-f]{64}", manifest["warmbly_cohort"]["recipient_set_hash"])
     funnel = manifest["funnel"]
+    assert funnel["double_preferred"] == 0
+    assert funnel["preferred_initial"] >= members
     for key in (
         "accounts_considered",
         "official_domain",
