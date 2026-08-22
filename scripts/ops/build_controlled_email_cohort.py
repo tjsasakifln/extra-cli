@@ -9,6 +9,11 @@ the controlled-email hard gates, caps the cohort, and writes:
   <private_root>/<run_stamp>/confenge.outreach.v1.json.sha256   (0600)
   <private_root>/<run_stamp>/manifest.redacted.json             (0600, no PII)
 
+Eligibility is re-derived here from the contact's own provenance rather than
+trusted from the exported stamp: a feed produced by an older classifier can carry
+routes the current policy rejects, and the cohort must reflect the policy that is
+shipped now.
+
 The private feed never belongs in Git. The redacted manifest carries the funnel,
 the route-class distribution and a stratified evidence sample with hosts only —
 never a mailbox, a person or a CNPJ.
@@ -39,6 +44,8 @@ from scripts.decision_unit_intelligence.controlled_email import (  # noqa: E402
     apply_cross_account_preferred_mailbox_gate,
     canonicalize_mailbox,
     email_domain,
+    evaluate_controlled_email_eligible,
+    route_from_feed_contact,
 )
 from scripts.warmbly_bridge import SCHEMA_OUTREACH  # noqa: E402
 
@@ -81,7 +88,23 @@ def load_feed_leads(feed_dir: Path) -> tuple[list[dict[str, Any]], dict[str, Any
     return leads, manifest
 
 
-def _contact_blocked(contact: dict[str, Any]) -> str | None:
+def recheck_contact(
+    contact: dict[str, Any],
+    *,
+    account_id: str,
+    official_domain: str | None,
+) -> Any:
+    """Re-derive eligibility under the shipped policy, ignoring the exported stamp."""
+    route = route_from_feed_contact(contact, account_id=account_id, official_domain=official_domain)
+    return evaluate_controlled_email_eligible(route)
+
+
+def _contact_blocked(
+    contact: dict[str, Any],
+    *,
+    account_id: str = "",
+    official_domain: str | None = None,
+) -> str | None:
     """Reason this mailbox cannot enter the bounded cohort, or None."""
     mailbox = canonicalize_mailbox(str(contact.get("email") or ""))
     if not mailbox or "@" not in mailbox:
@@ -103,6 +126,11 @@ def _contact_blocked(contact: dict[str, Any]) -> str | None:
         return "mailbox_purpose_blocked"
     if str(contact.get("mailbox_company_evidence") or "").upper() != "OBSERVED":
         return "mailbox_company_evidence_unknown"
+    verdict = recheck_contact(contact, account_id=account_id, official_domain=official_domain)
+    if not verdict.controlled_email_eligible:
+        return "stamp_disagrees_with_shipped_policy"
+    if verdict.route_class.value != route_class:
+        return "stamp_disagrees_with_shipped_policy"
     return None
 
 
@@ -153,7 +181,11 @@ def select_cohort(
             continue
 
         contact = preferred[0]
-        reason = _contact_blocked(contact)
+        reason = _contact_blocked(
+            contact,
+            account_id=str(company.get("cnpj14") or lead.get("source_lead_id") or ""),
+            official_domain=_host(str(company.get("website") or "")),
+        )
         if reason is not None:
             funnel[f"blocked_{reason}"] += 1
             funnel["blocked"] += 1

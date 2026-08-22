@@ -171,3 +171,31 @@ def test_feed_hash_matches_the_bytes_on_disk(tmp_path):
     )
     body = Path(manifest["private_feed_path"]).read_bytes()
     assert hashlib.sha256(body).hexdigest() == manifest["feed_sha256"]
+
+
+def test_a_stale_stamp_cannot_smuggle_an_untrustworthy_route():
+    """An export from an older classifier is re-judged under the shipped policy."""
+    smuggled = _contact(
+        "contato@sustainconsulting.llc",
+        source_url="https://multisend-unsubscribe.gmail.com/x",
+        provenance={"source_type": "web_search"},
+    )
+    members, stats = select_cohort(
+        [_lead("11111111000191", [smuggled])],
+        limit=50,
+    )
+    assert members == []
+    assert stats["funnel"]["blocked_stamp_disagrees_with_shipped_policy"] == 1
+
+
+def test_a_route_the_shipped_policy_confirms_still_passes():
+    honest = _contact(
+        "contato@alpha.com.br",
+        source_url="https://alpha.com.br/contato",
+        provenance={"source_type": "contact_page"},
+    )
+    members, _ = select_cohort(
+        [_lead("11111111000191", [honest], website="https://alpha.com.br")],
+        limit=50,
+    )
+    assert len(members) == 1
