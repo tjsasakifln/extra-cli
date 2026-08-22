@@ -15,6 +15,7 @@ from scripts.decision_unit_intelligence.controlled_email import (
     CONTROLLED_EMAIL_POLICY_VERSION,
     EmailRouteClass,
     alternative_after_preferred_bounce,
+    apply_cross_account_preferred_mailbox_gate,
     classify_account_email_routes,
     classify_email_route_class,
     evaluate_controlled_email_eligible,
@@ -42,7 +43,7 @@ from scripts.decision_unit_intelligence.projection import (
     project_warmbly_outreach,
 )
 from scripts.warmbly_bridge import SCHEMA_OUTREACH
-from scripts.warmbly_bridge.mapping import map_lead
+from scripts.warmbly_bridge.mapping import build_leads, map_lead
 
 ACCOUNT_ID = "12345678000190"
 
@@ -539,6 +540,121 @@ def test_map_lead_rejects_unassociated_web_search_mailbox() -> None:
     contact = lead["contacts"][0]
     assert contact["controlled_email_eligible"] is False
     assert not contact.get("preferred_initial")
+
+
+def test_empty_official_site_source_rejects_mailbox_host_mismatch() -> None:
+    """Live junk: site source with empty official_domain and mailbox≠page host."""
+    classified = evaluate_controlled_email_eligible(
+        _route(
+            "contato@smartclub.com.br",
+            source_type="site",
+            source_url="https://smartlink.com.br/contato",
+            ownership=OwnershipStatus.COMPANY_OWNED,
+            extra={"company_associated": True},
+        )
+    )
+    assert classified.controlled_email_eligible is False
+    assert classified.mailbox_company_evidence == "UNKNOWN"
+    assert "mailbox_source_host_mismatch" in classified.reason_codes
+    stamped = stamp_and_rank_feed_contacts(
+        [
+            {
+                "email": "contato@mattioli.eng.br",
+                "ownership_status": "COMPANY_OWNED",
+                "source_type": "site",
+                "source_url": "https://dinamica.com.br/contato",
+            }
+        ],
+        account_id=ACCOUNT_ID,
+        official_domain=None,
+    )
+    assert stamped[0]["controlled_email_eligible"] is False
+    assert not stamped[0].get("preferred_initial")
+    universe, intel, _ = _five_class_universe_intel_contacts()
+    universe = dict(universe)
+    universe["website"] = ""
+    universe["official_domain"] = ""
+    lead = map_lead(
+        universe,
+        intel=intel,
+        contacts_row={
+            "cnpj14": ACCOUNT_ID,
+            "contacts": [
+                {
+                    "email": "u003eancar@nectarc.com.br",
+                    "ownership_status": "COMPANY_OWNED",
+                    "source_type": "site",
+                    "source_url": "https://ancar.com.br/",
+                }
+            ],
+        },
+        conn=None,
+    )
+    assert lead is not None
+    assert lead["contacts"][0]["controlled_email_eligible"] is False
+
+
+def test_parser_minted_mailbox_host_is_not_eligible() -> None:
+    classified = evaluate_controlled_email_eligible(
+        _route(
+            "1@model.phone.replace",
+            source_type="site",
+            source_url="https://amrconstrucoes.com.br/contato",
+            ownership=OwnershipStatus.COMPANY_OWNED,
+        )
+    )
+    assert classified.controlled_email_eligible is False
+    assert "implausible_mailbox_host" in classified.reason_codes
+    stamped = stamp_and_rank_feed_contacts(
+        [
+            {
+                "email": "1@model.phone.replace",
+                "ownership_status": "COMPANY_OWNED",
+                "source_type": "contact_page",
+                "source_url": "https://amrconstrucoes.com.br/",
+            }
+        ],
+        account_id=ACCOUNT_ID,
+    )
+    assert stamped[0]["controlled_email_eligible"] is False
+
+
+def test_duplicate_preferred_mailbox_across_accounts_keeps_one() -> None:
+    universe_a, intel, _ = _five_class_universe_intel_contacts()
+    universe_a = dict(universe_a)
+    universe_a["cnpj14"] = "11111111000191"
+    universe_a["website"] = "https://energia.com.br"
+    universe_a["official_domain"] = "energia.com.br"
+    universe_b = dict(universe_a)
+    universe_b["cnpj14"] = "22222222000172"
+    contacts = {
+        "contacts": [
+            {
+                "email": "secretaria@energia.com.br",
+                "ownership_status": "COMPANY_OWNED",
+                "source_type": "site",
+                "source_url": "https://energia.com.br/contato",
+            }
+        ]
+    }
+    leads = build_leads(
+        [universe_a, universe_b],
+        [],
+        [
+            {"cnpj14": "11111111000191", **contacts},
+            {"cnpj14": "22222222000172", **contacts},
+        ],
+    )
+    preferred = [
+        (lead["company"]["cnpj14"], c["email"])
+        for lead in leads
+        for c in lead["contacts"]
+        if c.get("preferred_initial") and c.get("email")
+    ]
+    assert len(preferred) == 1
+    assert preferred[0][1] == "secretaria@energia.com.br"
+    gated = apply_cross_account_preferred_mailbox_gate(leads)
+    assert sum(1 for lead in gated for c in lead["contacts"] if c.get("preferred_initial")) == 1
 
 
 def test_hr_mailbox_not_controlled_eligible() -> None:

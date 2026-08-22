@@ -476,7 +476,11 @@ def test_stop_early_on_observed_licitacao_skips_person_search(monkeypatch) -> No
     assert search_calls["n"] == 0
     classified = evaluate_controlled_email_eligible(
         _route(
-            "licitacao@alphaengenharia.com.br", channel=ChannelType.ROLE_MAILBOX, relation=RouteRelation.ROUTES_TO_ROLE
+            "licitacao@alphaengenharia.com.br",
+            channel=ChannelType.ROLE_MAILBOX,
+            relation=RouteRelation.ROUTES_TO_ROLE,
+            source_url="https://alphaengenharia.com.br/",
+            extra={"official_domain": "alphaengenharia.com.br"},
         )
     )
     assert discovery_should_stop_for_commercial_value([classified]) is True

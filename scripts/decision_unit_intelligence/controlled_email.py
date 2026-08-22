@@ -67,6 +67,7 @@ COMPANY_ASSOCIATION_SOURCES = frozenset(
         "company_registry",
         "site",
         "institutional_site",
+        "contact_page",
     }
 )
 
@@ -78,6 +79,23 @@ UNTRUSTWORTHY_SOURCE_URL_MARKERS = (
     "mail.google.com",
     "googleusercontent.com",
 )
+
+# Parser/template leftovers are not corporate domains.
+IMPLAUSIBLE_MAILBOX_TLDS = frozenset(
+    {
+        "replace",
+        "phone",
+        "js",
+        "ts",
+        "py",
+        "local",
+        "localhost",
+        "invalid",
+        "example",
+        "test",
+    }
+)
+HTML_ENTITY_LOCAL_MARKERS = ("u003e", "u003c", "u0026", "&gt;", "&lt;", "&amp;")
 
 EMAIL_CHANNEL_TYPES = frozenset(
     {
@@ -267,32 +285,69 @@ def _official_domain(route: ReachabilityRoute) -> str:
     return str(extra.get("official_domain") or extra.get("canonical_domain") or "").lower().removeprefix("www.").strip()
 
 
+def mailbox_host_plausible(domain: str | None) -> bool:
+    """Reject parser-minted hosts such as model.phone.replace."""
+    host = str(domain or "").lower().removeprefix("www.").strip()
+    if not host or "." not in host:
+        return False
+    if any(marker in host for marker in ("model.phone", ".phone.", "undefined", "null")):
+        return False
+    labels = [part for part in host.split(".") if part]
+    if len(labels) < 2:
+        return False
+    tld = labels[-1]
+    if tld in IMPLAUSIBLE_MAILBOX_TLDS or not tld.isalpha() or len(tld) < 2:
+        return False
+    if any(not label.replace("-", "").isalnum() for label in labels):
+        return False
+    return True
+
+
+def mailbox_local_implausible(mailbox: str | None) -> bool:
+    local = str(mailbox or "").split("@", 1)[0].lower()
+    if not local:
+        return True
+    if any(marker in local for marker in HTML_ENTITY_LOCAL_MARKERS):
+        return True
+    if local in {"undefined", "null", "none", "true", "false"}:
+        return True
+    return False
+
+
 def association_provenance_trustworthy(route: ReachabilityRoute) -> bool:
     """True only when public provenance can bind the mailbox to this account."""
     if untrustworthy_source_url(route.source_url):
+        return False
+    if mailbox_local_implausible(route.channel_value):
         return False
     source = str(route.source_type or "").lower().strip()
     mailbox_dom = email_domain(route.channel_value)
     url_host = _url_host(route.source_url)
     official = _official_domain(route)
     freemail = is_freemail(route.channel_value)
+    if not freemail and not mailbox_host_plausible(mailbox_dom):
+        return False
     on_official_page = bool(official and url_host and _hosts_equivalent(url_host, official))
     mailbox_on_official = bool(official and mailbox_dom and not freemail and _hosts_equivalent(mailbox_dom, official))
     if official:
+        if not mailbox_host_plausible(official) and not freemail:
+            return False
         if source in COMPANY_ASSOCIATION_SOURCES:
             if freemail:
-                return on_official_page or not url_host
-            return mailbox_on_official or on_official_page
+                return on_official_page
+            return mailbox_on_official or (on_official_page and _hosts_equivalent(mailbox_dom, url_host))
         if on_official_page:
             return mailbox_on_official or freemail
         return False
-    if source in COMPANY_ASSOCIATION_SOURCES:
-        return True
-    if source in {"", "unknown"}:
-        if not url_host or not mailbox_dom or freemail:
-            return False
-        return _hosts_equivalent(mailbox_dom, url_host)
-    return False
+    # Empty official_domain is not proof of company association.
+    if freemail:
+        # Associated freemail must be published on a company page, not minted.
+        return source in COMPANY_ASSOCIATION_SOURCES and bool(url_host)
+    if not url_host or not mailbox_dom:
+        return False
+    if not _hosts_equivalent(mailbox_dom, url_host):
+        return False
+    return source in COMPANY_ASSOCIATION_SOURCES | {"", "unknown"}
 
 
 def mailbox_company_evidence(route: ReachabilityRoute) -> str:
@@ -633,6 +688,13 @@ def evaluate_controlled_email_eligible(
     if route.epistemic_class == EpistemicClass.INFERRED:
         eligible = False
         reasons.append("inferred_cannot_be_observed")
+    if mailbox_local_implausible(mailbox):
+        eligible = False
+        reasons.append("html_entity_or_template_local_part")
+    domain = email_domain(mailbox)
+    if domain and not is_freemail(mailbox) and not mailbox_host_plausible(domain):
+        eligible = False
+        reasons.append("implausible_mailbox_host")
     if company_ev != EVIDENCE_OBSERVED:
         eligible = False
         reasons.append("mailbox_company_evidence_unknown")
@@ -642,6 +704,9 @@ def evaluate_controlled_email_eligible(
             reasons.append("missing_provenance")
         if str(route.source_type or "").lower() == "web_search" and company_ev != EVIDENCE_OBSERVED:
             reasons.append("web_search_unassociated")
+        url_host = _url_host(route.source_url)
+        if domain and url_host and not _hosts_equivalent(domain, url_host):
+            reasons.append("mailbox_source_host_mismatch")
     if route_class == EmailRouteClass.DIRECT_PERSON and person_ev != EVIDENCE_OBSERVED:
         eligible = False
         reasons.append("direct_person_requires_named_person_evidence")
@@ -1030,3 +1095,38 @@ def stamp_and_rank_feed_contacts(
             merged["corroborated"] = True
         stamped.append(merged)
     return apply_preferred_recommended_alias(stamped)
+
+
+def apply_cross_account_preferred_mailbox_gate(leads: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Exactly one account may keep a preferred mailbox. Later duplicates lose it."""
+    claimed: dict[str, str] = {}
+    out: list[dict[str, Any]] = []
+    for lead in leads:
+        if not isinstance(lead, dict):
+            out.append(lead)
+            continue
+        company = lead.get("company") if isinstance(lead.get("company"), dict) else {}
+        account = str(company.get("cnpj14") or lead.get("source_lead_id") or "")
+        updated_contacts: list[Any] = []
+        for contact in lead.get("contacts") or []:
+            if not isinstance(contact, dict):
+                updated_contacts.append(contact)
+                continue
+            item = dict(contact)
+            mailbox = canonicalize_mailbox(str(item.get("email") or ""))
+            if item.get("preferred_initial") and mailbox:
+                owner = claimed.get(mailbox)
+                if owner and owner != account:
+                    item["preferred_initial"] = False
+                    item["recommended"] = False
+                    item["controlled_email_eligible"] = False
+                    item["reason_codes"] = list(item.get("reason_codes") or []) + [
+                        "duplicate_preferred_mailbox_across_accounts"
+                    ]
+                else:
+                    claimed[mailbox] = account
+            updated_contacts.append(item)
+        refreshed = dict(lead)
+        refreshed["contacts"] = updated_contacts
+        out.append(refreshed)
+    return out

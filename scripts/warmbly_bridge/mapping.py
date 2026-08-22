@@ -781,4 +781,6 @@ def build_leads(
             lead["source_lead_id"],
         )
     )
-    return leads
+    from scripts.decision_unit_intelligence.controlled_email import apply_cross_account_preferred_mailbox_gate
+
+    return apply_cross_account_preferred_mailbox_gate(leads)
