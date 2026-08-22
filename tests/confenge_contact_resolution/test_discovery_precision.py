@@ -31,6 +31,8 @@ from scripts.confenge_contact_resolution.discovery.public_document_fetch import 
 )
 from scripts.confenge_contact_resolution.discovery.web_search_providers import (
     DuckDuckGoHTMLProvider,
+    SearxngJSONProvider,
+    build_web_search_provider,
     parse_bing_html,
 )
 from scripts.confenge_contact_resolution.email_policy import assess_email
@@ -618,3 +620,13 @@ def test_resolver_rejects_unaligned_official_domain_injection():
     for c in res.candidates:
         if c.email and "wh.com" in c.email:
             assert c.enrollable is False or c.ownership_status != OwnershipStatus.COMPANY_OWNED.value
+
+
+def test_build_web_search_provider_uses_private_searxng(monkeypatch) -> None:
+    monkeypatch.setenv("CONFENGE_SEARXNG_URL", "http://127.0.0.1:18888")
+    monkeypatch.setenv("CONFENGE_WEB_SEARCH_PROVIDER", "searxng")
+    monkeypatch.delenv("BRAVE_SEARCH_API_KEY", raising=False)
+    monkeypatch.delenv("BRAVE_API_KEY", raising=False)
+    provider = build_web_search_provider()
+    assert isinstance(provider, SearxngJSONProvider)
+    assert provider.base_url == "http://127.0.0.1:18888"
