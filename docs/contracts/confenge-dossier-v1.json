@@ -1,0 +1,84 @@
+{
+  "schema": "confenge-dossier/1.0",
+  "public_schema": "public-read-confenge-dossier/1.0",
+  "contract_version": "v1.0.0",
+  "compatibility": "additive_nullable_within_v1",
+  "grain": "cnpj14",
+  "keys": ["dossier_id"],
+  "producer": {
+    "id": "extra-cli",
+    "command": "python3 -m scripts.dossier build --cnpj <CNPJ14> --out <DIR>",
+    "verify": "python3 -m scripts.dossier verify --dir <DIR>",
+    "module": "scripts/dossier/"
+  },
+  "consumers": [
+    {
+      "id": "web-cfg/contract-analysis",
+      "repository": "tjsasakifln/web-cfg",
+      "reads": "public-read.json",
+      "decision": "May render the de-identified projection. Must not treat UNKNOWN as zero. Must not infer a right, an imbalance, a loss, or that an adjustment is due. publication_readiness=DATA_READY is necessary and not sufficient for an editorial INDEX decision, which the consumer owns."
+    },
+    {
+      "id": "warmbly/confenge-cohort",
+      "repository": "tjsasakifln/warmbly",
+      "reads": "manifest.json",
+      "decision": "May attach a dossier reference to an outreach touchpoint. Must never embed the private dossier body in an outbound message. The dossier is delivered by a human, not auto-attached."
+    }
+  ],
+  "source_families": [
+    "supplier_registry",
+    "v_contracts_canonical_v2",
+    "v_contract_intel_percentis",
+    "v_expiring_contracts",
+    "v_open_opportunities_canonical"
+  ],
+  "offer_binding": {
+    "offer_id": "CFG-DIAG-EXP-v1",
+    "catalog": "CFG-OFFER-CATALOG-v1",
+    "note": "The dossier is the machine-produced core of the paid Diagnostico B2G. Human review and the executive narrative remain outside this artifact."
+  },
+  "export_layout": {
+    "dossier.json": "confenge-dossier/1.0 private document (contains the prospect identity)",
+    "public-read.json": "public-read-confenge-dossier/1.0 de-identified projection",
+    "dossier.md": "human deliverable rendered from dossier.json",
+    "manifest.json": "hashes, data_state and reason codes"
+  },
+  "sections": [
+    "identity",
+    "buyer_map",
+    "competitors",
+    "price_panel",
+    "expiring_contracts",
+    "open_opportunities"
+  ],
+  "required_sections": ["identity", "buyer_map", "price_panel"],
+  "data_states": ["DATA_READY", "DATA_HOLD", "DATA_REJECT"],
+  "catalog_modes": ["fixture", "official_live"],
+  "honesty": {
+    "unknown": "A missing field stays UNKNOWN and is excluded from the denominator. UNKNOWN is never zero.",
+    "fixture": "catalog_mode=fixture can never reach publication_readiness=DATA_READY.",
+    "claim_scan": "Every emitted document is scanned for forbidden claim tokens and metric keys before it is written. Official objeto text is exempt because the engine must not rewrite official text.",
+    "panel_range": "A category where the focal median sits more than 10x outside the panel interquartile band yields OUT_OF_PANEL_RANGE and no percentile position.",
+    "content_hash": "content_hash covers the document with volatile fields (generated_at, observed_at, producer_sha, content_hash) stripped, so two runs over the same data agree byte for byte."
+  },
+  "privacy": {
+    "public_projection_removes": [
+      "cnpj14",
+      "cnpj_raiz",
+      "razao_social",
+      "nome_fantasia",
+      "supplier_cnpj",
+      "supplier_nome",
+      "fornecedor_cnpj",
+      "fornecedor_nome",
+      "municipio"
+    ],
+    "public_projection_keeps": [
+      "price_panel",
+      "competitors (de-identified)",
+      "open_opportunities",
+      "value-position and opportunity findings"
+    ],
+    "enforcement": "verify compares every private value against the public body and fails on any match."
+  }
+}

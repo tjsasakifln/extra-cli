@@ -1,0 +1,301 @@
+{
+  "accepted_schemas": [
+    "public-read-confenge-dossier/1.0"
+  ],
+  "as_of": "2026-08-22",
+  "catalog_mode": "official_live",
+  "consumer": "web-cfg/contract-analysis",
+  "content_hash": "sha256:bde025fed2ba4247c79f6e57358c5187b56fb8bbdeecf2e03e2bacbe4e58903a",
+  "contract_version": "v1.0.0",
+  "data_state": "DATA_READY",
+  "findings": [
+    {
+      "evidence_refs": [
+        "v_contract_intel_percentis:OBRAS"
+      ],
+      "fact": "Mediana dos contratos da empresa na categoria OBRAS: 2000216.58; referência p25/p50/p75 do painel: 25256.39/189000.00/910202.98.",
+      "finding_id": "value_position_in_category:1223e04da9b7",
+      "metrics": {
+        "focal_contract_count": 49,
+        "focal_position": "ABOVE_P75"
+      },
+      "question": "A posição observada corresponde ao porte de contrato que a empresa pretende disputar nesta categoria?",
+      "severity": "INFORMATIONAL",
+      "subject": "OBRAS"
+    }
+  ],
+  "grain": "anonymous_supplier_profile",
+  "limitations": [
+    "Campo ausente permanece UNKNOWN e não entra no denominador. UNKNOWN não é zero.",
+    "Os achados são fatos observados mais a pergunta que abrem. O dossiê não afirma direito, desequilíbrio econômico-financeiro, dano ou que um reajuste seja devido.",
+    "Contratos refletem o estado canônico do DataLake na data de observação; aditivos posteriores à última coleta podem não estar refletidos.",
+    "O painel de preços usa o conjunto de referência de órgãos públicos no raio de 200 km da base de referência; não é uma amostra nacional."
+  ],
+  "method_version": "confenge-dossier-compose/1.0",
+  "policy_version": "confenge-dossier-policy/1.0",
+  "producer": "extra-cli",
+  "publication_readiness": "DATA_READY",
+  "reason_codes": [
+    "focal_outside_panel_range",
+    "no_open_opportunities_for_buyers"
+  ],
+  "schema": "public-read-confenge-dossier/1.0",
+  "sections": {
+    "competitors": {
+      "missingness": 0.0,
+      "observed_at": "2026-08-22T03:00:00Z",
+      "payload": {
+        "competitor_count": 15,
+        "competitors": [
+          {
+            "contract_count": 23,
+            "shared_buyer_count": 16,
+            "shared_categories": [
+              "OBRAS"
+            ],
+            "supplier_cnpj": "UNKNOWN",
+            "supplier_nome": "UNKNOWN",
+            "valor_sum": "42290311.32",
+            "valued_count": 23
+          },
+          {
+            "contract_count": 21,
+            "shared_buyer_count": 5,
+            "shared_categories": [
+              "OBRAS"
+            ],
+            "supplier_cnpj": "UNKNOWN",
+            "supplier_nome": "UNKNOWN",
+            "valor_sum": "18869230.55",
+            "valued_count": 21
+          },
+          {
+            "contract_count": 13,
+            "shared_buyer_count": 4,
+            "shared_categories": [
+              "OBRAS"
+            ],
+            "supplier_cnpj": "UNKNOWN",
+            "supplier_nome": "UNKNOWN",
+            "valor_sum": "12398841.49",
+            "valued_count": 13
+          },
+          {
+            "contract_count": 8,
+            "shared_buyer_count": 4,
+            "shared_categories": [
+              "OBRAS"
+            ],
+            "supplier_cnpj": "UNKNOWN",
+            "supplier_nome": "UNKNOWN",
+            "valor_sum": "7237287.24",
+            "valued_count": 8
+          },
+          {
+            "contract_count": 8,
+            "shared_buyer_count": 4,
+            "shared_categories": [
+              "OBRAS"
+            ],
+            "supplier_cnpj": "UNKNOWN",
+            "supplier_nome": "UNKNOWN",
+            "valor_sum": "4715758.16",
+            "valued_count": 8
+          },
+          {
+            "contract_count": 6,
+            "shared_buyer_count": 4,
+            "shared_categories": [
+              "OBRAS"
+            ],
+            "supplier_cnpj": "UNKNOWN",
+            "supplier_nome": "UNKNOWN",
+            "valor_sum": "15701517.49",
+            "valued_count": 6
+          },
+          {
+            "contract_count": 9,
+            "shared_buyer_count": 3,
+            "shared_categories": [
+              "OBRAS"
+            ],
+            "supplier_cnpj": "UNKNOWN",
+            "supplier_nome": "UNKNOWN",
+            "valor_sum": "13340740.12",
+            "valued_count": 9
+          },
+          {
+            "contract_count": 6,
+            "shared_buyer_count": 3,
+            "shared_categories": [
+              "OBRAS"
+            ],
+            "supplier_cnpj": "UNKNOWN",
+            "supplier_nome": "UNKNOWN",
+            "valor_sum": "4033282.29",
+            "valued_count": 6
+          },
+          {
+            "contract_count": 5,
+            "shared_buyer_count": 3,
+            "shared_categories": [
+              "OBRAS"
+            ],
+            "supplier_cnpj": "UNKNOWN",
+            "supplier_nome": "UNKNOWN",
+            "valor_sum": "11021655.24",
+            "valued_count": 5
+          },
+          {
+            "contract_count": 5,
+            "shared_buyer_count": 3,
+            "shared_categories": [
+              "OBRAS"
+            ],
+            "supplier_cnpj": "UNKNOWN",
+            "supplier_nome": "UNKNOWN",
+            "valor_sum": "2478000.00",
+            "valued_count": 5
+          },
+          {
+            "contract_count": 5,
+            "shared_buyer_count": 3,
+            "shared_categories": [
+              "OBRAS"
+            ],
+            "supplier_cnpj": "UNKNOWN",
+            "supplier_nome": "UNKNOWN",
+            "valor_sum": "1427818.50",
+            "valued_count": 5
+          },
+          {
+            "contract_count": 4,
+            "shared_buyer_count": 3,
+            "shared_categories": [
+              "OBRAS"
+            ],
+            "supplier_cnpj": "UNKNOWN",
+            "supplier_nome": "UNKNOWN",
+            "valor_sum": "4271300.00",
+            "valued_count": 4
+          },
+          {
+            "contract_count": 3,
+            "shared_buyer_count": 3,
+            "shared_categories": [
+              "OBRAS"
+            ],
+            "supplier_cnpj": "UNKNOWN",
+            "supplier_nome": "UNKNOWN",
+            "valor_sum": "4590121.80",
+            "valued_count": 3
+          },
+          {
+            "contract_count": 3,
+            "shared_buyer_count": 3,
+            "shared_categories": [
+              "OBRAS"
+            ],
+            "supplier_cnpj": "UNKNOWN",
+            "supplier_nome": "UNKNOWN",
+            "valor_sum": "1222407.62",
+            "valued_count": 3
+          },
+          {
+            "contract_count": 3,
+            "shared_buyer_count": 3,
+            "shared_categories": [
+              "OBRAS"
+            ],
+            "supplier_cnpj": "UNKNOWN",
+            "supplier_nome": "UNKNOWN",
+            "valor_sum": "172924.66",
+            "valued_count": 3
+          }
+        ],
+        "primary_category": "OBRAS",
+        "requested_limit": 15,
+        "selection_rule": "fornecedores com contratos junto aos mesmos compradores e na categoria principal de contratos da própria empresa"
+      },
+      "reason_codes": [],
+      "row_count": 15,
+      "section_id": "competitors",
+      "sources": [
+        "v_contracts_canonical_v2"
+      ],
+      "state": "DATA_READY"
+    },
+    "open_opportunities": {
+      "missingness": null,
+      "observed_at": "2026-08-22T03:00:00Z",
+      "payload": {
+        "opportunities": [],
+        "opportunity_count": 0
+      },
+      "reason_codes": [
+        "no_open_opportunities_for_buyers"
+      ],
+      "row_count": 0,
+      "section_id": "open_opportunities",
+      "sources": [
+        "v_open_opportunities_canonical"
+      ],
+      "state": "DATA_HOLD"
+    },
+    "price_panel": {
+      "missingness": null,
+      "observed_at": "2026-08-22T03:00:00Z",
+      "payload": {
+        "categories": [
+          {
+            "categoria": "FACILITIES",
+            "focal_contract_count": 6,
+            "focal_median": "44051804.43",
+            "focal_position": "OUT_OF_PANEL_RANGE",
+            "focal_valued_count": 6,
+            "reference_contract_count": 35050,
+            "reference_p25": "206.40",
+            "reference_p50": "1189.69",
+            "reference_p75": "20548.49",
+            "reference_ticket_medio": "13871430.11"
+          },
+          {
+            "categoria": "OBRAS",
+            "focal_contract_count": 49,
+            "focal_median": "2000216.58",
+            "focal_position": "ABOVE_P75",
+            "focal_valued_count": 49,
+            "reference_contract_count": 18892,
+            "reference_p25": "25256.39",
+            "reference_p50": "189000.00",
+            "reference_p75": "910202.98",
+            "reference_ticket_medio": "33585770.07"
+          }
+        ],
+        "category_count": 2,
+        "comparable_category_count": 1,
+        "out_of_range_category_count": 1,
+        "out_of_range_factor": 10,
+        "reference_scope": "contratos de órgãos públicos do conjunto de referência no raio de 200 km; não é amostra nacional",
+        "unit": "BRL_TOTAL",
+        "value_semantic": "valor_integral_nominal"
+      },
+      "reason_codes": [
+        "focal_outside_panel_range"
+      ],
+      "row_count": 2,
+      "section_id": "price_panel",
+      "sources": [
+        "v_contract_intel_percentis"
+      ],
+      "state": "DATA_READY"
+    }
+  },
+  "source_dossier_hash": "sha256:1f99c5e1601a50578b99d2bca181426db993b68e8422679a1a6abdce78935310",
+  "subject_profile": {
+    "buyer_count": 21,
+    "cnae_principal": "7112000",
+    "contract_count": 55,
+    "uf": "SC"
+  }
+}

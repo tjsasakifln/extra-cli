@@ -1,0 +1,18 @@
+{
+  "as_of": "2026-08-22",
+  "catalog_mode": "official_live",
+  "content_hash": "sha256:1f99c5e1601a50578b99d2bca181426db993b68e8422679a1a6abdce78935310",
+  "data_state": "DATA_READY",
+  "dossier_id": "cfg-dossier-cb06e7fa204654f7",
+  "files": {
+    "dossier.json": "sha256:1f99c5e1601a50578b99d2bca181426db993b68e8422679a1a6abdce78935310",
+    "public-read.json": "sha256:bde025fed2ba4247c79f6e57358c5187b56fb8bbdeecf2e03e2bacbe4e58903a"
+  },
+  "producer_sha": "cc9d4dae628f0879be7c2ccca94976d03bfc9e5d",
+  "public_content_hash": "sha256:bde025fed2ba4247c79f6e57358c5187b56fb8bbdeecf2e03e2bacbe4e58903a",
+  "reason_codes": [
+    "focal_outside_panel_range",
+    "no_open_opportunities_for_buyers"
+  ],
+  "schema": "confenge-dossier/1.0"
+}
