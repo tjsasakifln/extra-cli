@@ -41,7 +41,7 @@ def _contact(
 def _lead(cnpj14: str, contacts: list[dict[str, Any]], *, website: str | None = None) -> dict[str, Any]:
     return {
         "source_lead_id": f"lead-{cnpj14}",
-        "company": {"cnpj14": cnpj14, "razao_social": f"EMPRESA {cnpj14}", "website": website},
+        "company": {"cnpj14": cnpj14, "razao_social": "CONSTRUTORA EXEMPLO LTDA", "website": website},
         "contacts": contacts,
     }
 
@@ -259,3 +259,47 @@ def test_the_published_official_domain_feeds_the_recheck():
     assert len(members) == 1
     assert stats["funnel"]["official_domain"] == 1
     assert stats["funnel"]["no_domain"] == 0
+
+
+def test_the_sample_lets_a_reviewer_catch_a_wrongly_resolved_domain(tmp_path):
+    """Host-vs-host fields all agree when the domain was guessed from the name.
+
+    A domain resolved by name-token overlap alone matches the page it was
+    crawled from and matches itself, so every host field reads green. The one
+    independent signal is whether the mailbox domain fits the company name.
+    """
+    lead = _lead(
+        "11111111000191",
+        [_contact("contact@ollama.com", source_url="https://ollama.com/contact")],
+        website="https://ollama.com",
+    )
+    lead["company"]["razao_social"] = "CONSTRUTORA ALVO ENGENHARIA LTDA"
+    feed_dir = _write_export(tmp_path, [lead])
+    manifest = build(
+        feed_dir=feed_dir,
+        private_root=tmp_path / "private",
+        limit=50,
+        as_of="2026-08-22",
+        run_stamp="20260822T000000Z",
+    )
+    sample = manifest["sample_qa"][0]
+    assert sample["mailbox_domain_matches_official"] is True
+    assert sample["source_host_matches_official"] is True
+    assert sample["mailbox_domain_fits_company_name"] is False
+
+
+def test_the_sample_never_carries_the_company_name(tmp_path):
+    """A Brazilian MEI's razao social is a natural person's name, often with a CPF."""
+    lead = _lead("11111111000191", [_contact("contato@alpha.com.br")], website="https://alpha.com.br")
+    lead["company"]["razao_social"] = "JOAO DA SILVA CONSTRUCOES"
+    feed_dir = _write_export(tmp_path, [lead])
+    manifest = build(
+        feed_dir=feed_dir,
+        private_root=tmp_path / "private",
+        limit=50,
+        as_of="2026-08-22",
+        run_stamp="20260822T000000Z",
+    )
+    redacted = Path(manifest["manifest_path"]).read_text(encoding="utf-8")
+    assert "JOAO DA SILVA" not in redacted
+    assert "mailbox_domain_fits_company_name" in redacted

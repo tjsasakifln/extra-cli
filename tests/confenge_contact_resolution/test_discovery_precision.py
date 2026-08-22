@@ -630,3 +630,61 @@ def test_build_web_search_provider_uses_private_searxng(monkeypatch) -> None:
     provider = build_web_search_provider()
     assert isinstance(provider, SearxngJSONProvider)
     assert provider.base_url == "http://127.0.0.1:18888"
+
+
+def test_cascade_does_not_stop_early_on_a_foreign_mailbox_in_our_document(monkeypatch):
+    """A notice that merely lists us carries the agency's mailbox, not ours.
+
+    The document's CNPJ tag is the CNPJ that was queried, so it cannot bind the
+    mailbox. Stopping discovery here would end the search on a wrong company.
+    """
+    from scripts.confenge_contact_resolution.discovery.cascade import DiscoveryCascade
+    from scripts.decision_unit_intelligence.controlled_email import (
+        observed_contact_is_controlled_eligible_company_route,
+    )
+
+    def fake_docs(cnpj14, **kwargs):
+        return [
+            {
+                "email": "licitacao@saojoaquim.sc.gov.br",
+                "cnpj14": cnpj14,
+                "evidence_strength": "official_cnpj_linked_document",
+                "url": "https://pncp.gov.br/app/editais/1",
+                "doc_type": "edital",
+            }
+        ]
+
+    monkeypatch.setattr(
+        "scripts.confenge_contact_resolution.discovery.cascade.lookup_public_docs_for_cnpj",
+        fake_docs,
+    )
+    cascade = DiscoveryCascade(
+        budget=DiscoveryBudget(max_search_queries=6, max_pages=8, max_total_requests=20),
+        allow_network=False,
+        dsn=None,
+    )
+    result = cascade.run(
+        cnpj14="11222333000181",
+        razao_social="CONSTRUTORA ALVO LTDA",
+        stop_when_strong_contact=True,
+    )
+    # The cascade may still record that some contact data exists — a mailbox was
+    # in the document. What it must not do is call it a company route for us.
+    assert result.stats.stop_reason != "controlled_eligible_public_doc"
+    assert not any(a["reason_code"] == "controlled_eligible_company_route_found" for a in result.source_attempts)
+    assert any(
+        a["reason_code"] == "documents_have_no_explicit_named_email_role"
+        for a in result.source_attempts
+        if a["source_adapter"] == "process_administrative_docs"
+    )
+    assert not observed_contact_is_controlled_eligible_company_route(
+        {
+            "email": "licitacao@saojoaquim.sc.gov.br",
+            "source": "official_documents",
+            "source_url": "https://pncp.gov.br/app/editais/1",
+            "evidence_strength": "official_cnpj_linked_document",
+            "cnpj14": "11222333000181",
+        },
+        account_id="11222333000181",
+        company_label="CONSTRUTORA ALVO LTDA",
+    )

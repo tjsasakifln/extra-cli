@@ -704,3 +704,47 @@ def test_cohort_replays_stored_icp_observations() -> None:
     assert first["REAL_EMAIL_SENT"] is False
     assert first["accounts_with_two_preferred"] == 0
     assert first["observation_source"].endswith("real-1000-input.jsonl")
+
+
+def test_a_social_page_is_never_an_official_company_domain():
+    """A Facebook page in the website column made every gmail on it OBSERVED."""
+    from scripts.warmbly_bridge.mapping import official_domain_host
+
+    for shared in (
+        "https://www.facebook.com/construtoraalvo",
+        "https://instagram.com/construtoraalvo",
+        "https://linkedin.com/company/construtoraalvo",
+        "https://cnpja.com/office/12345678000195",
+        "https://pncp.gov.br/app/editais/1",
+    ):
+        assert official_domain_host(shared) == "", shared
+
+    assert official_domain_host("https://www.construtoraalvo.com.br/contato") == "construtoraalvo.com.br"
+
+
+def test_a_shared_preferred_mailbox_picks_the_same_account_across_runs():
+    """Feed order follows target-fit freshness, which advances on every refresh."""
+    from scripts.decision_unit_intelligence.controlled_email import (
+        apply_cross_account_preferred_mailbox_gate,
+    )
+
+    def lead(cnpj14: str, watermark: str) -> dict:
+        return {
+            "source_lead_id": f"lead-{cnpj14}",
+            "target_fit_source_watermark": watermark,
+            "company": {"cnpj14": cnpj14},
+            "contacts": [{"email": "contato@grupo.com.br", "preferred_initial": True, "recommended": True}],
+        }
+
+    def winners(leads: list[dict]) -> list[str]:
+        return [
+            item["company"]["cnpj14"]
+            for item in apply_cross_account_preferred_mailbox_gate(leads)
+            if any(c.get("preferred_initial") for c in item["contacts"])
+        ]
+
+    first = [lead("11111111000191", "2026-08-19T00:00:00Z"), lead("22222222000172", "2026-08-20T00:00:00Z")]
+    # A refresh moves account A's watermark past B's, flipping feed order.
+    second = [lead("22222222000172", "2026-08-20T00:00:00Z"), lead("11111111000191", "2026-08-21T00:00:00Z")]
+
+    assert winners(first) == winners(second) == ["11111111000191"]

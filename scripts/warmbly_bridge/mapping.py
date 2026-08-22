@@ -60,12 +60,23 @@ def _as_str(value: Any, default: str = "") -> str:
 
 
 def official_domain_host(value: Any) -> str:
+    """Host of a company's own site. A social or aggregator page is not one.
+
+    Discovery already refuses these hosts when resolving a domain; the bridge
+    used to accept whatever the universe row happened to carry, so a Facebook
+    page in the website column made every freemail published on facebook.com
+    read as company-associated.
+    """
     raw = _as_str(value)
     if not raw:
         return ""
     parsed = urlparse(raw if "://" in raw else f"https://{raw}")
-    host = (parsed.hostname or raw.split("/")[0]).lower().removeprefix("www.")
-    return host.strip()
+    host = (parsed.hostname or raw.split("/")[0]).lower().removeprefix("www.").strip()
+    if not host:
+        return ""
+    from scripts.confenge_contact_resolution.discovery.official_domain import is_blocked_host
+
+    return "" if is_blocked_host(host) else host
 
 
 def _normalize_epistemic(class_value: str | None, *, is_inference: bool) -> str:

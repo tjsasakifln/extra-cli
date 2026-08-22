@@ -1017,36 +1017,64 @@ def test_five_class_mapping_feed_written_for_warmbly_ingest() -> None:
 def _cnpj_linked_doc_route(
     mailbox: str = "licitacoes@alphaengenharia.com.br",
     *,
-    document_cnpj14: str = ACCOUNT_ID,
+    razao_social: str = "ALPHA ENGENHARIA E CONSTRUCOES LTDA",
     evidence_strength: str = "company_authored_document",
 ) -> ReachabilityRoute:
     """Company-authored document hosted on a datalake/portal host, not the company host."""
+    extra: dict = {"evidence_strength": evidence_strength}
+    if razao_social:
+        extra["razao_social"] = razao_social
     return _route(
         mailbox,
         channel=ChannelType.ROLE_MAILBOX,
         ownership=OwnershipStatus.UNKNOWN,
         source_type="official_documents",
         source_url="https://datalake.example/doc/1",
-        extra={
-            "evidence_strength": evidence_strength,
-            "document_cnpj14": document_cnpj14,
-        },
+        extra=extra,
     )
 
 
-def test_cnpj_linked_company_document_survives_host_match_gate():
-    """Authorship binds the mailbox; a PNCP/portal host is never the company host."""
+def test_company_document_binds_by_name_credibility_not_by_host():
+    """A PNCP/portal host is never the company host, so the name carries the binding."""
     verdict = evaluate_controlled_email_eligible(_cnpj_linked_doc_route())
     assert verdict.mailbox_company_evidence == "OBSERVED"
     assert verdict.controlled_email_eligible is True
     assert verdict.route_class == EmailRouteClass.ROLE_OR_DEPARTMENT
 
 
-def test_document_for_a_different_cnpj_is_not_associated():
-    verdict = evaluate_controlled_email_eligible(_cnpj_linked_doc_route(document_cnpj14="99887766000155"))
+def test_a_notice_that_merely_lists_the_company_cannot_bind_the_agency_mailbox():
+    """The document CNPJ tag is the queried CNPJ, so it can never be the binding.
+
+    A PNCP edital naming the company as a bidder carries the buying agency's
+    mailbox. Nothing in that document says the mailbox is the company's.
+    """
+    verdict = evaluate_controlled_email_eligible(
+        _cnpj_linked_doc_route(
+            "licitacao@saojoaquim.sc.gov.br",
+            razao_social="CONSTRUTORA ALVO LTDA",
+            evidence_strength="official_cnpj_linked_document",
+        )
+    )
     assert verdict.mailbox_company_evidence == "UNKNOWN"
     assert verdict.controlled_email_eligible is False
     assert "mailbox_company_evidence_unknown" in verdict.reason_codes
+
+
+def test_a_consortium_partner_mailbox_in_our_document_is_not_ours():
+    verdict = evaluate_controlled_email_eligible(
+        _cnpj_linked_doc_route(
+            "comercial@terraplenagemsulmg.com.br",
+            razao_social="CONSTRUTORA ALVO LTDA",
+        )
+    )
+    assert verdict.mailbox_company_evidence == "UNKNOWN"
+    assert verdict.controlled_email_eligible is False
+
+
+def test_a_document_route_without_a_company_name_has_no_binding_at_all():
+    verdict = evaluate_controlled_email_eligible(_cnpj_linked_doc_route(razao_social=""))
+    assert verdict.mailbox_company_evidence == "UNKNOWN"
+    assert verdict.controlled_email_eligible is False
 
 
 def test_weak_document_evidence_does_not_bypass_host_match():
@@ -1059,3 +1087,45 @@ def test_freemail_on_a_cnpj_linked_document_still_needs_a_company_page():
     verdict = evaluate_controlled_email_eligible(_cnpj_linked_doc_route("alphaengenharia@gmail.com"))
     assert verdict.mailbox_company_evidence == "UNKNOWN"
     assert verdict.controlled_email_eligible is False
+
+
+def test_unrecognized_suppression_vocabulary_fails_closed():
+    """Producers use tokens this enum does not carry. NONE must not be the default."""
+    from scripts.decision_unit_intelligence.controlled_email import route_from_feed_contact
+
+    base = {
+        "email": "contato@empresaexemplo.com.br",
+        "source": "contact_page",
+        "source_type": "contact_page",
+        "source_url": "https://empresaexemplo.com.br/contato",
+    }
+    for field, token in (
+        ("suppression", "opt-out"),
+        ("suppression", "do_not_contact"),
+        ("suppression", "hard_bounce"),
+        ("suppression_state", "opt-out"),
+        ("route_suppression", "quarantined"),
+    ):
+        route = route_from_feed_contact({**base, field: token}, account_id=ACCOUNT_ID)
+        verdict = evaluate_controlled_email_eligible(route)
+        assert verdict.controlled_email_eligible is False, (field, token)
+
+    for flag in ("opt_out", "unsubscribed", "do_not_contact"):
+        route = route_from_feed_contact({**base, flag: True}, account_id=ACCOUNT_ID)
+        assert evaluate_controlled_email_eligible(route).controlled_email_eligible is False, flag
+
+    for clear in ("NONE", "CLEAR", "", "active"):
+        route = route_from_feed_contact({**base, "route_suppression": clear}, account_id=ACCOUNT_ID)
+        assert evaluate_controlled_email_eligible(route).controlled_email_eligible is True, clear
+
+
+def test_paraguayan_company_domain_is_not_a_parser_leftover():
+    verdict = evaluate_controlled_email_eligible(
+        _route(
+            "licitaciones@constructoraalvo.com.py",
+            source_type="contact_page",
+            source_url="https://constructoraalvo.com.py/contacto",
+            extra={"official_domain": "constructoraalvo.com.py"},
+        )
+    )
+    assert "implausible_mailbox_host" not in verdict.reason_codes

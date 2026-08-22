@@ -38,6 +38,9 @@ _ROOT = Path(__file__).resolve().parents[2]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
+from scripts.confenge_contact_resolution.discovery.official_domain import (  # noqa: E402
+    is_credible_company_domain,
+)
 from scripts.decision_unit_intelligence.controlled_email import (  # noqa: E402
     DEFAULT_PILOT_ROUTE_CLASSES,
     EmailRouteClass,
@@ -263,9 +266,22 @@ def stratified_sample(members: list[dict[str, Any]]) -> list[dict[str, Any]]:
         official = resolve_official_domain(member, contact)
         mailbox_domain = email_domain(str(contact.get("email") or "")) or None
         source_host = _host(contact.get("source_url"))
+        # The reviewer's job is to catch a domain the classifier resolved wrongly.
+        # Every host-vs-host field below agrees with itself when the resolution is
+        # wrong — a domain guessed from the company name matches the page it was
+        # crawled from. The independent signal is whether the mailbox domain is
+        # credible for the registered company name.
+        # The name itself is never emitted: a Brazilian MEI's razao social is a
+        # natural person's name and often carries their CPF. Only the verdict.
+        company = member.get("company") if isinstance(member.get("company"), dict) else {}
+        company_label = str(company.get("razao_social") or company.get("nome_fantasia") or "")
+        domain_fits_name = None
+        if mailbox_domain and company_label:
+            domain_fits_name = bool(is_credible_company_domain(mailbox_domain, company_label))
         sample.append(
             {
                 "route_class": route_class,
+                "mailbox_domain_fits_company_name": domain_fits_name,
                 "source_type": str((contact.get("provenance") or {}).get("source_type") or "")
                 or str(contact.get("source_type") or ""),
                 "source_host": source_host,

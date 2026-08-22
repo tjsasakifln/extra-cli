@@ -324,6 +324,7 @@ class DiscoveryCascade:
             ctx.public_docs,
             cnpj14=cnpj14,
             official_domain=result.domain.domain,
+            razao_social=razao_social or "",
         )
         doc_success = named_doc or actionable_doc
         self._attempt(
@@ -670,6 +671,7 @@ def _has_actionable_doc_route(
     *,
     cnpj14: str,
     official_domain: str | None = None,
+    razao_social: str = "",
 ) -> bool:
     target = re.sub(r"\D", "", cnpj14 or "")[:14]
     for d in docs or []:
@@ -695,6 +697,7 @@ def _has_actionable_doc_route(
                 payload,
                 account_id=target,
                 official_domain=official_domain,
+                company_label=razao_social,
             ):
                 return True
     return False

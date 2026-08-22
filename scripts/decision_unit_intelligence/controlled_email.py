@@ -56,6 +56,10 @@ DEPARTMENTAL_HYPOTHESIS_LOCALS: tuple[str, ...] = (
 CONTROLLED_EMAIL_POLICY_VERSION = "controlled-email-policy.v1"
 CONTROLLED_EMAIL_SCHEMA_VERSION = "confenge.outreach.controlled_email.v1"
 
+# Tokens that genuinely mean "not suppressed". Anything else is treated as
+# suppression, because an unknown token is not evidence of a clear mailbox.
+CLEAR_SUPPRESSION_TOKENS = frozenset({"NONE", "CLEAR", "OK", "ACTIVE", "NOT_SUPPRESSED"})
+
 EVIDENCE_OBSERVED = "OBSERVED"
 EVIDENCE_UNKNOWN = "UNKNOWN"
 
@@ -88,7 +92,6 @@ IMPLAUSIBLE_MAILBOX_TLDS = frozenset(
         "phone",
         "js",
         "ts",
-        "py",
         "local",
         "localhost",
         "invalid",
@@ -98,10 +101,15 @@ IMPLAUSIBLE_MAILBOX_TLDS = frozenset(
 )
 HTML_ENTITY_LOCAL_MARKERS = ("u003e", "u003c", "u0026", "&gt;", "&lt;", "&amp;")
 
-# Company-authored documents already bound to the CNPJ by the datalake prove the
-# association by authorship, not by where the file happens to be hosted. A PNCP
-# or transparency-portal host is never the company host, so the site host-match
-# rule cannot be applied to this evidence family.
+# A company-authored document lives on a PNCP or transparency host that is never
+# the company host, so the site host-match rule cannot be applied to it. What can
+# be applied is the company's own identity: the mailbox domain must be credible
+# for the account's registered name.
+#
+# The document's own CNPJ tag is NOT usable as the binding. Extraction stamps it
+# with the CNPJ that was queried, not with the CNPJ the document attributes the
+# mailbox to, so comparing it to the account is tautological — a public notice
+# that merely lists the company would bind the buying agency's mailbox to it.
 CNPJ_LINKED_DOCUMENT_SOURCES = frozenset({"official_documents", "official_document"})
 CNPJ_LINKED_DOCUMENT_EVIDENCE = frozenset({"company_authored_document", "official_cnpj_linked_document"})
 
@@ -323,10 +331,13 @@ def mailbox_local_implausible(mailbox: str | None) -> bool:
 
 
 def cnpj_linked_document_association(route: ReachabilityRoute) -> bool:
-    """True for a company-authored document the datalake already binds to this CNPJ.
+    """True for a company-authored document whose mailbox domain fits this company.
 
-    Authorship is the association proof here, so the mailbox host is not required
-    to match the document host. The CNPJ on the document must match the account.
+    The document host is never the company host, so host-match cannot apply. The
+    binding used instead is the account's own registered name against the mailbox
+    domain. Without a company name to check, there is no binding and the route is
+    refused: a document that merely mentions the company proves nothing about
+    whose mailbox is printed in it.
     """
     source = str(route.source_type or "").lower().strip()
     if source not in CNPJ_LINKED_DOCUMENT_SOURCES:
@@ -336,9 +347,20 @@ def cnpj_linked_document_association(route: ReachabilityRoute) -> bool:
         return False
     if extra.get("pattern_guessed_email") or extra.get("pattern_guessed"):
         return False
-    account = re.sub(r"\D", "", str(route.company_entity_id or ""))[:14]
-    document = re.sub(r"\D", "", str(extra.get("document_cnpj14") or ""))[:14]
-    return len(account) == 14 and account == document
+    mailbox_domain = email_domain(route.channel_value)
+    if not mailbox_domain or is_freemail(route.channel_value):
+        return False
+    from scripts.confenge_contact_resolution.discovery.official_domain import (
+        is_blocked_host,
+        is_credible_company_domain,
+    )
+
+    if is_blocked_host(mailbox_domain):
+        return False
+    company_label = str(extra.get("razao_social") or extra.get("company_label") or "").strip()
+    if not company_label:
+        return False
+    return bool(is_credible_company_domain(mailbox_domain, company_label))
 
 
 def association_provenance_trustworthy(route: ReachabilityRoute) -> bool:
@@ -532,6 +554,7 @@ def observed_contact_is_controlled_eligible_company_route(
     *,
     account_id: str = "",
     official_domain: str | None = None,
+    company_label: str = "",
 ) -> bool:
     """Same gate as evaluate_controlled_email_eligible. Nominal/third-party are not success."""
     if contact.get("pattern_guessed_email") or contact.get("email_derivation") == "INFERRED":
@@ -543,6 +566,8 @@ def observed_contact_is_controlled_eligible_company_route(
         return False
     payload = dict(contact)
     payload["email"] = email
+    if company_label and not payload.get("razao_social"):
+        payload["razao_social"] = company_label
     domain = email_domain(email)
     official = (official_domain or "").lower().removeprefix("www.")
     source = str(payload.get("source") or payload.get("source_type") or "").lower()
@@ -944,6 +969,9 @@ def route_from_feed_contact(
     observed_id = str(contact.get("person_id") or "").strip()
     if observed_id:
         extra.setdefault("observed_person_id", observed_id)
+    company_label = str(contact.get("razao_social") or contact.get("company_label") or "").strip()
+    if company_label:
+        extra.setdefault("razao_social", company_label)
     evidence_strength = str(contact.get("evidence_strength") or "").strip().lower()
     if evidence_strength:
         extra.setdefault("evidence_strength", evidence_strength)
@@ -960,11 +988,23 @@ def route_from_feed_contact(
     if discovery:
         extra.setdefault("email_discovery_class", str(discovery))
     suppression = SuppressionState.NONE
-    raw_sup = str(contact.get("route_suppression") or contact.get("suppression_state") or "").upper()
+    raw_sup = (
+        str(contact.get("route_suppression") or contact.get("suppression_state") or contact.get("suppression") or "")
+        .upper()
+        .replace("-", "_")
+        .strip()
+    )
     if raw_sup in {s.value for s in SuppressionState}:
         suppression = SuppressionState(raw_sup)
-    if contact.get("dnc") or contact.get("do_not_contact"):
+    elif raw_sup and raw_sup not in CLEAR_SUPPRESSION_TOKENS:
+        # An unrecognized suppression token is not an absence of suppression.
+        # Producers use vocabularies this enum does not carry, and reading one
+        # as NONE lets an opted-out mailbox into a bounded pilot.
+        suppression = SuppressionState.BLOCKED
+    if contact.get("dnc") or contact.get("do_not_contact") or contact.get("unsubscribed"):
         suppression = SuppressionState.DNC
+    if contact.get("opt_out") is True:
+        suppression = SuppressionState.OPT_OUT
     if contact.get("bounce") or contact.get("bounced"):
         suppression = SuppressionState.HARD_BOUNCE
     ownership = OwnershipStatus.UNKNOWN
@@ -1138,9 +1178,37 @@ def stamp_and_rank_feed_contacts(
     return apply_preferred_recommended_alias(stamped)
 
 
+def _shared_mailbox_owner(leads: list[dict[str, Any]]) -> dict[str, str]:
+    """Pick the one account that keeps each shared mailbox, stably across runs.
+
+    Feed order is sorted by target-fit freshness timestamps, which advance on
+    every refresh, so "first lead wins" silently moved a shared mailbox between
+    accounts — and dropped last run's account out of the pilot — with no change
+    in mailbox evidence. Decide on the account id instead.
+    """
+    owner: dict[str, str] = {}
+    for lead in leads:
+        if not isinstance(lead, dict):
+            continue
+        company = lead.get("company") if isinstance(lead.get("company"), dict) else {}
+        account = str(company.get("cnpj14") or lead.get("source_lead_id") or "")
+        if not account:
+            continue
+        for contact in lead.get("contacts") or []:
+            if not isinstance(contact, dict) or not contact.get("preferred_initial"):
+                continue
+            mailbox = canonicalize_mailbox(str(contact.get("email") or ""))
+            if not mailbox:
+                continue
+            current = owner.get(mailbox)
+            if current is None or account < current:
+                owner[mailbox] = account
+    return owner
+
+
 def apply_cross_account_preferred_mailbox_gate(leads: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Exactly one account may keep a preferred mailbox. Later duplicates lose it."""
-    claimed: dict[str, str] = {}
+    """Exactly one account may keep a preferred mailbox. Other claimants lose it."""
+    claimed: dict[str, str] = dict(_shared_mailbox_owner(leads))
     out: list[dict[str, Any]] = []
     for lead in leads:
         if not isinstance(lead, dict):
@@ -1157,7 +1225,7 @@ def apply_cross_account_preferred_mailbox_gate(leads: list[dict[str, Any]]) -> l
             mailbox = canonicalize_mailbox(str(item.get("email") or ""))
             if item.get("preferred_initial") and mailbox:
                 owner = claimed.get(mailbox)
-                if owner and owner != account:
+                if owner is not None and owner != account:
                     item["preferred_initial"] = False
                     item["recommended"] = False
                     item["controlled_email_eligible"] = False

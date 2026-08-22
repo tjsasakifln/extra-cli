@@ -23,7 +23,8 @@
         "nome_fantasia": "Empresa Exemplo",
         "municipio": "",
         "uf": "",
-        "website": "https://empresaexemplo.com.br"
+        "website": "https://empresaexemplo.com.br",
+        "official_domain": "empresaexemplo.com.br"
       },
       "priority": {
         "rank": 1,
@@ -292,8 +293,8 @@
           "phone": "",
           "linkedin_url": "",
           "source_url": "https://empresaexemplo.com.br/contato",
-          "source": "",
-          "source_type": "",
+          "source": "company_website",
+          "source_type": "company_website",
           "source_document": "",
           "source_date": "",
           "source_date_semantics": "missing",
@@ -310,7 +311,7 @@
           "enrollable": false,
           "recommended": false,
           "provenance": {
-            "source_type": "",
+            "source_type": "company_website",
             "source_url": "https://empresaexemplo.com.br/contato",
             "source_document": "",
             "source_date": "",
