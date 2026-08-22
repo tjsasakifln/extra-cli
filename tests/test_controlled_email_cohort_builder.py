@@ -39,9 +39,21 @@ def _contact(
 
 
 def _lead(cnpj14: str, contacts: list[dict[str, Any]], *, website: str | None = None) -> dict[str, Any]:
+    """A lead whose registered name matches its own domain, as a real one does.
+
+    The cohort refuses a route whose evidence domain is not credible for the
+    company name, so a fixture with mismatched name and domain is not a neutral
+    default — it is the wrong-company case.
+    """
+    first = next((c.get("email", "") for c in contacts if c.get("email")), "")
+    label = (first.split("@", 1)[1].split(".", 1)[0] if "@" in first else "exemplar").upper()
     return {
         "source_lead_id": f"lead-{cnpj14}",
-        "company": {"cnpj14": cnpj14, "razao_social": "CONSTRUTORA EXEMPLO LTDA", "website": website},
+        "company": {
+            "cnpj14": cnpj14,
+            "razao_social": f"{label} CONSTRUCOES LTDA",
+            "website": website,
+        },
         "contacts": contacts,
     }
 
@@ -70,13 +82,13 @@ def _write_export(tmp_path: Path, leads: list[dict[str, Any]]) -> Path:
 
 def test_risky_and_suppressed_never_enter_the_cohort():
     leads = [
-        _lead("11111111000191", [_contact("contato@alpha.com.br")]),
+        _lead("11111111000191", [_contact("contato@alphaengenharia.com.br")]),
         _lead(
             "22222222000172",
-            [_contact("chute@beta.com.br", route_class="PROBABILISTIC_OR_RISKY", eligible=False)],
+            [_contact("chute@betaengenharia.com.br", route_class="PROBABILISTIC_OR_RISKY", eligible=False)],
         ),
-        _lead("33333333000153", [_contact("contato@gama.com.br", route_suppression="OPT_OUT")]),
-        _lead("44444444000134", [_contact("contato@delta.com.br", eligible=False)]),
+        _lead("33333333000153", [_contact("contato@gamaengenharia.com.br", route_suppression="OPT_OUT")]),
+        _lead("44444444000134", [_contact("contato@deltaengenharia.com.br", eligible=False)]),
         _lead("55555555000115", [_contact("contato@epsilon.com.br", mailbox_purpose_send_blocked=True)]),
     ]
     members, stats = select_cohort(leads, limit=50)
@@ -90,9 +102,9 @@ def test_exactly_one_preferred_route_per_account():
     leads = [
         _lead(
             "11111111000191",
-            [_contact("contato@alpha.com.br"), _contact("licitacoes@alpha.com.br", route_class="ROLE_OR_DEPARTMENT")],
+            [_contact("contato@alphaengenharia.com.br"), _contact("licitacoes@alphaengenharia.com.br", route_class="ROLE_OR_DEPARTMENT")],
         ),
-        _lead("22222222000172", [_contact("contato@beta.com.br", preferred=False)]),
+        _lead("22222222000172", [_contact("contato@betaengenharia.com.br", preferred=False)]),
     ]
     members, stats = select_cohort(leads, limit=50)
     assert members == []
@@ -100,7 +112,7 @@ def test_exactly_one_preferred_route_per_account():
 
 
 def test_the_same_mailbox_cannot_be_claimed_by_two_accounts():
-    shared = "contato@grupo.com.br"
+    shared = "contato@grupocompartilhado.com.br"
     leads = [
         _lead("11111111000191", [_contact(shared)]),
         _lead("22222222000172", [_contact(shared)]),
@@ -120,11 +132,11 @@ def test_private_feed_is_0600_and_the_manifest_carries_no_pii(tmp_path):
     feed_dir = _write_export(
         tmp_path,
         [
-            _lead("11111111000191", [_contact("contato@alpha.com.br")], website="https://alpha.com.br"),
+            _lead("11111111000191", [_contact("contato@alphaengenharia.com.br")], website="https://alphaengenharia.com.br"),
             _lead(
                 "22222222000172",
-                [_contact("licitacoes@beta.com.br", route_class="ROLE_OR_DEPARTMENT")],
-                website="https://beta.com.br",
+                [_contact("licitacoes@betaengenharia.com.br", route_class="ROLE_OR_DEPARTMENT")],
+                website="https://betaengenharia.com.br",
             ),
         ],
     )
@@ -162,13 +174,13 @@ def test_private_feed_is_0600_and_the_manifest_carries_no_pii(tmp_path):
     redacted = Path(manifest["manifest_path"]).read_text(encoding="utf-8")
     assert "@" not in redacted
     assert "11111111000191" not in redacted
-    assert "alpha.com.br" in redacted  # public host is evidence, not PII
+    assert "alphaengenharia.com.br" in redacted  # public host is evidence, not PII
 
 
 def test_feed_hash_matches_the_bytes_on_disk(tmp_path):
     import hashlib
 
-    feed_dir = _write_export(tmp_path, [_lead("11111111000191", [_contact("contato@alpha.com.br")])])
+    feed_dir = _write_export(tmp_path, [_lead("11111111000191", [_contact("contato@alphaengenharia.com.br")])])
     manifest = build(
         feed_dir=feed_dir,
         private_root=tmp_path / "private",
@@ -197,12 +209,12 @@ def test_a_stale_stamp_cannot_smuggle_an_untrustworthy_route():
 
 def test_a_route_the_shipped_policy_confirms_still_passes():
     honest = _contact(
-        "contato@alpha.com.br",
-        source_url="https://alpha.com.br/contato",
+        "contato@alphaengenharia.com.br",
+        source_url="https://alphaengenharia.com.br/contato",
         provenance={"source_type": "contact_page"},
     )
     members, _ = select_cohort(
-        [_lead("11111111000191", [honest], website="https://alpha.com.br")],
+        [_lead("11111111000191", [honest], website="https://alphaengenharia.com.br")],
         limit=50,
     )
     assert len(members) == 1
@@ -211,18 +223,18 @@ def test_a_route_the_shipped_policy_confirms_still_passes():
 def test_official_domain_ladder_matches_the_exporter():
     from scripts.ops.build_controlled_email_cohort import resolve_official_domain
 
-    lead = _lead("11111111000191", [], website="https://www.Alpha.com.br/quem-somos")
-    assert resolve_official_domain(lead, {}) == "alpha.com.br"
-    assert resolve_official_domain(lead, {"official_domain": "beta.com.br"}) == "beta.com.br"
+    lead = _lead("11111111000191", [], website="https://www.AlphaEngenharia.com.br/quem-somos")
+    assert resolve_official_domain(lead, {}) == "alphaengenharia.com.br"
+    assert resolve_official_domain(lead, {"official_domain": "betaengenharia.com.br"}) == "betaengenharia.com.br"
     assert resolve_official_domain(_lead("11111111000191", []), {}) is None
 
 
 def test_a_route_on_its_own_official_domain_survives_the_recheck():
     """The exporter's official domain must not be lost, or good routes die."""
     contact = _contact(
-        "contato@alpha.com.br",
-        source_url="https://alpha.com.br/contato",
-        official_domain="alpha.com.br",
+        "contato@alphaengenharia.com.br",
+        source_url="https://alphaengenharia.com.br/contato",
+        official_domain="alphaengenharia.com.br",
     )
     members, _ = select_cohort([_lead("11111111000191", [contact])], limit=50)
     assert len(members) == 1
@@ -246,34 +258,29 @@ def test_the_published_official_domain_feeds_the_recheck():
     from scripts.ops.build_controlled_email_cohort import resolve_official_domain
 
     lead = _lead("11111111000191", [])
-    lead["company"]["official_domain"] = "alpha.com.br"
-    assert resolve_official_domain(lead, {}) == "alpha.com.br"
+    lead["company"]["official_domain"] = "alphaengenharia.com.br"
+    assert resolve_official_domain(lead, {}) == "alphaengenharia.com.br"
 
     contact = _contact(
-        "contato@alpha.com.br",
-        source_url="https://alpha.com.br/fale-conosco",
+        "contato@alphaengenharia.com.br",
+        source_url="https://alphaengenharia.com.br/fale-conosco",
     )
     lead_with_contact = _lead("11111111000191", [contact])
-    lead_with_contact["company"]["official_domain"] = "alpha.com.br"
+    lead_with_contact["company"]["official_domain"] = "alphaengenharia.com.br"
     members, stats = select_cohort([lead_with_contact], limit=50)
     assert len(members) == 1
     assert stats["funnel"]["official_domain"] == 1
     assert stats["funnel"]["no_domain"] == 0
 
 
-def test_the_sample_lets_a_reviewer_catch_a_wrongly_resolved_domain(tmp_path):
-    """Host-vs-host fields all agree when the domain was guessed from the name.
-
-    A domain resolved by name-token overlap alone matches the page it was
-    crawled from and matches itself, so every host field reads green. The one
-    independent signal is whether the mailbox domain fits the company name.
-    """
+def test_the_sample_publishes_the_name_credibility_verdict(tmp_path):
+    """Host-vs-host fields all agree when a domain was guessed from the name."""
     lead = _lead(
         "11111111000191",
-        [_contact("contact@ollama.com", source_url="https://ollama.com/contact")],
-        website="https://ollama.com",
+        [_contact("contato@eletronelevadores.com.br", source_url="https://eletronelevadores.com.br/x")],
+        website="https://eletronelevadores.com.br",
     )
-    lead["company"]["razao_social"] = "CONSTRUTORA ALVO ENGENHARIA LTDA"
+    lead["company"]["razao_social"] = "ELETRON ELEVADORES LTDA"
     feed_dir = _write_export(tmp_path, [lead])
     manifest = build(
         feed_dir=feed_dir,
@@ -285,12 +292,16 @@ def test_the_sample_lets_a_reviewer_catch_a_wrongly_resolved_domain(tmp_path):
     sample = manifest["sample_qa"][0]
     assert sample["mailbox_domain_matches_official"] is True
     assert sample["source_host_matches_official"] is True
-    assert sample["mailbox_domain_fits_company_name"] is False
+    assert sample["mailbox_domain_fits_company_name"] is True
 
 
 def test_the_sample_never_carries_the_company_name(tmp_path):
     """A Brazilian MEI's razao social is a natural person's name, often with a CPF."""
-    lead = _lead("11111111000191", [_contact("contato@alpha.com.br")], website="https://alpha.com.br")
+    lead = _lead(
+        "11111111000191",
+        [_contact("contato@silvaconstrucoes.com.br", source_url="https://silvaconstrucoes.com.br/x")],
+        website="https://silvaconstrucoes.com.br",
+    )
     lead["company"]["razao_social"] = "JOAO DA SILVA CONSTRUCOES"
     feed_dir = _write_export(tmp_path, [lead])
     manifest = build(
@@ -300,6 +311,7 @@ def test_the_sample_never_carries_the_company_name(tmp_path):
         as_of="2026-08-22",
         run_stamp="20260822T000000Z",
     )
+    assert manifest["member_count"] == 1
     redacted = Path(manifest["manifest_path"]).read_text(encoding="utf-8")
     assert "JOAO DA SILVA" not in redacted
     assert "mailbox_domain_fits_company_name" in redacted
@@ -348,7 +360,7 @@ def test_a_precomputed_owner_map_matches_the_whole_feed_gate():
     """Streaming must not weaken the cross-account rule."""
     from scripts.decision_unit_intelligence.controlled_email import shared_preferred_mailbox_owner
 
-    shared = "contato@grupo.com.br"
+    shared = "contato@grupocompartilhado.com.br"
     leads = [_lead("22222222000172", [_contact(shared)]), _lead("11111111000191", [_contact(shared)])]
 
     whole, _ = select_cohort(list(leads), limit=50)
@@ -358,3 +370,63 @@ def test_a_precomputed_owner_map_matches_the_whole_feed_gate():
         shared_mailbox_owner=shared_preferred_mailbox_owner(leads),
     )
     assert [m["company"]["cnpj14"] for m in whole] == [m["company"]["cnpj14"] for m in streamed] == ["11111111000191"]
+
+
+def test_a_wrongly_resolved_domain_is_blocked_by_the_company_name():
+    """Observed in a real run: premium.com.br for a Braga, balboa.com for an ML.
+
+    When resolution picks the wrong company, mailbox host, page host and
+    official host all agree with each other, so nothing internal to the route
+    looks wrong. The registered name is the only independent check.
+    """
+    wrong = _lead(
+        "11111111000191",
+        [_contact("contato@premium.com.br", source_url="https://premium.com.br/contato")],
+        website="https://premium.com.br",
+    )
+    wrong["company"]["razao_social"] = "C M L BRAGA CONSTRUCAO DE EDIFICIOS"
+    members, stats = select_cohort([wrong], limit=50)
+    assert members == []
+    assert stats["funnel"]["blocked_domain_not_credible_for_company_name"] == 1
+
+
+def test_a_company_on_its_own_named_domain_still_passes():
+    right = _lead(
+        "22222222000172",
+        [_contact("contato@eletronelevadores.com.br", source_url="https://eletronelevadores.com.br/contato")],
+        website="https://eletronelevadores.com.br",
+    )
+    right["company"]["razao_social"] = "ELETRON ELEVADORES LTDA"
+    members, _ = select_cohort([right], limit=50)
+    assert len(members) == 1
+
+
+def test_a_generic_word_in_the_name_is_not_a_brand_match():
+    """CONSTRUTORA CAPITAL matched capital.com, a real and unrelated business."""
+    from scripts.confenge_contact_resolution.discovery.official_domain import is_credible_company_domain
+
+    for domain, name in (
+        ("capital.com", "CONSTRUTORA CAPITAL JP LTDA"),
+        ("premium.com.br", "C M L BRAGA CONSTRUCAO DE EDIFICIOS"),
+        ("balboa.com", "ML ENGENHARIA LTDA"),
+        ("cepam.com.br", "F A CONSTRUCOES E SERVICOS EIRELI"),
+        ("central.com.br", "CONSTRUTORA CENTRAL LTDA"),
+        ("horizonte.com.br", "CONSTRUTORA HORIZONTE LTDA"),
+    ):
+        assert is_credible_company_domain(domain, name) is False, (domain, name)
+
+    for domain, name in (
+        ("eletronelevadores.com.br", "ELETRON ELEVADORES LTDA"),
+        ("engelec.com.br", "ENGELEC - ENGENHARIA ELETRICA E CIVIL LTDA"),
+        ("andradegutierrez.com.br", "ANDRADE GUTIERREZ ENGENHARIA SA"),
+    ):
+        assert is_credible_company_domain(domain, name) is True, (domain, name)
+
+
+def test_a_lead_without_a_company_name_cannot_be_verified():
+    unnamed = _lead("33333333000153", [_contact("contato@alphaengenharia.com.br")], website="https://alphaengenharia.com.br")
+    unnamed["company"]["razao_social"] = ""
+    unnamed["company"]["nome_fantasia"] = ""
+    members, stats = select_cohort([unnamed], limit=50)
+    assert members == []
+    assert stats["funnel"]["blocked_company_name_unavailable_for_domain_check"] == 1
