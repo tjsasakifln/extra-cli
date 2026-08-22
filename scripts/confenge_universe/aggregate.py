@@ -24,9 +24,26 @@ from scripts.confenge_universe.identity import Identity, resolve_identity
 
 RECENT_YEARS = 2
 MAX_RECENT_CONTRACTS_SAMPLE = 8
-MAX_OBJECT_SNIPPET = 160
+# The snippet feeds signal detection and downstream copy, not a display field.
+# At 160 the pain keywords (termo aditivo, glosa, reequilíbrio, prorrogação)
+# almost never survive inside a PNCP objeto, which collapsed the moment mix into
+# the PORTFOLIO_REVIEW fallback.
+MAX_OBJECT_SNIPPET = 480
 MAX_ESTABLISHMENTS = 40
 MAX_ALIASES = 20
+
+
+def _cut_objeto(text: str, limit: int = MAX_OBJECT_SNIPPET) -> str:
+    """Trim a contract objeto on a word boundary instead of mid-clause."""
+    t = " ".join((text or "").split())
+    if len(t) <= limit:
+        return t
+    cut = t[:limit]
+    sep = max(cut.rfind(" "), cut.rfind(","), cut.rfind(";"))
+    if sep > limit // 2:
+        cut = cut[:sep]
+    return cut.rstrip(" ,;-") + "…"
+
 MAX_ORGAOS = 50
 MAX_CATEGORIES = 30
 
@@ -188,7 +205,7 @@ class EntityBucket:
             self.contracts_for_classify.append(row)
 
         if is_relevant:
-            obj = str(row.get("objeto_contrato") or row.get("objeto") or "")[:MAX_OBJECT_SNIPPET]
+            obj = _cut_objeto(str(row.get("objeto_contrato") or row.get("objeto") or ""))
             if obj and len(self.object_snippets_pass) < 20:
                 self.object_snippets_pass.append(obj)
             sample = {
