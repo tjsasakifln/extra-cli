@@ -1,7 +1,7 @@
 {
   "schema_version": "confenge-frozen-inputs/1.0",
   "campaign": "CONFENGE-COMMERCIAL-READY-01",
-  "freeze_sha": "b4e55a3e13081e35209feec2dab32cec07a63561",
+  "freeze_sha": "9c6ac96011ae5dda3deba0f61aada5a0478ae470",
   "policy": "frozen_confenge_inputs_v1",
   "inputs": [
     {
@@ -345,8 +345,8 @@
     {
       "path": "scripts/confenge_target_fit/store.py",
       "kind": "file",
-      "blob_sha": "58307f5a140e1e0535e82b730f0de52457c7984c",
-      "sha256": "5b1139cda579a662ca2f733d4c074fd06999a47c9af6affd2b60b5a53a212a92"
+      "blob_sha": "af56f9749fcba32cee7f31226ffff8724fed7c98",
+      "sha256": "0db76bfd0295e787e9039336847dbdd8717fbbed5aac758a30ca84459a5eb277"
     },
     {
       "path": "scripts/confenge_target_fit/transitions.py",
@@ -621,8 +621,8 @@
     {
       "path": "scripts/warmbly_bridge/mapping.py",
       "kind": "file",
-      "blob_sha": "6ac511b88eedf2b9c77acdc7ca89467f2cd7089a",
-      "sha256": "43f9d4ecd7c661e2d8d30296e66914175d3e546da089f76f31968a0a42988603"
+      "blob_sha": "31942cea5414fb794b86d074360b503ef1c5c720",
+      "sha256": "741a568ce099f9f223ed177a99707e3511f4a8ab25bd34e5c8227f7228604dde"
     }
   ],
   "missing_at_build": [],
