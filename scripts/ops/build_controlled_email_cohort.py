@@ -165,6 +165,7 @@ def _contact_blocked(
     *,
     account_id: str = "",
     official_domain: str | None = None,
+    company_label: str = "",
 ) -> str | None:
     """Reason this mailbox cannot enter the bounded cohort, or None."""
     mailbox = canonicalize_mailbox(str(contact.get("email") or ""))
@@ -187,6 +188,16 @@ def _contact_blocked(
         return "mailbox_purpose_blocked"
     if str(contact.get("mailbox_company_evidence") or "").upper() != "OBSERVED":
         return "mailbox_company_evidence_unknown"
+    # Domain resolution is the weak link every class leans on. When it picks the
+    # wrong company, mailbox host, page host and official host all agree with
+    # each other and the route reads clean end to end — observed in a real run:
+    # premium.com.br for a Braga, balboa.com for an ML, capital.com for a
+    # Construtora Capital. The registered name is the only independent check.
+    evidence_domain = official_domain or email_domain(mailbox)
+    if not company_label:
+        return "company_name_unavailable_for_domain_check"
+    if not evidence_domain or not is_credible_company_domain(evidence_domain, company_label):
+        return "domain_not_credible_for_company_name"
     verdict = recheck_contact(contact, account_id=account_id, official_domain=official_domain)
     if not verdict.controlled_email_eligible:
         return "stamp_disagrees_with_shipped_policy"
@@ -255,6 +266,7 @@ def select_cohort(
             contact,
             account_id=str(company.get("cnpj14") or lead.get("source_lead_id") or ""),
             official_domain=resolve_official_domain(lead, contact),
+            company_label=str(company.get("razao_social") or company.get("nome_fantasia") or ""),
         )
         if reason is not None:
             funnel[f"blocked_{reason}"] += 1
