@@ -334,3 +334,85 @@ def test_cli_strict_fails_on_hold(tmp_path, capsys):
     capsys.readouterr()
     # The fixture is DATA_READY on required sections, so strict must pass.
     assert code == 0
+
+
+def test_handoff_is_ready_only_for_official_live(tmp_path):
+    from scripts.dossier.handoff import (
+        DECISION_BLOCKED,
+        REASON_NOT_OFFICIAL_LIVE,
+        REASON_NOT_PUBLISHABLE,
+        decide,
+        verify_handoff,
+        write_handoff,
+    )
+
+    fixture_public = {
+        "catalog_mode": CATALOG_FIXTURE,
+        "data_state": DATA_READY,
+        "publication_readiness": DATA_HOLD,
+        "content_hash": "sha256:abc",
+        "reason_codes": [],
+    }
+    decision, reasons = decide(fixture_public)
+    assert decision == DECISION_BLOCKED
+    assert REASON_NOT_OFFICIAL_LIVE in reasons
+    assert REASON_NOT_PUBLISHABLE in reasons
+
+    root = tmp_path / "rendezvous"
+    result = write_handoff(fixture_public, {"dossier_id": "d", "producer_sha": "s"}, root)
+    assert result["decision"] == DECISION_BLOCKED
+    assert (root / "BLOCKED.json").exists()
+    assert not (root / "READY.json").exists()
+    assert verify_handoff(root) == []
+
+
+def test_handoff_never_grants_index_authorization(tmp_path):
+    from scripts.dossier.handoff import verify_handoff, write_handoff
+
+    public = {
+        "catalog_mode": CATALOG_OFFICIAL_LIVE,
+        "data_state": DATA_READY,
+        "publication_readiness": DATA_READY,
+        "content_hash": "sha256:abc",
+        "source_dossier_hash": "sha256:def",
+        "reason_codes": [],
+    }
+    root = tmp_path / "rendezvous"
+    result = write_handoff(public, {"dossier_id": "d", "producer_sha": "s"}, root)
+    assert result["decision"] == "READY"
+    assert verify_handoff(root) == []
+    manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["index_authorization"] is False
+    assert manifest["publication_authorization"] is False
+    assert manifest["carries_prospect_identity"] is False
+
+
+def test_handoff_verify_detects_tampering(tmp_path):
+    from scripts.dossier.handoff import verify_handoff, write_handoff
+
+    public = {
+        "catalog_mode": CATALOG_OFFICIAL_LIVE,
+        "data_state": DATA_READY,
+        "publication_readiness": DATA_READY,
+        "content_hash": "sha256:abc",
+        "reason_codes": [],
+    }
+    root = tmp_path / "rendezvous"
+    write_handoff(public, {"dossier_id": "d", "producer_sha": "s"}, root)
+    (root / "payload.json").write_text('{"tampered": true}\n', encoding="utf-8")
+    errors = verify_handoff(root)
+    assert any(e.startswith("digest:payload.json") for e in errors)
+
+
+def test_cli_handoff_publishes_only_the_public_projection(tmp_path, capsys):
+    out = tmp_path / "acme"
+    cli.main(["build", "--cnpj", CNPJ, "--as-of", "2026-08-22", "--fixture", str(FIXTURE), "--out", str(out)])
+    capsys.readouterr()
+    root = tmp_path / "rendezvous"
+    # A fixture build is BLOCKED, which is exit code 1, not a crash.
+    assert cli.main(["handoff", "--dir", str(out), "--to", str(root)]) == 1
+    capsys.readouterr()
+    body = (root / "payload.json").read_text(encoding="utf-8")
+    assert CNPJ not in body
+    assert "ACME PAVIMENTACAO" not in body
+    assert not (root / "dossier.json").exists()

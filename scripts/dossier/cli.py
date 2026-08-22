@@ -33,6 +33,7 @@ from scripts.dossier.envelope import (
     public_projection,
     scan_forbidden,
 )
+from scripts.dossier.handoff import DECISION_READY, rendezvous_dir, verify_handoff, write_handoff
 from scripts.dossier.models import DossierRequest
 from scripts.dossier.render import render_markdown
 from scripts.dossier.sources import DatalakeSource, FixtureSource
@@ -181,6 +182,37 @@ def _cmd_verify(args: argparse.Namespace) -> int:
     return 0 if not problems else 1
 
 
+def _cmd_handoff(args: argparse.Namespace) -> int:
+    directory = Path(args.dir)
+    public = json.loads((directory / PUBLIC_JSON).read_text(encoding="utf-8"))
+    manifest = json.loads((directory / MANIFEST_JSON).read_text(encoding="utf-8"))
+
+    # The private dossier must never reach the rendezvous.
+    leaks = [label for label, value in _sensitive_values_from_dir(directory) if value in canonical_json(public)]
+    if leaks:
+        sys.stderr.write("refusing handoff, public projection leaks: " + ", ".join(leaks) + "\n")
+        return 6
+
+    forbidden = scan_forbidden(public)
+    if forbidden:
+        sys.stderr.write("refusing handoff, forbidden claim content: " + ", ".join(forbidden) + "\n")
+        return 3
+
+    root = Path(args.to) if args.to else rendezvous_dir()
+    result = write_handoff(public, manifest, root)
+    errors = verify_handoff(root)
+    result["verify_errors"] = errors
+    sys.stdout.write(canonical_json(result))
+    if errors:
+        return 7
+    return 0 if result["decision"] == DECISION_READY else 1
+
+
+def _sensitive_values_from_dir(directory: Path) -> list[tuple[str, str]]:
+    document = json.loads((directory / DOSSIER_JSON).read_text(encoding="utf-8"))
+    return _sensitive_values(document)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="python3 -m scripts.dossier",
@@ -210,6 +242,14 @@ def build_parser() -> argparse.ArgumentParser:
     verify = sub.add_parser("verify", help="Re-verify a written artifact set")
     verify.add_argument("--dir", required=True)
     verify.set_defaults(func=_cmd_verify)
+
+    handoff = sub.add_parser(
+        "handoff",
+        help="Publish the de-identified projection to the web-cfg rendezvous (READY xor BLOCKED)",
+    )
+    handoff.add_argument("--dir", required=True, help="Artifact set produced by build --out")
+    handoff.add_argument("--to", default=None, help="Rendezvous dir. Defaults to CONFENGE_HANDOFF_DIR layout.")
+    handoff.set_defaults(func=_cmd_handoff)
 
     return parser
 
