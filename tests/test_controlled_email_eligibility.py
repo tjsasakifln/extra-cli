@@ -1105,7 +1105,7 @@ def test_suppression_is_read_fail_closed_across_producer_vocabularies():
         {"route_suppression": "quarantined"},
         {"suppression_reason": "unsubscribed"},
         {"email_status": "unsubscribed"},
-        {"status": "opt_out"},
+        {"email_status": "hard_bounce"},
         {"opt_out": True},
         {"opt_out": "true"},
         {"opt_out": 1},
@@ -1140,6 +1140,14 @@ def test_suppression_is_read_fail_closed_across_producer_vocabularies():
         {"bounced": "false"},
         {"opt_out": False},
         {"opt_out": 0},
+        # `status` is a generic field in this repo (READY, idle, backpressure).
+        # Failing closed on it would mark healthy contacts suppressed.
+        {"status": "READY"},
+        {"status": "new"},
+        {"status": "opt_out"},
+        # A hint field only suppresses on a recognized suppression word.
+        {"email_status": "valid"},
+        {"email_status": "verified"},
     ]
     for payload in clear:
         assert suppression_from_feed_contact(payload) == SuppressionState.NONE, payload

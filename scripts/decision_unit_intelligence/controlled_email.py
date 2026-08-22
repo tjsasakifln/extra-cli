@@ -62,13 +62,34 @@ CLEAR_SUPPRESSION_TOKENS = frozenset({"NONE", "CLEAR", "OK", "ACTIVE", "NOT_SUPP
 
 # Producers spell suppression in more than one vocabulary. Reading only two of
 # these field names let an opted-out mailbox into a bounded pilot.
+# Fields whose whole purpose is suppression. An unrecognized token here is not
+# evidence of a clear mailbox, so it fails closed.
 SUPPRESSION_TEXT_FIELDS = (
     "route_suppression",
     "suppression_state",
     "suppression",
     "suppression_reason",
-    "email_status",
-    "status",
+)
+# Fields that merely *may* carry a suppression word. `status` is deliberately
+# not read at all: this repo uses it for READY, idle, backpressure and more, so
+# failing closed on it would mark healthy contacts suppressed.
+SUPPRESSION_HINT_FIELDS = ("email_status", "delivery_status", "contact_status")
+SUPPRESSION_HINT_TOKENS = frozenset(
+    {
+        "UNSUBSCRIBED",
+        "OPT_OUT",
+        "OPTED_OUT",
+        "COMPLAINED",
+        "COMPLAINT",
+        "SPAM",
+        "BOUNCED",
+        "HARD_BOUNCE",
+        "SUPPRESSED",
+        "BLOCKED",
+        "BLOCKLISTED",
+        "DNC",
+        "DO_NOT_CONTACT",
+    }
 )
 SUPPRESSION_FLAG_FIELDS = (
     "dnc",
@@ -963,6 +984,15 @@ def suppression_from_feed_contact(contact: dict[str, Any]) -> SuppressionState:
                 return SuppressionState(token)
             # An unrecognized token is not evidence of a clear mailbox.
             state = SuppressionState.BLOCKED
+        for field in SUPPRESSION_HINT_FIELDS:
+            raw = source.get(field)
+            if raw is None or isinstance(raw, bool):
+                continue
+            token = str(raw).upper().replace("-", "_").strip()
+            if token in {s.value for s in SuppressionState} and token not in CLEAR_SUPPRESSION_TOKENS:
+                return SuppressionState(token)
+            if token in SUPPRESSION_HINT_TOKENS:
+                return SuppressionState.DNC
         for field in SUPPRESSION_FLAG_FIELDS:
             if field in source and _suppression_flag(source.get(field)):
                 return SuppressionState.DNC
