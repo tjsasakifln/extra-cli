@@ -462,6 +462,16 @@ def contact_resolution_to_bridge_row(resolution: dict[str, Any]) -> dict[str, An
                 "verification_status": vs,
                 "confidence": conf_s,
                 "recommended": is_rec,
+                # Identity evidence must survive the projection. Dropping these
+                # made mapping.py assert "not publicly published" about mailboxes
+                # read off the company's own contact page, which is the wrong
+                # answer for an LGPD legitimate-interest basis.
+                "email_explicitly_published": cand.get("email_explicitly_published"),
+                "name_explicitly_published": cand.get("name_explicitly_published"),
+                "role_explicitly_published": cand.get("role_explicitly_published"),
+                "human_identity_evidence_valid": cand.get("human_identity_evidence_valid"),
+                "identity_evidence_urls": cand.get("identity_evidence_urls") or [],
+                "evidence_sha256": cand.get("evidence_sha256") or src.get("evidence_sha256"),
             }
         )
 
@@ -524,4 +534,13 @@ def universe_row_for_bridge(row: dict[str, Any], *, rank: int) -> dict[str, Any]
         "target_fit_reason_codes": row.get("target_fit_reason_codes")
         or construction.get("target_fit_reason_codes")
         or [],
+        # ADR-035 requires computed_at and source_watermark on every emitted
+        # decision. Dropping them made complete_published_decision raise on the
+        # sanctioned export path, which is why cohorts got hand-rolled instead.
+        "target_fit_computed_at": row.get("target_fit_computed_at")
+        or construction.get("target_fit_computed_at"),
+        "target_fit_source_watermark": row.get("target_fit_source_watermark")
+        or construction.get("target_fit_source_watermark"),
+        "operational_status": row.get("operational_status")
+        or construction.get("operational_status"),
     }

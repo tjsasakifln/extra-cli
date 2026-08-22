@@ -9,7 +9,10 @@ import re
 from typing import Any
 from urllib.parse import urlparse
 
-from scripts.confenge_contact_resolution.mailbox_purpose import classify_mailbox_purpose
+from scripts.confenge_contact_resolution.mailbox_purpose import (
+    CONTROLLED_BLOCKED_PURPOSES,
+    classify_mailbox_purpose,
+)
 from scripts.confenge_contact_resolution.send_readiness import (
     classify_target_fit_send_tier,
     evaluate_email_send_ready,
@@ -51,6 +54,26 @@ def index_by_cnpj(rows: list[dict[str, Any]], *, label: str) -> dict[str, dict[s
     if not out and rows:
         raise ValueError(f"{label}: no rows with valid cnpj14")
     return out
+
+
+def _as_tribool(value: object) -> bool | None:
+    """True/False when asserted, None when the producer never observed it.
+
+    A dropped field must not read as a negative assertion downstream.
+    """
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        low = value.strip().lower()
+        if low in {"true", "1", "yes"}:
+            return True
+        if low in {"false", "0", "no"}:
+            return False
+        if low == "":
+            return None
+    return bool(value)
 
 
 def _as_str(value: Any, default: str = "") -> str:
@@ -196,16 +219,25 @@ def _map_contact(item: dict[str, Any], *, idx: int, cnpj: str) -> dict[str, Any]
         "enrollable": enrollable,
         "recommended": recommended,
         "provenance": prov,
-        "email_explicitly_published": bool(item.get("email_explicitly_published")),
-        "name_explicitly_published": bool(item.get("name_explicitly_published")),
-        "role_explicitly_published": bool(item.get("role_explicitly_published")),
-        "human_identity_evidence_valid": bool(item.get("human_identity_evidence_valid")),
+        # A missing key means "unknown", not "we checked and it was not
+        # published". Coercing None to False turns a dropped field into a
+        # confident negative claim the consumer cannot tell apart from evidence.
+        "email_explicitly_published": _as_tribool(item.get("email_explicitly_published")),
+        "name_explicitly_published": _as_tribool(item.get("name_explicitly_published")),
+        "role_explicitly_published": _as_tribool(item.get("role_explicitly_published")),
+        "human_identity_evidence_valid": _as_tribool(item.get("human_identity_evidence_valid")),
         "identity_evidence_urls": [str(x) for x in (item.get("identity_evidence_urls") or []) if x],
     }
     # mailbox_purpose is independent of person role / ownership
     mp = classify_mailbox_purpose(email or None)
     out["mailbox_purpose"] = mp.purpose
+    # send_blocked is the AUTORUN rule: it blocks every functional mailbox,
+    # including comercial@ and licitacoes@, because those are not an identified
+    # human. A controlled institutional cohort needs the controlled-mode rule,
+    # which blocks only HR/noreply/privacy/press and friends.
     out["mailbox_purpose_send_blocked"] = mp.send_blocked
+    out["mailbox_purpose_autorun_blocked"] = mp.send_blocked
+    out["mailbox_purpose_controlled_blocked"] = mp.purpose in CONTROLLED_BLOCKED_PURPOSES
     if item.get("recipient_commercial_suitability"):
         out["recipient_commercial_suitability"] = _as_str(item.get("recipient_commercial_suitability"))
     if item.get("channel_send_eligibility") is not None:
