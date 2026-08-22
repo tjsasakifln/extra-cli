@@ -1093,8 +1093,59 @@ def test_freemail_on_a_document_still_needs_a_company_page():
     assert verdict.controlled_email_eligible is False
 
 
-def test_unrecognized_suppression_vocabulary_fails_closed():
-    """Producers use tokens this enum does not carry. NONE must not be the default."""
+def test_suppression_is_read_fail_closed_across_producer_vocabularies():
+    """Reading two field names as the whole vocabulary let opted-out mail through."""
+    from scripts.decision_unit_intelligence.controlled_email import suppression_from_feed_contact
+
+    suppressing = [
+        {"suppression": "opt-out"},
+        {"suppression": "do_not_contact"},
+        {"suppression": "hard_bounce"},
+        {"suppression_state": "opt-out"},
+        {"route_suppression": "quarantined"},
+        {"suppression_reason": "unsubscribed"},
+        {"email_status": "unsubscribed"},
+        {"status": "opt_out"},
+        {"opt_out": True},
+        {"opt_out": "true"},
+        {"opt_out": 1},
+        {"opt_out": "yes"},
+        {"unsubscribed": True},
+        {"opted_out": True},
+        {"suppressed": True},
+        {"is_suppressed": True},
+        {"complained": True},
+        {"spam_complaint": True},
+        {"blocklisted": True},
+        {"do_not_contact": True},
+        {"dnc": True},
+        {"bounced": True},
+        # Nested shapes this schema already uses for provenance.
+        {"provenance": {"route_suppression": "OPT_OUT"}},
+        {"extra": {"route_suppression": "OPT_OUT"}},
+        {"extra": {"suppression": "opt-out"}},
+    ]
+    for payload in suppressing:
+        assert suppression_from_feed_contact(payload) != SuppressionState.NONE, payload
+
+    # A string "false" must not starve the cohort, and a clear token stays clear.
+    clear = [
+        {},
+        {"route_suppression": "NONE"},
+        {"route_suppression": "  none  "},
+        {"suppression": "clear"},
+        {"unsubscribed": "false"},
+        {"do_not_contact": "false"},
+        {"dnc": "false"},
+        {"bounced": "false"},
+        {"opt_out": False},
+        {"opt_out": 0},
+    ]
+    for payload in clear:
+        assert suppression_from_feed_contact(payload) == SuppressionState.NONE, payload
+
+
+def test_a_suppressed_contact_never_reaches_eligibility():
     from scripts.decision_unit_intelligence.controlled_email import route_from_feed_contact
 
     base = {
@@ -1103,24 +1154,12 @@ def test_unrecognized_suppression_vocabulary_fails_closed():
         "source_type": "contact_page",
         "source_url": "https://empresaexemplo.com.br/contato",
     }
-    for field, token in (
-        ("suppression", "opt-out"),
-        ("suppression", "do_not_contact"),
-        ("suppression", "hard_bounce"),
-        ("suppression_state", "opt-out"),
-        ("route_suppression", "quarantined"),
-    ):
-        route = route_from_feed_contact({**base, field: token}, account_id=ACCOUNT_ID)
-        verdict = evaluate_controlled_email_eligible(route)
-        assert verdict.controlled_email_eligible is False, (field, token)
+    for payload in ({"suppression": "opt-out"}, {"suppressed": True}, {"opt_out": "true"}):
+        route = route_from_feed_contact({**base, **payload}, account_id=ACCOUNT_ID)
+        assert evaluate_controlled_email_eligible(route).controlled_email_eligible is False, payload
 
-    for flag in ("opt_out", "unsubscribed", "do_not_contact"):
-        route = route_from_feed_contact({**base, flag: True}, account_id=ACCOUNT_ID)
-        assert evaluate_controlled_email_eligible(route).controlled_email_eligible is False, flag
-
-    for clear in ("NONE", "CLEAR", "", "active"):
-        route = route_from_feed_contact({**base, "route_suppression": clear}, account_id=ACCOUNT_ID)
-        assert evaluate_controlled_email_eligible(route).controlled_email_eligible is True, clear
+    route = route_from_feed_contact(base, account_id=ACCOUNT_ID)
+    assert evaluate_controlled_email_eligible(route).controlled_email_eligible is True
 
 
 def test_paraguayan_company_domain_is_not_a_parser_leftover():

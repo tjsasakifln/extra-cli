@@ -58,7 +58,30 @@ CONTROLLED_EMAIL_SCHEMA_VERSION = "confenge.outreach.controlled_email.v1"
 
 # Tokens that genuinely mean "not suppressed". Anything else is treated as
 # suppression, because an unknown token is not evidence of a clear mailbox.
-CLEAR_SUPPRESSION_TOKENS = frozenset({"NONE", "CLEAR", "OK", "ACTIVE", "NOT_SUPPRESSED"})
+CLEAR_SUPPRESSION_TOKENS = frozenset({"NONE", "CLEAR", "OK", "ACTIVE", "NOT_SUPPRESSED", "FALSE", "NO", "0"})
+
+# Producers spell suppression in more than one vocabulary. Reading only two of
+# these field names let an opted-out mailbox into a bounded pilot.
+SUPPRESSION_TEXT_FIELDS = (
+    "route_suppression",
+    "suppression_state",
+    "suppression",
+    "suppression_reason",
+    "email_status",
+    "status",
+)
+SUPPRESSION_FLAG_FIELDS = (
+    "dnc",
+    "do_not_contact",
+    "unsubscribed",
+    "opted_out",
+    "suppressed",
+    "is_suppressed",
+    "complained",
+    "spam_complaint",
+    "blocklisted",
+)
+_FALSEY_TOKENS = frozenset({"", "0", "FALSE", "NO", "NONE", "NULL", "N"})
 
 EVIDENCE_OBSERVED = "OBSERVED"
 EVIDENCE_UNKNOWN = "UNKNOWN"
@@ -899,6 +922,58 @@ def _feed_contact_source_url(contact: dict[str, Any]) -> str:
     return str(contact.get("source_url") or prov.get("source_url") or "").strip()
 
 
+def _suppression_flag(value: Any) -> bool:
+    """Truthiness for a producer flag, without letting the string "false" suppress.
+
+    A producer that emits string booleans would otherwise starve the whole
+    cohort, and one that emits 1 / "yes" would otherwise slip past an identity
+    comparison against True.
+    """
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return bool(value)
+    if isinstance(value, str):
+        return value.strip().upper() not in _FALSEY_TOKENS
+    return bool(value)
+
+
+def _suppression_sources(contact: dict[str, Any]) -> list[dict[str, Any]]:
+    """The contact plus the nested shapes this schema already uses elsewhere."""
+    out = [contact]
+    for key in ("provenance", "extra"):
+        nested = contact.get(key)
+        if isinstance(nested, dict):
+            out.append(nested)
+    return out
+
+
+def suppression_from_feed_contact(contact: dict[str, Any]) -> SuppressionState:
+    """Read suppression fail-closed across every shape a producer may use."""
+    state = SuppressionState.NONE
+    for source in _suppression_sources(contact):
+        for field in SUPPRESSION_TEXT_FIELDS:
+            raw = source.get(field)
+            if raw is None or isinstance(raw, bool):
+                continue
+            token = str(raw).upper().replace("-", "_").strip()
+            if not token or token in CLEAR_SUPPRESSION_TOKENS:
+                continue
+            if token in {s.value for s in SuppressionState}:
+                return SuppressionState(token)
+            # An unrecognized token is not evidence of a clear mailbox.
+            state = SuppressionState.BLOCKED
+        for field in SUPPRESSION_FLAG_FIELDS:
+            if field in source and _suppression_flag(source.get(field)):
+                return SuppressionState.DNC
+        if "opt_out" in source and _suppression_flag(source.get("opt_out")):
+            return SuppressionState.OPT_OUT
+        for field in ("bounce", "bounced", "hard_bounce"):
+            if field in source and _suppression_flag(source.get(field)):
+                return SuppressionState.HARD_BOUNCE
+    return state
+
+
 def route_from_feed_contact(
     contact: dict[str, Any],
     *,
@@ -941,26 +1016,7 @@ def route_from_feed_contact(
     discovery = contact.get("email_discovery_class") or contact.get("route_class")
     if discovery:
         extra.setdefault("email_discovery_class", str(discovery))
-    suppression = SuppressionState.NONE
-    raw_sup = (
-        str(contact.get("route_suppression") or contact.get("suppression_state") or contact.get("suppression") or "")
-        .upper()
-        .replace("-", "_")
-        .strip()
-    )
-    if raw_sup in {s.value for s in SuppressionState}:
-        suppression = SuppressionState(raw_sup)
-    elif raw_sup and raw_sup not in CLEAR_SUPPRESSION_TOKENS:
-        # An unrecognized suppression token is not an absence of suppression.
-        # Producers use vocabularies this enum does not carry, and reading one
-        # as NONE lets an opted-out mailbox into a bounded pilot.
-        suppression = SuppressionState.BLOCKED
-    if contact.get("dnc") or contact.get("do_not_contact") or contact.get("unsubscribed"):
-        suppression = SuppressionState.DNC
-    if contact.get("opt_out") is True:
-        suppression = SuppressionState.OPT_OUT
-    if contact.get("bounce") or contact.get("bounced"):
-        suppression = SuppressionState.HARD_BOUNCE
+    suppression = suppression_from_feed_contact(contact)
     ownership = OwnershipStatus.UNKNOWN
     raw_own = str(contact.get("ownership_status") or "").upper()
     if raw_own in {o.value for o in OwnershipStatus}:

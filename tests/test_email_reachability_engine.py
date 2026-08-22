@@ -716,6 +716,19 @@ def test_a_social_page_is_never_an_official_company_domain():
         "https://linkedin.com/company/construtoraalvo",
         "https://cnpja.com/office/12345678000195",
         "https://pncp.gov.br/app/editais/1",
+        # Anyone can publish on these too, so a page here owns nothing.
+        "https://construtoraalvo.blogspot.com",
+        "https://construtoraalvo.wordpress.com",
+        "https://construtoraalvo.notion.site",
+        "https://construtoraalvo.github.io",
+        "https://construtoraalvo.negocio.site",
+        "https://linktr.ee/construtoraalvo",
+        "https://medium.com/@construtoraalvo",
+        "https://bit.ly/construtoraalvo",
+        "https://web.archive.org/web/2026/http://x",
+        "https://wa.me/5511999999999",
+        "https://t.me/construtoraalvo",
+        "https://docs.google.com/document/d/x",
     ):
         assert official_domain_host(shared) == "", shared
 
