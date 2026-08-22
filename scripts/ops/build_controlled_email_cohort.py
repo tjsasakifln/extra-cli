@@ -30,6 +30,7 @@ import json
 import os
 import sys
 from collections import Counter
+from collections.abc import Iterable, Iterator
 from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
@@ -49,6 +50,7 @@ from scripts.decision_unit_intelligence.controlled_email import (  # noqa: E402
     email_domain,
     evaluate_controlled_email_eligible,
     route_from_feed_contact,
+    shared_preferred_mailbox_owner,
 )
 from scripts.warmbly_bridge import SCHEMA_OUTREACH  # noqa: E402
 
@@ -110,20 +112,41 @@ def resolve_official_domain(lead: dict[str, Any], contact: dict[str, Any]) -> st
     return None
 
 
-def load_feed_leads(feed_dir: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    """Read every chunk of an exported outreach feed, in manifest order."""
+def read_feed_manifest(feed_dir: Path) -> dict[str, Any]:
     manifest_path = feed_dir / "manifest.json"
-    manifest: dict[str, Any] = {}
     if manifest_path.is_file():
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    leads: list[dict[str, Any]] = []
+        return dict(json.loads(manifest_path.read_text(encoding="utf-8")))
+    return {}
+
+
+def iter_feed_leads(feed_dir: Path) -> Iterator[dict[str, Any]]:
+    """Yield leads one chunk at a time.
+
+    The authoritative export covers the whole decision universe — hundreds of
+    thousands of leads across hundreds of chunks — so materializing them all is
+    how the producer would run the host out of memory. One chunk is held at a
+    time; callers that need a whole-feed view take a second pass.
+    """
     for chunk in sorted(feed_dir.glob("chunk_*.json")):
         payload = json.loads(chunk.read_text(encoding="utf-8"))
         schema = str(payload.get("schema_version") or "")
         if schema != SCHEMA_OUTREACH:
             raise ValueError(f"{chunk}: expected {SCHEMA_OUTREACH}, found {schema!r}")
-        leads.extend(payload.get("leads") or [])
-    return leads, manifest
+        yield from (lead for lead in (payload.get("leads") or []) if isinstance(lead, dict))
+
+
+def load_feed_leads(feed_dir: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Whole-feed read. Only for small feeds and tests; production streams."""
+    return list(iter_feed_leads(feed_dir)), read_feed_manifest(feed_dir)
+
+
+def _apply_owner_map(
+    leads: Iterable[dict[str, Any]],
+    owner: dict[str, str],
+) -> Iterator[dict[str, Any]]:
+    """Streaming equivalent of the cross-account preferred-mailbox gate."""
+    for lead in leads:
+        yield apply_cross_account_preferred_mailbox_gate([lead], owner=owner)[0]
 
 
 def recheck_contact(
@@ -173,12 +196,21 @@ def _contact_blocked(
 
 
 def select_cohort(
-    leads: list[dict[str, Any]],
+    leads: Iterable[dict[str, Any]],
     *,
     limit: int,
+    shared_mailbox_owner: dict[str, str] | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    """Keep accounts with exactly one surviving preferred_initial mailbox."""
-    gated = apply_cross_account_preferred_mailbox_gate(leads)
+    """Keep accounts with exactly one surviving preferred_initial mailbox.
+
+    ``shared_mailbox_owner`` lets a streaming caller supply the whole-feed view
+    of who keeps each shared mailbox, computed in an earlier pass. Without it the
+    leads are materialized, which is only safe for a small feed.
+    """
+    if shared_mailbox_owner is None:
+        gated: Iterable[dict[str, Any]] = apply_cross_account_preferred_mailbox_gate(list(leads))
+    else:
+        gated = _apply_owner_map(leads, shared_mailbox_owner)
 
     funnel: Counter[str] = Counter(dict.fromkeys(FUNNEL_KEYS, 0))
     class_counts: Counter[str] = Counter(dict.fromkeys((rc.value for rc in EmailRouteClass), 0))
@@ -341,8 +373,15 @@ def build(
     as_of: str,
     run_stamp: str,
 ) -> dict[str, Any]:
-    leads, source_manifest = load_feed_leads(feed_dir)
-    members, stats = select_cohort(leads, limit=limit)
+    source_manifest = read_feed_manifest(feed_dir)
+    # Two streaming passes: one to decide who keeps each shared mailbox across
+    # the whole feed, one to select. Never the whole feed in memory at once.
+    owner = shared_preferred_mailbox_owner(iter_feed_leads(feed_dir))
+    members, stats = select_cohort(
+        iter_feed_leads(feed_dir),
+        limit=limit,
+        shared_mailbox_owner=owner,
+    )
     out_dir = private_root / run_stamp
     run_id = f"fresh-cohort-{run_stamp}"
     feed_meta = write_private_feed(

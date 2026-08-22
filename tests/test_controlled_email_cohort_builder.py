@@ -303,3 +303,58 @@ def test_the_sample_never_carries_the_company_name(tmp_path):
     redacted = Path(manifest["manifest_path"]).read_text(encoding="utf-8")
     assert "JOAO DA SILVA" not in redacted
     assert "mailbox_domain_fits_company_name" in redacted
+
+
+def test_the_producer_never_holds_the_whole_feed(tmp_path):
+    """The authoritative export covers the decision universe, not the hot set.
+
+    Materializing hundreds of thousands of leads is how the producer would run
+    the host out of memory, so it must stream chunk by chunk.
+    """
+    from scripts.ops.build_controlled_email_cohort import iter_feed_leads
+
+    feed_dir = tmp_path / "06_warmbly_feed"
+    feed_dir.mkdir(parents=True)
+    for idx in range(4):
+        (feed_dir / f"chunk_{idx:04d}.json").write_text(
+            json.dumps(
+                {
+                    "schema_version": SCHEMA_OUTREACH,
+                    "leads": [
+                        _lead(f"{idx}{n:010d}9"[:14], [_contact(f"contato@empresa{idx}x{n}.com.br")]) for n in range(3)
+                    ],
+                }
+            ),
+            encoding="utf-8",
+        )
+    (feed_dir / "manifest.json").write_text(json.dumps({"lead_count": 12}), encoding="utf-8")
+
+    stream = iter_feed_leads(feed_dir)
+    assert next(stream)["company"]["cnpj14"].startswith("0")
+    assert sum(1 for _ in iter_feed_leads(feed_dir)) == 12
+
+    manifest = build(
+        feed_dir=feed_dir,
+        private_root=tmp_path / "private",
+        limit=50,
+        as_of="2026-08-22",
+        run_stamp="20260822T000000Z",
+    )
+    assert manifest["member_count"] == 12
+    assert manifest["funnel"]["accounts_considered"] == 12
+
+
+def test_a_precomputed_owner_map_matches_the_whole_feed_gate():
+    """Streaming must not weaken the cross-account rule."""
+    from scripts.decision_unit_intelligence.controlled_email import shared_preferred_mailbox_owner
+
+    shared = "contato@grupo.com.br"
+    leads = [_lead("22222222000172", [_contact(shared)]), _lead("11111111000191", [_contact(shared)])]
+
+    whole, _ = select_cohort(list(leads), limit=50)
+    streamed, _ = select_cohort(
+        iter(list(leads)),
+        limit=50,
+        shared_mailbox_owner=shared_preferred_mailbox_owner(leads),
+    )
+    assert [m["company"]["cnpj14"] for m in whole] == [m["company"]["cnpj14"] for m in streamed] == ["11111111000191"]

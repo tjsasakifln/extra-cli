@@ -11,7 +11,7 @@ This module never grants auto-send.
 from __future__ import annotations
 
 import re
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any
@@ -1188,7 +1188,7 @@ def stamp_and_rank_feed_contacts(
     return apply_preferred_recommended_alias(stamped)
 
 
-def _shared_mailbox_owner(leads: list[dict[str, Any]]) -> dict[str, str]:
+def _shared_mailbox_owner(leads: Iterable[dict[str, Any]]) -> dict[str, str]:
     """Pick the one account that keeps each shared mailbox, stably across runs.
 
     Feed order is sorted by target-fit freshness timestamps, which advance on
@@ -1216,9 +1216,22 @@ def _shared_mailbox_owner(leads: list[dict[str, Any]]) -> dict[str, str]:
     return owner
 
 
-def apply_cross_account_preferred_mailbox_gate(leads: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Exactly one account may keep a preferred mailbox. Other claimants lose it."""
-    claimed: dict[str, str] = dict(_shared_mailbox_owner(leads))
+def shared_preferred_mailbox_owner(leads: Iterable[dict[str, Any]]) -> dict[str, str]:
+    """Public whole-feed view of who keeps each shared mailbox."""
+    return _shared_mailbox_owner(leads)
+
+
+def apply_cross_account_preferred_mailbox_gate(
+    leads: list[dict[str, Any]],
+    *,
+    owner: dict[str, str] | None = None,
+) -> list[dict[str, Any]]:
+    """Exactly one account may keep a preferred mailbox. Other claimants lose it.
+
+    ``owner`` carries a whole-feed decision computed elsewhere, so a streaming
+    caller can apply the gate one lead at a time without holding the feed.
+    """
+    claimed: dict[str, str] = dict(owner if owner is not None else _shared_mailbox_owner(leads))
     out: list[dict[str, Any]] = []
     for lead in leads:
         if not isinstance(lead, dict):
