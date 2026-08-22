@@ -1012,3 +1012,50 @@ def test_five_class_mapping_feed_written_for_warmbly_ingest() -> None:
     if sibling.parent.is_dir():
         sibling.write_text(dest.read_text(encoding="utf-8"), encoding="utf-8")
         assert json.loads(sibling.read_text(encoding="utf-8"))["leads"][0]["contacts"][0]["email"]
+
+
+def _cnpj_linked_doc_route(
+    mailbox: str = "licitacoes@alphaengenharia.com.br",
+    *,
+    document_cnpj14: str = ACCOUNT_ID,
+    evidence_strength: str = "company_authored_document",
+) -> ReachabilityRoute:
+    """Company-authored document hosted on a datalake/portal host, not the company host."""
+    return _route(
+        mailbox,
+        channel=ChannelType.ROLE_MAILBOX,
+        ownership=OwnershipStatus.UNKNOWN,
+        source_type="official_documents",
+        source_url="https://datalake.example/doc/1",
+        extra={
+            "evidence_strength": evidence_strength,
+            "document_cnpj14": document_cnpj14,
+        },
+    )
+
+
+def test_cnpj_linked_company_document_survives_host_match_gate():
+    """Authorship binds the mailbox; a PNCP/portal host is never the company host."""
+    verdict = evaluate_controlled_email_eligible(_cnpj_linked_doc_route())
+    assert verdict.mailbox_company_evidence == "OBSERVED"
+    assert verdict.controlled_email_eligible is True
+    assert verdict.route_class == EmailRouteClass.ROLE_OR_DEPARTMENT
+
+
+def test_document_for_a_different_cnpj_is_not_associated():
+    verdict = evaluate_controlled_email_eligible(_cnpj_linked_doc_route(document_cnpj14="99887766000155"))
+    assert verdict.mailbox_company_evidence == "UNKNOWN"
+    assert verdict.controlled_email_eligible is False
+    assert "mailbox_company_evidence_unknown" in verdict.reason_codes
+
+
+def test_weak_document_evidence_does_not_bypass_host_match():
+    verdict = evaluate_controlled_email_eligible(_cnpj_linked_doc_route(evidence_strength="snippet_mention"))
+    assert verdict.mailbox_company_evidence == "UNKNOWN"
+    assert verdict.controlled_email_eligible is False
+
+
+def test_freemail_on_a_cnpj_linked_document_still_needs_a_company_page():
+    verdict = evaluate_controlled_email_eligible(_cnpj_linked_doc_route("alphaengenharia@gmail.com"))
+    assert verdict.mailbox_company_evidence == "UNKNOWN"
+    assert verdict.controlled_email_eligible is False

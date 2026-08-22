@@ -10,6 +10,7 @@ This module never grants auto-send.
 
 from __future__ import annotations
 
+import re
 from collections.abc import Callable
 from dataclasses import dataclass
 from enum import StrEnum
@@ -96,6 +97,13 @@ IMPLAUSIBLE_MAILBOX_TLDS = frozenset(
     }
 )
 HTML_ENTITY_LOCAL_MARKERS = ("u003e", "u003c", "u0026", "&gt;", "&lt;", "&amp;")
+
+# Company-authored documents already bound to the CNPJ by the datalake prove the
+# association by authorship, not by where the file happens to be hosted. A PNCP
+# or transparency-portal host is never the company host, so the site host-match
+# rule cannot be applied to this evidence family.
+CNPJ_LINKED_DOCUMENT_SOURCES = frozenset({"official_documents", "official_document"})
+CNPJ_LINKED_DOCUMENT_EVIDENCE = frozenset({"company_authored_document", "official_cnpj_linked_document"})
 
 EMAIL_CHANNEL_TYPES = frozenset(
     {
@@ -314,6 +322,25 @@ def mailbox_local_implausible(mailbox: str | None) -> bool:
     return False
 
 
+def cnpj_linked_document_association(route: ReachabilityRoute) -> bool:
+    """True for a company-authored document the datalake already binds to this CNPJ.
+
+    Authorship is the association proof here, so the mailbox host is not required
+    to match the document host. The CNPJ on the document must match the account.
+    """
+    source = str(route.source_type or "").lower().strip()
+    if source not in CNPJ_LINKED_DOCUMENT_SOURCES:
+        return False
+    extra = route.extra if isinstance(route.extra, dict) else {}
+    if str(extra.get("evidence_strength") or "").lower().strip() not in CNPJ_LINKED_DOCUMENT_EVIDENCE:
+        return False
+    if extra.get("pattern_guessed_email") or extra.get("pattern_guessed"):
+        return False
+    account = re.sub(r"\D", "", str(route.company_entity_id or ""))[:14]
+    document = re.sub(r"\D", "", str(extra.get("document_cnpj14") or ""))[:14]
+    return len(account) == 14 and account == document
+
+
 def association_provenance_trustworthy(route: ReachabilityRoute) -> bool:
     """True only when public provenance can bind the mailbox to this account."""
     if untrustworthy_source_url(route.source_url):
@@ -327,6 +354,8 @@ def association_provenance_trustworthy(route: ReachabilityRoute) -> bool:
     freemail = is_freemail(route.channel_value)
     if not freemail and not mailbox_host_plausible(mailbox_dom):
         return False
+    if not freemail and cnpj_linked_document_association(route):
+        return True
     on_official_page = bool(official and url_host and _hosts_equivalent(url_host, official))
     mailbox_on_official = bool(official and mailbox_dom and not freemail and _hosts_equivalent(mailbox_dom, official))
     if official:
@@ -915,6 +944,18 @@ def route_from_feed_contact(
     observed_id = str(contact.get("person_id") or "").strip()
     if observed_id:
         extra.setdefault("observed_person_id", observed_id)
+    evidence_strength = str(contact.get("evidence_strength") or "").strip().lower()
+    if evidence_strength:
+        extra.setdefault("evidence_strength", evidence_strength)
+    document_cnpj = re.sub(
+        r"\D",
+        "",
+        str(contact.get("document_cnpj14") or contact.get("cnpj14") or contact.get("cnpj") or ""),
+    )[:14]
+    if len(document_cnpj) == 14:
+        extra.setdefault("document_cnpj14", document_cnpj)
+    if contact.get("pattern_guessed_email") or contact.get("pattern_guessed"):
+        extra.setdefault("pattern_guessed_email", True)
     discovery = contact.get("email_discovery_class") or contact.get("route_class")
     if discovery:
         extra.setdefault("email_discovery_class", str(discovery))
