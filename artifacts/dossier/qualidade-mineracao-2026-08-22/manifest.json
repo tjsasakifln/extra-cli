@@ -1,15 +1,16 @@
 {
   "as_of": "2026-08-22",
   "catalog_mode": "official_live",
-  "content_hash": "sha256:1f99c5e1601a50578b99d2bca181426db993b68e8422679a1a6abdce78935310",
+  "content_hash": "sha256:9be6bb57368066bfcbd72ba076a1a2c108e5e7ef4f837406baf6bd4f6650e48b",
   "data_state": "DATA_READY",
   "dossier_id": "cfg-dossier-cb06e7fa204654f7",
   "files": {
-    "dossier.json": "sha256:1f99c5e1601a50578b99d2bca181426db993b68e8422679a1a6abdce78935310",
-    "public-read.json": "sha256:bde025fed2ba4247c79f6e57358c5187b56fb8bbdeecf2e03e2bacbe4e58903a"
+    "dossier.json": "sha256:8f77dba55c07382d8037a83cc1c79a7710f57b52d034e59911c20ca7f52d19f4",
+    "dossier.md": "sha256:e2bbe036a939b889abc55eda72343bafdde6eae38849c0f1ee690d6a81b2d45b",
+    "public-read.json": "sha256:b1a5c51244e9465ae493ab4d46f5a6a4c38bd5d36790c9866c2dd7d00573e3f7"
   },
-  "producer_sha": "cc9d4dae628f0879be7c2ccca94976d03bfc9e5d",
-  "public_content_hash": "sha256:bde025fed2ba4247c79f6e57358c5187b56fb8bbdeecf2e03e2bacbe4e58903a",
+  "producer_sha": "0eed54de0d3dc4647633277fe362acbf4d59e115",
+  "public_content_hash": "sha256:3332d3f020b9f5a21a37451b960cee934d1c628576ab585edb54074cfad8882b",
   "reason_codes": [
     "focal_outside_panel_range",
     "no_open_opportunities_for_buyers"

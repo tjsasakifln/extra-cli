@@ -416,3 +416,174 @@ def test_cli_handoff_publishes_only_the_public_projection(tmp_path, capsys):
     assert CNPJ not in body
     assert "ACME PAVIMENTACAO" not in body
     assert not (root / "dossier.json").exists()
+
+
+# --- Regressions pinned from the adversarial review -------------------------
+
+
+def test_public_projection_publishes_no_join_key(built):
+    """An exact competitor valor_sum resolves a redacted supplier in one query."""
+    _result, document = built
+    public = public_projection(document)
+    competitors = public["sections"][SECTION_COMPETITORS]["payload"]
+    body = json.dumps(public, ensure_ascii=False)
+    assert "competitors" not in competitors, "individual competitor rows must not be published"
+    assert "3000000.00" not in body, "exact competitor money is a join key"
+    assert competitors["value_bands"] == ["<10.000.000"]
+    assert competitors["contract_count_band"] == "7-7"
+
+
+def test_public_subject_profile_is_banded_not_exact(built):
+    """uf + cnae + exact counts identify one supplier nationwide."""
+    _result, document = built
+    profile = public_projection(document)["subject_profile"]
+    assert profile["cnae_division"] == "42"
+    assert profile["buyer_count_band"] == "1-5"
+    assert profile["contract_count_band"] == "1-10"
+    assert "buyer_count" not in profile
+    assert "cnae_principal" not in profile
+
+
+def test_portfolio_totals_are_not_computed_over_the_display_list():
+    """A capped buyer list must not set the total, the share or the HHI."""
+    from scripts.dossier.compose import build_buyer_map
+
+    displayed = SourceRead(
+        source="v_contracts_canonical_v2",
+        observed_at="t",
+        rows=tuple(
+            {
+                "buyer_cnpj": f"b{i}",
+                "buyer_nome": f"B{i}",
+                "uf": "SC",
+                "contract_count": 1,
+                "valued_count": 1,
+                "valor_sum": "100.00",
+                "last_data_fim": "2027-01-01",
+            }
+            for i in range(3)
+        ),
+    )
+    totals = SourceRead(
+        source="v_contracts_canonical_v2",
+        observed_at="t",
+        rows=({"buyer_count": 900, "contract_count": 4951, "valor_sum_valued": "228158552.72", "hhi": 0.1583},),
+    )
+    section = build_buyer_map(displayed, SourceRead(source="c", observed_at="t"), totals)
+    assert section.payload["buyer_count"] == 900
+    assert section.payload["contract_count"] == 4951
+    assert section.payload["displayed_buyer_count"] == 3
+    assert section.payload["valor_sum_valued"] == "228158552.72"
+    assert section.payload["hhi"] == 0.1583
+    assert "buyer_list_truncated_for_display" in section.reason_codes
+    # Truncation alone is disclosure, not a defect: the section stays READY.
+    assert section.state == DATA_READY
+
+
+def test_low_precision_category_claims_no_position():
+    """The TI bucket is 84% non-TI; a panel built from household goods prices nothing."""
+    from scripts.dossier.compose import build_price_panel
+
+    read = SourceRead(
+        source="v_contract_intel_percentis",
+        observed_at="t",
+        rows=(
+            {
+                "categoria": "TI",
+                "qtd_contratos": 137934,
+                "p25_valor": "715.22",
+                "p50_valor": "3800.00",
+                "p75_valor": "26150.00",
+                "ticket_medio": "53724893.05",
+                "focal_count": 4,
+                "focal_valued_count": 4,
+                "focal_median": "5000.00",
+                "focal_total_count": 4,
+            },
+        ),
+    )
+    section = build_price_panel(read)
+    category = section.payload["categories"][0]
+    assert category["focal_position"] == "LOW_PRECISION_BUCKET"
+    assert category["bucket_precision"] == "LOW"
+    assert "category_bucket_low_precision" in section.reason_codes
+    assert section.state == DATA_HOLD
+    findings = build_findings(
+        contracts=SourceRead(source="c", observed_at="t"),
+        buyer_map=section,
+        price_panel=section,
+        expiring=build_price_panel(SourceRead(source="x", observed_at="t")),
+        opportunities=build_price_panel(SourceRead(source="x", observed_at="t")),
+        as_of="2026-08-22",
+    )
+    assert not [f for f in findings if f.finding_id.startswith("value_position_in_category")]
+
+
+def test_a_missing_offer_section_cannot_fold_to_ready(tmp_path):
+    """Competitors, expiring and open bids are offer scope; absence is not READY."""
+    partial = json.loads(FIXTURE.read_text(encoding="utf-8"))
+    for key in ("competitors", "expiring", "opportunities"):
+        partial.pop(key)
+    path = tmp_path / "partial.json"
+    path.write_text(json.dumps(partial, ensure_ascii=False), encoding="utf-8")
+    _result, document = build_dossier(FixtureSource(path), _request())
+    assert document["data_state"] == DATA_HOLD
+    assert "official_table_missing" in document["reason_codes"]
+
+
+def test_markdown_is_scanned_and_official_text_is_exempt(built):
+    from scripts.dossier.envelope import scan_markdown
+
+    _result, document = built
+    markdown = render_markdown(document)
+    assert scan_markdown(markdown, document) == ()
+    poisoned = markdown + "\n\nHa sobrepreco de R$ 1.000.000,00.\n"
+    assert any("sobrepreco" in hit for hit in scan_markdown(poisoned, document))
+    # A word carried from an official objeto is that source's word, not a claim.
+    official = json.loads(json.dumps(document))
+    official["sections"]["expiring_contracts"]["payload"]["contracts"][0]["objeto"] = "Servico irregular declarado"
+    assert scan_markdown(markdown + "\nServico irregular declarado\n", official) == ()
+
+
+def test_manifest_digests_cover_the_bytes_on_disk(tmp_path, capsys):
+    out = tmp_path / "acme"
+    cli.main(["build", "--cnpj", CNPJ, "--as-of", "2026-08-22", "--fixture", str(FIXTURE), "--out", str(out)])
+    capsys.readouterr()
+    manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+    assert set(manifest["files"]) == {"dossier.json", "public-read.json", "dossier.md"}
+    for name, digest in manifest["files"].items():
+        assert digest == cli.file_digest(out / name)
+
+
+def test_verify_detects_a_tampered_markdown(tmp_path, capsys):
+    out = tmp_path / "acme"
+    cli.main(["build", "--cnpj", CNPJ, "--as-of", "2026-08-22", "--fixture", str(FIXTURE), "--out", str(out)])
+    capsys.readouterr()
+    path = out / "dossier.md"
+    path.write_text(
+        path.read_text(encoding="utf-8") + "\n\nHa sobrepreco e o reajuste devido e imediato.\n", encoding="utf-8"
+    )
+    assert cli.main(["verify", "--dir", str(out)]) == 1
+    report = json.loads(capsys.readouterr().out)
+    assert any("digest mismatch" in p for p in report["problems"])
+    assert any("forbidden claim content" in p for p in report["problems"])
+
+
+def test_competitor_missingness_describes_the_published_rows():
+    from scripts.dossier.compose import build_competitors
+
+    rows = tuple(
+        {
+            "supplier_cnpj": f"c{i}",
+            "supplier_nome": f"C{i}",
+            "contract_count": 1,
+            "valued_count": 1,
+            "valor_sum": "10.00" if i < 3 else None,
+            "shared_buyer_count": 1,
+            "shared_categories": "OBRAS",
+        }
+        for i in range(20)
+    )
+    section = build_competitors(SourceRead(source="v", observed_at="t", rows=rows), limit=3)
+    assert section.row_count == 3
+    assert section.missingness == 0.0

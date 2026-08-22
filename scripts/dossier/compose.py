@@ -26,14 +26,18 @@ from scripts.dossier.constants import (
     FINDING_OPPORTUNITY_SAME_BUYER,
     FINDING_PRICE_POSITION,
     HHI_CONCENTRATION_THRESHOLD,
+    LOW_PRECISION_CATEGORIES,
     MIN_BUYERS_READY,
     MIN_CONTRACTS_HOLD,
     MIN_CONTRACTS_READY,
     PANEL_OUT_OF_RANGE_FACTOR,
+    POSITION_LOW_PRECISION_BUCKET,
     POSITION_OUT_OF_PANEL_RANGE,
+    REASON_BUYER_LIST_TRUNCATED,
     REASON_IDENTITY_NOT_FOUND,
     REASON_INSUFFICIENT_BUYERS,
     REASON_INSUFFICIENT_CONTRACTS,
+    REASON_LOW_PRECISION_BUCKET,
     REASON_NO_COMPETITORS,
     REASON_NO_CONTRACTS,
     REASON_NO_EXPIRING,
@@ -133,9 +137,15 @@ def build_identity(read: SourceRead) -> Section:
     )
 
 
-def build_buyer_map(buyers: SourceRead, contracts: SourceRead) -> Section:
-    if not buyers.available:
-        return _unavailable(SECTION_BUYER_MAP, buyers)
+def build_buyer_map(buyers: SourceRead, contracts: SourceRead, totals: SourceRead) -> Section:
+    """Buyer map. Display rows are capped; every total comes from ``totals``.
+
+    Computing the share, the sum or the HHI over the capped display list would
+    report a concentrated portfolio for any supplier with more buyers than the
+    cap, and understate the money by the whole tail.
+    """
+    if not buyers.available or not totals.available:
+        return _unavailable(SECTION_BUYER_MAP, buyers if not buyers.available else totals)
     rows = buyers.rows
     if not rows:
         return Section(
@@ -148,12 +158,18 @@ def build_buyer_map(buyers: SourceRead, contracts: SourceRead) -> Section:
             reason_codes=(REASON_NO_CONTRACTS,),
         )
 
+    total_row = totals.rows[0] if totals.rows else {}
+    buyer_total = int(total_row.get("buyer_count") or 0)
+    contract_total = int(total_row.get("contract_count") or 0)
+    valued_total = _dec(total_row.get("valor_sum_valued"))
+    hhi = _dec(total_row.get("hhi"))
+
     entries: list[dict[str, Any]] = []
-    total_valued = Decimal("0")
     for row in rows:
         valor = _dec(row.get("valor_sum"))
-        if valor is not None:
-            total_valued += valor
+        share = None
+        if valor is not None and valued_total is not None and valued_total > 0:
+            share = round(float(valor / valued_total), 4)
         entries.append(
             {
                 "buyer_cnpj": row.get("buyer_cnpj"),
@@ -163,46 +179,36 @@ def build_buyer_map(buyers: SourceRead, contracts: SourceRead) -> Section:
                 "valued_count": int(row.get("valued_count") or 0),
                 "valor_sum": money(valor),
                 "last_data_fim": row.get("last_data_fim") or UNKNOWN,
-                "share_of_valued": None,
+                "share_of_valued": share,
             }
         )
 
-    hhi: float | None = None
-    if total_valued > 0:
-        squares = Decimal("0")
-        for entry in entries:
-            valor = _dec(entry["valor_sum"])
-            if valor is None:
-                continue
-            share = valor / total_valued
-            entry["share_of_valued"] = round(float(share), 4)
-            squares += share * share
-        hhi = round(float(squares), 4)
-
-    contract_total = sum(int(r.get("contract_count") or 0) for r in rows)
     reason_codes: list[str] = []
-    if total_valued <= 0:
+    if valued_total is None or valued_total <= 0:
         reason_codes.append(REASON_VALUE_UNKNOWN)
-    if len(entries) < MIN_BUYERS_READY:
+    if buyer_total < MIN_BUYERS_READY:
         reason_codes.append(REASON_INSUFFICIENT_BUYERS)
     if contract_total < MIN_CONTRACTS_READY:
         reason_codes.append(REASON_INSUFFICIENT_CONTRACTS)
+    if buyer_total > len(entries):
+        reason_codes.append(REASON_BUYER_LIST_TRUNCATED)
 
     state = DATA_READY
     if contract_total < MIN_CONTRACTS_HOLD:
         state = DATA_REJECT
-    elif reason_codes:
+    elif [c for c in reason_codes if c != REASON_BUYER_LIST_TRUNCATED]:
         state = DATA_HOLD
 
     return Section(
         section_id=SECTION_BUYER_MAP,
         state=state,
         payload={
-            "buyer_count": len(entries),
+            "buyer_count": buyer_total,
             "contract_count": contract_total,
-            "valor_sum_valued": money(total_valued) if total_valued > 0 else None,
-            "hhi": hhi,
-            "hhi_basis": "valued_contract_value" if hhi is not None else UNKNOWN,
+            "displayed_buyer_count": len(entries),
+            "valor_sum_valued": money(valued_total) if valued_total and valued_total > 0 else None,
+            "hhi": None if hhi is None else round(float(hhi), 4),
+            "hhi_basis": "valued_contract_value_all_buyers" if hhi is not None else UNKNOWN,
             "buyers": entries,
         },
         sources=(buyers.source,),
@@ -259,7 +265,7 @@ def build_competitors(read: SourceRead, limit: int = COMPETITOR_LIMIT) -> Sectio
         sources=(read.source,),
         observed_at=read.observed_at,
         row_count=len(competitors),
-        missingness=_missingness(read.rows, "valor_sum"),
+        missingness=_missingness(rows, "valor_sum"),
     )
 
 
@@ -295,11 +301,14 @@ def build_price_panel(read: SourceRead) -> Section:
         )
     categories: list[dict[str, Any]] = []
     for row in read.rows:
+        categoria = row.get("categoria")
         p25, p50, p75 = _dec(row.get("p25_valor")), _dec(row.get("p50_valor")), _dec(row.get("p75_valor"))
         focal_median = _dec(row.get("focal_median"))
+        low_precision = categoria in LOW_PRECISION_CATEGORIES
         categories.append(
             {
-                "categoria": row.get("categoria"),
+                "categoria": categoria,
+                "bucket_precision": "LOW" if low_precision else "NORMAL",
                 "reference_contract_count": int(row.get("qtd_contratos") or 0),
                 "reference_p25": money(p25),
                 "reference_p50": money(p50),
@@ -308,16 +317,27 @@ def build_price_panel(read: SourceRead) -> Section:
                 "focal_contract_count": int(row.get("focal_count") or 0),
                 "focal_valued_count": int(row.get("focal_valued_count") or 0),
                 "focal_median": money(focal_median),
-                "focal_position": _position(focal_median, p25, p50, p75) if focal_median is not None else UNKNOWN,
+                "focal_contract_count_all": int(row.get("focal_total_count") or row.get("focal_count") or 0),
+                "focal_position": (
+                    POSITION_LOW_PRECISION_BUCKET
+                    if low_precision
+                    else (_position(focal_median, p25, p50, p75) if focal_median is not None else UNKNOWN)
+                ),
             }
         )
-    comparable = [c for c in categories if c["focal_position"] not in (UNKNOWN, POSITION_OUT_OF_PANEL_RANGE)]
+    comparable = [
+        c
+        for c in categories
+        if c["focal_position"] not in (UNKNOWN, POSITION_OUT_OF_PANEL_RANGE, POSITION_LOW_PRECISION_BUCKET)
+    ]
     out_of_range = [c for c in categories if c["focal_position"] == POSITION_OUT_OF_PANEL_RANGE]
     reason_codes: list[str] = []
     if not comparable:
         reason_codes.append(REASON_NO_PRICE_REFERENCE)
     if out_of_range:
         reason_codes.append(REASON_PANEL_OUT_OF_RANGE)
+    if [c for c in categories if c["bucket_precision"] == "LOW"]:
+        reason_codes.append(REASON_LOW_PRECISION_BUCKET)
     return Section(
         section_id=SECTION_PRICE_PANEL,
         state=DATA_READY if comparable else DATA_HOLD,
@@ -326,6 +346,7 @@ def build_price_panel(read: SourceRead) -> Section:
             "comparable_category_count": len(comparable),
             "out_of_range_category_count": len(out_of_range),
             "out_of_range_factor": PANEL_OUT_OF_RANGE_FACTOR,
+            "low_precision_categories": sorted(LOW_PRECISION_CATEGORIES),
             "value_semantic": "valor_integral_nominal",
             "unit": "BRL_TOTAL",
             "reference_scope": (
@@ -524,7 +545,12 @@ def build_findings(
     for category in price_panel.payload.get("categories", []):
         # A panel the focal sits orders of magnitude outside of is not a
         # reference; emitting a position from it would be a claim, not a fact.
-        if category.get("focal_position") in (None, UNKNOWN, POSITION_OUT_OF_PANEL_RANGE):
+        if category.get("focal_position") in (
+            None,
+            UNKNOWN,
+            POSITION_OUT_OF_PANEL_RANGE,
+            POSITION_LOW_PRECISION_BUCKET,
+        ):
             continue
         findings.append(
             Finding(

@@ -8,6 +8,7 @@ python3 -m scripts.dossier verify --dir artifacts/dossier/acme
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -32,6 +33,7 @@ from scripts.dossier.envelope import (
     producer_sha,
     public_projection,
     scan_forbidden,
+    scan_markdown,
 )
 from scripts.dossier.handoff import DECISION_READY, rendezvous_dir, verify_handoff, write_handoff
 from scripts.dossier.models import DossierRequest
@@ -49,9 +51,14 @@ def _resolve_dsn(explicit: str | None) -> str | None:
 
 
 def _write(path: Path, text: str) -> str:
+    """Write a file and return the sha256 of the bytes actually on disk."""
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8")
-    return content_hash({"file": path.name, "body": text})
+    return file_digest(path)
+
+
+def file_digest(path: Path) -> str:
+    return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def _cmd_build(args: argparse.Namespace) -> int:
@@ -81,16 +88,22 @@ def _cmd_build(args: argparse.Namespace) -> int:
     )
     result, document = build_dossier(source, request)
 
-    forbidden = scan_forbidden(document)
+    public = public_projection(document)
+    markdown = render_markdown(document)
+
+    # The markdown is the delivered document, so it is scanned like the JSON.
+    forbidden = scan_forbidden(document) + scan_forbidden(public) + scan_markdown(markdown, document)
     if forbidden:
         sys.stderr.write("forbidden claim content in dossier: " + ", ".join(forbidden) + "\n")
         return 3
 
-    public = public_projection(document)
-    markdown = render_markdown(document)
-
     if args.out:
         out = Path(args.out)
+        digests = {
+            DOSSIER_JSON: _write(out / DOSSIER_JSON, canonical_json(document)),
+            PUBLIC_JSON: _write(out / PUBLIC_JSON, canonical_json(public)),
+            DOSSIER_MD: _write(out / DOSSIER_MD, markdown),
+        }
         manifest = {
             "dossier_id": document["dossier_id"],
             "schema": document["schema"],
@@ -100,15 +113,12 @@ def _cmd_build(args: argparse.Namespace) -> int:
             "content_hash": document["content_hash"],
             "public_content_hash": public["content_hash"],
             "producer_sha": document["producer_sha"],
-            "files": {
-                DOSSIER_JSON: content_hash(document),
-                PUBLIC_JSON: content_hash(public),
-            },
+            # Digests of the bytes on disk, so tampering with a delivered file
+            # is detectable. The document content_hash above is a different
+            # thing: it identifies the facts, not the file.
+            "files": digests,
             "reason_codes": document["reason_codes"],
         }
-        _write(out / DOSSIER_JSON, canonical_json(document))
-        _write(out / PUBLIC_JSON, canonical_json(public))
-        _write(out / DOSSIER_MD, markdown)
         _write(out / MANIFEST_JSON, canonical_json(manifest))
         sys.stderr.write(f"wrote {out}/ ({document['data_state']})\n")
 
@@ -145,8 +155,18 @@ def _cmd_verify(args: argparse.Namespace) -> int:
     directory = Path(args.dir)
     document = json.loads((directory / DOSSIER_JSON).read_text(encoding="utf-8"))
     public = json.loads((directory / PUBLIC_JSON).read_text(encoding="utf-8"))
+    manifest = json.loads((directory / MANIFEST_JSON).read_text(encoding="utf-8"))
 
     problems: list[str] = []
+    for name, expected in (manifest.get("files") or {}).items():
+        path = directory / name
+        if not path.exists():
+            problems.append(f"missing file: {name}")
+        elif file_digest(path) != expected:
+            problems.append(f"file digest mismatch: {name}")
+    for name in (DOSSIER_JSON, PUBLIC_JSON, DOSSIER_MD):
+        if name not in (manifest.get("files") or {}):
+            problems.append(f"file not covered by the manifest: {name}")
     recomputed = content_hash(document)
     if recomputed != document.get("content_hash"):
         problems.append(f"dossier content_hash mismatch: stored={document.get('content_hash')} recomputed={recomputed}")
@@ -156,7 +176,9 @@ def _cmd_verify(args: argparse.Namespace) -> int:
     if public.get("source_dossier_hash") != document.get("content_hash"):
         problems.append("public projection is not bound to this dossier")
 
-    forbidden = scan_forbidden(document) + scan_forbidden(public)
+    markdown_path = directory / DOSSIER_MD
+    markdown = markdown_path.read_text(encoding="utf-8") if markdown_path.exists() else ""
+    forbidden = scan_forbidden(document) + scan_forbidden(public) + scan_markdown(markdown, document)
     if forbidden:
         problems.append("forbidden claim content: " + ", ".join(forbidden))
 

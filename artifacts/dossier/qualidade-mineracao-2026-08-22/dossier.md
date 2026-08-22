@@ -6,8 +6,8 @@
 - Estado dos dados: `DATA_READY` (pronto)
 - Data de referência: `2026-08-22`
 - Observado em: `2026-08-22T03:00:00Z`
-- Hash de conteúdo: `sha256:1f99c5e1601a50578b99d2bca181426db993b68e8422679a1a6abdce78935310`
-- Produtor: `extra-cli` @ `cc9d4dae628f0879be7c2ccca94976d03bfc9e5d`
+- Hash de conteúdo: `sha256:9be6bb57368066bfcbd72ba076a1a2c108e5e7ef4f837406baf6bd4f6650e48b`
+- Produtor: `extra-cli` @ `0eed54de0d3dc4647633277fe362acbf4d59e115`
 
 ## 1. Identificação
 
@@ -92,18 +92,35 @@ Escopo da referência: contratos de órgãos públicos do conjunto de referênci
 
 | Categoria | Contratos da empresa | Mediana da empresa | p25 painel | p50 painel | p75 painel | Posição |
 | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| FACILITIES | 6 | R$ 44.051.804,43 | R$ 206,40 | R$ 1.189,69 | R$ 20.548,49 | fora da faixa do painel — sem posição percentílica |
-| OBRAS | 49 | R$ 2.000.216,58 | R$ 25.256,39 | R$ 189.000,00 | R$ 910.202,98 | acima do p75 do painel |
+| FACILITIES | 5 | R$ 20.003.608,86 | R$ 206,40 | R$ 1.189,69 | R$ 20.548,49 | fora da faixa do painel — sem posição percentílica |
+| OBRAS | 32 | R$ 1.691.351,30 | R$ 25.256,39 | R$ 189.000,00 | R$ 910.202,98 | acima do p75 do painel |
 
 ## 5. Contratos a vencer em até 365 dias
 
-*Estado da seção: pronto (`DATA_READY`), 3 registros.*
+*Estado da seção: pronto (`DATA_READY`), 20 registros.*
 
 | Contrato | Órgão | Fim | Dias | Valor |
 | --- | --- | --- | ---: | ---: |
+| `82951344000140-2-000031/2024` | Secretaria de Estado da Infraestrutura e Mobilidade | 2026-08-28 | 6 | R$ 61.421.000,00 |
+| `82892316000108-2-001237/2025` | Secretaria de Planejamento e Infraestrutura e Saneamento | 2026-09-03 | 12 | R$ 1.135.500,00 |
+| `86051398000100-2-000460/2026` | Gestão da Secretaria de Planejamento e Urbanismo | 2026-10-08 | 47 | R$ 2.000.216,58 |
+| `01612888000186-2-000604/2025` | PREFEITURA MUNICIPAL DE BELA VISTA DO TOLDO - SC | 2026-12-16 | 116 | R$ 5.559.933,09 |
+| `82836818000103-2-000006/2026` | MUNICÍPIO DE SÃO MARTINHO | 2027-01-08 | 139 | R$ 5.260.000,00 |
 | `82892365000132-2-000368/2026` | MUNICÍPIO DE PAULO LOPES | 2027-01-23 | 154 | R$ 5.940.003,00 |
 | `82572207000103-2-000207/2026` | Unidade Única | 2027-02-08 | 170 | R$ 9.819.294,06 |
 | `82909409000190-2-000293/2026` | SEC. MUN. INFRAESTRUTURA E OBRAS - SEINF | 2027-02-15 | 177 | R$ 1.989.000,00 |
+| `82892316000108-2-000607/2026` | Secretaria de Planejamento e Infraestrutura e Saneamento | 2027-02-27 | 189 | R$ 1.726.508,82 |
+| `82836057000190-2-000898/2026` | SECRETARIA DE INFRA-ESTRUTURA | 2027-03-31 | 221 | R$ 8.782.202,60 |
+| `83102459000123-2-002017/2026` | Prefeitura Municipal de Jaraguá do Sul | 2027-06-07 | 289 | R$ 6.471.769,77 |
+| `82892365000132-2-000340/2026` | MUNICÍPIO DE PAULO LOPES | 2027-06-11 | 293 | R$ 498.659,99 |
+| `82909409000190-2-000291/2026` | SEC. MUN. INFRAESTRUTURA E OBRAS - SEINF | 2027-06-11 | 293 | R$ 2.225.000,00 |
+| `82909409000190-2-000292/2026` | SEC. MUN. INFRAESTRUTURA E OBRAS - SEINF | 2027-06-11 | 293 | R$ 2.115.000,00 |
+| `82909409000190-2-000299/2026` | SEC. MUN. INFRAESTRUTURA E OBRAS - SEINF | 2027-06-13 | 295 | R$ 2.822.000,00 |
+| `82892365000132-2-000369/2026` | MUNICÍPIO DE PAULO LOPES | 2027-06-22 | 304 | R$ 696.500,30 |
+| `16780795000138-2-000187/2026` | Prefeitura Municipal de Pescaria Brava - SC | 2027-06-23 | 305 | R$ 4.170.879,89 |
+| `83102368000198-2-000500/2026` | Secretaria de Obras e Servicos Publicos do Município de Guabiruba | 2027-06-29 | 311 | R$ 4.864.017,50 |
+| `82925025000160-2-000331/2026` | PREFEITURA MUNICIPAL DE NOVA TRENTO | 2027-07-01 | 313 | R$ 6.946.916,97 |
+| `01612888000186-2-000420/2026` | PREFEITURA MUNICIPAL DE BELA VISTA DO TOLDO - SC | 2027-08-20 | 363 | R$ 8.508.186,00 |
 
 ## 6. Editais abertos de compradores já conhecidos
 
@@ -122,25 +139,144 @@ Cada achado é um fato observado mais a pergunta que ele abre. Nenhum achado afi
 - Evidência: v_contracts_canonical_v2:82951344000140-2-000031/2024
 - Severidade: `INFORMATIONAL`
 
+### `contract_ending_within_window:0726eccc674d` — 82909409000190-2-000292/2026
+
+- Fato: Contrato com SEC. MUN. INFRAESTRUTURA E OBRAS - SEINF encerra em 2027-06-11 (293 dias).
+- Pergunta: Há saldo, aditivo ou prorrogação a tratar antes do encerramento?
+- Evidência: v_contracts_canonical_v2:82909409000190-2-000292/2026
+- Severidade: `ATTENTION`
+
+### `contract_ending_within_window:09a7b9aa4852` — 82909409000190-2-000291/2026
+
+- Fato: Contrato com SEC. MUN. INFRAESTRUTURA E OBRAS - SEINF encerra em 2027-06-11 (293 dias).
+- Pergunta: Há saldo, aditivo ou prorrogação a tratar antes do encerramento?
+- Evidência: v_contracts_canonical_v2:82909409000190-2-000291/2026
+- Severidade: `ATTENTION`
+
+### `contract_ending_within_window:17bee316d2af` — 82925025000160-2-000331/2026
+
+- Fato: Contrato com PREFEITURA MUNICIPAL DE NOVA TRENTO encerra em 2027-07-01 (313 dias).
+- Pergunta: Há saldo, aditivo ou prorrogação a tratar antes do encerramento?
+- Evidência: v_contracts_canonical_v2:82925025000160-2-000331/2026
+- Severidade: `ATTENTION`
+
+### `contract_ending_within_window:315706216db5` — 82836057000190-2-000898/2026
+
+- Fato: Contrato com SECRETARIA DE INFRA-ESTRUTURA encerra em 2027-03-31 (221 dias).
+- Pergunta: Há saldo, aditivo ou prorrogação a tratar antes do encerramento?
+- Evidência: v_contracts_canonical_v2:82836057000190-2-000898/2026
+- Severidade: `ATTENTION`
+
+### `contract_ending_within_window:3aa49368666e` — 16780795000138-2-000187/2026
+
+- Fato: Contrato com Prefeitura Municipal de Pescaria Brava - SC encerra em 2027-06-23 (305 dias).
+- Pergunta: Há saldo, aditivo ou prorrogação a tratar antes do encerramento?
+- Evidência: v_contracts_canonical_v2:16780795000138-2-000187/2026
+- Severidade: `ATTENTION`
+
+### `contract_ending_within_window:4bc006524c6a` — 82951344000140-2-000031/2024
+
+- Fato: Contrato com Secretaria de Estado da Infraestrutura e Mobilidade encerra em 2026-08-28 (6 dias).
+- Pergunta: Há saldo, aditivo ou prorrogação a tratar antes do encerramento?
+- Evidência: v_contracts_canonical_v2:82951344000140-2-000031/2024
+- Severidade: `ATTENTION`
+
+### `contract_ending_within_window:511f2ad8b949` — 82909409000190-2-000299/2026
+
+- Fato: Contrato com SEC. MUN. INFRAESTRUTURA E OBRAS - SEINF encerra em 2027-06-13 (295 dias).
+- Pergunta: Há saldo, aditivo ou prorrogação a tratar antes do encerramento?
+- Evidência: v_contracts_canonical_v2:82909409000190-2-000299/2026
+- Severidade: `ATTENTION`
+
+### `contract_ending_within_window:671e42f51480` — 82892365000132-2-000369/2026
+
+- Fato: Contrato com MUNICÍPIO DE PAULO LOPES encerra em 2027-06-22 (304 dias).
+- Pergunta: Há saldo, aditivo ou prorrogação a tratar antes do encerramento?
+- Evidência: v_contracts_canonical_v2:82892365000132-2-000369/2026
+- Severidade: `ATTENTION`
+
+### `contract_ending_within_window:74fef44cb121` — 82892316000108-2-000607/2026
+
+- Fato: Contrato com Secretaria de Planejamento e Infraestrutura e Saneamento encerra em 2027-02-27 (189 dias).
+- Pergunta: Há saldo, aditivo ou prorrogação a tratar antes do encerramento?
+- Evidência: v_contracts_canonical_v2:82892316000108-2-000607/2026
+- Severidade: `ATTENTION`
+
+### `contract_ending_within_window:826b0fc09ef0` — 82836818000103-2-000006/2026
+
+- Fato: Contrato com MUNICÍPIO DE SÃO MARTINHO encerra em 2027-01-08 (139 dias).
+- Pergunta: Há saldo, aditivo ou prorrogação a tratar antes do encerramento?
+- Evidência: v_contracts_canonical_v2:82836818000103-2-000006/2026
+- Severidade: `ATTENTION`
+
+### `contract_ending_within_window:8fab51985c2d` — 86051398000100-2-000460/2026
+
+- Fato: Contrato com Gestão da Secretaria de Planejamento e Urbanismo encerra em 2026-10-08 (47 dias).
+- Pergunta: Há saldo, aditivo ou prorrogação a tratar antes do encerramento?
+- Evidência: v_contracts_canonical_v2:86051398000100-2-000460/2026
+- Severidade: `ATTENTION`
+
+### `contract_ending_within_window:940a7da75c28` — 83102368000198-2-000500/2026
+
+- Fato: Contrato com Secretaria de Obras e Servicos Publicos do Município de Guabiruba encerra em 2027-06-29 (311 dias).
+- Pergunta: Há saldo, aditivo ou prorrogação a tratar antes do encerramento?
+- Evidência: v_contracts_canonical_v2:83102368000198-2-000500/2026
+- Severidade: `ATTENTION`
+
+### `contract_ending_within_window:9787ddf9a7b1` — 82892316000108-2-001237/2025
+
+- Fato: Contrato com Secretaria de Planejamento e Infraestrutura e Saneamento encerra em 2026-09-03 (12 dias).
+- Pergunta: Há saldo, aditivo ou prorrogação a tratar antes do encerramento?
+- Evidência: v_contracts_canonical_v2:82892316000108-2-001237/2025
+- Severidade: `ATTENTION`
+
+### `contract_ending_within_window:9c32c9916e66` — 01612888000186-2-000604/2025
+
+- Fato: Contrato com PREFEITURA MUNICIPAL DE BELA VISTA DO TOLDO - SC encerra em 2026-12-16 (116 dias).
+- Pergunta: Há saldo, aditivo ou prorrogação a tratar antes do encerramento?
+- Evidência: v_contracts_canonical_v2:01612888000186-2-000604/2025
+- Severidade: `ATTENTION`
+
 ### `contract_ending_within_window:a317a8ce982c` — 82909409000190-2-000293/2026
 
 - Fato: Contrato com SEC. MUN. INFRAESTRUTURA E OBRAS - SEINF encerra em 2027-02-15 (177 dias).
 - Pergunta: Há saldo, aditivo ou prorrogação a tratar antes do encerramento?
-- Evidência: v_expiring_contracts:82909409000190-2-000293/2026
+- Evidência: v_contracts_canonical_v2:82909409000190-2-000293/2026
+- Severidade: `ATTENTION`
+
+### `contract_ending_within_window:ae2c53a2b3ca` — 01612888000186-2-000420/2026
+
+- Fato: Contrato com PREFEITURA MUNICIPAL DE BELA VISTA DO TOLDO - SC encerra em 2027-08-20 (363 dias).
+- Pergunta: Há saldo, aditivo ou prorrogação a tratar antes do encerramento?
+- Evidência: v_contracts_canonical_v2:01612888000186-2-000420/2026
+- Severidade: `ATTENTION`
+
+### `contract_ending_within_window:afce068ae564` — 82892365000132-2-000340/2026
+
+- Fato: Contrato com MUNICÍPIO DE PAULO LOPES encerra em 2027-06-11 (293 dias).
+- Pergunta: Há saldo, aditivo ou prorrogação a tratar antes do encerramento?
+- Evidência: v_contracts_canonical_v2:82892365000132-2-000340/2026
 - Severidade: `ATTENTION`
 
 ### `contract_ending_within_window:c54e55bc03bc` — 82892365000132-2-000368/2026
 
 - Fato: Contrato com MUNICÍPIO DE PAULO LOPES encerra em 2027-01-23 (154 dias).
 - Pergunta: Há saldo, aditivo ou prorrogação a tratar antes do encerramento?
-- Evidência: v_expiring_contracts:82892365000132-2-000368/2026
+- Evidência: v_contracts_canonical_v2:82892365000132-2-000368/2026
+- Severidade: `ATTENTION`
+
+### `contract_ending_within_window:dc76df9c42d2` — 83102459000123-2-002017/2026
+
+- Fato: Contrato com Prefeitura Municipal de Jaraguá do Sul encerra em 2027-06-07 (289 dias).
+- Pergunta: Há saldo, aditivo ou prorrogação a tratar antes do encerramento?
+- Evidência: v_contracts_canonical_v2:83102459000123-2-002017/2026
 - Severidade: `ATTENTION`
 
 ### `contract_ending_within_window:e0e356b8f1a0` — 82572207000103-2-000207/2026
 
 - Fato: Contrato com Unidade Única encerra em 2027-02-08 (170 dias).
 - Pergunta: Há saldo, aditivo ou prorrogação a tratar antes do encerramento?
-- Evidência: v_expiring_contracts:82572207000103-2-000207/2026
+- Evidência: v_contracts_canonical_v2:82572207000103-2-000207/2026
 - Severidade: `ATTENTION`
 
 ### `buyer_concentration_high:6cb105d98bfb` — carteira
@@ -152,7 +288,7 @@ Cada achado é um fato observado mais a pergunta que ele abre. Nenhum achado afi
 
 ### `value_position_in_category:1223e04da9b7` — OBRAS
 
-- Fato: Mediana dos contratos da empresa na categoria OBRAS: 2000216.58; referência p25/p50/p75 do painel: 25256.39/189000.00/910202.98.
+- Fato: Mediana dos contratos da empresa na categoria OBRAS: 1691351.30; referência p25/p50/p75 do painel: 25256.39/189000.00/910202.98.
 - Pergunta: A posição observada corresponde ao porte de contrato que a empresa pretende disputar nesta categoria?
 - Evidência: v_contract_intel_percentis:OBRAS
 - Severidade: `INFORMATIONAL`

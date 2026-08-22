@@ -75,6 +75,8 @@ REASON_INSUFFICIENT_CONTRACTS = "insufficient_contracts"
 REASON_INSUFFICIENT_BUYERS = "insufficient_buyers"
 REASON_NO_COMPETITORS = "no_competitor_sample"
 REASON_NO_PRICE_REFERENCE = "no_price_reference"
+REASON_LOW_PRECISION_BUCKET = "category_bucket_low_precision"
+REASON_BUYER_LIST_TRUNCATED = "buyer_list_truncated_for_display"
 REASON_PANEL_OUT_OF_RANGE = "focal_outside_panel_range"
 REASON_NO_PRIMARY_CATEGORY = "primary_category_undetermined"
 REASON_NO_EXPIRING = "no_expiring_contracts_in_window"
@@ -124,6 +126,14 @@ HHI_CONCENTRATION_THRESHOLD = 0.25
 # reference and no percentile position is claimed.
 PANEL_OUT_OF_RANGE_FACTOR = 10
 POSITION_OUT_OF_PANEL_RANGE = "OUT_OF_PANEL_RANGE"
+
+# The TI rung of the category ladder matches the bare substring "ti" and sits
+# above SAUDE and ALIMENTACAO, so it swallows "domesticos", "didaticos" and a
+# slice of health contracts: 84% of that bucket carries no TI keyword. A panel
+# built from household goods cannot price anything. Positions are not claimed
+# for these buckets until the upstream view is corrected.
+LOW_PRECISION_CATEGORIES = frozenset({"TI"})
+POSITION_LOW_PRECISION_BUCKET = "LOW_PRECISION_BUCKET"
 
 # Reused verbatim from contract_comparables: the dossier is bound by the same
 # no-claim policy as every other consumer-bound artifact in this repository.

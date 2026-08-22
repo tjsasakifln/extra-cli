@@ -6,7 +6,7 @@
   "catalog_mode": "official_live",
   "cnpj14": "00820854000114",
   "consumer": "web-cfg/contract-analysis",
-  "content_hash": "sha256:1f99c5e1601a50578b99d2bca181426db993b68e8422679a1a6abdce78935310",
+  "content_hash": "sha256:9be6bb57368066bfcbd72ba076a1a2c108e5e7ef4f837406baf6bd4f6650e48b",
   "contract_version": "v1.0.0",
   "data_state": "DATA_READY",
   "dossier_id": "cfg-dossier-cb06e7fa204654f7",
@@ -27,7 +27,189 @@
     },
     {
       "evidence_refs": [
-        "v_expiring_contracts:82909409000190-2-000293/2026"
+        "v_contracts_canonical_v2:82909409000190-2-000292/2026"
+      ],
+      "fact": "Contrato com SEC. MUN. INFRAESTRUTURA E OBRAS - SEINF encerra em 2027-06-11 (293 dias).",
+      "finding_id": "contract_ending_within_window:0726eccc674d",
+      "metrics": {
+        "dias_ate_fim": 293
+      },
+      "question": "Há saldo, aditivo ou prorrogação a tratar antes do encerramento?",
+      "severity": "ATTENTION",
+      "subject": "82909409000190-2-000292/2026"
+    },
+    {
+      "evidence_refs": [
+        "v_contracts_canonical_v2:82909409000190-2-000291/2026"
+      ],
+      "fact": "Contrato com SEC. MUN. INFRAESTRUTURA E OBRAS - SEINF encerra em 2027-06-11 (293 dias).",
+      "finding_id": "contract_ending_within_window:09a7b9aa4852",
+      "metrics": {
+        "dias_ate_fim": 293
+      },
+      "question": "Há saldo, aditivo ou prorrogação a tratar antes do encerramento?",
+      "severity": "ATTENTION",
+      "subject": "82909409000190-2-000291/2026"
+    },
+    {
+      "evidence_refs": [
+        "v_contracts_canonical_v2:82925025000160-2-000331/2026"
+      ],
+      "fact": "Contrato com PREFEITURA MUNICIPAL DE NOVA TRENTO encerra em 2027-07-01 (313 dias).",
+      "finding_id": "contract_ending_within_window:17bee316d2af",
+      "metrics": {
+        "dias_ate_fim": 313
+      },
+      "question": "Há saldo, aditivo ou prorrogação a tratar antes do encerramento?",
+      "severity": "ATTENTION",
+      "subject": "82925025000160-2-000331/2026"
+    },
+    {
+      "evidence_refs": [
+        "v_contracts_canonical_v2:82836057000190-2-000898/2026"
+      ],
+      "fact": "Contrato com SECRETARIA DE INFRA-ESTRUTURA encerra em 2027-03-31 (221 dias).",
+      "finding_id": "contract_ending_within_window:315706216db5",
+      "metrics": {
+        "dias_ate_fim": 221
+      },
+      "question": "Há saldo, aditivo ou prorrogação a tratar antes do encerramento?",
+      "severity": "ATTENTION",
+      "subject": "82836057000190-2-000898/2026"
+    },
+    {
+      "evidence_refs": [
+        "v_contracts_canonical_v2:16780795000138-2-000187/2026"
+      ],
+      "fact": "Contrato com Prefeitura Municipal de Pescaria Brava - SC encerra em 2027-06-23 (305 dias).",
+      "finding_id": "contract_ending_within_window:3aa49368666e",
+      "metrics": {
+        "dias_ate_fim": 305
+      },
+      "question": "Há saldo, aditivo ou prorrogação a tratar antes do encerramento?",
+      "severity": "ATTENTION",
+      "subject": "16780795000138-2-000187/2026"
+    },
+    {
+      "evidence_refs": [
+        "v_contracts_canonical_v2:82951344000140-2-000031/2024"
+      ],
+      "fact": "Contrato com Secretaria de Estado da Infraestrutura e Mobilidade encerra em 2026-08-28 (6 dias).",
+      "finding_id": "contract_ending_within_window:4bc006524c6a",
+      "metrics": {
+        "dias_ate_fim": 6
+      },
+      "question": "Há saldo, aditivo ou prorrogação a tratar antes do encerramento?",
+      "severity": "ATTENTION",
+      "subject": "82951344000140-2-000031/2024"
+    },
+    {
+      "evidence_refs": [
+        "v_contracts_canonical_v2:82909409000190-2-000299/2026"
+      ],
+      "fact": "Contrato com SEC. MUN. INFRAESTRUTURA E OBRAS - SEINF encerra em 2027-06-13 (295 dias).",
+      "finding_id": "contract_ending_within_window:511f2ad8b949",
+      "metrics": {
+        "dias_ate_fim": 295
+      },
+      "question": "Há saldo, aditivo ou prorrogação a tratar antes do encerramento?",
+      "severity": "ATTENTION",
+      "subject": "82909409000190-2-000299/2026"
+    },
+    {
+      "evidence_refs": [
+        "v_contracts_canonical_v2:82892365000132-2-000369/2026"
+      ],
+      "fact": "Contrato com MUNICÍPIO DE PAULO LOPES encerra em 2027-06-22 (304 dias).",
+      "finding_id": "contract_ending_within_window:671e42f51480",
+      "metrics": {
+        "dias_ate_fim": 304
+      },
+      "question": "Há saldo, aditivo ou prorrogação a tratar antes do encerramento?",
+      "severity": "ATTENTION",
+      "subject": "82892365000132-2-000369/2026"
+    },
+    {
+      "evidence_refs": [
+        "v_contracts_canonical_v2:82892316000108-2-000607/2026"
+      ],
+      "fact": "Contrato com Secretaria de Planejamento e Infraestrutura e Saneamento encerra em 2027-02-27 (189 dias).",
+      "finding_id": "contract_ending_within_window:74fef44cb121",
+      "metrics": {
+        "dias_ate_fim": 189
+      },
+      "question": "Há saldo, aditivo ou prorrogação a tratar antes do encerramento?",
+      "severity": "ATTENTION",
+      "subject": "82892316000108-2-000607/2026"
+    },
+    {
+      "evidence_refs": [
+        "v_contracts_canonical_v2:82836818000103-2-000006/2026"
+      ],
+      "fact": "Contrato com MUNICÍPIO DE SÃO MARTINHO encerra em 2027-01-08 (139 dias).",
+      "finding_id": "contract_ending_within_window:826b0fc09ef0",
+      "metrics": {
+        "dias_ate_fim": 139
+      },
+      "question": "Há saldo, aditivo ou prorrogação a tratar antes do encerramento?",
+      "severity": "ATTENTION",
+      "subject": "82836818000103-2-000006/2026"
+    },
+    {
+      "evidence_refs": [
+        "v_contracts_canonical_v2:86051398000100-2-000460/2026"
+      ],
+      "fact": "Contrato com Gestão da Secretaria de Planejamento e Urbanismo encerra em 2026-10-08 (47 dias).",
+      "finding_id": "contract_ending_within_window:8fab51985c2d",
+      "metrics": {
+        "dias_ate_fim": 47
+      },
+      "question": "Há saldo, aditivo ou prorrogação a tratar antes do encerramento?",
+      "severity": "ATTENTION",
+      "subject": "86051398000100-2-000460/2026"
+    },
+    {
+      "evidence_refs": [
+        "v_contracts_canonical_v2:83102368000198-2-000500/2026"
+      ],
+      "fact": "Contrato com Secretaria de Obras e Servicos Publicos do Município de Guabiruba encerra em 2027-06-29 (311 dias).",
+      "finding_id": "contract_ending_within_window:940a7da75c28",
+      "metrics": {
+        "dias_ate_fim": 311
+      },
+      "question": "Há saldo, aditivo ou prorrogação a tratar antes do encerramento?",
+      "severity": "ATTENTION",
+      "subject": "83102368000198-2-000500/2026"
+    },
+    {
+      "evidence_refs": [
+        "v_contracts_canonical_v2:82892316000108-2-001237/2025"
+      ],
+      "fact": "Contrato com Secretaria de Planejamento e Infraestrutura e Saneamento encerra em 2026-09-03 (12 dias).",
+      "finding_id": "contract_ending_within_window:9787ddf9a7b1",
+      "metrics": {
+        "dias_ate_fim": 12
+      },
+      "question": "Há saldo, aditivo ou prorrogação a tratar antes do encerramento?",
+      "severity": "ATTENTION",
+      "subject": "82892316000108-2-001237/2025"
+    },
+    {
+      "evidence_refs": [
+        "v_contracts_canonical_v2:01612888000186-2-000604/2025"
+      ],
+      "fact": "Contrato com PREFEITURA MUNICIPAL DE BELA VISTA DO TOLDO - SC encerra em 2026-12-16 (116 dias).",
+      "finding_id": "contract_ending_within_window:9c32c9916e66",
+      "metrics": {
+        "dias_ate_fim": 116
+      },
+      "question": "Há saldo, aditivo ou prorrogação a tratar antes do encerramento?",
+      "severity": "ATTENTION",
+      "subject": "01612888000186-2-000604/2025"
+    },
+    {
+      "evidence_refs": [
+        "v_contracts_canonical_v2:82909409000190-2-000293/2026"
       ],
       "fact": "Contrato com SEC. MUN. INFRAESTRUTURA E OBRAS - SEINF encerra em 2027-02-15 (177 dias).",
       "finding_id": "contract_ending_within_window:a317a8ce982c",
@@ -40,7 +222,33 @@
     },
     {
       "evidence_refs": [
-        "v_expiring_contracts:82892365000132-2-000368/2026"
+        "v_contracts_canonical_v2:01612888000186-2-000420/2026"
+      ],
+      "fact": "Contrato com PREFEITURA MUNICIPAL DE BELA VISTA DO TOLDO - SC encerra em 2027-08-20 (363 dias).",
+      "finding_id": "contract_ending_within_window:ae2c53a2b3ca",
+      "metrics": {
+        "dias_ate_fim": 363
+      },
+      "question": "Há saldo, aditivo ou prorrogação a tratar antes do encerramento?",
+      "severity": "ATTENTION",
+      "subject": "01612888000186-2-000420/2026"
+    },
+    {
+      "evidence_refs": [
+        "v_contracts_canonical_v2:82892365000132-2-000340/2026"
+      ],
+      "fact": "Contrato com MUNICÍPIO DE PAULO LOPES encerra em 2027-06-11 (293 dias).",
+      "finding_id": "contract_ending_within_window:afce068ae564",
+      "metrics": {
+        "dias_ate_fim": 293
+      },
+      "question": "Há saldo, aditivo ou prorrogação a tratar antes do encerramento?",
+      "severity": "ATTENTION",
+      "subject": "82892365000132-2-000340/2026"
+    },
+    {
+      "evidence_refs": [
+        "v_contracts_canonical_v2:82892365000132-2-000368/2026"
       ],
       "fact": "Contrato com MUNICÍPIO DE PAULO LOPES encerra em 2027-01-23 (154 dias).",
       "finding_id": "contract_ending_within_window:c54e55bc03bc",
@@ -53,7 +261,20 @@
     },
     {
       "evidence_refs": [
-        "v_expiring_contracts:82572207000103-2-000207/2026"
+        "v_contracts_canonical_v2:83102459000123-2-002017/2026"
+      ],
+      "fact": "Contrato com Prefeitura Municipal de Jaraguá do Sul encerra em 2027-06-07 (289 dias).",
+      "finding_id": "contract_ending_within_window:dc76df9c42d2",
+      "metrics": {
+        "dias_ate_fim": 289
+      },
+      "question": "Há saldo, aditivo ou prorrogação a tratar antes do encerramento?",
+      "severity": "ATTENTION",
+      "subject": "83102459000123-2-002017/2026"
+    },
+    {
+      "evidence_refs": [
+        "v_contracts_canonical_v2:82572207000103-2-000207/2026"
       ],
       "fact": "Contrato com Unidade Única encerra em 2027-02-08 (170 dias).",
       "finding_id": "contract_ending_within_window:e0e356b8f1a0",
@@ -82,10 +303,10 @@
       "evidence_refs": [
         "v_contract_intel_percentis:OBRAS"
       ],
-      "fact": "Mediana dos contratos da empresa na categoria OBRAS: 2000216.58; referência p25/p50/p75 do painel: 25256.39/189000.00/910202.98.",
+      "fact": "Mediana dos contratos da empresa na categoria OBRAS: 1691351.30; referência p25/p50/p75 do painel: 25256.39/189000.00/910202.98.",
       "finding_id": "value_position_in_category:1223e04da9b7",
       "metrics": {
-        "focal_contract_count": 49,
+        "focal_contract_count": 32,
         "focal_position": "ABOVE_P75"
       },
       "question": "A posição observada corresponde ao porte de contrato que a empresa pretende disputar nesta categoria?",
@@ -125,7 +346,7 @@
   },
   "policy_version": "confenge-dossier-policy/1.0",
   "producer": "extra-cli",
-  "producer_sha": "cc9d4dae628f0879be7c2ccca94976d03bfc9e5d",
+  "producer_sha": "0eed54de0d3dc4647633277fe362acbf4d59e115",
   "reason_codes": [
     "focal_outside_panel_range",
     "no_open_opportunities_for_buyers"
@@ -350,8 +571,9 @@
           }
         ],
         "contract_count": 55,
+        "displayed_buyer_count": 21,
         "hhi": 0.4213,
-        "hhi_basis": "valued_contract_value",
+        "hhi_basis": "valued_contract_value_all_buyers",
         "valor_sum_valued": "524771038.63"
       },
       "reason_codes": [],
@@ -550,8 +772,63 @@
       "missingness": 0.0,
       "observed_at": "2026-08-22T03:00:00Z",
       "payload": {
-        "contract_count": 3,
+        "contract_count": 20,
         "contracts": [
+          {
+            "contrato_id": "82951344000140-2-000031/2024",
+            "data_fim": "2026-08-28",
+            "data_inicio": "2024-02-28",
+            "dias_ate_fim": 6,
+            "objeto": "EXECUÇÃO DO REMANESCENTE DO CONTRATO CT-014/2021, COM PROJETO REVISIONADO (CT-047/2021), PARA PRESTAÇÃO DE SERVIÇOS ESPECIALIZADOS DE ENGENHARIA PARA IMPLANTAÇÃO E PAVIMENTAÇÃO DA RODOVIA SC - 451 – TRECHO COMPREENDIDO ENTRE FREI ROGÉRIO ENTRONCAMENTO DA SC - 452, LOCALIDADE DE MACIEIRA PRÓXIMO A FRAIBURGO; COM EXTENSÃO APROXIMADA DE 17,58 KM",
+            "orgao_cnpj": "82951344000140",
+            "orgao_nome": "Secretaria de Estado da Infraestrutura e Mobilidade",
+            "uf": "SC",
+            "valor": "61421000.00"
+          },
+          {
+            "contrato_id": "82892316000108-2-001237/2025",
+            "data_fim": "2026-09-03",
+            "data_inicio": "2025-11-07",
+            "dias_ate_fim": 12,
+            "objeto": "Contratação de Empresa Especializada para Execução de Drenagem, Pavimentação Asfáltica e Sinalização Viária da Rua Aníbal Nunes Pires, localizada no Bairro Ponte do Imaruim, Palhoça/SC, incluindo fornecimento de material e mão de obra.",
+            "orgao_cnpj": "82892316000108",
+            "orgao_nome": "Secretaria de Planejamento e Infraestrutura e Saneamento",
+            "uf": "SC",
+            "valor": "1135500.00"
+          },
+          {
+            "contrato_id": "86051398000100-2-000460/2026",
+            "data_fim": "2026-10-08",
+            "data_inicio": "2026-04-08",
+            "dias_ate_fim": 47,
+            "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA FORNECIMENTO DE MATERIAIS, MÃO DE OBRA E DEMAIS OBRIGAÇÕES NECESSÁRIAS PARA PAVIMENTAÇÃO ASFÁLTICA DAS RUAS CONRADO LIEBL E JÚLIO SCHWETLER, CONFORME CONDIÇÕES, QUANTIDADES E EXIGÊNCIAS ESTABELECIDAS NESTE INSTRUMENTO. O PROCESSO ESTÁ ATRELADO E CONDICIONADO A FONTE DE RECURSO DE FINANCIAMENTO E RECURSO PRÓPRIO DA PREFEITURA DE SÃO BENTO DO SUL.",
+            "orgao_cnpj": "86051398000100",
+            "orgao_nome": "Gestão da Secretaria de Planejamento e Urbanismo",
+            "uf": "SC",
+            "valor": "2000216.58"
+          },
+          {
+            "contrato_id": "01612888000186-2-000604/2025",
+            "data_fim": "2026-12-16",
+            "data_inicio": "2025-12-16",
+            "dias_ate_fim": 116,
+            "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE PAVIMENTAÇÃO ASFÁLTICA NA ESTRADA GERAL DO ARROIO FUNDO, ENTRE AS ESTACAS 1+300 A 2+985 E 0+000 A1+300, CONFORME CONDIÇÕES E EXIGÊNCIAS ESTABELECIDAS NESTE INSTRUMENTO.",
+            "orgao_cnpj": "01612888000186",
+            "orgao_nome": "PREFEITURA MUNICIPAL DE BELA VISTA DO TOLDO - SC",
+            "uf": "SC",
+            "valor": "5559933.09"
+          },
+          {
+            "contrato_id": "82836818000103-2-000006/2026",
+            "data_fim": "2027-01-08",
+            "data_inicio": "2026-01-09",
+            "dias_ate_fim": 139,
+            "objeto": "\"CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A EXECUÇÃO DA OBRA DE PAVIMENTAÇÃO ASFÁLTICA DE UM TRECHO DA ESTRADA MUNICIPAL PADRE EDUARDO KNOPP – SMO 021, ETAPA I, COM EXTENSÃO DE 2.077,74 METROS (ENTRE AS ESTACAS 0+0,000 E 103+17,741), VISANDO AO ATENDIMENTO DA PORTARIA CONJUNTA SGG/SEF Nº 56/2025 – PROCESSO Nº SCC 13574/2025 E DO PROGRAMA FEDERAL Nº 09032025, REFERENTE À EMENDA PARLAMENTAR Nº 202544010010.\"",
+            "orgao_cnpj": "82836818000103",
+            "orgao_nome": "MUNICÍPIO DE SÃO MARTINHO",
+            "uf": "SC",
+            "valor": "5260000.00"
+          },
           {
             "contrato_id": "82892365000132-2-000368/2026",
             "data_fim": "2027-01-23",
@@ -584,15 +861,147 @@
             "orgao_nome": "SEC. MUN. INFRAESTRUTURA E OBRAS - SEINF",
             "uf": "SC",
             "valor": "1989000.00"
+          },
+          {
+            "contrato_id": "82892316000108-2-000607/2026",
+            "data_fim": "2027-02-27",
+            "data_inicio": "2026-06-02",
+            "dias_ate_fim": 189,
+            "objeto": "Contratação de empresa para execução da Execução da Repavimentação asfáltica e sinalização viária da Avenida das Universidades trecho existente entre a Avenida Pedra Branca e Rua dos Atobás, no Bairro: Pedra Branca, Palhoça/SC, incluindo fornecimento de material e mão de obra.",
+            "orgao_cnpj": "82892316000108",
+            "orgao_nome": "Secretaria de Planejamento e Infraestrutura e Saneamento",
+            "uf": "SC",
+            "valor": "1726508.82"
+          },
+          {
+            "contrato_id": "82836057000190-2-000898/2026",
+            "data_fim": "2027-03-31",
+            "data_inicio": "2026-06-10",
+            "dias_ate_fim": 221,
+            "objeto": "CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DE OBRAS DE PAVIMENTAÇÃO DA ROD. GRP 030 E LEONILDO PEIRÃO NO MUNICÍPIO DE GAROPABA/SC.",
+            "orgao_cnpj": "82836057000190",
+            "orgao_nome": "SECRETARIA DE INFRA-ESTRUTURA",
+            "uf": "SC",
+            "valor": "8782202.60"
+          },
+          {
+            "contrato_id": "83102459000123-2-002017/2026",
+            "data_fim": "2027-06-07",
+            "data_inicio": "2026-06-12",
+            "dias_ate_fim": 289,
+            "objeto": "Contratação de pessoa jurídica para a prestação de serviços de engenharia, com fornecimento de materiais e mão de obra, destinados à pavimentação asfáltica, incluindo serviços preliminares, terraplenagem, drenagem pluvial, obras complementares e sinalização viária, na  Estrada Municipal JGS 473 – Sem Nome na localidade Sohnstiefe, com extensão total de 5.548,36 m (cinco mil e quinhentos e quarenta e oito metros e trinta e seis centímetros), em conformidade com o Anexo I – Termo de Referência,...",
+            "orgao_cnpj": "83102459000123",
+            "orgao_nome": "Prefeitura Municipal de Jaraguá do Sul",
+            "uf": "SC",
+            "valor": "6471769.77"
+          },
+          {
+            "contrato_id": "82892365000132-2-000340/2026",
+            "data_fim": "2027-06-11",
+            "data_inicio": "2026-06-11",
+            "dias_ate_fim": 293,
+            "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA PAVIMENTAÇÃO ASFÁLTICA DA ESTRADA GERAL DO ESPRAIADO - TRECHO 01 (ESTACA 00+00 - 15+00), COM O FORNECIMENTO DE TODO MATERIAL, EQUIPAMENTOS E MÃO DE OBRA, CONFORME PROJETOS E DEFINIÇÕES DO TERMO DE REFERÊNCIA, NO MUNICÍPIO DE PAULO LOPES/SC.",
+            "orgao_cnpj": "82892365000132",
+            "orgao_nome": "MUNICÍPIO DE PAULO LOPES",
+            "uf": "SC",
+            "valor": "498659.99"
+          },
+          {
+            "contrato_id": "82909409000190-2-000291/2026",
+            "data_fim": "2027-06-11",
+            "data_inicio": "2026-06-11",
+            "dias_ate_fim": 293,
+            "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A EXECUÇÃO DE OBRAS DE INFRAESTRUTURA VIÁRIA URBANA NAS VIAS RUA AURORA SOUZA DE AVILA E RUA DA ESPERANÇA - T1 (RUA CECINA DE SOUZA), LOCALIZADAS NO MUNICÍPIO DE IMBITUBA/SC",
+            "orgao_cnpj": "82909409000190",
+            "orgao_nome": "SEC. MUN. INFRAESTRUTURA E OBRAS - SEINF",
+            "uf": "SC",
+            "valor": "2225000.00"
+          },
+          {
+            "contrato_id": "82909409000190-2-000292/2026",
+            "data_fim": "2027-06-11",
+            "data_inicio": "2026-06-11",
+            "dias_ate_fim": 293,
+            "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A EXECUÇÃO DE OBRAS DE INFRAESTRUTURA VIÁRIA URBANA NAS VIAS RUA AURORA SOUZA DE AVILA E RUA DA ESPERANÇA - T1 (RUA CECINA DE SOUZA), LOCALIZADAS NO MUNICÍPIO DE IMBITUBA/SC",
+            "orgao_cnpj": "82909409000190",
+            "orgao_nome": "SEC. MUN. INFRAESTRUTURA E OBRAS - SEINF",
+            "uf": "SC",
+            "valor": "2115000.00"
+          },
+          {
+            "contrato_id": "82909409000190-2-000299/2026",
+            "data_fim": "2027-06-13",
+            "data_inicio": "2026-06-18",
+            "dias_ate_fim": 295,
+            "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A EXECUÇÃO DE PAVIMENTAÇÃO ASFÁLTICA NA AVENIDA PORTO NOVO, LOCALIZADA NO BAIRRO IBIRAQUERA, NO MUNICÍPIO DE IMBITUBA/SC",
+            "orgao_cnpj": "82909409000190",
+            "orgao_nome": "SEC. MUN. INFRAESTRUTURA E OBRAS - SEINF",
+            "uf": "SC",
+            "valor": "2822000.00"
+          },
+          {
+            "contrato_id": "82892365000132-2-000369/2026",
+            "data_fim": "2027-06-22",
+            "data_inicio": "2026-06-22",
+            "dias_ate_fim": 304,
+            "objeto": "O presente processo tem como objeto o REGISTRO DE PREÇOS PARA FUTURA E EVENTUAL Contratação de empresa especializada, no regime de empreitada por preço unitário (material + mão-de-obra), para execução de obra de PAVIMENTAÇÃO ASFÁLTICA (CBUQ), DRENAGEM E SINALIZAÇÃO VIÁRIA DAS RUAS WANEY COSTA PEREIRA E DANIEL ALFREDO PEREIRA - BAIRRO BOM RETIRO, de acordo com o memorial descritivo, planilha orçamentária e demais anexos do edital, conforme especificações constantes do projeto básico.",
+            "orgao_cnpj": "82892365000132",
+            "orgao_nome": "MUNICÍPIO DE PAULO LOPES",
+            "uf": "SC",
+            "valor": "696500.30"
+          },
+          {
+            "contrato_id": "16780795000138-2-000187/2026",
+            "data_fim": "2027-06-23",
+            "data_inicio": "2026-06-23",
+            "dias_ate_fim": 305,
+            "objeto": "Prestação de serviços de pavimentação asfáltica, drenagem fluvial e sinalização viária da Avenida Eliete de Souza – Trecho III, com área a pavimentar de 23.400,00m² e extensão de 3.600 metros, localizada no bairro Siqueiro, Município de Pescaria Brava, Estado de Santa Catarina.",
+            "orgao_cnpj": "16780795000138",
+            "orgao_nome": "Prefeitura Municipal de Pescaria Brava - SC",
+            "uf": "SC",
+            "valor": "4170879.89"
+          },
+          {
+            "contrato_id": "83102368000198-2-000500/2026",
+            "data_fim": "2027-06-29",
+            "data_inicio": "2026-06-29",
+            "dias_ate_fim": 311,
+            "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRA DE REVITALIZAÇÃO DA RUA LAGEADO BAIXO - META 1, NO MUNICÍPIO DE GUABIRUBA/SC, COMPREENDENDO SERVIÇOS DE REQUALIFICAÇÃO VIÁRIA COM EXTENSÃO DE 1.565,00 METROS, INCLUINDO DRENAGEM PLUVIAL, PAVIMENTAÇÃO ASFÁLTICA, EXECUÇÃO DE PASSEIOS E SINALIZAÇÃO VIÁRIA, CONFORME PROJETOS, MEMORIAIS DESCRITIVOS, PLANILHAS E DEMAIS ANEXOS, A SER REALIZADA COM RECURSOS PRÓPRIOS DO MUNICÍPIO.",
+            "orgao_cnpj": "83102368000198",
+            "orgao_nome": "Secretaria de Obras e Servicos Publicos do Município de Guabiruba",
+            "uf": "SC",
+            "valor": "4864017.50"
+          },
+          {
+            "contrato_id": "82925025000160-2-000331/2026",
+            "data_fim": "2027-07-01",
+            "data_inicio": "2026-07-01",
+            "dias_ate_fim": 313,
+            "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA NA PRESTAÇÃO DE SERVIÇOS PARA EXECUÇÃO DE PAVIMENTAÇÃO ASFÁLTICA DA ESTRADA MUNICIPAL GERAL DE SÃO VALENTIM, FORNECENDO ACESSO A LOCALIDADE DE LAGEADO, INTEGRANDO A COMUNIDADE A REGIÃO CENTRAL DE NOVA TRENTO, COM EXTENSÃO TOTAL DO TRECHO DE 7,6 KM – TRECHO 01 PROGRAMA ESTRADA BOA RURAL.",
+            "orgao_cnpj": "82925025000160",
+            "orgao_nome": "PREFEITURA MUNICIPAL DE NOVA TRENTO",
+            "uf": "SC",
+            "valor": "6946916.97"
+          },
+          {
+            "contrato_id": "01612888000186-2-000420/2026",
+            "data_fim": "2027-08-20",
+            "data_inicio": "2026-08-20",
+            "dias_ate_fim": 363,
+            "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE SERVIÇOS DE PAVIMENTAÇÃO ASFÁLTICA COM CBUQ, NA ESTRADA GERAL DA LOCALIDADE DE LAGOA DO SUL, MUNICÍPIO DE BELA VISTA DO TOLDO/SC, CONFORME ESPECIFICAÇÕES, PROJETO EXECUTIVO E PLANILHA ORÇAMENTÁRIA INTEGRANTES DO PROGRAMA ESTRADA BOA RURAL.",
+            "orgao_cnpj": "01612888000186",
+            "orgao_nome": "PREFEITURA MUNICIPAL DE BELA VISTA DO TOLDO - SC",
+            "uf": "SC",
+            "valor": "8508186.00"
           }
         ],
         "window_days": 365
       },
       "reason_codes": [],
-      "row_count": 3,
+      "row_count": 20,
       "section_id": "expiring_contracts",
       "sources": [
-        "v_expiring_contracts"
+        "v_contracts_canonical_v2"
       ],
       "state": "DATA_READY"
     },
@@ -641,11 +1050,13 @@
       "payload": {
         "categories": [
           {
+            "bucket_precision": "NORMAL",
             "categoria": "FACILITIES",
-            "focal_contract_count": 6,
-            "focal_median": "44051804.43",
+            "focal_contract_count": 5,
+            "focal_contract_count_all": 6,
+            "focal_median": "20003608.86",
             "focal_position": "OUT_OF_PANEL_RANGE",
-            "focal_valued_count": 6,
+            "focal_valued_count": 5,
             "reference_contract_count": 35050,
             "reference_p25": "206.40",
             "reference_p50": "1189.69",
@@ -653,11 +1064,13 @@
             "reference_ticket_medio": "13871430.11"
           },
           {
+            "bucket_precision": "NORMAL",
             "categoria": "OBRAS",
-            "focal_contract_count": 49,
-            "focal_median": "2000216.58",
+            "focal_contract_count": 32,
+            "focal_contract_count_all": 49,
+            "focal_median": "1691351.30",
             "focal_position": "ABOVE_P75",
-            "focal_valued_count": 49,
+            "focal_valued_count": 32,
             "reference_contract_count": 18892,
             "reference_p25": "25256.39",
             "reference_p50": "189000.00",
@@ -667,6 +1080,9 @@
         ],
         "category_count": 2,
         "comparable_category_count": 1,
+        "low_precision_categories": [
+          "TI"
+        ],
         "out_of_range_category_count": 1,
         "out_of_range_factor": 10,
         "reference_scope": "contratos de órgãos públicos do conjunto de referência no raio de 200 km; não é amostra nacional",
@@ -686,7 +1102,7 @@
   },
   "totals": {
     "contract_count": 55,
-    "finding_count": 7,
+    "finding_count": 24,
     "section_count": 6
   }
 }

@@ -51,10 +51,10 @@ END
 """
 
 VIEW_CONTRACTS = "v_contracts_canonical_v2"
-VIEW_EXPIRING = "v_expiring_contracts"
 VIEW_PERCENTIS = "v_contract_intel_percentis"
 VIEW_OPPORTUNITIES = "v_open_opportunities_canonical"
 TABLE_REGISTRY = "supplier_registry"
+TABLE_SC_ENTITIES = "sc_public_entities"
 
 
 def _jsonable(value: Any) -> Any:
@@ -80,9 +80,10 @@ class Source(Protocol):
     def identity(self, cnpj: str) -> SourceRead: ...
     def contracts(self, cnpj: str) -> SourceRead: ...
     def buyers(self, cnpj: str) -> SourceRead: ...
+    def portfolio_totals(self, cnpj: str) -> SourceRead: ...
     def competitors(self, cnpj: str) -> SourceRead: ...
     def price_panel(self, cnpj: str) -> SourceRead: ...
-    def expiring(self, cnpj: str, window_days: int) -> SourceRead: ...
+    def expiring(self, cnpj: str, window_days: int, as_of: str | None) -> SourceRead: ...
     def opportunities(self, cnpj: str) -> SourceRead: ...
 
 
@@ -146,6 +147,7 @@ class DatalakeSource:
         )
 
     def buyers(self, cnpj: str) -> SourceRead:
+        """Top buyers for display. Totals come from :meth:`portfolio_totals`."""
         return self._query(
             VIEW_CONTRACTS,
             f"""
@@ -164,6 +166,34 @@ class DatalakeSource:
              LIMIT %s
             """,  # noqa: S608 -- view names are module constants; every value is bound via %s
             (cnpj, BUYER_LIMIT),
+        )
+
+    def portfolio_totals(self, cnpj: str) -> SourceRead:
+        """Untruncated portfolio aggregates and the HHI over every buyer.
+
+        A share, a total or an HHI computed over the displayed top-N reports a
+        concentrated portfolio for anyone with more buyers than the display
+        limit, and understates the money by the size of the tail.
+        """
+        return self._query(
+            VIEW_CONTRACTS,
+            f"""
+            WITH per_buyer AS (
+                SELECT buyer_cnpj, COUNT(*) AS contract_count, SUM(valor) AS valor_sum
+                  FROM {VIEW_CONTRACTS}
+                 WHERE supplier_cnpj = %s
+                 GROUP BY buyer_cnpj
+            ),
+            total AS (SELECT COALESCE(SUM(valor_sum), 0) AS valued FROM per_buyer)
+            SELECT (SELECT COUNT(*) FROM per_buyer) AS buyer_count,
+                   (SELECT SUM(contract_count) FROM per_buyer) AS contract_count,
+                   (SELECT NULLIF(valued, 0) FROM total) AS valor_sum_valued,
+                   CASE WHEN (SELECT valued FROM total) > 0
+                        THEN (SELECT SUM(POWER(valor_sum / (SELECT valued FROM total), 2)) FROM per_buyer)
+                        ELSE NULL
+                   END AS hhi
+            """,  # noqa: S608 -- view name is a module constant; the CNPJ is bound via %s
+            (cnpj,),
         )
 
     def competitors(self, cnpj: str) -> SourceRead:
@@ -213,40 +243,72 @@ class DatalakeSource:
         )
 
     def price_panel(self, cnpj: str) -> SourceRead:
-        """Reference percentiles by category, plus the focal position per category."""
+        """Reference percentiles by category, plus the focal position per category.
+
+        The focal rows are filtered by the SAME rule that built the panel
+        (`v_contract_intel_percentis`): buyers inside the 200 km reference set,
+        active contracts, published value above zero. A focal median built by a
+        wider rule and compared against that panel is not a comparison.
+        """
         return self._query(
             VIEW_PERCENTIS,
             f"""
             WITH focal AS (
-                SELECT {CATEGORY_SQL.format(col="objeto")} AS categoria,
+                SELECT {CATEGORY_SQL.format(col="c.objeto")} AS categoria,
                        COUNT(*) AS focal_count,
-                       COUNT(valor) AS focal_valued_count,
-                       percentile_cont(0.5) WITHIN GROUP (ORDER BY valor) AS focal_median
+                       COUNT(c.valor) AS focal_valued_count,
+                       percentile_cont(0.5) WITHIN GROUP (ORDER BY c.valor) AS focal_median
+                  FROM {VIEW_CONTRACTS} c
+                  JOIN {TABLE_SC_ENTITIES} e ON LEFT(c.buyer_cnpj, 8) = e.cnpj_8
+                 WHERE c.supplier_cnpj = %s
+                   AND e.raio_200km IS TRUE
+                   AND c.is_active IS TRUE
+                   AND c.valor IS NOT NULL
+                   AND c.valor > 0
+                 GROUP BY 1
+            ),
+            focal_all AS (
+                SELECT {CATEGORY_SQL.format(col="objeto")} AS categoria, COUNT(*) AS total_count
                   FROM {VIEW_CONTRACTS}
                  WHERE supplier_cnpj = %s
                  GROUP BY 1
             )
             SELECT p.categoria, p.qtd_contratos, p.valor_total, p.ticket_medio,
                    p.p25_valor, p.p50_valor, p.p75_valor,
-                   focal.focal_count, focal.focal_valued_count, focal.focal_median
+                   f.focal_count, f.focal_valued_count, f.focal_median,
+                   a.total_count AS focal_total_count
               FROM {VIEW_PERCENTIS} p
-              JOIN focal ON focal.categoria = p.categoria
+              JOIN focal f ON f.categoria = p.categoria
+              LEFT JOIN focal_all a ON a.categoria = p.categoria
              ORDER BY p.categoria
             """,  # noqa: S608 -- view names are module constants; the CNPJ is bound via %s
-            (cnpj,),
+            (cnpj, cnpj),
         )
 
-    def expiring(self, cnpj: str, window_days: int = EXPIRING_WINDOW_DAYS) -> SourceRead:
+    def expiring(self, cnpj: str, window_days: int = EXPIRING_WINDOW_DAYS, as_of: str | None = None) -> SourceRead:
+        """Contracts ending inside the requested window, counted from ``as_of``.
+
+        `v_expiring_contracts` hard-codes a 90-to-180-day band, so reading the
+        window through it drops both the urgent contracts and everything past
+        six months while the document claims the requested window. Reading the
+        canonical view directly also keeps the day count off the wall clock,
+        which is what makes the content hash reproducible.
+        """
         return self._query(
-            VIEW_EXPIRING,
+            VIEW_CONTRACTS,
             f"""
-            SELECT contrato_id, orgao_cnpj, orgao_nome, objeto_contrato, valor_contrato,
-                   data_inicio_contrato, data_fim_contrato, dias_ate_fim, uf, municipio
-              FROM {VIEW_EXPIRING}
-             WHERE fornecedor_cnpj = %s AND dias_ate_fim IS NOT NULL AND dias_ate_fim <= %s
-             ORDER BY dias_ate_fim, contrato_id
+            SELECT contrato_id, buyer_cnpj AS orgao_cnpj, buyer_nome AS orgao_nome,
+                   objeto AS objeto_contrato, valor AS valor_contrato,
+                   data_inicio AS data_inicio_contrato, data_fim AS data_fim_contrato,
+                   (data_fim - %s::date) AS dias_ate_fim, uf, municipio
+              FROM {VIEW_CONTRACTS}
+             WHERE supplier_cnpj = %s
+               AND data_fim IS NOT NULL
+               AND data_fim >= %s::date
+               AND data_fim <= (%s::date + %s::int)
+             ORDER BY data_fim, contrato_id
             """,  # noqa: S608 -- view name is a module constant; every value is bound via %s
-            (cnpj, window_days),
+            (as_of, cnpj, as_of, as_of, window_days),
         )
 
     def opportunities(self, cnpj: str) -> SourceRead:
@@ -296,14 +358,17 @@ class FixtureSource:
     def buyers(self, cnpj: str) -> SourceRead:
         return self._read("buyers", VIEW_CONTRACTS)
 
+    def portfolio_totals(self, cnpj: str) -> SourceRead:
+        return self._read("portfolio_totals", VIEW_CONTRACTS)
+
     def competitors(self, cnpj: str) -> SourceRead:
         return self._read("competitors", VIEW_CONTRACTS)
 
     def price_panel(self, cnpj: str) -> SourceRead:
         return self._read("price_panel", VIEW_PERCENTIS)
 
-    def expiring(self, cnpj: str, window_days: int = EXPIRING_WINDOW_DAYS) -> SourceRead:
-        return self._read("expiring", VIEW_EXPIRING)
+    def expiring(self, cnpj: str, window_days: int = EXPIRING_WINDOW_DAYS, as_of: str | None = None) -> SourceRead:
+        return self._read("expiring", VIEW_CONTRACTS)
 
     def opportunities(self, cnpj: str) -> SourceRead:
         return self._read("opportunities", VIEW_OPPORTUNITIES)

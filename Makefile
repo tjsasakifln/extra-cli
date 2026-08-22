@@ -12,6 +12,10 @@ OUTPUT_DIR  = output
 
 # ── Targets ──────────────────────────────────────────────────────────────────
 
+CNPJ ?=
+DOSSIER_OUT ?= artifacts/dossier/$(CNPJ)
+DOSSIER_FLAGS ?=
+
 .PHONY: help
 help:
 	@echo '╔══════════════════════════════════════════════════════════════╗'
@@ -108,6 +112,20 @@ extra-weekly:
 	@echo '    Entry point: python -m scripts.ops.weekly_cycle --strict'
 	@echo '    Open tenders: run_pncp_open_monitoring (aggregated) + SourceSnapshotReconciler'
 	python3 -m scripts.ops.weekly_cycle --strict $(WEEKLY_FLAGS)
+
+.PHONY: dossier
+dossier:
+	@echo '==> [$(ENV)] Dossie B2G (confenge-dossier/1.0) para um CNPJ'
+	@test -n "$(CNPJ)" || (echo '    ERRO: informe CNPJ=<14 digitos>'; exit 2)
+	@echo '    Saida: $(DOSSIER_OUT)'
+	python3 -m scripts.dossier build --cnpj $(CNPJ) --out $(DOSSIER_OUT) $(DOSSIER_FLAGS)
+	python3 -m scripts.dossier verify --dir $(DOSSIER_OUT)
+
+.PHONY: dossier-handoff
+dossier-handoff:
+	@echo '==> [$(ENV)] Publica a projecao desidentificada no rendezvous do web-cfg'
+	@echo '    Somente public-read.json atravessa. READY exige official_live + DATA_READY.'
+	python3 -m scripts.dossier handoff --dir $(DOSSIER_OUT)
 
 .PHONY: extra-daily-collect
 extra-daily-collect:
