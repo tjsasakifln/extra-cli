@@ -203,6 +203,38 @@ def test_snippet_only_gmail_stays_risky() -> None:
     assert classified.controlled_email_eligible is False
 
 
+def test_web_search_gmail_unsubscribe_evidence_is_not_eligible() -> None:
+    classified = evaluate_controlled_email_eligible(
+        _route(
+            "ll@sustainconsulting.llc",
+            source_type="web_search",
+            source_url="https://multisend-unsubscribe.gmail.com/uc",
+            ownership=OwnershipStatus.COMPANY_OWNED,
+            extra={
+                "company_associated": True,
+                "official_domain": "zancoconstrutora.com.br",
+            },
+        )
+    )
+    assert classified.controlled_email_eligible is False
+    assert classified.mailbox_company_evidence == "UNKNOWN"
+
+
+def test_empty_provenance_does_not_mint_company_website() -> None:
+    stamped = stamp_and_rank_feed_contacts(
+        [
+            {
+                "email": "customerservice@uptodate.com",
+                "ownership_status": "COMPANY_OWNED",
+            }
+        ],
+        account_id=ACCOUNT,
+        official_domain="oceanus.com.br",
+    )
+    assert stamped[0]["controlled_email_eligible"] is False
+    assert not stamped[0].get("preferred_initial")
+
+
 def test_blocked_mailboxes_are_not_control_eligible() -> None:
     cases = {
         "rh@empresaexemplo.com.br": None,

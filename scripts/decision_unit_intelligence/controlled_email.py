@@ -14,6 +14,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any
+from urllib.parse import urlparse
 
 from scripts.confenge_contact_resolution.mailbox_purpose import (
     CONTROLLED_BLOCKED_PURPOSES,
@@ -67,6 +68,15 @@ COMPANY_ASSOCIATION_SOURCES = frozenset(
         "site",
         "institutional_site",
     }
+)
+
+# Snippet / tracking URLs cannot prove mailbox↔company association.
+UNTRUSTWORTHY_SOURCE_URL_MARKERS = (
+    "unsubscribe",
+    "list-unsubscribe",
+    "multisend-unsubscribe",
+    "mail.google.com",
+    "googleusercontent.com",
 )
 
 EMAIL_CHANNEL_TYPES = frozenset(
@@ -224,8 +234,71 @@ def _is_inferred_or_catch_all(route: ReachabilityRoute) -> bool:
     return False
 
 
+def _url_host(url: str | None) -> str:
+    raw = str(url or "").strip()
+    if not raw:
+        return ""
+    parsed = urlparse(raw if "://" in raw else f"https://{raw}")
+    return (parsed.hostname or "").lower().removeprefix("www.")
+
+
+def _hosts_equivalent(left: str | None, right: str | None) -> bool:
+    a = str(left or "").lower().removeprefix("www.").strip()
+    b = str(right or "").lower().removeprefix("www.").strip()
+    if not a or not b:
+        return False
+    return a == b or a.endswith("." + b) or b.endswith("." + a)
+
+
+def untrustworthy_source_url(url: str | None) -> bool:
+    raw = str(url or "").strip().lower()
+    if not raw:
+        return False
+    host = _url_host(raw)
+    if any(marker in raw for marker in UNTRUSTWORTHY_SOURCE_URL_MARKERS):
+        return True
+    if host.endswith("gmail.com") and "unsub" in raw:
+        return True
+    return False
+
+
+def _official_domain(route: ReachabilityRoute) -> str:
+    extra = route.extra if isinstance(route.extra, dict) else {}
+    return str(extra.get("official_domain") or extra.get("canonical_domain") or "").lower().removeprefix("www.").strip()
+
+
+def association_provenance_trustworthy(route: ReachabilityRoute) -> bool:
+    """True only when public provenance can bind the mailbox to this account."""
+    if untrustworthy_source_url(route.source_url):
+        return False
+    source = str(route.source_type or "").lower().strip()
+    mailbox_dom = email_domain(route.channel_value)
+    url_host = _url_host(route.source_url)
+    official = _official_domain(route)
+    freemail = is_freemail(route.channel_value)
+    on_official_page = bool(official and url_host and _hosts_equivalent(url_host, official))
+    mailbox_on_official = bool(official and mailbox_dom and not freemail and _hosts_equivalent(mailbox_dom, official))
+    if official:
+        if source in COMPANY_ASSOCIATION_SOURCES:
+            if freemail:
+                return on_official_page or not url_host
+            return mailbox_on_official or on_official_page
+        if on_official_page:
+            return mailbox_on_official or freemail
+        return False
+    if source in COMPANY_ASSOCIATION_SOURCES:
+        return True
+    if source in {"", "unknown"}:
+        if not url_host or not mailbox_dom or freemail:
+            return False
+        return _hosts_equivalent(mailbox_dom, url_host)
+    return False
+
+
 def mailbox_company_evidence(route: ReachabilityRoute) -> str:
     extra = route.extra if isinstance(route.extra, dict) else {}
+    if not association_provenance_trustworthy(route):
+        return EVIDENCE_UNKNOWN
     explicit = str(extra.get("mailbox_company_evidence") or "").upper()
     if explicit in {EVIDENCE_OBSERVED, EVIDENCE_UNKNOWN}:
         return explicit
@@ -239,6 +312,15 @@ def mailbox_company_evidence(route: ReachabilityRoute) -> str:
     if source in COMPANY_ASSOCIATION_SOURCES:
         return EVIDENCE_OBSERVED
     if extra.get("identity_explicitly_associated") is True and not is_freemail(route.channel_value):
+        return EVIDENCE_OBSERVED
+    url_host = _url_host(route.source_url)
+    mailbox_dom = email_domain(route.channel_value)
+    official = _official_domain(route)
+    if (
+        mailbox_dom
+        and not is_freemail(route.channel_value)
+        and (_hosts_equivalent(mailbox_dom, official) or _hosts_equivalent(mailbox_dom, url_host))
+    ):
         return EVIDENCE_OBSERVED
     return EVIDENCE_UNKNOWN
 
@@ -381,8 +463,13 @@ def observed_contact_is_controlled_eligible_company_route(
     official = (official_domain or "").lower().removeprefix("www.")
     source = str(payload.get("source") or payload.get("source_type") or "").lower()
     if not source:
-        payload["source"] = "company_website" if official else "unknown"
+        # Do not mint company_website for foreign/unproven mailboxes.
+        payload["source"] = "company_website" if official and domain == official else "unknown"
         source = payload["source"]
+    extra = dict(payload.get("extra") or {})
+    if official:
+        extra.setdefault("official_domain", official)
+        payload["extra"] = extra
     if official and domain == official:
         payload.setdefault("ownership_status", OwnershipStatus.COMPANY_OWNED.value)
     elif official and is_freemail(email) and source in COMPANY_ASSOCIATION_SOURCES:
@@ -549,6 +636,12 @@ def evaluate_controlled_email_eligible(
     if company_ev != EVIDENCE_OBSERVED:
         eligible = False
         reasons.append("mailbox_company_evidence_unknown")
+        if untrustworthy_source_url(route.source_url):
+            reasons.append("untrustworthy_source_url")
+        if not str(route.source_type or "").strip() and not str(route.source_url or "").strip():
+            reasons.append("missing_provenance")
+        if str(route.source_type or "").lower() == "web_search" and company_ev != EVIDENCE_OBSERVED:
+            reasons.append("web_search_unassociated")
     if route_class == EmailRouteClass.DIRECT_PERSON and person_ev != EVIDENCE_OBSERVED:
         eligible = False
         reasons.append("direct_person_requires_named_person_evidence")
@@ -720,13 +813,31 @@ def _relation_for_mailbox(mailbox: str) -> RouteRelation:
     return RouteRelation.ACCOUNT_LEVEL_ONLY
 
 
-def route_from_feed_contact(contact: dict[str, Any], *, account_id: str) -> ReachabilityRoute:
+def _feed_contact_source_type(contact: dict[str, Any]) -> str:
+    prov = contact.get("provenance") if isinstance(contact.get("provenance"), dict) else {}
+    return str(contact.get("source") or contact.get("source_type") or prov.get("source_type") or "").strip()
+
+
+def _feed_contact_source_url(contact: dict[str, Any]) -> str:
+    prov = contact.get("provenance") if isinstance(contact.get("provenance"), dict) else {}
+    return str(contact.get("source_url") or prov.get("source_url") or "").strip()
+
+
+def route_from_feed_contact(
+    contact: dict[str, Any],
+    *,
+    account_id: str,
+    official_domain: str | None = None,
+) -> ReachabilityRoute:
     """Build a ReachabilityRoute from an outreach contact dict. Does not mint people."""
     mailbox = str(contact.get("email") or contact.get("channel_value") or "").strip().lower()
     extra = dict(contact.get("extra") or {})
+    host = str(official_domain or extra.get("official_domain") or "").lower().removeprefix("www.").strip()
+    if host:
+        extra.setdefault("official_domain", host)
+    # Ownership is not proof. Never mint OBSERVED association from the flag alone.
     if contact.get("ownership_status") == OwnershipStatus.COMPANY_OWNED.value:
         extra.setdefault("company_associated", True)
-        extra.setdefault("mailbox_company_evidence", EVIDENCE_OBSERVED)
     if contact.get("mailbox_company_evidence"):
         extra["mailbox_company_evidence"] = str(contact["mailbox_company_evidence"])
     if contact.get("identity_explicitly_associated") is True or (
@@ -768,8 +879,8 @@ def route_from_feed_contact(contact: dict[str, Any], *, account_id: str) -> Reac
         channel_value=mailbox,
         route_relation=_relation_for_mailbox(mailbox),
         epistemic_class=epistemic,
-        source_type=str(contact.get("source") or "company_website"),
-        source_url=str(contact.get("source_url") or "") or None,
+        source_type=_feed_contact_source_type(contact),
+        source_url=_feed_contact_source_url(contact) or None,
         freshness=FreshnessState.FRESH,
         ownership=ownership,
         suppression=suppression,
@@ -887,6 +998,7 @@ def stamp_and_rank_feed_contacts(
     contacts: list[dict[str, Any]],
     *,
     account_id: str,
+    official_domain: str | None = None,
 ) -> list[dict[str, Any]]:
     """Stamp route_class + controlled_email_eligible on ingestible contacts[]."""
     unique = dedupe_feed_contacts_by_mailbox(contacts)
@@ -899,7 +1011,7 @@ def stamp_and_rank_feed_contacts(
         if not email or "@" not in email:
             indexed.append(contact)
             continue
-        route = route_from_feed_contact(contact, account_id=account_id)
+        route = route_from_feed_contact(contact, account_id=account_id, official_domain=official_domain)
         item = evaluate_controlled_email_eligible(route, person=None)
         classified.append(item)
         indexed.append(contact)
