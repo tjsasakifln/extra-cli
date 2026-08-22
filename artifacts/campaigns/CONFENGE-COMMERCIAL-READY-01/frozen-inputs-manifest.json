@@ -1,7 +1,7 @@
 {
   "schema_version": "confenge-frozen-inputs/1.0",
   "campaign": "CONFENGE-COMMERCIAL-READY-01",
-  "freeze_sha": "906324b4a61a85f14dc7c1f7e5027915d22dcaf8",
+  "freeze_sha": "b4e55a3e13081e35209feec2dab32cec07a63561",
   "policy": "frozen_confenge_inputs_v1",
   "inputs": [
     {
@@ -219,8 +219,8 @@
     {
       "path": "scripts/confenge_contact_resolution/discovery/official_domain.py",
       "kind": "file",
-      "blob_sha": "83a1430a7e6c68ebe0eabbd277ad27783c2dec5f",
-      "sha256": "f1515900c6d49ce7092c840d48ee28811725f5bd1a42d03297041f80966556aa"
+      "blob_sha": "56181b61f4ba9b9dc4ba3c38e29f860054446103",
+      "sha256": "7eb3fff805bc63e630822fac5a6604633b498f1bdfc2a752ed01076bb0743e6e"
     },
     {
       "path": "scripts/confenge_contact_resolution/discovery_state.py",
