@@ -46,6 +46,11 @@ from scripts.confenge_target_fit.store import (
 
 logger = logging.getLogger(__name__)
 
+# Consecutive failed cycles the loop absorbs (with backoff) before it gives up
+# and exits non-zero. systemd then applies StartLimitBurst and stops the unit
+# instead of restarting a broken worker against a shared database forever.
+MAX_CONSECUTIVE_CYCLE_FAILURES = 3
+
 
 def _utcnow() -> datetime:
     return datetime.now(UTC)
@@ -439,10 +444,19 @@ def run_worker_loop(
     cfg: TargetFitRefreshConfig | None = None,
     idle_sleep_seconds: float = 15.0,
     max_cycles: int | None = None,
+    max_consecutive_failures: int = MAX_CONSECUTIVE_CYCLE_FAILURES,
 ) -> None:
-    """Long-running worker (systemd Type=simple). Graceful on KeyboardInterrupt."""
+    """Long-running worker (systemd Type=simple). Graceful on KeyboardInterrupt.
+
+    A failing cycle is never swallowed: it is logged with its traceback, backed
+    off, and retried at most ``max_consecutive_failures`` times before the
+    exception is re-raised and the process exits non-zero. Fail-closed is
+    preserved — the backoff only stops a broken worker from re-running the same
+    poisoned cycle every RestartSec against a shared database.
+    """
     cfg = cfg or TargetFitRefreshConfig.from_env()
     cycles = 0
+    consecutive_failures = 0
     logger.info(
         "target-fit worker starting mode=%s batch=%s",
         cfg.async_mode,
@@ -450,7 +464,28 @@ def run_worker_loop(
     )
     try:
         while max_cycles is None or cycles < max_cycles:
-            stats = run_worker_cycle(dsn, cfg=cfg)
+            try:
+                stats = run_worker_cycle(dsn, cfg=cfg)
+            except KeyboardInterrupt:
+                raise
+            except Exception:
+                consecutive_failures += 1
+                if consecutive_failures >= max_consecutive_failures:
+                    logger.exception(
+                        "worker cycle failed %s times in a row — exiting",
+                        consecutive_failures,
+                    )
+                    raise
+                backoff = idle_sleep_seconds * (2 ** (consecutive_failures - 1))
+                logger.exception(
+                    "worker cycle failed (%s/%s) — backing off %.1fs",
+                    consecutive_failures,
+                    max_consecutive_failures,
+                    backoff,
+                )
+                time.sleep(backoff)
+                continue
+            consecutive_failures = 0
             cycles += 1
             logger.info(
                 "worker cycle done claimed=%s processed=%s up=%s down=%s skip=%s fail=%s",

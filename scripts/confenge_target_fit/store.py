@@ -28,6 +28,11 @@ from scripts.confenge_target_fit.models import (
     TransitionEvent,
 )
 
+# Rows a single reclaim UPDATE may touch. Row locks and advisory locks share the
+# cluster-global lock table (max_locks_per_transaction * max_connections slots),
+# so no queue statement may take a number of locks proportional to the backlog.
+RECLAIM_BATCH_SIZE = 500
+
 
 def _utcnow() -> datetime:
     return datetime.now(UTC)
@@ -180,27 +185,79 @@ def requeue_company(
     return key
 
 
-def reclaim_expired_locks(conn: Any) -> int:
-    """Crash recovery: processing rows past lock TTL → pending/retry."""
-    with conn.cursor() as cur:
-        cur.execute(
-            """
-            UPDATE confenge_target_fit_dirty
-            SET status = CASE
-                    WHEN attempt_count >= 5 THEN 'dead'
-                    ELSE 'retry'
-                END,
-                next_retry_at = now(),
-                locked_by = NULL,
-                locked_until = NULL,
-                last_error = COALESCE(last_error, '') || ' [lock_expired]',
-                updated_at = now()
-            WHERE status = 'processing'
-              AND locked_until IS NOT NULL
-              AND locked_until < now()
-            """
-        )
-        return cur.rowcount or 0
+def reclaim_expired_locks(conn: Any, *, batch_size: int = RECLAIM_BATCH_SIZE) -> int:
+    """Crash recovery: processing rows past lock TTL → pending/retry.
+
+    Bounded and self-committing on purpose. The row locks an UPDATE takes come
+    out of the same cluster-global shared lock table as the claim's advisory
+    locks, so an unbounded reclaim riding inside the claim transaction could
+    exhaust it on its own. Each statement touches at most ``batch_size`` rows and
+    is committed immediately; the loop repeats until the backlog is drained, so
+    the semantics ("every expired lock is reclaimed") are unchanged.
+
+    Callers must not have uncommitted work pending — the intermediate commits
+    would publish it. ``claim_batch`` calls this before opening its own work.
+    """
+    total = 0
+    while True:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                UPDATE confenge_target_fit_dirty
+                SET status = CASE
+                        WHEN attempt_count >= 5 THEN 'dead'
+                        ELSE 'retry'
+                    END,
+                    next_retry_at = now(),
+                    locked_by = NULL,
+                    locked_until = NULL,
+                    last_error = COALESCE(last_error, '') || ' [lock_expired]',
+                    updated_at = now()
+                WHERE id IN (
+                    SELECT id
+                    FROM confenge_target_fit_dirty
+                    WHERE status = 'processing'
+                      AND locked_until IS NOT NULL
+                      AND locked_until < now()
+                    ORDER BY locked_until ASC
+                    LIMIT %s
+                    FOR UPDATE SKIP LOCKED
+                )
+                """,
+                (batch_size,),
+            )
+            affected = cur.rowcount or 0
+        conn.commit()
+        total += affected
+        if affected < batch_size:
+            return total
+
+
+# Step 1 of the claim, kept as a module constant so tests can EXPLAIN the exact
+# statement that ships. See claim_batch for why the shape is load-bearing.
+CLAIM_CANDIDATES_SQL = """
+    WITH candidates AS MATERIALIZED (
+        SELECT id, company_key, priority, detected_at
+        FROM confenge_target_fit_dirty
+        WHERE status IN ('pending', 'retry')
+          AND (next_retry_at IS NULL OR next_retry_at <= now())
+        ORDER BY priority DESC, detected_at ASC
+        LIMIT %s
+        FOR UPDATE SKIP LOCKED
+    )
+    SELECT c.id, c.company_key, c.priority, c.detected_at
+    FROM candidates c
+    WHERE pg_try_advisory_xact_lock(hashtext(c.company_key))
+      AND NOT EXISTS (
+          SELECT 1
+          FROM confenge_target_fit_dirty p
+          WHERE p.company_key = c.company_key
+            AND p.status = 'processing'
+            AND p.locked_until IS NOT NULL
+            AND p.locked_until > now()
+      )
+    ORDER BY c.priority DESC, c.detected_at ASC
+"""
 
 
 def claim_batch(
@@ -218,36 +275,32 @@ def claim_batch(
       claim the same dirty id.
     - process_one also takes pg_try_advisory_xact_lock(company_key) so two
       workers cannot publish the same company even if two dirty rows raced in.
+
+    Advisory locks taken here are bounded by the candidate LIMIT, never by the
+    backlog size — see the MATERIALIZED CTE note below.
     """
+    # Runs (and commits) outside the claim transaction: its row locks must not
+    # be charged to the same shared-lock budget as the advisory locks below.
     reclaim_expired_locks(conn)
     now = _utcnow()
     lock_until = now + timedelta(seconds=lock_ttl_seconds)
+    candidate_limit = max(batch_size * 4, batch_size)
     with conn.cursor() as cur:
         # Step 1: lock candidate rows (skip locked), more than batch to allow
         # post-filter one-per-company.
-        cur.execute(
-            """
-            SELECT id, company_key, priority, detected_at
-            FROM confenge_target_fit_dirty
-            WHERE status IN ('pending', 'retry')
-              AND (next_retry_at IS NULL OR next_retry_at <= now())
-              AND pg_try_advisory_xact_lock(
-                    hashtext(confenge_target_fit_dirty.company_key)
-                  )
-              AND NOT EXISTS (
-                  SELECT 1
-                  FROM confenge_target_fit_dirty p
-                  WHERE p.company_key = confenge_target_fit_dirty.company_key
-                    AND p.status = 'processing'
-                    AND p.locked_until IS NOT NULL
-                    AND p.locked_until > now()
-              )
-            ORDER BY priority DESC, detected_at ASC
-            LIMIT %s
-            FOR UPDATE SKIP LOCKED
-            """,
-            (max(batch_size * 4, batch_size),),
-        )
+        #
+        # The candidate set MUST be bounded before any advisory lock is taken.
+        # pg_try_advisory_xact_lock() costs 1 to the planner, so as a plain WHERE
+        # qual it is pushed into the scan filter and evaluated on every scanned
+        # row; the xact-scoped locks it acquires are only released at COMMIT, so
+        # a large backlog exhausts the cluster-global lock table and takes every
+        # other DataLake session down with it ("out of shared memory").
+        #
+        # AS MATERIALIZED is load-bearing, not decoration: it forbids the planner
+        # from inlining the CTE, which is what keeps LIMIT strictly below the
+        # advisory lock. confenge_tf_dirty_claim2_idx (migration 099) matches the
+        # ORDER BY, so the Limit terminates the index walk instead of sorting.
+        cur.execute(CLAIM_CANDIDATES_SQL, (candidate_limit,))
         candidates = cur.fetchall() or []
         # Step 2: keep first row per company_key (already priority-ordered).
         # The transaction-scoped advisory lock above closes the cross-row race:

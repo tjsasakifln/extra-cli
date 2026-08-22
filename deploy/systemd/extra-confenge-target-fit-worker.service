@@ -3,6 +3,12 @@ Description=Extra Consultoria — CONFENGE target-fit worker (long-running)
 Documentation=file:/opt/extra-consultoria/docs/confenge/TARGET-FIT-CONTINUOUS-REFRESH.md
 After=network-online.target postgresql.service
 Wants=network-online.target
+# Stop restarting a worker that cannot start cleanly. Without a start limit a
+# crash-looping worker retries every RestartSec forever and keeps re-poisoning
+# the shared DataLake cluster. 4 failures inside 15 min -> unit enters `failed`
+# and stays down for a human. Reset with `systemctl reset-failed`.
+StartLimitIntervalSec=900
+StartLimitBurst=4
 
 [Service]
 Type=simple
