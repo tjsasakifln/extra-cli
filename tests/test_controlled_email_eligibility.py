@@ -75,6 +75,7 @@ def _route(
     extra: dict | None = None,
     reason_codes: list[str] | None = None,
     source_type: str = "company_website",
+    source_url: str | None = "https://empresaexemplo.com.br/contato",
     observed_at: str = "2026-08-01T00:00:00Z",
 ) -> ReachabilityRoute:
     payload = dict(extra or {})
@@ -89,7 +90,7 @@ def _route(
         route_relation=relation,
         epistemic_class=epistemic,
         source_type=source_type,
-        source_url="https://empresaexemplo.com.br/contato",
+        source_url=source_url,
         evidence_ids=["ev-1"],
         freshness=freshness,
         ownership=ownership,
@@ -433,6 +434,113 @@ def test_send_readiness_generic_is_controlled_eligible_not_email_send_ready() ->
     assert ready.controlled_email_eligible is True
 
 
+def test_unassociated_web_search_llc_not_controlled_eligible() -> None:
+    """Live junk: foreign .llc mailbox on Gmail-unsubscribe URL is not eligible."""
+    classified = evaluate_controlled_email_eligible(
+        _route(
+            "ll@sustainconsulting.llc",
+            source_type="web_search",
+            source_url="https://multisend-unsubscribe.gmail.com/uc",
+            ownership=OwnershipStatus.COMPANY_OWNED,
+            extra={
+                "company_associated": True,
+                "mailbox_company_evidence": "OBSERVED",
+                "official_domain": "zancoconstrutora.com.br",
+            },
+            observed_at="",
+        )
+    )
+    assert classified.controlled_email_eligible is False
+    assert classified.mailbox_company_evidence == "UNKNOWN"
+    assert (
+        classified.route_class == EmailRouteClass.PROBABILISTIC_OR_RISKY
+        or "web_search_unassociated" in classified.reason_codes
+    )
+    assert "untrustworthy_source_url" in classified.reason_codes
+
+
+def test_gmail_unsubscribe_snippet_not_company_freemail() -> None:
+    classified = evaluate_controlled_email_eligible(
+        _route(
+            "ghulamnabifai26@gmail.com",
+            source_type="web_search",
+            source_url="https://multisend-unsubscribe.gmail.com/uc",
+            ownership=OwnershipStatus.UNKNOWN,
+            extra={"official_domain": "empresaexemplo.com.br"},
+        )
+    )
+    assert classified.controlled_email_eligible is False
+    assert classified.route_class == EmailRouteClass.PROBABILISTIC_OR_RISKY
+    assert classified.mailbox_company_evidence == "UNKNOWN"
+
+
+def test_missing_provenance_company_owned_flag_not_eligible() -> None:
+    classified = evaluate_controlled_email_eligible(
+        _route(
+            "contato@outra-empresa.com.br",
+            source_type="",
+            source_url="",
+            ownership=OwnershipStatus.COMPANY_OWNED,
+            extra={"company_associated": True},
+        )
+    )
+    assert classified.controlled_email_eligible is False
+    assert "missing_provenance" in classified.reason_codes
+    assert classified.mailbox_company_evidence == "UNKNOWN"
+
+
+def test_stamp_live_junk_feed_contact_is_not_preferred_initial() -> None:
+    stamped = stamp_and_rank_feed_contacts(
+        [
+            {
+                "email": "ll@sustainconsulting.llc",
+                "ownership_status": "COMPANY_OWNED",
+                "source_url": "https://multisend-unsubscribe.gmail.com/uc",
+                "provenance": {
+                    "source_type": "web_search",
+                    "source_url": "https://multisend-unsubscribe.gmail.com/uc",
+                    "evidence_sha256": "",
+                    "observed_at": "",
+                },
+            }
+        ],
+        account_id="95865044000190",
+        official_domain="zancoconstrutora.com.br",
+    )
+    assert stamped[0]["controlled_email_eligible"] is False
+    assert not stamped[0].get("preferred_initial")
+    assert stamped[0]["mailbox_company_evidence"] == "UNKNOWN"
+
+
+def test_map_lead_rejects_unassociated_web_search_mailbox() -> None:
+    universe, intel, _ = _five_class_universe_intel_contacts()
+    universe = dict(universe)
+    universe["website"] = "https://zancoconstrutora.com.br"
+    universe["official_domain"] = "zancoconstrutora.com.br"
+    contacts = {
+        "cnpj14": ACCOUNT_ID,
+        "contacts": [
+            {
+                "email": "ll@sustainconsulting.llc",
+                "ownership_status": "COMPANY_OWNED",
+                "source_type": "web_search",
+                "source_url": "https://multisend-unsubscribe.gmail.com/uc",
+                "provenance": {
+                    "source_type": "web_search",
+                    "source_url": "https://multisend-unsubscribe.gmail.com/uc",
+                    "evidence_sha256": "",
+                    "observed_at": "",
+                },
+            }
+        ],
+    }
+    lead = map_lead(universe, intel=intel, contacts_row=contacts, conn=None)
+    assert lead is not None
+    contact = lead["contacts"][0]
+    assert contact["controlled_email_eligible"] is False
+    assert not contact.get("preferred_initial")
+
+
 def test_hr_mailbox_not_controlled_eligible() -> None:
     route = _route("vagas@empresaexemplo.com.br")
     classified = evaluate_controlled_email_eligible(route, person=None)
@@ -539,22 +647,16 @@ def test_five_class_synthetic_canary_snapshot() -> None:
         if item["route_class"] == EmailRouteClass.PROBABILISTIC_OR_RISKY.value
     )
     assert risky["controlled_email_eligible"] is False
-    generic = next(
-        item
-        for item in payload["classified_email_routes"]
-        if item["mailbox"].startswith("contato@")
-    )
+    generic = next(item for item in payload["classified_email_routes"] if item["mailbox"].startswith("contato@"))
     assert generic["person_id"] is None
     assert generic["person_name"] is None
     gmail = next(item for item in payload["classified_email_routes"] if "gmail.com" in item["mailbox"])
     assert gmail["route_class"] == EmailRouteClass.PUBLIC_COMPANY_FREEMAIL.value
     assert gmail["person_id"] is None
     contacts = stamp_and_rank_feed_contacts(
-        [
-            {"email": r.channel_value, "ownership_status": "COMPANY_OWNED", "source_url": r.source_url}
-            for r in routes
-        ],
+        [{"email": r.channel_value, "ownership_status": "COMPANY_OWNED", "source_url": r.source_url} for r in routes],
         account_id=ACCOUNT_ID,
+        official_domain="empresaexemplo.com.br",
     )
     stamped_classes = {c["route_class"] for c in contacts}
     assert EmailRouteClass.ROLE_OR_DEPARTMENT.value in stamped_classes
@@ -752,7 +854,15 @@ def test_five_class_mapping_feed_written_for_warmbly_ingest() -> None:
     loaded = json.loads(dest.read_text(encoding="utf-8"))
     assert loaded["schema_version"] == SCHEMA_OUTREACH
     assert len(loaded["leads"]) == 1
-    sibling = here.parents[1] / "warmbly" / "internal" / "app" / "confenge" / "testdata" / "controlled_email_five_class_canary.json"
+    sibling = (
+        here.parents[1]
+        / "warmbly"
+        / "internal"
+        / "app"
+        / "confenge"
+        / "testdata"
+        / "controlled_email_five_class_canary.json"
+    )
     if sibling.parent.is_dir():
         sibling.write_text(dest.read_text(encoding="utf-8"), encoding="utf-8")
         assert json.loads(sibling.read_text(encoding="utf-8"))["leads"][0]["contacts"][0]["email"]

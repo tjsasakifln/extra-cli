@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import re
 from typing import Any
+from urllib.parse import urlparse
 
 from scripts.confenge_contact_resolution.mailbox_purpose import classify_mailbox_purpose
 from scripts.confenge_contact_resolution.send_readiness import (
@@ -56,6 +57,15 @@ def _as_str(value: Any, default: str = "") -> str:
     if value is None:
         return default
     return str(value).strip()
+
+
+def official_domain_host(value: Any) -> str:
+    raw = _as_str(value)
+    if not raw:
+        return ""
+    parsed = urlparse(raw if "://" in raw else f"https://{raw}")
+    host = (parsed.hostname or raw.split("/")[0]).lower().removeprefix("www.")
+    return host.strip()
 
 
 def _normalize_epistemic(class_value: str | None, *, is_inference: bool) -> str:
@@ -165,6 +175,8 @@ def _map_contact(item: dict[str, Any], *, idx: int, cnpj: str) -> dict[str, Any]
         "phone": _as_str(item.get("phone")),
         "linkedin_url": _as_str(item.get("linkedin_url")),
         "source_url": _as_str(item.get("source_url") or prov.get("source_url")),
+        "source": _as_str(item.get("source") or item.get("source_type") or prov.get("source_type")),
+        "source_type": _as_str(item.get("source_type") or item.get("source") or prov.get("source_type")),
         "source_document": _as_str(item.get("source_document") or prov.get("source_document")),
         # Warmbly v1 consumes source_date as the evidence timestamp. Preserve
         # its actual semantics alongside it; observation is never rewritten as
@@ -639,7 +651,14 @@ def map_lead(
 
     from scripts.decision_unit_intelligence.controlled_email import stamp_and_rank_feed_contacts
 
-    stamped = stamp_and_rank_feed_contacts(contacts, account_id=cnpj)
+    official = official_domain_host(
+        contacts_row.get("official_domain")
+        or universe_row.get("official_domain")
+        or lead["company"].get("website")
+        or universe_row.get("website")
+        or universe_row.get("site")
+    )
+    stamped = stamp_and_rank_feed_contacts(contacts, account_id=cnpj, official_domain=official or None)
     contacts[:] = stamped
     lead["contacts"] = contacts
 

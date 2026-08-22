@@ -15,6 +15,8 @@ from scripts.confenge_outreach_pipeline.pipeline import (
     PipelineConfig,
     _dedupe_decision_rows,
     _published_target_fit_snapshot,
+    build_pipeline_contact_resolver,
+    contact_job_meta,
     run_pipeline,
 )
 from scripts.confenge_outreach_pipeline.sample import classify_profile, select_diverse_sample
@@ -354,14 +356,23 @@ def test_adapt_intelligence_and_contacts_join() -> None:
                 "verification_status": "OBSERVED",
                 "confidence": 0.9,
                 "recommended": True,
-                "source": {"source_url": "https://acme.example.com/equipe"},
+                "source": {
+                    "source_type": "site",
+                    "source_url": "https://acme.example.com/equipe",
+                    "observed_at": "2026-08-01T00:00:00Z",
+                },
+                "ownership_status": "COMPANY_OWNED",
             }
         ],
         "recommended_candidate_id": "ct-1",
+        "official_domain": "acme.example.com",
     }
     bridge_contacts = contact_resolution_to_bridge_row(resolution)
     assert bridge_contacts["contacts"][0]["role"] == "Engenheira de contratos"
     assert bridge_contacts["contacts"][0]["verification_status"] == "OFFICIAL_SOURCE"
+    assert bridge_contacts["contacts"][0]["source_type"] == "site"
+    assert bridge_contacts["contacts"][0]["ownership_status"] == "COMPANY_OWNED"
+    assert bridge_contacts["official_domain"] == "acme.example.com"
 
     from scripts.confenge_outreach_pipeline.adapt import universe_row_for_bridge
 
@@ -372,6 +383,39 @@ def test_adapt_intelligence_and_contacts_join() -> None:
     assert leads[0]["offer"]["extra_cli_service_id"] == "gestao_monitoramento_contratual"
     assert leads[0]["contacts"][0]["email"] == "ana@acme.example.com"
     assert leads[0]["messaging_context"]["fact_to_mention"]
+
+
+def test_pipeline_network_run_wires_discovery_cascade_and_job_meta(tmp_path: Path) -> None:
+    rows = [
+        {
+            "cnpj14": "11222333000181",
+            "razao_social": "ACME ENGENHARIA LTDA",
+            "nome_fantasia": "Acme",
+            "website": "https://acme.example.com",
+        }
+    ]
+    meta = contact_job_meta(rows)
+    assert meta["11222333000181"]["razao_social"] == "ACME ENGENHARIA LTDA"
+    assert meta["11222333000181"]["nome_fantasia"] == "Acme"
+    resolver = build_pipeline_contact_resolver(
+        PipelineConfig(out_dir=tmp_path, allow_network=True, enable_web_search=True),
+        sample_rows=rows,
+        cache=None,
+        service_context="generic",
+    )
+    assert resolver.config.discovery_cascade is not None
+    assert resolver.config.allow_network is True
+    assert resolver.config.job_meta["11222333000181"]["razao_social"] == "ACME ENGENHARIA LTDA"
+
+
+def test_pipeline_offline_run_does_not_wire_discovery_cascade(tmp_path: Path) -> None:
+    resolver = build_pipeline_contact_resolver(
+        PipelineConfig(out_dir=tmp_path, allow_network=False),
+        sample_rows=[{"cnpj14": "11222333000181", "razao_social": "ACME"}],
+        cache=None,
+        service_context="generic",
+    )
+    assert resolver.config.discovery_cascade is None
 
 
 def test_contract_schema_matches_warmbly_constants() -> None:

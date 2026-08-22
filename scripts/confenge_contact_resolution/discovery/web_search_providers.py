@@ -536,11 +536,88 @@ class CompositeWebSearchProvider:
         return []
 
 
+class SearxngJSONProvider:
+    """Private SearXNG JSON API. Used when CONFENGE_SEARXNG_URL is set."""
+
+    name = "searxng_json"
+
+    def __init__(self, base_url: str, *, timeout: float = 12.0) -> None:
+        self.base_url = str(base_url or "").strip().rstrip("/")
+        self.timeout = timeout
+        self.last_error: str | None = None
+
+    def search(self, query: str, *, max_results: int = 8) -> list[SearchResult]:
+        q = (query or "").strip()
+        if not q or not self.base_url:
+            return []
+        url = f"{self.base_url}/search?q={quote_plus(q)}&format=json"
+        req = Request(  # noqa: S310
+            url,
+            headers={"User-Agent": _USER_AGENT, "Accept": "application/json"},
+        )
+        try:
+            with urlopen(req, timeout=self.timeout) as resp:  # noqa: S310
+                data = json.loads(resp.read().decode("utf-8"))
+        except (HTTPError, URLError, TimeoutError, OSError, json.JSONDecodeError) as exc:
+            self.last_error = type(exc).__name__
+            return []
+        results: list[SearchResult] = []
+        for item in data.get("results") or []:
+            href = str(item.get("url") or "")
+            if not href.startswith("http"):
+                continue
+            results.append(
+                SearchResult(
+                    title=str(item.get("title") or ""),
+                    url=href,
+                    snippet=str(item.get("content") or item.get("snippet") or ""),
+                    source=self.name,
+                    retrieved_at=_now(),
+                )
+            )
+            if len(results) >= max_results:
+                break
+        self.last_error = None
+        return results
+
+    def search_business_contacts(self, cnpj14: str, **kwargs: Any) -> list[dict[str, Any]]:
+        if not kwargs.get("allow_network", True):
+            return []
+        razao = kwargs.get("razao_social") or kwargs.get("company_name")
+        queries = build_company_queries(
+            razao_social=str(razao) if razao else None,
+            nome_fantasia=kwargs.get("nome_fantasia"),
+            cnpj14=cnpj14,
+            max_queries=int(kwargs.get("max_queries") or 4),
+        )
+        out: list[dict[str, Any]] = []
+        for q in queries:
+            for r in self.search(q):
+                contacts = extract_contacts_from_snippet(title=r.title, snippet=r.snippet, url=r.url)
+                if contacts:
+                    for c in contacts:
+                        out.append({**c, "url": r.url, "title": r.title, "snippet": r.snippet, "source": r.source})
+                else:
+                    out.append(
+                        {
+                            "url": r.url,
+                            "title": r.title,
+                            "snippet": r.snippet,
+                            "source": r.source,
+                            "site": r.url,
+                        }
+                    )
+        return out
+
+
 def build_web_search_provider(*, prefer: str | None = None) -> Any:
     """Factory: env-driven pluggable provider (never NoOp when network path is chosen)."""
     prefer = (prefer or os.environ.get("CONFENGE_WEB_SEARCH_PROVIDER") or "auto").lower()
     brave_key = os.environ.get("BRAVE_SEARCH_API_KEY") or os.environ.get("BRAVE_API_KEY")
+    searxng_url = (os.environ.get("CONFENGE_SEARXNG_URL") or "").strip()
     providers: list[Any] = []
+    if prefer in {"searxng", "auto"} and searxng_url:
+        providers.append(SearxngJSONProvider(searxng_url))
     if prefer in {"brave", "auto"} and brave_key:
         providers.append(BraveSearchProvider(brave_key))
     if prefer in {"duckduckgo", "ddg", "auto", "brave"}:
