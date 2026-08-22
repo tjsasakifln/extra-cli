@@ -1,0 +1,140 @@
+{
+  "buyers": [
+    {
+      "buyer_cnpj": "82000000000101",
+      "buyer_nome": "MUNICIPIO FIXTURE A",
+      "contract_count": 2,
+      "last_data_fim": "2028-02-01",
+      "last_publicacao": "2025-01-20",
+      "uf": "SC",
+      "valor_sum": "1000000.00",
+      "valued_count": 1
+    },
+    {
+      "buyer_cnpj": "82000000000102",
+      "buyer_nome": "MUNICIPIO FIXTURE B",
+      "contract_count": 1,
+      "last_data_fim": "2026-12-01",
+      "last_publicacao": "2026-05-20",
+      "uf": "SC",
+      "valor_sum": "500000.00",
+      "valued_count": 1
+    }
+  ],
+  "competitors": [
+    {
+      "contract_count": 7,
+      "shared_buyer_count": 2,
+      "shared_categories": "OBRAS",
+      "supplier_cnpj": "99000000000191",
+      "supplier_nome": "CONCORRENTE FIXTURE LTDA",
+      "valor_sum": "3000000.00",
+      "valued_count": 7
+    }
+  ],
+  "contracts": [
+    {
+      "buyer_cnpj": "82000000000101",
+      "buyer_nome": "MUNICIPIO FIXTURE A",
+      "categoria": "OBRAS",
+      "contrato_id": "FIX-0001",
+      "data_fim": "2027-01-10",
+      "data_inicio": "2024-01-10",
+      "data_publicacao": "2024-01-05",
+      "objeto": "Execucao de obra de pavimentacao asfaltica",
+      "uf": "SC",
+      "valor": "1000000.00"
+    },
+    {
+      "buyer_cnpj": "82000000000102",
+      "buyer_nome": "MUNICIPIO FIXTURE B",
+      "categoria": "OBRAS",
+      "contrato_id": "FIX-0002",
+      "data_fim": "2026-12-01",
+      "data_inicio": "2026-06-01",
+      "data_publicacao": "2026-05-20",
+      "objeto": "Execucao de obra de drenagem",
+      "uf": "SC",
+      "valor": "500000.00"
+    },
+    {
+      "buyer_cnpj": "82000000000101",
+      "buyer_nome": "MUNICIPIO FIXTURE A",
+      "categoria": "OBRAS",
+      "contrato_id": "FIX-0003",
+      "data_fim": "2028-02-01",
+      "data_inicio": "2025-02-01",
+      "data_publicacao": "2025-01-20",
+      "objeto": "Execucao de obra de contencao",
+      "uf": "SC",
+      "valor": null
+    }
+  ],
+  "expiring": [
+    {
+      "contrato_id": "FIX-0002",
+      "data_fim_contrato": "2026-12-01",
+      "data_inicio_contrato": "2026-06-01",
+      "dias_ate_fim": 120,
+      "municipio": "FIXTURELANDIA",
+      "objeto_contrato": "Execucao de obra de drenagem",
+      "orgao_cnpj": "82000000000102",
+      "orgao_nome": "MUNICIPIO FIXTURE B",
+      "uf": "SC",
+      "valor_contrato": "500000.00"
+    }
+  ],
+  "identity": [
+    {
+      "cnae_principal": "4211101",
+      "cnpj14": "11222333000181",
+      "municipio": "FIXTURELANDIA",
+      "nome_fantasia": null,
+      "razao_social": "ACME PAVIMENTACAO LTDA",
+      "situacao_cadastral": "Ativa",
+      "source": "fixture_registry",
+      "source_date": "2026-01-01",
+      "uf": "SC"
+    }
+  ],
+  "observed_at": "2026-01-15T00:00:00Z",
+  "opportunities": [
+    {
+      "bid_id": "FIX-BID-1",
+      "data_abertura": "2026-08-10",
+      "data_encerramento": "2026-09-10",
+      "data_publicacao": "2026-08-01",
+      "link_edital": "https://example.invalid/edital/1",
+      "modalidade": "Concorrencia",
+      "municipio": "FIXTURELANDIA",
+      "objeto": "Contratacao de obra de pavimentacao",
+      "orgao_cnpj": "82000000000101",
+      "orgao_nome": "MUNICIPIO FIXTURE A",
+      "pncp_id": "fixture-pncp-1",
+      "uf": "SC",
+      "valor_estimado": "2000000.00"
+    }
+  ],
+  "portfolio_totals": [
+    {
+      "buyer_count": 2,
+      "contract_count": 3,
+      "hhi": 0.5556,
+      "valor_sum_valued": "1500000.00"
+    }
+  ],
+  "price_panel": [
+    {
+      "categoria": "OBRAS",
+      "focal_count": 3,
+      "focal_median": "750000.00",
+      "focal_valued_count": 2,
+      "p25_valor": "200000.00",
+      "p50_valor": "700000.00",
+      "p75_valor": "1500000.00",
+      "qtd_contratos": 1000,
+      "ticket_medio": "900000.00",
+      "valor_total": "900000000.00"
+    }
+  ]
+}
