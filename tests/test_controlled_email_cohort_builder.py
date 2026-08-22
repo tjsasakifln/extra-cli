@@ -81,7 +81,7 @@ def test_risky_and_suppressed_never_enter_the_cohort():
     ]
     members, stats = select_cohort(leads, limit=50)
     assert [m["company"]["cnpj14"] for m in members] == ["11111111000191"]
-    assert stats["route_class_distribution"] == {"GENERIC_COMPANY": 1}
+    assert stats["route_class_distribution"]["GENERIC_COMPANY"] == 1
     assert stats["funnel"]["RISKY"] == 1
     assert stats["funnel"]["suppressed"] == 1
 
@@ -141,7 +141,14 @@ def test_private_feed_is_0600_and_the_manifest_carries_no_pii(tmp_path):
     assert manifest["auto_send"] is False
     assert manifest["REAL_EMAIL_SENT"] is False
     assert manifest["smtp"] == "none"
-    assert manifest["route_class_distribution"] == {"GENERIC_COMPANY": 1, "ROLE_OR_DEPARTMENT": 1}
+    assert manifest["route_class_distribution"] == {
+        "DIRECT_PERSON": 0,
+        "ROLE_OR_DEPARTMENT": 1,
+        "GENERIC_COMPANY": 1,
+        "PUBLIC_COMPANY_FREEMAIL": 0,
+        "PROBABILISTIC_OR_RISKY": 0,
+    }
+    assert sum(manifest["route_class_distribution"].values()) == manifest["member_count"]
 
     feed_path = Path(manifest["private_feed_path"])
     assert stat.S_IMODE(os.stat(feed_path).st_mode) == 0o600
@@ -219,3 +226,16 @@ def test_a_route_on_its_own_official_domain_survives_the_recheck():
     )
     members, _ = select_cohort([_lead("11111111000191", [contact])], limit=50)
     assert len(members) == 1
+
+
+def test_every_funnel_and_route_class_key_ships_even_at_zero():
+    """A zero is a finding. Consumers must never have to guess an absent key."""
+    from scripts.ops.build_controlled_email_cohort import FUNNEL_KEYS
+
+    _, stats = select_cohort([], limit=50)
+    for key in FUNNEL_KEYS:
+        assert stats["funnel"][key] == 0, key
+    for key in ("DIRECT_PERSON", "ROLE_OR_DEPARTMENT", "GENERIC_COMPANY", "PUBLIC_COMPANY_FREEMAIL"):
+        assert key in stats["funnel"], key
+    assert stats["route_class_distribution"]["PROBABILISTIC_OR_RISKY"] == 0
+    assert stats["route_class_distribution"]["DIRECT_PERSON"] == 0

@@ -57,6 +57,22 @@ SAMPLE_PER_ROUTE_CLASS = 3
 ALLOWED_ROUTE_CLASSES = frozenset(rc.value for rc in DEFAULT_PILOT_ROUTE_CLASSES)
 BLOCKING_SUPPRESSION = frozenset({"OPT_OUT", "DNC", "HARD_BOUNCE", "SUPPRESSED"})
 
+# A zero is a finding, not an absence. Every funnel key ships even when unhit.
+FUNNEL_KEYS: tuple[str, ...] = (
+    "accounts_considered",
+    "official_domain",
+    "any_public_email",
+    *(rc.value for rc in EmailRouteClass if rc != EmailRouteClass.PROBABILISTIC_OR_RISKY),
+    "RISKY",
+    "controlled_eligible",
+    "preferred_initial",
+    "no_email",
+    "no_domain",
+    "blocked",
+    "suppressed",
+    "double_preferred",
+)
+
 
 def _utc_stamp() -> str:
     return datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
@@ -160,8 +176,8 @@ def select_cohort(
     """Keep accounts with exactly one surviving preferred_initial mailbox."""
     gated = apply_cross_account_preferred_mailbox_gate(leads)
 
-    funnel: Counter[str] = Counter()
-    class_counts: Counter[str] = Counter()
+    funnel: Counter[str] = Counter(dict.fromkeys(FUNNEL_KEYS, 0))
+    class_counts: Counter[str] = Counter(dict.fromkeys((rc.value for rc in EmailRouteClass), 0))
     selected: list[dict[str, Any]] = []
     claimed: set[str] = set()
 
