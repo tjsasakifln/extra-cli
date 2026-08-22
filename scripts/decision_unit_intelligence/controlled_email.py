@@ -339,10 +339,10 @@ def association_provenance_trustworthy(route: ReachabilityRoute) -> bool:
         if on_official_page:
             return mailbox_on_official or freemail
         return False
-    # Empty official_domain is not proof of company association.
+    # Empty official_domain cannot prove a freemail belongs to this company
+    # (aggregators such as cnpja.com publish third-party addresses).
     if freemail:
-        # Associated freemail must be published on a company page, not minted.
-        return source in COMPANY_ASSOCIATION_SOURCES and bool(url_host)
+        return False
     if not url_host or not mailbox_dom:
         return False
     if not _hosts_equivalent(mailbox_dom, url_host):

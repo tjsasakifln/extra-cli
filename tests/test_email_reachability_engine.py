@@ -183,7 +183,11 @@ def test_official_site_gmail_may_be_public_company_freemail() -> None:
     classified = evaluate_controlled_email_eligible(
         _route(
             "contato.empresa@gmail.com",
-            extra={"company_associated": True, "mailbox_company_evidence": "OBSERVED"},
+            extra={
+                "company_associated": True,
+                "mailbox_company_evidence": "OBSERVED",
+                "official_domain": "empresaexemplo.com.br",
+            },
         )
     )
     assert classified.route_class == EmailRouteClass.PUBLIC_COMPANY_FREEMAIL

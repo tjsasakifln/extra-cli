@@ -173,7 +173,11 @@ def test_contato_eligible_without_inventing_person() -> None:
 def test_associated_gmail_is_public_company_freemail() -> None:
     route = _route(
         "empresa@gmail.com",
-        extra={"company_associated": True, "mailbox_company_evidence": "OBSERVED"},
+        extra={
+            "company_associated": True,
+            "mailbox_company_evidence": "OBSERVED",
+            "official_domain": "empresaexemplo.com.br",
+        },
         source_type="company_website",
     )
     classified = evaluate_controlled_email_eligible(route, person=None)
@@ -264,7 +268,11 @@ def test_four_mailboxes_one_preferred_initial_route() -> None:
         _route("contato@empresaexemplo.com.br"),
         _route(
             "empresa@gmail.com",
-            extra={"company_associated": True, "mailbox_company_evidence": "OBSERVED"},
+            extra={
+                "company_associated": True,
+                "mailbox_company_evidence": "OBSERVED",
+                "official_domain": "empresaexemplo.com.br",
+            },
         ),
     ]
     ranking = classify_account_email_routes(_account(routes, [person]), named_person_safe=is_email_safe_for_warmbly)
@@ -327,7 +335,11 @@ def test_generic_mailbox_never_becomes_fake_person() -> None:
 def test_gmail_never_becomes_fake_corporate_domain() -> None:
     route = _route(
         "empresa@gmail.com",
-        extra={"company_associated": True, "mailbox_company_evidence": "OBSERVED"},
+        extra={
+            "company_associated": True,
+            "mailbox_company_evidence": "OBSERVED",
+            "official_domain": "empresaexemplo.com.br",
+        },
     )
     classified = evaluate_controlled_email_eligible(route, person=None)
     assert classified.route_class == EmailRouteClass.PUBLIC_COMPANY_FREEMAIL
@@ -594,6 +606,19 @@ def test_empty_official_site_source_rejects_mailbox_host_mismatch() -> None:
     assert lead["contacts"][0]["controlled_email_eligible"] is False
 
 
+def test_empty_official_freemail_from_aggregator_page_is_not_eligible() -> None:
+    classified = evaluate_controlled_email_eligible(
+        _route(
+            "empresa@terra.com.br",
+            source_type="contact_page",
+            source_url="https://cnpja.com/office/123",
+            extra={"company_associated": True, "mailbox_company_evidence": "OBSERVED"},
+        )
+    )
+    assert classified.controlled_email_eligible is False
+    assert classified.route_class == EmailRouteClass.PROBABILISTIC_OR_RISKY
+
+
 def test_parser_minted_mailbox_host_is_not_eligible() -> None:
     classified = evaluate_controlled_email_eligible(
         _route(
@@ -733,7 +758,11 @@ def test_five_class_synthetic_canary_snapshot() -> None:
         _route("contato@empresaexemplo.com.br"),
         _route(
             "empresa@gmail.com",
-            extra={"company_associated": True, "mailbox_company_evidence": "OBSERVED"},
+            extra={
+                "company_associated": True,
+                "mailbox_company_evidence": "OBSERVED",
+                "official_domain": "empresaexemplo.com.br",
+            },
             source_type="company_website",
         ),
         _route(
@@ -882,6 +911,7 @@ def _five_class_universe_intel_contacts() -> tuple[dict, dict, dict]:
                 "email": "empresa@gmail.com",
                 "ownership_status": "COMPANY_OWNED",
                 "source_url": "https://empresaexemplo.com.br/contato",
+                "source_type": "company_website",
                 "mailbox_company_evidence": "OBSERVED",
                 "source_contact_id": "c-gmail",
             },
