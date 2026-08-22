@@ -101,10 +101,7 @@ def extract_contract_hook(bag: dict[str, Any]) -> tuple[str, list[str]]:
             bits.append(f"UF {uf}")
         if isinstance(val, (int, float)) and val > 0:
             bits.append(f"R$ {val:,.0f}")
-        # The compressor already exists and was only used for why_this_account.
-        # observed_fact becomes fact_to_mention verbatim, so shipping the raw
-        # "label: value;" record put a database row inside the cold email.
-        fact = _compress_hook_insight("; ".join(bits), max_len=220)
+        fact = "; ".join(bits)
         evidence_ids.append(f"cf-contract-{cid}")
         return fact, evidence_ids
     return "", []
