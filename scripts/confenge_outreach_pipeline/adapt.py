@@ -442,6 +442,7 @@ def contact_resolution_to_bridge_row(resolution: dict[str, Any]) -> dict[str, An
             is_rec = True
 
         phone = cand.get("phone_e164") or cand.get("phone_raw") or cand.get("phone") or ""
+        source_type = str(src.get("source_type") or cand.get("source_type") or "")
         contacts.append(
             {
                 "source_contact_id": str(cand.get("candidate_id") or cand.get("source_contact_id") or f"ct-{cnpj}-{i}"),
@@ -451,15 +452,24 @@ def contact_resolution_to_bridge_row(resolution: dict[str, Any]) -> dict[str, An
                 "phone": str(phone),
                 "linkedin_url": str(cand.get("linkedin_public") or cand.get("linkedin_url") or ""),
                 "source_url": str(src.get("source_url") or cand.get("source_url") or ""),
+                "source": source_type,
+                "source_type": source_type,
                 "source_document": str(src.get("source_document") or cand.get("source_document") or ""),
                 "source_date": str(src.get("source_date") or cand.get("source_date") or ""),
+                "observed_at": str(src.get("observed_at") or cand.get("observed_at") or ""),
+                "ownership_status": str(cand.get("ownership_status") or ""),
+                "provenance": src or None,
                 "verification_status": vs,
                 "confidence": conf_s,
                 "recommended": is_rec,
             }
         )
 
-    return {"cnpj14": cnpj, "contacts": contacts}
+    return {
+        "cnpj14": cnpj,
+        "contacts": contacts,
+        "official_domain": str(resolution.get("official_domain") or ""),
+    }
 
 
 def universe_row_for_bridge(row: dict[str, Any], *, rank: int) -> dict[str, Any]:

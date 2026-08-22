@@ -652,7 +652,8 @@ def map_lead(
     from scripts.decision_unit_intelligence.controlled_email import stamp_and_rank_feed_contacts
 
     official = official_domain_host(
-        universe_row.get("official_domain")
+        contacts_row.get("official_domain")
+        or universe_row.get("official_domain")
         or lead["company"].get("website")
         or universe_row.get("website")
         or universe_row.get("site")

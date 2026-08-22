@@ -63,6 +63,71 @@ from scripts.confenge_universe.pipeline import run_universe_build
 from scripts.warmbly_bridge.export import ExportConfig, export_outreach
 
 
+def _digits_cnpj(value: Any) -> str:
+    return "".join(ch for ch in str(value or "") if ch.isdigit())[:14]
+
+
+def contact_job_meta(sample_rows: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """Pass razão/fantasia/website into discovery so domain probe is not name-blind."""
+    meta: dict[str, dict[str, Any]] = {}
+    for row in sample_rows:
+        cnpj = _digits_cnpj(row.get("cnpj14") or row.get("cnpj"))
+        if len(cnpj) != 14:
+            continue
+        meta[cnpj] = {
+            "razao_social": row.get("razao_social") or row.get("legal_name"),
+            "company_name": row.get("razao_social") or row.get("legal_name"),
+            "nome_fantasia": row.get("nome_fantasia") or row.get("trade_name"),
+            "website": row.get("website") or row.get("site"),
+        }
+    return meta
+
+
+def build_pipeline_contact_resolver(
+    cfg: PipelineConfig,
+    *,
+    sample_rows: list[dict[str, Any]],
+    cache: ResolutionCache | None,
+    service_context: str,
+) -> ContactResolver:
+    """Wire the shipped DiscoveryCascade on live network runs. No SMTP."""
+    enable_web = bool(cfg.enable_web_search) or bool(cfg.allow_network)
+    fixtures = cfg.contact_fixtures_dir or cfg.fixtures_dir
+    web_provider = None
+    discovery_cascade = None
+    if cfg.allow_network and not fixtures:
+        from scripts.confenge_contact_resolution.discovery import (
+            DiscoveryBudget,
+            DiscoveryCascade,
+            build_web_search_provider,
+        )
+
+        web_provider = build_web_search_provider()
+        discovery_cascade = DiscoveryCascade(
+            budget=DiscoveryBudget.from_env_or_defaults(),
+            web_provider=web_provider,
+            dsn=cfg.dsn,
+            allow_network=True,
+        )
+    adapters = default_adapters(
+        web_search_enabled=enable_web,
+        web_search_provider=web_provider,
+        registry_prefer_network=bool(cfg.allow_network),
+    )
+    return ContactResolver(
+        ResolverConfig(
+            service_context=service_context,
+            adapters=adapters,
+            cache=cache,
+            allow_network=cfg.allow_network,
+            fixtures_dir=fixtures,
+            max_workers=cfg.max_workers,
+            discovery_cascade=discovery_cascade,
+            job_meta=contact_job_meta(sample_rows),
+        )
+    )
+
+
 def _utcnow() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
@@ -571,24 +636,14 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
             majority_svc = max(service_dist, key=service_dist.get) if service_dist else None  # type: ignore[arg-type]
             svc_ctx = _service_context_from_primary(majority_svc)
             cache = ResolutionCache(dirs["contacts"] / ".cache", ttl_seconds=86400)
-            adapters = default_adapters(
-                web_search_enabled=bool(cfg.enable_web_search),
-                registry_prefer_network=bool(cfg.allow_network),
+            resolver = build_pipeline_contact_resolver(
+                cfg,
+                sample_rows=sample_rows,
+                cache=cache,
+                service_context=svc_ctx,
             )
-            resolver = ContactResolver(
-                ResolverConfig(
-                    service_context=svc_ctx,
-                    adapters=adapters,
-                    cache=cache,
-                    allow_network=cfg.allow_network,
-                    fixtures_dir=cfg.contact_fixtures_dir or cfg.fixtures_dir,
-                    max_workers=cfg.max_workers,
-                )
-            )
-            cnpjs = [
-                "".join(ch for ch in str(r.get("cnpj14") or r.get("cnpj") or "") if ch.isdigit()) for r in sample_rows
-            ]
-            cnpjs = [c for c in cnpjs if c]
+            cnpjs = [_digits_cnpj(r.get("cnpj14") or r.get("cnpj")) for r in sample_rows]
+            cnpjs = [c for c in cnpjs if len(c) == 14]
             resolutions = resolver.resolve_batch(cnpjs, max_workers=cfg.max_workers)
             contact_meta = write_resolution_artifacts(
                 resolutions,

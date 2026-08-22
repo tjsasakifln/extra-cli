@@ -165,6 +165,7 @@ class ContactResolver:
         job_meta = (self.config.job_meta or {}).get(cnpj14) or {}
         economic_group_id = job_meta.get("economic_group_id") or job_meta.get("grupo_economico_id")
         razao_hint = job_meta.get("razao_social") or job_meta.get("company_name")
+        fantasia_hint = job_meta.get("nome_fantasia") or job_meta.get("trade_name")
 
         if ctx is None and self.config.context_builder:
             ctx = self.config.context_builder(cnpj14)
@@ -187,6 +188,7 @@ class ContactResolver:
                 cres = self.config.discovery_cascade.run(
                     cnpj14=cnpj14,
                     razao_social=razao_hint,
+                    nome_fantasia=fantasia_hint,
                     registry_record=ctx.registry_record,
                     existing_ctx=ctx,
                     economic_group_id=str(economic_group_id) if economic_group_id else None,
