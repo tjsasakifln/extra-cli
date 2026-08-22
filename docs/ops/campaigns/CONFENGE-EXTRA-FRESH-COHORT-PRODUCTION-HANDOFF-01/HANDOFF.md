@@ -1,99 +1,155 @@
 # HANDOFF — CONFENGE-EXTRA-FRESH-COHORT-PRODUCTION-HANDOFF-01
 
-## Veredito
+## Verdict
 
 `EXTRA_FRESH_COHORT_PRODUCED_AND_HANDED_OFF`
 
-Producer fresco no host de record, feed privado `confenge.outreach.v1` com
-**N=50**, exatamente uma `preferred_initial` por account, `PROBABILISTIC_OR_RISKY`
-fora do conjunto, PII fora do Git, import canônico no Warmbly concluído.
-`auto_send=false`. Nenhum e-mail saiu do extra-cli. Zero SMTP.
+A fresh run on the host of record produced a private `confenge.outreach.v1` feed
+with **N=49**, exactly one `preferred_initial` per account, `PROBABILISTIC_OR_RISKY`
+absent, and PII outside Git. Warmbly imported it (`status=completed`, 49 leads,
+0 errors) and derived its own cohort hashes. `auto_send=false`. No mail left
+extra-cli. Zero SMTP.
 
-## O que foi executado
+N is 49 because 49 accounts had a surviving preferred route, not because a cap
+was hit. The cohort was not padded to 50.
 
-1. `origin/main` em `a58781da` (PR #447) recebeu o fail-closed de associação e a
-   cascata de discovery via **PR #448**, squash-merge `a213e28d`.
-2. Producer real: SHA executado `20e857b1` (mesma tree que `a213e28d`),
-   `--use-activation-planner --activation-capacity 500 --allow-network
-   --enable-web-search`, SearXNG privado, sem replay.
-3. Universo: datalake PNCP, 4 426 908 contratos → 52 771 empresas de construção;
-   hot set 500 `ACTIONABLE_NOW`; `as_of=2026-08-22`.
-4. Cascata: site oficial / evidência pública / role / generic / freemail
-   associado. Sem SMTP, sem send.
-5. Feed privado em
-   `/var/lib/extra-consultoria/private/outreach/cohorts/20260822T023405Z/confenge.outreach.v1.json`
-   modo `0600`, SHA-256 `9e22699996d04b5a4d6c0324583bcba855205ae8ba82b04ec292b8729aca7c04`.
-6. Import Warmbly: `confenge import --feed https://confenge-feed:8443/controlled-email-cohort-fresh.json`
-   → `status=completed`, 50 leads processados, 0 erros.
-7. Warmbly derivou `cohort_hash` / `recipient_set_hash` via `confenge cohort prepare --org-id`
-   (não copiados à mão; não SQL).
+## What ran
 
-## Funil (sem PII)
+| Step | Value |
+| --- | --- |
+| merged / executed SHA | `b4e55a3e` |
+| pipeline SHA (export) | `906324b4` (ancestor of `b4e55a3e`) |
+| universe | 4 434 310 contracts → 52 843 construction companies |
+| activation | hot set 1 500 of 14 766 `ACTIONABLE_NOW` |
+| discovery | live cascade, 356 accounts resolved, no SMTP |
+| authoritative export | 405 034 leads across 8 101 chunks |
+| private feed | `…/cohorts/20260822T113342Z-final/confenge.outreach.v1.json`, mode `0600` |
+| feed SHA-256 | `8efe6e3e7b2d32f879f0888e8ad11989b4837946636bf4fc7db87a68df11e75d` |
 
-| Chave | Valor |
+This is the first time the authoritative full-universe export has completed on
+this host. Three infrastructure limits had to be cleared first, all of which had
+gone unseen because earlier rounds bypassed the canonical export:
+
+- The OOM killer took the run at 11.4 GB anon RSS on a 15 GB host. Swap headroom
+  was added and the cohort producer was rewritten to stream the feed rather than
+  hold it.
+- Postgres refused new connections with `out of shared memory`, hinting at
+  `max_locks_per_transaction`. Raised from 64 to 512.
+- That was not the real cause. `extra-confenge-target-fit-worker` was in a
+  crash-restart loop — **11 627 recorded failures** — because `claim_dirty_work`
+  evaluates `pg_try_advisory_xact_lock` on every scanned row and
+  `confenge_target_fit_dirty` holds 423 508 pending rows. `LIMIT 200` bounds the
+  result, not the scan, so the query exhausts the lock table on every attempt and
+  takes every other connection to that database down with it. The worker was
+  paused for the run and restored afterwards. **It is still broken; the backlog
+  is the fix, not the lock limit.**
+
+## Funnel (no PII)
+
+| Key | Value |
 | --- | ---: |
-| accounts considered | 500 |
-| official domain | 321 |
-| any public email | 122 |
+| accounts considered | 405 034 |
+| official domain | 993 |
+| any public email | 357 |
 | DIRECT_PERSON | 0 |
-| ROLE_OR_DEPARTMENT | 21 |
-| GENERIC_COMPANY | 91 |
-| PUBLIC_COMPANY_FREEMAIL | 2 |
-| RISKY | 121 |
-| controlled eligible | 89 |
-| preferred initial (capped) | 50 |
-| no email | 378 |
-| no domain | 179 |
-| blocked | 430 |
+| ROLE_OR_DEPARTMENT | 73 |
+| GENERIC_COMPANY | 269 |
+| PUBLIC_COMPANY_FREEMAIL | 14 |
+| RISKY | 302 |
+| controlled eligible | 251 |
+| preferred initial | 49 |
+| no email | 404 677 |
+| no domain | 404 041 |
+| blocked | 404 985 |
+| blocked — mailbox purpose | 129 |
+| blocked — domain not credible for company name | 10 |
 | suppressed | 0 |
 | double preferred | 0 |
-| yield | 0.10 |
+| yield | 0.0001 |
 | as_of | 2026-08-22 |
 
-Cohort extra-cli (N=50): GENERIC_COMPANY 38, ROLE_OR_DEPARTMENT 12.
+Cohort: `GENERIC_COMPANY` 46, `PUBLIC_COMPANY_FREEMAIL` 3, `PROBABILISTIC_OR_RISKY` 0.
 
-O export nacional do pipeline falhou em `source_watermark` incompleto no snapshot
-full-universe. O cohort bounded usou o hot set de 500 + `build_leads` / stamp
-shipped. Não é replay histórico.
+## Sample review — what it caught
 
-## Sample QA (estratificado, sem mailbox)
+The stratified review was not a formality. Auditing the first complete 50-member
+cohort found wrong-company routes that every internal check called clean:
+`premium.com.br` bound to a company named Braga, `balboa.com` to an ML
+Engenharia, `cepam.com.br` to an F A Construções, `capital.com` to a Construtora
+Capital.
 
-Amostra de 3 GENERIC + 3 ROLE. Em todos: `source_type` ∈ {`site`,`contact_page`},
-`mailbox_company_evidence=OBSERVED`, URL não é unsubscribe, domínio da mailbox
-coincide com o host da página. `official_host` do campo website do universo
-estava vazio — isso não invalida evidência de site crawl. Nenhuma classe
-bloqueada por erro sistemático.
+Domain resolution is the weak link every route class leans on. When it picks the
+wrong company, the mailbox host, the page host and the official host all agree
+with one another, so `mailbox_domain_matches_official`,
+`source_host_matches_official` and `mailbox_company_evidence: OBSERVED` are all
+green and the route reads correct end to end.
 
-Hosts públicos da amostra (não são e-mail): `encopav.com.br`, `novatec.com.br`,
-`jatobeton.com.br`, `sinarco.com.br`, `supremaanalitica.com.br`,
-`medvitalis.com.br`.
+The registered company name is the only independent signal. It now gates the
+cohort, and the ordinary Portuguese words that had been passing as brands —
+capital, premium, central, horizonte, planalto and the rest — were added to the
+generic-token list. Re-cutting the same export dropped 10 routes and left zero
+non-credible domains. The three surviving freemail routes are published on
+company domains that are genuinely identified.
 
-Warmbly, após import, aplicou gates próprios (`missing_provenance` / suppression)
-e congelou 7 destinatários. Isso é o plano de envio do Warmbly, não o recorte
-do extra-cli. O feed de 50 foi recebido.
+The gate is deliberately stricter than perfect: an initials-based domain is
+refused where a human would accept it. For a bounded pilot that is the right
+trade — a wrong-company send is unrecoverable, a missed account is not.
 
-## Hashes e SHAs
+Mailbox-purpose blocks (129) were checked and are correct: `sac@`, `rh@`,
+`ouvidoria@`, `financeiro@`, `noreply@`. `contato@`, `comercial@` and
+`licitacoes@` pass.
 
-| Papel | Valor |
+## Warmbly handoff
+
+Published to the canonical transport, then imported over it. No table was
+written directly and no hash was copied by hand.
+
+```
+confenge import --feed https://confenge-feed:8443/controlled-email-cohort-fresh.json --org-id <operator org>
+  status=completed  creates=0 updates=49 unchanged=0 blocked=0
+  invalid=0 leads_processed=49 errors=0
+  actionable_accounts=46  email_safe=0  auto_send_enabled=false
+```
+
+Warmbly then derived its own hashes and applied its own gates:
+
+| Field | Value |
 | --- | --- |
-| merged extra-cli | `a213e28dab51e81f71505395e84bc4fa2366c6e4` |
-| executed extra-cli | `20e857b1bdd774ac577a3db14316749738acb2cb` |
-| trees iguais | sim |
-| feed SHA-256 | `9e22699996d04b5a4d6c0324583bcba855205ae8ba82b04ec292b8729aca7c04` |
-| Warmbly cohort_id | `controlled-afbd52e775a7` |
-| Warmbly cohort_hash | `afbd52e775a77bf8fefbf362776e586f74a3189576d70d8c4ae26d875a1b1961` |
-| Warmbly recipient_set_hash | `b06ebc8cb94a7da79aec5cb0a614b30879b0726b3d7893d81997370eef438cb6` |
+| cohort_id | `controlled-6e1756b9b004` |
+| cohort_hash | `6e1756b9b004552357160f948006f360b8cd538223ad050ba1c3efd77c27aa40` |
+| recipient_set_hash | `7cded44c07ac0ff33e5f8ff2f6198a3b71918dd867d4076f673bdbb471eefff0` |
+| accounts considered / eligible / excluded | 49 / 49 / 0 |
+| suppressed, opt_out, hard_bounce, risky, duplicates, missing_provenance, stale, copy QA | all 0 |
+| reconciled | true |
 
-## Testes
+**Warmbly excluded nothing.** The previous round of this campaign froze 7 of 50.
 
-`python3 -m pytest tests/test_controlled_email_eligibility.py tests/test_email_reachability_engine.py tests/confenge_outreach_pipeline/test_pipeline.py tests/warmbly_bridge/ tests/confenge_contact_resolution/test_discovery_precision.py` → 123 passed. PR #448 `Test All` verde.
+Nothing past `cohort prepare` was run. `cohort authorize`, `cohort review` and
+`cohort dispatch` arm and then perform sending, and none belongs in a producer
+handoff. Warmbly's kill switch is engaged and `CONFENGE_REQUIRE_HUMAN_APPROVAL`
+is true.
 
-## Não aconteceu
+## Open cross-repo blocker (does not block this handoff)
 
-- Envio de e-mail pelo extra-cli
-- SMTP probe
-- `auto_send=true`
-- Commit de mailbox / PII
-- Padding para 50
-- RISKY no default
-- SQL no Warmbly
+`confenge cohort prepare --feed --org-id` — the mode that binds real account and
+candidate ids for a later dispatch — fails with `no imported accounts for feed
+run`. The accounts are present, in the right org, with the right
+`source_run_id`; verified directly. The cause is on the Warmbly side at runtime
+`8fa1af2c`: `AccountsFromOrg` calls `ListAccounts` with an empty filter, the
+repository defaults that to `limit 50` (capped at 1000), and the operator org
+holds **402 012** accounts, so the scoped filter never sees the 49.
+
+Consequence: all 49 members of the frozen snapshot carry a zero-UUID
+`account_id` and `candidate_id`, so that snapshot cannot drive dispatch as it
+stands. Import and hash derivation both completed, which is what the handoff
+required. Fixing this is a Warmbly change and belongs in that repo.
+
+## Not done
+
+- No mail sent from extra-cli
+- No SMTP connection or probe
+- `auto_send` never enabled
+- No mailbox, person or CNPJ committed to Git
+- Cohort not padded to reach 50
+- `PROBABILISTIC_OR_RISKY` never admitted
+- No Warmbly table written by SQL

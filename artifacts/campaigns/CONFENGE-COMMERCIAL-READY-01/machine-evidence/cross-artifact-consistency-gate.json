@@ -78,13 +78,13 @@
   ],
   "terminal_reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
   "terminal_declaration": "BLOCKED_ONLY_OFFICIAL_REGISTRY_AND_HUMAN_REVIEW",
-  "pr_head_sha": "906324b4a61a85f14dc7c1f7e5027915d22dcaf8",
-  "current_pr_head_sha": "906324b4a61a85f14dc7c1f7e5027915d22dcaf8",
-  "live_pr_head_sha": "906324b4a61a85f14dc7c1f7e5027915d22dcaf8",
+  "pr_head_sha": "b4e55a3e13081e35209feec2dab32cec07a63561",
+  "current_pr_head_sha": "b4e55a3e13081e35209feec2dab32cec07a63561",
+  "live_pr_head_sha": "b4e55a3e13081e35209feec2dab32cec07a63561",
   "workflow_merge_sha": null,
-  "executed_code_sha": "906324b4a61a85f14dc7c1f7e5027915d22dcaf8",
-  "evidence_commit_sha": "906324b4a61a85f14dc7c1f7e5027915d22dcaf8",
+  "executed_code_sha": "b4e55a3e13081e35209feec2dab32cec07a63561",
+  "evidence_commit_sha": "b4e55a3e13081e35209feec2dab32cec07a63561",
   "real_data_ci_status": "NOT_EXECUTED",
   "match_run_to_head": true,
-  "verified_at": "2026-08-22T08:54:09Z"
+  "verified_at": "2026-08-22T14:30:12Z"
 }
