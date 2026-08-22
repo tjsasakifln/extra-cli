@@ -63,6 +63,13 @@ CLEAR_SUPPRESSION_TOKENS = frozenset({"NONE", "CLEAR", "OK", "ACTIVE", "NOT_SUPP
 EVIDENCE_OBSERVED = "OBSERVED"
 EVIDENCE_UNKNOWN = "UNKNOWN"
 
+# `official_documents` is listed here so a mailbox on the account's own proven
+# domain is accepted when it is found in a company-authored document. There is
+# deliberately NO carve-out letting a document route skip the host/domain match:
+# extraction cannot say which company a mailbox printed in a document belongs to.
+# The document's CNPJ tag is the CNPJ that was queried, and the company name is
+# supplied by the producer, so neither can bind the mailbox. Without a proven
+# official domain, a document route has no association evidence at all.
 COMPANY_ASSOCIATION_SOURCES = frozenset(
     {
         "company_website",
@@ -100,18 +107,6 @@ IMPLAUSIBLE_MAILBOX_TLDS = frozenset(
     }
 )
 HTML_ENTITY_LOCAL_MARKERS = ("u003e", "u003c", "u0026", "&gt;", "&lt;", "&amp;")
-
-# A company-authored document lives on a PNCP or transparency host that is never
-# the company host, so the site host-match rule cannot be applied to it. What can
-# be applied is the company's own identity: the mailbox domain must be credible
-# for the account's registered name.
-#
-# The document's own CNPJ tag is NOT usable as the binding. Extraction stamps it
-# with the CNPJ that was queried, not with the CNPJ the document attributes the
-# mailbox to, so comparing it to the account is tautological — a public notice
-# that merely lists the company would bind the buying agency's mailbox to it.
-CNPJ_LINKED_DOCUMENT_SOURCES = frozenset({"official_documents", "official_document"})
-CNPJ_LINKED_DOCUMENT_EVIDENCE = frozenset({"company_authored_document", "official_cnpj_linked_document"})
 
 EMAIL_CHANNEL_TYPES = frozenset(
     {
@@ -330,39 +325,6 @@ def mailbox_local_implausible(mailbox: str | None) -> bool:
     return False
 
 
-def cnpj_linked_document_association(route: ReachabilityRoute) -> bool:
-    """True for a company-authored document whose mailbox domain fits this company.
-
-    The document host is never the company host, so host-match cannot apply. The
-    binding used instead is the account's own registered name against the mailbox
-    domain. Without a company name to check, there is no binding and the route is
-    refused: a document that merely mentions the company proves nothing about
-    whose mailbox is printed in it.
-    """
-    source = str(route.source_type or "").lower().strip()
-    if source not in CNPJ_LINKED_DOCUMENT_SOURCES:
-        return False
-    extra = route.extra if isinstance(route.extra, dict) else {}
-    if str(extra.get("evidence_strength") or "").lower().strip() not in CNPJ_LINKED_DOCUMENT_EVIDENCE:
-        return False
-    if extra.get("pattern_guessed_email") or extra.get("pattern_guessed"):
-        return False
-    mailbox_domain = email_domain(route.channel_value)
-    if not mailbox_domain or is_freemail(route.channel_value):
-        return False
-    from scripts.confenge_contact_resolution.discovery.official_domain import (
-        is_blocked_host,
-        is_credible_company_domain,
-    )
-
-    if is_blocked_host(mailbox_domain):
-        return False
-    company_label = str(extra.get("razao_social") or extra.get("company_label") or "").strip()
-    if not company_label:
-        return False
-    return bool(is_credible_company_domain(mailbox_domain, company_label))
-
-
 def association_provenance_trustworthy(route: ReachabilityRoute) -> bool:
     """True only when public provenance can bind the mailbox to this account."""
     if untrustworthy_source_url(route.source_url):
@@ -376,8 +338,6 @@ def association_provenance_trustworthy(route: ReachabilityRoute) -> bool:
     freemail = is_freemail(route.channel_value)
     if not freemail and not mailbox_host_plausible(mailbox_dom):
         return False
-    if not freemail and cnpj_linked_document_association(route):
-        return True
     on_official_page = bool(official and url_host and _hosts_equivalent(url_host, official))
     mailbox_on_official = bool(official and mailbox_dom and not freemail and _hosts_equivalent(mailbox_dom, official))
     if official:
@@ -554,7 +514,6 @@ def observed_contact_is_controlled_eligible_company_route(
     *,
     account_id: str = "",
     official_domain: str | None = None,
-    company_label: str = "",
 ) -> bool:
     """Same gate as evaluate_controlled_email_eligible. Nominal/third-party are not success."""
     if contact.get("pattern_guessed_email") or contact.get("email_derivation") == "INFERRED":
@@ -566,8 +525,6 @@ def observed_contact_is_controlled_eligible_company_route(
         return False
     payload = dict(contact)
     payload["email"] = email
-    if company_label and not payload.get("razao_social"):
-        payload["razao_social"] = company_label
     domain = email_domain(email)
     official = (official_domain or "").lower().removeprefix("www.")
     source = str(payload.get("source") or payload.get("source_type") or "").lower()
@@ -969,9 +926,6 @@ def route_from_feed_contact(
     observed_id = str(contact.get("person_id") or "").strip()
     if observed_id:
         extra.setdefault("observed_person_id", observed_id)
-    company_label = str(contact.get("razao_social") or contact.get("company_label") or "").strip()
-    if company_label:
-        extra.setdefault("razao_social", company_label)
     evidence_strength = str(contact.get("evidence_strength") or "").strip().lower()
     if evidence_strength:
         extra.setdefault("evidence_strength", evidence_strength)

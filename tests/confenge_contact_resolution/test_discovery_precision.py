@@ -381,8 +381,12 @@ def test_resolution_cache_signature_includes_contract_and_discovery_budget():
 
 
 def test_cascade_stops_early_on_functional_control_eligible_doc(monkeypatch):
-    """Observed licitacoes@ on a CNPJ-linked document is a company-route success."""
-    from scripts.confenge_contact_resolution.discovery.budget import InvestigationOutcome
+    """A document mailbox is a company route only once a domain is proven.
+
+    With no network the cascade cannot prove an official domain, and extraction
+    cannot say whose mailbox is printed in a document, so this must NOT stop
+    early. Stopping here would end person discovery on an unbound mailbox.
+    """
     from scripts.confenge_contact_resolution.discovery.cascade import DiscoveryCascade
 
     calls = {"search": 0, "probe": 0, "crawl": 0}
@@ -393,6 +397,7 @@ def test_cascade_stops_early_on_functional_control_eligible_doc(monkeypatch):
                 "email": "licitacoes@alphaengenharia.com.br",
                 "cnpj14": cnpj14,
                 "evidence_strength": "company_authored_document",
+                "official_domain": "alphaengenharia.com.br",
                 "url": "https://datalake.example/doc/1",
                 "doc_type": "proposta",
             }
@@ -412,13 +417,12 @@ def test_cascade_stops_early_on_functional_control_eligible_doc(monkeypatch):
         razao_social="ALPHA ENGENHARIA E CONSTRUCOES LTDA",
         stop_when_strong_contact=True,
     )
-    assert result.stats.outcome == InvestigationOutcome.CONTACT_FOUND.value
-    assert result.stats.stop_reason == "controlled_eligible_public_doc"
+    assert result.stats.stop_reason != "controlled_eligible_public_doc"
     assert result.stats.search_queries == 0
     assert calls["search"] == 0
     assert calls["probe"] == 0
     assert not any(a["reason_code"] == "named_human_contact_found" for a in result.source_attempts)
-    assert any(a["reason_code"] == "controlled_eligible_company_route_found" for a in result.source_attempts)
+    assert not any(a["reason_code"] == "controlled_eligible_company_route_found" for a in result.source_attempts)
     assert all(
         {
             "cnpj14",
@@ -686,5 +690,4 @@ def test_cascade_does_not_stop_early_on_a_foreign_mailbox_in_our_document(monkey
             "cnpj14": "11222333000181",
         },
         account_id="11222333000181",
-        company_label="CONSTRUTORA ALVO LTDA",
     )

@@ -1014,78 +1014,82 @@ def test_five_class_mapping_feed_written_for_warmbly_ingest() -> None:
         assert json.loads(sibling.read_text(encoding="utf-8"))["leads"][0]["contacts"][0]["email"]
 
 
-def _cnpj_linked_doc_route(
+def _doc_route(
     mailbox: str = "licitacoes@alphaengenharia.com.br",
     *,
-    razao_social: str = "ALPHA ENGENHARIA E CONSTRUCOES LTDA",
+    official_domain: str = "alphaengenharia.com.br",
     evidence_strength: str = "company_authored_document",
 ) -> ReachabilityRoute:
-    """Company-authored document hosted on a datalake/portal host, not the company host."""
+    """Company-authored document hosted on a portal host, not the company host."""
     extra: dict = {"evidence_strength": evidence_strength}
-    if razao_social:
-        extra["razao_social"] = razao_social
+    if official_domain:
+        extra["official_domain"] = official_domain
     return _route(
         mailbox,
         channel=ChannelType.ROLE_MAILBOX,
         ownership=OwnershipStatus.UNKNOWN,
         source_type="official_documents",
-        source_url="https://datalake.example/doc/1",
+        source_url="https://pncp.gov.br/app/editais/1",
         extra=extra,
     )
 
 
-def test_company_document_binds_by_name_credibility_not_by_host():
-    """A PNCP/portal host is never the company host, so the name carries the binding."""
-    verdict = evaluate_controlled_email_eligible(_cnpj_linked_doc_route())
+def test_a_document_mailbox_on_the_proven_official_domain_is_associated():
+    """The account's own proven domain is what binds it, not the document host."""
+    verdict = evaluate_controlled_email_eligible(_doc_route())
     assert verdict.mailbox_company_evidence == "OBSERVED"
     assert verdict.controlled_email_eligible is True
     assert verdict.route_class == EmailRouteClass.ROLE_OR_DEPARTMENT
 
 
-def test_a_notice_that_merely_lists_the_company_cannot_bind_the_agency_mailbox():
-    """The document CNPJ tag is the queried CNPJ, so it can never be the binding.
+def test_a_document_route_without_a_proven_domain_has_no_association_at_all():
+    """Extraction cannot say whose mailbox is printed in a document.
 
-    A PNCP edital naming the company as a bidder carries the buying agency's
-    mailbox. Nothing in that document says the mailbox is the company's.
+    The document's CNPJ tag is the CNPJ that was queried and the company name is
+    producer-supplied, so neither can bind the mailbox. There is deliberately no
+    carve-out here: with no proven official domain there is simply no evidence.
     """
-    verdict = evaluate_controlled_email_eligible(
-        _cnpj_linked_doc_route(
-            "licitacao@saojoaquim.sc.gov.br",
-            razao_social="CONSTRUTORA ALVO LTDA",
-            evidence_strength="official_cnpj_linked_document",
-        )
-    )
+    verdict = evaluate_controlled_email_eligible(_doc_route(official_domain=""))
     assert verdict.mailbox_company_evidence == "UNKNOWN"
     assert verdict.controlled_email_eligible is False
     assert "mailbox_company_evidence_unknown" in verdict.reason_codes
 
 
-def test_a_consortium_partner_mailbox_in_our_document_is_not_ours():
+def test_a_notice_that_merely_lists_the_company_cannot_bind_the_agency_mailbox():
     verdict = evaluate_controlled_email_eligible(
-        _cnpj_linked_doc_route(
-            "comercial@terraplenagemsulmg.com.br",
-            razao_social="CONSTRUTORA ALVO LTDA",
-        )
+        _doc_route("licitacao@saojoaquim.sc.gov.br", evidence_strength="official_cnpj_linked_document")
     )
     assert verdict.mailbox_company_evidence == "UNKNOWN"
     assert verdict.controlled_email_eligible is False
 
 
-def test_a_document_route_without_a_company_name_has_no_binding_at_all():
-    verdict = evaluate_controlled_email_eligible(_cnpj_linked_doc_route(razao_social=""))
+def test_a_consortium_partner_mailbox_in_our_document_is_not_ours():
+    verdict = evaluate_controlled_email_eligible(_doc_route("comercial@terraplenagemsulmg.com.br"))
     assert verdict.mailbox_company_evidence == "UNKNOWN"
     assert verdict.controlled_email_eligible is False
 
 
-def test_weak_document_evidence_does_not_bypass_host_match():
-    verdict = evaluate_controlled_email_eligible(_cnpj_linked_doc_route(evidence_strength="snippet_mention"))
+def test_a_producer_supplied_company_name_cannot_create_an_association():
+    """razao_social arrives on the contact payload, so it can never be a binding."""
+    from scripts.decision_unit_intelligence.controlled_email import route_from_feed_contact
+
+    route = route_from_feed_contact(
+        {
+            "email": "comercial@grupohorizonte.com.br",
+            "source_type": "official_documents",
+            "source_url": "https://pncp.gov.br/app/editais/1",
+            "evidence_strength": "official_cnpj_linked_document",
+            "razao_social": "GRUPO HORIZONTE PARTICIPACOES LTDA",
+        },
+        account_id=ACCOUNT_ID,
+    )
+    verdict = evaluate_controlled_email_eligible(route)
     assert verdict.mailbox_company_evidence == "UNKNOWN"
     assert verdict.controlled_email_eligible is False
 
 
-def test_freemail_on_a_cnpj_linked_document_still_needs_a_company_page():
-    verdict = evaluate_controlled_email_eligible(_cnpj_linked_doc_route("alphaengenharia@gmail.com"))
-    assert verdict.mailbox_company_evidence == "UNKNOWN"
+def test_freemail_on_a_document_still_needs_a_company_page():
+    verdict = evaluate_controlled_email_eligible(_doc_route("alphaengenharia@gmail.com"))
     assert verdict.controlled_email_eligible is False
 
 
