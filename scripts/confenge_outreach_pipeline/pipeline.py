@@ -205,6 +205,10 @@ def _published_target_fit_snapshot(
 
     Offline fixtures retain embedded decisions. With a production DSN, store
     misses stay omitted here so the exporter emits explicit missing tombstones.
+    A published row without a source watermark is not an authoritative decision
+    and is omitted the same way: the authoritative export fails closed on the
+    first incomplete lead, so admitting one would abort the whole run instead of
+    tombstoning one account.
     """
     if not dsn:
         return list(rows), "universe_embedded_snapshot", None
@@ -228,6 +232,8 @@ def _published_target_fit_snapshot(
             continue
         decision = published.get(canonical[:8]) or published.get(raw[:8])
         if not decision:
+            continue
+        if not str(decision.get("source_watermark") or decision.get("target_fit_source_watermark") or "").strip():
             continue
         snapshot.append(
             {

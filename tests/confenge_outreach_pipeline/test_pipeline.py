@@ -116,6 +116,7 @@ def test_production_snapshot_uses_published_store_and_canonicalizes_prevencao(
                 "cnpj_raiz": "01489370",
                 "company_key": "cnpj_root:01489370",
                 "target_fit_class": "TARGET_OUT_OF_SCOPE",
+                "source_watermark": "2026-08-12T07:00:00Z",
             }
         },
     )
@@ -139,8 +140,47 @@ def test_production_snapshot_uses_published_store_and_canonicalizes_prevencao(
             "cnpj_raiz": "14893700",
             "company_key": "cnpj_root:14893700",
             "target_fit_class": "TARGET_OUT_OF_SCOPE",
+            "source_watermark": "2026-08-12T07:00:00Z",
         }
     ]
+
+
+def test_published_decision_without_a_watermark_is_tombstoned_not_exported(monkeypatch) -> None:
+    """One incomplete decision must cost one account, never the whole export."""
+    import scripts.confenge_outreach_pipeline.pipeline as pipeline
+    import scripts.confenge_target_fit.db as target_fit_db
+
+    class FakeConnection:
+        def close(self) -> None:
+            return None
+
+    monkeypatch.setattr(target_fit_db, "connect", lambda dsn, readonly: FakeConnection())
+    monkeypatch.setattr(
+        pipeline,
+        "load_published_index",
+        lambda connection, cnpj14s: {
+            "14893700": {
+                "cnpj_raiz": "14893700",
+                "company_key": "cnpj_root:14893700",
+                "target_fit_class": "TARGET_CONFIRMED",
+                "source_watermark": "",
+            },
+            "11222333": {
+                "cnpj_raiz": "11222333",
+                "company_key": "cnpj_root:11222333",
+                "target_fit_class": "TARGET_CONFIRMED",
+                "source_watermark": "2026-08-12T07:00:00Z",
+            },
+        },
+    )
+    monkeypatch.setattr(pipeline, "get_control", lambda connection, key: {"watermark": "2026-08-12T08:00:00Z"})
+
+    snapshot, _, _ = _published_target_fit_snapshot(
+        [{"cnpj14": "14893700000105"}, {"cnpj14": "11222333000181"}],
+        dsn="postgresql://unused",
+    )
+
+    assert [row["cnpj_raiz"] for row in snapshot] == ["11222333"]
 
 
 def test_production_activation_does_not_use_limit_downstream_as_capacity(tmp_path: Path) -> None:
