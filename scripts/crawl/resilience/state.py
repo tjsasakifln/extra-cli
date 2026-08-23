@@ -261,9 +261,9 @@ class RawStore:
         if not digest:
             if "payload" not in envelope:
                 raise ValueError("raw envelope has neither CAS digest nor legacy payload")
-            payload = envelope["payload"]
+            legacy_payload = envelope["payload"]
             canonical = json.dumps(
-                payload,
+                legacy_payload,
                 ensure_ascii=False,
                 sort_keys=True,
                 separators=(",", ":"),
@@ -276,7 +276,7 @@ class RawStore:
             provenance = envelope.get("provenance")
             return {
                 "envelope": envelope,
-                "payload": payload,
+                "payload": legacy_payload,
                 "provenance": provenance if isinstance(provenance, dict) else {},
             }
         body_path = self.root / "cas" / digest[:2] / digest[2:4] / f"{digest}.body"
