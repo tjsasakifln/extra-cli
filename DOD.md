@@ -17,7 +17,9 @@ A single `[x]` must not hide these differences.
 
 - [ ] Aceitar #458 somente após CI verde no `main`, janela real controlada no
   `ec-prod` e soak #248 de sete dias com p95 de idade de contratos `<=24h`.
-  Estado atual do branch: `IMPLEMENTED + FIXTURE_PROVEN`; produção e soak abertos.
+  Estado atual do branch: `IMPLEMENTED + LIVE_WINDOW_REJECTED`; a primeira janela
+  real fechou 118/118 páginas, mas revelou telemetria de reconciliação
+  contraditória e foi recusada. Produção e soak permanecem abertos.
   Runbook: `docs/ops/incidents/PNCP-458.md`.
 
 

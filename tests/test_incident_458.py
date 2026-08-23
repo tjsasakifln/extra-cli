@@ -265,6 +265,100 @@ def test_interruption_restart_replays_committed_page_idempotently(monkeypatch, t
     assert report["windows"][0]["resume_policy"] == "replay_from_page_1_unstable_upstream_order"
 
 
+def test_live_window_artifact_reconciles_inserted_and_skipped(monkeypatch, tmp_path) -> None:
+    from scripts.crawl import run_contracts_90d_pilot as pilot
+
+    class FakeCursor:
+        def __init__(self) -> None:
+            self.query = ""
+
+        def execute(self, query, _params=None) -> None:
+            self.query = " ".join(str(query).split())
+
+        def fetchone(self):
+            if "information_schema.columns" in self.query:
+                return {"exists": 1}
+            if "MIN(data_assinatura)" in self.query:
+                return {"min_a": date(2026, 8, 22), "max_a": date(2026, 8, 22)}
+            if "n_sample" in self.query:
+                return {"n_sample": 20}
+            return {
+                "n": 2,
+                "min_pub": date(2026, 8, 22),
+                "max_pub": date(2026, 8, 22),
+            }
+
+        def fetchall(self):
+            return [{"mes": date(2026, 8, 1), "n": 2}]
+
+        def close(self) -> None:
+            return None
+
+    class FakeConnection:
+        autocommit = False
+
+        def cursor(self, **_kwargs):
+            return FakeCursor()
+
+        def close(self) -> None:
+            return None
+
+    monkeypatch.setattr(pilot, "utc_today", lambda: date(2026, 8, 23))
+    monkeypatch.setattr(pilot, "CONTRACTS_REQUEST_DELAY", 0)
+    monkeypatch.setattr(pilot, "CONTRACTS_JANELA_DELAY", 0)
+    monkeypatch.setattr(pilot, "UPSERT_BATCH", 2)
+    monkeypatch.setattr(pilot, "transform", lambda rows: rows)
+    monkeypatch.setattr(pilot.psycopg2, "connect", lambda _dsn: FakeConnection())
+    monkeypatch.setattr(pilot, "_upsert_batch", lambda _conn, _rows: (1, 1))
+    monkeypatch.setattr(
+        pilot,
+        "_fetch_page",
+        lambda *_a, **_k: FetchResult(
+            status=FetchStatus.SUCCESS_DATA,
+            items=[
+                {"numeroControlePNCP": "inserted"},
+                {"numeroControlePNCP": "skipped"},
+            ],
+            total_records=2,
+            total_pages=1,
+            current_page=1,
+        ),
+    )
+
+    report = pilot.run_pilot(
+        "postgresql://sanitized",
+        days=1,
+        checkpoint_dir=str(tmp_path / "checkpoint"),
+        output_json=str(tmp_path / "artifact.json"),
+        run_id="incident-458-live-reconcile",
+        query_kind="update",
+    )
+    drift = report["windows"][0]["population_drift"]
+    assert report["status"] == "success"
+    assert report["totals"]["inserted"] == 1
+    assert report["totals"]["skipped"] == 1
+    assert drift["fetched"] == 2
+    assert drift["persisted"] == 2
+    assert drift["counts_reconciled"] is True
+    assert drift["ok"] is True
+    assert drift["decision"] == "accept"
+
+    monkeypatch.setattr(pilot, "_upsert_batch", lambda _conn, _rows: (1, 0))
+    inconsistent = pilot.run_pilot(
+        "postgresql://sanitized",
+        days=1,
+        checkpoint_dir=str(tmp_path / "inconsistent-checkpoint"),
+        output_json=str(tmp_path / "inconsistent-artifact.json"),
+        run_id="incident-458-live-inconsistent",
+        query_kind="update",
+    )
+    bad_window = inconsistent["windows"][0]
+    assert inconsistent["status"] == "partial"
+    assert bad_window["population_drift"]["ok"] is False
+    assert any("local_persistence_reconciliation" in error for error in bad_window["errors"])
+    assert bad_window["failure_classifications"][0]["class"] == "local_corruption"
+
+
 def test_nonempty_page_with_zero_transforms_is_local_failure(monkeypatch, tmp_path) -> None:
     from scripts.crawl import run_contracts_90d_pilot as pilot
 

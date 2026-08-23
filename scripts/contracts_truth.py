@@ -343,12 +343,6 @@ def classify_population_drift(
             status = DRIFT_NEEDS_RETRY
             decision = "retry"
 
-    if elapsed_seconds > policy.max_seconds:
-        reasons.append(REASON_TIME_BUDGET)
-        if status == DRIFT_OK:
-            status = DRIFT_NEEDS_RETRY
-            decision = "retry"
-
     if first is not None and first < 0:
         reasons.append(REASON_IMPOSSIBLE)
         status = DRIFT_SOURCE
@@ -412,6 +406,11 @@ def classify_population_drift(
                 status = DRIFT_NEEDS_RETRY
                 decision = "retry"
                 allows_tail = pass_count < policy.max_passes
+                # The time budget bounds an additional convergence pass. A
+                # long but stable first pass is still a valid complete pass.
+                if elapsed_seconds > policy.max_seconds:
+                    reasons.append(REASON_TIME_BUDGET)
+                    allows_tail = False
             if pass_count >= policy.max_passes and status == DRIFT_NEEDS_RETRY:
                 reasons.append(REASON_CONVERGENCE_CAP)
                 allows_tail = False
@@ -473,6 +472,7 @@ class PaginationReport:
     expected_growth: int = 0
     new_ids_seen: int = 0
     allows_tail_pass: bool = False
+    counts_reconciled: bool = True
 
     @property
     def ok(self) -> bool:
@@ -498,6 +498,7 @@ class PaginationReport:
             "expected_growth": self.expected_growth,
             "new_ids_seen": self.new_ids_seen,
             "allows_tail_pass": self.allows_tail_pass,
+            "counts_reconciled": self.counts_reconciled,
             "ok": self.ok,
         }
 
@@ -907,7 +908,7 @@ class PaginationReconcile:
             and decision.status == DRIFT_SOURCE
         ):
             reasons.append(f"totalPaginas {self.first_total_paginas} -> {self.last_total_paginas}")
-        if self.fetched != self.persisted + self.rejected:
+        if reconcile_counts and self.fetched != self.persisted + self.rejected:
             reasons.append(f"fetched={self.fetched} != persisted+rejected={self.persisted + self.rejected}")
         if not reasons:
             reasons.append("ok")
@@ -930,6 +931,7 @@ class PaginationReconcile:
             expected_growth=decision.expected_growth,
             new_ids_seen=decision.new_ids_seen,
             allows_tail_pass=decision.allows_tail_pass,
+            counts_reconciled=reconcile_counts,
         )
 
 

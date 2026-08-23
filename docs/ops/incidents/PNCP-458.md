@@ -1,7 +1,7 @@
 # Incidente #458 — PNCP partial cascade
 
-Status: `IMPLEMENTED + FIXTURE_PROVEN`; produção e soak permanecem abertos até
-deploy do SHA exato, janela controlada real e sete dias completos. Não é
+Status: `IMPLEMENTED + LIVE_WINDOW_REJECTED`; produção e soak permanecem abertos
+até nova janela controlada coerente e sete dias completos. Não é
 `PROVEN`, `VPS_OPERATIONAL` nem aceite de #241/#248.
 
 ## Diagnóstico e classificação
@@ -64,6 +64,12 @@ Relação com issues:
   não consegue derrubar nem apagar a evidência do alerta;
 - coverage health exige `as_of`, denominador, numerador e zero explícitos;
 - migration 100 aceita `PERSIST_FAILURE` e a projeção QW-01 grava prova de escopo.
+- reconciliação live conta inserts e skips como linhas duravelmente tratadas;
+  `fetched != persisted + rejected` força `PARTIAL` como corrupção local;
+- o budget de convergência limita somente a passagem adicional por drift; não
+  invalida uma primeira paginação longa cujo total permaneceu estável;
+- o artifact publica `counts_reconciled` e não pode divergir do predicado que
+  autorizou `completed`.
 
 O freshness SLO não foi relaxado. O soak foi endurecido para p95 `<=24h`.
 
@@ -82,6 +88,28 @@ O freshness SLO não foi relaxado. O soak foi endurecido para p95 `<=24h`.
   exato continua obrigatório antes de merge;
 - CodeRabbit CLI não está instalado neste ambiente, portanto esse gate deve ser
   executado pela integração do PR. Ausência da ferramenta local não é aprovação.
+
+## Primeira janela real — recusada
+
+O PR #467 executou 28 checks verdes no SHA `93a0e1356e0375e91c740fe44332ede79e04d4cd`.
+Esse SHA foi implantado de forma controlada em `ec-prod`, com backup em
+`/var/lib/extra-consultoria/backups/incident-458-20260823T041214Z` e migration
+100 aplicada. A execução `73a4d87e93574f11a040f662ab66b9fe` produziu:
+
+- run `contracts-90d-20260823T041311Z-0d90e1daec`;
+- janela fechada `20260816_20260822`, `query_kind=update`;
+- 118/118 páginas, 118 tentativas, zero retries, zero páginas reprocessadas e
+  zero page errors;
+- 58.889 transformados, 59 inserts, 58.830 skips, duração 1.437,6 s;
+- total do banco 4.618.839 -> 4.618.898.
+
+A janela foi **recusada** antes de health/soak porque o artifact publicou
+`status=success` ao mesmo tempo que `population_drift` declarou `persisted=0`,
+`ok=false` e `decision=retry`. Causa residual: o runner não alimentava inserts +
+skips no acumulador e aplicava o limite de 90 s de uma passagem de convergência
+à duração total do crawl estável. Evidência sanitizada permanece em
+`/var/lib/extra-consultoria/incidents/458/20260823T041303Z`. Timers e soak não
+foram promovidos com base nesse run.
 
 ## Janela controlada pós-deploy
 

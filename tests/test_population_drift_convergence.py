@@ -22,6 +22,7 @@ from scripts.contracts_truth import (
     REASON_REORDER_OMIT,
     REASON_SHRINK,
     REASON_STABLE,
+    REASON_TIME_BUDGET,
     REASON_TIMEOUT_AFTER,
     REASON_TIMEOUT_BEFORE,
     PaginationReconcile,
@@ -276,6 +277,34 @@ def test_stable_source_is_ok() -> None:
     assert report.ok is True
     assert report.status == DRIFT_OK
     assert REASON_STABLE in report.reason_codes
+
+
+def test_long_stable_pass_is_not_a_convergence_timeout() -> None:
+    decision = classify_population_drift(
+        first_total_registros=58_889,
+        last_total_registros=58_889,
+        first_total_paginas=118,
+        last_total_paginas=118,
+        unique_ids=58_889,
+        elapsed_seconds=1_437.6,
+    )
+    assert decision.status == DRIFT_OK
+    assert decision.ok is True
+    assert REASON_TIME_BUDGET not in decision.reason_codes
+
+
+def test_non_reconciled_report_does_not_publish_a_false_count_failure() -> None:
+    reconcile = PaginationReconcile()
+    reconcile.observe_page(
+        total_registros=2,
+        total_paginas=1,
+        items=_items("a", "b"),
+        page=1,
+    )
+    report = reconcile.finish(reconcile_counts=False, elapsed_seconds=1_437.6)
+    assert report.ok is True
+    assert report.counts_reconciled is False
+    assert not any("persisted+rejected" in reason for reason in report.reasons)
 
 
 def test_crash_after_inserts_before_state_commit_is_not_success() -> None:

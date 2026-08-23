@@ -1163,6 +1163,7 @@ def run_pilot(
                                 window_skipped += sk
                                 report["totals"]["inserted"] += ins
                                 report["totals"]["skipped"] += sk
+                                pagination.record_persisted(ins + sk)
                             except Exception as e:
                                 err = f"upsert failed window={window_key} page~{page}: {e}"
                                 logger.exception(err)
@@ -1213,6 +1214,7 @@ def run_pilot(
                             window_skipped += sk
                             report["totals"]["inserted"] += ins
                             report["totals"]["skipped"] += sk
+                            pagination.record_persisted(ins + sk)
                         except Exception as e:
                             err = f"upsert failed window={window_key} flush: {e}"
                             logger.exception(err)
@@ -1301,6 +1303,7 @@ def run_pilot(
                             window_skipped += sk
                             report["totals"]["inserted"] += ins
                             report["totals"]["skipped"] += sk
+                            pagination.record_persisted(ins + sk)
                         except Exception as exc:  # noqa: BLE001
                             err = f"upsert failed window={window_key} tail page~{tail_page}: {exc}"
                             logger.exception(err)
@@ -1335,17 +1338,23 @@ def run_pilot(
                 totals_sequence=pagination.totals_sequence,
                 page_id_sequences=pagination.page_id_sequences,
                 pass_count=tail_pass_count,
-                persisted=None,
-                fetched=None,
+                persisted=pagination.persisted if not dry_run else None,
+                fetched=pagination.fetched if not dry_run else None,
                 rejected=pagination.rejected,
                 timeout=timed_out,
                 checkpoint_committed=True,
                 persistence_failed=persist_failed,
                 state_committed=True,
+                elapsed_seconds=time.time() - w_started,
                 unique_ids=len(pagination.seen_ids),
             )
             if not fully_ok and any("Hit CONTRACTS_MAX_PAGES" in e for e in window_errors):
                 report["totals"]["page_errors"] += 1
+            for error in window_errors:
+                if "local_persistence_reconciliation" in error:
+                    failure_classifications.append(
+                        {"error": error, **classify_incident_error_text(error)}
+                    )
             elapsed = round(time.time() - w_started, 1)
             drift_report = pagination.finish(
                 pass_count=tail_pass_count,
@@ -1354,8 +1363,23 @@ def run_pilot(
                 persistence_failed=persist_failed,
                 state_committed=fully_ok,
                 elapsed_seconds=elapsed,
-                reconcile_counts=False,
+                reconcile_counts=not dry_run,
             ).to_dict()
+            drift_artifact_ok = bool(drift_report.get("ok")) and (
+                dry_run or bool(drift_report.get("counts_reconciled"))
+            )
+            if fully_ok and not drift_artifact_ok:
+                err = (
+                    "local_persistence_reconciliation: completion predicate and "
+                    f"artifact disagree status={drift_report.get('status')} "
+                    f"decision={drift_report.get('decision')}"
+                )
+                window_errors.append(err)
+                report["errors"].append(err)
+                failure_classifications.append(
+                    {"error": err, **classify_incident_error_text(err)}
+                )
+                fully_ok = False
             usable_partial = bool(window_transformed > 0 and not persist_failed)
             w_status = "completed" if fully_ok else ("partial" if usable_partial else "failed")
             if fully_ok:
