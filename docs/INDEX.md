@@ -59,6 +59,7 @@ Adicionar mentalmente o banner: *estado atual = README + DEVELOPMENT + DOD*.
 | `docs/ops/cloud-deployment-plan.md` | Planejamento cloud (parcialmente superado pelo Netcup live) |
 | `docs/ops/session-*`, `docs/ops/campaign-*` | Evidências de sessão |
 | [`docs/ops/campaigns/SOAK-AND-CRAWLER-SCHEDULER-HEALTH-01-PARALLEL.md`](ops/campaigns/SOAK-AND-CRAWLER-SCHEDULER-HEALTH-01-PARALLEL.md) | Auditoria soak + systemd 2026-07-29 (`SCHEDULERS_FAILED`) |
+| [`docs/ops/incidents/PNCP-458.md`](ops/incidents/PNCP-458.md) | Incidente PNCP #458: causa raiz, runbook, rollback e soak #248 |
 | [`docs/ops/campaigns/EXTRA-OPERATIONAL-RELIABILITY-AND-COVERAGE-CLOSURE-01/PREMORTEM.md`](ops/campaigns/EXTRA-OPERATIONAL-RELIABILITY-AND-COVERAGE-CLOSURE-01/PREMORTEM.md) | Campanha fechamento operacional: checkpoint, locks, soak fail-closed |
 | `docs/audits/`, `docs/baseline/`, `docs/coverage-truth/` | Audits e baselines datados |
 | `docs/qa/gates/` | Gates de story (histórico de QA) |

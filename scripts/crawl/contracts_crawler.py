@@ -27,6 +27,7 @@ import json
 import logging
 import os
 import sys
+import tempfile
 import time
 from dataclasses import dataclass, field
 from datetime import date, timedelta
@@ -67,6 +68,10 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 CONTRACTS_BASE = os.getenv("CONTRACTS_BASE", "https://pncp.gov.br/api/consulta/v1")
+CONTRACTS_QUERY_PATHS = {
+    "publication": "contratos",
+    "update": "contratos/atualizacao",
+}
 CONTRACTS_PAGE_SIZE = int(os.getenv("CONTRACTS_PAGE_SIZE", "500"))
 CONTRACTS_MAX_PAGES = int(os.getenv("CONTRACTS_MAX_PAGES", "10000"))
 CONTRACTS_READ_TIMEOUT = int(os.getenv("CONTRACTS_READ_TIMEOUT", "30"))
@@ -239,11 +244,20 @@ def load_checkpoint(mode: str) -> CrawlCheckpoint:
 
 
 def save_checkpoint(cp: CrawlCheckpoint) -> None:
-    """Persist checkpoint to disk."""
+    """Persist checkpoint atomically so interruption cannot truncate JSON."""
     cp.updated_at = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     path = _checkpoint_path(cp.mode)
-    with open(path, "w") as f:
-        json.dump(cp.to_dict(), f, indent=2, default=str)
+    parent = os.path.dirname(path)
+    fd, tmp_path = tempfile.mkstemp(prefix=".contracts-checkpoint-", suffix=".json", dir=parent)
+    try:
+        with os.fdopen(fd, "w") as f:
+            json.dump(cp.to_dict(), f, indent=2, default=str)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp_path, path)
+    finally:
+        if os.path.exists(tmp_path):
+            os.unlink(tmp_path)
 
 
 # ---------------------------------------------------------------------------
@@ -445,6 +459,8 @@ def _fetch_page(
     page: int,
     *,
     run_id: str | None = None,
+    query_kind: str = "publication",
+    max_retries: int | None = None,
 ) -> FetchResult:
     """Fetch one page of contracts synchronously via urllib.
 
@@ -456,6 +472,9 @@ def _fetch_page(
     import urllib.error
     import urllib.request
 
+    if query_kind not in CONTRACTS_QUERY_PATHS:
+        raise ValueError(f"unsupported contracts query_kind={query_kind!r}")
+    retry_limit = CONTRACTS_MAX_RETRIES if max_retries is None else max(0, int(max_retries))
     params = {
         "dataInicial": data_ini,
         "dataFinal": data_fim,
@@ -463,9 +482,9 @@ def _fetch_page(
         "tamanhoPagina": str(CONTRACTS_PAGE_SIZE),
     }
     query = "&".join(f"{k}={sanitize_url_param(v)}" for k, v in params.items())
-    url = f"{CONTRACTS_BASE}/contratos?{query}"
+    url = f"{CONTRACTS_BASE}/{CONTRACTS_QUERY_PATHS[query_kind]}?{query}"
 
-    for attempt in range(CONTRACTS_MAX_RETRIES + 1):
+    for attempt in range(retry_limit + 1):
         try:
             validate_url_scheme(url)
             req = urllib.request.Request(url)  # noqa: S310 — validated above
@@ -550,14 +569,14 @@ def _fetch_page(
                 logger.debug("[CONTRACTS] Could not read error body from HTTP response")
 
             if e.code == 429:
-                if attempt < CONTRACTS_MAX_RETRIES:
+                if attempt < retry_limit:
                     wait = 10 * (attempt + 1)
-                    logger.debug("PNCP 429, waiting %ds before retry %d/%d", wait, attempt + 1, CONTRACTS_MAX_RETRIES)
+                    logger.debug("PNCP 429, waiting %ds before retry %d/%d", wait, attempt + 1, retry_limit)
                     time.sleep(wait)
                     continue
                 return FetchResult(
                     status=FetchStatus.HTTP_RATE_LIMIT,
-                    error_message=f"429 Rate limit exceeded after {CONTRACTS_MAX_RETRIES} retries",
+                    error_message=f"429 Rate limit exceeded after {retry_limit} retries",
                     error_code=429,
                     url=url,
                     current_page=page,
@@ -573,7 +592,7 @@ def _fetch_page(
                 )
 
             if e.code >= 500:
-                if attempt < CONTRACTS_MAX_RETRIES:
+                if attempt < retry_limit:
                     time.sleep(2**attempt)
                     continue
                 return FetchResult(
@@ -594,18 +613,18 @@ def _fetch_page(
             )
 
         except (urllib.error.URLError, TimeoutError, OSError) as e:
-            if attempt < CONTRACTS_MAX_RETRIES:
+            if attempt < retry_limit:
                 time.sleep(1 + attempt)
                 continue
             return FetchResult(
                 status=FetchStatus.CONNECTION_FAILED,
-                error_message=f"Network error after {CONTRACTS_MAX_RETRIES} retries: {e}",
+                error_message=f"Network error after {retry_limit} retries: {e}",
                 url=url,
                 current_page=page,
             )
 
         except Exception as e:
-            if attempt < CONTRACTS_MAX_RETRIES:
+            if attempt < retry_limit:
                 time.sleep(1 + attempt)
                 continue
             return FetchResult(

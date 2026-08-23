@@ -3,14 +3,16 @@
 # Extra Consultoria — Story FEAT-4.1
 #
 # Usage: referenced by OnFailure=extra-onfailure@%n.service in other units
-# Optional: WEBHOOK_URL in /opt/extra-consultoria/.env
-# When WEBHOOK_URL is empty, unit exits 0 after journal note (no cascade fail).
+# Optional: WEBHOOK_URL in /opt/extra-consultoria/.env. The durable host-local
+# ledger is authoritative; remote delivery is best-effort and cannot cascade.
 
 [Unit]
 Description=Extra Consultoria — OnFailure alert for %i
 
 [Service]
 Type=oneshot
+User=extra-consultoria
+Group=extra-consultoria
 EnvironmentFile=-/opt/extra-consultoria/.env
-# Fail-closed for empty webhook: do not mark OnFailure itself as failed.
-ExecStart=/bin/bash -c 'if [ -z "${WEBHOOK_URL:-}" ]; then echo "WEBHOOK_URL unset — logged only for %i on %H"; logger -t extra-onfailure "service=%i host=%H status=failed webhook=unset"; exit 0; fi; curl -sf --max-time 10 -X POST -H "Content-Type: application/json" -d "{\"service\":\"%i\",\"host\":\"%H\",\"project\":\"extra-cli\",\"status\":\"failed\"}" "${WEBHOOK_URL}"'
+Environment=ALERT_ONFAILURE_LEDGER=/var/lib/extra-consultoria/alerts/onfailure.jsonl
+ExecStart=/opt/extra-consultoria/.venv/bin/python /opt/extra-consultoria/scripts/ops/onfailure_alert.py --service %i --host %H

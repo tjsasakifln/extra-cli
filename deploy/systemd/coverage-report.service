@@ -10,7 +10,7 @@ Type=oneshot
 WorkingDirectory=/opt/extra-consultoria
 Environment=PYTHONPATH=/opt/extra-consultoria
 EnvironmentFile=/opt/extra-consultoria/.env
-ExecStartPre=/usr/bin/python3 /opt/extra-consultoria/scripts/crawl/monitor.py --report-coverage
+ExecStartPre=/opt/extra-consultoria/.venv/bin/python /opt/extra-consultoria/scripts/crawl/monitor.py --report-coverage
 ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.local_datalake coverage --snapshot --export
 User=extra-consultoria
 StandardOutput=journal

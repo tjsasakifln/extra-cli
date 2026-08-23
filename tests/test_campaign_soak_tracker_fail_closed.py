@@ -116,6 +116,14 @@ def test_stale_contracts_freshness_fails_health() -> None:
     assert any("contracts_stale" in r for r in reasons)
 
 
+def test_issue_248_contracts_slo_and_p95_are_24h() -> None:
+    assert soak.CONTRACTS_SLA_HOURS == 24
+    ok, reasons = soak._compute_health_ok(_base_ok_obs(contracts_freshness_hours=24.01))
+    assert ok is False
+    assert any("contracts_stale" in reason for reason in reasons)
+    assert soak._percentile_nearest_rank([1, 2, 3, 4, 5, 6, 25], 95) == 25
+
+
 def test_observe_cli_defaults_not_automatic(
     tmp_path: Path, monkeypatch
 ) -> None:

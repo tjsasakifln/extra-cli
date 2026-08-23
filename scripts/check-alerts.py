@@ -90,6 +90,7 @@ class AlertRegistry:
 
     def __init__(self) -> None:
         self.alerts: list[dict[str, Any]] = []
+        self.delivery_results: list[dict[str, Any]] = []
         self.max_severity = 0
 
     def add(
@@ -135,6 +136,7 @@ class AlertRegistry:
             "total_alerts": len(self.alerts),
             "max_severity": self.max_severity,
             "alerts": self.alerts,
+            "delivery_results": self.delivery_results,
         }
 
 
@@ -564,8 +566,8 @@ def run_checks(dry_run: bool = False) -> AlertRegistry:
 
 
 def _send_alert_notifications(registry: AlertRegistry) -> None:
-    """Send notifications for triggered alerts."""
-    from scripts.notify import dispatch as notify_dispatch  # noqa: PLC0415
+    """Dispatch through an independent persistent fallback ledger."""
+    from scripts.ops.alert_pipeline import AlertEvent, dispatch_alert  # noqa: PLC0415
 
     critical = [a for a in registry.alerts if a["severity"] >= 2]
     warnings = [a for a in registry.alerts if a["severity"] == 1]
@@ -582,7 +584,18 @@ def _send_alert_notifications(registry: AlertRegistry) -> None:
             body_lines.append(f"  {a['message']}")
             body_lines.append("")
 
-        notify_dispatch(subject, "\n".join(body_lines).strip())
+        registry.delivery_results.append(
+            dispatch_alert(
+                AlertEvent(
+                    title=subject,
+                    body="\n".join(body_lines).strip(),
+                    severity="critical",
+                    source="check-alerts",
+                    next_action="Inspect health/freshness artifacts and failing unit journals",
+                ),
+                dry_run=False,
+            )
+        )
 
     elif warnings:
         # Only send warnings if there are no critical issues
@@ -593,7 +606,18 @@ def _send_alert_notifications(registry: AlertRegistry) -> None:
             body_lines.append(f"  {a['message']}")
             body_lines.append("")
 
-        notify_dispatch(subject, "\n".join(body_lines).strip())
+        registry.delivery_results.append(
+            dispatch_alert(
+                AlertEvent(
+                    title=subject,
+                    body="\n".join(body_lines).strip(),
+                    severity="warning",
+                    source="check-alerts",
+                    next_action="Inspect health/freshness artifacts and failing unit journals",
+                ),
+                dry_run=False,
+            )
+        )
 
 
 def parse_args() -> argparse.Namespace:
@@ -603,6 +627,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--json", action="store_true", help="JSON output")
     p.add_argument("--dry-run", action="store_true", help="Check only, do not send notifications")
     p.add_argument("--test", action="store_true", help="Send a test alert to verify notification pipeline")
+    p.add_argument(
+        "--service-mode",
+        action="store_true",
+        help="Return success after checks are durably recorded; alert severity remains in JSON",
+    )
     p.add_argument(
         "--threshold",
         type=int,
@@ -660,6 +689,11 @@ def main() -> int:
         critical_count = sum(1 for a in registry.alerts if a["severity"] >= 2)
         warning_count = sum(1 for a in registry.alerts if a["severity"] == 1)
         print(f"Total: {len(registry.alerts)} alerts (critical={critical_count}, warnings={warning_count})")
+
+    if args.service_mode:
+        # A critical observed condition is data, not a crash of this checker.
+        # Unhandled checker/ledger failures still exit non-zero before here.
+        return 0
 
     exit_code = 0
     if registry.has_critical():

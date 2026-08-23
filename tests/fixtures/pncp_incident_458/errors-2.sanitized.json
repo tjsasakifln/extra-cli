@@ -1,0 +1,26 @@
+{
+  "incident": 458,
+  "captured_at": "2026-08-22T08:01:00-03:00",
+  "window": "20260815_20260822",
+  "query_kind": "publication",
+  "included_open_current_day": true,
+  "page_size": 500,
+  "pages_observed": 93,
+  "first_total_registros": 46124,
+  "last_total_registros": 46135,
+  "errors": [
+    {
+      "message": "source_population_drift:source_population_drift:growth_above_budget:totalRegistros 46124 -> 46135",
+      "class": "upstream_contract",
+      "transience": "transient",
+      "owner": "pncp"
+    },
+    {
+      "message": "source_population_drift:totalRegistros 46124 -> 46135",
+      "class": "upstream_contract",
+      "transience": "transient",
+      "owner": "pncp"
+    }
+  ],
+  "sanitization": "No contract payload, credentials, headers, DSN, host IP, or webhook URL retained."
+}

@@ -12,6 +12,18 @@ from typing import Any, Protocol
 _logger = logging.getLogger(__name__)
 
 
+def resilience_evidence_state(fetch_status: str, *, persisted: int) -> str:
+    """Map fetch terminal state without inventing success_zero."""
+    return {
+        "success": "success_with_data" if persisted > 0 else "partial",
+        "empty_confirmed": "success_zero",
+        "partial": "partial",
+        "rate_limited": "partial",
+        "auth_blocked": "auth_failed",
+        "error": "connection_failed",
+    }.get(fetch_status, "partial")
+
+
 @dataclass
 class PersistResult:
     inserted: int = 0
@@ -457,14 +469,9 @@ class PostgresPersistence:
                 return
             cur.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'coverage_evidence'")
             cols = {row[0] for row in cur.fetchall()}
-            state = {
-                "success": "success_with_data" if fetched > 0 else "success_zero",
-                "empty_confirmed": "success_zero",
-                "partial": "partial",
-                "rate_limited": "partial",
-                "auth_blocked": "auth_failed",
-                "error": "connection_failed",
-            }.get(fetch_status, "partial")
+            # A successful HTTP request that yielded no canonical records is
+            # not proof of zero. Only explicit empty_confirmed may attest zero.
+            state = resilience_evidence_state(fetch_status, persisted=persisted)
             q_start = _date.fromisoformat(date_from) if date_from else None
             q_end = _date.fromisoformat(date_to) if date_to else None
             cur.execute(
@@ -472,7 +479,23 @@ class PostgresPersistence:
                    WHERE entity_id IS NULL AND source = %s AND data_type = %s AND run_id = %s""",
                 (source, "bids", run_id),
             )
-            if {"request_scope", "satisfactory", "provenance", "pages_fetched", "pages_expected"} <= cols:
+            base_evidence_cols = {
+                "request_scope",
+                "satisfactory",
+                "provenance",
+                "pages_fetched",
+                "pages_expected",
+            }
+            full_operational_cols = {
+                *base_evidence_cols,
+                "scope_key",
+                "checked_at",
+                "pages_processed",
+                "records_fetched",
+                "freshness_status",
+                "evidence_metadata",
+            }
+            if base_evidence_cols <= cols:
                 # Only mark satisfactory when CHECK constraint would allow it.
                 safe_satisfactory = bool(
                     satisfactory
@@ -481,12 +504,56 @@ class PostgresPersistence:
                     and provenance
                     and (pages_expected is None or pages_fetched >= pages_expected)
                 )
-                if {"scope_key", "pages_processed", "evidence_metadata"} <= cols:
-                    completion_rule = (
-                        "http_204_complete"
-                        if fetch_status == "empty_confirmed" and pages_fetched <= 1
-                        else "empty_page_after_valid_scope"
+                completion_rule = (
+                    "http_204_complete"
+                    if fetch_status == "empty_confirmed" and pages_fetched <= 1
+                    else (
+                        "empty_page_after_valid_scope"
+                        if fetch_status == "empty_confirmed"
+                        else "pages_expected_reached"
                     )
+                )
+                if full_operational_cols <= cols:
+                    cur.execute(
+                        """INSERT INTO coverage_evidence
+                           (entity_id, source, data_type, queried_start, queried_end,
+                            run_id, started_at, completed_at,
+                            count_obtained, count_transformed, count_persisted,
+                            state, metadata, request_scope, pages_fetched, pages_expected,
+                            provenance, satisfactory, scope_key, checked_at,
+                            pages_processed, records_fetched, freshness_status,
+                            evidence_metadata)
+                           VALUES (NULL, %s, 'bids', %s, %s, %s, NOW(), NOW(), %s, %s, %s, %s, %s,
+                                   %s, %s, %s, %s::jsonb, %s, %s, NOW(), %s, %s, %s, %s::jsonb)""",
+                        (
+                            source,
+                            q_start,
+                            q_end,
+                            run_id,
+                            fetched,
+                            fetched,
+                            persisted,
+                            state,
+                            _json.dumps({"pipeline": "resilient_cycle"}, ensure_ascii=False),
+                            request_scope,
+                            pages_fetched,
+                            pages_expected,
+                            _json.dumps(provenance or {}, ensure_ascii=False),
+                            safe_satisfactory,
+                            request_scope,
+                            pages_fetched,
+                            fetched,
+                            "fresh" if safe_satisfactory else "unknown",
+                            _json.dumps(
+                                {
+                                    "completion_rule": completion_rule,
+                                    "pipeline": "resilient_cycle",
+                                },
+                                ensure_ascii=False,
+                            ),
+                        ),
+                    )
+                elif {"scope_key", "pages_processed", "evidence_metadata"} <= cols:
                     cur.execute(
                         """INSERT INTO coverage_evidence
                            (entity_id, source, data_type, queried_start, queried_end,
@@ -519,13 +586,13 @@ class PostgresPersistence:
                 else:
                     cur.execute(
                         """INSERT INTO coverage_evidence
-                       (entity_id, source, data_type, queried_start, queried_end,
-                        run_id, started_at, completed_at,
-                        count_obtained, count_transformed, count_persisted,
-                        state, metadata, request_scope, pages_fetched, pages_expected,
-                        provenance, satisfactory)
-                       VALUES (NULL, %s, 'bids', %s, %s, %s, NOW(), NOW(), %s, %s, %s, %s, %s,
-                               %s, %s, %s, %s::jsonb, %s)""",
+                           (entity_id, source, data_type, queried_start, queried_end,
+                            run_id, started_at, completed_at,
+                            count_obtained, count_transformed, count_persisted,
+                            state, metadata, request_scope, pages_fetched, pages_expected,
+                            provenance, satisfactory)
+                           VALUES (NULL, %s, 'bids', %s, %s, %s, NOW(), NOW(), %s, %s, %s, %s, %s,
+                                   %s, %s, %s, %s::jsonb, %s)""",
                         (
                             source,
                             q_start,
