@@ -52,6 +52,21 @@ def run_bundle(
             [python, "-m", "scripts.local_datalake", "coverage", "--snapshot", "--export"],
             runner,
         ),
+        _run(
+            "dual_capability_coverage",
+            [
+                python,
+                "-m",
+                "scripts.coverage.dual_capability_coverage",
+                "--capability",
+                "both",
+                "--output-dir",
+                "output/coverage/dual-latest",
+                "--require-gate",
+                "--json-stdout",
+            ],
+            runner,
+        ),
     ]
     exit_code = max(int(item["exit_code"]) for item in checks)
     return {

@@ -471,13 +471,16 @@ def test_coverage_bundle_writes_snapshot_after_diagnostic_failure() -> None:
     assert [item["name"] for item in report["checks"]] == [
         "coverage_diagnostic",
         "coverage_snapshot_export",
+        "dual_capability_coverage",
     ]
-    assert [item["exit_code"] for item in report["checks"]] == [1, 0]
+    assert [item["exit_code"] for item in report["checks"]] == [1, 0, 0]
     assert report["status"] == "UNHEALTHY"
     assert report["exit_code"] == 1
     assert "--report-coverage" in commands[0]
     assert "--snapshot" in commands[1]
     assert "--export" in commands[1]
+    assert "scripts.coverage.dual_capability_coverage" in commands[2]
+    assert "--require-gate" in commands[2]
 
 
 def test_failed_live_alert_channel_falls_back_to_durable_ledger(monkeypatch, tmp_path) -> None:
