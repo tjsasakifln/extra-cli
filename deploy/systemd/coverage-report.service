@@ -4,14 +4,17 @@
 [Unit]
 Description=Coverage Gap Report + Snapshot — Extra Consultoria
 After=pncp-crawl-full.service
+OnFailure=extra-onfailure@%n.service
 
 [Service]
 Type=oneshot
 WorkingDirectory=/opt/extra-consultoria
 Environment=PYTHONPATH=/opt/extra-consultoria
 EnvironmentFile=/opt/extra-consultoria/.env
-ExecStartPre=/opt/extra-consultoria/.venv/bin/python /opt/extra-consultoria/scripts/crawl/monitor.py --report-coverage
-ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.local_datalake coverage --snapshot --export
+# Both independent paths always execute. The bundle preserves a non-zero
+# diagnostic result, but never lets it suppress denominator/as_of evidence.
+ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.ops.coverage_bundle
 User=extra-consultoria
+Group=extra-consultoria
 StandardOutput=journal
 StandardError=journal

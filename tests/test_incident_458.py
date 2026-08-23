@@ -457,6 +457,29 @@ def test_health_bundle_runs_freshness_after_infrastructure_failure(monkeypatch, 
     assert report["exit_code"] == 2
 
 
+def test_coverage_bundle_writes_snapshot_after_diagnostic_failure() -> None:
+    from scripts.ops import coverage_bundle
+
+    commands: list[list[str]] = []
+
+    def fake_runner(command):
+        commands.append(list(command))
+        return 1 if len(commands) == 1 else 0
+
+    report = coverage_bundle.run_bundle(runner=fake_runner)
+
+    assert [item["name"] for item in report["checks"]] == [
+        "coverage_diagnostic",
+        "coverage_snapshot_export",
+    ]
+    assert [item["exit_code"] for item in report["checks"]] == [1, 0]
+    assert report["status"] == "UNHEALTHY"
+    assert report["exit_code"] == 1
+    assert "--report-coverage" in commands[0]
+    assert "--snapshot" in commands[1]
+    assert "--export" in commands[1]
+
+
 def test_failed_live_alert_channel_falls_back_to_durable_ledger(monkeypatch, tmp_path) -> None:
     from scripts import notify
     from scripts.ops.alert_pipeline import AlertEvent, dispatch_alert
@@ -550,7 +573,9 @@ def test_systemd_units_use_bundle_venv_and_service_mode() -> None:
     onfailure = Path("deploy/systemd/extra-onfailure@.service").read_text(encoding="utf-8")
     assert "scripts.ops.health_bundle" in health
     assert health.count("ExecStart=") == 1
-    assert ".venv/bin/python" in coverage.split("ExecStartPre=", 1)[1]
+    assert "scripts.ops.coverage_bundle" in coverage
+    assert "ExecStartPre=" not in coverage
+    assert "OnFailure=extra-onfailure@%n.service" in coverage
     assert "--service-mode" in alerts
     assert "/var/lib/extra-consultoria/alerts/alert_ledger.jsonl" in alerts
     assert "/var/lib/extra-consultoria/alerts/onfailure.jsonl" in onfailure
