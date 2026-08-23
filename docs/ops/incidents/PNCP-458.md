@@ -1,7 +1,7 @@
 # Incidente #458 — PNCP partial cascade
 
-Status: `IMPLEMENTED + LIVE_WINDOW_REJECTED`; produção e soak permanecem abertos
-até nova janela controlada coerente e sete dias completos. Não é
+Status: `IMPLEMENTED + LIVE_WINDOW_ACCEPTED + SOAK_ADMISSION_BLOCKED`; o soak
+permanece `NOT_STARTED` até todos os gates de admissão passarem. Não é
 `PROVEN`, `VPS_OPERATIONAL` nem aceite de #241/#248.
 
 ## Diagnóstico e classificação
@@ -17,6 +17,7 @@ Baseline sanitizada de 2026-08-22 no `ec-prod`:
 | `coverage-report` sem `psycopg2` | permanente local | `ExecStartPre` usava `/usr/bin/python3`, fora da venv |
 | health sem segundo check | permanente local | override do host encadeava módulo inexistente; falha do primeiro `ExecStart` ocultava freshness |
 | webhook HTTP 404 | permanente de configuração/destino | alerta completo não tinha fallback durável no caminho live |
+| `raw/cas/.body` no resume resiliente | corrupção local, permanente | checkpoints pré-CAS apontavam para JSON raw legado sem `body_sha256`; o loader construía um caminho vazio e abortava em vez de reprocessar a página |
 
 Captura reproduzível: `tests/fixtures/pncp_incident_458/errors-2.sanitized.json`.
 Os payloads de contratos, DSN, headers, IP e URL de webhook não foram retidos.
@@ -64,6 +65,10 @@ Relação com issues:
   não consegue derrubar nem apagar a evidência do alerta;
 - coverage health exige `as_of`, denominador, numerador e zero explícitos;
 - migration 100 aceita `PERSIST_FAILURE` e a projeção QW-01 grava prova de escopo.
+- resume resiliente valida `body_sha256` antes de tocar o CAS; referência raw
+  legada/inválida é preservada para diagnóstico, classificada como corrupção
+  local e somente sua página é reprocessada, com `pages_reprocessed` e
+  `local_corruption_count` explícitos;
 - reconciliação live conta inserts e skips como linhas duravelmente tratadas;
   `fetched != persisted + rejected` força `PARTIAL` como corrupção local;
 - o budget de convergência limita somente a passagem adicional por drift; não
@@ -110,6 +115,29 @@ skips no acumulador e aplicava o limite de 90 s de uma passagem de convergência
 à duração total do crawl estável. Evidência sanitizada permanece em
 `/var/lib/extra-consultoria/incidents/458/20260823T041303Z`. Timers e soak não
 foram promovidos com base nesse run.
+
+## Janela real aceita e auditoria de admissão
+
+No SHA `02b0b415bdcbdbb20ad5aa3719bae6bf3e7b7aad`, aprovado por 28/28 checks
+do PR #467 e implantado exatamente no `ec-prod`, a invocation systemd
+`2e11041ec0074206972cd4208098b9a2` executou o run
+`contracts-90d-20260823T075501Z-89f5f4bbd8`:
+
+- janela fechada 2026-08-16..2026-08-22 via `contratos/atualizacao`;
+- 118/118 páginas, 128 tentativas, 10 retries, zero erro residual e zero página
+  suprimida;
+- 58.851 transformados, zero inserts e 58.851 skips idempotentes;
+- duração 1.727,9 s, reconciliação de população verdadeira e max age 0,019 h.
+
+A janela de contratos foi aceita, mas o soak não foi iniciado: o dual gate
+continuou honestamente `FAIL` (0/1.093 em ambas as capabilities) e o worker
+`extra-crawl-pncp` terminou com exit 2. A auditoria do worker encontrou 24
+checkpoints `normalized` apontando para o layout raw legado, todos com o mesmo
+payload hash mas sem envelope CAS. O erro é local/permanente e reproduzido pelo
+teste `test_completed_pncp_page_with_missing_cas_body_is_reprocessed`; não é
+um timeout ou contrato upstream. Depois do reparo, o primeiro ciclo deve
+reportar quantos desses checkpoints foram reprocessados e só pode ficar verde
+quando DB, evidence, watermark e freshness concluírem.
 
 ## Janela controlada pós-deploy
 
@@ -169,7 +197,7 @@ Rollback é para código/unit/migration, nunca para dados ingeridos:
 ## Evidência antes/depois
 
 Antes: fixture `errors-2`, journal e unit audit descritos acima. Depois local:
-testes unitários/replay/restart/health cascade. Depois real: **PENDENTE** até o
-deploy autorizado; preencher SHA, invocation ID, páginas, retries,
-inserts/skips/errors, duração, max age e `soak_epoch_started_at` neste documento
-ou em artifact referenciado pelo PR.
+testes unitários/replay/restart/health cascade. Depois real: a janela aceita
+está registrada acima. `soak_epoch_started_at` permanece
+**PENDENTE/NOT_STARTED**; não preencher até worker, truth gate, backup/restore e
+reboot recovery passarem no SHA/policy fixados.

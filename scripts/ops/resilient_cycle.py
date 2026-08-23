@@ -156,6 +156,10 @@ def _aggregate_source_runs(runs: list[dict[str, Any]]) -> dict[str, Any]:
         "records_persisted": sum(int(run.get("records_persisted") or 0) for run in runs),
         "db_records_committed": sum(int(run.get("db_records_committed") or 0) for run in runs),
         "errors": [error for run in runs for error in (run.get("errors") or [])],
+        "warnings": [warning for run in runs for warning in (run.get("warnings") or [])],
+        "pages_reused": sum(int(run.get("pages_reused") or 0) for run in runs),
+        "pages_reprocessed": sum(int(run.get("pages_reprocessed") or 0) for run in runs),
+        "local_corruption_count": sum(int(run.get("local_corruption_count") or 0) for run in runs),
         "windows": runs,
     }
 

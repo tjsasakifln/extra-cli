@@ -317,10 +317,83 @@ def test_completed_pncp_page_with_invalid_envelope_is_refetched(tmp_path: Path) 
     envelope["request_succeeded"] = False
     envelope_path.write_text(json.dumps(envelope), encoding="utf-8")
 
-    second = adapter.fetch(request)
+    second = adapter.fetch(
+        CrawlRequest(
+            mode="incremental",
+            date_from=date(2026, 7, 17),
+            date_to=date(2026, 7, 17),
+            run_id="r-repair-missing-cas",
+        )
+    )
     assert calls == 2
     assert second.records == payload
     assert second.metadata["pages_reused"] == 0
+    assert second.metadata["pages_reprocessed"] == 1
+    assert second.metadata["local_corruption_count"] == 1
+    assert second.warnings == ["local_corruption_raw_reference:invalid_payload"]
+
+
+def test_completed_pncp_page_with_missing_cas_body_is_reprocessed(tmp_path: Path) -> None:
+    calls = 0
+    payload = [{"numeroControlePNCP": "00000000000100-1-000001/2026"}]
+
+    def fetcher(_request, _modalidade, _page):
+        nonlocal calls
+        calls += 1
+        return FetchResult(
+            status="success",
+            records=payload,
+            request_completed=True,
+            http_status=200,
+            pages_fetched=1,
+            pages_expected=1,
+            provenance={"test": True},
+            metadata={"pagination": {"totalPaginas": 1, "paginasRestantes": 0}, "url": "fixture://pncp"},
+        )
+
+    adapter = PNCPAdapter(config(tmp_path), page_fetcher=fetcher)
+    adapter.legacy.INGESTION_MODALIDADES = [1]
+    request = CrawlRequest(
+        mode="incremental", date_from=date(2026, 7, 17), date_to=date(2026, 7, 17), run_id="r-missing-cas"
+    )
+    first = adapter.fetch(request)
+    scope = first.metadata["raw"][0]["request_scope"]
+    checkpoint = adapter.checkpoints.load("pncp", scope)
+    assert checkpoint and checkpoint.raw_reference
+    checkpoint.status = "success"
+    adapter.checkpoints.save(checkpoint)
+
+    envelope_path = Path(checkpoint.raw_reference)
+    envelope = json.loads(envelope_path.read_text(encoding="utf-8"))
+    envelope["body_sha256"] = ""
+    envelope_path.write_text(json.dumps(envelope), encoding="utf-8")
+
+    second = adapter.fetch(
+        CrawlRequest(
+            mode="incremental",
+            date_from=date(2026, 7, 17),
+            date_to=date(2026, 7, 17),
+            run_id="r-repair-missing-cas",
+        )
+    )
+    assert calls == 2
+    assert second.records == payload
+    assert second.metadata["pages_reused"] == 0
+    assert second.metadata["pages_reprocessed"] == 1
+    assert second.metadata["local_corruption_count"] == 1
+    assert second.warnings == ["local_corruption_raw_reference:ValueError"]
+    repaired = adapter.checkpoints.load("pncp", scope)
+    assert repaired and repaired.raw_reference != str(envelope_path)
+    assert adapter.raw.load_reference(repaired.raw_reference)["payload"]["data"] == payload
+
+
+def test_raw_reference_rejects_invalid_digest_without_cas_root_fallback(tmp_path: Path) -> None:
+    store = RawStore(tmp_path / "raw")
+    envelope = tmp_path / "legacy-empty-digest.json"
+    envelope.write_text(json.dumps({"body_sha256": "", "provenance": {}}), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="invalid body_sha256"):
+        store.load_reference(envelope)
 
 
 def test_rate_limit_checkpoint_no_watermark(tmp_path: Path) -> None:
@@ -1122,12 +1195,31 @@ def test_pncp_pending_windows_are_oldest_first_and_bounded() -> None:
     ]
     aggregate = _aggregate_source_runs(
         [
-            {"status": "success", "satisfactory": True, "db_committed": True},
-            {"status": "error", "satisfactory": False, "db_committed": False, "errors": ["boom"]},
+            {
+                "status": "success",
+                "satisfactory": True,
+                "db_committed": True,
+                "pages_reused": 3,
+                "pages_reprocessed": 1,
+                "local_corruption_count": 1,
+                "warnings": ["local_corruption_raw_reference:ValueError"],
+            },
+            {
+                "status": "error",
+                "satisfactory": False,
+                "db_committed": False,
+                "errors": ["boom"],
+                "pages_reprocessed": 2,
+                "local_corruption_count": 2,
+            },
         ]
     )
     assert aggregate["status"] == "error"
     assert aggregate["satisfactory"] is False
+    assert aggregate["pages_reused"] == 3
+    assert aggregate["pages_reprocessed"] == 3
+    assert aggregate["local_corruption_count"] == 3
+    assert aggregate["warnings"] == ["local_corruption_raw_reference:ValueError"]
 
 
 def test_resilience_evidence_populates_success_zero_scope_contract() -> None:
