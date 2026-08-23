@@ -19,6 +19,7 @@ Exit codes:
   2 — usage error
   75 — contracts writer lock busy (not a source failure)
 """
+
 from __future__ import annotations
 
 import argparse
@@ -26,7 +27,7 @@ import json
 import logging
 import os
 import sys
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -54,6 +55,36 @@ logger = logging.getLogger("contracts_incremental")
 
 DEFAULT_CHECKPOINT_DIR = "data/contracts_checkpoints/incremental"
 DEFAULT_CAMPAIGN = "historical_contracts_incremental"
+
+
+def current_incremental_window_key(*, days: int, today: date | None = None) -> str:
+    """Return the live window key that must be revalidated this attempt."""
+    from scripts.crawl.run_contracts_90d_pilot import (
+        CONTRACTS_WINDOW_DAYS,
+        iter_planned_window_keys,
+    )
+
+    end = today or datetime.now(UTC).date()
+    keys = iter_planned_window_keys(end - timedelta(days=days), end, CONTRACTS_WINDOW_DAYS)
+    if not keys:
+        raise ValueError(f"incremental range produced no window for days={days}")
+    return keys[-1]
+
+
+def reopen_current_window(checkpoint: object, *, window_key: str) -> bool:
+    """Force the moving incremental window through PNCP on every timer slot.
+
+    Historical windows remain resumable. The one window that reaches the
+    current date is different: treating it as permanently complete turns a 4h
+    timer into a once-per-day source refresh and lets late arrivals go unseen.
+    Removing it before the attempt is fail-closed: a failed revalidation leaves
+    it absent; only a clean 93/93-style traversal adds it back.
+    """
+    completed = list(getattr(checkpoint, "completed_windows", []) or [])
+    if window_key not in completed:
+        return False
+    setattr(checkpoint, "completed_windows", [key for key in completed if key != window_key])
+    return True
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -222,6 +253,14 @@ def _run_incremental(args: argparse.Namespace) -> int:
             )
             return 1
 
+    # A completed moving window is not durable freshness evidence. Revalidate
+    # it on every 4h slot; success re-adds it, any failure remains fail-closed.
+    checkpoint = load_checkpoint("full")
+    refresh_key = current_incremental_window_key(days=int(args.days))
+    if reopen_current_window(checkpoint, window_key=refresh_key):
+        save_checkpoint(checkpoint)
+        logger.info("Reopened current incremental window for refresh: %s", refresh_key)
+
     report = run_pilot(
         dsn=args.dsn,
         days=args.days,
@@ -267,9 +306,7 @@ def _run_incremental(args: argparse.Namespace) -> int:
     status = str(report.get("status") or "")
     totals = report.get("totals") or {}
     ok = (
-        status == "success"
-        and int(totals.get("windows_failed") or 0) == 0
-        and int(totals.get("page_errors") or 0) == 0
+        status == "success" and int(totals.get("windows_failed") or 0) == 0 and int(totals.get("page_errors") or 0) == 0
     )
     logger.info(
         "incremental done status=%s ok=%s inserted=%s attempt=%s",

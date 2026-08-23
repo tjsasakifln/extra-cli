@@ -37,6 +37,36 @@ def _snapshot_hash(payload: Any) -> str:
     return hashlib.sha256(canonical).hexdigest()
 
 
+def _reusable_pncp_page(raw_doc: Any) -> list[dict[str, Any]] | None:
+    """Return validated records from a successful raw envelope.
+
+    Historical failed/non-JSON bodies were checkpointed as ``raw_persisted``.
+    They must be retried, never treated as mappings during resume.
+    """
+    if not isinstance(raw_doc, dict):
+        return None
+    envelope = raw_doc.get("envelope")
+    if not isinstance(envelope, dict) or not envelope.get("request_succeeded"):
+        return None
+    payload = raw_doc.get("payload")
+    if isinstance(payload, (bytes, bytearray)):
+        try:
+            payload = json.loads(bytes(payload).decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            return None
+    elif isinstance(payload, str):
+        try:
+            payload = json.loads(payload)
+        except json.JSONDecodeError:
+            return None
+    if not isinstance(payload, dict):
+        return None
+    records = payload.get("data")
+    if not isinstance(records, list) or any(not isinstance(row, dict) for row in records):
+        return None
+    return records
+
+
 class _AdapterBase:
     source_id = "unknown"
     supports_pagination = True
@@ -46,11 +76,7 @@ class _AdapterBase:
     def __init__(self, config: ResilienceConfig | None = None):
         self.config = config or ResilienceConfig.from_env()
         self.checkpoints = CheckpointStore(self.config.checkpoint_path)
-        archive_dsn = (
-            os.getenv("DATABASE_URL") or os.getenv("LOCAL_DATALAKE_DSN")
-            if self.config.require_db
-            else None
-        )
+        archive_dsn = os.getenv("DATABASE_URL") or os.getenv("LOCAL_DATALAKE_DSN") if self.config.require_db else None
         self.raw = RawStore(
             self.config.raw_path,
             dsn=archive_dsn,
@@ -165,22 +191,27 @@ class PNCPAdapter(_AdapterBase):
                         and Path(prior.raw_reference).is_file()
                     ):
                         raw_doc = self.raw.load_reference(prior.raw_reference)
-                        page_records = raw_doc.get("payload", {}).get("data", [])
-                        records.extend(page_records)
-                        raw_refs.append(
-                            {
-                                "path": str(prior.raw_reference),
-                                "content_hash": prior.content_hash or "",
-                                "request_scope": scope,
-                            }
-                        )
-                        pages_complete += 1
-                        pages_reused += 1
-                        page += 1
-                        if modality_expected is not None and page > modality_expected:
-                            break
-                        continue
-                    if prior and prior.completed:
+                        page_records = _reusable_pncp_page(raw_doc)
+                        if page_records is not None:
+                            records.extend(page_records)
+                            raw_refs.append(
+                                {
+                                    "path": str(prior.raw_reference),
+                                    "content_hash": prior.content_hash or "",
+                                    "request_scope": scope,
+                                }
+                            )
+                            pages_complete += 1
+                            pages_reused += 1
+                            page += 1
+                            if modality_expected is not None and page > modality_expected:
+                                break
+                            continue
+                    # A proven empty page needs no raw records. Every other
+                    # completed page must retain a valid immutable envelope;
+                    # otherwise re-fetch instead of manufacturing an empty
+                    # success from a missing/corrupt archive.
+                    if prior and prior.completed and prior.status == "empty_confirmed":
                         pages_complete += 1
                         pages_reused += 1
                         page += 1

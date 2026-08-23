@@ -118,6 +118,48 @@ def _live_adapters(config: ResilienceConfig) -> list[SourceAdapter]:
     return [PNCPAdapter(config), CigaDomAdapter(config), ScComprasAdapter(config)]
 
 
+def _pncp_request_windows(adapter: SourceAdapter, *, current: date, limit: int = 14) -> list[tuple[date, date]]:
+    """Bounded oldest-first replay windows plus the current UTC day."""
+    windows: set[tuple[date, date]] = set()
+    checkpoints = getattr(adapter, "checkpoints", None)
+    if checkpoints is not None:
+        for checkpoint in checkpoints.pending("pncp"):
+            try:
+                start = date.fromisoformat(str(checkpoint.date_from))
+                end = date.fromisoformat(str(checkpoint.date_to or checkpoint.date_from))
+            except (TypeError, ValueError):
+                continue
+            if start <= end <= current:
+                windows.add((start, end))
+    ordered = sorted(windows)[: max(0, limit - 1)]
+    current_window = (current, current)
+    if current_window not in ordered:
+        ordered.append(current_window)
+    return ordered
+
+
+def _aggregate_source_runs(runs: list[dict[str, Any]]) -> dict[str, Any]:
+    if len(runs) == 1:
+        return runs[0]
+    priority = {"error": 5, "auth_blocked": 4, "rate_limited": 3, "partial": 2, "success": 1, "empty_confirmed": 1}
+    status = max((str(run.get("status") or "error") for run in runs), key=lambda item: priority.get(item, 4))
+    return {
+        "status": status,
+        "terminal_status": "success" if all(run.get("satisfactory") for run in runs) else "partial",
+        "satisfactory": all(bool(run.get("satisfactory")) for run in runs),
+        "mechanics_satisfactory": all(bool(run.get("mechanics_satisfactory")) for run in runs),
+        "operational_satisfactory": all(bool(run.get("operational_satisfactory")) for run in runs),
+        "db_committed": all(bool(run.get("db_committed")) for run in runs),
+        "request_completed": all(bool(run.get("request_completed")) for run in runs),
+        "scope_complete": all(bool(run.get("scope_complete")) for run in runs),
+        "records_fetched": sum(int(run.get("records_fetched") or 0) for run in runs),
+        "records_persisted": sum(int(run.get("records_persisted") or 0) for run in runs),
+        "db_records_committed": sum(int(run.get("db_records_committed") or 0) for run in runs),
+        "errors": [error for run in runs for error in (run.get("errors") or [])],
+        "windows": runs,
+    }
+
+
 def run_cycle(
     *,
     live: bool = False,
@@ -176,33 +218,43 @@ def run_cycle(
         source_started = time.monotonic()
         request_start = date_from or datetime.now(UTC).date()
         request_end = date_to or request_start
-        scope = f"mode=incremental|date={request_start.isoformat()}:{request_end.isoformat()}|target={target or 'all'}"
-        request = CrawlRequest(
-            mode="incremental",
-            date_from=request_start,
-            date_to=request_end,
-            target=target,
-            source=adapter.source_id,
-            request_scope=scope,
-            run_id=run_id,
-        )
         health = adapter.health()
         steps.append({"step": f"source-health:{adapter.source_id}", "status": health.status})
-        out = pipeline.run_source(adapter, request, run_id=run_id)
-        results[adapter.source_id] = out
-        logger.emit(
-            source=adapter.source_id,
-            run_id=run_id,
-            request_scope=scope,
-            window=f"{request_start}:{request_end}",
-            status=out.get("status"),
-            attempt=1,
-            duration=round(time.monotonic() - source_started, 4),
-            records_fetched=out.get("records_fetched", 0),
-            records_persisted=out.get("records_persisted", 0),
-            error_code=out.get("status") if out.get("errors") else None,
-            error_message="; ".join(out.get("errors") or []) or None,
-        )
+        windows = [(request_start, request_end)]
+        if live and adapter.source_id == "pncp" and date_from is None and date_to is None:
+            windows = _pncp_request_windows(adapter, current=request_start)
+        source_runs: list[dict[str, Any]] = []
+        for index, (window_start, window_end) in enumerate(windows):
+            scope = (
+                f"mode=incremental|date={window_start.isoformat()}:{window_end.isoformat()}|target={target or 'all'}"
+            )
+            window_run_id = run_id if len(windows) == 1 else f"{run_id}-w{index + 1:02d}"
+            request = CrawlRequest(
+                mode="incremental",
+                date_from=window_start,
+                date_to=window_end,
+                target=target,
+                source=adapter.source_id,
+                request_scope=scope,
+                run_id=window_run_id,
+            )
+            out = pipeline.run_source(adapter, request, run_id=window_run_id)
+            out["request_scope"] = scope
+            source_runs.append(out)
+            logger.emit(
+                source=adapter.source_id,
+                run_id=window_run_id,
+                request_scope=scope,
+                window=f"{window_start}:{window_end}",
+                status=out.get("status"),
+                attempt=1,
+                duration=round(time.monotonic() - source_started, 4),
+                records_fetched=out.get("records_fetched", 0),
+                records_persisted=out.get("records_persisted", 0),
+                error_code=out.get("status") if out.get("errors") else None,
+                error_message="; ".join(out.get("errors") or []) or None,
+            )
+        results[adapter.source_id] = _aggregate_source_runs(source_runs)
 
     checkpoints = CheckpointStore(config.checkpoint_path)
     dlq = FileDLQ(config.dlq_path)

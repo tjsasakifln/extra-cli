@@ -58,8 +58,16 @@ def _snapshot_hash(universe: Path, intel: Path, contacts: Path, target_fit: Path
     return h.hexdigest()
 
 
-def _run_id(snapshot_hash: str, profile_id: str, profile_version: str) -> str:
-    raw = f"{snapshot_hash}|{profile_id}|{profile_version}|{MODULE_VERSION}"
+def _run_id(
+    snapshot_hash: str,
+    profile_id: str,
+    profile_version: str,
+    authoritative_freshness_hash: str | None = None,
+) -> str:
+    raw = (
+        f"{snapshot_hash}|{profile_id}|{profile_version}|{MODULE_VERSION}|"
+        f"{authoritative_freshness_hash or 'no-source-freshness'}"
+    )
     return "run-" + hashlib.sha256(raw.encode()).hexdigest()[:16]
 
 
@@ -81,6 +89,8 @@ class ExportConfig:
     datalake_watermark: str | None = None
     require_authoritative_target_fit_metadata: bool = True
     repo_sha: str | None = None
+    authoritative_source_freshness: dict[str, Any] | None = None
+    require_authoritative_source_freshness: bool = False
     # Delta deactivations for accounts leaving ACTIONABLE_NOW (manifest section)
     deactivations: list[dict[str, Any]] | None = None
 
@@ -98,6 +108,21 @@ def validate_inputs(cfg: ExportConfig) -> None:
         raise InputError("--max-bytes-per-chunk must be >= 1024")
     if cfg.expected_universe_count is not None and cfg.expected_universe_count < 1:
         raise InputError("--expected-universe-count must be >= 1")
+    freshness = cfg.authoritative_source_freshness or {}
+    if cfg.require_authoritative_source_freshness:
+        if freshness.get("contract_version") != "PNCP_CONTRACT_FRESHNESS/1.0":
+            raise InputError("authoritative PNCP freshness contract missing or unsupported")
+        if freshness.get("status") != "FRESH":
+            raise InputError(
+                "authoritative PNCP freshness must be FRESH before export; "
+                f"observed={freshness.get('status') or 'MISSING'}"
+            )
+        try:
+            expires_at = datetime.fromisoformat(str(freshness.get("expires_at") or "").replace("Z", "+00:00"))
+        except ValueError as exc:
+            raise InputError("authoritative PNCP freshness expires_at missing or invalid") from exc
+        if expires_at <= datetime.now(UTC):
+            raise InputError("authoritative PNCP freshness expired before export")
 
 
 def _encode_chunk(feed: dict[str, Any]) -> bytes:
@@ -320,7 +345,9 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
         cfg.contacts,
         cfg.target_fit_snapshot,
     )
-    run_id = _run_id(snapshot_hash, cfg.profile_id, cfg.profile_version)
+    freshness = dict(cfg.authoritative_source_freshness or {})
+    freshness_hash = content_hash_obj(freshness) if freshness else None
+    run_id = _run_id(snapshot_hash, cfg.profile_id, cfg.profile_version, freshness_hash)
     # Deterministic resume: reuse generated_at/repo_sha from prior manifest when
     # snapshot_hash matches so re-export yields identical chunk hashes.
     prior_manifest_path = out / "manifest.json"
@@ -331,7 +358,10 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
         except (json.JSONDecodeError, OSError):
             prior = {}
     prior_source = prior.get("source") if isinstance(prior.get("source"), dict) else {}
-    same_snapshot = str(prior_source.get("snapshot_hash") or "") == snapshot_hash
+    same_snapshot = (
+        str(prior_source.get("snapshot_hash") or "") == snapshot_hash
+        and prior_source.get("authoritative_freshness_hash") == freshness_hash
+    )
     if cfg.generated_at:
         generated_at = cfg.generated_at
     elif same_snapshot and prior.get("generated_at"):
@@ -404,6 +434,8 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
         "profile_id": cfg.profile_id,
         "profile_version": cfg.profile_version,
         "datalake_watermark": datalake_watermark,
+        "authoritative_freshness": freshness or None,
+        "authoritative_freshness_hash": freshness_hash,
     }
 
     chunk_specs = _chunk_leads(
@@ -514,6 +546,7 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
             "omission_preserves_authorization": not coverage_complete,
             "ordering": ordering,
         },
+        "authoritative_source_freshness": freshness or None,
         "chunks": chunk_meta,
         # Approach B: explicit deactivation delta (idempotent; Warmbly applies without DB coupling)
         "deactivations": deacts,

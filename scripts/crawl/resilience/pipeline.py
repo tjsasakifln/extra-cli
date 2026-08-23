@@ -364,6 +364,10 @@ class OperationalPipeline:
                 )
                 self._maybe_crash("watermark_committed")
 
+                # The exact scope is now operationally complete; retire prior
+                # systemic diagnostics for it without deleting their evidence.
+                self.dlq.resolve_scope(source=source, request_scope=scope)
+
             out = {
                 "status": fetched.status,
                 "terminal_status": (

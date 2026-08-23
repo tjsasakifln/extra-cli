@@ -7,6 +7,7 @@ InMemory path for unit. Real PostgreSQL path is mandatory when DATABASE_URL is s
 from __future__ import annotations
 
 import os
+import uuid
 from datetime import date
 from pathlib import Path
 
@@ -78,6 +79,66 @@ class _PncpStub:
 
     def normalize(self, raw: list[dict]) -> list[dict]:
         return [{**r, "source": "pncp"} for r in raw]
+
+
+@pytest.mark.database
+@pytest.mark.integration
+def test_success_zero_evidence_satisfies_real_postgres_constraints() -> None:
+    """Regression for production ck_ce_success_zero_scope failures."""
+    real_db_enabled = any(
+        os.getenv(name, "").strip().lower() in {"1", "true", "yes"}
+        for name in ("REQUIRE_REAL_DB", "RESILIENCE_REQUIRE_DB")
+    )
+    if not real_db_enabled:
+        pytest.skip("real PostgreSQL proof requires explicit real-DB opt-in")
+    dsn = os.getenv("DATABASE_URL") or os.getenv("LOCAL_DATALAKE_DSN")
+    if not dsn:
+        pytest.skip("DATABASE_URL not set")
+
+    import psycopg2
+
+    run_id = f"resilience-zero-{uuid.uuid4().hex}"
+    conn = psycopg2.connect(dsn)
+    try:
+        PostgresPersistence()._project_resilience_evidence(
+            conn,
+            run_id=run_id,
+            source="pncp",
+            request_scope="mode=incremental|date=2026-08-22:2026-08-22|target=all",
+            fetch_status="empty_confirmed",
+            pages_fetched=1,
+            pages_expected=1,
+            provenance={"source": "pncp", "test": "success_zero_constraint"},
+            fetched=0,
+            persisted=0,
+            date_from="2026-08-22",
+            date_to="2026-08-22",
+            satisfactory=True,
+        )
+        conn.commit()
+        with conn.cursor() as cur:
+            cur.execute(
+                """SELECT state, satisfactory, scope_key, pages_processed,
+                          evidence_metadata->>'completion_rule'
+                     FROM coverage_evidence
+                    WHERE source = 'pncp' AND data_type = 'bids' AND run_id = %s""",
+                (run_id,),
+            )
+            row = cur.fetchone()
+            assert row == (
+                "success_zero",
+                True,
+                "mode=incremental|date=2026-08-22:2026-08-22|target=all",
+                1,
+                "http_204_complete",
+            )
+    finally:
+        try:
+            with conn.cursor() as cur:
+                cur.execute("DELETE FROM coverage_evidence WHERE run_id = %s", (run_id,))
+            conn.commit()
+        finally:
+            conn.close()
 
 
 @pytest.mark.unit
@@ -161,7 +222,16 @@ def test_crash_after_evidence_before_watermark_rerun(tmp_path: Path) -> None:
 @pytest.mark.database
 @pytest.mark.integration
 def test_vertical_slice_postgres_real_path(tmp_path: Path) -> None:
-    """Real PG path — hard-fails when DSN is set but upsert/schema cannot complete."""
+    """Real PG path — hard-fails after the suite explicitly opts into PostgreSQL."""
+    real_db_opt_in = os.getenv("REQUIRE_REAL_DB", "").lower() in {"1", "true", "yes"}
+    resilience_opt_in = os.getenv("RESILIENCE_REQUIRE_DB", "").lower() in {
+        "1",
+        "true",
+        "yes",
+    }
+    if not (real_db_opt_in or resilience_opt_in):
+        pytest.skip("real PostgreSQL vertical slice requires explicit DB opt-in")
+
     dsn = os.getenv("DATABASE_URL") or os.getenv("LOCAL_DATALAKE_DSN")
     if not dsn:
         pytest.skip("DATABASE_URL not set")
@@ -193,9 +263,7 @@ def test_vertical_slice_postgres_real_path(tmp_path: Path) -> None:
         )
         has_table = bool(cur.fetchone()[0])
         if not has_upsert or not has_table:
-            cur.execute(
-                "SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY 1 LIMIT 20"
-            )
+            cur.execute("SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY 1 LIMIT 20")
             tables = [r[0] for r in cur.fetchall()]
             cur.execute("SELECT proname FROM pg_proc WHERE proname LIKE 'upsert%' LIMIT 20")
             procs = [r[0] for r in cur.fetchall()]

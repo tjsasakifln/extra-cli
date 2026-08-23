@@ -377,6 +377,32 @@ def write_private_feed(
     return {"path": str(feed_path), "sha256": digest, "mode": "0600"}
 
 
+def assert_authoritative_source_freshness(
+    source_manifest: dict[str, Any], *, now: datetime | None = None
+) -> dict[str, Any]:
+    """Reject an unproven or expired authoritative source attestation."""
+    freshness = source_manifest.get("authoritative_source_freshness")
+    if not isinstance(freshness, dict):
+        freshness = (source_manifest.get("source") or {}).get("authoritative_freshness")
+    if not isinstance(freshness, dict):
+        raise ValueError("source feed is missing authoritative PNCP freshness")
+    if freshness.get("contract_version") != "PNCP_CONTRACT_FRESHNESS/1.0":
+        raise ValueError("source feed has an unsupported PNCP freshness contract")
+    if freshness.get("status") != "FRESH":
+        raise ValueError(f"source feed freshness is {freshness.get('status') or 'UNKNOWN'}, not FRESH")
+    expires_raw = str(freshness.get("expires_at") or "")
+    try:
+        expires_at = datetime.fromisoformat(expires_raw.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise ValueError("source feed freshness has no valid expires_at") from exc
+    observed_now = now or datetime.now(UTC)
+    if expires_at <= observed_now:
+        raise ValueError(
+            f"source feed freshness attestation expired at {expires_at.isoformat().replace('+00:00', 'Z')}"
+        )
+    return freshness
+
+
 def build(
     *,
     feed_dir: Path,
@@ -386,6 +412,7 @@ def build(
     run_stamp: str,
 ) -> dict[str, Any]:
     source_manifest = read_feed_manifest(feed_dir)
+    source_freshness = assert_authoritative_source_freshness(source_manifest)
     # Two streaming passes: one to decide who keeps each shared mailbox across
     # the whole feed, one to select. Never the whole feed in memory at once.
     owner = shared_preferred_mailbox_owner(iter_feed_leads(feed_dir))
@@ -429,6 +456,7 @@ def build(
             "repo_sha": (source_manifest.get("source") or {}).get("repo_sha"),
             "run_id": (source_manifest.get("source") or {}).get("run_id"),
             "snapshot_hash": (source_manifest.get("source") or {}).get("snapshot_hash"),
+            "authoritative_freshness": source_freshness,
         },
         "schema_versions": {
             "outreach_schema": SCHEMA_OUTREACH,

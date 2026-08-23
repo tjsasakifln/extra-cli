@@ -288,6 +288,7 @@ class PipelineConfig:
     resume: bool = True
     # Progress logging to stdout
     progress: bool = True
+    authoritative_source_freshness: dict[str, Any] | None = None
 
 
 @dataclass
@@ -307,6 +308,9 @@ def _progress(enabled: bool, msg: str) -> None:
 def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
     """Execute UNIVERSE → ACTIVATION|SAMPLE → INTEL → CONTACTS → FEED."""
     started = time.monotonic()
+    if cfg.dsn and (cfg.authoritative_source_freshness or {}).get("status") != "FRESH":
+        observed = (cfg.authoritative_source_freshness or {}).get("status") or "MISSING"
+        raise ValueError(f"authoritative PNCP freshness must be FRESH for a live feed; observed={observed}")
     as_of = cfg.as_of or date.today()
     out = Path(cfg.out_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -748,6 +752,8 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
                 datalake_watermark=target_fit_datalake_watermark,
                 require_authoritative_target_fit_metadata=bool(cfg.dsn),
                 repo_sha=repo_sha,
+                authoritative_source_freshness=cfg.authoritative_source_freshness,
+                require_authoritative_source_freshness=bool(cfg.dsn),
                 deactivations=deactivations,
             )
             export_result = export_outreach(export_cfg)
