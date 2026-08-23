@@ -84,6 +84,14 @@ _PAGE_RETRYABLE = frozenset(
 )
 
 
+def utc_today(now: datetime | None = None) -> date:
+    """Return the PNCP operational date in UTC, independent of host TZ."""
+    instant = now or datetime.now(UTC)
+    if instant.tzinfo is None:
+        instant = instant.replace(tzinfo=UTC)
+    return instant.astimezone(UTC).date()
+
+
 def iter_planned_window_keys(start: date, end: date, window_days: int = CONTRACTS_WINDOW_DAYS) -> list[str]:
     """Date-window keys the pilot will attempt between start and end.
 
@@ -616,7 +624,7 @@ def seal_pilot_artifact(
 
     started = datetime.now(UTC)
     mode = "full"
-    today = date.today()
+    today = utc_today()
     start = today - timedelta(days=days)
     planned_windows = count_planned_windows(start, today, CONTRACTS_WINDOW_DAYS)
     run_id = run_id or new_run_id(prefix="contracts-seal")
@@ -863,7 +871,7 @@ def run_pilot(
 ) -> dict[str, Any]:
     started = datetime.now(UTC)
     mode = "full"
-    today = date.today()
+    today = utc_today()
     start = today - timedelta(days=days)
     planned_windows = count_planned_windows(start, today, CONTRACTS_WINDOW_DAYS)
     run_id = run_id or new_run_id(prefix="contracts-90d")

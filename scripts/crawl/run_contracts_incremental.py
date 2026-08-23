@@ -62,9 +62,10 @@ def current_incremental_window_key(*, days: int, today: date | None = None) -> s
     from scripts.crawl.run_contracts_90d_pilot import (
         CONTRACTS_WINDOW_DAYS,
         iter_planned_window_keys,
+        utc_today,
     )
 
-    end = today or datetime.now(UTC).date()
+    end = today or utc_today()
     keys = iter_planned_window_keys(end - timedelta(days=days), end, CONTRACTS_WINDOW_DAYS)
     if not keys:
         raise ValueError(f"incremental range produced no window for days={days}")
