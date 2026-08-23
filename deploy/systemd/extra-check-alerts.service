@@ -14,7 +14,9 @@ Type=oneshot
 WorkingDirectory=/opt/extra-consultoria
 Environment=PYTHONPATH=/opt/extra-consultoria
 EnvironmentFile=/opt/extra-consultoria/.env
-ExecStart=/opt/extra-consultoria/.venv/bin/python /opt/extra-consultoria/scripts/check-alerts.py --json
+Environment=ALERT_LEDGER_PATH=/var/lib/extra-consultoria/alerts/alert_ledger.jsonl
+Environment=ALERT_DEDUP_STATE_PATH=/var/lib/extra-consultoria/alerts/alert_dedup_state.json
+ExecStart=/opt/extra-consultoria/.venv/bin/python /opt/extra-consultoria/scripts/check-alerts.py --json --service-mode
 User=extra-consultoria
 StandardOutput=journal
 StandardError=journal

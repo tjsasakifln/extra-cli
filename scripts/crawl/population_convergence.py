@@ -16,6 +16,7 @@ from scripts.contracts_truth import (
     DRIFT_CONVERGED,
     DRIFT_NEEDS_RETRY,
     DRIFT_OK,
+    DRIFT_RECONCILE,
     DRIFT_SOURCE,
     MAX_CONVERGENCE_PASSES,
     PaginationReconcile,
@@ -200,6 +201,8 @@ def format_window_error(decision: PopulationDriftDecision) -> str:
     first = decision.first_total_registros
     last = decision.last_total_registros
     codes = ",".join(decision.reason_codes)
+    if decision.status == DRIFT_RECONCILE:
+        return f"local_persistence_reconciliation:{codes}:totalRegistros {first} -> {last}"
     return f"source_population_drift:{decision.status}:{codes}:totalRegistros {first} -> {last}"
 
 

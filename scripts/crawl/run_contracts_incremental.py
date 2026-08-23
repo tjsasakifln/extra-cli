@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Canonical incremental update for historical contracts (PNCP).
 
-Uses the hardened pilot runner for a short lookback window (default 7 days)
+Uses the hardened pilot runner and PNCP update-date endpoint for a short
+closed-day lookback window (default 7 days)
 so upsert, checkpoint isolation, page retries, and evidence artifacts stay
 consistent with the 90d pilot path.
 
@@ -27,7 +28,7 @@ import json
 import logging
 import os
 import sys
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -55,18 +56,21 @@ logger = logging.getLogger("contracts_incremental")
 
 DEFAULT_CHECKPOINT_DIR = "data/contracts_checkpoints/incremental"
 DEFAULT_CAMPAIGN = "historical_contracts_incremental"
+INCREMENTAL_QUERY_KIND = "update"
 
 
 def current_incremental_window_key(*, days: int, today: date | None = None) -> str:
-    """Return the live window key that must be revalidated this attempt."""
+    """Return the latest closed window key that must be revalidated."""
     from scripts.crawl.run_contracts_90d_pilot import (
         CONTRACTS_WINDOW_DAYS,
+        closed_crawl_range,
         iter_planned_window_keys,
         utc_today,
     )
 
-    end = today or utc_today()
-    keys = iter_planned_window_keys(end - timedelta(days=days), end, CONTRACTS_WINDOW_DAYS)
+    operational_today = today or utc_today()
+    start, closed_through, _exclusive_end = closed_crawl_range(operational_today, days)
+    keys = iter_planned_window_keys(start, closed_through, CONTRACTS_WINDOW_DAYS)
     if not keys:
         raise ValueError(f"incremental range produced no window for days={days}")
     return keys[-1]
@@ -75,9 +79,9 @@ def current_incremental_window_key(*, days: int, today: date | None = None) -> s
 def reopen_current_window(checkpoint: object, *, window_key: str) -> bool:
     """Force the moving incremental window through PNCP on every timer slot.
 
-    Historical windows remain resumable. The one window that reaches the
-    current date is different: treating it as permanently complete turns a 4h
-    timer into a once-per-day source refresh and lets late arrivals go unseen.
+    Historical windows remain resumable. The latest closed overlap window is
+    different: treating it as permanently complete turns a 4h timer into a
+    once-per-day source refresh and lets late updates go unseen.
     Removing it before the attempt is fail-closed: a failed revalidation leaves
     it absent; only a clean 93/93-style traversal adds it back.
     """
@@ -229,6 +233,7 @@ def _run_incremental(args: argparse.Namespace) -> int:
         meta.pop("attempt_run_id", None)
         meta["reset_cleared_run_id"] = True
         meta["campaign_role"] = "historical_contracts_incremental"
+        meta["query_kind"] = INCREMENTAL_QUERY_KIND
         data["meta"] = meta
         save_raw(cp_path, data)
         logger.info("Incremental checkpoint reset (archived prior file)")
@@ -243,6 +248,13 @@ def _run_incremental(args: argparse.Namespace) -> int:
                 incremental_days=int(args.days),
                 force_campaign=False,
             )
+            prior_query_kind = (data.get("meta") or {}).get("query_kind")
+            if prior_query_kind and prior_query_kind != INCREMENTAL_QUERY_KIND:
+                raise ValueError(
+                    f"query_kind mismatch existing={prior_query_kind!r} "
+                    f"requested={INCREMENTAL_QUERY_KIND!r}; use --reset-checkpoint after archive"
+                )
+            data.setdefault("meta", {})["query_kind"] = INCREMENTAL_QUERY_KIND
             save_raw(cp_path, data)
         except Exception as exc:  # noqa: BLE001
             # Wrong campaign/days → hard fail with guidance
@@ -270,6 +282,7 @@ def _run_incremental(args: argparse.Namespace) -> int:
         dry_run=bool(args.dry_run),
         logical_job_id=str(args.logical_job_id),
         campaign_id=str(args.campaign_id),
+        query_kind=INCREMENTAL_QUERY_KIND,
     )
     # Persist parameter binding for the next invocation
     try:
@@ -281,6 +294,7 @@ def _run_incremental(args: argparse.Namespace) -> int:
         meta_after["campaign_id"] = str(args.campaign_id)
         meta_after["checkpoint_version"] = int(meta_after.get("checkpoint_version") or 2)
         meta_after["capability"] = "historical_contracts"
+        meta_after["query_kind"] = INCREMENTAL_QUERY_KIND
         if report.get("run_id"):
             meta_after["attempt_run_id"] = report["run_id"]
             meta_after["run_id"] = report["run_id"]

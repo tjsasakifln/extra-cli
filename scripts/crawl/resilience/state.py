@@ -254,7 +254,11 @@ class RawStore:
         path = Path(envelope_path)
         envelope = json.loads(path.read_text(encoding="utf-8"))
         digest = str(envelope.get("body_sha256") or "")
+        if re.fullmatch(r"[0-9a-f]{64}", digest) is None:
+            raise ValueError("raw envelope has invalid body_sha256")
         body_path = self.root / "cas" / digest[:2] / digest[2:4] / f"{digest}.body"
+        if not body_path.is_file():
+            raise FileNotFoundError(f"raw body missing for sha256={digest}")
         body = body_path.read_bytes()
         if hashlib.sha256(body).hexdigest() != digest:
             raise ValueError(f"raw body hash mismatch: {digest}")

@@ -8,7 +8,7 @@ All calendar keys use UTC: ``datetime.now(UTC).date()``.
 
 * contracts timer enabled + active
 * contracts service success + run_id
-* contracts freshness <=168h (ingestion/artifact — never document date)
+* contracts freshness <=24h (ingestion/artifact — never document date)
 * contracts coverage >=95%
 * open_tenders timer family enabled + active
 * open_tenders freshness <=24h
@@ -31,7 +31,7 @@ from typing import Any
 
 _ROOT = Path(__file__).resolve().parents[2]
 
-CONTRACTS_SLA_HOURS = 168
+CONTRACTS_SLA_HOURS = 24
 OPEN_TENDERS_SLA_HOURS = 24
 COVERAGE_MIN = 0.95
 DEFAULT_CAMPAIGN = "EXTRA-OPERATIONAL-RELIABILITY-AND-COVERAGE-CLOSURE-01"
@@ -62,6 +62,14 @@ DUAL_SUMMARY_CANDIDATES = (
     "output/coverage/dual-latest/dual-capability-coverage-summary.json",
     "output/coverage/dual-capability-coverage-summary.json",
 )
+
+
+def _percentile_nearest_rank(values: list[float], percentile: int) -> float | None:
+    if not values:
+        return None
+    ordered = sorted(float(value) for value in values)
+    rank = max(1, (percentile * len(ordered) + 99) // 100)
+    return ordered[min(len(ordered), rank) - 1]
 
 
 def _is_vps_host() -> bool:
@@ -688,11 +696,25 @@ def _write_campaign_rollup(art: Path, campaign: str) -> dict[str, Any]:
     freshness_ok = all(_rollup_fresh_ok(x) for x in days_payload) if days_payload else False
     coverage_ok = all(_rollup_cov_ok(x) for x in days_payload) if days_payload else False
     health_all = all(x.get("health_ok") for x in days_payload) if days_payload else False
+    contract_ages: list[float] = []
+    for item in days_payload:
+        raw_age = (item.get("rollup") or {}).get("latest_contracts_freshness_hours")
+        try:
+            if raw_age is not None:
+                contract_ages.append(float(raw_age))
+        except (TypeError, ValueError):
+            pass
+    contracts_freshness_p95 = _percentile_nearest_rank(contract_ages, 95)
+    contracts_p95_ok = (
+        contracts_freshness_p95 is not None
+        and contracts_freshness_p95 <= CONTRACTS_SLA_HOURS
+    )
     complete = (
         expected_days.issubset(present)
         and len(days_payload) >= 7
         and health_all
         and freshness_ok
+        and contracts_p95_ok
         and coverage_ok
     )
     first_eligible = (
@@ -711,6 +733,9 @@ def _write_campaign_rollup(art: Path, campaign: str) -> dict[str, Any]:
         "expected_days": sorted(expected_days),
         "present_days": sorted(present),
         "complete": complete,
+        "contracts_freshness_p95_hours": contracts_freshness_p95,
+        "contracts_freshness_p95_limit_hours": CONTRACTS_SLA_HOURS,
+        "contracts_freshness_p95_ok": contracts_p95_ok,
         "complete_reason": (
             "ok"
             if complete
@@ -725,6 +750,7 @@ def _write_campaign_rollup(art: Path, campaign: str) -> dict[str, Any]:
             "health_requires_contracts_success_and_run_id": True,
             "coverage_min": COVERAGE_MIN,
             "contracts_sla_hours": CONTRACTS_SLA_HOURS,
+            "contracts_p95_required": True,
             "open_tenders_sla_hours": OPEN_TENDERS_SLA_HOURS,
         },
     }

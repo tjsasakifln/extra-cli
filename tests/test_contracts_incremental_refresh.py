@@ -18,7 +18,7 @@ def test_pncp_operational_date_is_utc_across_brazil_midnight_boundary() -> None:
 
 def test_current_incremental_window_is_reopened_for_every_timer_slot() -> None:
     key = current_incremental_window_key(days=7, today=date(2026, 8, 22))
-    assert key == "20260815_20260822"
+    assert key == "20260815_20260821"
     checkpoint = CrawlCheckpoint(
         mode="full",
         completed_windows=["20260807_20260814", key],
@@ -34,5 +34,5 @@ def test_current_incremental_window_is_reopened_for_every_timer_slot() -> None:
 
 def test_reopen_is_idempotent_after_a_failed_attempt() -> None:
     checkpoint = CrawlCheckpoint(mode="full", completed_windows=[])
-    assert reopen_current_window(checkpoint, window_key="20260815_20260822") is False
+    assert reopen_current_window(checkpoint, window_key="20260815_20260821") is False
     assert checkpoint.completed_windows == []

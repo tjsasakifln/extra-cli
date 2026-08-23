@@ -161,7 +161,8 @@ class PNCPAdapter(_AdapterBase):
         warnings: list[str] = []
         raw_refs: list[dict[str, str]] = []
         page_scopes: list[str] = []
-        pages_complete = pages_expected = pages_reused = 0
+        pages_complete = pages_expected = pages_reused = pages_reprocessed = 0
+        local_corruption_count = 0
         terminal_status: FetchStatus = "success"
 
         for window_start, window_end in self.legacy._windowed_dates(start, end):
@@ -190,8 +191,22 @@ class PNCPAdapter(_AdapterBase):
                         and prior.raw_reference
                         and Path(prior.raw_reference).is_file()
                     ):
-                        raw_doc = self.raw.load_reference(prior.raw_reference)
-                        page_records = _reusable_pncp_page(raw_doc)
+                        try:
+                            raw_doc = self.raw.load_reference(prior.raw_reference)
+                        except (OSError, TypeError, ValueError, json.JSONDecodeError) as exc:
+                            # The immutable envelope remains available for diagnosis. Re-fetch
+                            # this page and replace only the checkpoint reference; never turn a
+                            # corrupt/missing body into an empty or successful page.
+                            page_records = None
+                            pages_reprocessed += 1
+                            local_corruption_count += 1
+                            warnings.append(f"local_corruption_raw_reference:{type(exc).__name__}")
+                        else:
+                            page_records = _reusable_pncp_page(raw_doc)
+                            if page_records is None:
+                                pages_reprocessed += 1
+                                local_corruption_count += 1
+                                warnings.append("local_corruption_raw_reference:invalid_payload")
                         if page_records is not None:
                             records.extend(page_records)
                             raw_refs.append(
@@ -397,7 +412,14 @@ class PNCPAdapter(_AdapterBase):
             errors=errors,
             warnings=warnings,
             provenance=provenance,
-            metadata={"run_id": run_id, "raw": raw_refs, "pages_reused": pages_reused, "page_scopes": page_scopes},
+            metadata={
+                "run_id": run_id,
+                "raw": raw_refs,
+                "pages_reused": pages_reused,
+                "pages_reprocessed": pages_reprocessed,
+                "local_corruption_count": local_corruption_count,
+                "page_scopes": page_scopes,
+            },
         )
 
     def normalize(self, raw: list[dict[str, Any]]) -> list[CanonicalRecord]:

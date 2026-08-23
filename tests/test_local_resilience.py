@@ -317,10 +317,83 @@ def test_completed_pncp_page_with_invalid_envelope_is_refetched(tmp_path: Path) 
     envelope["request_succeeded"] = False
     envelope_path.write_text(json.dumps(envelope), encoding="utf-8")
 
-    second = adapter.fetch(request)
+    second = adapter.fetch(
+        CrawlRequest(
+            mode="incremental",
+            date_from=date(2026, 7, 17),
+            date_to=date(2026, 7, 17),
+            run_id="r-repair-missing-cas",
+        )
+    )
     assert calls == 2
     assert second.records == payload
     assert second.metadata["pages_reused"] == 0
+    assert second.metadata["pages_reprocessed"] == 1
+    assert second.metadata["local_corruption_count"] == 1
+    assert second.warnings == ["local_corruption_raw_reference:invalid_payload"]
+
+
+def test_completed_pncp_page_with_missing_cas_body_is_reprocessed(tmp_path: Path) -> None:
+    calls = 0
+    payload = [{"numeroControlePNCP": "00000000000100-1-000001/2026"}]
+
+    def fetcher(_request, _modalidade, _page):
+        nonlocal calls
+        calls += 1
+        return FetchResult(
+            status="success",
+            records=payload,
+            request_completed=True,
+            http_status=200,
+            pages_fetched=1,
+            pages_expected=1,
+            provenance={"test": True},
+            metadata={"pagination": {"totalPaginas": 1, "paginasRestantes": 0}, "url": "fixture://pncp"},
+        )
+
+    adapter = PNCPAdapter(config(tmp_path), page_fetcher=fetcher)
+    adapter.legacy.INGESTION_MODALIDADES = [1]
+    request = CrawlRequest(
+        mode="incremental", date_from=date(2026, 7, 17), date_to=date(2026, 7, 17), run_id="r-missing-cas"
+    )
+    first = adapter.fetch(request)
+    scope = first.metadata["raw"][0]["request_scope"]
+    checkpoint = adapter.checkpoints.load("pncp", scope)
+    assert checkpoint and checkpoint.raw_reference
+    checkpoint.status = "success"
+    adapter.checkpoints.save(checkpoint)
+
+    envelope_path = Path(checkpoint.raw_reference)
+    envelope = json.loads(envelope_path.read_text(encoding="utf-8"))
+    envelope["body_sha256"] = ""
+    envelope_path.write_text(json.dumps(envelope), encoding="utf-8")
+
+    second = adapter.fetch(
+        CrawlRequest(
+            mode="incremental",
+            date_from=date(2026, 7, 17),
+            date_to=date(2026, 7, 17),
+            run_id="r-repair-missing-cas",
+        )
+    )
+    assert calls == 2
+    assert second.records == payload
+    assert second.metadata["pages_reused"] == 0
+    assert second.metadata["pages_reprocessed"] == 1
+    assert second.metadata["local_corruption_count"] == 1
+    assert second.warnings == ["local_corruption_raw_reference:ValueError"]
+    repaired = adapter.checkpoints.load("pncp", scope)
+    assert repaired and repaired.raw_reference != str(envelope_path)
+    assert adapter.raw.load_reference(repaired.raw_reference)["payload"]["data"] == payload
+
+
+def test_raw_reference_rejects_invalid_digest_without_cas_root_fallback(tmp_path: Path) -> None:
+    store = RawStore(tmp_path / "raw")
+    envelope = tmp_path / "legacy-empty-digest.json"
+    envelope.write_text(json.dumps({"body_sha256": "", "provenance": {}}), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="invalid body_sha256"):
+        store.load_reference(envelope)
 
 
 def test_rate_limit_checkpoint_no_watermark(tmp_path: Path) -> None:
@@ -626,6 +699,35 @@ def test_fixture_cycle_never_makes_live_health_green(tmp_path: Path, monkeypatch
         if (tmp_path / "development").exists()
         else True
     )
+
+
+def test_pending_dlq_never_reports_healthy(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("RESILIENCE_STATE_PATH", str(tmp_path))
+    monkeypatch.setenv("RESILIENCE_ENV", "fixture")
+    monkeypatch.setenv("RESILIENCE_REQUEST_DELAY", "0")
+    monkeypatch.setenv("RESILIENCE_REQUIRE_DB", "0")
+    cfg = ResilienceConfig.from_env(environment="fixture", execution_mode="fixture")
+    FileDLQ(cfg.dlq_path).push(
+        source="pncp",
+        run_id="poison",
+        payload={"request_scope": "record=permanent-poison"},
+        error="schema_drift",
+        error_kind="record",
+    )
+
+    code, summary = run_cycle(
+        source="pncp",
+        fixture_dir=Path("tests/fixtures/resilience"),
+        config=cfg,
+        persistence=InMemoryPersistence(),
+    )
+
+    assert code == 1
+    assert summary["status"] == "degraded"
+    assert summary["pending_dlq_before"] == 1
+    assert summary["dlq_replayed"] == 0
+    assert summary["pending_dlq"] == 1
+    assert next(step for step in summary["steps"] if step["step"] == "resume-dlq")["status"] == "partial"
 
 
 def test_checkpoint_invalid_schema_fails_explicitly() -> None:
@@ -1099,7 +1201,7 @@ def test_dlq_resolves_only_successful_equivalent_scope(tmp_path: Path) -> None:
     assert len(list((tmp_path / "dlq" / "resolved" / "pncp").glob("*.json"))) == 1
 
 
-def test_pncp_pending_windows_are_oldest_first_and_bounded() -> None:
+def test_pncp_pending_windows_are_oldest_first_and_bounded(tmp_path: Path) -> None:
     class Pending:
         def pending(self, source: str):
             assert source == "pncp"
@@ -1115,19 +1217,55 @@ def test_pncp_pending_windows_are_oldest_first_and_bounded() -> None:
     class Adapter:
         checkpoints = Pending()
 
-    assert _pncp_request_windows(Adapter(), current=date(2026, 8, 22), limit=3) == [
+    dlq = FileDLQ(tmp_path / "dlq")
+    dlq.push(
+        source="pncp",
+        run_id="legacy-persist-timeout",
+        payload={"request_scope": "mode=incremental|date=2026-08-17"},
+        error="persist_canonical_failed:read timeout",
+        error_kind="systemic",
+    )
+    # Record-level poison is not converted into an expensive window replay.
+    dlq.push(
+        source="pncp",
+        run_id="record-poison",
+        payload={"request_scope": "mode=incremental|date=2026-08-16"},
+        error="invalid payload",
+        error_kind="record",
+    )
+    assert _pncp_request_windows(Adapter(), current=date(2026, 8, 22), limit=4, dlq=dlq) == [
+        (date(2026, 8, 17), date(2026, 8, 17)),
         (date(2026, 8, 18), date(2026, 8, 18)),
         (date(2026, 8, 20), date(2026, 8, 20)),
         (date(2026, 8, 22), date(2026, 8, 22)),
     ]
     aggregate = _aggregate_source_runs(
         [
-            {"status": "success", "satisfactory": True, "db_committed": True},
-            {"status": "error", "satisfactory": False, "db_committed": False, "errors": ["boom"]},
+            {
+                "status": "success",
+                "satisfactory": True,
+                "db_committed": True,
+                "pages_reused": 3,
+                "pages_reprocessed": 1,
+                "local_corruption_count": 1,
+                "warnings": ["local_corruption_raw_reference:ValueError"],
+            },
+            {
+                "status": "error",
+                "satisfactory": False,
+                "db_committed": False,
+                "errors": ["boom"],
+                "pages_reprocessed": 2,
+                "local_corruption_count": 2,
+            },
         ]
     )
     assert aggregate["status"] == "error"
     assert aggregate["satisfactory"] is False
+    assert aggregate["pages_reused"] == 3
+    assert aggregate["pages_reprocessed"] == 3
+    assert aggregate["local_corruption_count"] == 3
+    assert aggregate["warnings"] == ["local_corruption_raw_reference:ValueError"]
 
 
 def test_resilience_evidence_populates_success_zero_scope_contract() -> None:

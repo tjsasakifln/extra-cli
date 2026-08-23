@@ -13,6 +13,15 @@
 CI green or field-presence tests do **not** promote a claim across tiers.
 A single `[x]` must not hide these differences.
 
+### Incidente ativo #458 (2026-08-22)
+
+- [ ] Aceitar #458 somente após CI verde no `main`, janela real controlada no
+  `ec-prod` e soak #248 de sete dias com p95 de idade de contratos `<=24h`.
+  Estado atual do branch: `IMPLEMENTED + LIVE_WINDOW_REJECTED`; a primeira janela
+  real fechou 118/118 páginas, mas revelou telemetria de reconciliação
+  contraditória e foi recusada. Produção e soak permanecem abertos.
+  Runbook: `docs/ops/incidents/PNCP-458.md`.
+
 
 > Checklist viva para acompanhar a evolução do desenvolvimento do projeto.
 >

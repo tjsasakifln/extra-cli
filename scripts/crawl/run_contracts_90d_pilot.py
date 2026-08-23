@@ -30,7 +30,7 @@ import os
 import random
 import sys
 import time
-from collections.abc import Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -112,6 +112,36 @@ def iter_planned_window_keys(start: date, end: date, window_days: int = CONTRACT
 def count_planned_windows(start: date, end: date, window_days: int = CONTRACTS_WINDOW_DAYS) -> int:
     """Number of date windows the pilot will attempt between start and end."""
     return len(iter_planned_window_keys(start, end, window_days))
+
+
+def closed_crawl_range(today: date, days: int) -> tuple[date, date, date]:
+    """Return (start, inclusive_end, exclusive_end) for exactly N closed days."""
+    if days < 1:
+        raise ValueError("days must be >= 1")
+    return today - timedelta(days=days), today - timedelta(days=1), today
+
+
+def classify_incident_error_text(message: str) -> dict[str, Any]:
+    """Operator-facing four-way classification required by incident #458."""
+    text = message.lower()
+    if "source_population_drift" in text:
+        return {
+            "class": "upstream_contract",
+            "transience": "transient",
+            "owner": "pncp",
+        }
+    if "timeout" in text or "rate_limit" in text or "http_server_error" in text:
+        return {"class": "transient", "transience": "transient", "owner": "transport_or_pncp"}
+    if (
+        "upsert failed" in text
+        or "persist" in text
+        or "checkpoint" in text
+        or "local_transform" in text
+    ):
+        return {"class": "local_corruption", "transience": "permanent", "owner": "extra-cli"}
+    if "http_client_error" in text:
+        return {"class": "permanent", "transience": "permanent", "owner": "request_contract"}
+    return {"class": "permanent", "transience": "unknown", "owner": "unknown"}
 
 
 def evaluate_window_completion(
@@ -212,23 +242,24 @@ def evaluate_pilot_status(
     """
     windows_ok = int(totals.get("windows_ok") or 0)
     windows_failed = int(totals.get("windows_failed") or 0)
+    windows_partial = int(totals.get("windows_partial") or 0)
     windows_skipped = int(totals.get("windows_skipped_resume") or 0)
     page_errors = int(totals.get("page_errors") or 0)
     covered = windows_ok + windows_skipped
 
     if require_full_coverage:
         planned = int(planned_windows or 0)
-        if windows_failed == 0 and page_errors == 0 and planned > 0 and covered >= planned:
+        if windows_failed == 0 and windows_partial == 0 and page_errors == 0 and planned > 0 and covered >= planned:
             return "success"
         # Progress without full clean coverage (incl. skipped_resume short of planned)
-        if windows_ok > 0 or windows_skipped > 0:
+        if windows_ok > 0 or windows_skipped > 0 or windows_partial > 0:
             return "partial"
         return "failed"
 
     # Path-level / backward-compatible (no full-coverage requirement)
-    if windows_failed == 0 and windows_ok > 0:
+    if windows_failed == 0 and windows_partial == 0 and windows_ok > 0:
         return "success"
-    if windows_ok > 0:
+    if windows_ok > 0 or windows_partial > 0:
         return "partial"
     return "failed"
 
@@ -289,22 +320,47 @@ def _fetch_page_with_retry(
     page: int,
     *,
     max_retries: int = _PAGE_RETRY_MAX,
+    run_id: str | None = None,
+    query_kind: str = "publication",
+    telemetry: list[dict[str, Any]] | None = None,
+    sleeper: Callable[[float], None] = time.sleep,
+    jitter: Callable[[float, float], float] = random.uniform,
 ) -> Any:
     """Fetch one page with exponential backoff + jitter on 429/5xx/timeout.
 
-    Wraps ``_fetch_page`` (which has its own internal retries). Pilot-level
-    retries cover residual transient failures after the inner loop gives up.
+    This wrapper owns the only retry budget. The lower-level fetch retry loop
+    is disabled so attempts remain bounded and fully observable.
     """
     last = None
     for attempt in range(max_retries + 1):
-        last = _fetch_page(data_ini, data_fim, page)
+        fetch_kwargs: dict[str, Any] = {}
+        # The pilot wrapper owns the single bounded retry budget and telemetry;
+        # disable the lower-level hidden loop to avoid multiplicative retries.
+        fetch_kwargs["max_retries"] = 0
+        if run_id is not None:
+            fetch_kwargs["run_id"] = run_id
+        if query_kind != "publication":
+            fetch_kwargs["query_kind"] = query_kind
+        last = _fetch_page(data_ini, data_fim, page, **fetch_kwargs)
+        if telemetry is not None:
+            telemetry.append(
+                {
+                    "page": page,
+                    "attempt": attempt + 1,
+                    "status": last.status.value,
+                    "retryable": bool(last.status in _PAGE_RETRYABLE),
+                    "classification": classify_page_failure(last),
+                }
+            )
         if not last.is_failure:
             return last
         if last.status not in _PAGE_RETRYABLE or attempt >= max_retries:
             return last
         # exponential backoff with full jitter: base 1s → 2 → 4 ...
         base = 2**attempt
-        delay = base + random.uniform(0, base)  # noqa: S311 — retry jitter, not crypto
+        delay = base + jitter(0, base)  # noqa: S311 — retry jitter, not crypto
+        if telemetry is not None:
+            telemetry[-1]["backoff_seconds"] = round(delay, 3)
         logger.warning(
             "Retryable page error %s page=%d attempt=%d/%d sleep=%.2fs: %s",
             last.status.value,
@@ -314,8 +370,22 @@ def _fetch_page_with_retry(
             delay,
             last.error_message,
         )
-        time.sleep(delay)
+        sleeper(delay)
     return last
+
+
+def classify_page_failure(result: Any) -> dict[str, Any] | None:
+    """Classify terminal page failures without mistaking them for empty data."""
+    if not getattr(result, "is_failure", True):
+        return None
+    status = result.status
+    if status in _PAGE_RETRYABLE:
+        return {"class": "transient", "owner": "upstream_or_transport"}
+    if status == FetchStatus.HTTP_CLIENT_ERROR:
+        return {"class": "permanent", "owner": "request_contract"}
+    if status == FetchStatus.PARSE_FAILED:
+        return {"class": "upstream_contract", "owner": "pncp"}
+    return {"class": "permanent", "owner": "local_or_unknown"}
 
 
 def _configure_checkpoint_dir(ckpt_dir: str | None) -> str:
@@ -346,7 +416,12 @@ def _record_contracts_ingestion_run(dsn: str, report: dict[str, Any]) -> None:
         "pilot_status": report.get("status"),
         "go_no_go_3y": report.get("go_no_go_3y"),
         "pages": totals.get("pages"),
+        "page_attempts": totals.get("page_attempts"),
+        "page_retries": totals.get("page_retries"),
+        "pages_reprocessed": totals.get("pages_reprocessed"),
         "windows_ok": totals.get("windows_ok"),
+        "windows_partial": totals.get("windows_partial"),
+        "query_kind": report.get("query_kind"),
     }
     conn = psycopg2.connect(dsn)
     try:
@@ -533,10 +608,17 @@ def _build_path_proof(
     """Optional path_proof block — never upgrades pilot status to success."""
     windows_ok = int(totals.get("windows_ok") or 0)
     windows_failed = int(totals.get("windows_failed") or 0)
+    windows_partial = int(totals.get("windows_partial") or 0)
     page_errors = int(totals.get("page_errors") or 0)
 
     completed = [w for w in windows if w.get("status") == "completed"]
-    single_clean = windows_ok >= 1 and windows_failed == 0 and page_errors == 0 and len(completed) >= 1
+    single_clean = (
+        windows_ok >= 1
+        and windows_failed == 0
+        and windows_partial == 0
+        and page_errors == 0
+        and len(completed) >= 1
+    )
 
     if days <= 1:
         return {
@@ -553,6 +635,7 @@ def _build_path_proof(
                     "pages",
                     "page_errors",
                     "windows_ok",
+                    "windows_partial",
                     "windows_failed",
                     "windows_skipped_resume",
                 )
@@ -625,8 +708,8 @@ def seal_pilot_artifact(
     started = datetime.now(UTC)
     mode = "full"
     today = utc_today()
-    start = today - timedelta(days=days)
-    planned_windows = count_planned_windows(start, today, CONTRACTS_WINDOW_DAYS)
+    start, closed_through, range_end_exclusive = closed_crawl_range(today, days)
+    planned_windows = count_planned_windows(start, range_end_exclusive, CONTRACTS_WINDOW_DAYS)
     run_id = run_id or new_run_id(prefix="contracts-seal")
 
     ckpt_dir = _configure_checkpoint_dir(checkpoint_dir)
@@ -641,6 +724,7 @@ def seal_pilot_artifact(
         "pages": 0,
         "page_errors": 0,
         "windows_ok": 0,
+        "windows_partial": 0,
         "windows_failed": 0,
         "windows_skipped_resume": 0,
     }
@@ -656,6 +740,8 @@ def seal_pilot_artifact(
                 totals["windows_skipped_resume"] += 1
             elif st in {"partial_or_failed", "failed"}:
                 totals["windows_failed"] += 1
+            elif st == "partial":
+                totals["windows_partial"] += 1
         if totals_override:
             for k, v in totals_override.items():
                 if k.startswith("windows_"):
@@ -712,7 +798,11 @@ def seal_pilot_artifact(
         "P1_run_status": status == "success",
         "P2_date_span": bool(db_snapshot and db_snapshot.get("min_data_publicacao")),
         "P3_monthly": bool(db_snapshot and db_snapshot.get("monthly")),
-        "P5_no_residual_page_errors": totals["page_errors"] == 0 and totals["windows_failed"] == 0,
+        "P5_no_residual_page_errors": (
+            totals["page_errors"] == 0
+            and totals["windows_failed"] == 0
+            and totals["windows_partial"] == 0
+        ),
         "P6_checkpoint_coherent": p6,
         "P7_sample_fields": int((db_snapshot or {}).get("sample_populated_n20") or 0) >= 20
         or int((db_snapshot or {}).get("pncp_supplier_contracts_count") or 0) >= 20,
@@ -720,6 +810,7 @@ def seal_pilot_artifact(
             planned_windows > 0
             and (totals["windows_ok"] + totals["windows_skipped_resume"]) >= planned_windows
             and totals["windows_failed"] == 0
+            and totals["windows_partial"] == 0
         ),
     }
     go_label, go_reason = evaluate_go_no_go(status, criteria, days=days, min_days_for_3y=CONTRACTS_FULL_DAYS)
@@ -768,7 +859,8 @@ def seal_pilot_artifact(
         "window_days": CONTRACTS_WINDOW_DAYS,
         "planned_windows": planned_windows,
         "range_start": start.isoformat(),
-        "range_end": today.isoformat(),
+        "range_end": closed_through.isoformat(),
+        "window_boundary": "closed_through_d_minus_1",
         "started_at": started.isoformat(),
         "completed_at": completed_at.isoformat(),
         "duration_seconds": round((completed_at - started).total_seconds(), 3),
@@ -868,12 +960,15 @@ def run_pilot(
     run_id: str | None = None,
     logical_job_id: str | None = None,
     campaign_id: str | None = None,
+    query_kind: str = "publication",
 ) -> dict[str, Any]:
     started = datetime.now(UTC)
     mode = "full"
     today = utc_today()
-    start = today - timedelta(days=days)
-    planned_windows = count_planned_windows(start, today, CONTRACTS_WINDOW_DAYS)
+    start, closed_through, range_end_exclusive = closed_crawl_range(today, days)
+    if query_kind not in {"publication", "update"}:
+        raise ValueError(f"unsupported contracts query_kind={query_kind!r}")
+    planned_windows = count_planned_windows(start, range_end_exclusive, CONTRACTS_WINDOW_DAYS)
     run_id = run_id or new_run_id(prefix="contracts-90d")
 
     ckpt_dir = _configure_checkpoint_dir(checkpoint_dir)
@@ -886,6 +981,17 @@ def run_pilot(
         campaign_id=campaign_id,
         incremental_days=int(days) if logical_job_id or os.getenv("CONTRACTS_INCREMENTAL_MODE") == "1" else None,
     )
+    existing_query_kind = (checkpoint.meta or {}).get("query_kind")
+    if existing_query_kind and existing_query_kind != query_kind:
+        raise ValueError(
+            f"checkpoint query_kind mismatch existing={existing_query_kind!r} requested={query_kind!r}; "
+            "archive and reset checkpoint before changing PNCP endpoint semantics"
+        )
+    # Legacy windows remain as audit history. The #458 boundary change produces
+    # a different closed-window key, so they cannot suppress the first update
+    # crawl. An explicit conflicting query_kind still fails closed above.
+    checkpoint.meta["query_kind"] = query_kind
+    checkpoint.meta["window_boundary"] = "closed_through_d_minus_1"
     save_checkpoint(checkpoint)
 
     # Reset counters for this pilot run report but KEEP completed_windows for resume
@@ -897,9 +1003,12 @@ def run_pilot(
         "mode": mode,
         "days": days,
         "window_days": CONTRACTS_WINDOW_DAYS,
+        "query_kind": query_kind,
+        "window_boundary": "closed_through_d_minus_1",
         "planned_windows": planned_windows,
         "range_start": start.isoformat(),
-        "range_end": today.isoformat(),
+        "range_end": closed_through.isoformat(),
+        "range_end_exclusive": range_end_exclusive.isoformat(),
         "started_at": started.isoformat(),
         "checkpoint_path": checkpoint_path,
         "windows": [],
@@ -909,8 +1018,12 @@ def run_pilot(
             "inserted": 0,
             "skipped": 0,
             "pages": 0,
+            "page_attempts": 0,
+            "page_retries": 0,
+            "pages_reprocessed": 0,
             "page_errors": 0,
             "windows_ok": 0,
+            "windows_partial": 0,
             "windows_failed": 0,
             "windows_skipped_resume": 0,
         },
@@ -925,7 +1038,9 @@ def run_pilot(
     try:
         cur_date = start
         while cur_date < today:
-            window_end = min(cur_date + timedelta(days=CONTRACTS_WINDOW_DAYS - 1), today)
+            # Half-open planning range [start, today): never checkpoint the open
+            # current day as complete. This is the root boundary contract for #458.
+            window_end = min(cur_date + timedelta(days=CONTRACTS_WINDOW_DAYS - 1), closed_through)
             window_key = f"{_fmt(cur_date)}_{_fmt(window_end)}"
             data_ini, data_fim = _fmt(cur_date), _fmt(window_end)
             w_started = time.time()
@@ -944,6 +1059,19 @@ def run_pilot(
                 continue
 
             checkpoint.current_window_start = data_ini
+            old_progress = dict((checkpoint.meta or {}).get("in_progress_window") or {})
+            old_last_page = (
+                int(old_progress.get("last_page_committed") or 0)
+                if old_progress.get("window_key") == window_key
+                else 0
+            )
+            checkpoint.meta["in_progress_window"] = {
+                "window_key": window_key,
+                "last_page_committed": 0,
+                "restart_from_page": 1,
+                "previous_last_page_committed": old_last_page,
+                "resume_policy": "replay_from_page_1_unstable_upstream_order",
+            }
             save_checkpoint(checkpoint)
 
             page = 1
@@ -953,21 +1081,40 @@ def run_pilot(
             window_inserted = 0
             window_skipped = 0
             window_transformed = 0
+            window_raw_fetched = 0
 
             pages_exhausted = False
             last_total_pages = 0
             first_total_registros: int | None = None
             last_total_registros: int | None = None
             pagination = PaginationReconcile()
+            retry_telemetry: list[dict[str, Any]] = []
+            failure_classifications: list[dict[str, Any]] = []
             print(f"WINDOW_START {window_key}", flush=True)
             while page <= CONTRACTS_MAX_PAGES:
-                result = _fetch_page_with_retry(data_ini, data_fim, page)
+                before_attempts = len(retry_telemetry)
+                result = _fetch_page_with_retry(
+                    data_ini,
+                    data_fim,
+                    page,
+                    run_id=run_id,
+                    query_kind=query_kind,
+                    telemetry=retry_telemetry,
+                )
+                used_attempts = len(retry_telemetry) - before_attempts
+                report["totals"]["page_attempts"] += used_attempts
+                report["totals"]["page_retries"] += max(0, used_attempts - 1)
                 if result.is_failure:
                     msg = f"Page {page}: [{result.status.value}] {result.error_message}"
                     window_errors.append(msg)
                     logger.warning("Window %s %s", window_key, msg)
                     print(f"WINDOW_ERR {window_key} {msg}", flush=True)
                     report["totals"]["page_errors"] += 1
+                    classification = classify_page_failure(result)
+                    if classification:
+                        failure_classifications.append(
+                            {"page": page, "error": msg, **classification}
+                        )
                     break
 
                 if result.is_zero:
@@ -988,8 +1135,11 @@ def run_pilot(
                     page=page,
                 )
                 window_records_raw.extend(result.items)
+                window_raw_fetched += len(result.items)
                 window_pages += 1
                 report["totals"]["pages"] += 1
+                if page <= old_last_page:
+                    report["totals"]["pages_reprocessed"] += 1
                 if page == 1 or page % 10 == 0:
                     print(
                         f"PAGE {window_key} p={page}/{last_total_pages} "
@@ -1013,6 +1163,7 @@ def run_pilot(
                                 window_skipped += sk
                                 report["totals"]["inserted"] += ins
                                 report["totals"]["skipped"] += sk
+                                pagination.record_persisted(ins + sk)
                             except Exception as e:
                                 err = f"upsert failed window={window_key} page~{page}: {e}"
                                 logger.exception(err)
@@ -1022,6 +1173,21 @@ def run_pilot(
                     window_records_raw = []
                     if window_errors:
                         break
+
+                # Page checkpoint is committed only after its transformed rows
+                # have been durably upserted (or in dry-run). On restart we replay
+                # from page 1 because PNCP does not guarantee stable page ordering.
+                if not window_records_raw:
+                    checkpoint.meta["in_progress_window"] = {
+                        "window_key": window_key,
+                        "last_page_committed": page,
+                        "pages_committed": window_pages,
+                        "restart_from_page": 1,
+                        "previous_last_page_committed": old_last_page,
+                        "resume_policy": "replay_from_page_1_unstable_upstream_order",
+                    }
+                    _apply_run_id_to_checkpoint(checkpoint, run_id)
+                    save_checkpoint(checkpoint)
 
                 if page >= result.total_pages:
                     pages_exhausted = True
@@ -1048,6 +1214,7 @@ def run_pilot(
                             window_skipped += sk
                             report["totals"]["inserted"] += ins
                             report["totals"]["skipped"] += sk
+                            pagination.record_persisted(ins + sk)
                         except Exception as e:
                             err = f"upsert failed window={window_key} flush: {e}"
                             logger.exception(err)
@@ -1074,8 +1241,46 @@ def run_pilot(
                     first_total_paginas=pagination.first_total_paginas,
                     last_total_paginas=pagination.last_total_paginas,
                 ):
-                    tail_result = _fetch_page_with_retry(data_ini, data_fim, tail_page)
+                    before_attempts = len(retry_telemetry)
+                    tail_result = _fetch_page_with_retry(
+                        data_ini,
+                        data_fim,
+                        tail_page,
+                        run_id=run_id,
+                        query_kind=query_kind,
+                        telemetry=retry_telemetry,
+                    )
+                    used_attempts = len(retry_telemetry) - before_attempts
+                    report["totals"]["page_attempts"] += used_attempts
+                    report["totals"]["page_retries"] += max(0, used_attempts - 1)
                     if tail_result.is_failure or tail_result.is_zero:
+                        if tail_result.is_failure:
+                            msg = (
+                                f"Tail page {tail_page}: [{tail_result.status.value}] "
+                                f"{tail_result.error_message}"
+                            )
+                            window_errors.append(msg)
+                            report["errors"].append(msg)
+                            report["totals"]["page_errors"] += 1
+                            classification = classify_page_failure(tail_result)
+                            if classification:
+                                failure_classifications.append(
+                                    {
+                                        "page": tail_page,
+                                        "error": msg,
+                                        **classification,
+                                    }
+                                )
+                        else:
+                            msg = (
+                                "source_population_drift:tail_page_became_empty:"
+                                f"page={tail_page}"
+                            )
+                            window_errors.append(msg)
+                            report["errors"].append(msg)
+                            failure_classifications.append(
+                                {"page": tail_page, "error": msg, **classify_incident_error_text(msg)}
+                            )
                         break
                     pagination.observe_tail_page(
                         total_registros=tail_result.total_records,
@@ -1090,6 +1295,7 @@ def run_pilot(
                     window_transformed += len(tail_rows)
                     report["totals"]["fetched"] += len(tail_result.items)
                     report["totals"]["transformed"] += len(tail_rows)
+                    window_raw_fetched += len(tail_result.items)
                     if not dry_run and conn is not None and tail_rows:
                         try:
                             ins, sk = _upsert_batch(conn, tail_rows)
@@ -1097,6 +1303,7 @@ def run_pilot(
                             window_skipped += sk
                             report["totals"]["inserted"] += ins
                             report["totals"]["skipped"] += sk
+                            pagination.record_persisted(ins + sk)
                         except Exception as exc:  # noqa: BLE001
                             err = f"upsert failed window={window_key} tail page~{tail_page}: {exc}"
                             logger.exception(err)
@@ -1105,6 +1312,16 @@ def run_pilot(
                             persist_failed = True
                             break
                 tail_pass_count = 2
+            if window_raw_fetched > 0 and window_transformed == 0:
+                err = (
+                    f"local_transform_corruption window={window_key}: "
+                    f"raw_fetched={window_raw_fetched} transformed=0"
+                )
+                window_errors.append(err)
+                report["errors"].append(err)
+                failure_classifications.append(
+                    {"error": err, **classify_incident_error_text(err)}
+                )
             persist_failed = persist_failed or any("upsert failed" in err for err in window_errors)
             fully_ok, window_errors = evaluate_window_completion(
                 window_errors,
@@ -1121,17 +1338,23 @@ def run_pilot(
                 totals_sequence=pagination.totals_sequence,
                 page_id_sequences=pagination.page_id_sequences,
                 pass_count=tail_pass_count,
-                persisted=None,
-                fetched=None,
+                persisted=pagination.persisted if not dry_run else None,
+                fetched=pagination.fetched if not dry_run else None,
                 rejected=pagination.rejected,
                 timeout=timed_out,
                 checkpoint_committed=True,
                 persistence_failed=persist_failed,
                 state_committed=True,
+                elapsed_seconds=time.time() - w_started,
                 unique_ids=len(pagination.seen_ids),
             )
             if not fully_ok and any("Hit CONTRACTS_MAX_PAGES" in e for e in window_errors):
                 report["totals"]["page_errors"] += 1
+            for error in window_errors:
+                if "local_persistence_reconciliation" in error:
+                    failure_classifications.append(
+                        {"error": error, **classify_incident_error_text(error)}
+                    )
             elapsed = round(time.time() - w_started, 1)
             drift_report = pagination.finish(
                 pass_count=tail_pass_count,
@@ -1140,19 +1363,46 @@ def run_pilot(
                 persistence_failed=persist_failed,
                 state_committed=fully_ok,
                 elapsed_seconds=elapsed,
-                reconcile_counts=False,
+                reconcile_counts=not dry_run,
             ).to_dict()
-            w_status = "completed" if fully_ok else "partial_or_failed"
+            drift_artifact_ok = bool(drift_report.get("ok")) and (
+                dry_run or bool(drift_report.get("counts_reconciled"))
+            )
+            if fully_ok and not drift_artifact_ok:
+                err = (
+                    "local_persistence_reconciliation: completion predicate and "
+                    f"artifact disagree status={drift_report.get('status')} "
+                    f"decision={drift_report.get('decision')}"
+                )
+                window_errors.append(err)
+                report["errors"].append(err)
+                failure_classifications.append(
+                    {"error": err, **classify_incident_error_text(err)}
+                )
+                fully_ok = False
+            usable_partial = bool(window_transformed > 0 and not persist_failed)
+            w_status = "completed" if fully_ok else ("partial" if usable_partial else "failed")
             if fully_ok:
                 checkpoint.completed_windows.append(window_key)
                 checkpoint.total_windows_completed += 1
                 checkpoint.total_contracts_fetched += window_transformed
+                checkpoint.current_window_start = None
                 checkpoint.last_error = None
+                checkpoint.meta.pop("in_progress_window", None)
                 report["totals"]["windows_ok"] += 1
             else:
                 checkpoint.total_windows_failed += 1
                 checkpoint.last_error = "; ".join(window_errors[:3])
-                report["totals"]["windows_failed"] += 1
+                if usable_partial:
+                    report["totals"]["windows_partial"] += 1
+                else:
+                    report["totals"]["windows_failed"] += 1
+                if any("source_population_drift" in err for err in window_errors):
+                    failure_classifications.extend(
+                        {"error": err, **classify_incident_error_text(err)}
+                        for err in window_errors
+                        if "source_population_drift" in err
+                    )
                 logger.warning(
                     "Window %s NOT marked complete (errors=%d, transformed=%d)",
                     window_key,
@@ -1172,6 +1422,10 @@ def run_pilot(
                     "inserted": window_inserted,
                     "skipped": window_skipped,
                     "errors": window_errors[:5],
+                    "failure_classifications": failure_classifications,
+                    "retry_telemetry": retry_telemetry,
+                    "pages_reprocessed": min(window_pages, old_last_page),
+                    "resume_policy": "replay_from_page_1_unstable_upstream_order",
                     "elapsed_seconds": elapsed,
                     "population_drift": drift_report,
                 }
@@ -1319,7 +1573,11 @@ def run_pilot(
             "P1_run_status": report["status"] == "success",
             "P2_date_span": bool(db.get("min_data_publicacao") and db.get("max_data_publicacao")),
             "P3_monthly": bool(db.get("monthly")),
-            "P5_no_residual_page_errors": p["page_errors"] == 0 and p["windows_failed"] == 0,
+            "P5_no_residual_page_errors": (
+                p["page_errors"] == 0
+                and p["windows_failed"] == 0
+                and p["windows_partial"] == 0
+            ),
             "P6_checkpoint_coherent": len(checkpoint.completed_windows)
             >= (p["windows_ok"] + p["windows_skipped_resume"])
             or len(checkpoint.completed_windows) >= p["windows_ok"],
@@ -1329,6 +1587,7 @@ def run_pilot(
                 planned_windows > 0
                 and (p["windows_ok"] + p["windows_skipped_resume"]) >= planned_windows
                 and p["windows_failed"] == 0
+                and p["windows_partial"] == 0
             ),
         }
         report["criteria"] = criteria
@@ -1373,6 +1632,8 @@ def run_pilot(
             "dry_run": dry_run,
             "planned_windows": planned_windows,
             "checkpoint_dir": ckpt_dir,
+            "query_kind": query_kind,
+            "range_end": closed_through.isoformat(),
         },
         checkpoint_path=checkpoint_path,
         checkpoint_hash=sha256_file(checkpoint_path),

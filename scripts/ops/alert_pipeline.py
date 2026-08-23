@@ -23,8 +23,12 @@ from pathlib import Path
 from typing import Any
 
 REPO = Path(__file__).resolve().parents[2]
-DEFAULT_LEDGER = REPO / "output" / "ops" / "alert_ledger.jsonl"
-DEFAULT_DEDUP_STATE = REPO / "output" / "ops" / "alert_dedup_state.json"
+DEFAULT_LEDGER = Path(
+    os.getenv("ALERT_LEDGER_PATH", str(REPO / "output" / "ops" / "alert_ledger.jsonl"))
+)
+DEFAULT_DEDUP_STATE = Path(
+    os.getenv("ALERT_DEDUP_STATE_PATH", str(REPO / "output" / "ops" / "alert_dedup_state.json"))
+)
 
 # Cooldown between identical fingerprints (seconds)
 DEFAULT_DEDUP_SECONDS = int(os.getenv("ALERT_DEDUP_SECONDS", "900"))
@@ -252,6 +256,7 @@ def dispatch_alert(
         "dry_run": dry_run,
         "channels": [],
         "fallback_ledger": None,
+        "durable": False,
         "webhook_failure_detectable": True,
         "has_actionable_context": bool(event.next_action) and "next_action" in context_body,
     }
@@ -268,6 +273,7 @@ def dispatch_alert(
             ledger_path=ledger_path,
         )
         result["fallback_ledger"] = str(ledger_path)
+        result["durable"] = True
         return result
 
     channel_results: list[dict[str, Any]] = []
@@ -293,6 +299,7 @@ def dispatch_alert(
             }
         )
         result["fallback_ledger"] = str(path)
+        result["durable"] = True
     else:
         # Live path — use notify.dispatch when available
         try:
@@ -312,6 +319,8 @@ def dispatch_alert(
                         },
                         ledger_path=ledger_path,
                     )
+            live_delivered = any(bool(r.get("success")) for r in live)
+            result["durable"] = live_delivered
             if not live:
                 path = append_ledger(
                     {
@@ -331,6 +340,33 @@ def dispatch_alert(
                     }
                 )
                 result["fallback_ledger"] = str(path)
+                result["durable"] = True
+            elif not live_delivered:
+                # The notification service may itself be the failed component.
+                # Persist the complete actionable alert, not only a transport
+                # error marker, so diagnosis never depends on that service.
+                path = append_ledger(
+                    {
+                        "at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+                        "event": "fallback_persist",
+                        "fingerprint": event.fingerprint(),
+                        "title": event.title,
+                        "body": context_body,
+                        "severity": event.severity,
+                        "reason": "all_live_destinations_failed",
+                        "channel_results": live,
+                    },
+                    ledger_path=ledger_path,
+                )
+                channel_results.append(
+                    {
+                        "channel": "ledger_fallback",
+                        "success": True,
+                        "message": f"persisted to {path}",
+                    }
+                )
+                result["fallback_ledger"] = str(path)
+                result["durable"] = True
         except Exception as exc:  # noqa: BLE001
             path = append_ledger(
                 {
@@ -350,8 +386,10 @@ def dispatch_alert(
                 }
             )
             result["fallback_ledger"] = str(path)
+            result["durable"] = True
 
-    mark_dispatched(event, state_path=state_path)
+    if result["durable"]:
+        mark_dispatched(event, state_path=state_path)
     result["channels"] = channel_results
     return result
 

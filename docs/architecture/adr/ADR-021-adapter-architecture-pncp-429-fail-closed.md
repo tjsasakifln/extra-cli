@@ -102,3 +102,12 @@ de scheduler ou VPS.
 - `docs/audits/adversarial-coverage-qa-2026-07.md`
 - `docs/architecture/source-acquisition-strategy.md`
 - Epic E3
+
+## Emenda 2026-08-22 — incidente #458
+
+Para contratos incrementais, o cursor canônico é data de atualização e a faixa
+é semiaberta `[D-N, D)`: o dia corrente nunca é checkpointado como completo.
+Checkpoint de página só é gravado após persistência. Como a ordenação upstream
+não é contratual, restart repete a janela desde a página 1 e mede páginas
+reprocessadas; nunca salta para N+1 apenas pelo arquivo local. `partial` continua
+terminal não saudável e `success_zero` exige prova explícita de escopo completo.

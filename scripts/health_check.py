@@ -197,6 +197,48 @@ def check_critical_timers() -> tuple[bool, str]:
     return True, f"critical timers OK ({len(CRITICAL_TIMERS)})"
 
 
+def validate_dual_coverage_summary(data: dict) -> tuple[bool, str]:
+    """Validate gate plus explicit denominator, zero-count and as_of contract."""
+    if data.get("dual_gate_status") != "PASS":
+        return False, f"dual_gate_status={data.get('dual_gate_status')}"
+    if not data.get("pipeline_success") or not data.get("scope_complete"):
+        return False, "dual pipeline/scope not complete"
+    if not data.get("as_of"):
+        return False, "dual summary missing as_of"
+    caps = data.get("capabilities") or {}
+    for name in ("open_tenders", "historical_contracts"):
+        c = caps.get(name) or {}
+        required = (
+            "as_of",
+            "applicable_denominator",
+            "covered_numerator",
+            "success_zero_count",
+        )
+        missing = [field for field in required if c.get(field) is None]
+        if missing:
+            return False, f"{name}: missing explicit {','.join(missing)}"
+        try:
+            denominator = int(c["applicable_denominator"])
+            numerator = int(c["covered_numerator"])
+            zero_count = int(c["success_zero_count"])
+        except (TypeError, ValueError):
+            return False, f"{name}: invalid denominator/numerator/zero counts"
+        if denominator <= 0 or numerator < 0 or numerator > denominator:
+            return False, f"{name}: invalid coverage fraction {numerator}/{denominator}"
+        if zero_count < 0 or zero_count > numerator:
+            return False, f"{name}: invalid success_zero_count={zero_count}"
+        pct = c.get("coverage_pct")
+        try:
+            f = float(pct)
+        except (TypeError, ValueError):
+            return False, f"{name}: missing coverage_pct"
+        if f > 1.0:
+            f = f / 100.0
+        if f < 0.95:
+            return False, f"{name}: coverage={f:.4f} < 0.95"
+    return True, "dual PASS with explicit denominator/as_of"
+
+
 def check_dual_coverage_artifact() -> tuple[bool, str]:
     """Require dual coverage artifact PASS with both capabilities >=95%."""
     candidates = [
@@ -213,23 +255,8 @@ def check_dual_coverage_artifact() -> tuple[bool, str]:
             data = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as e:
             return False, f"dual summary unreadable: {e}"
-        if data.get("dual_gate_status") != "PASS":
-            return False, f"dual_gate_status={data.get('dual_gate_status')}"
-        if not data.get("pipeline_success") or not data.get("scope_complete"):
-            return False, "dual pipeline/scope not complete"
-        caps = data.get("capabilities") or {}
-        for name in ("open_tenders", "historical_contracts"):
-            c = caps.get(name) or {}
-            pct = c.get("coverage_pct")
-            try:
-                f = float(pct)
-            except (TypeError, ValueError):
-                return False, f"{name}: missing coverage_pct"
-            if f > 1.0:
-                f = f / 100.0
-            if f < 0.95:
-                return False, f"{name}: coverage={f:.4f} < 0.95"
-        return True, f"dual PASS artifact {path.name}"
+        ok, message = validate_dual_coverage_summary(data)
+        return ok, f"{message}; artifact={path.name}" if ok else message
     return False, "dual coverage summary missing"
 
 
