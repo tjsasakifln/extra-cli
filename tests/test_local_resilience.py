@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 from dataclasses import replace
@@ -198,6 +199,48 @@ def test_raw_archive_same_request_identity_is_stable(tmp_path: Path) -> None:
     assert first == second
     saved = json.loads(first.read_text(encoding="utf-8"))
     assert saved["provenance"]["response_headers"] == {}
+
+
+def test_raw_archive_replays_verified_pre_cas_envelope(tmp_path: Path) -> None:
+    store = RawStore(tmp_path / "raw")
+    payload = {"data": [{"objeto": "pavimentação"}], "pagination": {"empty": False}}
+    canonical = json.dumps(
+        payload,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+        default=str,
+    ).encode()
+    legacy = tmp_path / "legacy.json"
+    legacy.write_text(
+        json.dumps(
+            {
+                "source": "pncp",
+                "content_hash": hashlib.sha256(canonical).hexdigest(),
+                "payload": payload,
+                "provenance": {"adapter_version": "pre-cas"},
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    loaded = store.load_reference(legacy)
+
+    assert loaded["payload"] == payload
+    assert loaded["provenance"] == {"adapter_version": "pre-cas"}
+    assert not (tmp_path / "raw" / "cas" / ".body").exists()
+
+
+def test_raw_archive_rejects_tampered_pre_cas_envelope(tmp_path: Path) -> None:
+    legacy = tmp_path / "legacy.json"
+    legacy.write_text(
+        json.dumps({"content_hash": "0" * 64, "payload": {"data": ["tampered"]}}),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="legacy raw body hash mismatch"):
+        RawStore(tmp_path / "raw").load_reference(legacy)
 
 
 @pytest.mark.database

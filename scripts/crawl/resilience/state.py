@@ -254,6 +254,31 @@ class RawStore:
         path = Path(envelope_path)
         envelope = json.loads(path.read_text(encoding="utf-8"))
         digest = str(envelope.get("body_sha256") or "")
+        # Raw envelopes written before the CAS migration stored the canonical
+        # payload inline. Production checkpoints are durable across releases,
+        # so replay must verify and consume that historical shape instead of
+        # resolving an empty digest as ``raw/cas/.body``.
+        if not digest:
+            if "payload" not in envelope:
+                raise ValueError("raw envelope has neither CAS digest nor legacy payload")
+            payload = envelope["payload"]
+            canonical = json.dumps(
+                payload,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+                default=str,
+            ).encode()
+            expected = str(envelope.get("content_hash") or "")
+            actual = hashlib.sha256(canonical).hexdigest()
+            if not expected or actual != expected:
+                raise ValueError("legacy raw body hash mismatch")
+            provenance = envelope.get("provenance")
+            return {
+                "envelope": envelope,
+                "payload": payload,
+                "provenance": provenance if isinstance(provenance, dict) else {},
+            }
         body_path = self.root / "cas" / digest[:2] / digest[2:4] / f"{digest}.body"
         body = body_path.read_bytes()
         if hashlib.sha256(body).hexdigest() != digest:
