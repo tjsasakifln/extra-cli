@@ -10,6 +10,12 @@ intelligence/truth plane, Warmbly owns delivery.
 - `auto_send` stays false. Warmbly keeps `CONFENGE_REQUIRE_HUMAN_APPROVAL=true`.
 - `PROBABILISTIC_OR_RISKY` is outside the default pilot.
 - Exactly one `preferred_initial` route per account.
+- The first real cohort is capped at `10/day`; this runbook must not be used to
+  raise that limit.
+- A feed is fresh only when it embeds a current
+  `PNCP_CONTRACT_FRESHNESS/1.0` attestation with `status=FRESH` and an
+  unexpired `expires_at`. Missing, PARTIAL, STALE or DEGRADED evidence blocks
+  export and cohort cutting.
 - The feed holds operational PII and never enters Git. Only schema, code,
   hashes, counts, route-class aggregates and host-level evidence do.
 
@@ -55,7 +61,7 @@ discovery → passive DNS/MX. No SMTP probe at any step.
 .venv/bin/python -m scripts.ops.build_controlled_email_cohort \
   --feed-dir "$OUT_ROOT/06_warmbly_feed" \
   --private-root /var/lib/extra-consultoria/private/outreach/cohorts \
-  --limit 50
+  --limit 10
 ```
 
 The producer re-derives eligibility from each contact's own provenance instead
@@ -116,7 +122,7 @@ docker exec $BE /app/confenge import --feed https://confenge-feed:8443/$NAME.jso
 docker exec $BE wget -q -O /data/confenge-ops/$NAME.json https://confenge-feed:8443/$NAME.json
 docker exec $BE /app/confenge cohort prepare \
   --feed /data/confenge-ops/$NAME.json --org-id $ORG \
-  --out /data/confenge-ops/$NAME-frozen.json --limit 50 --max-daily 50 --ttl 24h
+  --out /data/confenge-ops/$NAME-frozen.json --limit 10 --max-daily 10 --ttl 24h
 docker exec $BE /app/confenge cohort preview --manifest /data/confenge-ops/$NAME-frozen.json
 ```
 

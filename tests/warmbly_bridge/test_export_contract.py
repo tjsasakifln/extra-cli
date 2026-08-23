@@ -81,9 +81,7 @@ def test_manifest_and_chunks_exist(exported: Path) -> None:
     assert all(c["content_hash"] for c in manifest["chunks"])
 
 
-def test_feed_required_fields_and_schema(
-    exported: Path, schemas_dir: Path
-) -> None:
+def test_feed_required_fields_and_schema(exported: Path, schemas_dir: Path) -> None:
     schema = json.loads((schemas_dir / "confenge.outreach.v1.json").read_text(encoding="utf-8"))
     for chunk_path in sorted(exported.glob("chunk_*.json")):
         feed = json.loads(chunk_path.read_text(encoding="utf-8"))
@@ -159,3 +157,77 @@ def test_empty_contacts_allowed(exported: Path) -> None:
                 assert lead["contacts"] == []
                 found = True
     assert found
+
+
+def test_freshness_attestation_is_bound_into_source_run(
+    tmp_path: Path, universe_path: Path, intel_path: Path, contacts_path: Path
+) -> None:
+    def export(status: str, run_id: str) -> tuple[str, dict[str, Any]]:
+        result = export_outreach(
+            ExportConfig(
+                universe=universe_path,
+                account_intelligence=intel_path,
+                contacts=contacts_path,
+                out_dir=tmp_path / status,
+                generated_at="2026-08-22T12:00:00Z",
+                repo_sha="testdeadbeef",
+                authoritative_source_freshness={
+                    "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
+                    "status": "FRESH",
+                    "as_of": "2026-08-22T12:00:00Z",
+                    "expires_at": "2099-08-22T18:00:00Z",
+                    "run_id": run_id,
+                },
+                require_authoritative_source_freshness=True,
+            )
+        )
+        manifest = json.loads(Path(result["manifest"]).read_text(encoding="utf-8"))
+        return str(result["run_id"]), manifest
+
+    first_run, first = export("first", "contracts-a")
+    second_run, second = export("second", "contracts-b")
+
+    assert first_run != second_run
+    assert first["source"]["authoritative_freshness_hash"]
+    assert first["authoritative_source_freshness"]["run_id"] == "contracts-a"
+    assert second["authoritative_source_freshness"]["run_id"] == "contracts-b"
+
+
+def test_export_refuses_degraded_authoritative_source(
+    tmp_path: Path, universe_path: Path, intel_path: Path, contacts_path: Path
+) -> None:
+    with pytest.raises(Exception, match="must be FRESH"):
+        export_outreach(
+            ExportConfig(
+                universe=universe_path,
+                account_intelligence=intel_path,
+                contacts=contacts_path,
+                out_dir=tmp_path / "degraded",
+                authoritative_source_freshness={
+                    "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
+                    "status": "DEGRADED",
+                    "expires_at": "2099-08-22T18:00:00Z",
+                },
+                require_authoritative_source_freshness=True,
+            )
+        )
+
+
+def test_export_refuses_expired_authoritative_source(
+    tmp_path: Path, universe_path: Path, intel_path: Path, contacts_path: Path
+) -> None:
+    with pytest.raises(Exception, match="expired before export"):
+        export_outreach(
+            ExportConfig(
+                universe=universe_path,
+                account_intelligence=intel_path,
+                contacts=contacts_path,
+                out_dir=tmp_path / "expired",
+                authoritative_source_freshness={
+                    "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
+                    "status": "FRESH",
+                    "expires_at": "2020-01-01T00:00:00Z",
+                },
+                require_authoritative_source_freshness=True,
+            )
+        )

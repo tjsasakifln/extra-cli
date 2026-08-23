@@ -481,8 +481,44 @@ class PostgresPersistence:
                     and provenance
                     and (pages_expected is None or pages_fetched >= pages_expected)
                 )
-                cur.execute(
-                    """INSERT INTO coverage_evidence
+                if {"scope_key", "pages_processed", "evidence_metadata"} <= cols:
+                    completion_rule = (
+                        "http_204_complete"
+                        if fetch_status == "empty_confirmed" and pages_fetched <= 1
+                        else "empty_page_after_valid_scope"
+                    )
+                    cur.execute(
+                        """INSERT INTO coverage_evidence
+                           (entity_id, source, data_type, queried_start, queried_end,
+                            run_id, started_at, completed_at,
+                            count_obtained, count_transformed, count_persisted,
+                            state, metadata, request_scope, pages_fetched, pages_expected,
+                            provenance, satisfactory, scope_key, pages_processed, evidence_metadata)
+                           VALUES (NULL, %s, 'bids', %s, %s, %s, NOW(), NOW(), %s, %s, %s, %s, %s,
+                                   %s, %s, %s, %s::jsonb, %s, %s, %s, %s::jsonb)""",
+                        (
+                            source,
+                            q_start,
+                            q_end,
+                            run_id,
+                            fetched,
+                            fetched,
+                            persisted,
+                            state,
+                            _json.dumps({"pipeline": "resilient_cycle"}, ensure_ascii=False),
+                            request_scope,
+                            pages_fetched,
+                            pages_expected,
+                            _json.dumps(provenance or {}, ensure_ascii=False),
+                            safe_satisfactory,
+                            request_scope,
+                            pages_fetched,
+                            _json.dumps({"completion_rule": completion_rule}, ensure_ascii=False),
+                        ),
+                    )
+                else:
+                    cur.execute(
+                        """INSERT INTO coverage_evidence
                        (entity_id, source, data_type, queried_start, queried_end,
                         run_id, started_at, completed_at,
                         count_obtained, count_transformed, count_persisted,
@@ -490,23 +526,23 @@ class PostgresPersistence:
                         provenance, satisfactory)
                        VALUES (NULL, %s, 'bids', %s, %s, %s, NOW(), NOW(), %s, %s, %s, %s, %s,
                                %s, %s, %s, %s::jsonb, %s)""",
-                    (
-                        source,
-                        q_start,
-                        q_end,
-                        run_id,
-                        fetched,
-                        fetched,
-                        persisted,
-                        state,
-                        _json.dumps({"pipeline": "resilient_cycle"}, ensure_ascii=False),
-                        request_scope,
-                        pages_fetched,
-                        pages_expected,
-                        _json.dumps(provenance or {}, ensure_ascii=False),
-                        safe_satisfactory,
-                    ),
-                )
+                        (
+                            source,
+                            q_start,
+                            q_end,
+                            run_id,
+                            fetched,
+                            fetched,
+                            persisted,
+                            state,
+                            _json.dumps({"pipeline": "resilient_cycle"}, ensure_ascii=False),
+                            request_scope,
+                            pages_fetched,
+                            pages_expected,
+                            _json.dumps(provenance or {}, ensure_ascii=False),
+                            safe_satisfactory,
+                        ),
+                    )
             else:
                 cur.execute(
                     """INSERT INTO coverage_evidence

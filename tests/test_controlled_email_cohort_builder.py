@@ -74,10 +74,65 @@ def _write_export(tmp_path: Path, leads: list[dict[str, Any]]) -> Path:
         encoding="utf-8",
     )
     (feed_dir / "manifest.json").write_text(
-        json.dumps({"lead_count": len(leads), "source": {"repo_sha": "0" * 40, "run_id": "run-test"}}),
+        json.dumps(
+            {
+                "lead_count": len(leads),
+                "source": {"repo_sha": "0" * 40, "run_id": "run-test"},
+                "authoritative_source_freshness": {
+                    "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
+                    "status": "FRESH",
+                    "reason_codes": [],
+                    "as_of": "2026-08-22T00:00:00Z",
+                    "expires_at": "2999-01-01T00:00:00Z",
+                    "run_id": "contracts-test",
+                },
+            }
+        ),
         encoding="utf-8",
     )
     return feed_dir
+
+
+def test_stale_source_feed_is_refused_before_private_cohort_write(tmp_path: Path):
+    feed_dir = _write_export(
+        tmp_path,
+        [_lead("11111111000191", [_contact("contato@alphaengenharia.com.br")])],
+    )
+    manifest_path = feed_dir / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["authoritative_source_freshness"]["status"] = "STALE"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    with __import__("pytest").raises(ValueError, match="STALE, not FRESH"):
+        build(
+            feed_dir=feed_dir,
+            private_root=tmp_path / "private",
+            limit=10,
+            as_of="2026-08-22",
+            run_stamp="stale",
+        )
+    assert not (tmp_path / "private" / "stale").exists()
+
+
+def test_expired_freshness_attestation_is_refused(tmp_path: Path):
+    feed_dir = _write_export(
+        tmp_path,
+        [_lead("11111111000191", [_contact("contato@alphaengenharia.com.br")])],
+    )
+    manifest_path = feed_dir / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["authoritative_source_freshness"]["expires_at"] = "2000-01-01T00:00:00Z"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    with __import__("pytest").raises(ValueError, match="expired"):
+        build(
+            feed_dir=feed_dir,
+            private_root=tmp_path / "private",
+            limit=10,
+            as_of="2026-08-22",
+            run_stamp="expired",
+        )
+    assert not (tmp_path / "private" / "expired").exists()
 
 
 def test_risky_and_suppressed_never_enter_the_cohort():
@@ -102,7 +157,10 @@ def test_exactly_one_preferred_route_per_account():
     leads = [
         _lead(
             "11111111000191",
-            [_contact("contato@alphaengenharia.com.br"), _contact("licitacoes@alphaengenharia.com.br", route_class="ROLE_OR_DEPARTMENT")],
+            [
+                _contact("contato@alphaengenharia.com.br"),
+                _contact("licitacoes@alphaengenharia.com.br", route_class="ROLE_OR_DEPARTMENT"),
+            ],
         ),
         _lead("22222222000172", [_contact("contato@betaengenharia.com.br", preferred=False)]),
     ]
@@ -132,7 +190,9 @@ def test_private_feed_is_0600_and_the_manifest_carries_no_pii(tmp_path):
     feed_dir = _write_export(
         tmp_path,
         [
-            _lead("11111111000191", [_contact("contato@alphaengenharia.com.br")], website="https://alphaengenharia.com.br"),
+            _lead(
+                "11111111000191", [_contact("contato@alphaengenharia.com.br")], website="https://alphaengenharia.com.br"
+            ),
             _lead(
                 "22222222000172",
                 [_contact("licitacoes@betaengenharia.com.br", route_class="ROLE_OR_DEPARTMENT")],
@@ -339,7 +399,19 @@ def test_the_producer_never_holds_the_whole_feed(tmp_path):
             ),
             encoding="utf-8",
         )
-    (feed_dir / "manifest.json").write_text(json.dumps({"lead_count": 12}), encoding="utf-8")
+    (feed_dir / "manifest.json").write_text(
+        json.dumps(
+            {
+                "lead_count": 12,
+                "authoritative_source_freshness": {
+                    "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
+                    "status": "FRESH",
+                    "expires_at": "2999-01-01T00:00:00Z",
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
 
     stream = iter_feed_leads(feed_dir)
     assert next(stream)["company"]["cnpj14"].startswith("0")
@@ -424,7 +496,9 @@ def test_a_generic_word_in_the_name_is_not_a_brand_match():
 
 
 def test_a_lead_without_a_company_name_cannot_be_verified():
-    unnamed = _lead("33333333000153", [_contact("contato@alphaengenharia.com.br")], website="https://alphaengenharia.com.br")
+    unnamed = _lead(
+        "33333333000153", [_contact("contato@alphaengenharia.com.br")], website="https://alphaengenharia.com.br"
+    )
     unnamed["company"]["razao_social"] = ""
     unnamed["company"]["nome_fantasia"] = ""
     members, stats = select_cohort([unnamed], limit=50)

@@ -12,11 +12,11 @@ from typing import Any
 import pytest
 
 from scripts.crawl.ingestion._base.crawler import CrawlRequest, FetchResult
-from scripts.crawl.resilience.adapters import PNCPAdapter, ScComprasAdapter
+from scripts.crawl.resilience.adapters import PNCPAdapter, ScComprasAdapter, _reusable_pncp_page
 from scripts.crawl.resilience.circuit_breaker import PersistentCircuitBreaker
 from scripts.crawl.resilience.config import ResilienceConfig
 from scripts.crawl.resilience.http_policy import HttpResiliencePolicy
-from scripts.crawl.resilience.persistence import InMemoryPersistence
+from scripts.crawl.resilience.persistence import InMemoryPersistence, PostgresPersistence
 from scripts.crawl.resilience.pipeline import OperationalPipeline
 from scripts.crawl.resilience.stages import InvalidCheckpointTransition, validate_transition
 from scripts.crawl.resilience.state import (
@@ -29,7 +29,7 @@ from scripts.crawl.resilience.state import (
     coerce_canonical_checkpoint,
 )
 from scripts.ops.health import collect_health
-from scripts.ops.resilient_cycle import run_cycle
+from scripts.ops.resilient_cycle import _aggregate_source_runs, _pncp_request_windows, run_cycle
 from scripts.ops.validate_systemd import validate as validate_systemd
 
 
@@ -280,6 +280,47 @@ def test_checkpoint_atomic_resume_and_no_reprocess(tmp_path: Path) -> None:
     assert second.metadata["pages_reused"] == 1
     assert second.pages_expected == 1
     assert second.pages_fetched == 1
+
+
+def test_completed_pncp_page_with_invalid_envelope_is_refetched(tmp_path: Path) -> None:
+    calls = 0
+    payload = [{"numeroControlePNCP": "00000000000100-1-000001/2026"}]
+
+    def fetcher(_request, _modalidade, _page):
+        nonlocal calls
+        calls += 1
+        return FetchResult(
+            status="success",
+            records=payload,
+            request_completed=True,
+            http_status=200,
+            pages_fetched=1,
+            pages_expected=1,
+            provenance={"test": True},
+            metadata={"pagination": {"totalPaginas": 1, "paginasRestantes": 0}, "url": "fixture://pncp"},
+        )
+
+    adapter = PNCPAdapter(config(tmp_path), page_fetcher=fetcher)
+    adapter.legacy.INGESTION_MODALIDADES = [1]
+    request = CrawlRequest(
+        mode="incremental", date_from=date(2026, 7, 17), date_to=date(2026, 7, 17), run_id="r-corrupt"
+    )
+    first = adapter.fetch(request)
+    scope = first.metadata["raw"][0]["request_scope"]
+    checkpoint = adapter.checkpoints.load("pncp", scope)
+    assert checkpoint and checkpoint.raw_reference
+    checkpoint.status = "success"
+    adapter.checkpoints.save(checkpoint)
+
+    envelope_path = Path(checkpoint.raw_reference)
+    envelope = json.loads(envelope_path.read_text(encoding="utf-8"))
+    envelope["request_succeeded"] = False
+    envelope_path.write_text(json.dumps(envelope), encoding="utf-8")
+
+    second = adapter.fetch(request)
+    assert calls == 2
+    assert second.records == payload
+    assert second.metadata["pages_reused"] == 0
 
 
 def test_rate_limit_checkpoint_no_watermark(tmp_path: Path) -> None:
@@ -1024,3 +1065,124 @@ def test_breaker_fixture_isolated_from_live(tmp_path: Path) -> None:
     live.record_failure(http_status=429)
     assert not live.allow_request()
     assert fix.allow_request()
+
+
+def test_failed_or_non_json_raw_is_never_reused_as_pncp_page() -> None:
+    assert _reusable_pncp_page({"envelope": {"request_succeeded": True}, "payload": b"upstream html"}) is None
+    assert _reusable_pncp_page({"envelope": {"request_succeeded": False}, "payload": {"data": []}}) is None
+    assert _reusable_pncp_page({"envelope": {"request_succeeded": True}, "payload": b'{"data":[{"id":2}]}'}) == [
+        {"id": 2}
+    ]
+    assert _reusable_pncp_page({"envelope": {"request_succeeded": True}, "payload": {"data": [{"id": 1}]}}) == [
+        {"id": 1}
+    ]
+
+
+def test_dlq_resolves_only_successful_equivalent_scope(tmp_path: Path) -> None:
+    dlq = FileDLQ(tmp_path / "dlq")
+    dlq.push(
+        source="pncp",
+        run_id="old",
+        payload={"request_scope": "mode=incremental|date=2026-08-09"},
+        error="old systemic failure",
+        error_kind="systemic",
+    )
+    dlq.push(
+        source="pncp",
+        run_id="other",
+        payload={"request_scope": "mode=incremental|date=2026-08-10"},
+        error="other failure",
+        error_kind="systemic",
+    )
+    assert dlq.resolve_scope(source="pncp", request_scope="mode=incremental|date=2026-08-09:2026-08-09|target=all") == 1
+    assert len(dlq.pending("pncp")) == 1
+    assert len(list((tmp_path / "dlq" / "resolved" / "pncp").glob("*.json"))) == 1
+
+
+def test_pncp_pending_windows_are_oldest_first_and_bounded() -> None:
+    class Pending:
+        def pending(self, source: str):
+            assert source == "pncp"
+            return [
+                CanonicalCheckpoint(
+                    source="pncp", run_id="a", request_scope="a", date_from="2026-08-20", date_to="2026-08-20"
+                ),
+                CanonicalCheckpoint(
+                    source="pncp", run_id="b", request_scope="b", date_from="2026-08-18", date_to="2026-08-18"
+                ),
+            ]
+
+    class Adapter:
+        checkpoints = Pending()
+
+    assert _pncp_request_windows(Adapter(), current=date(2026, 8, 22), limit=3) == [
+        (date(2026, 8, 18), date(2026, 8, 18)),
+        (date(2026, 8, 20), date(2026, 8, 20)),
+        (date(2026, 8, 22), date(2026, 8, 22)),
+    ]
+    aggregate = _aggregate_source_runs(
+        [
+            {"status": "success", "satisfactory": True, "db_committed": True},
+            {"status": "error", "satisfactory": False, "db_committed": False, "errors": ["boom"]},
+        ]
+    )
+    assert aggregate["status"] == "error"
+    assert aggregate["satisfactory"] is False
+
+
+def test_resilience_evidence_populates_success_zero_scope_contract() -> None:
+    columns = {
+        "request_scope",
+        "satisfactory",
+        "provenance",
+        "pages_fetched",
+        "pages_expected",
+        "scope_key",
+        "pages_processed",
+        "evidence_metadata",
+    }
+
+    class Cursor:
+        def __init__(self):
+            self.calls: list[tuple[str, Any]] = []
+            self.phase = 0
+
+        def execute(self, query: str, params: Any = None) -> None:
+            self.calls.append((query, params))
+
+        def fetchone(self):
+            return (True,)
+
+        def fetchall(self):
+            return [(column,) for column in columns]
+
+        def close(self) -> None:
+            return None
+
+    class Connection:
+        cursor_instance = Cursor()
+
+        def cursor(self):
+            return self.cursor_instance
+
+    connection = Connection()
+    PostgresPersistence()._project_resilience_evidence(
+        connection,
+        run_id="42",
+        source="pncp",
+        request_scope="mode=incremental|date=2026-08-22:2026-08-22|target=all",
+        fetch_status="empty_confirmed",
+        pages_fetched=4,
+        pages_expected=4,
+        provenance={"source": "pncp"},
+        fetched=0,
+        persisted=0,
+        date_from="2026-08-22",
+        date_to="2026-08-22",
+        satisfactory=True,
+    )
+    insert_query, params = connection.cursor_instance.calls[-1]
+    assert "scope_key, pages_processed, evidence_metadata" in insert_query
+    assert params[-3] == "mode=incremental|date=2026-08-22:2026-08-22|target=all"
+    assert params[-2] == 4
+    assert "completion_rule" in params[-1]

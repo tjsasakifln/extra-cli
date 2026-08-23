@@ -6,7 +6,7 @@ import argparse
 import json
 import os
 import sys
-from datetime import date
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from scripts.confenge_outreach_pipeline import MODULE_VERSION, PIPELINE_ID
@@ -83,10 +83,7 @@ when --max-rows is omitted. Round N+1 advances the durable activation cursor.
         "--limit-downstream",
         type=int,
         default=200,
-        help=(
-            "Max accounts for intelligence + contacts + feed "
-            "(default 200). Does NOT limit universe discovery."
-        ),
+        help=("Max accounts for intelligence + contacts + feed (default 200). Does NOT limit universe discovery."),
     )
     run.add_argument(
         "--max-workers",
@@ -189,13 +186,45 @@ def cmd_run(args: argparse.Namespace) -> int:
     # still available, but only through an explicit --dsn.
     dsn = args.dsn or (None if args.csv else os.environ.get("LOCAL_DATALAKE_DSN"))
     if not dsn and not args.csv and not args.skip_universe:
-        sys.stderr.write(
-            "error: provide --dsn / LOCAL_DATALAKE_DSN, --csv, or --skip-universe\n"
-        )
+        sys.stderr.write("error: provide --dsn / LOCAL_DATALAKE_DSN, --csv, or --skip-universe\n")
         return EXIT_USAGE
     if args.limit_downstream < 1:
         sys.stderr.write("error: --limit-downstream must be >= 1\n")
         return EXIT_USAGE
+
+    authoritative_source_freshness = None
+    if dsn:
+        from scripts.ops.pncp_contract_freshness import build_contract, collect_snapshot
+
+        contract = build_contract(collect_snapshot(live=True, dsn=dsn))
+        if contract.get("status") != "FRESH":
+            reasons = ",".join(contract.get("reason_codes") or []) or "none"
+            sys.stderr.write(
+                f"error: authoritative PNCP source is not FRESH; status={contract.get('status')} reasons={reasons}\n"
+            )
+            return EXIT_FAIL
+        as_of = datetime.fromisoformat(str(contract["as_of"]).replace("Z", "+00:00"))
+        target_hours = float((contract.get("slo") or {}).get("desired_operational_target_hours") or 6.0)
+        lag_hours = float(contract.get("current_lag_hours") or 0.0)
+        expires_at = as_of + timedelta(hours=max(0.0, target_hours - lag_hours))
+        authoritative_source_freshness = {
+            key: contract.get(key)
+            for key in (
+                "contract_version",
+                "status",
+                "reason_codes",
+                "as_of",
+                "deployed_sha",
+                "policy_version",
+                "run_id",
+                "source_window",
+                "latest_successful_closed_window",
+                "current_lag_hours",
+                "pages_expected",
+                "pages_fetched",
+            )
+        }
+        authoritative_source_freshness["expires_at"] = expires_at.isoformat().replace("+00:00", "Z")
 
     as_of: date | None = None
     if args.as_of:
@@ -229,6 +258,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         commercial_memory_path=args.commercial_memory,
         resume=not bool(args.no_resume),
         progress=not bool(args.quiet),
+        authoritative_source_freshness=authoritative_source_freshness,
     )
     result = run_pipeline(cfg)
     payload = {
@@ -249,9 +279,7 @@ def cmd_run(args: argparse.Namespace) -> int:
             "source_watermark": result.stages.get("source_watermark"),
             "use_activation_planner": result.stages.get("use_activation_planner"),
             "intel_count": (result.stages.get("account_intelligence") or {}).get("count"),
-            "service_distribution": (result.stages.get("account_intelligence") or {}).get(
-                "service_distribution"
-            ),
+            "service_distribution": (result.stages.get("account_intelligence") or {}).get("service_distribution"),
             "contact_metrics": (result.stages.get("contacts") or {}).get("metrics"),
             "feed": {
                 k: (result.stages.get("feed") or {}).get(k)

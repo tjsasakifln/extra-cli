@@ -1139,6 +1139,7 @@ def run_pilot(
                 checkpoint.completed_windows.append(window_key)
                 checkpoint.total_windows_completed += 1
                 checkpoint.total_contracts_fetched += window_transformed
+                checkpoint.last_error = None
                 report["totals"]["windows_ok"] += 1
             else:
                 checkpoint.total_windows_failed += 1

@@ -214,9 +214,7 @@ class RawStore:
 
         safe_provenance = sanitize_mapping(dict(provenance))
         raw_headers = safe_provenance.get("response_headers")
-        safe_provenance["response_headers"] = sanitize_headers(
-            raw_headers if isinstance(raw_headers, dict) else {}
-        )
+        safe_provenance["response_headers"] = sanitize_headers(raw_headers if isinstance(raw_headers, dict) else {})
         endpoint = sanitize_url(str(safe_provenance.get("endpoint") or "")) or None
         if endpoint:
             safe_provenance["endpoint"] = endpoint
@@ -242,11 +240,7 @@ class RawStore:
         scope_hash = hashlib.sha256(request_scope.encode()).hexdigest()[:16]
         page_token = f"page-{page}" if page is not None else "page-none"
         path = (
-            self.root
-            / "envelopes"
-            / _slug(source)
-            / _slug(run_id)
-            / f"{scope_hash}-{page_token}-{envelope_hash}.json"
+            self.root / "envelopes" / _slug(source) / _slug(run_id) / f"{scope_hash}-{page_token}-{envelope_hash}.json"
         )
         if not path.exists():
             _atomic_json(path, envelope)
@@ -273,7 +267,11 @@ class RawStore:
     def _record_postgres(self, envelope: dict[str, Any], path: Path) -> None:
         import psycopg2
 
-        with closing(psycopg2.connect(self.dsn, connect_timeout=10)) as connection, connection, connection.cursor() as cursor:
+        with (
+            closing(psycopg2.connect(self.dsn, connect_timeout=10)) as connection,
+            connection,
+            connection.cursor() as cursor,
+        ):
             cursor.execute(
                 """
                 INSERT INTO raw_http_fetches (
@@ -588,6 +586,39 @@ class FileDLQ:
     def pending(self, source: str | None = None) -> list[Path]:
         root = self.root / "pending"
         return sorted((root / _slug(source)).glob("*.json")) if source else sorted(root.glob("*/*.json"))
+
+    def resolve_scope(self, *, source: str, request_scope: str) -> int:
+        """Move systemic failures aside only after that exact scope succeeds."""
+
+        def equivalent_scope(candidate: str) -> bool:
+            if candidate == request_scope:
+                return True
+            # Legacy all-target scopes omitted ``:same-day|target=all``.
+            if "target=all" not in request_scope or "target=" in candidate:
+                return False
+            try:
+                expected = request_scope.split("date=", 1)[1].split("|", 1)[0]
+                observed = candidate.split("date=", 1)[1].split("|", 1)[0]
+            except IndexError:
+                return False
+            if ":" not in observed:
+                observed = f"{observed}:{observed}"
+            return observed == expected
+
+        resolved = 0
+        for path in self.pending(source):
+            try:
+                record = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+            payload = record.get("payload")
+            if not isinstance(payload, dict) or not equivalent_scope(str(payload.get("request_scope") or "")):
+                continue
+            destination = self.root / "resolved" / path.parent.name / path.name
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            os.replace(path, destination)
+            resolved += 1
+        return resolved
 
     def replay(self, handler: Callable[[dict[str, Any]], None], *, source: str | None = None) -> tuple[int, int]:
         ok = failed = 0

@@ -333,18 +333,30 @@ do_backup() {
       fi
       log "INFO" "Integridade do gzip verificada: OK"
 
-      log "INFO" "Copiando para off-site: $dump_path"
-      if ! cp -f "$staging_path" "$dump_path"; then
+      # Publish atomically. A partially copied file must never have the final
+      # name because freshness checks treat that name as backup evidence.
+      local remote_staging="${dump_path}.partial.$$"
+      rm -f "$remote_staging"
+      log "INFO" "Copiando para off-site (staging): $remote_staging"
+      if ! cp -f "$staging_path" "$remote_staging"; then
         log "ERROR" "Falha ao copiar dump para destino off-site $dump_path"
+        rm -f "$remote_staging"
         notify_failure "Backup DB - Falha" "Falha ao copiar dump off-site"
         return 1
       fi
       sync
       local remote_size
-      remote_size="$(stat --printf='%s' "$dump_path" 2>/dev/null || echo 0)"
+      remote_size="$(stat --printf='%s' "$remote_staging" 2>/dev/null || echo 0)"
       if [ "$remote_size" != "$file_size" ]; then
         log "ERROR" "Tamanho off-site ($remote_size) != local ($file_size)"
+        rm -f "$remote_staging"
         notify_failure "Backup DB - Falha" "Size mismatch after off-site copy"
+        return 1
+      fi
+      if ! mv -f "$remote_staging" "$dump_path"; then
+        log "ERROR" "Falha ao publicar dump off-site $dump_path"
+        rm -f "$remote_staging"
+        notify_failure "Backup DB - Falha" "Falha ao publicar dump off-site"
         return 1
       fi
       log "INFO" "Backup off-site concluído: $dump_name | Tamanho: $(numfmt --to=iec "$file_size")"
@@ -486,7 +498,9 @@ ensure_remote_dirs "$BACKUP_BASE"
 
 # 3. Executa backup
 log "INFO" "Passo 3/4: Executando pg_dump"
-if ! do_backup "$BACKUP_BASE"; then
+if do_backup "$BACKUP_BASE"; then
+  :
+else
   backup_exit=$?
   umount_storage_box
   exit "$backup_exit"
