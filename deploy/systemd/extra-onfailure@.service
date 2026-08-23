@@ -13,6 +13,12 @@ Description=Extra Consultoria — OnFailure alert for %i
 Type=oneshot
 User=extra-consultoria
 Group=extra-consultoria
+# Let systemd create and continuously enforce ownership of the durable ledger
+# directory.  Provisioning it once is insufficient: a root-run deploy or
+# restore can otherwise recreate the leaf directory as root and silence the
+# very alert path that must survive application failures.
+StateDirectory=extra-consultoria/alerts
+StateDirectoryMode=0750
 EnvironmentFile=-/opt/extra-consultoria/.env
 Environment=ALERT_ONFAILURE_LEDGER=/var/lib/extra-consultoria/alerts/onfailure.jsonl
 ExecStart=/opt/extra-consultoria/.venv/bin/python /opt/extra-consultoria/scripts/ops/onfailure_alert.py --service %i --host %H

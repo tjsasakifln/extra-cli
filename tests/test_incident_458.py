@@ -554,5 +554,7 @@ def test_systemd_units_use_bundle_venv_and_service_mode() -> None:
     assert "--service-mode" in alerts
     assert "/var/lib/extra-consultoria/alerts/alert_ledger.jsonl" in alerts
     assert "/var/lib/extra-consultoria/alerts/onfailure.jsonl" in onfailure
+    assert "StateDirectory=extra-consultoria/alerts" in onfailure
+    assert "StateDirectoryMode=0750" in onfailure
     assert "/opt/extra-consultoria/.venv/bin/python" in onfailure
     assert "scripts/ops/onfailure_alert.py" in onfailure
