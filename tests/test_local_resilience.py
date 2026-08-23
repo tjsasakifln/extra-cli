@@ -701,6 +701,35 @@ def test_fixture_cycle_never_makes_live_health_green(tmp_path: Path, monkeypatch
     )
 
 
+def test_pending_dlq_never_reports_healthy(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("RESILIENCE_STATE_PATH", str(tmp_path))
+    monkeypatch.setenv("RESILIENCE_ENV", "fixture")
+    monkeypatch.setenv("RESILIENCE_REQUEST_DELAY", "0")
+    monkeypatch.setenv("RESILIENCE_REQUIRE_DB", "0")
+    cfg = ResilienceConfig.from_env(environment="fixture", execution_mode="fixture")
+    FileDLQ(cfg.dlq_path).push(
+        source="pncp",
+        run_id="poison",
+        payload={"request_scope": "record=permanent-poison"},
+        error="schema_drift",
+        error_kind="record",
+    )
+
+    code, summary = run_cycle(
+        source="pncp",
+        fixture_dir=Path("tests/fixtures/resilience"),
+        config=cfg,
+        persistence=InMemoryPersistence(),
+    )
+
+    assert code == 1
+    assert summary["status"] == "degraded"
+    assert summary["pending_dlq_before"] == 1
+    assert summary["dlq_replayed"] == 0
+    assert summary["pending_dlq"] == 1
+    assert next(step for step in summary["steps"] if step["step"] == "resume-dlq")["status"] == "partial"
+
+
 def test_checkpoint_invalid_schema_fails_explicitly() -> None:
     with pytest.raises(TypeError, match="checkpoint schema invalido"):
         coerce_canonical_checkpoint({"page_scopes": ["a"], "pages_reused": 1})
@@ -1172,7 +1201,7 @@ def test_dlq_resolves_only_successful_equivalent_scope(tmp_path: Path) -> None:
     assert len(list((tmp_path / "dlq" / "resolved" / "pncp").glob("*.json"))) == 1
 
 
-def test_pncp_pending_windows_are_oldest_first_and_bounded() -> None:
+def test_pncp_pending_windows_are_oldest_first_and_bounded(tmp_path: Path) -> None:
     class Pending:
         def pending(self, source: str):
             assert source == "pncp"
@@ -1188,7 +1217,24 @@ def test_pncp_pending_windows_are_oldest_first_and_bounded() -> None:
     class Adapter:
         checkpoints = Pending()
 
-    assert _pncp_request_windows(Adapter(), current=date(2026, 8, 22), limit=3) == [
+    dlq = FileDLQ(tmp_path / "dlq")
+    dlq.push(
+        source="pncp",
+        run_id="legacy-persist-timeout",
+        payload={"request_scope": "mode=incremental|date=2026-08-17"},
+        error="persist_canonical_failed:read timeout",
+        error_kind="systemic",
+    )
+    # Record-level poison is not converted into an expensive window replay.
+    dlq.push(
+        source="pncp",
+        run_id="record-poison",
+        payload={"request_scope": "mode=incremental|date=2026-08-16"},
+        error="invalid payload",
+        error_kind="record",
+    )
+    assert _pncp_request_windows(Adapter(), current=date(2026, 8, 22), limit=4, dlq=dlq) == [
+        (date(2026, 8, 17), date(2026, 8, 17)),
         (date(2026, 8, 18), date(2026, 8, 18)),
         (date(2026, 8, 20), date(2026, 8, 20)),
         (date(2026, 8, 22), date(2026, 8, 22)),

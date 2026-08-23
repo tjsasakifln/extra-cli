@@ -118,8 +118,14 @@ def _live_adapters(config: ResilienceConfig) -> list[SourceAdapter]:
     return [PNCPAdapter(config), CigaDomAdapter(config), ScComprasAdapter(config)]
 
 
-def _pncp_request_windows(adapter: SourceAdapter, *, current: date, limit: int = 14) -> list[tuple[date, date]]:
-    """Bounded oldest-first replay windows plus the current UTC day."""
+def _pncp_request_windows(
+    adapter: SourceAdapter,
+    *,
+    current: date,
+    limit: int = 14,
+    dlq: FileDLQ | None = None,
+) -> list[tuple[date, date]]:
+    """Bounded oldest-first checkpoint/DLQ replay plus the current UTC day."""
     windows: set[tuple[date, date]] = set()
     checkpoints = getattr(adapter, "checkpoints", None)
     if checkpoints is not None:
@@ -128,6 +134,22 @@ def _pncp_request_windows(adapter: SourceAdapter, *, current: date, limit: int =
                 start = date.fromisoformat(str(checkpoint.date_from))
                 end = date.fromisoformat(str(checkpoint.date_to or checkpoint.date_from))
             except (TypeError, ValueError):
+                continue
+            if start <= end <= current:
+                windows.add((start, end))
+    if dlq is not None:
+        for path in dlq.pending("pncp"):
+            try:
+                record = json.loads(path.read_text(encoding="utf-8"))
+                payload = record.get("payload") or {}
+                scope = str(payload.get("request_scope") or "") if isinstance(payload, dict) else ""
+                if record.get("error_kind") != "systemic" or "date=" not in scope:
+                    continue
+                raw_window = scope.split("date=", 1)[1].split("|", 1)[0]
+                bounds = raw_window.split(":", 1)
+                start = date.fromisoformat(bounds[0])
+                end = date.fromisoformat(bounds[1] if len(bounds) == 2 else bounds[0])
+            except (OSError, TypeError, ValueError, json.JSONDecodeError):
                 continue
             if start <= end <= current:
                 windows.add((start, end))
@@ -201,6 +223,8 @@ def run_cycle(
     started = time.monotonic()
     started_at = datetime.now(UTC).isoformat()
     pipeline = OperationalPipeline(config, persistence=persistence, crash_after=crash_after)
+    selected_source = "ciga_dom" if source == "ciga_ckan" else source
+    initial_dlq_pending = len(pipeline.dlq.pending(selected_source))
     steps: list[dict[str, Any]] = [
         {
             "step": "pre-check",
@@ -214,8 +238,7 @@ def run_cycle(
         _live_adapters(config) if live else _fixture_adapters(config, fixture_dir or Path("tests/fixtures/resilience"))
     )
     if source:
-        wanted = "ciga_dom" if source == "ciga_ckan" else source
-        adapters = [adapter for adapter in adapters if adapter.source_id == wanted]
+        adapters = [adapter for adapter in adapters if adapter.source_id == selected_source]
     results: dict[str, Any] = {}
 
     for adapter in adapters:
@@ -226,7 +249,7 @@ def run_cycle(
         steps.append({"step": f"source-health:{adapter.source_id}", "status": health.status})
         windows = [(request_start, request_end)]
         if live and adapter.source_id == "pncp" and date_from is None and date_to is None:
-            windows = _pncp_request_windows(adapter, current=request_start)
+            windows = _pncp_request_windows(adapter, current=request_start, dlq=pipeline.dlq)
         source_runs: list[dict[str, Any]] = []
         for index, (window_start, window_end) in enumerate(windows):
             scope = (
@@ -263,12 +286,20 @@ def run_cycle(
     checkpoints = CheckpointStore(config.checkpoint_path)
     dlq = FileDLQ(config.dlq_path)
     pending = checkpoints.pending()
+    pending_dlq = dlq.pending(selected_source)
     steps.extend(
         [
             {
                 "step": "resume-pending",
                 "status": "success" if not pending else "partial",
                 "pending": len(pending),
+            },
+            {
+                "step": "resume-dlq",
+                "status": "success" if not pending_dlq else "partial",
+                "pending_before": initial_dlq_pending,
+                "resolved": max(0, initial_dlq_pending - len(pending_dlq)),
+                "pending": len(pending_dlq),
             },
             {
                 "step": "evidence-projection",
@@ -298,7 +329,7 @@ def run_cycle(
         blocked = blocked or any(
             not v.get("db_committed") and v.get("status") in {"success", "empty_confirmed"} for v in results.values()
         )
-    degraded = any(not v.get("satisfactory") for v in results.values()) or bool(pending)
+    degraded = any(not v.get("satisfactory") for v in results.values()) or bool(pending) or bool(pending_dlq)
     exit_code = 2 if blocked else (1 if degraded else 0)
 
     if live:
@@ -321,7 +352,9 @@ def run_cycle(
         "results": results,
         "steps": steps,
         "pending_checkpoints": len(pending),
-        "pending_dlq": len(dlq.pending()),
+        "pending_dlq_before": initial_dlq_pending,
+        "dlq_replayed": max(0, initial_dlq_pending - len(pending_dlq)),
+        "pending_dlq": len(pending_dlq),
         "log_path": str(log_path),
         "claim": claim,
         "host": config.host,
@@ -329,7 +362,7 @@ def run_cycle(
             "status": status_label,
             "exit_code": exit_code,
             "pending_checkpoints": len(pending),
-            "pending_dlq": len(dlq.pending()),
+            "pending_dlq": len(pending_dlq),
         },
     }
     summary_path = config.ops_path / "runs" / f"{run_id}.json"

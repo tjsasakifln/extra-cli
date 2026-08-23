@@ -139,6 +139,16 @@ um timeout ou contrato upstream. Depois do reparo, o primeiro ciclo deve
 reportar quantos desses checkpoints foram reprocessados e só pode ficar verde
 quando DB, evidence, watermark e freshness concluírem.
 
+O primeiro ciclo pós-reparo (`resilient-local-20260823T084549Z-1c34f4d6b2`,
+invocation `266dbc76f5a641e49719182ddc4c61e4`) confirmou 24/24 páginas
+reprocessadas, sete janelas satisfatórias, 539 registros projetados,
+`pending_checkpoints=0` e duração 527,46 s. Mesmo assim, seu `healthy` foi
+**recusado** porque `pending_dlq=1`: uma falha sistêmica antiga de persistência
+em 2026-08-01 não tinha checkpoint e, portanto, nunca entrava no replay. O
+runner passou a incluir DLQs sistêmicas no conjunto oldest-first, reconciliar o
+scope legado apenas após sucesso equivalente e degradar enquanto qualquer DLQ
+do source permanecer pendente. DLQ record-level poison não vira replay amplo.
+
 ## Janela controlada pós-deploy
 
 Pré-condições: PR/CI verdes, SHA exato aprovado e deploy concluído. Não usar
