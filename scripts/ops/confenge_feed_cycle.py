@@ -29,6 +29,26 @@ def _run_id() -> str:
     return datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
 
 
+def _pipeline_runtime() -> tuple[Path, dict[str, str]]:
+    """Bind the child pipeline to the same immutable checkout as this runner.
+
+    Production deliberately runs this orchestrator from the canonical data/evidence
+    directory.  Invoking the child with ``python -m`` would therefore let an older
+    ``scripts`` package in that directory shadow the deployed release.  Execute the
+    release entrypoint by absolute path and put its repository root first on
+    ``PYTHONPATH`` while preserving the canonical working directory.
+    """
+
+    runtime_root = Path(__file__).resolve().parents[2]
+    entrypoint = runtime_root / "scripts" / "confenge_outreach_pipeline" / "__main__.py"
+    if not entrypoint.is_file():
+        raise FileNotFoundError(f"canonical outreach pipeline entrypoint not found: {entrypoint}")
+    env = os.environ.copy()
+    inherited_pythonpath = env.get("PYTHONPATH")
+    env["PYTHONPATH"] = os.pathsep.join(part for part in (str(runtime_root), inherited_pythonpath) if part)
+    return entrypoint, env
+
+
 def run_cycle(
     *,
     output_root: Path,
@@ -46,10 +66,10 @@ def run_cycle(
 
     run_dir = output_root / f"confenge-feed-cycle-{_run_id()}"
     run_dir.mkdir(parents=True, exist_ok=False)
+    pipeline_entrypoint, pipeline_env = _pipeline_runtime()
     command = [
         sys.executable,
-        "-m",
-        "scripts.confenge_outreach_pipeline",
+        str(pipeline_entrypoint),
         "run",
         "--out",
         str(run_dir),
@@ -62,7 +82,13 @@ def run_cycle(
         "--no-resume",
         "--quiet",
     ]
-    completed = subprocess.run(command, check=False, text=True, capture_output=True)  # noqa: S603
+    completed = subprocess.run(  # noqa: S603
+        command,
+        check=False,
+        text=True,
+        capture_output=True,
+        env=pipeline_env,
+    )
     (run_dir / "cycle-command.json").write_text(
         json.dumps(
             {
@@ -79,8 +105,7 @@ def run_cycle(
     )
     if completed.returncode != 0:
         raise RuntimeError(
-            f"canonical outreach pipeline failed with exit {completed.returncode}: "
-            f"{completed.stderr[-2000:].strip()}"
+            f"canonical outreach pipeline failed with exit {completed.returncode}: {completed.stderr[-2000:].strip()}"
         )
 
     publication = atomic_publish_directory(
