@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import subprocess
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
@@ -12,6 +14,7 @@ from scripts.confenge_activation.publish import (
     check_current_publication,
     record_feed_cycle_state,
 )
+from scripts.ops import confenge_feed_cycle
 
 NOW = datetime(2026, 8, 24, 18, tzinfo=UTC)
 
@@ -184,3 +187,45 @@ def test_hash_mismatch_is_refused_before_promotion(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="chunk hash mismatch"):
         atomic_publish_directory(build, public, state_path=state, alert_ledger=alerts, now=NOW)
     assert not (public / "current").exists()
+
+
+def test_cycle_binds_child_pipeline_to_same_checkout(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    durable_contacts = tmp_path / "contacts.jsonl"
+    durable_contacts.write_text("", encoding="utf-8")
+    captured: dict[str, object] = {}
+    monkeypatch.setenv("LOCAL_DATALAKE_DSN", "postgresql://test:test@127.0.0.1:5433/extra_test")
+
+    def fake_run(command: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        captured["command"] = command
+        captured["env"] = kwargs["env"]
+        run_dir = Path(command[command.index("--out") + 1])
+        (run_dir / "06_warmbly_feed").mkdir()
+        return subprocess.CompletedProcess(command, 0, stdout="{}", stderr="")
+
+    monkeypatch.setattr(confenge_feed_cycle.subprocess, "run", fake_run)
+    monkeypatch.setattr(
+        confenge_feed_cycle,
+        "atomic_publish_directory",
+        lambda *_args, **_kwargs: {"ok": True},
+    )
+
+    result = confenge_feed_cycle.run_cycle(
+        output_root=tmp_path / "output",
+        durable_contacts=durable_contacts,
+        publish_dir=tmp_path / "public",
+        as_of=NOW.date(),
+        max_age_hours=24,
+        state_path=tmp_path / "state.json",
+        alert_ledger=tmp_path / "alerts.jsonl",
+    )
+
+    command = captured["command"]
+    assert isinstance(command, list)
+    runtime_root = Path(confenge_feed_cycle.__file__).resolve().parents[2]
+    assert Path(command[1]) == runtime_root / "scripts/confenge_outreach_pipeline/__main__.py"
+    assert "-m" not in command
+    assert "--durable-contacts" in command
+    child_env = captured["env"]
+    assert isinstance(child_env, dict)
+    assert str(child_env["PYTHONPATH"]).split(os.pathsep)[0] == str(runtime_root)
+    assert result["ok"] is True
