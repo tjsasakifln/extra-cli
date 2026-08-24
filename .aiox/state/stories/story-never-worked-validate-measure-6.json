@@ -1,0 +1,24 @@
+{
+  "story_id": "story-never-worked-validate-measure-6",
+  "risk_level": "STANDARD",
+  "status": "InReview",
+  "po_validated": true,
+  "qa_verdict": "PENDING",
+  "po_closed": false,
+  "scope_files": [
+    "scripts/coverage/promote_or_defer.py",
+    "tests/test_issue_252_254_255_260_334_335_promote_or_defer.py",
+    "docs/stories/story-never-worked-validate-measure-6.md"
+  ],
+  "reviewed_commit": null,
+  "gates": {
+    "lint": "PENDING",
+    "typecheck": "PENDING",
+    "tests": "PENDING",
+    "build": "NA"
+  },
+  "rollback_plan": "revert the branch; no schema or production change",
+  "snapshot_evidence": null,
+  "publication_authorized": false,
+  "maintenance_mode": false
+}
