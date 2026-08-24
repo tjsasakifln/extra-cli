@@ -85,9 +85,13 @@ right, an imbalance, a loss, or that an adjustment is due.
 The prospect is never the subject of a public page. Public bodies and their
 published contracts are public record and stay. `public-read.json` drops the
 identity and buyer-map sections entirely and redacts every field in
-`PUBLIC_REDACTED_FIELDS`. `verify` compares every private value against the
-public body and fails on any match; a redacted key kept with an `UNKNOWN` value
-is not a leak, a private value appearing anywhere is.
+`PUBLIC_REDACTED_FIELDS`. `verify` requires every redacted key that remains in
+the projection to carry `UNKNOWN` and blocks private identity values outside
+fields anchored in published opportunity records. Matching is lexical rather
+than arbitrary substring matching, so an authority such as `MUNICIPIO DE
+PALHOCA` is not mistaken for a leak merely because the prospect is also based
+in Palhoça; the same value in an untrusted profile or generated field still
+fails closed.
 
 ## What this artifact does not decide
 

@@ -81,6 +81,6 @@
       "open_opportunities",
       "value-position and opportunity findings"
     ],
-    "enforcement": "verify compares every private value against the public body and fails on any match."
+    "enforcement": "verify requires every redacted key to remain UNKNOWN and fails when private identity values occur outside fields anchored in published opportunity records; lexical matching prevents arbitrary-substring false positives."
   }
 }

@@ -380,6 +380,48 @@ def test_cli_build_and_verify_roundtrip(tmp_path, capsys):
     assert report["verdict"] == "PASS"
 
 
+def test_public_identity_scan_allows_municipality_inside_official_body_name(built):
+    """A public authority name is not the prospect's domicile leaking."""
+    _result, document = built
+    document["sections"][SECTION_IDENTITY]["payload"]["municipio"] = "PALHOCA"
+    public = public_projection(document)
+    opportunity = {
+        "orgao_nome": "MUNICIPIO DE PALHOCA",
+        "objeto": "Servicos didaticos",
+        "municipio": "UNKNOWN",
+    }
+    public["sections"]["open_opportunities"] = {
+        "payload": {"opportunities": [opportunity]},
+    }
+    public["findings"].append(
+        {
+            "finding_id": "open_opportunity_from_known_buyer:abc",
+            "fact": "Edital aberto de MUNICIPIO DE PALHOCA, comprador conhecido.",
+        }
+    )
+
+    assert cli._public_identity_leaks(document, public) == []
+
+
+def test_public_identity_scan_still_blocks_real_municipality_leaks(built):
+    _result, document = built
+    document["sections"][SECTION_IDENTITY]["payload"]["municipio"] = "PALHOCA"
+    public = public_projection(document)
+    public["subject_profile"]["description"] = "Prospect sediado em PALHOCA"
+
+    assert "identity.municipio" in cli._public_identity_leaks(document, public)
+
+
+def test_public_identity_scan_still_blocks_nonredacted_private_fields(built):
+    _result, document = built
+    public = public_projection(document)
+    public["subject_profile"]["municipio"] = "FIXTURELANDIA"
+
+    leaks = cli._public_identity_leaks(document, public)
+    assert "identity.municipio" in leaks
+    assert "redacted_field:subject_profile.municipio" in leaks
+
+
 def test_cli_verify_detects_a_tampered_dossier(tmp_path, capsys):
     out = tmp_path / "acme"
     cli.main(["build", "--cnpj", CNPJ, "--as-of", "2026-08-22", "--fixture", str(FIXTURE), "--out", str(out)])
