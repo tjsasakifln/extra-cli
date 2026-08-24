@@ -65,8 +65,10 @@ def _utcnow() -> str:
 
 def load_construction_jobs_from_dsn(
     dsn: str,
+    *,
+    target_confirmed_only: bool = False,
 ) -> list[CompanyJob]:
-    """Load every confirmed/probable construction root, regardless of target-fit."""
+    """Load the construction universe, or the full current TARGET_CONFIRMED set."""
     conn = connect(dsn, readonly=True)
     try:
         mode_ctrl = get_control(conn, "async_mode")
@@ -78,11 +80,34 @@ def load_construction_jobs_from_dsn(
                     SELECT s.company_key, s.cnpj_raiz, s.representative_cnpj14,
                            s.sector_class,
                            s.sector_confidence,
+                           s.sector_version,
+                           s.sector_classifier_sha256,
+                           s.input_fingerprint AS sector_input_fingerprint,
+                           s.source_watermark AS sector_source_watermark,
+                           s.computed_at AS sector_computed_at,
                            t.shadow_class AS target_fit_class,
-                           t.shadow_confidence AS target_fit_confidence
+                           t.shadow_confidence AS target_fit_confidence,
+                           t.target_fit_version,
+                           t.classifier_sha AS target_fit_classifier_sha,
+                           t.input_fingerprint AS target_fit_input_fingerprint,
+                           t.source_watermark AS target_fit_source_watermark,
+                           t.computed_at AS target_fit_computed_at,
+                           r.razao_social AS registry_razao_social,
+                           r.nome_fantasia AS registry_nome_fantasia,
+                           r.source AS registry_source,
+                           r.source_version AS registry_source_version,
+                           r.source_date AS registry_source_date
                     FROM confenge_company_sector_current s
                     LEFT JOIN confenge_target_fit_shadow t USING (company_key)
-                    WHERE s.sector_class IN ('CONSTRUCTION_CONFIRMED', 'CONSTRUCTION_PROBABLE')
+                    LEFT JOIN supplier_registry r
+                      ON r.cnpj14 = s.representative_cnpj14
+                    WHERE (
+                        (%s AND t.shadow_class = 'TARGET_CONFIRMED')
+                        OR (
+                            NOT %s
+                            AND s.sector_class IN ('CONSTRUCTION_CONFIRMED', 'CONSTRUCTION_PROBABLE')
+                        )
+                    )
                     ORDER BY
                         CASE t.shadow_class
                             WHEN 'TARGET_CONFIRMED' THEN 0
@@ -92,7 +117,8 @@ def load_construction_jobs_from_dsn(
                         END,
                         s.sector_confidence DESC,
                         s.cnpj_raiz
-                    """
+                    """,
+                    (target_confirmed_only, target_confirmed_only),
                 )
             else:
                 cur.execute(
@@ -100,11 +126,34 @@ def load_construction_jobs_from_dsn(
                     SELECT s.company_key, s.cnpj_raiz, s.representative_cnpj14,
                            s.sector_class,
                            s.sector_confidence,
+                           s.sector_version,
+                           s.sector_classifier_sha256,
+                           s.input_fingerprint AS sector_input_fingerprint,
+                           s.source_watermark AS sector_source_watermark,
+                           s.computed_at AS sector_computed_at,
                            t.target_fit_class,
-                           t.target_fit_confidence
+                           t.target_fit_confidence,
+                           t.target_fit_version,
+                           t.classifier_sha AS target_fit_classifier_sha,
+                           t.input_fingerprint AS target_fit_input_fingerprint,
+                           t.source_watermark AS target_fit_source_watermark,
+                           t.computed_at AS target_fit_computed_at,
+                           r.razao_social AS registry_razao_social,
+                           r.nome_fantasia AS registry_nome_fantasia,
+                           r.source AS registry_source,
+                           r.source_version AS registry_source_version,
+                           r.source_date AS registry_source_date
                     FROM confenge_company_sector_current s
                     LEFT JOIN confenge_company_target_fit_current t USING (company_key)
-                    WHERE s.sector_class IN ('CONSTRUCTION_CONFIRMED', 'CONSTRUCTION_PROBABLE')
+                    LEFT JOIN supplier_registry r
+                      ON r.cnpj14 = s.representative_cnpj14
+                    WHERE (
+                        (%s AND t.target_fit_class = 'TARGET_CONFIRMED')
+                        OR (
+                            NOT %s
+                            AND s.sector_class IN ('CONSTRUCTION_CONFIRMED', 'CONSTRUCTION_PROBABLE')
+                        )
+                    )
                     ORDER BY
                         CASE t.target_fit_class
                             WHEN 'TARGET_CONFIRMED' THEN 0
@@ -114,7 +163,8 @@ def load_construction_jobs_from_dsn(
                         END,
                         s.sector_confidence DESC,
                         s.cnpj_raiz
-                    """
+                    """,
+                    (target_confirmed_only, target_confirmed_only),
                 )
             rows = list(cur.fetchall() or [])
 
@@ -139,7 +189,7 @@ def load_construction_jobs_from_dsn(
             jobs.append(
                 CompanyJob(
                     cnpj14=cnpj14,
-                    razao_social=None,
+                    razao_social=r.get("registry_razao_social"),
                     priority_tier=tier,
                     priority_rank=rank,
                     meta={
@@ -149,8 +199,36 @@ def load_construction_jobs_from_dsn(
                         "representative_establishment_observed": len(cnpj14) == 14,
                         "sector_class": r.get("sector_class"),
                         "sector_confidence": r.get("sector_confidence"),
+                        "sector_version": r.get("sector_version"),
+                        "sector_classifier_sha256": r.get("sector_classifier_sha256"),
+                        "sector_input_fingerprint": r.get("sector_input_fingerprint"),
+                        "sector_source_watermark": r.get("sector_source_watermark"),
+                        "sector_computed_at": (
+                            r.get("sector_computed_at").isoformat()
+                            if hasattr(r.get("sector_computed_at"), "isoformat")
+                            else r.get("sector_computed_at")
+                        ),
                         "target_fit_class": target_class,
                         "target_fit_confidence": conf,
+                        "target_fit_version": r.get("target_fit_version"),
+                        "target_fit_classifier_sha": r.get("target_fit_classifier_sha"),
+                        "target_fit_mode": mode,
+                        "target_fit_input_fingerprint": r.get("target_fit_input_fingerprint"),
+                        "target_fit_source_watermark": r.get("target_fit_source_watermark"),
+                        "target_fit_computed_at": (
+                            r.get("target_fit_computed_at").isoformat()
+                            if hasattr(r.get("target_fit_computed_at"), "isoformat")
+                            else r.get("target_fit_computed_at")
+                        ),
+                        "razao_social": r.get("registry_razao_social"),
+                        "nome_fantasia": r.get("registry_nome_fantasia"),
+                        "registry_source": r.get("registry_source"),
+                        "registry_source_version": r.get("registry_source_version"),
+                        "registry_source_date": (
+                            r.get("registry_source_date").isoformat()
+                            if hasattr(r.get("registry_source_date"), "isoformat")
+                            else r.get("registry_source_date")
+                        ),
                         "source": "continuous_construction_universe",
                     },
                 )

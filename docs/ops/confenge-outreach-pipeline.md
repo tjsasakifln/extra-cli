@@ -24,7 +24,8 @@ python -m scripts.confenge_outreach_pipeline run \
   --dsn "$LOCAL_DATALAKE_DSN" \
   --out output/confenge_outreach \
   --as-of 2026-08-07 \
-  --use-activation-planner
+  --use-activation-planner \
+  --durable-contacts output/contact-discovery/contacts.jsonl
 
 # Smoke only
 python -m scripts.confenge_outreach_pipeline run \
@@ -51,6 +52,7 @@ python -m scripts.confenge_outreach_pipeline run \
 | `--max-rows` | **Diagnostic sampling** of universe source; never claim full-scale when set |
 | `--csv` | Offline fixture path |
 | `--skip-contacts` | Empty contacts (offline speed) |
+| `--durable-contacts` | Hash-verified derived projection from the durable waterfall; merged across the full decision universe |
 
 `--limit-downstream` does **not** limit universe discovery or feed decisions.
 It limits only expensive intelligence/contact work. The feed also includes
@@ -62,6 +64,12 @@ With `--dsn`, decisions come from the mode-aware published target-fit store
 classification is used only by offline fixture runs; a production store miss
 does not fall back to an embedded CONFIRMED stamp.
 
+The durable projection is the reachability view derived from extra-cli job
+outputs, not a second authority. Its discovery policy and input evidence must
+be uniform; mixed or incompatible policy versions fail closed. Same-run hot-set
+contacts corroborate/extend it by canonical CNPJ and mailbox, after which the
+bridge recalculates exactly one preferred initial route per account.
+
 ## Outputs
 
 ```text
@@ -69,7 +77,7 @@ does not fall back to an embedded CONFIRMED stamp.
 02_downstream_sample/ diverse commercial sample
 03_account_intelligence/
 04_contact_resolution/
-05_bridge_inputs/     full universe + target-fit snapshot; hot-set intel/contacts
+05_bridge_inputs/     full universe + target-fit snapshot; durable+hot-set contacts
 06_warmbly_feed/      temporally ordered authoritative confenge.outreach.v1
 reports/pipeline-manifest.json
 ```

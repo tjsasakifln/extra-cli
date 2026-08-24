@@ -30,6 +30,7 @@ from scripts.decision_unit_intelligence.batch_queue import (
     utcnow,
 )
 from scripts.decision_unit_intelligence.runner import run_account
+from scripts.decision_unit_intelligence.site_contact_crawl import SiteCrawlBudget
 from scripts.decision_unit_intelligence.web_discovery import SearchBudget
 
 logger = logging.getLogger(__name__)
@@ -94,6 +95,15 @@ def default_discovery(job: ClaimedDiscoveryJob) -> Any:
         cache_ttl_days=int(knobs.get("cache_ttl_days") or 7),
     )
     cache_dir = Path(knobs.get("cache_dir") or ".cache/confenge-prospect")
+    site_budget = SiteCrawlBudget(
+        max_pages=int(knobs.get("site_max_pages") or 12),
+        max_depth=int(knobs.get("site_max_depth") or 3),
+        max_bytes=int(knobs.get("site_max_bytes") or 2_500_000),
+        timeout_seconds=float(knobs.get("site_timeout_seconds") or 20.0),
+        max_redirects=int(knobs.get("site_max_redirects") or 5),
+        requests_per_minute=int(knobs.get("site_requests_per_minute") or 20),
+        max_sitemap_urls=int(knobs.get("site_max_sitemap_urls") or 80),
+    )
     return run_account(
         job.canonical_account_id,
         service=job.service,
@@ -103,6 +113,18 @@ def default_discovery(job: ClaimedDiscoveryJob) -> Any:
         search_budget=budget,
         cache_dir=cache_dir,
         verify_email_dns=bool(knobs.get("verify_email_dns", False)),
+        search_failover=str(knobs.get("search_failover") or "off"),
+        site_budget=site_budget,
+        site_crawl=bool(knobs.get("site_crawl", True)),
+        site_crawl_baseline=bool(knobs.get("site_crawl_baseline", False)),
+        query_policy_version=str(knobs.get("query_policy_version") or "query-policy.v2"),
+        search_fallback=str(knobs.get("search_fallback") or "off"),
+        contact_seed_inputs=[
+            dict(item)
+            for item in (knobs.get("contact_seed_inputs") or [])
+            if isinstance(item, dict)
+        ],
+        account_meta=dict((job.cursor or {}).get("population") or {}),
     )
 
 

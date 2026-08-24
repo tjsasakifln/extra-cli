@@ -5,11 +5,19 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
+import subprocess
 import sys
 from pathlib import Path
 
 from scripts.decision_unit_intelligence import POLICY_VERSION, PROVIDER_VERSION, SCHEMA_VERSION
 from scripts.decision_unit_intelligence.affiliation_report import build_affiliation_cohort_report
+from scripts.decision_unit_intelligence.batch_population import (
+    TARGET_CONFIRMED_POPULATION,
+    load_discovery_population,
+    priority_for_job,
+)
+from scripts.decision_unit_intelligence.batch_projection import write_contact_projection
 from scripts.decision_unit_intelligence.batch_queue import (
     ContactDiscoveryQueue,
     budget_version_from_knobs,
@@ -24,6 +32,10 @@ from scripts.decision_unit_intelligence.email_discovery import summarize_email_d
 from scripts.decision_unit_intelligence.operator_pack import build_card, write_operator_pack
 from scripts.decision_unit_intelligence.projection import project_warmbly_outreach
 from scripts.decision_unit_intelligence.providers.base import InvestigationContext
+from scripts.decision_unit_intelligence.providers.existing_contacts import (
+    bind_contact_seeds_to_input_version,
+    manifest_contact_seed_inputs,
+)
 from scripts.decision_unit_intelligence.repository import JsonRunRepository, account_hash, write_json
 from scripts.decision_unit_intelligence.runner import run_account
 from scripts.decision_unit_intelligence.site_contact_crawl import (
@@ -237,6 +249,21 @@ def _resolve_code_sha(explicit: str | None) -> str:
     env = os.getenv("EXTRA_CODE_SHA") or os.getenv("GITHUB_SHA")
     if env:
         return env
+    git_bin = shutil.which("git")
+    try:
+        if not git_bin:
+            raise FileNotFoundError("git executable not found")
+        resolved = subprocess.run(  # noqa: S603 - resolved executable, fixed argv
+            [git_bin, "rev-parse", "HEAD"],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=5,
+        ).stdout.strip()
+        if resolved:
+            return resolved
+    except (OSError, subprocess.SubprocessError):
+        pass
     head = Path(".git/HEAD")
     if not head.is_file():
         return "unknown"
@@ -261,6 +288,18 @@ def _budget_knobs(args: argparse.Namespace) -> dict[str, object]:
         "infer_email": not args.no_infer_email,
         "verify_email_dns": args.verify_email_dns,
         "searxng_url": args.searxng_url or os.getenv("CONFENGE_SEARXNG_URL"),
+        "search_failover": args.search_failover or os.getenv("CONFENGE_SEARCH_FAILOVER", "off"),
+        "search_fallback": args.search_fallback,
+        "query_policy_version": args.query_policy_version,
+        "site_crawl": not args.no_site_crawl,
+        "site_crawl_baseline": args.site_crawl_baseline,
+        "site_max_pages": args.site_max_pages,
+        "site_max_depth": args.site_max_depth,
+        "site_max_bytes": args.site_max_bytes,
+        "site_timeout_seconds": args.site_timeout_seconds,
+        "site_max_redirects": args.site_max_redirects,
+        "site_requests_per_minute": args.site_requests_per_minute,
+        "site_max_sitemap_urls": args.site_max_sitemap_urls,
     }
 
 
@@ -268,9 +307,38 @@ def _print(payload: object) -> None:
     print(json.dumps(payload, ensure_ascii=False, indent=2, default=str))
 
 
+def _resolve_dsn(explicit: str | None) -> str:
+    dsn = explicit or os.getenv("LOCAL_DATALAKE_DSN") or os.getenv("DATABASE_URL")
+    if not dsn:
+        raise RuntimeError("LOCAL_DATALAKE_DSN or DATABASE_URL is required")
+    return dsn
+
+
 def cmd_batch_enqueue(args: argparse.Namespace) -> int:
-    cnpjs = _load_cnpjs(args)
+    contact_seed_inputs = manifest_contact_seed_inputs(args.existing_contacts or [])
+    population = None
+    if args.population:
+        if args.cnpjs or args.manifest or args.limit is not None:
+            raise SystemExit("--population cannot be combined with --cnpjs, --manifest, or --limit")
+        if args.search_backend == "off":
+            raise SystemExit("canonical population enrichment requires a public --search-backend")
+        population = load_discovery_population(
+            _resolve_dsn(args.dsn),
+            population=args.population,
+        )
+        jobs = list(population.jobs)
+        cnpjs = [job.cnpj14 for job in jobs]
+        input_evidence_version = population.input_evidence_version
+    else:
+        jobs = []
+        cnpjs = _load_cnpjs(args)
+        input_evidence_version = args.input_evidence_version or "input.v1"
+    input_evidence_version = bind_contact_seeds_to_input_version(
+        input_evidence_version,
+        contact_seed_inputs,
+    )
     knobs = _budget_knobs(args)
+    knobs["contact_seed_inputs"] = contact_seed_inputs
     version = budget_version_from_knobs(knobs)
     code_sha = _resolve_code_sha(args.code_sha)
     inserted = 0
@@ -286,10 +354,16 @@ def cmd_batch_enqueue(args: argparse.Namespace) -> int:
             search_backend=args.search_backend,
             budget_version=version,
             code_sha=code_sha,
-            input_evidence_version=args.input_evidence_version,
-            metadata={"n": len(cnpjs), "output_root": args.out},
+            input_evidence_version=input_evidence_version,
+            metadata={
+                "n": len(cnpjs),
+                "output_root": args.out,
+                "contact_seed_inputs": contact_seed_inputs,
+                **(population.metadata if population else {"population": "explicit", "sampled": args.limit is not None}),
+            },
         )
-        for cnpj in cnpjs:
+        for index, cnpj in enumerate(cnpjs):
+            population_meta = dict(jobs[index].meta or {}) if population else {}
             job_id, created = queue.enqueue(
                 cohort_id=args.cohort,
                 canonical_account_id=cnpj,
@@ -299,11 +373,12 @@ def cmd_batch_enqueue(args: argparse.Namespace) -> int:
                 search_backend=args.search_backend,
                 budget_version=version,
                 code_sha=code_sha,
-                input_evidence_version=args.input_evidence_version,
+                input_evidence_version=input_evidence_version,
+                priority=priority_for_job(jobs[index]) if population else 0,
                 max_attempts=args.max_attempts,
                 backend_concurrency_limit=args.backend_concurrency,
                 domain_concurrency_limit=args.domain_concurrency,
-                cursor={"budget": knobs},
+                cursor={"budget": knobs, "population": population_meta},
             )
             ids.append(job_id)
             if created:
@@ -316,11 +391,15 @@ def cmd_batch_enqueue(args: argparse.Namespace) -> int:
             "cohort": args.cohort,
             "enqueued": inserted,
             "reused": reused,
-            "job_ids": ids,
+            "job_ids_sample": ids[:20],
+            "job_ids_omitted": max(0, len(ids) - 20),
+            "population": population.metadata if population else {"population": "explicit", "n": len(cnpjs)},
+            "input_evidence_version": input_evidence_version,
             "policy_version": POLICY_VERSION,
             "budget_version": version,
             "code_sha": code_sha,
             "search_backend": args.search_backend,
+            "contact_seed_inputs": contact_seed_inputs,
             "progress": progress,
         }
     )
@@ -381,6 +460,19 @@ def cmd_batch_publish(args: argparse.Namespace) -> int:
         )
     _print(result)
     return 0 if result.get("approved") else 2
+
+
+def cmd_batch_export_contacts(args: argparse.Namespace) -> int:
+    with connect(args.dsn) as connection:
+        result = write_contact_projection(
+            ContactDiscoveryQueue(connection),
+            cohort_id=args.cohort,
+            output_path=Path(args.out),
+            report_path=Path(args.report),
+            allow_partial=args.allow_partial,
+        )
+    _print(result)
+    return 0 if result.get("written") else 2
 
 
 def cmd_batch_worker(args: argparse.Namespace) -> int:
@@ -467,10 +559,20 @@ def build_parser() -> argparse.ArgumentParser:
     enqueue.add_argument("--out", default="output/contact-discovery")
     enqueue.add_argument("--manifest")
     enqueue.add_argument("--cnpjs")
+    enqueue.add_argument("--population", choices=(TARGET_CONFIRMED_POPULATION,))
     enqueue.add_argument("--limit", type=int)
     enqueue.add_argument("--service", default="reajuste_14133")
     enqueue.add_argument("--offer-context")
-    enqueue.add_argument("--input-evidence-version", default="input.v1")
+    enqueue.add_argument("--input-evidence-version")
+    enqueue.add_argument(
+        "--existing-contacts",
+        action="append",
+        default=[],
+        help=(
+            "Existing bridge contacts JSONL to reconcile before public discovery. "
+            "Repeatable; each file is content-hashed into the cohort contract."
+        ),
+    )
     enqueue.add_argument("--code-sha")
     enqueue.add_argument("--dsn")
     enqueue.add_argument("--max-attempts", type=int, default=5)
@@ -520,6 +622,14 @@ def build_parser() -> argparse.ArgumentParser:
     publish.add_argument("--allow-partial", action="store_true")
     publish.add_argument("--dsn")
     publish.set_defaults(func=cmd_batch_publish)
+
+    export_contacts = batch_sub.add_parser("export-contacts")
+    export_contacts.add_argument("--cohort", required=True)
+    export_contacts.add_argument("--out", required=True)
+    export_contacts.add_argument("--report", required=True)
+    export_contacts.add_argument("--allow-partial", action="store_true")
+    export_contacts.add_argument("--dsn")
+    export_contacts.set_defaults(func=cmd_batch_export_contacts)
 
     worker = batch_sub.add_parser("worker")
     worker.add_argument("--dsn")

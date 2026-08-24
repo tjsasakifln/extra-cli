@@ -125,6 +125,12 @@ when --max-rows is omitted. Round N+1 advances the durable activation cursor.
         help="Optional fixtures dir for contact adapters",
     )
     run.add_argument(
+        "--durable-contacts",
+        type=Path,
+        default=None,
+        help="Verified JSONL projection from decision-unit-intelligence batch export-contacts",
+    )
+    run.add_argument(
         "--feed-limit",
         type=int,
         default=None,
@@ -248,6 +254,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         allow_network=args.allow_network,
         enable_web_search=args.enable_web_search,
         contact_fixtures_dir=args.contact_fixtures_dir,
+        durable_contacts_path=args.durable_contacts,
         include_dnc_in_sample=not args.no_dnc_in_sample,
         feed_limit=args.feed_limit,
         use_activation_planner=bool(args.use_activation_planner),

@@ -14,6 +14,7 @@ Group=extra-consultoria
 WorkingDirectory=/opt/extra-consultoria
 Environment=PYTHONPATH=/opt/extra-consultoria
 Environment=RESILIENCE_ENV=production
+EnvironmentFile=-/opt/extra-consultoria/.env
 EnvironmentFile=-/etc/extra-consultoria/crawler.env
 EnvironmentFile=-/etc/extra-cli/extra-collector.env
 ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.decision_unit_intelligence batch worker --loop --idle-sleep 5 --worker-id cd-worker-%i --out /var/lib/extra-consultoria/contact-discovery
