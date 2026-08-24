@@ -30,8 +30,15 @@ def _job(
             "cnpj_raiz": root,
             "representative_establishment_observed": observed,
             "sector_class": "CONSTRUCTION_CONFIRMED",
+            "sector_version": "sector.v1",
+            "sector_classifier_sha256": "sha256:sector-test",
+            "sector_input_fingerprint": f"sector-fp-{root}",
+            "sector_source_watermark": "sector-wm-20260824",
+            "sector_computed_at": "2026-08-24T11:00:00+00:00",
             "target_fit_class": target_class,
             "target_fit_version": "target-fit.v3",
+            "target_fit_classifier_sha": "sha256:target-fit-test",
+            "target_fit_mode": "SHADOW",
             "target_fit_input_fingerprint": f"fp-{root}",
             "target_fit_source_watermark": "wm-20260824",
             "target_fit_computed_at": "2026-08-24T12:00:00+00:00",
@@ -50,6 +57,12 @@ def test_population_selects_every_confirmed_account_without_a_cap() -> None:
 
     assert [job.cnpj14 for job in selected.jobs] == ["11111111000101", "22222222000102"]
     assert selected.metadata["population_total"] == 2
+    assert selected.metadata["population_count"] == 2
+    assert selected.metadata["population_hash"] == selected.selection_hash
+    assert selected.metadata["population_as_of"] == "2026-08-24T12:00:00+00:00"
+    assert selected.metadata["target_fit_mode"] == "SHADOW"
+    assert selected.metadata["target_fit_classifier_sha"] == "sha256:target-fit-test"
+    assert selected.metadata["sector_classifier_sha"] == "sha256:sector-test"
     assert selected.metadata["selection_complete"] is True
     assert selected.metadata["sampled"] is False
     assert selected.metadata["source_watermarks"] == ["wm-20260824"]

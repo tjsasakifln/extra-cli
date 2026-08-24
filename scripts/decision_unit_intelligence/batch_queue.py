@@ -959,6 +959,9 @@ class ContactDiscoveryQueue:
             hours = max((last_at - first_at).total_seconds() / 3600.0, 1e-9)
         cache_hits = float(totals.get("cache_hits") or 0)
         cache_misses = float(totals.get("cache_misses") or 0)
+        population_contract = cohort.get("metadata")
+        if not isinstance(population_contract, dict):
+            population_contract = {}
         return {
             "cohort_id": cohort_id,
             "job_type": JOB_TYPE,
@@ -997,6 +1000,7 @@ class ContactDiscoveryQueue:
             "budget_version": cohort["budget_version"],
             "code_sha": cohort["code_sha"],
             "input_evidence_version": cohort["input_evidence_version"],
+            "population_contract": population_contract,
             "snapshot_id": cohort.get("snapshot_id"),
             "snapshot_hash": cohort.get("snapshot_hash"),
             "closable": self._closable(denominator, counts),

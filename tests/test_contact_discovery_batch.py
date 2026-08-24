@@ -151,7 +151,17 @@ def _auditable_role_account(cnpj: str) -> AccountInvestigation:
     )
 
 
-def _seed(queue: ContactDiscoveryQueue, *, cohort: str, accounts: list[str], policy: str = "dui.policy.v1", backend: str = "off", budget: str = "budget.test", service: str = "reajuste_14133") -> list[int]:
+def _seed(
+    queue: ContactDiscoveryQueue,
+    *,
+    cohort: str,
+    accounts: list[str],
+    policy: str = "dui.policy.v1",
+    backend: str = "off",
+    budget: str = "budget.test",
+    service: str = "reajuste_14133",
+    metadata: dict[str, object] | None = None,
+) -> list[int]:
     queue.upsert_cohort(
         cohort_id=cohort,
         service=service,
@@ -161,6 +171,7 @@ def _seed(queue: ContactDiscoveryQueue, *, cohort: str, accounts: list[str], pol
         budget_version=budget,
         code_sha="sha-test",
         input_evidence_version="input.v1",
+        metadata=metadata,
     )
     ids = []
     for account in accounts:
@@ -395,6 +406,17 @@ def test_complete_cohort_exports_verified_bridge_projection(dsn: str, tmp_path: 
             cohort="c-export",
             accounts=["11222333000181"],
             backend="searxng",
+            metadata={
+                "population": "target-confirmed",
+                "population_count": 1,
+                "population_hash": "a" * 64,
+                "population_as_of": "2026-08-24T12:00:00Z",
+                "target_fit_mode": "SHADOW",
+                "target_fit_classifier_sha": "sha256:target-fit-test",
+                "target_fit_classifier_shas": ["sha256:target-fit-test"],
+                "sector_classifier_sha": "sha256:sector-test",
+                "sector_classifier_shas": ["sha256:sector-test"],
+            },
         )
     worker = ContactDiscoveryWorker(
         dsn=dsn,
@@ -415,6 +437,19 @@ def test_complete_cohort_exports_verified_bridge_projection(dsn: str, tmp_path: 
 
     assert result["written"] is True
     assert result["terminal_coverage_complete"] is True
+    assert result["population_count"] == 1
+    assert result["population_hash"] == "a" * 64
+    assert result["population_as_of"] == "2026-08-24T12:00:00Z"
+    assert result["target_fit_mode"] == "SHADOW"
+    assert result["target_fit_classifier_sha"] == "sha256:target-fit-test"
+    assert result["sector_classifier_sha"] == "sha256:sector-test"
+    assert result["terminal_equation"] == {
+        "population_count": 1,
+        "job_denominator": 1,
+        "terminal_projection_total": 1,
+        "terminal_account_count": 1,
+        "holds": True,
+    }
     assert result["enrichment_states"] == {"EMAIL_ROUTE_READY": 1}
     row = __import__("json").loads((tmp_path / "contacts.jsonl").read_text(encoding="utf-8"))
     assert row["cnpj14"] == "11222333000181"
@@ -425,6 +460,42 @@ def test_complete_cohort_exports_verified_bridge_projection(dsn: str, tmp_path: 
     assert row["contacts"][0]["mailbox_department"] == "licitacoes"
     assert row["contacts"][0]["provenance"]["source_type"] == "company_website"
     assert row["preferred_email_route"]["source_url"] == "https://acme.example.com/contato"
+
+
+def test_projection_refuses_population_job_denominator_mismatch(dsn: str, tmp_path: Path) -> None:
+    with connect(dsn) as connection:
+        _seed(
+            ContactDiscoveryQueue(connection),
+            cohort="c-population-mismatch",
+            accounts=["11222333000181"],
+            metadata={
+                "population": "target-confirmed",
+                "population_count": 2,
+                "population_hash": "b" * 64,
+                "selection_complete": True,
+            },
+        )
+    worker = ContactDiscoveryWorker(
+        dsn=dsn,
+        worker_id="population-mismatch-worker",
+        output_root=tmp_path / "outputs",
+        admission_probe=lambda: [],
+        discovery=lambda job: _auditable_role_account(job.canonical_account_id),
+    )
+    assert worker.run_once()["status"] == "SUCCEEDED"
+
+    with connect(dsn) as connection:
+        result = write_contact_projection(
+            ContactDiscoveryQueue(connection),
+            cohort_id="c-population-mismatch",
+            output_path=tmp_path / "contacts.jsonl",
+            report_path=tmp_path / "report.json",
+        )
+
+    assert result["written"] is False
+    assert result["reason"] == "TERMINAL_COVERAGE_INCOMPLETE"
+    assert result["population_contract_matches_denominator"] is False
+    assert result["terminal_equation"]["holds"] is False
 
 
 def test_crash_before_commit_resumes_same_job(dsn: str, tmp_path: Path) -> None:

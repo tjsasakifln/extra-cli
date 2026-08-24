@@ -137,17 +137,50 @@ def build_contact_projection(
 
     rows.sort(key=lambda row: str(row["cnpj14"]))
     denominator = int(progress.get("denominator") or len(jobs))
+    population_contract = progress.get("population_contract")
+    population_contract = population_contract if isinstance(population_contract, dict) else {}
+    population_count = int(
+        population_contract.get("population_count")
+        or population_contract.get("population_total")
+        or denominator
+    )
     terminal_projection_total = sum(states.values())
+    terminal_account_count = len({str(row["canonical_account_id"]) for row in rows})
+    population_contract_matches_denominator = population_count == denominator
+    terminal_equation_holds = (
+        population_contract_matches_denominator
+        and terminal_projection_total == denominator
+        and terminal_account_count == denominator
+        and not integrity_failures
+    )
     projection_hash = _content_hash(rows)
     report = {
         "schema_id": "confenge.contact_discovery.projection_report.v1",
         "generated_at": _utcnow(),
         "cohort_id": cohort_id,
         "denominator": denominator,
+        "population_count": population_count,
+        "population_hash": population_contract.get("population_hash")
+        or population_contract.get("selection_hash"),
+        "population_as_of": population_contract.get("population_as_of"),
+        "target_fit_mode": population_contract.get("target_fit_mode"),
+        "target_fit_classifier_sha": population_contract.get("target_fit_classifier_sha"),
+        "target_fit_classifier_shas": population_contract.get("target_fit_classifier_shas") or [],
+        "sector_classifier_sha": population_contract.get("sector_classifier_sha"),
+        "sector_classifier_shas": population_contract.get("sector_classifier_shas") or [],
+        "population_contract_matches_denominator": population_contract_matches_denominator,
         "job_status_counts": progress.get("counts") or {},
         "terminal_jobs": terminal_jobs,
+        "terminal_account_count": terminal_account_count,
         "effectively_enriched_total": terminal_projection_total,
-        "terminal_coverage_complete": terminal_projection_total == denominator,
+        "terminal_coverage_complete": terminal_equation_holds,
+        "terminal_equation": {
+            "population_count": population_count,
+            "job_denominator": denominator,
+            "terminal_projection_total": terminal_projection_total,
+            "terminal_account_count": terminal_account_count,
+            "holds": terminal_equation_holds,
+        },
         "enrichment_states": dict(sorted(states.items())),
         "blockers": dict(sorted(blockers.items())),
         "accounts_with_any_email": sum(bool(row["contacts"]) for row in rows),

@@ -19,22 +19,22 @@ quality_gate_tools: ["pytest", "ruff", "dod_controller", "coderabbit"]
 ## Contexto e vínculo normativo
 
 - Origem priorizada: [extra-cli #469](https://github.com/tjsasakifln/extra-cli/issues/469), P0, irmã de #468 (frescor).
-- Fatos de produção medidos em 2026-08-24 são baseline fornecido pelo fundador e não devem ser re-derivados: 402.012 contas, 8.245 `TARGET_CONFIRMED`, 7.890 sem contato, 177 com contato utilizável, 110 prontas hoje; feed do universo com 401.923 leads e zero contatos; `email_send_ready_feed.json` com 72 leads.
+- Fatos de produção medidos em 2026-08-24 são o baseline imutável fornecido pelo fundador e não devem ser re-derivados: 402.012 contas, 8.245 `TARGET_CONFIRMED`, 7.890 sem contato, 177 com contato utilizável, 110 prontas hoje; feed do universo com 401.923 leads e zero contatos; `email_send_ready_feed.json` com 72 leads. Esse baseline ancora o before/after, mas não congela nem limita o denominador live: o run processa a população canônica corrente inteira e registra sua própria contagem/hash/`as_of`/modo/SHAs de classificação.
 - Itens finais do DOD cobertos por esta story: executar busca contextual bounded para contas A1/A2 com terminal honesto; e fazer a projeção consumer-agnostic chegar ao Warmbly sem segunda verdade ou autorização de envio. [Fonte: `DOD.md`, seção “Contact resolution público e defensável”]
 - #468 é dependência operacional para frescor e cadência, mas não pertence ao raio de implementação desta story. Um contato incorporado não pode vencer o gate de target-fit stale. [Fonte: `docs/architecture/adr/ADR-035-confenge-authoritative-target-fit-feed.md#decision`]
 
 ## Acceptance Criteria
 
-1. Existe um comando CLI reproduzível que seleciona do PostgreSQL canônico todas as empresas `TARGET_CONFIRMED` pertencentes a `CONSTRUCTION_CONFIRMED`/`CONSTRUCTION_PROBABLE`, com CNPJ de estabelecimento observado e sem hard cap comercial, e as enfileira na infraestrutura durável de `CONFENGE_CONTACT_DISCOVERY`; o enriquecimento setorial contínuo mais amplo existente permanece independente de target-fit.
+1. Existe um comando CLI reproduzível que seleciona do PostgreSQL canônico todas as empresas `TARGET_CONFIRMED`, com CNPJ de estabelecimento observado e sem hard cap comercial, registra a classe setorial sem usá-la para truncar a verdade de reachability e as enfileira na infraestrutura durável de `CONFENGE_CONTACT_DISCOVERY`. `CONSTRUCTION_CONFIRMED`/`CONSTRUCTION_PROBABLE` continua sendo gate independente do feed/send-ready, e o enriquecimento setorial contínuo mais amplo permanece independente de target-fit.
 2. A seleção/enqueue registra denominador, classes setoriais e target-fit, versão de input/política, backend, budget e hash/versão reproduzível. Reexecução idêntica é idempotente e resume trabalho; `--limit` permanece somente smoke/diagnóstico e não pode produzir claim full-scale.
 3. A execução reutiliza `contact_discovery_jobs` e o worker com lease, heartbeat, `FOR UPDATE SKIP LOCKED`, retry/backoff, circuit breaker, limites por backend/domínio e kill switch existentes. Nenhuma nova fila concorrente é criada.
-4. Cada uma das 8.245 contas `TARGET_CONFIRMED` do baseline é efetivamente executada pelo waterfall e termina explicitamente em `EMAIL_ROUTE_READY`, `NO_PUBLIC_EMAIL_FOUND` ou `BLOCKED_WITH_REASON`; “sem contato porque nunca executou” não é terminal. Para `EMAIL_ROUTE_READY`, o job persiste projeção consumer-agnostic apta a compor `contacts[]`, mantendo pessoa, cargo/departamento, rota, derivação, verificação, suitability, freshness e provenance separados.
+4. Cada conta da população `TARGET_CONFIRMED` canônica corrente, sem hard cap, é efetivamente executada pelo waterfall e termina explicitamente em `EMAIL_ROUTE_READY`, `NO_PUBLIC_EMAIL_FOUND` ou `BLOCKED_WITH_REASON`; “sem contato porque nunca executou” não é terminal. O relatório também reconcilia o baseline de 8.245, classificando nominalmente eventual conta que deixou a população corrente, sem omitir novas contas. Para `EMAIL_ROUTE_READY`, o job persiste projeção consumer-agnostic apta a compor `contacts[]`, mantendo pessoa, cargo/departamento, rota, derivação, verificação, suitability, freshness e provenance separados.
 5. O pipeline autoritativo compõe contatos duráveis já descobertos com os contatos resolvidos no hot set atual, por CNPJ canônico e política/input vigentes, e escreve essa união em `05_bridge_inputs/contacts.jsonl` antes de gerar os chunks do universo. O mesmo contato não gera duplicidade; resultado mais novo não pode substituir silenciosamente evidência de política incompatível.
 6. Os chunks `confenge.outreach.v1` do universo passam a carregar `contacts[]` para todas as contas com contato defensável disponível; contas sem resultado continuam explicitamente com lista vazia. O arquivo isolado de send-ready não é usado como fonte de verdade do feed do universo.
 7. `email_send_ready` continua fail-closed e só pode ser verdadeiro quando todos os gates atuais passam, inclusive `construction_universe_member=true`, target-fit `TARGET_CONFIRMED` fresco, DNC/supressão, associação pública mailbox↔empresa, provenance e política de contato. A ausência de pessoa/cargo nominal não bloqueia `ROLE_OR_DEPARTMENT`, `GENERIC_COMPANY` ou `PUBLIC_COMPANY_FREEMAIL` publicamente associados à empresa; essas rotas não são promovidas a `EMAIL_VALIDATED` de pessoa. `PROBABILISTIC_OR_RISKY` permanece fora do piloto default.
-8. Manifesto/relatório do ciclo expõe, no denominador correto, pelo menos: população selecionada, jobs por estado, contas tentadas, contas com algum contato, contas com e-mail, contas com contato utilizável, contas incorporadas ao feed, pendentes, bloqueadas/DLQ e distribuição de reason codes. Fixture valida lógica, não prova escala live.
+8. Manifesto/relatório do ciclo expõe, no denominador correto, pelo menos: `population_count`, `population_hash`, `population_as_of`, modo e SHAs dos classificadores, jobs por estado, equação população = jobs = contas terminais, contas tentadas, contas com algum contato, contas com e-mail, contas com contato utilizável, contas incorporadas ao feed, pendentes, bloqueadas/DLQ e distribuição de reason codes. Fixture valida lógica, não prova escala live.
 9. Testes adversariais cobrem seleção integral sem truncamento, prioridade A1/A2, idempotência, projeção de job para contato, merge entre snapshot durável e hot set, conflito de política/input, deduplicação, ausência de contato, stale target-fit e DNC. As suítes focadas e a regressão canônica passam sem `skip`/`xfail` ou mocks irreais.
-10. Evidência live da story fecha 8.245/8.245 contas `TARGET_CONFIRMED` nas três condições terminais, registra o yield legitimamente obtido sem impor porcentagem arbitrária e publica hashes, timestamps, parâmetros, distribuição por route class/provenance/reason code e amostra auditável protegida fora do Git. Amostra de 30/100/1.000 valida a onda; não fecha este AC.
+10. Evidência live da story fecha 100% da população `TARGET_CONFIRMED` corrente versionada nas três condições terminais e reconcilia separadamente 8.245/8.245 contas do baseline, sem usar o número antigo para truncar o run nem omitir candidatos novos. Registra o yield legitimamente obtido sem impor porcentagem arbitrária e publica hashes, timestamps, parâmetros, distribuição por route class/provenance/reason code e amostra auditável protegida fora do Git. Amostra de 30/100/1.000 valida a onda; não fecha este AC.
 11. Segurança operacional é preservada e reconfirmada: `CONFENGE_AUTO_SEND_ENABLED=false`, kill switch de envio pausado, `confenge_dispatch_control.paused=true`, zero envios e zero aprovações automáticas. Esta story não altera `min_wait_time=600s`, `confenge.composer.v6`, o fluxo Comercial → Rascunhos nem o Warmbly.
 12. Runbook, ADR/handoff e DOD recebem os deltas/evidências cabíveis. O item só pode virar `ACCEPTED` no `main`, com CI verde e o teste específico passando; somente então qualquer checkbox correspondente do `DOD.md` pode ser marcado.
 13. O waterfall determinístico/incremental reutiliza, nesta ordem aproximada conforme yield medido: contatos canônicos/históricos já existentes; dados públicos cadastrais ligados por CNPJ; website/domínio oficial; documentos e fontes B2G já coletados; busca pública adicional bounded. Não contorna login/CAPTCHA/paywall/robots, não depende de provider pago e não promove mailbox inferida por padrão a fato.
@@ -116,9 +116,9 @@ quality_gate_tools: ["pytest", "ruff", "dod_controller", "coderabbit"]
   - [ ] Executar testes focados, Ruff, source contracts, full suite e golden path conforme aplicável.
   - [ ] Reconfirmar zero sends/approvals e controles pausados; não tocar composer/cohort/min_wait_time.
 - [ ] Task 5 — Produzir prova live e handoff (AC: 10, 12)
-  - [ ] Executar a seleção/enqueue/worker no host autorizado com budget explícito e medir o denominador real.
+  - [ ] Executar a seleção/enqueue/worker no host autorizado com budget explícito e fechar o denominador corrente versionado (`population_count`/hash/`as_of`/modo/SHAs), reconciliando também o baseline de 8.245.
   - [ ] Publicar feed novo apenas se os gates autoritativos passarem; armazenar PII/evidência pesada fora do Git.
-  - [ ] Demonstrar milhares de contatos utilizáveis entre os 8.245 ou registrar blocker live honesto.
+  - [ ] Demonstrar milhares de contatos utilizáveis no denominador corrente e no recorte do baseline, ou registrar blocker live honesto.
   - [ ] Atualizar ADR/handoff/DOD e submeter aceitação independente no harness.
 
 ## Dev Notes
@@ -192,7 +192,7 @@ GPT-5 Codex (Dex / @dev)
 - Implementação local cobre seleção integral, terminais honestos, projeção hash-verificada e composição no feed.
 - Artefatos históricos de contatos agora entram como inputs explícitos, SHA-256-bound e verificados no primeiro degrau do worker; alteração/missing vira blocker nominal.
 - O cadastro oficial local é consultado por CNPJ exato; e-mail cadastral preserva release/autoridade, não inventa pessoa e registra indisponibilidade como blocker factual de waterfall. Freemail público continua regido pela associação defensável da policy ativa.
-- Evidência live 8.245/8.245, deploy e aceitação continuam abertos; fixture não foi tratada como prova operacional.
+- Evidência live do denominador corrente versionado, reconciliação 8.245/8.245 do baseline, deploy e aceitação continuam abertos; fixture não foi tratada como prova operacional.
 
 ### File List
 
@@ -209,16 +209,12 @@ GPT-5 Codex (Dex / @dev)
 - `scripts/decision_unit_intelligence/batch_queue.py`
 - `scripts/decision_unit_intelligence/batch_worker.py`
 - `scripts/decision_unit_intelligence/cli.py`
-- `scripts/decision_unit_intelligence/controlled_email.py`
 - `scripts/decision_unit_intelligence/providers/existing_contacts.py`
 - `scripts/decision_unit_intelligence/providers/official_company_registry.py`
-- `scripts/warmbly_bridge/mapping.py`
 - `tests/confenge_outreach_pipeline/test_pipeline.py`
-- `tests/fixtures/controlled_email_five_class_canary.json`
 - `tests/test_contact_discovery_batch.py`
 - `tests/test_contact_discovery_outcomes.py`
 - `tests/test_contact_discovery_population.py`
-- `tests/test_controlled_email_eligibility.py`
 - `tests/test_existing_contact_seed.py`
 
 ## QA Results

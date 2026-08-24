@@ -79,3 +79,19 @@ no official release is active, the attempt records
 `OFFICIAL_REGISTRY_UNAVAILABLE`; a no-route result remains
 `BLOCKED_WITH_REASON` while website/document/public-search tiers still run and
 may independently produce `EMAIL_ROUTE_READY`.
+
+The number recorded before implementation is a comparison baseline, not a
+runtime cap. A canonical population enqueue binds `population_count`,
+`population_hash`, `population_as_of`, target-fit mode, and target-fit/sector
+classifier SHAs into cohort metadata. The final projection closes only when the
+population count, durable job denominator, terminal projection count, and
+unique terminal account count are equal. A population that grows between the
+baseline and the run is processed in full; the older baseline is reconciled as
+a separate before/after slice.
+
+The contact-discovery denominator includes every current `TARGET_CONFIRMED`
+account and records its sector class. It does not discard an account merely
+because the sector dimension currently says `NON_CONSTRUCTION` or
+`SECTOR_INSUFFICIENT_EVIDENCE`. That broader reachability ledger does not relax
+the independent construction-membership gate used by the authoritative feed
+and send-readiness policy.

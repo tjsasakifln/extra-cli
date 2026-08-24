@@ -41,8 +41,15 @@ def _stable_selection_row(job: CompanyJob) -> dict[str, Any]:
         "company_key": meta.get("company_key"),
         "cnpj_raiz": meta.get("cnpj_raiz"),
         "sector_class": meta.get("sector_class"),
+        "sector_version": meta.get("sector_version"),
+        "sector_classifier_sha256": meta.get("sector_classifier_sha256"),
+        "sector_input_fingerprint": meta.get("sector_input_fingerprint"),
+        "sector_source_watermark": meta.get("sector_source_watermark"),
+        "sector_computed_at": meta.get("sector_computed_at"),
         "target_fit_class": meta.get("target_fit_class"),
         "target_fit_version": meta.get("target_fit_version"),
+        "target_fit_classifier_sha": meta.get("target_fit_classifier_sha"),
+        "target_fit_mode": meta.get("target_fit_mode"),
         "target_fit_input_fingerprint": meta.get("target_fit_input_fingerprint"),
         "target_fit_source_watermark": meta.get("target_fit_source_watermark"),
         "target_fit_computed_at": meta.get("target_fit_computed_at"),
@@ -95,9 +102,16 @@ def build_discovery_population(
             not (job.meta or {}).get(field)
             for field in (
                 "target_fit_version",
+                "target_fit_classifier_sha",
+                "target_fit_mode",
                 "target_fit_input_fingerprint",
                 "target_fit_source_watermark",
                 "target_fit_computed_at",
+                "sector_version",
+                "sector_classifier_sha256",
+                "sector_input_fingerprint",
+                "sector_source_watermark",
+                "sector_computed_at",
             )
         )
     ]
@@ -139,17 +153,73 @@ def build_discovery_population(
         for job in selected
         if (job.meta or {}).get("target_fit_computed_at")
     )
+    sector_computed = sorted(
+        str((job.meta or {}).get("sector_computed_at"))
+        for job in selected
+        if (job.meta or {}).get("sector_computed_at")
+    )
+    target_fit_classifier_shas = sorted(
+        {
+            str((job.meta or {}).get("target_fit_classifier_sha"))
+            for job in selected
+            if (job.meta or {}).get("target_fit_classifier_sha")
+        }
+    )
+    sector_classifier_shas = sorted(
+        {
+            str((job.meta or {}).get("sector_classifier_sha256"))
+            for job in selected
+            if (job.meta or {}).get("sector_classifier_sha256")
+        }
+    )
+    target_fit_modes = sorted(
+        {
+            str((job.meta or {}).get("target_fit_mode"))
+            for job in selected
+            if (job.meta or {}).get("target_fit_mode")
+        }
+    )
+    sector_versions = sorted(
+        {
+            str((job.meta or {}).get("sector_version"))
+            for job in selected
+            if (job.meta or {}).get("sector_version")
+        }
+    )
+    sector_watermarks = sorted(
+        {
+            str((job.meta or {}).get("sector_source_watermark"))
+            for job in selected
+            if (job.meta or {}).get("sector_source_watermark")
+        }
+    )
     metadata = {
         "population": population,
+        "sector_scope": "RECORDED_NOT_FILTERED",
         "population_total": len(selected),
+        "population_count": len(selected),
+        "population_hash": digest,
+        "population_as_of": computed[-1] if computed else None,
         "runnable_total": len(selected),
         "selection_hash": digest,
         "selection_complete": True,
         "sampled": False,
         "target_fit_versions": versions,
+        "target_fit_classifier_shas": target_fit_classifier_shas,
+        "target_fit_classifier_sha": (
+            target_fit_classifier_shas[0] if len(target_fit_classifier_shas) == 1 else None
+        ),
+        "target_fit_modes": target_fit_modes,
+        "target_fit_mode": target_fit_modes[0] if len(target_fit_modes) == 1 else "MIXED",
         "source_watermarks": watermarks,
         "target_fit_computed_at_min": computed[0] if computed else None,
         "target_fit_computed_at_max": computed[-1] if computed else None,
+        "sector_versions": sector_versions,
+        "sector_classifier_shas": sector_classifier_shas,
+        "sector_classifier_sha": sector_classifier_shas[0] if len(sector_classifier_shas) == 1 else None,
+        "sector_source_watermarks": sector_watermarks,
+        "sector_computed_at_min": sector_computed[0] if sector_computed else None,
+        "sector_computed_at_max": sector_computed[-1] if sector_computed else None,
     }
     return DiscoveryPopulation(
         name=population,
@@ -162,6 +232,6 @@ def build_discovery_population(
 
 def load_discovery_population(dsn: str, *, population: str) -> DiscoveryPopulation:
     return build_discovery_population(
-        load_construction_jobs_from_dsn(dsn),
+        load_construction_jobs_from_dsn(dsn, target_confirmed_only=True),
         population=population,
     )
