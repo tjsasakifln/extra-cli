@@ -65,6 +65,10 @@ and not `DATA_READY` · `5` `DATA_REJECT`.
   not enough: a municipality buys stationery and asphalt from the same list.
 - `content_hash` strips volatile fields, so two runs over the same data agree
   byte for byte. `verify` recomputes it and fails on drift.
+- `producer_sha` resolves an explicit `CONFENGE_REPOSITORY_SHA` first, then a
+  validated `.deployed_sha`, and uses Git only in a worktree without a deploy
+  marker. An invalid authoritative value yields no SHA instead of silently
+  binding the artifact to a stale checkout.
 
 ## Findings
 

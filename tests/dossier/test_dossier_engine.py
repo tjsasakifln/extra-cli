@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from decimal import Decimal
 from pathlib import Path
 
@@ -37,6 +38,7 @@ from scripts.dossier.envelope import (
     LIMITATION_UNKNOWN,
     build_dossier,
     content_hash,
+    producer_sha,
     public_projection,
     scan_forbidden,
 )
@@ -89,6 +91,49 @@ def test_content_hash_changes_when_a_fact_changes(built):
     mutated = json.loads(json.dumps(document))
     mutated["sections"][SECTION_BUYER_MAP]["payload"]["buyer_count"] = 999
     assert content_hash(mutated) != content_hash(document)
+
+
+def test_producer_sha_prefers_explicit_valid_environment(tmp_path, monkeypatch):
+    env_sha = "A" * 40
+    (tmp_path / ".deployed_sha").write_text("b" * 40 + "\n", encoding="utf-8")
+    monkeypatch.setenv("CONFENGE_REPOSITORY_SHA", env_sha)
+
+    assert producer_sha(tmp_path) == env_sha.lower()
+
+
+def test_producer_sha_uses_deploy_marker_before_stale_git(tmp_path, monkeypatch):
+    deployed_sha = "c" * 40
+    (tmp_path / ".deployed_sha").write_text(deployed_sha + "\n", encoding="utf-8")
+    monkeypatch.delenv("CONFENGE_REPOSITORY_SHA", raising=False)
+
+    def unexpected_git(*args, **kwargs):
+        raise AssertionError("git must not override an existing deploy marker")
+
+    monkeypatch.setattr(subprocess, "run", unexpected_git)
+    assert producer_sha(tmp_path) == deployed_sha
+
+
+def test_producer_sha_rejects_invalid_authoritative_marker(tmp_path, monkeypatch):
+    (tmp_path / ".deployed_sha").write_text("stale-or-corrupt\n", encoding="utf-8")
+    monkeypatch.delenv("CONFENGE_REPOSITORY_SHA", raising=False)
+
+    def unexpected_git(*args, **kwargs):
+        raise AssertionError("invalid deploy marker must fail closed, not fall back to git")
+
+    monkeypatch.setattr(subprocess, "run", unexpected_git)
+    assert producer_sha(tmp_path) is None
+
+
+def test_producer_sha_uses_git_in_a_worktree_without_marker(tmp_path, monkeypatch):
+    git_sha = "d" * 40
+    monkeypatch.delenv("CONFENGE_REPOSITORY_SHA", raising=False)
+    monkeypatch.setattr(
+        subprocess,
+        "run",
+        lambda *args, **kwargs: subprocess.CompletedProcess(args[0], 0, stdout=git_sha + "\n", stderr=""),
+    )
+
+    assert producer_sha(tmp_path) == git_sha
 
 
 def test_fixture_run_declares_itself_a_fixture(built):
