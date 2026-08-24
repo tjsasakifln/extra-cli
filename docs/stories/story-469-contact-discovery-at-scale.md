@@ -190,7 +190,7 @@ GPT-5 Codex (Dex / @dev)
 
 - Implementação local cobre seleção integral, terminais honestos, projeção hash-verificada e composição no feed.
 - Artefatos históricos de contatos agora entram como inputs explícitos, SHA-256-bound e verificados no primeiro degrau do worker; alteração/missing vira blocker nominal.
-- O cadastro oficial local é consultado por CNPJ exato; e-mail cadastral preserva release/autoridade, aceita freemail empresarial sem inventar pessoa e registra indisponibilidade como blocker factual de waterfall.
+- O cadastro oficial local é consultado por CNPJ exato; e-mail cadastral preserva release/autoridade, não inventa pessoa e registra indisponibilidade como blocker factual de waterfall. Freemail público continua regido pela associação defensável da policy ativa.
 - Evidência live 8.245/8.245, deploy e aceitação continuam abertos; fixture não foi tratada como prova operacional.
 
 ### File List

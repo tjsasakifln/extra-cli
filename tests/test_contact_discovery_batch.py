@@ -420,6 +420,11 @@ def test_complete_cohort_exports_verified_bridge_projection(dsn: str, tmp_path: 
     assert row["cnpj14"] == "11222333000181"
     assert row["contacts"][0]["route_class"] == "ROLE_OR_DEPARTMENT"
     assert row["contacts"][0]["source_url"] == "https://acme.example.com/contato"
+    assert row["contacts"][0]["source_reference"] == "https://acme.example.com/contato"
+    assert row["contacts"][0]["evidence_ids"] == ["ev-contact-page"]
+    assert row["contacts"][0]["mailbox_department"] == "licitacoes"
+    assert row["contacts"][0]["provenance"]["source_type"] == "company_website"
+    assert row["preferred_email_route"]["source_url"] == "https://acme.example.com/contato"
 
 
 def test_crash_before_commit_resumes_same_job(dsn: str, tmp_path: Path) -> None:

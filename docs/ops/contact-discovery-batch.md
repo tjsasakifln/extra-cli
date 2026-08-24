@@ -70,9 +70,12 @@ file is a factual `BLOCKED_WITH_REASON`, never a silent miss. Public discovery
 is spent only when the reconciled evidence has no controlled-eligible route.
 
 The next tier consults the locally activated, versioned Receita Federal
-company-registry release by exact CNPJ. A public e-mail from that row is a
-company route, including corporate freemail, but never evidence of a person or
-department. If no official release is active, the attempt records
+company-registry release by exact CNPJ. A corporate-domain e-mail from that row
+is a company route, but never evidence of a person or department. Public
+freemail remains stored and is eligible only when the active controlled-email
+policy can also prove its public company association (for example, publication
+on the resolved official site); the batch does not bypass the frozen policy. If
+no official release is active, the attempt records
 `OFFICIAL_REGISTRY_UNAVAILABLE`; a no-route result remains
 `BLOCKED_WITH_REASON` while website/document/public-search tiers still run and
 may independently produce `EMAIL_ROUTE_READY`.

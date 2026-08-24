@@ -202,8 +202,6 @@ class ClassifiedEmailRoute:
     route_class: EmailRouteClass
     provenance: str
     source: str | None
-    source_url: str | None
-    evidence_ids: tuple[str, ...]
     observed_at: str | None
     freshness: str
     epistemic_class: str
@@ -223,8 +221,6 @@ class ClassifiedEmailRoute:
     person_name: str | None = None
     email_validated: bool = False
     route_id: str | None = None
-    mailbox_department: str | None = None
-    ownership_status: str = OwnershipStatus.UNKNOWN.value
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -233,9 +229,6 @@ class ClassifiedEmailRoute:
             "route_class": self.route_class.value,
             "provenance": self.provenance,
             "source": self.source,
-            "source_url": self.source_url,
-            "source_reference": self.source_url or (self.evidence_ids[0] if self.evidence_ids else None),
-            "evidence_ids": list(self.evidence_ids),
             "observed_at": self.observed_at,
             "freshness": self.freshness,
             "epistemic_class": self.epistemic_class,
@@ -255,8 +248,6 @@ class ClassifiedEmailRoute:
             "person_name": self.person_name,
             "email_validated": self.email_validated,
             "route_id": self.route_id,
-            "mailbox_department": self.mailbox_department,
-            "ownership_status": self.ownership_status,
         }
 
 
@@ -389,22 +380,6 @@ def association_provenance_trustworthy(route: ReachabilityRoute) -> bool:
     url_host = _url_host(route.source_url)
     official = _official_domain(route)
     freemail = is_freemail(route.channel_value)
-    extra = route.extra if isinstance(route.extra, dict) else {}
-    registry_cnpj = "".join(ch for ch in str(extra.get("registry_cnpj14") or "") if ch.isdigit())
-    route_cnpj = "".join(ch for ch in str(route.company_entity_id or "") if ch.isdigit())
-    exact_official_registry_link = (
-        source == "company_registry"
-        and str(extra.get("official_match_status") or "").upper() == "MATCHED"
-        and str(extra.get("official_authority") or "").upper() == "RECEITA_FEDERAL"
-        and bool(str(extra.get("official_release_id") or "").strip())
-        and len(registry_cnpj) == 14
-        and registry_cnpj == route_cnpj
-    )
-    # An exact CNPJ row in a versioned Receita Federal release is itself the
-    # public mailbox↔company association. It is valid for corporate freemail as
-    # well, but does not imply a named person or role.
-    if exact_official_registry_link:
-        return True
     if not freemail and not mailbox_host_plausible(mailbox_dom):
         return False
     on_official_page = bool(official and url_host and _hosts_equivalent(url_host, official))
@@ -819,8 +794,6 @@ def evaluate_controlled_email_eligible(
         route_class=route_class,
         provenance=_provenance_label(route, route_class),
         source=route.source_type,
-        source_url=route.source_url,
-        evidence_ids=tuple(route.evidence_ids),
         observed_at=route.observed_at,
         freshness=freshness,
         epistemic_class=route.epistemic_class.value,
@@ -838,8 +811,6 @@ def evaluate_controlled_email_eligible(
         person_name=person_name,
         email_validated=bool(named_person_safe and route_class == EmailRouteClass.DIRECT_PERSON),
         route_id=route.route_id,
-        mailbox_department=route.target_role if department_ev == EVIDENCE_OBSERVED else None,
-        ownership_status=route.ownership.value,
     )
 
 
@@ -867,8 +838,6 @@ def rank_account_email_routes(
             route_class=item.route_class,
             provenance=item.provenance,
             source=item.source,
-            source_url=item.source_url,
-            evidence_ids=item.evidence_ids,
             observed_at=item.observed_at,
             freshness=item.freshness,
             epistemic_class=item.epistemic_class,
@@ -888,8 +857,6 @@ def rank_account_email_routes(
             person_name=item.person_name,
             email_validated=item.email_validated,
             route_id=item.route_id,
-            mailbox_department=item.mailbox_department,
-            ownership_status=item.ownership_status,
         )
         ranked.append(updated)
         if is_preferred:
@@ -1089,27 +1056,18 @@ def route_from_feed_contact(
         epistemic = EpistemicClass.INFERRED
     if str(contact.get("email_derivation") or "").upper() == "INFERRED":
         epistemic = EpistemicClass.INFERRED
-    raw_freshness = str(contact.get("route_freshness") or contact.get("freshness") or "").upper()
-    freshness = (
-        FreshnessState(raw_freshness)
-        if raw_freshness in {item.value for item in FreshnessState}
-        else FreshnessState.FRESH
-    )
-    evidence_ids = [str(item) for item in (contact.get("evidence_ids") or []) if item]
     return ReachabilityRoute(
         route_id=str(contact.get("source_contact_id") or contact.get("route_id") or mailbox),
         company_entity_id=account_id,
         channel_type=_channel_for_mailbox(mailbox),
         reachability_class=ReachabilityClass.R5_CORPORATE_ONLY,
         action_mode=ActionMode.GENERIC_EMAIL_LAST_RESORT,
-        target_role=str(contact.get("mailbox_department") or "").strip() or None,
         channel_value=mailbox,
         route_relation=_relation_for_mailbox(mailbox),
         epistemic_class=epistemic,
         source_type=_feed_contact_source_type(contact),
         source_url=_feed_contact_source_url(contact) or None,
-        evidence_ids=evidence_ids,
-        freshness=freshness,
+        freshness=FreshnessState.FRESH,
         ownership=ownership,
         suppression=suppression,
         observed_at=str(contact.get("observed_at") or contact.get("source_date") or "") or None,
@@ -1197,8 +1155,6 @@ def feed_contact_from_classified(item: ClassifiedEmailRoute) -> dict[str, Any]:
         "source_contact_id": item.route_id or item.mailbox,
         "email": item.mailbox,
         "route_class": item.route_class.value,
-        "provenance_class": item.provenance,
-        "evidence_ids": list(item.evidence_ids),
         "controlled_email_eligible": item.controlled_email_eligible,
         "preferred_initial": item.preferred_initial,
         "recommended": item.preferred_initial,
@@ -1212,33 +1168,11 @@ def feed_contact_from_classified(item: ClassifiedEmailRoute) -> dict[str, Any]:
         "channel_epistemic_class": item.epistemic_class,
         "route_freshness": item.freshness,
         "route_suppression": item.suppression_state,
-        "ownership_status": item.ownership_status,
+        "ownership_status": "COMPANY_OWNED" if item.mailbox_company_evidence == EVIDENCE_OBSERVED else "UNKNOWN",
         "policy_version": item.policy_version,
         "schema_version": item.schema_version,
         "reason_codes": list(item.reason_codes),
     }
-    source_reference = item.source_url or (item.evidence_ids[0] if item.evidence_ids else None)
-    if item.source:
-        out["source"] = item.source
-    if item.source_url:
-        out["source_url"] = item.source_url
-    if source_reference:
-        out["source_reference"] = source_reference
-    if item.observed_at:
-        out["observed_at"] = item.observed_at
-    if item.mailbox_department:
-        out["mailbox_department"] = item.mailbox_department
-    if item.source or item.source_url or item.evidence_ids or item.observed_at:
-        provenance: dict[str, Any] = {"epistemic_class": item.provenance}
-        if item.source:
-            provenance["source_type"] = item.source
-        if item.source_url:
-            provenance["source_url"] = item.source_url
-        if item.observed_at:
-            provenance["observed_at"] = item.observed_at
-        if item.evidence_ids:
-            provenance["evidence_ids"] = list(item.evidence_ids)
-        out["provenance"] = provenance
     if item.person_name:
         out["name"] = item.person_name
     if item.person_id:
@@ -1276,12 +1210,7 @@ def stamp_and_rank_feed_contacts(
         if item is None:
             stamped.append(contact)
             continue
-        classified_contact = feed_contact_from_classified(item)
-        original_provenance = contact.get("provenance")
-        classified_provenance = classified_contact.get("provenance")
-        merged = {**contact, **classified_contact}
-        if isinstance(original_provenance, dict) and isinstance(classified_provenance, dict):
-            merged["provenance"] = {**original_provenance, **classified_provenance}
+        merged = {**contact, **feed_contact_from_classified(item)}
         if contact.get("corroborating_sources"):
             merged["corroborating_sources"] = list(contact["corroborating_sources"])
             merged["corroborated"] = True

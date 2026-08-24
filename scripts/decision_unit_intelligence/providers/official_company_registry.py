@@ -12,6 +12,7 @@ from collections.abc import Callable
 
 from scripts.company_registry.lookup import lookup_cnpj
 from scripts.company_registry.models import OfficialCompanyRecord, OfficialMatchStatus
+from scripts.decision_unit_intelligence.controlled_email import is_freemail
 from scripts.decision_unit_intelligence.models import (
     ChannelObservation,
     ChannelType,
@@ -71,6 +72,7 @@ class OfficialCompanyRegistryProvider:
         evidence: list[FieldEvidence] = []
 
         email = str(record.email or "").strip().lower()
+        registry_domain = email.rsplit("@", 1)[-1] if "@" in email and not is_freemail(email) else ""
         if email:
             evidence_id = stable_id("rfb-email", cnpj, email, source_id or "")
             evidence.append(
@@ -107,6 +109,7 @@ class OfficialCompanyRegistryProvider:
                         "company_associated": True,
                         "mailbox_company_evidence": "OBSERVED",
                         "mailbox_person_evidence": "UNKNOWN",
+                        **({"official_domain": registry_domain} if registry_domain else {}),
                     },
                 )
             )
@@ -165,5 +168,17 @@ class OfficialCompanyRegistryProvider:
             ],
             terminal=attempt_status,
             legal_name=record.legal_name,
-            extra={"official_company_registry": {**common, "source_provenance": provenance}},
+            extra={
+                "official_company_registry": {**common, "source_provenance": provenance},
+                **(
+                    {
+                        "domain_resolution": {
+                            "canonical_domain": registry_domain,
+                            "confidence": "EXACT_CNPJ_REGISTRY_EMAIL_DOMAIN",
+                        }
+                    }
+                    if registry_domain
+                    else {}
+                ),
+            },
         )

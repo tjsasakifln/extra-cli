@@ -119,7 +119,7 @@ def test_run_account_uses_seed_before_public_search_without_minting_person(tmp_p
     assert account.ledger.search_queries == []
 
 
-def test_official_registry_exact_cnpj_accepts_public_company_freemail_without_person() -> None:
+def test_official_registry_exact_cnpj_accepts_public_company_mailbox_without_person() -> None:
     cnpj = "11222333000181"
     provider = OfficialCompanyRegistryProvider(
         lookup=lambda _cnpj: OfficialCompanyRecord(
@@ -128,7 +128,7 @@ def test_official_registry_exact_cnpj_accepts_public_company_freemail_without_pe
             official_authority="RECEITA_FEDERAL",
             official_release_id="rfb-2026-07",
             legal_name="Construtora Cadastro Ltda",
-            email="construtoracadastro@gmail.com",
+            email="contato@construtoracadastro.com.br",
             fetched_from_local_registry_at="2026-08-24T12:00:00Z",
             source_provenance={
                 "release_id": "rfb-2026-07",
@@ -140,9 +140,11 @@ def test_official_registry_exact_cnpj_accepts_public_company_freemail_without_pe
     account = run_account(cnpj, providers=[provider], infer_email=False)
     projected = project_warmbly_outreach(account)
 
-    assert projected["preferred_initial_route"]["route_class"] == "PUBLIC_COMPANY_FREEMAIL"
+    assert projected["preferred_initial_route"]["route_class"] == "GENERIC_COMPANY"
     assert projected["preferred_initial_route"]["person_name"] is None
-    assert projected["preferred_initial_route"]["source"] == "company_registry"
+    route = next(item for item in account.routes if item.channel_value == "contato@construtoracadastro.com.br")
+    assert route.source_type == "company_registry"
+    assert route.extra["official_domain"] == "construtoracadastro.com.br"
 
 
 def test_unavailable_official_registry_is_recorded_without_stopping_later_sources() -> None:

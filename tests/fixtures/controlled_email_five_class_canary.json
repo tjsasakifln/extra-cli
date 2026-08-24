@@ -97,8 +97,7 @@
             "source_published_at": "",
             "observed_at": "",
             "verified_at": "",
-            "evidence_sha256": "",
-            "epistemic_class": "OBSERVED"
+            "evidence_sha256": ""
           },
           "email_explicitly_published": null,
           "name_explicitly_published": null,
@@ -121,8 +120,6 @@
           "human_recipient_evidence_valid": false,
           "controlled_email_eligible": true,
           "route_class": "DIRECT_PERSON",
-          "provenance_class": "OBSERVED",
-          "evidence_ids": [],
           "preferred_initial": true,
           "preferred_rank": 1,
           "mailbox_company_evidence": "OBSERVED",
@@ -141,8 +138,7 @@
             "named_person_evidence_present",
             "controlled_email_eligible",
             "preferred_initial_route"
-          ],
-          "source_reference": "https://empresaexemplo.com.br/contato"
+          ]
         },
         {
           "source_contact_id": "c-comercial",
@@ -178,8 +174,7 @@
             "source_published_at": "",
             "observed_at": "",
             "verified_at": "",
-            "evidence_sha256": "",
-            "epistemic_class": "OBSERVED"
+            "evidence_sha256": ""
           },
           "email_explicitly_published": null,
           "name_explicitly_published": null,
@@ -200,8 +195,6 @@
           "human_recipient_evidence_valid": false,
           "controlled_email_eligible": true,
           "route_class": "ROLE_OR_DEPARTMENT",
-          "provenance_class": "OBSERVED",
-          "evidence_ids": [],
           "preferred_initial": false,
           "preferred_rank": 2,
           "mailbox_company_evidence": "OBSERVED",
@@ -220,8 +213,7 @@
             "person_unknown",
             "controlled_email_eligible",
             "alternative_route"
-          ],
-          "source_reference": "https://empresaexemplo.com.br/contato"
+          ]
         },
         {
           "source_contact_id": "c-contato",
@@ -257,8 +249,7 @@
             "source_published_at": "",
             "observed_at": "",
             "verified_at": "",
-            "evidence_sha256": "",
-            "epistemic_class": "OBSERVED"
+            "evidence_sha256": ""
           },
           "email_explicitly_published": null,
           "name_explicitly_published": null,
@@ -279,8 +270,6 @@
           "human_recipient_evidence_valid": false,
           "controlled_email_eligible": true,
           "route_class": "GENERIC_COMPANY",
-          "provenance_class": "OBSERVED",
-          "evidence_ids": [],
           "preferred_initial": false,
           "preferred_rank": 3,
           "mailbox_company_evidence": "OBSERVED",
@@ -299,8 +288,7 @@
             "person_unknown",
             "controlled_email_eligible",
             "alternative_route"
-          ],
-          "source_reference": "https://empresaexemplo.com.br/contato"
+          ]
         },
         {
           "source_contact_id": "c-gmail",
@@ -336,8 +324,7 @@
             "source_published_at": "",
             "observed_at": "",
             "verified_at": "",
-            "evidence_sha256": "",
-            "epistemic_class": "OBSERVED"
+            "evidence_sha256": ""
           },
           "email_explicitly_published": null,
           "name_explicitly_published": null,
@@ -359,8 +346,6 @@
           "human_recipient_evidence_valid": false,
           "controlled_email_eligible": true,
           "route_class": "PUBLIC_COMPANY_FREEMAIL",
-          "provenance_class": "OBSERVED",
-          "evidence_ids": [],
           "preferred_initial": false,
           "preferred_rank": 4,
           "mailbox_person_evidence": "UNKNOWN",
@@ -378,8 +363,7 @@
             "person_unknown",
             "controlled_email_eligible",
             "alternative_route"
-          ],
-          "source_reference": "https://empresaexemplo.com.br/contato"
+          ]
         },
         {
           "source_contact_id": "c-inferred",
@@ -438,8 +422,6 @@
           "human_recipient_evidence_valid": false,
           "controlled_email_eligible": false,
           "route_class": "PROBABILISTIC_OR_RISKY",
-          "provenance_class": "INFERRED",
-          "evidence_ids": [],
           "preferred_initial": false,
           "preferred_rank": null,
           "mailbox_company_evidence": "UNKNOWN",
