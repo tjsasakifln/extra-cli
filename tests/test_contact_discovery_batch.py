@@ -508,6 +508,65 @@ def test_complete_cohort_exports_verified_bridge_projection(dsn: str, tmp_path: 
     assert row["preferred_email_route"]["source_url"] == "https://acme.example.com/contato"
 
 
+def test_dlq_with_verified_partial_output_exports_explicit_blocker(
+    dsn: str,
+    tmp_path: Path,
+) -> None:
+    cohort = "c-dlq-partial-output"
+    cnpj = "11222333000181"
+    with connect(dsn) as connection:
+        queue = ContactDiscoveryQueue(connection)
+        _seed(
+            queue,
+            cohort=cohort,
+            accounts=[cnpj],
+            backend="searxng",
+            metadata={"population_count": 1},
+        )
+        job = queue.inspect(cohort_id=cohort)[0]
+        partial = {
+            "job_id": job["id"],
+            "canonical_account_id": cnpj,
+            "account": {"company_entity_id": cnpj},
+            "contact_projection": {},
+        }
+        partial_path = tmp_path / "partial-output.json"
+        partial_path.write_text(
+            json.dumps(partial, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE contact_discovery_jobs
+                SET status = 'DLQ', attempt_count = max_attempts,
+                    last_outcome = 'DLQ', last_reason_code = 'PROVIDER_HTTP_ERROR',
+                    output_pointer = %s, output_hash = %s
+                WHERE id = %s
+                """,
+                (str(partial_path), canonical_payload_hash(partial), job["id"]),
+            )
+
+        result = write_contact_projection(
+            queue,
+            cohort_id=cohort,
+            output_path=tmp_path / "contacts.jsonl",
+            report_path=tmp_path / "report.json",
+        )
+
+    assert result["written"] is True
+    assert result["terminal_coverage_complete"] is True
+    assert result["terminal_equation"]["holds"] is True
+    assert result["enrichment_states"] == {"BLOCKED_WITH_REASON": 1}
+    assert result["blockers"] == {"PROVIDER_HTTP_ERROR": 1}
+    assert result["integrity_failures"] == {}
+    row = json.loads((tmp_path / "contacts.jsonl").read_text(encoding="utf-8"))
+    assert row["canonical_account_id"] == cnpj
+    assert row["contacts"] == []
+    assert row["enrichment_state"] == "BLOCKED_WITH_REASON"
+    assert row["enrichment_reason"] == "PROVIDER_HTTP_ERROR"
+
+
 def test_export_reclassifies_signed_discovery_evidence_under_current_policy(
     dsn: str,
     tmp_path: Path,
