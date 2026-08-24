@@ -295,6 +295,28 @@ def test_cli_lookup_and_health(reg_root, fix_dir):
     assert main(["health", "--cnpj", meta["cnpjs"][0]]) == 0
 
 
+def test_active_release_lookup_is_truly_read_only(reg_root, fix_dir):
+    release_id = "rfb-cnpj-fixture-readonly"
+    raw = reg_root / "raw" / release_id
+    raw.mkdir(parents=True)
+    shutil.copy2(fix_dir / "Estabelecimentos0.zip", raw / "Estabelecimentos0.zip")
+    shutil.copy2(fix_dir / "Empresas0.zip", raw / "Empresas0.zip")
+    manifest = new_manifest(release_id)
+    set_status(manifest, ReleaseStatus.DOWNLOADED.value)
+    save_manifest(manifest)
+    db = db_path_for_release(release_id, staging=True)
+    load_zip_into_db(raw / "Estabelecimentos0.zip", db, kind_hint="estabelecimentos")
+    load_zip_into_db(raw / "Empresas0.zip", db, kind_hint="empresas")
+    activated = activate_release(release_id)
+    assert activated["ok"]
+    active_db = db_path_for_release(release_id, staging=False)
+    active_db.chmod(0o444)
+
+    meta = json.loads((fix_dir / "meta.json").read_text(encoding="utf-8"))
+    record = lookup_cnpj(meta["cnpjs"][0])
+    assert record.official_match_status == OfficialMatchStatus.MATCHED.value
+
+
 def test_partial_release_cannot_activate(reg_root):
     release_id = "rfb-cnpj-empty"
     m = new_manifest(release_id)

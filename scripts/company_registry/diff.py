@@ -36,8 +36,8 @@ def diff_releases(
             "new_release_id": new_release_id,
         }
 
-    old = connect_db(old_db)
-    new = connect_db(new_db)
+    old = connect_db(old_db, readonly=True)
+    new = connect_db(new_db, readonly=True)
     try:
         old_ids = {r["cnpj14"] for r in old.execute("SELECT cnpj14 FROM establishments")}
         new_ids = {r["cnpj14"] for r in new.execute("SELECT cnpj14 FROM establishments")}

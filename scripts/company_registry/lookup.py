@@ -85,7 +85,7 @@ def lookup_cnpj(
             source_provenance={"reason": "no_active_release"},
         )
 
-    conn = connect_db(db_path)
+    conn = connect_db(db_path, readonly=True)
     try:
         row = lookup_row(conn, cnpj14)
         source_label = get_meta(conn, "source_label", "rfb_public_cadastral")
