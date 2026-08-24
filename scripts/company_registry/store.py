@@ -96,8 +96,15 @@ CREATE INDEX IF NOT EXISTS idx_est_uf ON establishments(uf);
 """
 
 
-def connect_db(path: Path | str) -> sqlite3.Connection:
+def connect_db(path: Path | str, *, readonly: bool = False) -> sqlite3.Connection:
     p = Path(path)
+    if readonly:
+        if not p.is_file():
+            raise FileNotFoundError(p)
+        conn = sqlite3.connect(f"file:{p.resolve()}?mode=ro&immutable=1", uri=True)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only=ON")
+        return conn
     p.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(str(p))
     conn.row_factory = sqlite3.Row

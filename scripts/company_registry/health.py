@@ -37,7 +37,7 @@ def health_report(*, smoke_cnpj: str | None = None) -> dict[str, Any]:
 
         dbp = Path(ptr["database_path"])
         if dbp.is_file():
-            conn = connect_db(dbp)
+            conn = connect_db(dbp, readonly=True)
             try:
                 counts = {
                     "establishments": count_table(conn, "establishments"),

@@ -153,7 +153,7 @@ def fail_closed_commercial_precheck(
     if not db_path or not Path(str(db_path)).is_file():
         errors.append("ACTIVE_DB_MISSING")
     else:
-        conn = connect_db(db_path)
+        conn = connect_db(db_path, readonly=True)
         try:
             if count_table(conn, "establishments") < 1:
                 errors.append("INCOMPLETE_LOAD_EMPTY_ESTABLISHMENTS")
