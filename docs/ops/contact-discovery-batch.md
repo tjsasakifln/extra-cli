@@ -95,3 +95,7 @@ because the sector dimension currently says `NON_CONSTRUCTION` or
 `SECTOR_INSUFFICIENT_EVIDENCE`. That broader reachability ledger does not relax
 the independent construction-membership gate used by the authoritative feed
 and send-readiness policy.
+
+The shipped systemd worker loads the canonical production environment from
+`/opt/extra-consultoria/.env` (plus the optional crawler/collector overrides),
+so its DSN and public-search endpoint match the manually verified CLI run.
