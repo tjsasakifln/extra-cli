@@ -99,3 +99,34 @@ and send-readiness policy.
 The shipped systemd worker loads the canonical production environment from
 `/opt/extra-consultoria/.env` (plus the optional crawler/collector overrides),
 so its DSN and public-search endpoint match the manually verified CLI run.
+
+## Continuous full-population cycle
+
+`extra-confenge-contact-cycle.timer` starts one daily, non-overlapping
+full-`TARGET_CONFIRMED` reconciliation. The coordinator resumes an unfinished
+cohort after a restart, while the leased workers continue to own actual source
+access. It advances `contact-discovery/current` only after population = jobs =
+explicit terminal accounts and an approved immutable snapshot plus verified
+contact projection have both been written.
+
+The prior `current` symlink is retained on timeout, provider failure, partial
+denominator, invalid export, or process crash. A state file and append-only
+alert ledger make a red cycle observable instead of silently serving a partial
+projection:
+
+```text
+/var/lib/extra-consultoria/contact-discovery/cycle-state.json
+/var/lib/extra-consultoria/alerts/confenge-contact-cycle.jsonl
+```
+
+Each cycle keeps passive DNS/MX verification enabled and uses the durable
+`contact-discovery/search-cache` directory. It still never probes SMTP and
+never turns a timeout, catch-all uncertainty, or absent person into observed
+identity evidence.
+
+Install `deploy/systemd/contact-discovery.env.example` as
+`/etc/extra-consultoria/contact-discovery.env`, then enable both the workers and
+the timer. The feed cycle consumes only
+`contact-discovery/current/contacts.jsonl`; therefore contact discovery and
+feed publication remain one truth plane without coupling a long crawl to the
+12-hour feed freshness timer.
