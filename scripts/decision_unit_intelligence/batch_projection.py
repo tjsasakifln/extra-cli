@@ -10,6 +10,27 @@ from typing import Any
 
 from scripts.decision_unit_intelligence.batch_contact_metadata import attach_projection_evidence
 from scripts.decision_unit_intelligence.batch_queue import ContactDiscoveryQueue, canonical_payload_hash
+from scripts.decision_unit_intelligence.controlled_email import (
+    CONTROLLED_EMAIL_POLICY_VERSION,
+    classify_account_email_routes,
+    feed_contact_from_classified,
+)
+from scripts.decision_unit_intelligence.models import (
+    AccountInvestigation,
+    ActionMode,
+    ChannelType,
+    ConfidenceLevel,
+    DecisionRoleClass,
+    DecisionUnitCandidate,
+    EpistemicClass,
+    FreshnessState,
+    OwnershipStatus,
+    ReachabilityClass,
+    ReachabilityRoute,
+    RouteRelation,
+    SuppressionState,
+)
+from scripts.decision_unit_intelligence.projection import is_email_safe_for_warmbly
 from scripts.decision_unit_intelligence.repository import write_json
 
 TERMINAL_JOB_STATUSES = frozenset({"SUCCEEDED", "BLOCKED", "DLQ", "CANCELLED"})
@@ -59,6 +80,143 @@ def _blocked_row(job: dict[str, Any], reason: str) -> dict[str, Any]:
     }
 
 
+def _enum(enum_type: type[Any], raw: Any, default: Any) -> Any:
+    try:
+        return enum_type(raw)
+    except (TypeError, ValueError):
+        return default
+
+
+def _candidate_from_stored(raw: dict[str, Any], account_id: str) -> DecisionUnitCandidate | None:
+    candidate_id = str(raw.get("candidate_id") or "").strip()
+    if not candidate_id:
+        return None
+    return DecisionUnitCandidate(
+        candidate_id=candidate_id,
+        company_entity_id=str(raw.get("company_entity_id") or account_id),
+        person_id=str(raw.get("person_id") or ""),
+        person_name=str(raw.get("person_name") or "").strip() or None,
+        observed_roles=[str(item) for item in (raw.get("observed_roles") or []) if item],
+        decision_role_class=_enum(
+            DecisionRoleClass,
+            raw.get("decision_role_class"),
+            DecisionRoleClass.UNKNOWN,
+        ),
+        identity_confidence=_enum(
+            ConfidenceLevel,
+            raw.get("identity_confidence"),
+            ConfidenceLevel.UNKNOWN,
+        ),
+        role_confidence=_enum(
+            ConfidenceLevel,
+            raw.get("role_confidence"),
+            ConfidenceLevel.UNKNOWN,
+        ),
+        suitability=_enum(
+            ConfidenceLevel,
+            raw.get("suitability"),
+            ConfidenceLevel.UNKNOWN,
+        ),
+    )
+
+
+def _route_from_stored(raw: dict[str, Any], account_id: str) -> ReachabilityRoute | None:
+    route_id = str(raw.get("route_id") or "").strip()
+    channel_value = str(raw.get("channel_value") or "").strip()
+    if not route_id or not channel_value:
+        return None
+    return ReachabilityRoute(
+        route_id=route_id,
+        company_entity_id=str(raw.get("company_entity_id") or account_id),
+        channel_type=_enum(ChannelType, raw.get("channel_type"), ChannelType.OTHER_PUBLIC_BUSINESS_ROUTE),
+        reachability_class=_enum(
+            ReachabilityClass,
+            raw.get("reachability_class"),
+            ReachabilityClass.R0_NO_ACTIONABLE_ROUTE,
+        ),
+        action_mode=_enum(ActionMode, raw.get("action_mode"), ActionMode.NEEDS_ENRICHMENT),
+        decision_unit_candidate_id=str(raw.get("decision_unit_candidate_id") or "").strip() or None,
+        target_role=str(raw.get("target_role") or "").strip() or None,
+        channel_value=channel_value,
+        route_relation=_enum(
+            RouteRelation,
+            raw.get("route_relation"),
+            RouteRelation.ACCOUNT_LEVEL_ONLY,
+        ),
+        epistemic_class=_enum(
+            EpistemicClass,
+            raw.get("epistemic_class"),
+            EpistemicClass.UNKNOWN,
+        ),
+        source_type=str(raw.get("source_type") or "").strip() or None,
+        source_url=str(raw.get("source_url") or "").strip() or None,
+        evidence_ids=[str(item) for item in (raw.get("evidence_ids") or []) if item],
+        route_confidence=_enum(
+            ConfidenceLevel,
+            raw.get("route_confidence"),
+            ConfidenceLevel.UNKNOWN,
+        ),
+        freshness=_enum(FreshnessState, raw.get("freshness"), FreshnessState.UNKNOWN),
+        ownership=_enum(OwnershipStatus, raw.get("ownership"), OwnershipStatus.UNKNOWN),
+        suppression=_enum(SuppressionState, raw.get("suppression"), SuppressionState.NONE),
+        reason_codes=[str(item) for item in (raw.get("reason_codes") or []) if item],
+        observed_at=str(raw.get("observed_at") or "").strip() or None,
+        suitability=_enum(
+            ConfidenceLevel,
+            raw.get("suitability"),
+            ConfidenceLevel.UNKNOWN,
+        ),
+        extra=dict(raw.get("extra") or {}) if isinstance(raw.get("extra"), dict) else {},
+    )
+
+
+def _current_policy_projection(
+    stored_projection: dict[str, Any],
+    *,
+    account: dict[str, Any],
+) -> dict[str, Any]:
+    """Reclassify immutable discovery evidence under the current route policy.
+
+    Crawling and classification are deliberately separate: a policy repair must
+    apply to already collected evidence without rewriting signed job outputs or
+    spending another public-search budget.
+    """
+    account_id = str(account.get("company_entity_id") or account.get("cnpj") or "").strip()
+    if not account_id:
+        return stored_projection
+    candidates = [
+        candidate
+        for raw in (account.get("candidates") or [])
+        if isinstance(raw, dict)
+        if (candidate := _candidate_from_stored(raw, account_id)) is not None
+    ]
+    routes = [
+        route
+        for raw in (account.get("routes") or [])
+        if isinstance(raw, dict)
+        if (route := _route_from_stored(raw, account_id)) is not None
+    ]
+    restored = AccountInvestigation(
+        company_entity_id=account_id,
+        cnpj=str(account.get("cnpj") or account_id),
+        legal_name=str(account.get("legal_name") or "").strip() or None,
+        service_context=str(account.get("service_context") or "generic"),
+        why_now=str(account.get("why_now") or "").strip() or None,
+        candidates=candidates,
+        routes=routes,
+        policy_version=str(account.get("policy_version") or "dui.policy.v1"),
+        extra=dict(account.get("extra") or {}) if isinstance(account.get("extra"), dict) else {},
+    )
+    ranking = classify_account_email_routes(
+        restored,
+        named_person_safe=is_email_safe_for_warmbly,
+    )
+    current = dict(stored_projection)
+    current.update(ranking.to_dict())
+    current["contacts"] = [feed_contact_from_classified(item) for item in ranking.classified_routes]
+    return current
+
+
 def build_contact_projection(
     queue: ContactDiscoveryQueue,
     *,
@@ -101,10 +259,17 @@ def build_contact_projection(
         projection = projection if isinstance(projection, dict) else {}
         account = (payload or {}).get("account")
         account = account if isinstance(account, dict) else {}
+        projection = _current_policy_projection(projection, account=account)
         projection = attach_projection_evidence(projection, account=account)
         contacts = [dict(item) for item in (projection.get("contacts") or []) if isinstance(item, dict)]
         preferred = projection.get("preferred_initial_route")
         preferred = preferred if isinstance(preferred, dict) else None
+        if status == "SUCCEEDED" and preferred:
+            state = "EMAIL_ROUTE_READY"
+            reason = "CONTROLLED_EMAIL_ROUTE_SELECTED"
+        elif status == "SUCCEEDED" and state == "EMAIL_ROUTE_READY":
+            state = "BLOCKED_WITH_REASON"
+            reason = "CURRENT_POLICY_NO_ELIGIBLE_ROUTE"
         domain = ((account.get("extra") or {}).get("domain_resolution") or {}).get("canonical_domain")
         row = {
             "cnpj14": str(job["canonical_account_id"]),
@@ -184,6 +349,7 @@ def build_contact_projection(
         "provenance_source_distribution": dict(sorted(sources.items())),
         "integrity_failures": dict(sorted(integrity_failures.items())),
         "projection_hash": projection_hash,
+        "controlled_email_policy_version": CONTROLLED_EMAIL_POLICY_VERSION,
         "policy_version": progress.get("policy_version"),
         "input_evidence_version": progress.get("input_evidence_version"),
         "code_sha": progress.get("code_sha"),

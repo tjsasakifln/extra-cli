@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import threading
 from pathlib import Path
@@ -20,6 +21,7 @@ from scripts.decision_unit_intelligence.batch_outcomes import (
 from scripts.decision_unit_intelligence.batch_projection import write_contact_projection
 from scripts.decision_unit_intelligence.batch_queue import (
     ContactDiscoveryQueue,
+    canonical_payload_hash,
     connect,
     idempotency_key,
 )
@@ -150,6 +152,47 @@ def _auditable_role_account(cnpj: str) -> AccountInvestigation:
         terminal=AccountTerminal.ACTIONABLE_ROUTE,
         ledger=SearchLedger(tiers_completed=[0, 1, 2, 3]),
         extra={"domain_resolution": {"canonical_domain": "acme.example.com"}},
+    )
+
+
+def _exact_registry_freemail_account(cnpj: str) -> AccountInvestigation:
+    return AccountInvestigation(
+        company_entity_id=cnpj,
+        cnpj=cnpj,
+        legal_name="ACME ENGENHARIA LTDA",
+        service_context="reajuste_14133",
+        why_now="TARGET_CONFIRMED",
+        routes=[
+            ReachabilityRoute(
+                route_id=f"registry-{cnpj}",
+                company_entity_id=cnpj,
+                channel_type=ChannelType.GENERIC_CORPORATE_EMAIL,
+                reachability_class=ReachabilityClass.R5_CORPORATE_ONLY,
+                action_mode=ActionMode.GENERIC_EMAIL_LAST_RESORT,
+                channel_value="acmeengenharia@gmail.com",
+                route_relation=RouteRelation.ACCOUNT_LEVEL_ONLY,
+                epistemic_class=EpistemicClass.OBSERVED,
+                source_type="company_registry",
+                freshness=FreshnessState.FRESH,
+                ownership=OwnershipStatus.COMPANY_OWNED,
+                observed_at="2026-08-24T12:00:00Z",
+                extra={
+                    "company_associated": True,
+                    "mailbox_company_evidence": "OBSERVED",
+                    "mailbox_person_evidence": "UNKNOWN",
+                    "official_match_status": "MATCHED",
+                    "official_authority": "RECEITA_FEDERAL",
+                    "official_release_id": "rfb-2026-08",
+                    "registry_cnpj14": cnpj,
+                    "source_provenance": {
+                        "release_id": "rfb-2026-08",
+                        "source_label": "rfb_public_cadastral_via_opencnpj",
+                    },
+                },
+            )
+        ],
+        terminal=AccountTerminal.ACTIONABLE_ROUTE,
+        ledger=SearchLedger(tiers_completed=[0, 1, 2, 3]),
     )
 
 
@@ -445,6 +488,7 @@ def test_complete_cohort_exports_verified_bridge_projection(dsn: str, tmp_path: 
     assert result["target_fit_mode"] == "SHADOW"
     assert result["target_fit_classifier_sha"] == "sha256:target-fit-test"
     assert result["sector_classifier_sha"] == "sha256:sector-test"
+    assert result["controlled_email_policy_version"] == "controlled-email-policy.v2"
     assert result["terminal_equation"] == {
         "population_count": 1,
         "job_denominator": 1,
@@ -462,6 +506,69 @@ def test_complete_cohort_exports_verified_bridge_projection(dsn: str, tmp_path: 
     assert row["contacts"][0]["mailbox_department"] == "licitacoes"
     assert row["contacts"][0]["provenance"]["source_type"] == "company_website"
     assert row["preferred_email_route"]["source_url"] == "https://acme.example.com/contato"
+
+
+def test_export_reclassifies_signed_discovery_evidence_under_current_policy(
+    dsn: str,
+    tmp_path: Path,
+) -> None:
+    cohort = "c-policy-reprojection"
+    cnpj = "11222333000181"
+    with connect(dsn) as connection:
+        _seed(
+            ContactDiscoveryQueue(connection),
+            cohort=cohort,
+            accounts=[cnpj],
+            backend="searxng",
+            metadata={"population_count": 1},
+        )
+    worker = ContactDiscoveryWorker(
+        dsn=dsn,
+        worker_id="policy-reprojection-worker",
+        output_root=tmp_path / "outputs",
+        admission_probe=lambda: [],
+        discovery=lambda job: _exact_registry_freemail_account(job.canonical_account_id),
+    )
+    assert worker.run_once()["status"] == "SUCCEEDED"
+
+    # Model a job signed before the policy fix: keep immutable discovery evidence,
+    # but remove the then-unrecognized preferred route from its derived projection.
+    with connect(dsn) as connection:
+        queue = ContactDiscoveryQueue(connection)
+        job = queue.inspect(cohort_id=cohort)[0]
+        output_path = Path(str(job["output_pointer"]))
+        payload = json.loads(output_path.read_text(encoding="utf-8"))
+        payload["contact_projection"] = {
+            "contacts": [],
+            "preferred_initial_route": None,
+            "classified_email_routes": [],
+        }
+        payload["enrichment_state"] = "BLOCKED_WITH_REASON"
+        payload["enrichment_reason"] = "WATERFALL_PROVIDER_FAILURE"
+        output_path.write_text(
+            json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        digest = canonical_payload_hash(payload)
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "UPDATE contact_discovery_jobs SET output_hash = %s WHERE id = %s",
+                (digest, job["id"]),
+            )
+        result = write_contact_projection(
+            queue,
+            cohort_id=cohort,
+            output_path=tmp_path / "contacts.jsonl",
+            report_path=tmp_path / "report.json",
+        )
+
+    assert result["written"] is True
+    assert result["enrichment_states"] == {"EMAIL_ROUTE_READY": 1}
+    assert result["accounts_with_preferred_route"] == 1
+    row = json.loads((tmp_path / "contacts.jsonl").read_text(encoding="utf-8"))
+    assert row["preferred_email_route"]["route_class"] == "PUBLIC_COMPANY_FREEMAIL"
+    assert row["preferred_email_route"]["email_validated"] is False
+    assert row["preferred_email_route"]["person_name"] is None
 
 
 def test_projection_refuses_population_job_denominator_mismatch(dsn: str, tmp_path: Path) -> None:

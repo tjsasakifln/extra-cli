@@ -147,6 +147,33 @@ def test_official_registry_exact_cnpj_accepts_public_company_mailbox_without_per
     assert route.extra["official_domain"] == "construtoracadastro.com.br"
 
 
+def test_official_registry_exact_cnpj_accepts_public_freemail_without_person() -> None:
+    cnpj = "11222333000181"
+    provider = OfficialCompanyRegistryProvider(
+        lookup=lambda _cnpj: OfficialCompanyRecord(
+            cnpj=cnpj,
+            official_match_status=OfficialMatchStatus.MATCHED.value,
+            official_authority="RECEITA_FEDERAL",
+            official_release_id="rfb-2026-07",
+            legal_name="Construtora Cadastro Ltda",
+            email="construtoracadastro@gmail.com",
+            fetched_from_local_registry_at="2026-08-24T12:00:00Z",
+            source_provenance={
+                "release_id": "rfb-2026-07",
+                "source_label": "rfb_public_cadastral",
+            },
+        )
+    )
+
+    projected = project_warmbly_outreach(run_account(cnpj, providers=[provider], infer_email=False))
+    preferred = projected["preferred_initial_route"]
+
+    assert preferred["route_class"] == "PUBLIC_COMPANY_FREEMAIL"
+    assert preferred["mailbox_person_evidence"] == "UNKNOWN"
+    assert preferred["person_name"] is None
+    assert preferred["email_validated"] is False
+
+
 def test_unavailable_official_registry_is_recorded_without_stopping_later_sources() -> None:
     cnpj = "11222333000181"
     provider = OfficialCompanyRegistryProvider(
