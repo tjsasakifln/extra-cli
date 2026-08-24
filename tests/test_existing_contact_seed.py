@@ -165,7 +165,20 @@ def test_official_registry_exact_cnpj_accepts_public_freemail_without_person() -
         )
     )
 
-    projected = project_warmbly_outreach(run_account(cnpj, providers=[provider], infer_email=False))
+    class MustNotRunAfterRegistryHit:
+        provider_id = "public_search"
+        tier = 4
+
+        def collect(self, _context: InvestigationContext):
+            raise AssertionError("exact registry route should stop later public-search spend")
+
+    projected = project_warmbly_outreach(
+        run_account(
+            cnpj,
+            providers=[provider, MustNotRunAfterRegistryHit()],
+            infer_email=False,
+        )
+    )
     preferred = projected["preferred_initial_route"]
 
     assert preferred["route_class"] == "PUBLIC_COMPANY_FREEMAIL"

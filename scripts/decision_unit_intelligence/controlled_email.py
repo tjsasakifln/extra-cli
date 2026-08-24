@@ -636,12 +636,16 @@ def observed_contact_is_controlled_eligible_company_route(
     return is_actionable_controlled_company_route(evaluate_controlled_email_eligible(route))
 
 
-def observed_channels_have_controlled_eligible_route(channels: list[Any]) -> bool:
+def observed_channels_have_controlled_eligible_route(
+    channels: list[Any],
+    *,
+    account_id: str = "",
+) -> bool:
     """True when an observed public mailbox is already a control-eligible company route."""
     for channel in channels or []:
         extra = getattr(channel, "extra", None) or {}
         if isinstance(channel, dict):
-            if observed_contact_is_controlled_eligible_company_route(channel):
+            if observed_contact_is_controlled_eligible_company_route(channel, account_id=account_id):
                 return True
             continue
         epistemic = getattr(channel, "epistemic_class", None)
@@ -654,11 +658,12 @@ def observed_channels_have_controlled_eligible_route(channels: list[Any]) -> boo
             "ownership_status": ownership.value if hasattr(ownership, "value") else ownership,
             "source": getattr(channel, "source_type", None),
             "source_url": getattr(channel, "source_url", None),
+            "observed_at": getattr(channel, "observed_at", None),
             "channel_epistemic_class": epistemic.value if hasattr(epistemic, "value") else epistemic,
             "extra": extra,
             "pattern_guessed_email": extra.get("pattern_guessed") or extra.get("pattern_guessed_email"),
         }
-        if observed_contact_is_controlled_eligible_company_route(contact):
+        if observed_contact_is_controlled_eligible_company_route(contact, account_id=account_id):
             return True
     return False
 

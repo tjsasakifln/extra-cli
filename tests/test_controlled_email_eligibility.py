@@ -19,6 +19,7 @@ from scripts.decision_unit_intelligence.controlled_email import (
     classify_account_email_routes,
     classify_email_route_class,
     evaluate_controlled_email_eligible,
+    observed_channels_have_controlled_eligible_route,
     stamp_and_rank_feed_contacts,
 )
 from scripts.decision_unit_intelligence.email_validated.policy import decide_promotion
@@ -26,6 +27,7 @@ from scripts.decision_unit_intelligence.email_validated.schema import Adjudicati
 from scripts.decision_unit_intelligence.models import (
     AccountInvestigation,
     ActionMode,
+    ChannelObservation,
     ChannelType,
     ConfidenceLevel,
     DecisionRoleClass,
@@ -271,6 +273,30 @@ def test_registry_label_or_mismatched_cnpj_never_proves_company_association() ->
         assert classified.route_class == EmailRouteClass.PROBABILISTIC_OR_RISKY
         assert classified.controlled_email_eligible is False
         assert classified.mailbox_company_evidence == "UNKNOWN"
+
+
+def test_exact_registry_channel_stops_only_for_its_canonical_account() -> None:
+    channel = ChannelObservation(
+        observation_id="registry-channel",
+        company_entity_id=ACCOUNT_ID,
+        channel_type=ChannelType.GENERIC_CORPORATE_EMAIL,
+        channel_value="empresa@gmail.com",
+        source_type="company_registry",
+        observed_at="2026-08-24T00:00:00Z",
+        epistemic_class=EpistemicClass.OBSERVED,
+        ownership=OwnershipStatus.COMPANY_OWNED,
+        evidence_id="registry-evidence",
+        extra=_exact_registry_extra(),
+    )
+
+    assert observed_channels_have_controlled_eligible_route([channel], account_id=ACCOUNT_ID) is True
+    assert (
+        observed_channels_have_controlled_eligible_route(
+            [channel],
+            account_id="99888777000166",
+        )
+        is False
+    )
 
 
 def test_inferred_address_is_risky_outside_default_pilot() -> None:
