@@ -320,12 +320,17 @@ def test_two_sources_same_mailbox_dedupe_and_one_preferred() -> None:
     assert stamped[0]["corroborated"] is True
 
 
-def test_nominal_mailbox_without_person_is_risky() -> None:
+def test_nominal_mailbox_with_company_association_is_generic_not_person() -> None:
     classified = evaluate_controlled_email_eligible(
         _route("joao.silva@empresaexemplo.com.br", channel=ChannelType.DIRECT_EMAIL)
     )
-    assert classified.route_class == EmailRouteClass.PROBABILISTIC_OR_RISKY
-    assert classified.controlled_email_eligible is False
+    assert classified.route_class == EmailRouteClass.GENERIC_COMPANY
+    assert classified.controlled_email_eligible is True
+    assert classified.mailbox_company_evidence == "OBSERVED"
+    assert classified.mailbox_person_evidence == "UNKNOWN"
+    assert classified.person_id is None
+    assert classified.person_name is None
+    assert classified.email_validated is False
 
 
 def test_pattern_generated_stays_inferred_risky() -> None:
@@ -534,16 +539,16 @@ def _cascade_with_site_email(monkeypatch, email: str):
     return result, search_calls
 
 
-def test_nominal_mailbox_without_person_does_not_stop_cascade(monkeypatch) -> None:
+def test_nominal_mailbox_with_official_company_association_stops_cascade(monkeypatch) -> None:
     result, search_calls = _cascade_with_site_email(monkeypatch, "joao.silva@alphaengenharia.com.br")
-    assert result.stats.stop_reason != "official_site_controlled_eligible_route"
-    assert search_calls["n"] >= 1
+    assert result.stats.stop_reason == "official_site_controlled_eligible_route"
+    assert search_calls["n"] == 0
     assert (
         observed_contact_is_controlled_eligible_company_route(
             {"email": "joao.silva@alphaengenharia.com.br", "source": "company_website"},
             official_domain="alphaengenharia.com.br",
         )
-        is False
+        is True
     )
 
 
