@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
 from collections import Counter
 from datetime import UTC, datetime
@@ -10,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from scripts.decision_unit_intelligence.batch_contact_metadata import attach_projection_evidence
-from scripts.decision_unit_intelligence.batch_queue import ContactDiscoveryQueue
+from scripts.decision_unit_intelligence.batch_queue import ContactDiscoveryQueue, canonical_payload_hash
 from scripts.decision_unit_intelligence.repository import write_json
 
 TERMINAL_JOB_STATUSES = frozenset({"SUCCEEDED", "BLOCKED", "DLQ", "CANCELLED"})
@@ -21,11 +20,6 @@ ENRICHMENT_TERMINALS = frozenset(
 
 def _utcnow() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
-
-
-def _content_hash(payload: Any) -> str:
-    raw = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"), default=str)
-    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
 def _read_verified_output(job: dict[str, Any]) -> tuple[dict[str, Any] | None, str | None]:
@@ -44,7 +38,7 @@ def _read_verified_output(job: dict[str, Any]) -> tuple[dict[str, Any] | None, s
         return None, "OUTPUT_UNREADABLE"
     if not isinstance(payload, dict):
         return None, "OUTPUT_NOT_OBJECT"
-    if expected and _content_hash(payload) != expected:
+    if expected and canonical_payload_hash(payload) != expected:
         return None, "OUTPUT_HASH_MISMATCH"
     if int(payload.get("job_id") or -1) != int(job["id"]):
         return None, "OUTPUT_JOB_ID_MISMATCH"
@@ -153,7 +147,7 @@ def build_contact_projection(
         and terminal_account_count == denominator
         and not integrity_failures
     )
-    projection_hash = _content_hash(rows)
+    projection_hash = canonical_payload_hash(rows)
     report = {
         "schema_id": "confenge.contact_discovery.projection_report.v1",
         "generated_at": _utcnow(),

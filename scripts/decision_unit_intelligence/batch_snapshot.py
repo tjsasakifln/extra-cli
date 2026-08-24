@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
 import uuid
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from scripts.decision_unit_intelligence.batch_queue import ContactDiscoveryQueue
+from scripts.decision_unit_intelligence.batch_queue import ContactDiscoveryQueue, canonical_payload_hash
 from scripts.decision_unit_intelligence.repository import write_json
 
 PUBLISHABLE = {"SUCCEEDED", "BLOCKED", "DLQ", "CANCELLED"}
@@ -36,9 +35,7 @@ def reconcile_outputs(jobs: list[dict[str, Any]]) -> list[str]:
             errors.append(f"job {job['id']} output missing on disk: {pointer}")
             continue
         payload = json.loads(path.read_text(encoding="utf-8"))
-        recomputed = hashlib.sha256(
-            json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str).encode("utf-8")
-        ).hexdigest()
+        recomputed = canonical_payload_hash(payload)
         if recomputed != digest:
             errors.append(f"job {job['id']} output hash mismatch")
     return errors
@@ -96,9 +93,7 @@ def publish_snapshot(
             **evaluation,
         }
         write_json(Path(pointer), payload)
-        digest = hashlib.sha256(
-            json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str).encode("utf-8")
-        ).hexdigest()
+        digest = canonical_payload_hash(payload)
         queue.mark_cohort_published(
             cohort_id=cohort_id,
             snapshot_id=snapshot_id,
@@ -137,9 +132,7 @@ def publish_snapshot(
     }
     pointer = str(Path(output_root) / cohort_id / f"{snapshot_id}.json")
     write_json(Path(pointer), payload)
-    digest = hashlib.sha256(
-        json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str).encode("utf-8")
-    ).hexdigest()
+    digest = canonical_payload_hash(payload)
     queue.mark_cohort_published(
         cohort_id=cohort_id,
         snapshot_id=snapshot_id,
