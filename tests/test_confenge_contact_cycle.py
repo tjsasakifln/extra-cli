@@ -9,6 +9,7 @@ import pytest
 from scripts.ops.confenge_contact_cycle import run_cycle
 
 NOW = datetime(2026, 8, 24, 20, 0, tzinfo=UTC)
+ROOT = Path(__file__).resolve().parents[1]
 
 
 class FakeRunner:
@@ -185,3 +186,17 @@ def test_public_backend_and_positive_concurrency_are_required(tmp_path: Path) ->
             poll_seconds=0,
             timeout_seconds=1,
         )
+
+
+def test_systemd_cycle_and_workers_share_private_search_endpoint_contract() -> None:
+    env_path = ROOT / "deploy/systemd/contact-discovery.env.example"
+    cycle_path = ROOT / "deploy/systemd/extra-confenge-contact-cycle.service"
+    worker_path = ROOT / "deploy/systemd/extra-contact-discovery-worker@.service"
+
+    env = env_path.read_text(encoding="utf-8")
+    cycle = cycle_path.read_text(encoding="utf-8")
+    worker = worker_path.read_text(encoding="utf-8")
+
+    assert "CONFENGE_SEARXNG_URL=http://127.0.0.1:18888" in env
+    for unit in (cycle, worker):
+        assert "EnvironmentFile=-/etc/extra-consultoria/contact-discovery.env" in unit
