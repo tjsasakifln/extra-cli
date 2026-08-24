@@ -11,6 +11,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sys
 from datetime import date
 from pathlib import Path
@@ -24,9 +25,13 @@ from scripts.dossier.constants import (
     DATA_READY,
     DATA_REJECT,
     EXPIRING_WINDOW_DAYS,
+    FINDING_OPPORTUNITY_SAME_BUYER,
+    PUBLIC_REDACTED_FIELDS,
     REASON_DSN_UNAVAILABLE,
     REFERENCE_SCOPE_BOTH,
     REFERENCE_SCOPES,
+    SECTION_OPPORTUNITIES,
+    UNKNOWN,
 )
 from scripts.dossier.envelope import (
     build_dossier,
@@ -154,6 +159,88 @@ def _sensitive_values(document: dict[str, Any]) -> list[tuple[str, str]]:
     return values
 
 
+def _string_values(node: Any, path: tuple[str | int, ...] = ()) -> list[tuple[tuple[str | int, ...], str]]:
+    values: list[tuple[tuple[str | int, ...], str]] = []
+    if isinstance(node, dict):
+        for key, value in node.items():
+            values.extend(_string_values(value, (*path, key)))
+    elif isinstance(node, list):
+        for index, value in enumerate(node):
+            values.extend(_string_values(value, (*path, index)))
+    elif isinstance(node, str):
+        values.append((path, node))
+    return values
+
+
+def _contains_sensitive(text: str, value: str) -> bool:
+    """Match a private value lexically, not as an arbitrary substring."""
+    return re.search(rf"(?<!\w){re.escape(value)}(?!\w)", text, flags=re.IGNORECASE) is not None
+
+
+def _official_opportunity_values(public: dict[str, Any]) -> tuple[str, ...]:
+    payload = ((public.get("sections") or {}).get(SECTION_OPPORTUNITIES) or {}).get("payload") or {}
+    values: list[str] = []
+    for opportunity in payload.get("opportunities") or []:
+        for value in opportunity.values():
+            if isinstance(value, str) and value != UNKNOWN:
+                values.append(value)
+    return tuple(values)
+
+
+def _is_public_record_occurrence(
+    public: dict[str, Any], path: tuple[str | int, ...], text: str, sensitive_value: str
+) -> bool:
+    """Allow a coincidence only when it is anchored in a published opportunity.
+
+    A municipality such as PALHOCA may identify both the prospect's domicile and
+    a public body named ``MUNICIPIO DE PALHOCA``.  The latter is intentionally
+    public record.  Generated opportunity findings are allowed only when the
+    matching value is carried by one of those public-record fields.
+    """
+    opportunity_prefix = ("sections", SECTION_OPPORTUNITIES, "payload", "opportunities")
+    if path[: len(opportunity_prefix)] == opportunity_prefix:
+        return True
+
+    if len(path) == 3 and path[0] == "findings" and isinstance(path[1], int) and path[2] == "fact":
+        findings = public.get("findings") or []
+        finding = findings[path[1]] if path[1] < len(findings) else {}
+        if str(finding.get("finding_id") or "").startswith(f"{FINDING_OPPORTUNITY_SAME_BUYER}:"):
+            return any(
+                _contains_sensitive(official_value, sensitive_value) and official_value in text
+                for official_value in _official_opportunity_values(public)
+            )
+    return False
+
+
+def _public_identity_leaks(document: dict[str, Any], public: dict[str, Any]) -> list[str]:
+    """Return private identity fields that actually leak into the public body.
+
+    Redacted keys are checked structurally.  Value matching remains fail-closed
+    outside public-record opportunity fields, avoiding the former global
+    substring test that mistook an authority name for the prospect's identity.
+    """
+    leaks: list[str] = []
+    strings = _string_values(public)
+
+    def check_redacted(node: Any, path: tuple[str | int, ...] = ()) -> None:
+        if isinstance(node, dict):
+            for key, value in node.items():
+                current = (*path, key)
+                if key in PUBLIC_REDACTED_FIELDS and value != UNKNOWN:
+                    leaks.append("redacted_field:" + ".".join(map(str, current)))
+                check_redacted(value, current)
+        elif isinstance(node, list):
+            for index, value in enumerate(node):
+                check_redacted(value, (*path, index))
+
+    check_redacted(public)
+    for label, sensitive_value in _sensitive_values(document):
+        occurrences = [(path, text) for path, text in strings if _contains_sensitive(text, sensitive_value)]
+        if any(not _is_public_record_occurrence(public, path, text, sensitive_value) for path, text in occurrences):
+            leaks.append(label)
+    return sorted(set(leaks))
+
+
 def _cmd_verify(args: argparse.Namespace) -> int:
     directory = Path(args.dir)
     document = json.loads((directory / DOSSIER_JSON).read_text(encoding="utf-8"))
@@ -185,12 +272,10 @@ def _cmd_verify(args: argparse.Namespace) -> int:
     if forbidden:
         problems.append("forbidden claim content: " + ", ".join(forbidden))
 
-    # A redacted key kept with an UNKNOWN value is not a leak; a private *value*
-    # surfacing anywhere in the public body is.
-    body = canonical_json(public)
-    for label, value in _sensitive_values(document):
-        if value and value in body:
-            problems.append(f"public projection leaks {label}: {value!r}")
+    # Redacted keys are structural invariants. Identity values remain blocked
+    # except when the same text is anchored in an intentional public record.
+    for label in _public_identity_leaks(document, public):
+        problems.append(f"public projection leaks {label}")
 
     if document.get("catalog_mode") == CATALOG_FIXTURE and public.get("publication_readiness") == DATA_READY:
         problems.append("fixture dossier claims publication readiness")
@@ -209,11 +294,12 @@ def _cmd_verify(args: argparse.Namespace) -> int:
 
 def _cmd_handoff(args: argparse.Namespace) -> int:
     directory = Path(args.dir)
+    document = json.loads((directory / DOSSIER_JSON).read_text(encoding="utf-8"))
     public = json.loads((directory / PUBLIC_JSON).read_text(encoding="utf-8"))
     manifest = json.loads((directory / MANIFEST_JSON).read_text(encoding="utf-8"))
 
     # The private dossier must never reach the rendezvous.
-    leaks = [label for label, value in _sensitive_values_from_dir(directory) if value in canonical_json(public)]
+    leaks = _public_identity_leaks(document, public)
     if leaks:
         sys.stderr.write("refusing handoff, public projection leaks: " + ", ".join(leaks) + "\n")
         return 6
@@ -231,11 +317,6 @@ def _cmd_handoff(args: argparse.Namespace) -> int:
     if errors:
         return 7
     return 0 if result["decision"] == DECISION_READY else 1
-
-
-def _sensitive_values_from_dir(directory: Path) -> list[tuple[str, str]]:
-    document = json.loads((directory / DOSSIER_JSON).read_text(encoding="utf-8"))
-    return _sensitive_values(document)
 
 
 def build_parser() -> argparse.ArgumentParser:
