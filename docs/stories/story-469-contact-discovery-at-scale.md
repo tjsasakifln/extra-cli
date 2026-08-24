@@ -184,6 +184,7 @@ GPT-5 Codex (Dex / @dev)
 - 2026-08-24: seleção canônica validada com teste unitário e PostgreSQL real local.
 - 2026-08-24: projeção durável → feed amplo validada, inclusive conta fora do hot set.
 - 2026-08-24: suíte canônica `5806 passed, 235 skipped, 11 deselected`; Ruff e 17/17 source contracts verdes.
+- 2026-08-24: suíte canônica final da implementação `5838 passed, 240 skipped, 11 deselected` em 510,50s; sem alteração dos gates congelados.
 - 2026-08-24: CodeRabbit CLI não encontrado no host (`/home/tjsasakifln/.local/bin/coderabbit` ausente); revisão automática permanece gate de PR/CI, sem falso-verde local.
 
 ### Completion Notes List
