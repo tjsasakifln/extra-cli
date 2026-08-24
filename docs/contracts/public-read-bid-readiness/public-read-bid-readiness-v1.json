@@ -17,6 +17,11 @@
     "private_local",
     "redacted_fixture"
   ],
+  "public_export": {
+    "required_source_access": "redacted_fixture",
+    "verify_content_hash": true,
+    "post_redaction_pii_scan": true
+  },
   "modules_reused": [
     "edital_case",
     "budget_audit",

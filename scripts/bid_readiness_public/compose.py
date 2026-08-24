@@ -15,7 +15,7 @@ from scripts.bid_readiness_public.adapters import (
     run_edital_adapter,
 )
 from scripts.bid_readiness_public.clock import expires_at, iso, parse_clock
-from scripts.bid_readiness_public.hashing import attach_hash, digest, sha256_file
+from scripts.bid_readiness_public.hashing import attach_hash, canonical_dumps, digest, sha256_bytes, sha256_file
 from scripts.bid_readiness_public.ingest_guard import RejectedInputError, preflight_path
 from scripts.bid_readiness_public.models import (
     DEFAULT_LIMITATIONS,
@@ -93,6 +93,7 @@ def build_input_manifest(
     documents: Path | None,
     acervo: Path | None,
     requirements: Path | None,
+    entity: dict[str, Any] | None,
 ) -> dict[str, Any]:
     inputs: list[dict[str, Any]] = []
     for role, path in (
@@ -115,6 +116,29 @@ def build_input_manifest(
                     "present": False,
                 }
             )
+    if entity is not None:
+        entity_bytes = canonical_dumps(entity).encode("utf-8")
+        inputs.append(
+            {
+                "role": "entity",
+                "filename": "entity.json",
+                "sha256": sha256_bytes(entity_bytes),
+                "bytes": len(entity_bytes),
+                "content_type": "json",
+                "present": True,
+            }
+        )
+    else:
+        inputs.append(
+            {
+                "role": "entity",
+                "filename": None,
+                "sha256": None,
+                "bytes": 0,
+                "content_type": None,
+                "present": False,
+            }
+        )
     return {"inputs": inputs, "content_included": False}
 
 
@@ -200,13 +224,18 @@ def _summary(bundles: list[AdapterBundle]) -> dict[str, Any]:
 
 
 def load_authorized_manifest(path: Path) -> dict[str, Path | None]:
-    raw = json.loads(Path(path).read_text(encoding="utf-8"))
+    manifest_path = Path(path)
+    preflight_path(manifest_path)
+    try:
+        raw = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise RejectedInputError("unauthorized_manifest", f"manifest could not be loaded: {exc}") from exc
     if not isinstance(raw, dict):
         raise RejectedInputError("unauthorized_manifest", "manifest must be an object")
     payload = raw
     if payload.get("authorized") is not True:
         raise RejectedInputError("unauthorized_manifest", "manifest is not authorized")
-    base = Path(path).resolve().parent
+    base = manifest_path.resolve().parent
     roles: dict[str, Path | None] = {
         "edital": None,
         "planilha": None,
@@ -214,13 +243,20 @@ def load_authorized_manifest(path: Path) -> dict[str, Path | None]:
         "acervo": None,
         "requirements": None,
     }
-    for entry in payload.get("files") or payload.get("inputs") or []:
+    entries = payload.get("files") or payload.get("inputs") or []
+    if not isinstance(entries, list):
+        raise RejectedInputError("unauthorized_manifest", "manifest files must be a list")
+    for entry in entries:
+        if not isinstance(entry, dict):
+            raise RejectedInputError("unauthorized_manifest", "manifest file entries must be objects")
         role = str(entry.get("role") or "")
         rel = entry.get("path") or entry.get("file")
         if role not in roles or not rel:
             continue
         candidate = (base / str(rel)).resolve()
-        if not str(candidate).startswith(str(base)):
+        try:
+            candidate.relative_to(base)
+        except ValueError:
             raise RejectedInputError("manifest_path_escape", f"manifest path escapes base: {rel}")
         roles[role] = candidate
     return roles
@@ -333,6 +369,7 @@ def produce(
         documents=documents,
         acervo=acervo,
         requirements=requirements,
+        entity=entity,
     )
     query_id = _query_id(manifest, active_policy, as_of)
     envelope = {

@@ -30,6 +30,10 @@ is refused.
   and `HOLD_FOR_DATA`. No invented approval.
 - Path traversal, zip bomb, oversized file, disallowed type, malware-like
   payload → `REJECT` before parse.
+- Manifest paths must remain descendants of the manifest directory; sibling
+  prefixes and symlinked manifests are refused before JSON parsing.
+- Envelope `content_hash` is recomputed during validation; stale or forged
+  hashes are refused.
 - `RISK` is a technical condition for human review. It is not illegality,
   ineligibility, or inexequibility.
 - Default path is deterministic. No unapproved LLM. Unavailable provider →
@@ -42,7 +46,8 @@ is refused.
 - `schema_version` = `public-read-bid-readiness/1.0`
 - `run_id` / `query_id` (deterministic)
 - `generated_at`, `as_of`, `expires_at`
-- `input_manifest` of hashes/types/sizes (no file content)
+- `input_manifest` of hashes/types/sizes, including the entity input when
+  supplied (no file content)
 - engine/module/policy versions
 - `source_access` = `private_local` | `redacted_fixture`
 - `overall_state` in the closed trio
@@ -64,6 +69,13 @@ python3 -m scripts.bid_readiness_public run \
   --edital PATH --planilha PATH --documents PATH \
   --acervo PATH --requirements PATH \
   --as-of 2026-08-20T12:00:00+00:00 \
+  --source-access redacted_fixture \
   --work-dir /tmp/bid-readiness-public \
   --out envelope.json --public-out fixture.public.json
 ```
+
+`--public-out` and `export-consumer` accept only an integrity-valid envelope
+whose source is explicitly classified as `redacted_fixture`. The default
+`private_local` envelope cannot be relabeled as public. Known CPF/CNPJ, email,
+phone and signature markers are re-redacted and the resulting fixture is
+scanned before it is written.

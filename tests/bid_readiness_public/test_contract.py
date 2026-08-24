@@ -9,10 +9,17 @@ import pytest
 from scripts.bid_readiness_public.adapters import make_finding
 from scripts.bid_readiness_public.export import READ_MODEL_SQL, consumer_read_model
 from scripts.bid_readiness_public.forbidden import scan_forbidden_claims, scan_payload
-from scripts.bid_readiness_public.models import INTERPRETIVE_LIMIT, SCHEMA_VERSION
+from scripts.bid_readiness_public.hashing import attach_hash
+from scripts.bid_readiness_public.models import INTERPRETIVE_LIMIT
 from scripts.bid_readiness_public.pii import scan_payload_for_pii, scan_text_for_pii
 from scripts.bid_readiness_public.select_guard import assert_select_only, scan_paths_for_writes
-from scripts.bid_readiness_public.validators import EnvelopeValidationError, refuse_finding, validate_finding
+from scripts.bid_readiness_public.validators import (
+    EnvelopeValidationError,
+    refuse_envelope,
+    refuse_finding,
+    validate_envelope,
+    validate_finding,
+)
 
 
 def _base_finding(**overrides: object) -> dict:
@@ -104,26 +111,60 @@ def test_consumer_sql_is_select_only() -> None:
     assert "SELECT" in assert_select_only(READ_MODEL_SQL)
     with pytest.raises(ValueError, match="write_sql"):
         assert_select_only("DELETE FROM envelopes")
-    model = consumer_read_model(
-        {
-            "schema_version": SCHEMA_VERSION,
-            "overall_state": "HOLD_FOR_DATA",
-            "as_of": "2026-08-20T12:00:00Z",
-            "expires_at": "2026-08-21T12:00:00Z",
-            "findings": [],
-            "content_hash": "ab",
-            "limitations": [],
-            "human_review_required": True,
-            "not_legal_conclusion": True,
-            "publication_authorization": False,
-            "index_authorization": False,
-            "source_access": "private_local",
-        }
+    fixture_path = (
+        Path(__file__).resolve().parents[2]
+        / "exports"
+        / "public-read-bid-readiness"
+        / "1.0"
+        / "fixture.public.json"
     )
+    import json
+
+    model = consumer_read_model(json.loads(fixture_path.read_text(encoding="utf-8")))
     assert model["select_only"] is True
     assert model["page_authorized"] is False
     assert model["publication_authorization"] is False
     assert model["index_authorization"] is False
+
+
+def test_envelope_content_hash_is_verified() -> None:
+    fixture_path = (
+        Path(__file__).resolve().parents[2]
+        / "exports"
+        / "public-read-bid-readiness"
+        / "1.0"
+        / "fixture.public.json"
+    )
+    import json
+
+    payload = json.loads(fixture_path.read_text(encoding="utf-8"))
+    assert "content_hash_mismatch" not in validate_envelope(payload)
+    tampered = {**payload, "overall_state": "REJECT"}
+    assert "content_hash_mismatch" in validate_envelope(tampered)
+    with pytest.raises(EnvelopeValidationError, match="content_hash_mismatch"):
+        refuse_envelope(tampered)
+
+    repaired = attach_hash(tampered)
+    refuse_envelope(repaired)
+
+
+def test_malformed_envelope_shapes_are_refused_without_crashing() -> None:
+    fixture_path = (
+        Path(__file__).resolve().parents[2]
+        / "exports"
+        / "public-read-bid-readiness"
+        / "1.0"
+        / "fixture.public.json"
+    )
+    import json
+
+    payload = json.loads(fixture_path.read_text(encoding="utf-8"))
+    malformed = attach_hash({**payload, "input_manifest": "not-an-object", "findings": ["not-an-object"]})
+    errors = validate_envelope(malformed)
+    assert "input_manifest" in errors
+    assert "findings[0].not_object" in errors
+    with pytest.raises(EnvelopeValidationError):
+        refuse_envelope(malformed)
 
 
 def test_exclusive_area_has_no_write_sql_or_crawler() -> None:

@@ -10,6 +10,7 @@ from typing import Any
 
 from scripts.bid_readiness_public.compose import load_authorized_manifest, produce
 from scripts.bid_readiness_public.export import write_consumer_export
+from scripts.bid_readiness_public.ingest_guard import RejectedInputError, preflight_path
 from scripts.bid_readiness_public.models import SCHEMA_VERSION, default_policy
 from scripts.bid_readiness_public.redaction import public_envelope
 from scripts.bid_readiness_public.schema import validate_payload
@@ -49,7 +50,14 @@ def run_from_args(args: argparse.Namespace) -> dict[str, Any]:
         requirements = roles.get("requirements") or requirements
     entity = None
     if args.entity:
-        entity = json.loads(Path(args.entity).read_text(encoding="utf-8"))
+        entity_path = Path(args.entity)
+        preflight_path(entity_path)
+        try:
+            entity = json.loads(entity_path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+            raise RejectedInputError("disallowed_type", f"entity could not be loaded: {exc}") from exc
+        if not isinstance(entity, dict):
+            raise RejectedInputError("disallowed_type", "entity must be a JSON object")
     policy = default_policy()
     if args.policy_version:
         policy["policy_version"] = args.policy_version
@@ -93,6 +101,9 @@ def _cmd_run(args: argparse.Namespace) -> int:
 
 def _cmd_validate(args: argparse.Namespace) -> int:
     payload = json.loads(Path(args.payload).read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        _print({"ok": False, "errors": ["envelope_not_object"], "schema_version": None})
+        return 2
     errors = validate_payload(payload)
     ok = not errors and payload.get("schema_version") == SCHEMA_VERSION
     _print({"ok": ok, "errors": errors, "schema_version": payload.get("schema_version")})
@@ -101,6 +112,8 @@ def _cmd_validate(args: argparse.Namespace) -> int:
 
 def _cmd_export_consumer(args: argparse.Namespace) -> int:
     payload = json.loads(Path(args.payload).read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise TypeError("envelope must be an object")
     manifest = write_consumer_export(payload, args.out)
     _print({"ok": True, **manifest})
     return 0

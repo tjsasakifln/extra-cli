@@ -5,12 +5,17 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from scripts.bid_readiness_public.cli import main
+from scripts.bid_readiness_public.compose import load_authorized_manifest
 from scripts.bid_readiness_public.forbidden import scan_payload
-from scripts.bid_readiness_public.hashing import content_hash
+from scripts.bid_readiness_public.hashing import attach_hash, content_hash
+from scripts.bid_readiness_public.ingest_guard import RejectedInputError
 from scripts.bid_readiness_public.models import OVERALL_STATES, SCHEMA_VERSION
 from scripts.bid_readiness_public.pii import scan_payload_for_pii
 from scripts.bid_readiness_public.redaction import public_envelope
+from scripts.bid_readiness_public.validators import EnvelopeValidationError
 from tests.bid_readiness_public.helpers import (
     CLOCK,
     FIXTURES,
@@ -45,7 +50,10 @@ def test_happy_path_on_complete_fictional_fixture(tmp_path: Path) -> None:
     assert "BD" in modules
     assert "AC" in modules
     assert "BR" in modules
-    public = public_envelope(payload)
+    with pytest.raises(EnvelopeValidationError, match="public_export_requires_redacted_fixture"):
+        public_envelope(payload)
+    redacted_fixture = produce_happy(tmp_path / "redacted", source_access="redacted_fixture")
+    public = public_envelope(redacted_fixture)
     assert public["source_access"] == "redacted_fixture"
     assert public["publication_authorization"] is False
     assert public["index_authorization"] is False
@@ -204,6 +212,57 @@ def test_two_runs_same_hash_policy_change_differs(tmp_path: Path) -> None:
     other.write_text((FIXTURES / "edital.txt").read_text(encoding="utf-8") + "\nextra line\n", encoding="utf-8")
     fourth = produce_happy(tmp_path / "e", planilha=planilha, edital=other)
     assert fourth["content_hash"] != first["content_hash"]
+    changed_entity = produce_happy(
+        tmp_path / "f",
+        planilha=planilha,
+        entity={"cnpj": "12345678000199", "razao_social": "OUTRA EMPRESA FICTICIA"},
+    )
+    assert changed_entity["query_id"] != first["query_id"]
+    assert changed_entity["content_hash"] != first["content_hash"]
+
+
+def test_authorized_manifest_cannot_escape_to_sibling_prefix(tmp_path: Path) -> None:
+    base = tmp_path / "case"
+    sibling = tmp_path / "case-evil"
+    base.mkdir()
+    sibling.mkdir()
+    (sibling / "secret.txt").write_text("secret", encoding="utf-8")
+    manifest = base / "manifest.json"
+    manifest.write_text(
+        json.dumps(
+            {
+                "authorized": True,
+                "files": [{"role": "edital", "path": "../case-evil/secret.txt"}],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(RejectedInputError, match="escapes base") as caught:
+        load_authorized_manifest(manifest)
+    assert caught.value.reason_code == "manifest_path_escape"
+
+
+def test_authorized_manifest_is_preflighted_before_json_parse(tmp_path: Path) -> None:
+    target = tmp_path / "manifest-target.json"
+    target.write_text('{"authorized": true}', encoding="utf-8")
+    manifest = tmp_path / "manifest.json"
+    manifest.symlink_to(target)
+
+    with pytest.raises(RejectedInputError, match="symlink") as caught:
+        load_authorized_manifest(manifest)
+    assert caught.value.reason_code == "symlink_blocked"
+
+
+def test_cli_entity_is_preflighted_before_json_parse(tmp_path: Path) -> None:
+    target = tmp_path / "entity-target.json"
+    target.write_text('{"razao_social": "PESSOA FICTICIA"}', encoding="utf-8")
+    entity = tmp_path / "entity.json"
+    entity.symlink_to(target)
+
+    with pytest.raises(RejectedInputError, match="symlink") as caught:
+        main(["run", "--entity", str(entity), "--work-dir", str(tmp_path / "work")])
+    assert caught.value.reason_code == "symlink_blocked"
 
 
 def test_cli_run_twice_and_validate(tmp_path: Path) -> None:
@@ -238,10 +297,23 @@ def test_cli_run_twice_and_validate(tmp_path: Path) -> None:
     assert run1["schema_version"] == SCHEMA_VERSION
     assert main(["validate", "--payload", str(out1)]) == 0
     public_out = tmp_path / "public.json"
+    with pytest.raises(EnvelopeValidationError, match="public_export_requires_redacted_fixture"):
+        main(
+            [
+                *common,
+                "--work-dir",
+                str(tmp_path / "private-w3"),
+                "--public-out",
+                str(public_out),
+            ]
+        )
+    assert not public_out.exists()
     assert (
         main(
             [
                 *common,
+                "--source-access",
+                "redacted_fixture",
                 "--work-dir",
                 str(tmp_path / "w3"),
                 "--out",
@@ -258,8 +330,28 @@ def test_cli_run_twice_and_validate(tmp_path: Path) -> None:
     public_body = {key: value for key, value in public.items() if key != "content_hash"}
     assert public["content_hash"] == content_hash(public_body)
     private = json.loads((tmp_path / "run3.json").read_text(encoding="utf-8"))
-    assert private["source_access"] == "private_local"
-    assert public["content_hash"] != private["content_hash"]
+    assert private["source_access"] == "redacted_fixture"
+    assert public["content_hash"] == private["content_hash"]
+
+
+def test_public_export_redacts_known_pii_and_rejects_stale_hash(tmp_path: Path) -> None:
+    fixture = produce_happy(tmp_path, source_access="redacted_fixture")
+    finding = dict(fixture["findings"][0])
+    finding["statement"] = (
+        "CPF 123.456.789-00; contato pessoa@example.com; assinatura digital; "
+        "responsavel PESSOA FICTICIA"
+    )
+    fixture = attach_hash({**fixture, "findings": [finding, *fixture["findings"][1:]]})
+
+    public = public_envelope(fixture)
+    assert "123.456.789-00" not in public["findings"][0]["statement"]
+    assert "pessoa@example.com" not in public["findings"][0]["statement"]
+    assert "assinatura digital" not in public["findings"][0]["statement"].lower()
+    assert scan_payload_for_pii(public) == []
+
+    stale = {**fixture, "overall_state": "REJECT"}
+    with pytest.raises(EnvelopeValidationError, match="content_hash_mismatch"):
+        public_envelope(stale)
 
 
 def test_cli_incomplete_package_holds(tmp_path: Path) -> None:

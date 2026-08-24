@@ -1,6 +1,6 @@
 {
   "as_of": "2026-08-20T12:00:00Z",
-  "content_hash": "fc714350762bc1d0dbc3ccc096f188e33c552c13372468c2237f557d4ac0bae3",
+  "content_hash": "a13eff079f3a411cde510076facdd3fd691d4edf78164a6711eeed0addea2efb",
   "engine_versions": {
     "bid_readiness": "0.1.0",
     "bid_readiness_public": "public-read-bid-readiness-producer/1.0",
@@ -48,8 +48,8 @@
         "evaluated": 1,
         "ratio": 1.0
       },
-      "evidence_hash": "84ca307577afe554e4bb6e3a8a9f38fab3cae2a6c983f38fa32557b2c643aedc",
-      "evidence_ref": "sha256:84ca307577afe554e4bb6e3a8a9f38fab3cae2a6c983f38fa32557b2c643aedc",
+      "evidence_hash": "090a175a4ec36a77825002e194d9212a7f0b895c998668facf81195404e9dbab",
+      "evidence_ref": "sha256:090a175a4ec36a77825002e194d9212a7f0b895c998668facf81195404e9dbab",
       "finding_id": "BD-0001",
       "human_review_required": true,
       "interpretive_limit": "Observation bound to the cited locator and method. Not a legal conclusion.",
@@ -172,12 +172,12 @@
         "sha256": "79ba71ef89274384b0698d966f79ceef58891fa8d705781ab786c3a1d03d2841"
       },
       {
-        "bytes": 5022,
+        "bytes": 5015,
         "content_type": "xlsx",
         "filename": "planilha.xlsx",
         "present": true,
         "role": "planilha",
-        "sha256": "84ca307577afe554e4bb6e3a8a9f38fab3cae2a6c983f38fa32557b2c643aedc"
+        "sha256": "090a175a4ec36a77825002e194d9212a7f0b895c998668facf81195404e9dbab"
       },
       {
         "bytes": 665,
@@ -202,6 +202,14 @@
         "present": true,
         "role": "requirements",
         "sha256": "501f3a1767a93b457a2933a3f0d2069a20ae672cb4f37a03252b211f8ba92fda"
+      },
+      {
+        "bytes": 94,
+        "content_type": "json",
+        "filename": "entity.json",
+        "present": true,
+        "role": "entity",
+        "sha256": "9668d5325ea06c319e007e692d2d6108c39defe5d6a6b8fea46fb5621bfd8932"
       }
     ]
   },
@@ -238,14 +246,14 @@
     "completeness_without_denominator"
   ],
   "publication_authorization": false,
-  "query_id": "prbr1-19c9ce911273faa8",
+  "query_id": "prbr1-4a50d3ce95069a6c",
   "reason_codes": [
     "BLOCKED_BY_HUMAN_DECISION",
     "bid_needs_human",
     "mapped_from_blocked_by_human_decision",
     "requirement_supported"
   ],
-  "run_id": "prbr1-19c9ce911273faa8",
+  "run_id": "prbr1-4a50d3ce95069a6c",
   "schema_version": "public-read-bid-readiness/1.0",
   "source_access": "redacted_fixture",
   "summary": {

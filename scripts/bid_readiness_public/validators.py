@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from scripts.bid_readiness_public.forbidden import scan_forbidden_claims, scan_payload
+from scripts.bid_readiness_public.hashing import content_hash
 from scripts.bid_readiness_public.models import (
     ENVELOPE_FIELDS,
     FINDING_FIELDS,
@@ -73,8 +74,10 @@ def validate_summary(summary: dict[str, Any]) -> list[str]:
     return errors
 
 
-def validate_envelope(payload: dict[str, Any]) -> list[str]:
+def validate_envelope(payload: Any) -> list[str]:
     errors: list[str] = []
+    if not isinstance(payload, dict):
+        return ["envelope_not_object"]
     for field in ENVELOPE_FIELDS:
         if field not in payload:
             errors.append(f"missing:{field}")
@@ -92,22 +95,44 @@ def validate_envelope(payload: dict[str, Any]) -> list[str]:
         errors.append("index_authorization")
     if payload.get("source_access") not in SOURCE_ACCESS_VALUES:
         errors.append("source_access")
-    if not payload.get("content_hash"):
+    claimed_hash = payload.get("content_hash")
+    if not isinstance(claimed_hash, str) or not claimed_hash:
         errors.append("content_hash")
-    if not payload.get("input_manifest"):
+    elif claimed_hash != content_hash(payload):
+        errors.append("content_hash_mismatch")
+    manifest = payload.get("input_manifest")
+    if not isinstance(manifest, dict) or not manifest:
         errors.append("input_manifest")
-    manifest = payload.get("input_manifest") or {}
-    for item in manifest.get("inputs") or []:
-        if "content" in item or "bytes_content" in item or "text" in item:
-            errors.append("input_manifest.contains_content")
-        if item.get("present") is False:
-            continue
-        if not item.get("sha256") or item.get("bytes") is None:
-            errors.append("input_manifest.incomplete")
-    for index, finding in enumerate(payload.get("findings") or []):
-        for err in validate_finding(finding):
-            errors.append(f"findings[{index}].{err}")
-    errors.extend(validate_summary(payload.get("summary") or {}))
+    else:
+        inputs = manifest.get("inputs")
+        if not isinstance(inputs, list):
+            errors.append("input_manifest.inputs")
+        else:
+            for item in inputs:
+                if not isinstance(item, dict):
+                    errors.append("input_manifest.item")
+                    continue
+                if "content" in item or "bytes_content" in item or "text" in item:
+                    errors.append("input_manifest.contains_content")
+                if item.get("present") is False:
+                    continue
+                if not item.get("sha256") or item.get("bytes") is None:
+                    errors.append("input_manifest.incomplete")
+    findings = payload.get("findings")
+    if not isinstance(findings, list):
+        errors.append("findings")
+    else:
+        for index, finding in enumerate(findings):
+            if not isinstance(finding, dict):
+                errors.append(f"findings[{index}].not_object")
+                continue
+            for err in validate_finding(finding):
+                errors.append(f"findings[{index}].{err}")
+    summary = payload.get("summary")
+    if not isinstance(summary, dict):
+        errors.append("summary")
+    else:
+        errors.extend(validate_summary(summary))
     errors.extend(f"forbidden_claim:{hit}" for hit in scan_payload(payload))
     return errors
 

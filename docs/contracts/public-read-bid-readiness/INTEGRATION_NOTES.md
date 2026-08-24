@@ -7,8 +7,11 @@ Consumer: `web-cfg` issue **#155** (not closed by this wave).
 
 - Deterministic envelope `public-read-bid-readiness/1.0`
 - Private local analysis of explicit paths
-- Redacted public fixture + SELECT-only read model
+- Redacted public fixture from explicitly fictional/redacted inputs +
+  SELECT-only read model
 - Fail-closed FACT/RISK/UNKNOWN semantics
+- Integrity verification on read/export; a `private_local` envelope is never
+  relabeled as a public fixture
 
 ## What extra-cli does not own
 
@@ -27,5 +30,7 @@ Read model: `exports/public-read-bid-readiness/1.0/web-cfg-155-read-model.sql`
 - `index_authorization=false`
 - `page_authorized=false`
 - Fixture kind: `redacted_fixture`
+- Export requires an integrity-valid `redacted_fixture`; private local
+  envelopes are refused
 
 Do not implement the web-cfg page in this repository.
