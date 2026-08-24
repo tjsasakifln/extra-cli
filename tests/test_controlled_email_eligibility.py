@@ -202,6 +202,77 @@ def test_unassociated_gmail_is_blocked_unknown() -> None:
     assert "unassociated_freemail" in classified.reason_codes
 
 
+def _exact_registry_extra(*, cnpj: str = ACCOUNT_ID) -> dict:
+    return {
+        "company_associated": True,
+        "mailbox_company_evidence": "OBSERVED",
+        "mailbox_person_evidence": "UNKNOWN",
+        "official_match_status": "MATCHED",
+        "official_authority": "RECEITA_FEDERAL",
+        "official_release_id": "rfb-2026-08",
+        "registry_cnpj14": cnpj,
+        "source_provenance": {
+            "release_id": "rfb-2026-08",
+            "source_label": "rfb_public_cadastral_via_opencnpj",
+        },
+    }
+
+
+def test_exact_registry_freemail_is_public_company_route_without_person() -> None:
+    route = _route(
+        "empresa@gmail.com",
+        source_type="company_registry",
+        source_url=None,
+        extra=_exact_registry_extra(),
+    )
+    classified = evaluate_controlled_email_eligible(route, person=None)
+
+    assert classified.route_class == EmailRouteClass.PUBLIC_COMPANY_FREEMAIL
+    assert classified.controlled_email_eligible is True
+    assert classified.mailbox_company_evidence == "OBSERVED"
+    assert classified.mailbox_person_evidence == "UNKNOWN"
+    assert classified.person_name is None
+    assert classified.email_validated is False
+
+
+def test_exact_registry_nominal_local_is_company_route_not_invented_person() -> None:
+    route = _route(
+        "joao.silva@empresaexemplo.com.br",
+        source_type="company_registry",
+        source_url=None,
+        extra=_exact_registry_extra(),
+    )
+    classified = evaluate_controlled_email_eligible(route, person=None)
+
+    assert classified.route_class == EmailRouteClass.GENERIC_COMPANY
+    assert classified.controlled_email_eligible is True
+    assert classified.mailbox_person_evidence == "UNKNOWN"
+    assert classified.person_name is None
+    assert classified.email_validated is False
+    assert "person_unknown" in classified.reason_codes
+
+
+def test_registry_label_or_mismatched_cnpj_never_proves_company_association() -> None:
+    ownership_only = _route(
+        "empresa@gmail.com",
+        source_type="company_registry",
+        source_url=None,
+        extra={},
+    )
+    mismatch = _route(
+        "empresa@gmail.com",
+        source_type="company_registry",
+        source_url=None,
+        extra=_exact_registry_extra(cnpj="99888777000166"),
+    )
+
+    for route in (ownership_only, mismatch):
+        classified = evaluate_controlled_email_eligible(route, person=None)
+        assert classified.route_class == EmailRouteClass.PROBABILISTIC_OR_RISKY
+        assert classified.controlled_email_eligible is False
+        assert classified.mailbox_company_evidence == "UNKNOWN"
+
+
 def test_inferred_address_is_risky_outside_default_pilot() -> None:
     route = _route(
         "joao.silva@empresaexemplo.com.br",
@@ -799,7 +870,17 @@ def test_five_class_synthetic_canary_snapshot() -> None:
     assert gmail["route_class"] == EmailRouteClass.PUBLIC_COMPANY_FREEMAIL.value
     assert gmail["person_id"] is None
     contacts = stamp_and_rank_feed_contacts(
-        [{"email": r.channel_value, "ownership_status": "COMPANY_OWNED", "source_url": r.source_url} for r in routes],
+        [
+            {
+                "email": route.channel_value,
+                "ownership_status": "COMPANY_OWNED",
+                "source_url": route.source_url,
+                "channel_epistemic_class": route.epistemic_class.value,
+                "email_discovery_class": (route.extra or {}).get("email_discovery_class"),
+                "reason_codes": route.reason_codes,
+            }
+            for route in routes
+        ],
         account_id=ACCOUNT_ID,
         official_domain="empresaexemplo.com.br",
     )

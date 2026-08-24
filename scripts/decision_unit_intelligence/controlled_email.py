@@ -34,6 +34,7 @@ from scripts.decision_unit_intelligence.models import (
     ReachabilityRoute,
     RouteRelation,
     SuppressionState,
+    normalize_cnpj,
 )
 from scripts.decision_unit_intelligence.reachability import (
     email_domain,
@@ -53,7 +54,7 @@ DEPARTMENTAL_HYPOTHESIS_LOCALS: tuple[str, ...] = (
     "contato",
 )
 
-CONTROLLED_EMAIL_POLICY_VERSION = "controlled-email-policy.v1"
+CONTROLLED_EMAIL_POLICY_VERSION = "controlled-email-policy.v2"
 CONTROLLED_EMAIL_SCHEMA_VERSION = "confenge.outreach.controlled_email.v1"
 
 # Tokens that genuinely mean "not suppressed". Anything else is treated as
@@ -369,6 +370,45 @@ def mailbox_local_implausible(mailbox: str | None) -> bool:
     return False
 
 
+def _exact_registry_company_association(route: ReachabilityRoute) -> bool:
+    """Recognize a public cadastral mailbox joined to this exact CNPJ.
+
+    A registry label or COMPANY_OWNED flag alone is intentionally insufficient.
+    The producer must carry the matched official authority, immutable release
+    provenance, and the exact normalized CNPJ through to the route.
+    """
+    source = str(route.source_type or "").lower().strip()
+    if source not in {"company_registry", "registry"}:
+        return False
+    if route.epistemic_class != EpistemicClass.OBSERVED:
+        return False
+    if route.ownership != OwnershipStatus.COMPANY_OWNED:
+        return False
+    if not str(route.observed_at or "").strip():
+        return False
+    extra = route.extra if isinstance(route.extra, dict) else {}
+    if extra.get("company_associated") is not True:
+        return False
+    if str(extra.get("mailbox_company_evidence") or "").upper() != EVIDENCE_OBSERVED:
+        return False
+    if str(extra.get("official_match_status") or "").upper() != "MATCHED":
+        return False
+    authority = str(extra.get("official_authority") or "").upper().strip()
+    if authority != "RECEITA_FEDERAL":
+        return False
+    registry_cnpj = normalize_cnpj(str(extra.get("registry_cnpj14") or ""))
+    account_cnpj = normalize_cnpj(route.company_entity_id)
+    if not registry_cnpj or registry_cnpj != account_cnpj:
+        return False
+    release_id = str(extra.get("official_release_id") or "").strip()
+    provenance = extra.get("source_provenance")
+    if not release_id or not isinstance(provenance, dict):
+        return False
+    if str(provenance.get("release_id") or "").strip() != release_id:
+        return False
+    return True
+
+
 def association_provenance_trustworthy(route: ReachabilityRoute) -> bool:
     """True only when public provenance can bind the mailbox to this account."""
     if untrustworthy_source_url(route.source_url):
@@ -382,6 +422,8 @@ def association_provenance_trustworthy(route: ReachabilityRoute) -> bool:
     freemail = is_freemail(route.channel_value)
     if not freemail and not mailbox_host_plausible(mailbox_dom):
         return False
+    if _exact_registry_company_association(route):
+        return True
     on_official_page = bool(official and url_host and _hosts_equivalent(url_host, official))
     mailbox_on_official = bool(official and mailbox_dom and not freemail and _hosts_equivalent(mailbox_dom, official))
     if official:
@@ -513,11 +555,13 @@ def classify_email_route_class(
     if person_ev == EVIDENCE_OBSERVED and _observed_person_name(route, person):
         return EmailRouteClass.DIRECT_PERSON
 
-    if looks_nominal_local(value) and person_ev != EVIDENCE_OBSERVED:
-        return EmailRouteClass.PROBABILISTIC_OR_RISKY
-
+    # An exact public-company association proves a transport route, not the
+    # identity of whoever reads a nominal-looking local part.
     if company_ev == EVIDENCE_OBSERVED:
         return EmailRouteClass.GENERIC_COMPANY
+
+    if looks_nominal_local(value) and person_ev != EVIDENCE_OBSERVED:
+        return EmailRouteClass.PROBABILISTIC_OR_RISKY
     return EmailRouteClass.PROBABILISTIC_OR_RISKY
 
 
