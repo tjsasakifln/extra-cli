@@ -83,9 +83,16 @@ def load_construction_jobs_from_dsn(
                            t.target_fit_version,
                            t.input_fingerprint AS target_fit_input_fingerprint,
                            t.source_watermark AS target_fit_source_watermark,
-                           t.computed_at AS target_fit_computed_at
+                           t.computed_at AS target_fit_computed_at,
+                           r.razao_social AS registry_razao_social,
+                           r.nome_fantasia AS registry_nome_fantasia,
+                           r.source AS registry_source,
+                           r.source_version AS registry_source_version,
+                           r.source_date AS registry_source_date
                     FROM confenge_company_sector_current s
                     LEFT JOIN confenge_target_fit_shadow t USING (company_key)
+                    LEFT JOIN supplier_registry r
+                      ON r.cnpj14 = s.representative_cnpj14
                     WHERE s.sector_class IN ('CONSTRUCTION_CONFIRMED', 'CONSTRUCTION_PROBABLE')
                     ORDER BY
                         CASE t.shadow_class
@@ -109,9 +116,16 @@ def load_construction_jobs_from_dsn(
                            t.target_fit_version,
                            t.input_fingerprint AS target_fit_input_fingerprint,
                            t.source_watermark AS target_fit_source_watermark,
-                           t.computed_at AS target_fit_computed_at
+                           t.computed_at AS target_fit_computed_at,
+                           r.razao_social AS registry_razao_social,
+                           r.nome_fantasia AS registry_nome_fantasia,
+                           r.source AS registry_source,
+                           r.source_version AS registry_source_version,
+                           r.source_date AS registry_source_date
                     FROM confenge_company_sector_current s
                     LEFT JOIN confenge_company_target_fit_current t USING (company_key)
+                    LEFT JOIN supplier_registry r
+                      ON r.cnpj14 = s.representative_cnpj14
                     WHERE s.sector_class IN ('CONSTRUCTION_CONFIRMED', 'CONSTRUCTION_PROBABLE')
                     ORDER BY
                         CASE t.target_fit_class
@@ -147,7 +161,7 @@ def load_construction_jobs_from_dsn(
             jobs.append(
                 CompanyJob(
                     cnpj14=cnpj14,
-                    razao_social=None,
+                    razao_social=r.get("registry_razao_social"),
                     priority_tier=tier,
                     priority_rank=rank,
                     meta={
@@ -166,6 +180,15 @@ def load_construction_jobs_from_dsn(
                             r.get("target_fit_computed_at").isoformat()
                             if hasattr(r.get("target_fit_computed_at"), "isoformat")
                             else r.get("target_fit_computed_at")
+                        ),
+                        "razao_social": r.get("registry_razao_social"),
+                        "nome_fantasia": r.get("registry_nome_fantasia"),
+                        "registry_source": r.get("registry_source"),
+                        "registry_source_version": r.get("registry_source_version"),
+                        "registry_source_date": (
+                            r.get("registry_source_date").isoformat()
+                            if hasattr(r.get("registry_source_date"), "isoformat")
+                            else r.get("registry_source_date")
                         ),
                         "source": "continuous_construction_universe",
                     },

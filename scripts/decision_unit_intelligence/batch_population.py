@@ -46,6 +46,11 @@ def _stable_selection_row(job: CompanyJob) -> dict[str, Any]:
         "target_fit_input_fingerprint": meta.get("target_fit_input_fingerprint"),
         "target_fit_source_watermark": meta.get("target_fit_source_watermark"),
         "target_fit_computed_at": meta.get("target_fit_computed_at"),
+        "razao_social": meta.get("razao_social") or job.razao_social,
+        "nome_fantasia": meta.get("nome_fantasia"),
+        "registry_source": meta.get("registry_source"),
+        "registry_source_version": meta.get("registry_source_version"),
+        "registry_source_date": meta.get("registry_source_date"),
     }
 
 

@@ -16,9 +16,11 @@ from scripts.decision_unit_intelligence.orchestrator import investigate_account
 from scripts.decision_unit_intelligence.providers.administrative_process import AdministrativeProcessProvider
 from scripts.decision_unit_intelligence.providers.base import InvestigationContext
 from scripts.decision_unit_intelligence.providers.company_website import CompanyWebsiteProvider
+from scripts.decision_unit_intelligence.providers.existing_contacts import ExistingContactsProvider
 from scripts.decision_unit_intelligence.providers.existing_datalake import ExistingDatalakeProvider
 from scripts.decision_unit_intelligence.providers.external_enrichment import ExternalEnrichmentProvider
 from scripts.decision_unit_intelligence.providers.historical_campaign import HistoricalCampaignProvider
+from scripts.decision_unit_intelligence.providers.official_company_registry import OfficialCompanyRegistryProvider
 from scripts.decision_unit_intelligence.providers.official_documents import OfficialDocumentsProvider
 from scripts.decision_unit_intelligence.providers.public_search import PublicSearchProvider
 from scripts.decision_unit_intelligence.query_planner import ExplicitFallbackBackend, QuerySearchCache
@@ -48,6 +50,7 @@ def default_providers(
     site_crawl_baseline: bool = False,
     query_policy_version: str | None = None,
     search_fallback: str = "off",
+    contact_seed_inputs: list[dict[str, Any]] | None = None,
 ) -> list[Any]:
     global _SHARED_HISTORICAL
     if _SHARED_HISTORICAL is None:
@@ -92,7 +95,9 @@ def default_providers(
             cache=cache,
         )
     return [
+        ExistingContactsProvider(contact_seed_inputs),
         _SHARED_HISTORICAL,
+        OfficialCompanyRegistryProvider(),
         ExistingDatalakeProvider(),
         PublicSearchProvider(
             backend=backend,
@@ -130,9 +135,25 @@ def run_account(
     site_crawl_baseline: bool = False,
     query_policy_version: str | None = None,
     search_fallback: str = "off",
+    contact_seed_inputs: list[dict[str, Any]] | None = None,
+    account_meta: dict[str, Any] | None = None,
 ) -> Any:
     started = perf_counter()
-    ctx = InvestigationContext(cnpj=normalize_cnpj(cnpj), service=service)
+    meta = dict(account_meta or {})
+    company_site = str(meta.get("website") or meta.get("site") or "").strip() or None
+    domain_resolution = meta.get("domain_resolution")
+    if not isinstance(domain_resolution, dict):
+        domain_resolution = {}
+    ctx = InvestigationContext(
+        cnpj=normalize_cnpj(cnpj),
+        legal_name=str(meta.get("razao_social") or meta.get("legal_name") or "").strip() or None,
+        service=service,
+        extra={
+            **meta,
+            **({"company_site": company_site} if company_site else {}),
+            **({"domain_resolution": domain_resolution} if domain_resolution else {}),
+        },
+    )
     providers = providers or default_providers(
         search_backend=search_backend,
         searxng_url=searxng_url,
@@ -144,15 +165,16 @@ def run_account(
         site_crawl_baseline=site_crawl_baseline,
         query_policy_version=query_policy_version,
         search_fallback=search_fallback,
+        contact_seed_inputs=contact_seed_inputs,
     )
     people = []
     channels = []
     evidence = []
     discovery_extra: dict[str, Any] = {}
     ledger = SearchLedger()
-    legal_name = None
+    legal_name = ctx.legal_name
     why_now = None
-    site = None
+    site = company_site
     blocked = False
     from scripts.decision_unit_intelligence.controlled_email import (
         observed_channels_have_controlled_eligible_route,

@@ -209,7 +209,10 @@ def test_duplicate_enqueue_does_not_create_second_truth(dsn: str) -> None:
 
 
 def test_canonical_population_enqueue_preserves_selection_evidence(
-    dsn: str, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+    dsn: str,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    tmp_path: Path,
 ) -> None:
     from scripts.confenge_contact_resolution.enrichment_batch import CompanyJob
     from scripts.decision_unit_intelligence import cli
@@ -254,6 +257,11 @@ def test_canonical_population_enqueue_preserves_selection_evidence(
         },
     )
     monkeypatch.setattr(cli, "load_discovery_population", lambda *_args, **_kwargs: selection)
+    existing_contacts = tmp_path / "existing-contacts.jsonl"
+    existing_contacts.write_text(
+        '{"cnpj14":"11222333000181","contacts":[]}\n',
+        encoding="utf-8",
+    )
 
     assert (
         cli.main(
@@ -268,6 +276,8 @@ def test_canonical_population_enqueue_preserves_selection_evidence(
                 "searxng",
                 "--searxng-url",
                 "http://search.invalid",
+                "--existing-contacts",
+                str(existing_contacts),
                 "--dsn",
                 dsn,
             ]
@@ -277,12 +287,16 @@ def test_canonical_population_enqueue_preserves_selection_evidence(
     payload = __import__("json").loads(capsys.readouterr().out)
     assert payload["enqueued"] == 2
     assert payload["job_ids_omitted"] == 0
-    assert payload["input_evidence_version"] == "target-fit.aaaaaaaaaaaaaaaa"
+    assert payload["input_evidence_version"].startswith(
+        "target-fit.aaaaaaaaaaaaaaaa.contacts-"
+    )
+    assert len(payload["contact_seed_inputs"]) == 1
     with connect(dsn) as connection:
         rows = ContactDiscoveryQueue(connection).inspect(cohort_id="c-population")
     assert len(rows) == 2
-    assert rows[0]["input_evidence_version"] == "target-fit.aaaaaaaaaaaaaaaa"
+    assert rows[0]["input_evidence_version"] == payload["input_evidence_version"]
     assert rows[0]["cursor"]["population"]["target_fit_class"] == "TARGET_CONFIRMED"
+    assert rows[0]["cursor"]["budget"]["contact_seed_inputs"][0]["sha256"]
     by_account = {row["canonical_account_id"]: row for row in rows}
     assert by_account["11222333000181"]["priority"] > by_account["44555666000177"]["priority"]
 

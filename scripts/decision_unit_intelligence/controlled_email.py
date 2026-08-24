@@ -389,6 +389,22 @@ def association_provenance_trustworthy(route: ReachabilityRoute) -> bool:
     url_host = _url_host(route.source_url)
     official = _official_domain(route)
     freemail = is_freemail(route.channel_value)
+    extra = route.extra if isinstance(route.extra, dict) else {}
+    registry_cnpj = "".join(ch for ch in str(extra.get("registry_cnpj14") or "") if ch.isdigit())
+    route_cnpj = "".join(ch for ch in str(route.company_entity_id or "") if ch.isdigit())
+    exact_official_registry_link = (
+        source == "company_registry"
+        and str(extra.get("official_match_status") or "").upper() == "MATCHED"
+        and str(extra.get("official_authority") or "").upper() == "RECEITA_FEDERAL"
+        and bool(str(extra.get("official_release_id") or "").strip())
+        and len(registry_cnpj) == 14
+        and registry_cnpj == route_cnpj
+    )
+    # An exact CNPJ row in a versioned Receita Federal release is itself the
+    # public mailbox↔company association. It is valid for corporate freemail as
+    # well, but does not imply a named person or role.
+    if exact_official_registry_link:
+        return True
     if not freemail and not mailbox_host_plausible(mailbox_dom):
         return False
     on_official_page = bool(official and url_host and _hosts_equivalent(url_host, official))

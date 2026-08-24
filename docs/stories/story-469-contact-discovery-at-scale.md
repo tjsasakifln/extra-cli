@@ -2,7 +2,7 @@
 
 ## Status
 
-**In Progress**
+**Ready for Review**
 
 ## Executor Assignment
 
@@ -99,13 +99,13 @@ quality_gate_tools: ["pytest", "ruff", "dod_controller", "coderabbit"]
   - [x] Adicionar ao CLI batch uma origem DSN explícita que preserve prioridade e metadados setorial/target-fit.
   - [x] Garantir denominador/checksum/idempotência e separar `--limit` smoke do modo full-scale.
   - [x] Escrever testes unitários e real-DB para cardinalidade, prioridade, reexecução e ausência de CNPJ observado.
-- [ ] Task 2 — Executar o waterfall e projetar resultados duráveis (AC: 4, 13, 14)
-  - [ ] Reconciliar primeiro contatos já existentes por CNPJ e preservar source version/freshness/provenance.
-  - [ ] Reusar os adapters atuais para fontes cadastrais, website, documentos B2G e busca pública bounded; adicionar apenas lacunas provadas.
+- [x] Task 2 — Executar o waterfall e projetar resultados duráveis (AC: 4, 13, 14)
+  - [x] Reconciliar primeiro contatos já existentes por CNPJ e preservar source version/freshness/provenance.
+  - [x] Reusar os adapters atuais para fontes cadastrais, website, documentos B2G e busca pública bounded; adicionar apenas lacunas provadas.
   - [x] Produzir projeção `contacts[]` a partir do resultado real de `run_account`, usando as classificações existentes.
   - [x] Persistir hash, política/input, provenance e reason codes sem promover inferência.
-  - [ ] Fechar cada conta em `EMAIL_ROUTE_READY`, `NO_PUBLIC_EMAIL_FOUND` ou `BLOCKED_WITH_REASON`, cobrindo retryable/DLQ e conflito de versão.
-- [ ] Task 3 — Compor os contatos no feed do universo (AC: 5, 6, 7)
+  - [x] Fechar cada conta em `EMAIL_ROUTE_READY`, `NO_PUBLIC_EMAIL_FOUND` ou `BLOCKED_WITH_REASON`, cobrindo retryable/DLQ e conflito de versão.
+- [x] Task 3 — Compor os contatos no feed do universo (AC: 5, 6, 7)
   - [x] Ler somente projeções válidas/vigentes e uni-las aos contatos do hot set por CNPJ canônico.
   - [x] Definir precedência/deduplicação determinística e falhar fechado em incompatibilidade.
   - [x] Alimentar `ExportConfig.contacts` com a união e provar contato dentro dos chunks autoritativos.
@@ -178,7 +178,9 @@ GPT-5 Codex (Dex / @dev)
 
 ### Debug Log References
 
-- 2026-08-24: 58 testes focados passaram após a primeira onda (projeção terminal + contrato auditável).
+- 2026-08-24: 74 testes focados passaram após a primeira onda (projeção terminal + contrato auditável).
+- 2026-08-24: regressão do raio de contato/feed/Warmbly `304 passed`; Ruff global e 17/17 source contracts verdes.
+- 2026-08-24: mypy isolado nos seis módulos alterados passou; a execução transitiva expõe dívida legada fora do raio.
 - 2026-08-24: seleção canônica validada com teste unitário e PostgreSQL real local.
 - 2026-08-24: projeção durável → feed amplo validada, inclusive conta fora do hot set.
 - 2026-08-24: suíte canônica `5806 passed, 235 skipped, 11 deselected`; Ruff e 17/17 source contracts verdes.
@@ -187,6 +189,8 @@ GPT-5 Codex (Dex / @dev)
 ### Completion Notes List
 
 - Implementação local cobre seleção integral, terminais honestos, projeção hash-verificada e composição no feed.
+- Artefatos históricos de contatos agora entram como inputs explícitos, SHA-256-bound e verificados no primeiro degrau do worker; alteração/missing vira blocker nominal.
+- O cadastro oficial local é consultado por CNPJ exato; e-mail cadastral preserva release/autoridade, aceita freemail empresarial sem inventar pessoa e registra indisponibilidade como blocker factual de waterfall.
 - Evidência live 8.245/8.245, deploy e aceitação continuam abertos; fixture não foi tratada como prova operacional.
 
 ### File List
@@ -204,6 +208,8 @@ GPT-5 Codex (Dex / @dev)
 - `scripts/decision_unit_intelligence/batch_worker.py`
 - `scripts/decision_unit_intelligence/cli.py`
 - `scripts/decision_unit_intelligence/controlled_email.py`
+- `scripts/decision_unit_intelligence/providers/existing_contacts.py`
+- `scripts/decision_unit_intelligence/providers/official_company_registry.py`
 - `scripts/warmbly_bridge/mapping.py`
 - `tests/confenge_outreach_pipeline/test_pipeline.py`
 - `tests/fixtures/controlled_email_five_class_canary.json`
@@ -211,10 +217,7 @@ GPT-5 Codex (Dex / @dev)
 - `tests/test_contact_discovery_outcomes.py`
 - `tests/test_contact_discovery_population.py`
 - `tests/test_controlled_email_eligibility.py`
-
-### File List
-
-_A preencher por @dev._
+- `tests/test_existing_contact_seed.py`
 
 ## QA Results
 

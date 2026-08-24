@@ -32,6 +32,10 @@ from scripts.decision_unit_intelligence.email_discovery import summarize_email_d
 from scripts.decision_unit_intelligence.operator_pack import build_card, write_operator_pack
 from scripts.decision_unit_intelligence.projection import project_warmbly_outreach
 from scripts.decision_unit_intelligence.providers.base import InvestigationContext
+from scripts.decision_unit_intelligence.providers.existing_contacts import (
+    bind_contact_seeds_to_input_version,
+    manifest_contact_seed_inputs,
+)
 from scripts.decision_unit_intelligence.repository import JsonRunRepository, account_hash, write_json
 from scripts.decision_unit_intelligence.runner import run_account
 from scripts.decision_unit_intelligence.site_contact_crawl import (
@@ -311,6 +315,7 @@ def _resolve_dsn(explicit: str | None) -> str:
 
 
 def cmd_batch_enqueue(args: argparse.Namespace) -> int:
+    contact_seed_inputs = manifest_contact_seed_inputs(args.existing_contacts or [])
     population = None
     if args.population:
         if args.cnpjs or args.manifest or args.limit is not None:
@@ -328,7 +333,12 @@ def cmd_batch_enqueue(args: argparse.Namespace) -> int:
         jobs = []
         cnpjs = _load_cnpjs(args)
         input_evidence_version = args.input_evidence_version or "input.v1"
+    input_evidence_version = bind_contact_seeds_to_input_version(
+        input_evidence_version,
+        contact_seed_inputs,
+    )
     knobs = _budget_knobs(args)
+    knobs["contact_seed_inputs"] = contact_seed_inputs
     version = budget_version_from_knobs(knobs)
     code_sha = _resolve_code_sha(args.code_sha)
     inserted = 0
@@ -348,6 +358,7 @@ def cmd_batch_enqueue(args: argparse.Namespace) -> int:
             metadata={
                 "n": len(cnpjs),
                 "output_root": args.out,
+                "contact_seed_inputs": contact_seed_inputs,
                 **(population.metadata if population else {"population": "explicit", "sampled": args.limit is not None}),
             },
         )
@@ -388,6 +399,7 @@ def cmd_batch_enqueue(args: argparse.Namespace) -> int:
             "budget_version": version,
             "code_sha": code_sha,
             "search_backend": args.search_backend,
+            "contact_seed_inputs": contact_seed_inputs,
             "progress": progress,
         }
     )
@@ -552,6 +564,15 @@ def build_parser() -> argparse.ArgumentParser:
     enqueue.add_argument("--service", default="reajuste_14133")
     enqueue.add_argument("--offer-context")
     enqueue.add_argument("--input-evidence-version")
+    enqueue.add_argument(
+        "--existing-contacts",
+        action="append",
+        default=[],
+        help=(
+            "Existing bridge contacts JSONL to reconcile before public discovery. "
+            "Repeatable; each file is content-hashed into the cohort contract."
+        ),
+    )
     enqueue.add_argument("--code-sha")
     enqueue.add_argument("--dsn")
     enqueue.add_argument("--max-attempts", type=int, default=5)

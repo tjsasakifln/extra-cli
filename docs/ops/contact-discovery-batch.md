@@ -20,6 +20,8 @@ python3 -m scripts.decision_unit_intelligence batch enqueue \
 python3 -m scripts.decision_unit_intelligence batch enqueue \
   --cohort "target-confirmed-$(date -u +%Y%m%dT%H%M%SZ)" \
   --population target-confirmed \
+  --existing-contacts /var/lib/extra-consultoria/output/RUN_A/05_bridge_inputs/contacts.jsonl \
+  --existing-contacts /var/lib/extra-consultoria/output/RUN_B/05_bridge_inputs/contacts.jsonl \
   --search-backend searxng \
   --searxng-url "$CONFENGE_SEARXNG_URL" \
   --service reajuste_14133
@@ -59,3 +61,18 @@ Each v2 job output also carries one enrichment terminal:
 derived bridge JSONL. By default it refuses an incomplete denominator.
 `--allow-partial` is only for observable incremental feed refreshes and never
 counts as full-population evidence.
+
+`--existing-contacts` is repeatable. Enqueue resolves each file to an absolute
+path, records its SHA-256 and size in the immutable cohort/job contract, and
+binds the hashes into `input_evidence_version`. The worker verifies the snapshot
+before replaying existing account-linked routes as tier 0; a missing/changed
+file is a factual `BLOCKED_WITH_REASON`, never a silent miss. Public discovery
+is spent only when the reconciled evidence has no controlled-eligible route.
+
+The next tier consults the locally activated, versioned Receita Federal
+company-registry release by exact CNPJ. A public e-mail from that row is a
+company route, including corporate freemail, but never evidence of a person or
+department. If no official release is active, the attempt records
+`OFFICIAL_REGISTRY_UNAVAILABLE`; a no-route result remains
+`BLOCKED_WITH_REASON` while website/document/public-search tiers still run and
+may independently produce `EMAIL_ROUTE_READY`.

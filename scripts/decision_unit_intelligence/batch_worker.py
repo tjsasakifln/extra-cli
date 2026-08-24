@@ -119,6 +119,12 @@ def default_discovery(job: ClaimedDiscoveryJob) -> Any:
         site_crawl_baseline=bool(knobs.get("site_crawl_baseline", False)),
         query_policy_version=str(knobs.get("query_policy_version") or "query-policy.v2"),
         search_fallback=str(knobs.get("search_fallback") or "off"),
+        contact_seed_inputs=[
+            dict(item)
+            for item in (knobs.get("contact_seed_inputs") or [])
+            if isinstance(item, dict)
+        ],
+        account_meta=dict((job.cursor or {}).get("population") or {}),
     )
 
 
