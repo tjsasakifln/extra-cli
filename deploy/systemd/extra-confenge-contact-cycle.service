@@ -1,0 +1,48 @@
+[Unit]
+Description=Extra Consultoria — continuously reconcile TARGET_CONFIRMED contact routes
+After=network-online.target postgresql.service extra-confenge-target-fit-refresh.service
+Wants=network-online.target
+Requires=postgresql.service
+OnFailure=extra-onfailure@%n.service
+
+[Service]
+Type=oneshot
+User=extra-consultoria
+Group=extra-consultoria
+WorkingDirectory=/opt/extra-consultoria
+Environment=PYTHONPATH=/opt/extra-consultoria
+Environment=CONFENGE_CONTACT_OUTPUT_ROOT=/var/lib/extra-consultoria/output/contact-discovery
+Environment=CONFENGE_CONTACT_SEARCH_BACKEND=searxng
+Environment=CONFENGE_CONTACT_BACKEND_CONCURRENCY=12
+Environment=CONFENGE_CONTACT_DOMAIN_CONCURRENCY=1
+Environment=CONFENGE_CONTACT_POLL_SECONDS=30
+Environment=CONFENGE_CONTACT_TIMEOUT_HOURS=18
+EnvironmentFile=-/opt/extra-consultoria/.env
+EnvironmentFile=-/etc/extra-consultoria/crawler.env
+EnvironmentFile=-/etc/extra-consultoria/contact-discovery.env
+ExecStart=/usr/bin/flock --nonblock /run/extra-confenge-contact-cycle/cycle.lock /opt/extra-consultoria/.venv/bin/python -m scripts.ops.confenge_contact_cycle --output-root ${CONFENGE_CONTACT_OUTPUT_ROOT} --search-backend ${CONFENGE_CONTACT_SEARCH_BACKEND} --backend-concurrency ${CONFENGE_CONTACT_BACKEND_CONCURRENCY} --domain-concurrency ${CONFENGE_CONTACT_DOMAIN_CONCURRENCY} --poll-seconds ${CONFENGE_CONTACT_POLL_SECONDS} --timeout-hours ${CONFENGE_CONTACT_TIMEOUT_HOURS}
+TimeoutStartSec=20h
+Nice=15
+IOSchedulingClass=best-effort
+IOSchedulingPriority=6
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+LogsDirectory=extra-consultoria
+RuntimeDirectory=extra-confenge-contact-cycle
+RuntimeDirectoryMode=0750
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+ReadWritePaths=/var/lib/extra-consultoria /var/log/extra-consultoria
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=extra-confenge-contact-cycle
+
+[Install]
+WantedBy=multi-user.target

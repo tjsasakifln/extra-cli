@@ -1,0 +1,11 @@
+[Unit]
+Description=Timer — refresh the full TARGET_CONFIRMED contact projection daily
+
+[Timer]
+OnCalendar=*-*-* 01:10:00
+Persistent=true
+RandomizedDelaySec=10m
+Unit=extra-confenge-contact-cycle.service
+
+[Install]
+WantedBy=timers.target
