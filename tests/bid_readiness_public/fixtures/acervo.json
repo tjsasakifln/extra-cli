@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "schema": "extra_technical_acervo_v1",
+  "cliente": "EMPRESA FICTICIA LTDA",
+  "generated_from": "FICTIONAL_PUBLIC_READ_FIXTURE",
+  "disclaimer": "Fixture integralmente ficticia. Nao constitui parecer juridico.",
+  "organizations": [
+    {
+      "id": "org-ficticia",
+      "legal_name": "EMPRESA FICTICIA LTDA",
+      "trade_names": ["Empresa Ficticia"],
+      "role": "executor"
+    }
+  ],
+  "professionals": [
+    {
+      "id": "prof-ficticio",
+      "full_name": "PESSOA FICTICIA",
+      "title": "Engenheiro Civil",
+      "crea_sc": "000000-0",
+      "rnp": "0000000000",
+      "linked_document_ids": ["doc-cat-fic-001"]
+    }
+  ],
+  "technical_documents": [
+    {
+      "id": "doc-cat-fic-001",
+      "document_type": "CAT",
+      "certificate_number": "000000000001",
+      "art_number": "0000000-0",
+      "art_numbers": ["0000000-0"],
+      "issuer": "CREA-FICTICIO",
+      "issued_at": "2024-01-01",
+      "valid_until": null,
+      "current_status": "no_expiration_identified",
+      "has_registered_attestation": true,
+      "source_files": ["atestado-ficticio.pdf"],
+      "source_pages": {"certificate": 1, "items": [1]},
+      "restrictions": [
+        "CAT ficticia de fixture. Nao prova qualificacao em edital real."
+      ],
+      "linked_experience_ids": ["exp-fic-pav-001"],
+      "linked_professional_ids": ["prof-ficticio"],
+      "linked_organization_ids": ["org-ficticia"]
+    }
+  ],
+  "technical_experiences": [
+    {
+      "id": "exp-fic-pav-001",
+      "contractor": "ORGAO FICTICIO",
+      "owner": "ORGAO FICTICIO",
+      "primary_document_id": "doc-cat-fic-001",
+      "linked_documents": ["doc-cat-fic-001"],
+      "evidence_level": "cat_with_registered_attestation",
+      "technical_items": [
+        {
+          "service": "pavimentacao asfaltica",
+          "original_description": "pavimentacao asfaltica de vias urbanas",
+          "quantity": 500.0,
+          "unit": "m2",
+          "source_document": "doc-cat-fic-001",
+          "source_page": 1
+        }
+      ]
+    }
+  ],
+  "synonyms": {
+    "pavimentacao asfaltica": ["pavimentacao", "asfalto", "cbuq"]
+  }
+}

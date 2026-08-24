@@ -1,0 +1,56 @@
+{
+  "requirements": [
+    {
+      "requirement_id": "REQ-JUR-001",
+      "category": "JURIDICA",
+      "title": "Contrato social consolidado",
+      "description": "Apresentar contrato social",
+      "mandatory": true,
+      "required_document_type": "CONTRATO_SOCIAL",
+      "validity_rule": {"no_expiry": true},
+      "condition": null,
+      "source_document": "edital-ficticio.txt",
+      "source_locator": {"page": 1, "section": "7"},
+      "source_excerpt": "Contrato social consolidado",
+      "deadline": "2026-09-20",
+      "required_issuer": null,
+      "required_holder": "EMPRESA FICTICIA LTDA",
+      "required_signatory": "PESSOA FICTICIA",
+      "technical_criteria": {},
+      "financial_criteria": {},
+      "submission_format": {"accepted_extensions": [".txt"]},
+      "original_file_required": false,
+      "signature_required": false,
+      "authentication_required": false,
+      "human_interpretation_required": false
+    },
+    {
+      "requirement_id": "REQ-TEC-001",
+      "category": "TECNICA",
+      "title": "Atestado de pavimentacao",
+      "description": "Atestado com quantitativo minimo",
+      "mandatory": true,
+      "required_document_type": "ATESTADO_CAPACIDADE_TECNICA",
+      "validity_rule": {"no_expiry": true},
+      "condition": null,
+      "source_document": "edital-ficticio.txt",
+      "source_locator": {"page": 2, "section": "10"},
+      "source_excerpt": "atestado de capacidade tecnica",
+      "deadline": "2026-09-20",
+      "required_issuer": null,
+      "required_holder": "EMPRESA FICTICIA LTDA",
+      "required_signatory": null,
+      "technical_criteria": {
+        "service": "pavimentacao asfaltica",
+        "min_quantity": 100,
+        "unit": "m2"
+      },
+      "financial_criteria": {},
+      "submission_format": {"accepted_extensions": [".txt"]},
+      "original_file_required": false,
+      "signature_required": false,
+      "authentication_required": false,
+      "human_interpretation_required": true
+    }
+  ]
+}

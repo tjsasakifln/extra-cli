@@ -1,0 +1,40 @@
+{
+  "$id": "public-read-bid-readiness-v1.schema.json",
+  "schema_version": "public-read-bid-readiness/1.0",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "run_id",
+    "query_id",
+    "generated_at",
+    "as_of",
+    "expires_at",
+    "input_manifest",
+    "engine_versions",
+    "policy_version",
+    "source_access",
+    "overall_state",
+    "human_review_required",
+    "not_legal_conclusion",
+    "publication_authorization",
+    "index_authorization",
+    "content_hash",
+    "limitations",
+    "prohibited_claims",
+    "findings",
+    "summary",
+    "reason_codes",
+    "producer_version"
+  ],
+  "properties": {
+    "schema_version": { "const": "public-read-bid-readiness/1.0" },
+    "overall_state": {
+      "enum": ["READY_FOR_HUMAN_REVIEW", "HOLD_FOR_DATA", "REJECT"]
+    },
+    "source_access": { "enum": ["private_local", "redacted_fixture"] },
+    "human_review_required": { "const": true },
+    "not_legal_conclusion": { "const": true },
+    "publication_authorization": { "const": false },
+    "index_authorization": { "const": false }
+  }
+}
