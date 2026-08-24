@@ -250,6 +250,18 @@ def build_contact_projection(
             blockers[reason] += 1
             continue
 
+        # Non-success terminal jobs are explicit account outcomes even when a
+        # prior retry left a well-formed partial output behind.  Never let that
+        # stale attempt payload hide the durable DLQ/BLOCKED/CANCELLED reason,
+        # and never require a contact artifact in order to project a blocker.
+        if status != "SUCCEEDED":
+            reason = str(job.get("last_reason_code") or status)
+            row = _blocked_row(job, reason)
+            rows.append(row)
+            states["BLOCKED_WITH_REASON"] += 1
+            blockers[reason] += 1
+            continue
+
         state = str((payload or {}).get("enrichment_state") or "")
         reason = str((payload or {}).get("enrichment_reason") or "")
         if state not in ENRICHMENT_TERMINALS:
