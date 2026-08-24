@@ -240,7 +240,10 @@ def run_account(
             p.provider_id for p in providers if getattr(p, "first_class", False) and getattr(p, "enabled", False)
         }
         attempted = {attempt.provider_id for attempt in ledger.attempts}
-        commercial_success = observed_channels_have_controlled_eligible_route(channels)
+        commercial_success = observed_channels_have_controlled_eligible_route(
+            channels,
+            account_id=cnpj,
+        )
         # Positive stop: a control-eligible company route is enough. Named person
         # is not required. Still require enabled first-class providers unless the
         # remaining work is public-search PERSON spend after a usable route.

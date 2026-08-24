@@ -608,7 +608,10 @@ def investigate_account(
             observed_channels_have_controlled_eligible_route,
         )
 
-        has_observed_usable = observed_channels_have_controlled_eligible_route(normalized_channels)
+        has_observed_usable = observed_channels_have_controlled_eligible_route(
+            normalized_channels,
+            account_id=entity_id,
+        )
         routes.extend(
             maybe_infer_emails(
                 candidates=candidates,
