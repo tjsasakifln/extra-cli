@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import subprocess
 from pathlib import Path
 from typing import Any
@@ -74,21 +75,42 @@ LIMITATION_ACTIVE_ONLY = (
 )
 
 
-def producer_sha() -> str | None:
+SHA_RE = re.compile(r"^[0-9a-f]{40}$", re.IGNORECASE)
+
+
+def _valid_sha(value: str | None) -> str | None:
+    candidate = (value or "").strip()
+    return candidate.lower() if SHA_RE.fullmatch(candidate) else None
+
+
+def producer_sha(repo_root: Path | None = None) -> str | None:
+    """Bind the artifact to the code that actually produced it.
+
+    Deployments are rsynced without replacing the host's historical ``.git``
+    directory, so ``.deployed_sha`` is authoritative there.  An existing but
+    invalid marker fails closed instead of falling back to a stale checkout.
+    """
     env = os.environ.get("CONFENGE_REPOSITORY_SHA")
     if env:
-        return env.strip()
+        return _valid_sha(env)
+    root = repo_root or Path(__file__).resolve().parents[2]
+    marker = root / ".deployed_sha"
+    if marker.exists():
+        try:
+            return _valid_sha(marker.read_text(encoding="utf-8"))
+        except OSError:
+            return None
     try:
         out = subprocess.run(
             ["git", "rev-parse", "HEAD"],  # noqa: S607 -- git resolved from PATH by design; fixed argv, no shell
             capture_output=True,
             text=True,
             timeout=10,
-            cwd=Path(__file__).resolve().parents[2],
+            cwd=root,
         )
     except (OSError, subprocess.SubprocessError):
         return None
-    return out.stdout.strip() or None if out.returncode == 0 else None
+    return _valid_sha(out.stdout) if out.returncode == 0 else None
 
 
 def _strip_volatile(value: Any) -> Any:

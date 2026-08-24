@@ -61,6 +61,7 @@
     "claim_scan": "Every emitted document is scanned for forbidden claim tokens and metric keys before it is written. Official objeto text is exempt because the engine must not rewrite official text.",
     "panel_range": "A category where the focal median sits more than 10x outside the panel interquartile band yields OUT_OF_PANEL_RANGE and no percentile position.",
     "reference_scope": "Every price panel carries scope_id, geography, denominator, as_of, source/version, sample_count, coverage, missingness, method, hash and limitations. BOTH is the fail-closed default; NATIONAL never reuses a REGIONAL denominator and stays DATA_HOLD without an authorized comparable corpus.",
+    "producer_sha": "An explicit CONFENGE_REPOSITORY_SHA wins; otherwise a validated .deployed_sha is authoritative and Git is used only when no deploy marker exists. Invalid authoritative values do not fall back to stale Git metadata.",
     "content_hash": "content_hash covers the document with volatile fields (generated_at, observed_at, producer_sha, content_hash) stripped, so two runs over the same data agree byte for byte."
   },
   "privacy": {
