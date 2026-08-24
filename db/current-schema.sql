@@ -61,6 +61,51 @@ COMMENT ON EXTENSION vector IS 'vector data type and ivfflat and hnsw access met
 
 
 --
+-- Name: contract_category_v1(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.contract_category_v1(object_text text) RETURNS text
+    LANGUAGE sql IMMUTABLE PARALLEL SAFE STRICT
+    AS $_$
+    SELECT CASE
+        WHEN object_text ILIKE '%obra%' OR object_text ILIKE '%construção%'
+          OR object_text ILIKE '%pavimentação%' OR object_text ILIKE '%edificação%'
+          OR object_text ILIKE '%engenharia%' THEN 'OBRAS'
+        WHEN object_text ILIKE '%limpeza%' OR object_text ILIKE '%conservação%'
+          OR object_text ILIKE '%manutenção%' OR object_text ILIKE '%zeladoria%' THEN 'FACILITIES'
+        WHEN object_text ILIKE '%saúde%' OR object_text ILIKE '%medicamento%'
+          OR object_text ILIKE '%hospitalar%' OR object_text ILIKE '%medico%'
+          OR object_text ILIKE '%médico%' OR object_text ILIKE '%farmacêutico%'
+          OR object_text ILIKE '%laboratório%' THEN 'SAÚDE'
+        WHEN object_text ILIKE '%alimentação%' OR object_text ILIKE '%alimento%'
+          OR object_text ILIKE '%merenda%' OR object_text ILIKE '%gênero alimentício%' THEN 'ALIMENTAÇÃO'
+        WHEN object_text ILIKE '%software%'
+          OR object_text ~* '(^|[^[:alpha:]])ti([^[:alpha:]]|$)'
+          OR object_text ILIKE '%tecnologia%' OR object_text ILIKE '%sistema%'
+          OR object_text ILIKE '%informática%' THEN 'TI'
+        WHEN object_text ILIKE '%transporte%' OR object_text ILIKE '%veículo%'
+          OR object_text ILIKE '%frota%' OR object_text ILIKE '%ônibus%'
+          OR object_text ILIKE '%locação de veículo%' THEN 'TRANSPORTE'
+        WHEN object_text ILIKE '%segurança%' OR object_text ILIKE '%vigilância%'
+          OR object_text ILIKE '%monitoramento%' OR object_text ILIKE '%porteiro%' THEN 'SEGURANÇA'
+        WHEN object_text ILIKE '%consultoria%' OR object_text ILIKE '%assessoria%'
+          OR object_text ILIKE '%advocacia%' OR object_text ILIKE '%jurídico%'
+          OR object_text ILIKE '%contábil%' THEN 'CONSULTORIA'
+        WHEN object_text ILIKE '%combustível%' OR object_text ILIKE '%gasolina%'
+          OR object_text ILIKE '%diesel%' OR object_text ILIKE '%etanol%' THEN 'COMBUSTÍVEL'
+        ELSE 'OUTROS'
+    END
+$_$;
+
+
+--
+-- Name: FUNCTION contract_category_v1(object_text text); Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON FUNCTION public.contract_category_v1(object_text text) IS 'Canonical contract category ladder v1. TI uses a lexical token, never an unconstrained substring.';
+
+
+--
 -- Name: evidence_state; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -2067,6 +2112,107 @@ COMMENT ON COLUMN public.source_applicability_rules.plataforma_filter IS 'Filtro
 
 
 --
+-- National coverage authority required by v_contract_intel_reference_scopes_v1.
+-- Kept in dependency order so this baseline restores into an empty database.
+--
+
+CREATE TABLE IF NOT EXISTS public.national_coverage_universe (
+    universe_id            TEXT PRIMARY KEY,
+    universe_kind          TEXT NOT NULL CHECK (universe_kind IN ('OFFICIAL', 'OBSERVED_CORPUS')),
+    official_source        TEXT NOT NULL,
+    official_source_url    TEXT,
+    competence             TEXT NOT NULL,
+    cutoff                 TEXT NOT NULL,
+    retrieved_at           TEXT NOT NULL,
+    as_of                  TEXT NOT NULL,
+    raw_hash               TEXT NOT NULL,
+    catalog_hash           TEXT NOT NULL,
+    method_version         TEXT NOT NULL,
+    schema_version         TEXT NOT NULL,
+    grain                  TEXT NOT NULL,
+    expected_partitions    INTEGER NOT NULL CHECK (expected_partitions >= 0),
+    expected_units         INTEGER NOT NULL CHECK (expected_units >= 0),
+    official_status        TEXT NOT NULL CHECK (official_status IN ('AVAILABLE', 'BLOCKED')),
+    official_block_cause   TEXT,
+    inclusion_rules        JSONB NOT NULL,
+    exclusion_rules        JSONB NOT NULL,
+    owner                  TEXT NOT NULL,
+    next_refresh           TEXT NOT NULL,
+    payload                JSONB NOT NULL,
+    created_at             TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT national_coverage_universe_not_extra_1093 CHECK (
+        official_source NOT IN (
+            'extra_1093',
+            'extra-1093',
+            'extra_1093_monitored',
+            'extra-canonical-seed',
+            'sc_public_entities.raio_200km'
+        )
+    )
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS national_coverage_universe_kind_hash_uidx
+    ON public.national_coverage_universe (universe_kind, official_source, competence, catalog_hash);
+
+CREATE TABLE IF NOT EXISTS public.national_coverage_partition (
+    id                 BIGSERIAL PRIMARY KEY,
+    universe_id        TEXT NOT NULL REFERENCES public.national_coverage_universe (universe_id),
+    partition_id       TEXT NOT NULL,
+    status             TEXT NOT NULL CHECK (
+        status IN ('FOUND', 'ZERO_CONFIRMED', 'BLOCKED', 'FAILED', 'NOT_APPLICABLE')
+    ),
+    expected           BOOLEAN NOT NULL,
+    queried            BOOLEAN NOT NULL,
+    count_in_status    INTEGER,
+    recorded_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS national_coverage_partition_universe_idx
+    ON public.national_coverage_partition (universe_id, partition_id, recorded_at DESC);
+
+CREATE TABLE IF NOT EXISTS public.national_coverage_corpus_snapshot (
+    snapshot_id        TEXT PRIMARY KEY,
+    universe_id        TEXT REFERENCES public.national_coverage_universe (universe_id),
+    snapshot_hash      TEXT NOT NULL,
+    as_of              TEXT NOT NULL,
+    source             TEXT NOT NULL,
+    publisher_count    INTEGER NOT NULL CHECK (publisher_count >= 0),
+    contract_count     INTEGER NOT NULL CHECK (contract_count >= 0),
+    relation           TEXT NOT NULL,
+    payload            JSONB NOT NULL,
+    created_at         TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.national_coverage_answer (
+    id                         BIGSERIAL PRIMARY KEY,
+    universe_id                TEXT NOT NULL REFERENCES public.national_coverage_universe (universe_id),
+    requested_geography        TEXT NOT NULL,
+    requested_period           TEXT NOT NULL,
+    requested_source           TEXT NOT NULL,
+    requested_grain            TEXT NOT NULL,
+    expected_partitions        INTEGER NOT NULL,
+    closed_partitions          INTEGER NOT NULL,
+    queried_partitions         INTEGER NOT NULL,
+    coverage_pct               NUMERIC,
+    national_claim_authorized  BOOLEAN NOT NULL DEFAULT FALSE,
+    verdict                    TEXT NOT NULL CHECK (
+        verdict IN ('NATIONAL_CLAIM_AUTHORIZED', 'PARTIAL', 'NOT_MEASURED', 'BLOCKED')
+    ),
+    reason_codes               TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
+    limitations                TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
+    provenance                 JSONB NOT NULL,
+    content_hash               TEXT NOT NULL,
+    payload                    JSONB NOT NULL,
+    produced_at                TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS national_coverage_answer_lookup_idx
+    ON public.national_coverage_answer (
+        universe_id, requested_geography, requested_period, requested_source, requested_grain, produced_at DESC
+    );
+
+
+--
 -- Name: v_entities_canonical; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -3159,50 +3305,6 @@ COMMENT ON VIEW public.v_contract_intel_historico IS 'Historical contracts for p
 
 
 --
--- Name: v_contract_intel_percentis; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW public.v_contract_intel_percentis AS
- WITH categorias AS (
-         SELECT c.valor_total AS valor,
-                CASE
-                    WHEN ((c.objeto_contrato ~~* '%obra%'::text) OR (c.objeto_contrato ~~* '%construção%'::text) OR (c.objeto_contrato ~~* '%pavimentação%'::text) OR (c.objeto_contrato ~~* '%edificação%'::text) OR (c.objeto_contrato ~~* '%engenharia%'::text)) THEN 'OBRAS'::text
-                    WHEN ((c.objeto_contrato ~~* '%limpeza%'::text) OR (c.objeto_contrato ~~* '%conservação%'::text) OR (c.objeto_contrato ~~* '%manutenção%'::text) OR (c.objeto_contrato ~~* '%zeladoria%'::text)) THEN 'FACILITIES'::text
-                    WHEN ((c.objeto_contrato ~~* '%software%'::text) OR (c.objeto_contrato ~~* '%ti%'::text) OR (c.objeto_contrato ~~* '%tecnologia%'::text) OR (c.objeto_contrato ~~* '%sistema%'::text) OR (c.objeto_contrato ~~* '%informática%'::text)) THEN 'TI'::text
-                    WHEN ((c.objeto_contrato ~~* '%saúde%'::text) OR (c.objeto_contrato ~~* '%medicamento%'::text) OR (c.objeto_contrato ~~* '%hospitalar%'::text) OR (c.objeto_contrato ~~* '%medico%'::text) OR (c.objeto_contrato ~~* '%farmacêutico%'::text) OR (c.objeto_contrato ~~* '%laboratório%'::text)) THEN 'SAÚDE'::text
-                    WHEN ((c.objeto_contrato ~~* '%alimentação%'::text) OR (c.objeto_contrato ~~* '%alimento%'::text) OR (c.objeto_contrato ~~* '%merenda%'::text) OR (c.objeto_contrato ~~* '%gênero alimentício%'::text)) THEN 'ALIMENTAÇÃO'::text
-                    WHEN ((c.objeto_contrato ~~* '%transporte%'::text) OR (c.objeto_contrato ~~* '%veículo%'::text) OR (c.objeto_contrato ~~* '%frota%'::text) OR (c.objeto_contrato ~~* '%ônibus%'::text) OR (c.objeto_contrato ~~* '%locação de veículo%'::text)) THEN 'TRANSPORTE'::text
-                    WHEN ((c.objeto_contrato ~~* '%segurança%'::text) OR (c.objeto_contrato ~~* '%vigilância%'::text) OR (c.objeto_contrato ~~* '%monitoramento%'::text) OR (c.objeto_contrato ~~* '%porteiro%'::text)) THEN 'SEGURANÇA'::text
-                    WHEN ((c.objeto_contrato ~~* '%consultoria%'::text) OR (c.objeto_contrato ~~* '%assessoria%'::text) OR (c.objeto_contrato ~~* '%advocacia%'::text) OR (c.objeto_contrato ~~* '%jurídico%'::text) OR (c.objeto_contrato ~~* '%contábil%'::text)) THEN 'CONSULTORIA'::text
-                    WHEN ((c.objeto_contrato ~~* '%combustível%'::text) OR (c.objeto_contrato ~~* '%gasolina%'::text) OR (c.objeto_contrato ~~* '%diesel%'::text) OR (c.objeto_contrato ~~* '%etanol%'::text)) THEN 'COMBUSTÍVEL'::text
-                    ELSE 'OUTROS'::text
-                END AS categoria_agrupada
-           FROM (public.pncp_supplier_contracts c
-             JOIN public.sc_public_entities e ON (("left"(c.orgao_cnpj, 8) = e.cnpj_8)))
-          WHERE ((e.raio_200km IS TRUE) AND (c.is_active IS TRUE) AND (c.valor_total IS NOT NULL) AND (c.valor_total > (0)::numeric))
-        )
- SELECT categoria_agrupada AS categoria,
-    count(*) AS qtd_contratos,
-    round(sum(valor), 2) AS valor_total,
-    round(avg(valor), 2) AS ticket_medio,
-    round((percentile_cont((0.25)::double precision) WITHIN GROUP (ORDER BY ((valor)::double precision)))::numeric, 2) AS p25_valor,
-    round((percentile_cont((0.50)::double precision) WITHIN GROUP (ORDER BY ((valor)::double precision)))::numeric, 2) AS p50_valor,
-    round((percentile_cont((0.75)::double precision) WITHIN GROUP (ORDER BY ((valor)::double precision)))::numeric, 2) AS p75_valor
-   FROM categorias
-  GROUP BY categoria_agrupada
-  ORDER BY (round(sum(valor), 2)) DESC;
-
-
---
--- Name: VIEW v_contract_intel_percentis; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON VIEW public.v_contract_intel_percentis IS 'P25/P50/P75 value percentiles by contract category (keyword-based).
-Values in R$ (Brazilian Real). P50 is the median contract value.
-These are nominal values from PNCP valor_global — NOT preços praticados.';
-
-
---
 -- Name: v_contracts_canonical; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -3990,6 +4092,225 @@ COMMENT ON COLUMN public.v_target_universe_active.db_entity_id_original IS 'sc_p
 --
 
 COMMENT ON COLUMN public.v_target_universe_active.db_within_200km IS 'Diagnostic: what the DB raio_200km column says (may diverge from seed)';
+
+
+--
+-- Name: v_contract_intel_percentis; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.v_contract_intel_percentis AS
+ WITH categorias AS (
+         SELECT c.valor_total AS valor,
+            public.contract_category_v1(c.objeto_contrato) AS categoria_agrupada
+           FROM public.pncp_supplier_contracts c
+          WHERE ((c.is_active IS TRUE) AND (c.valor_total IS NOT NULL) AND (c.valor_total > (0)::numeric) AND ((c.data_inicio IS NOT NULL) OR (c.data_publicacao IS NOT NULL)) AND (EXISTS ( SELECT 1
+                   FROM public.v_target_universe_active u
+                  WHERE ((u.cnpj8)::text = "left"(c.orgao_cnpj, 8)))))
+        )
+ SELECT categoria_agrupada AS categoria,
+    count(*) AS qtd_contratos,
+    round(sum(valor), 2) AS valor_total,
+    round(avg(valor), 2) AS ticket_medio,
+    round((percentile_cont((0.25)::double precision) WITHIN GROUP (ORDER BY ((valor)::double precision)))::numeric, 2) AS p25_valor,
+    round((percentile_cont((0.50)::double precision) WITHIN GROUP (ORDER BY ((valor)::double precision)))::numeric, 2) AS p50_valor,
+    round((percentile_cont((0.75)::double precision) WITHIN GROUP (ORDER BY ((valor)::double precision)))::numeric, 2) AS p75_valor
+   FROM categorias
+  GROUP BY categoria_agrupada
+  ORDER BY (round(sum(valor), 2)) DESC;
+
+
+--
+-- Name: VIEW v_contract_intel_percentis; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON VIEW public.v_contract_intel_percentis IS 'Regional P25/P50/P75 contract-value reference over the active, versioned 200 km target universe. Nominal PNCP valor_global, not unit price and not a national sample.';
+
+
+--
+-- Name: v_contract_intel_reference_scopes_v1; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.v_contract_intel_reference_scopes_v1 AS
+WITH regional_run AS (
+    SELECT
+        r.id,
+        r.seed_sha256,
+        r.radius_km,
+        r.total_rows,
+        r.included_rows,
+        r.excluded_rows,
+        r.unresolved_rows,
+        r.created_at,
+        r.git_sha
+    FROM public.target_universe_runs r
+    ORDER BY r.id DESC
+    LIMIT 1
+),
+regional_entities AS (
+    SELECT COUNT(DISTINCT u.cnpj8)::bigint AS entity_count
+    FROM public.v_target_universe_active u
+),
+regional_corpus AS (
+    SELECT
+        COUNT(*)::bigint AS active_contracts,
+        COUNT(*) FILTER (WHERE c.valor_total IS NOT NULL AND c.valor_total > 0)::bigint AS eligible_contracts,
+        COUNT(*) FILTER (WHERE c.valor_total IS NULL OR c.valor_total <= 0)::bigint AS missing_or_nonpositive_values,
+        MAX(c.data_publicacao)::text AS max_data_publicacao,
+        MAX(c.ingested_at)::text AS max_ingested_at
+    FROM public.pncp_supplier_contracts c
+    WHERE c.is_active IS TRUE
+      AND (c.data_inicio IS NOT NULL OR c.data_publicacao IS NOT NULL)
+      AND EXISTS (
+          SELECT 1
+          FROM public.v_target_universe_active u
+          WHERE u.cnpj8 = LEFT(c.orgao_cnpj, 8)
+      )
+),
+latest_national AS (
+    SELECT a.*
+    FROM public.national_coverage_answer a
+    WHERE UPPER(BTRIM(a.requested_geography)) IN ('BR', 'BRASIL', 'BRAZIL', 'NATIONAL', 'NACIONAL')
+      AND LOWER(BTRIM(a.requested_source)) = 'pncp'
+      AND LOWER(BTRIM(a.requested_grain)) = 'publishing_org'
+    ORDER BY a.produced_at DESC, a.id DESC
+    LIMIT 1
+),
+regional AS (
+    SELECT
+        'REGIONAL'::text AS scope_kind,
+        ('regional_200km:target_universe_run:' || r.id)::text AS scope_id,
+        'DATA_READY'::text AS reference_state,
+        jsonb_build_object(
+            'kind', 'radius',
+            'center', 'Florianopolis/SC reference base',
+            'radius_km', r.radius_km,
+            'universe_run_id', r.id,
+            'inclusion_rate_pct', CASE WHEN r.total_rows > 0
+                 THEN ROUND(100 * r.included_rows::numeric / r.total_rows::numeric, 4)
+                 ELSE NULL::numeric
+            END
+        ) AS geography,
+        jsonb_build_object(
+            'seed_rows', r.total_rows,
+            'included_rows', r.included_rows,
+            'excluded_rows', r.excluded_rows,
+            'unresolved_rows', r.unresolved_rows,
+            'distinct_entity_roots', e.entity_count,
+            'active_contracts', c.active_contracts,
+            'eligible_contracts', c.eligible_contracts,
+            'missing_or_nonpositive_values', c.missing_or_nonpositive_values
+        ) AS denominator,
+        c.max_ingested_at AS as_of,
+        'target_universe_runs+pncp_supplier_contracts'::text AS source_id,
+        COALESCE(r.git_sha, 'UNKNOWN')::text AS source_version,
+        p.qtd_contratos::bigint AS sample_count,
+        CASE WHEN r.total_rows > 0
+             THEN ROUND(100 * (r.included_rows + r.excluded_rows)::numeric / r.total_rows::numeric, 4)
+             ELSE NULL::numeric
+        END AS coverage,
+        jsonb_build_object(
+            'unresolved_entities', r.unresolved_rows,
+            'missing_or_nonpositive_values', c.missing_or_nonpositive_values,
+            'value_missingness_pct', CASE WHEN c.active_contracts > 0
+                 THEN ROUND(100 * c.missing_or_nonpositive_values::numeric / c.active_contracts::numeric, 4)
+                 ELSE NULL::numeric
+            END,
+            'max_data_publicacao', c.max_data_publicacao
+        ) AS missingness,
+        jsonb_build_object(
+            'classifier', 'public.contract_category_v1',
+            'classifier_version', 'v1',
+            'coverage_definition', '(included_rows + excluded_rows) / total_rows',
+            'population', 'public.pncp_supplier_contracts with canonical_v2 eligibility intersect public.v_target_universe_active',
+            'filters', jsonb_build_array(
+                'canonical_v2_temporal_eligibility',
+                'is_active=true',
+                'valor>0',
+                'buyer_cnpj8 in active target universe'
+            ),
+            'percentiles', 'percentile_cont(0.25,0.50,0.75)'
+        ) AS method,
+        ('sha256:' || r.seed_sha256)::text AS reference_hash,
+        ARRAY[
+            'Regional radius reference; not a national sample.',
+            'PNCP valor_global is a nominal whole-contract value, not unit price.'
+        ]::text[] AS limitations,
+        p.categoria,
+        p.qtd_contratos,
+        p.valor_total,
+        p.ticket_medio,
+        p.p25_valor,
+        p.p50_valor,
+        p.p75_valor
+    FROM public.v_contract_intel_percentis p
+    CROSS JOIN regional_run r
+    CROSS JOIN regional_entities e
+    CROSS JOIN regional_corpus c
+),
+national_hold AS (
+    SELECT
+        'NATIONAL'::text AS scope_kind,
+        COALESCE('national:' || n.universe_id, 'national:unavailable')::text AS scope_id,
+        'DATA_HOLD'::text AS reference_state,
+        jsonb_build_object('kind', 'country', 'country', 'BR') AS geography,
+        jsonb_build_object(
+            'expected_partitions', n.expected_partitions,
+            'queried_partitions', n.queried_partitions,
+            'closed_partitions', n.closed_partitions,
+            'eligible_contracts', NULL
+        ) AS denominator,
+        COALESCE(n.payload ->> 'as_of', n.provenance ->> 'as_of') AS as_of,
+        COALESCE(n.requested_source, 'national_coverage_authority')::text AS source_id,
+        COALESCE(
+            NULLIF(
+                CONCAT_WS(
+                    '+',
+                    n.provenance ->> 'schema_version',
+                    n.provenance ->> 'method_version',
+                    n.provenance ->> 'core_method_version'
+                ),
+                ''
+            ),
+            'UNKNOWN'
+        )::text AS source_version,
+        NULL::bigint AS sample_count,
+        n.coverage_pct,
+        jsonb_build_object(
+            'unclosed_partitions', CASE WHEN n.expected_partitions IS NOT NULL
+                 THEN n.expected_partitions - n.closed_partitions ELSE NULL END,
+            'partition_missingness_pct', CASE WHEN n.expected_partitions > 0
+                 THEN ROUND(100 * (n.expected_partitions - n.closed_partitions)::numeric / n.expected_partitions::numeric, 4)
+                 ELSE NULL::numeric
+            END
+        ) AS missingness,
+        jsonb_build_object(
+            'classifier', 'public.contract_category_v1',
+            'classifier_version', 'v1',
+            'coverage_definition', 'closed_partitions / expected_partitions',
+            'status', 'withheld_until_authoritative_comparable_corpus'
+        ) AS method,
+        COALESCE(n.content_hash, 'UNKNOWN')::text AS reference_hash,
+        ARRAY[
+            'No national percentile or position is published without an authorized national denominator and comparable corpus.',
+            'Observed row inventory does not prove national coverage.'
+        ]::text[] || COALESCE(n.limitations, ARRAY[]::text[]) AS limitations,
+        NULL::text AS categoria,
+        NULL::bigint AS qtd_contratos,
+        NULL::numeric AS valor_total,
+        NULL::numeric AS ticket_medio,
+        NULL::numeric AS p25_valor,
+        NULL::numeric AS p50_valor,
+        NULL::numeric AS p75_valor
+    FROM (SELECT 1) anchor
+    LEFT JOIN latest_national n ON TRUE
+)
+SELECT * FROM regional
+UNION ALL
+SELECT * FROM national_hold;
+
+COMMENT ON VIEW public.v_contract_intel_reference_scopes_v1 IS
+'Explicit regional and national reference contracts. National stays DATA_HOLD and contains no percentiles until both coverage authority and a comparable corpus exist.';
+
 
 
 --
@@ -5668,4 +5989,3 @@ ALTER TABLE ONLY public.source_snapshot_membership
 --
 
 \unrestrict ukSM0lNRYFDXh56MupdbwtLKj4W7zpNG9ls77VxGuHEurZldfn4ZYl5fVvu6sEI
-

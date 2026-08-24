@@ -38,6 +38,11 @@ DATA_STATE_RANK = {DATA_READY: 0, DATA_HOLD: 1, DATA_REJECT: 2}
 
 UNKNOWN = "UNKNOWN"
 
+REFERENCE_SCOPE_REGIONAL = "REGIONAL"
+REFERENCE_SCOPE_NATIONAL = "NATIONAL"
+REFERENCE_SCOPE_BOTH = "BOTH"
+REFERENCE_SCOPES = (REFERENCE_SCOPE_REGIONAL, REFERENCE_SCOPE_NATIONAL, REFERENCE_SCOPE_BOTH)
+
 SECTION_IDENTITY = "identity"
 SECTION_BUYER_MAP = "buyer_map"
 SECTION_COMPETITORS = "competitors"
@@ -88,6 +93,8 @@ REASON_FIXTURE_NOT_LIVE = "fixture_not_official_live"
 REASON_FIXTURE_LABELED_LIVE = "fixture_labeled_official_live"
 REASON_INVALID_CNPJ = "invalid_cnpj14"
 REASON_STALE_WATERMARK = "source_watermark_stale"
+REASON_NATIONAL_REFERENCE_HOLD = "national_reference_not_authorized"
+REASON_REFERENCE_SCOPE_UNAVAILABLE = "reference_scope_unavailable"
 
 HARD_REJECT_REASONS = frozenset(
     {
@@ -127,11 +134,12 @@ HHI_CONCENTRATION_THRESHOLD = 0.25
 PANEL_OUT_OF_RANGE_FACTOR = 10
 POSITION_OUT_OF_PANEL_RANGE = "OUT_OF_PANEL_RANGE"
 
-# The TI rung of the category ladder matches the bare substring "ti" and sits
-# above SAUDE and ALIMENTACAO, so it swallows "domesticos", "didaticos" and a
-# slice of health contracts: 84% of that bucket carries no TI keyword. A panel
-# built from household goods cannot price anything. Positions are not claimed
-# for these buckets until the upstream view is corrected.
+# The TI rung now matches a lexical token, but the remaining broad `sistema`
+# signal still admits procurement-system and equipment objects.  Health and
+# food signals take precedence so they cannot be stolen by this broad rung. The
+# live post-fix distribution therefore remains unsuitable for a defensible
+# percentile position. Keep this fail-closed until a separately evidenced
+# classifier revision proves the bucket precise enough.
 LOW_PRECISION_CATEGORIES = frozenset({"TI"})
 POSITION_LOW_PRECISION_BUCKET = "LOW_PRECISION_BUCKET"
 

@@ -70,6 +70,7 @@ MATCH_LOGGING_COLUMNS = {"match_method", "match_score", "match_confidence"}
 
 pytestmark = pytest.mark.integration
 
+
 def _get_cursor():
     """Create a new database cursor for each test.
 
@@ -224,8 +225,7 @@ def test_national_orgao_and_supplier_roots_remain_soft_join_keys():
         conn.close()
 
     assert not present, (
-        "National CNPJ roots are soft joins after migrations 055/056; "
-        f"unexpected hard FKs: {sorted(present)}"
+        f"National CNPJ roots are soft joins after migrations 055/056; unexpected hard FKs: {sorted(present)}"
     )
 
 
@@ -312,6 +312,19 @@ def test_baseline_fingerprint():
     assert stored_hash == computed_hash, (
         f"Fingerprint mismatch! File says {stored_hash}, computed {computed_hash}. "
         "Regenerate: sha256sum db/current-schema.sql > db/current-schema.sha256"
+    )
+    baseline_sql = baseline_file.read_text(encoding="utf-8")
+    assert "CREATE VIEW public.v_contract_intel_reference_scopes_v1 AS" in baseline_sql
+    assert "(c.data_inicio IS NOT NULL) OR (c.data_publicacao IS NOT NULL)" in baseline_sql
+    assert "UPPER(BTRIM(a.requested_geography)) IN ('BR', 'BRASIL', 'BRAZIL', 'NATIONAL', 'NACIONAL')" in baseline_sql
+    assert "n.provenance ->> 'schema_version'" in baseline_sql
+    assert "n.provenance ->> 'method_version'" in baseline_sql
+    assert "n.provenance ->> 'core_method_version'" in baseline_sql
+    assert baseline_sql.index("CREATE TABLE IF NOT EXISTS public.national_coverage_answer") < baseline_sql.index(
+        "CREATE VIEW public.v_contract_intel_reference_scopes_v1 AS"
+    )
+    assert baseline_sql.index("CREATE VIEW public.v_target_universe_active AS") < baseline_sql.index(
+        "CREATE VIEW public.v_contract_intel_percentis AS"
     )
     _logger.info("Baseline fingerprint verified OK: %s", stored_hash)
 

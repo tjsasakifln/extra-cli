@@ -1,0 +1,409 @@
+{
+  "schema": "extra-backlog-truth-issue-mutation-plan/v1",
+  "repository": "tjsasakifln/extra-cli",
+  "base_sha": "fbde086a2e04061a659ba04530aa10976ea0d5bc",
+  "source_audit": "docs/ops/campaigns/BACKLOG-TRUTH-20260824/backlog-audit.json",
+  "generated_on": "2026-08-24",
+  "mutation_count": 62,
+  "issues": [
+    {
+      "number": 33,
+      "classification": "DONE_BY_CURRENT_MAIN",
+      "operation": "close_completed",
+      "closure_comment": "O PR #407 satisfez o contrato desta issue ao listar os módulos e próximos testes; a prova final da campanha executou a suíte canônica no SHA candidato com **5.813 passed, 240 skipped, 11 deselected**. Os skips opcionais não são chamados de aprovação. A seleção opt-in `real_db` também foi executada e revelou dívida real (115 passed, 6 failed, 1 error), preservada integralmente em #285. Fechar #33 como `DONE_BY_CURRENT_MAIN`: o inventário/full-suite default está resolvido e o único residual contemporâneo tem owner específico."
+    },
+    {
+      "number": 35,
+      "classification": "BLOCKED_BY_EXTERNAL_EVIDENCE",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nO PR #359 entregou o gate de recall e os contratos da comparação. O AlertaLicitação continua complementar e #346 é a autoridade do ranking nominal.\n\n## Residual real\n\nAguardar o XLS real e janelas representativas de #346; então medir, em janelas repetidas e equivalentes, se o fallback acrescenta oportunidades comercialmente relevantes dentro do SLO.\n\n## Prova de encerramento\n\nRelatório versionado com filtros, cutoff, hashes, denominador, strata, misses materiais, incerteza e decisão `KEEP` ou `REMOVE_WITH_ROLLBACK`. Janelas curtas, vazias ou incompletas permanecem bloqueadas.\n\n## Não reconstruir\n\nNão implementar adapter novo, não usar quantidade de fontes como recall e não retirar o XLS sem margem aprovada e rollback explícito."
+    },
+    {
+      "number": 138,
+      "classification": "BLOCKED_BY_EXTERNAL_EVIDENCE",
+      "operation": "rewrite",
+      "labels_add": ["state:blocked"],
+      "labels_remove": ["state:review"],
+      "replacement_body": "## O que já existe\n\nO PR #360 entregou registry factual versionado, identidade, hashes, provenance e promotion mechanics do golden dataset.\n\n## Residual real\n\nEsperar pelo menos duas correções comerciais/públicas reais e adjudicadas; promovê-las preservando split temporal e restrições de PII, e medir efeito no próximo targeting ou decisão pública.\n\n## Prova de encerramento\n\nDois casos reais com evidência de origem, adjudicação humana, versão/hash e comparação antes/depois que demonstre prevenção de recorrência ou ganho decisório material.\n\n## Não reconstruir\n\nNão criar framework genérico de eval, não fabricar correções sintéticas e não promover hipótese sem adjudicação."
+    },
+    {
+      "number": 235,
+      "classification": "PARTIAL_RESIDUAL",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nOs PRs #353 e #396 entregaram o contrato de discovery, estados fail-closed, versionamento e revalidação básica para o universo canônico. #299 continua responsável pela auditoria externa da seed.\n\n## Residual real\n\nFechar um inventário live dos 1.093 IDs com, por ente, superfícies institucionais, licitações, transparência, diário e plataforma citada; registrar domínio/URL, âncora, método, HTTP, `last_checked_at`, `next_check_at` e blocker terminal.\n\n## Prova de encerramento\n\nSet equality 1.093/1.093 em um `universe_run` versionado, contagens por estado que fecham, hashes e onda inicial de 30 auditada; domínio não classificado permanece `UNCLASSIFIED`.\n\n## Não reconstruir\n\nNão alterar automaticamente o denominador, não misturar discovery com crawl de editais e não transformar login/CAPTCHA/403 em ausência."
+    },
+    {
+      "number": 236,
+      "classification": "PARTIAL_RESIDUAL",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nOs PRs #353 e #396 entregaram a matriz entidade×fonte, histórico de tentativas e estados `FOUND|ZERO_CONFIRMED|NOT_APPLICABLE|BLOCKED|FAILED|DISCOVERY_EXHAUSTED_NO_SURFACE`.\n\n## Residual real\n\nPopular e revalidar capacidades aplicáveis do universo ativo; a evidência corrente ainda deixa `open_tenders` e `historical_contracts` sem cobertura operacional para os 1.093. Cada par precisa de URL, aplicabilidade, páginas, registros, freshness, evidência e próxima ação.\n\n## Prova de encerramento\n\nMatriz e histórico com totais fechados por capability e set equality do universo; todo `ZERO_CONFIRMED` prova request, escopo e paginação completos; KPI, manifesto e export usam a mesma autoridade.\n\n## Não reconstruir\n\nNão usar 1.093/1.093 como proxy de relevant opportunity recall, não converter ausência de execução em zero e não criar segunda matriz."
+    },
+    {
+      "number": 239,
+      "classification": "LIVE_PROOF_ONLY",
+      "operation": "close_after_proof",
+      "closure_comment": "PR #362 entregou o discovery. A campanha corrigiu o defeito nominal revelado no live e reexecutou o pacote `domsc-publicacoes-de-08-2026`: 67/67 recursos, 68 páginas, 55.439 linhas, `scope_exhausted=true`, igualdade 295/295, **295 FOUND**, 0 ZERO, 0 BLOCKED/FAILED, freshness 10,5815 h. Os quatro falsos zeros foram recuperados só por MOP single-match lexical (Araquari 150, Campo Erê 99, Laurentino 63, Ponte Alta 46). `mapping_complete=false` permanece honesto: 1.154 UNMAPPED, 19 AMBIGUOUS e 654 null não-MOP não são atribuídos nem viram negativos. Snapshot `00075b07dda822b5d1ce25f5b30c44d6ca0edbf8789052a188452e7e9d3689ac`; buckets `f2a591fff742b19bfc0cb82613ea93bbfb92858a26e75afb6b5a2532e0ce5dc4`; report `04d86f23f63464f1cc89515a4dc93964a79e8980215cf9d9ee1118987a9b9fd2`. Fechar somente após runner no main, CI verde e SHA exato registrado; não há residual de arquitetura do adapter."
+    },
+    {
+      "number": 240,
+      "classification": "LIVE_PROOF_ONLY",
+      "operation": "close_after_proof",
+      "closure_comment": "PR #363 entregou o contrato de escopo/paginação. Prova live no host em `14c8b2473c4e52566a7fed96c45057bd3214a2fe`: 53/53 páginas solicitadas, 530 registros fetched e normalizados, 0 rejeitados, 0 duplicados, 0 erros; freshness observada 12,79 h. O snapshot limitado não é apresentado como crawl das 327 páginas do ano. DoD live desta issue está satisfeito sem novo mecanismo de paginação."
+    },
+    {
+      "number": 241,
+      "classification": "BLOCKED_BY_EXTERNAL_EVIDENCE",
+      "operation": "rewrite",
+      "labels_add": ["state:blocked"],
+      "labels_remove": ["state:review"],
+      "replacement_body": "## O que já existe\n\nO PR #364 entregou evidência por ente. O run live de Itajaí em 2026-08-19 provou `FOUND`: `pages_expected=pages_fetched=1`, três IDs estáveis e reconsulta de fechamento sem mudança.\n\n## Residual real\n\nProvar `ZERO_CONFIRMED` por ente. A API oficial atualmente responde HTTP 204 para a janela candidata; o contrato corretamente classifica isso como `SCOPE_INCOMPLETE`, portanto zero permanece bloqueado por semântica externa.\n\n## Prova de encerramento\n\nUma consulta oficial fechada com escopo e paginação completos, segunda consulta idêntica no encerramento, raw vazio preservado, timestamps/freshness e hash; ou mudança contratual documentada da API que torne o 204 prova oficial de zero.\n\n## Não reconstruir\n\nNão escrever outra paginação, não converter HTTP 204/422 em zero e não reabrir a prova `FOUND` já concluída."
+    },
+    {
+      "number": 242,
+      "classification": "BLOCKED_BY_EXTERNAL_EVIDENCE",
+      "operation": "rewrite",
+      "labels_add": ["state:blocked"],
+      "labels_remove": ["state:review"],
+      "replacement_body": "## O que já existe\n\nO PR #365 entregou versionamento de documentos/status, blockers, retry e gate de shortlist. Provas live limitadas preservam runs e blobs reais, mas não fecham a coorte ativa.\n\n## Residual real\n\nO fan-out está bloqueado por `PILOT_APPROVAL_MISSING`: não existe artefato humano `pilot-scale-approval/v1` válido para exatamente 30 entidades. Após aprovação, drenar a coorte acionável e encerrar cada item por documento versionado ou blocker nominal, reconciliando shortlist.\n\n## Prova de encerramento\n\nAprovação hashada contra universo/policy, execução live da coorte com contagens fechadas, freshness, hashes, estados por candidato e shortlist reavaliada sem `PARTIAL` tratado como sucesso.\n\n## Não reconstruir\n\nNão criar novo modelo documental, fila ou adapter; não contornar o promotion gate e não tratar o inventário histórico stale como prova atual."
+    },
+    {
+      "number": 243,
+      "classification": "LIVE_PROOF_ONLY",
+      "operation": "close_after_proof",
+      "closure_comment": "PR #366 entregou o state machine documental. A campanha executou replay live em dois processos novos sobre PDF embedded, PDF OCR, HTML, DOCX e ZIP: hash agregado idêntico `c5db7ce2e3a65c4c0d2095ee27caa85b5334c83ebeba093e6dfa6984a4f6c405`, pico RSS 103–105 MiB, OCR real e estados terminais. O unit systemd canônico foi instalado e seu runtime chega ao gate esperado `PILOT_APPROVAL_MISSING`, residual pertencente a #242. O corpus gate também passou sem alterar o manifest. Fechar como prova live concluída; isso não afirma OCR completo de todo o CAS."
+    },
+    {
+      "number": 246,
+      "classification": "PARTIAL_RESIDUAL",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nA migration 079 entregou autoridade PostgreSQL para a fila base, com jobs/attempts, lease, idempotência e recuperação principal.\n\n## Residual real\n\nCompletar `job_type` genérico, dependências, fan-in/fan-out cross-stage e migração reconciliada do legado JSON/JSONL para crawling, documentos, dossier factual e projeções públicas.\n\n## Prova de encerramento\n\nPostgreSQL real com dois workers, crash antes/depois de commit, lease expirado, replay, dependência bloqueada, fan-out idempotente e contagens/hashes da migração fechados.\n\n## Não reconstruir\n\nNão introduzir broker, Kafka, Kubernetes, microservices ou política de negócio dentro da fila."
+    },
+    {
+      "number": 247,
+      "classification": "PARTIAL_RESIDUAL",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nA migration 080, o CAS e as regras de redaction entregam armazenamento imutável e endereçamento por hash.\n\n## Residual real\n\nFazer todos os collectors canônicos persistirem um envelope por request/página, inclusive falhas e partials, com URL sanitizada, parâmetros, HTTP, headers permitidos, horário, body pointer e vínculo ao attempt/run.\n\n## Prova de encerramento\n\nCanários live por collector com `raw_uri` e SHA-256 revalidável, dedupe de conteúdo, páginas parciais preservadas e auditoria comprovando ausência de credenciais/cookies.\n\n## Não reconstruir\n\nNão criar segundo blob store, não gravar bodies no Git/PostgreSQL e não considerar metadado sem blob como persistência completa."
+    },
+    {
+      "number": 248,
+      "classification": "DEFER_STRATEGICALLY",
+      "operation": "rewrite",
+      "replacement_title": "[P2][SOAK][DEFER] Iniciar somente após congelar SHA e policy",
+      "labels_add": ["priority:p2", "roadmap:later"],
+      "labels_remove": ["priority:p1", "roadmap:next"],
+      "replacement_body": "## O que já existe\n\nO PR #367 entregou gates fail-closed de deploy/soak, exact-SHA, reboot recovery, backup/restore e proibição de inferir `VPS_OPERATIONAL`. A autoridade permanece `NOT_STARTED`.\n\n## Residual real\n\nSomente após congelar deliberadamente SHA e policy: nomear host, aprovar piloto, registrar workload/failure criteria, provar reboot e restore, iniciar janela timestampada e concluir com veredito humano.\n\n## Prova de encerramento\n\nManifesto do soak com SHA/policy imutáveis, início/fim, duração integral, freshness, falhas, recovery e veredito humano; qualquer mudança invalidante reinicia a janela.\n\n## Não reconstruir\n\nNão iniciar soak durante esta campanha, não usar merge/deploy/probe isolado como tempo decorrido e não fabricar selo `VPS_OPERATIONAL`."
+    },
+    {
+      "number": 250,
+      "classification": "PARTIAL_RESIDUAL",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nO PR #408 entregou persistência canônica e contrato registrado para ARP/IRP. O caminho operacional ainda é dividido: adapter registrado fixture-only e crawler live legado.\n\n## Residual real\n\nConectar o crawler PNCP/Compras.gov existente ao adapter/persistência canônicos, normalizando vigência, status, órgão, itens, fornecedores e documentos com paginação, raw/hash e identidade oficial.\n\n## Prova de encerramento\n\nRun live idempotente com fetched/persisted/deduplicated/rejected fechados, freshness e `ZERO_CONFIRMED` apenas em escopo completo; replay preserva linhagem N-source.\n\n## Não reconstruir\n\nNão criar crawler paralelo, não tratar fixture como live e não usar job skipped como sucesso."
+    },
+    {
+      "number": 252,
+      "classification": "DEFER_STRATEGICALLY",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nO PR #413 registrou `DEFER`: há mapeamento OCDS, mas o snapshot de promoção não contém linha OCDS comercialmente ranqueada. #346 continua sendo o promotion gate.\n\n## Residual real\n\nNenhum trabalho agora. Reabrir somente se #346 provar misses materiais e ranquear releases OCDS por ganho marginal relevante por esforço.\n\n## Prova de encerramento\n\nSnapshot/ranking versionado de #346 que autorize promoção; então ingestão incremental prova package/cursor, raw/hash, lineage de tender/award/contract e dedupe N-source.\n\n## Não reconstruir\n\nNão implementar collector por disponibilidade técnica, não promover por contagem de adapters e não perder o release original na normalização."
+    },
+    {
+      "number": 253,
+      "classification": "PARTIAL_RESIDUAL",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nO crawler CKAN e o contrato de persistência do PR #408 já existem.\n\n## Residual real\n\nInventariar live os packages/resources de licitações em Dados Abertos SC, registrar formato/período/`last_modified`/hash, processar todos os recursos aplicáveis e deduplicar contra SC Compras preservando ambas as linhagens.\n\n## Prova de encerramento\n\nInventário fechado de resources e run live com páginas/recursos esperados=obtidos, contagens por estado, freshness e `ZERO_CONFIRMED` somente após varrer todo o período.\n\n## Não reconstruir\n\nNão criar segundo CKAN crawler, não confundir Dados Abertos SC com SC Compras e não converter schema drift ou truncamento em zero."
+    },
+    {
+      "number": 254,
+      "classification": "DEFER_STRATEGICALLY",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nHá caminho público de datasets/edições; o PR #413 mediu ganho marginal insuficiente para DOE-SC no snapshot de promoção.\n\n## Residual real\n\nNenhum adapter agora. Reavaliar somente quando #346 atribuir misses comerciais recorrentes a DOE-SC e o ranquear acima das alternativas.\n\n## Prova de encerramento\n\nRanking autorizado de #346; se promovido, run live com edição/data/URL/raw/hash, janela completa, freshness e estados nominais para indisponibilidade.\n\n## Não reconstruir\n\nNão construir por ansiedade, não fazer credencial privada requisito do caminho público e não transformar edição indisponível em zero."
+    },
+    {
+      "number": 255,
+      "classification": "DEFER_STRATEGICALLY",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nCódigo parcial e superfícies TCE/SCMWeb foram mapeados; o PR #413 não encontrou linha material/rankeada no snapshot.\n\n## Residual real\n\nNenhum trabalho até #346 provar ganho marginal. Se promovido, separar `open_tenders` de `historical_contracts` e validar a superfície pública.\n\n## Prova de encerramento\n\nSnapshot de promoção de #346 e canário live com CNPJ/processo, paginação, datas, documentos, raw/hash, freshness e zero somente após consulta completa.\n\n## Não reconstruir\n\nNão implementar adapter antes do gate, não misturar escopo ICP-Brasil bloqueado com público e não apagar lineage TCE no dedupe PNCP."
+    },
+    {
+      "number": 256,
+      "classification": "PARTIAL_RESIDUAL",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nO PR #396 entregou parser genérico fail-closed para uma página e testes de HTML/link.\n\n## Residual real\n\nAdicionar configuração versionada de listagem, detalhe, documentos e paginação para domínios próprios e executar pelo menos um domínio real, preservando seletor/estratégia, raw/hash, HTTPs e freshness.\n\n## Prova de encerramento\n\nCanário opt-in em domínio real com paginação reconciliada e regressões de HTML, PDF link e layout alterado; JS/login/CAPTCHA termina `BLOCKED`.\n\n## Não reconstruir\n\nNão criar adapter por município, não assumir página vazia como ausência e não usar browser sem orçamento/necessidade comprovada."
+    },
+    {
+      "number": 257,
+      "classification": "PARTIAL_RESIDUAL",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nBetha Atende está registrado no source registry, com contrato e fixtures; o transporte atual recusa live sem fixture/tenant.\n\n## Residual real\n\nIdentificar um tenant público real, provar vínculo domínio→ente/CNPJ e implementar apenas o transporte necessário para listagem, detalhe, documentos e status.\n\n## Prova de encerramento\n\nLive smoke opt-in na onda de 30 com paginação, raw/hash, freshness e estados honestos; fixtures cobrem variantes observadas.\n\n## Não reconstruir\n\nNão duplicar registry/persistência, não burlar login/CAPTCHA e não declarar plataforma operacional a partir de fixture."
+    },
+    {
+      "number": 258,
+      "classification": "PARTIAL_RESIDUAL",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nIPM está registrado com aliases e fixtures; o transporte permanece fixture-only e a nomenclatura IPM/IPAM precisa ser confirmada em superfície real.\n\n## Residual real\n\nProbar variantes públicas reais, canonicalizar somente aliases comprovados e conectar listagem, detalhe, documentos e status ao pipeline existente.\n\n## Prova de encerramento\n\nDuas variantes reais com vínculo por CNPJ/município, live smoke opt-in, paginação/raw/hash/freshness e blocker estruturado.\n\n## Não reconstruir\n\nNão criar família paralela por grafia, não misturar fornecedores e não usar fixtures como evidência operacional."
+    },
+    {
+      "number": 259,
+      "classification": "PARTIAL_RESIDUAL",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nBetha e-Gov está registrado separadamente de Atende, com contrato e fixtures; o transporte é fixture-only.\n\n## Residual real\n\nSelecionar um município e-Gov real, confirmar detecção sem falso positivo e conectar a API/XHR pública existente para listagem, detalhe, documentos e status.\n\n## Prova de encerramento\n\nPiloto live com vínculo de ente, paginação, raw/hash, freshness e blockers; fixture deriva das variantes realmente observadas.\n\n## Não reconstruir\n\nNão fundir e-Gov com Atende, não usar browser antes da API pública e não contornar login/CAPTCHA."
+    },
+    {
+      "number": 260,
+      "classification": "DEFER_STRATEGICALLY",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nCrawler e testes PCP existem; o PR #413 registrou ganho marginal não material no snapshot de promoção.\n\n## Residual real\n\nNenhum trabalho agora. Reavaliar somente se #346 mostrar misses relevantes e ranquear PCP por ganho único por esforço.\n\n## Prova de encerramento\n\nRanking autorizado de #346; se promovido, live run fecha paginação, raw/hash/checkpoint, freshness, identidade e dedupe PNCP com lineage PCP.\n\n## Não reconstruir\n\nNão operacionalizar apenas porque há código, não converter cap/erro em zero e não apagar URL/proveniência PCP."
+    },
+    {
+      "number": 261,
+      "classification": "DEFER_STRATEGICALLY",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nO PR #411 mediu recall único BLL igual a 1, abaixo do threshold material 3; seeds permanecem preservadas em #346.\n\n## Residual real\n\nNenhum adapter. Só promover se novo ranking reproduzível de #346 demonstrar ganho comercial recorrente, valor/contas afetadas e esforço favorável.\n\n## Prova de encerramento\n\nSnapshot de #346 que justifique promoção ou nova decisão versionada de defer com os mesmos componentes de ganho, reuse, fragilidade e esforço.\n\n## Não reconstruir\n\nNão iniciar código, coverage engineering ou live ops por ocorrências-semente isoladas."
+    },
+    {
+      "number": 262,
+      "classification": "PARTIAL_RESIDUAL",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nO PR #409 entregou registry, contrato e fixtures BBMNET; o opt-in live falha fechado porque não existe transporte.\n\n## Residual real\n\nDescobrir uma superfície pública oficial e binding ente/CNPJ, então implementar o transporte mínimo para listagem, detalhe, documentos, status e paginação.\n\n## Prova de encerramento\n\nLive smoke opt-in com ID estável, escopo/paginação completos, raw/hash, freshness e `ZERO_CONFIRMED` somente quando defensável.\n\n## Não reconstruir\n\nNão duplicar registry/pipeline, não burlar controles de acesso e não chamar fixture de adapter operacional."
+    },
+    {
+      "number": 263,
+      "classification": "PARTIAL_RESIDUAL",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nO PR #409 entregou registry, contrato e fixtures Licitanet; o opt-in live recusa execução sem transporte.\n\n## Residual real\n\nConfirmar consulta pública por órgão/CNPJ e implementar o transporte mínimo de abertos, detalhe, documentos e status sobre o pipeline canônico.\n\n## Prova de encerramento\n\nLive smoke opt-in com cursor/paginação reconciliados, raw/hash/checkpoint, freshness, identidade e estados `ZERO|FAILED|BLOCKED` corretos.\n\n## Não reconstruir\n\nNão criar persistência/fila paralela, não contornar autenticação e não promover fixture a evidência live."
+    },
+    {
+      "number": 264,
+      "classification": "PARTIAL_RESIDUAL",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nO PR #409 preserva `idlicitacao`, registry, bindings e fixtures Compras BR. O snapshot mostrou 10 ocorrências, todas com par provável, portanto não prova ganho marginal de recall. O adapter segue fixture-only.\n\n## Residual real\n\nSomente após autorização de #346, conectar a superfície pública real e medir completude documental/estado e ganho marginal em múltiplas janelas, preservando identidade `idlicitacao` e lineage N:N.\n\n## Prova de encerramento\n\nRanking de #346, dois tenants live, paginação completa, raw/hash/checkpoint, replay idempotente, freshness e reconciliação nominal com PNCP/DMSC.\n\n## Não reconstruir\n\nNão tratar links PNCP como crawl direto, não apagar provenance Compras BR, não construir massivamente antes do gate e não burlar login/CAPTCHA."
+    },
+    {
+      "number": 265,
+      "classification": "PARTIAL_RESIDUAL",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\n`licitacoes_e_crawler` classifica a superfície e seus estados, mas é explicitamente um stub; não existe prova de disponibilidade oficial atual.\n\n## Residual real\n\nExecutar probe oficial para decidir `ACTIVE_PUBLIC|RESTRICTED|DISCONTINUED/REDIRECTED`; somente no primeiro caso implementar busca, paginação, detalhe, documentos e status.\n\n## Prova de encerramento\n\nEvidência live de redirecionamento/descontinuação ou canário público com raw/hash/freshness e estados terminais por escopo.\n\n## Não reconstruir\n\nNão implementar antes da decisão de superfície, não acessar área restrita e não converter restrição/descontinuação em zero."
+    },
+    {
+      "number": 266,
+      "classification": "BLOCKED_BY_EXTERNAL_EVIDENCE",
+      "operation": "rewrite",
+      "labels_add": ["state:blocked"],
+      "labels_remove": ["state:ready"],
+      "replacement_body": "## O que já existe\n\nO crawler BigQuery é parametrizado, budget-aware e falha fechado; ausência de `GOOGLE_APPLICATION_CREDENTIALS` já retorna `BLOCKED` sem vazar segredo.\n\n## Residual real\n\nObter credencial autorizada e orçamento explícito para executar uma consulta representativa limitada.\n\n## Prova de encerramento\n\nJob live com job ID, intervalo, bytes/custo estimado e observado, linhas, hash, provenance e freshness; budget impede qualquer consulta acima do limite.\n\n## Não reconstruir\n\nNão criar credencial, não usar dataset não autorizado, não remover o budget e não registrar tokens/segredos em logs."
+    },
+    {
+      "number": 268,
+      "classification": "PARTIAL_RESIDUAL",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nScheduler, queue e unit systemd já existem e executam trabalho por freshness/aplicabilidade.\n\n## Residual real\n\nFechar trigger idempotente para #293 quando surgir processo/document hash/policy relevante, trigger por lag/freshness e invalidação de jobs futuros quando o binding de #235 mudar.\n\n## Prova de encerramento\n\nDry-run 1.093/1.093 e pares aplicáveis, reboot/timer, clock/freshness, mudança de plataforma, blocker recheck e exatamente um trigger downstream por evento.\n\n## Não reconstruir\n\nNão executar HTTP/OCR/LLM no scheduler, não substituir a fila #246 e não ampliar universo sem #299."
+    },
+    {
+      "number": 269,
+      "classification": "DONE_BY_CURRENT_MAIN",
+      "operation": "close_completed",
+      "closure_comment": "Os PRs #353 e #396 entregaram lease, heartbeat, recuperação de lease órfão, cursor em SIGTERM, backpressure e execução concorrente sem starvation no universo de 4.372 itens. A prova e os testes atuais cobrem o escopo original; generic job dependencies permanecem em #246 e não reabrem esta issue. Fechando como completed no `main@fbde086a2e04061a659ba04530aa10976ea0d5bc`."
+    },
+    {
+      "number": 270,
+      "classification": "PARTIAL_RESIDUAL",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nA política central já cobre 403, 429, 5xx, timeout, Retry-After, jitter, budget e circuit breaker para o caminho canônico.\n\n## Residual real\n\nMigrar somente os crawlers legados que ainda replicam retry/rate-limit, preservando diferenças reais por domínio e emitindo métricas/diagnóstico comuns.\n\n## Prova de encerramento\n\nInventário sem réplica divergente e contract tests por crawler para 403, 429, 5xx, timeout/reset, partial e limite de attempts; métricas fecham attempts, sleeps, latência e páginas.\n\n## Não reconstruir\n\nNão criar outra biblioteca de resiliência, não fazer retry infinito/bypass de autenticação e não fechar janela parcial como completa."
+    },
+    {
+      "number": 272,
+      "classification": "DONE_BY_CURRENT_MAIN",
+      "operation": "close_completed",
+      "closure_comment": "A migration 081 e o PR #353 entregaram tabelas/versões documentais imutáveis, FKs, unicidade, confirmação CAS antes de success e queries de lineage por processo/ente, com prova PostgreSQL real. O fan-out live da coorte pertence a #242. Fechando o escopo de persistência como completed no `main@fbde086a2e04061a659ba04530aa10976ea0d5bc`."
+    },
+    {
+      "number": 276,
+      "classification": "ACTIVE_DEFECT",
+      "operation": "rewrite",
+      "replacement_title": "[P2][security defect] Endurecer units live que pontuam 9.2 UNSAFE",
+      "replacement_body": "## O que já existe\n\nO PR #410 entregou sandbox/redaction/SSRF/path guards, limites de ZIP/PDF e units endurecidos no repositório. Em `ec-prod`, os seis crawlers instalados usam `User=extra-consultoria` e o EnvironmentFile está `0600`.\n\n## Residual real\n\nO live revelou defeito, não mera prova: todos os seis units instalados obtêm **9.2 UNSAFE** em `systemd-analyze security`; os units scheduler/worker endurecidos não estão instalados e não existe threshold documentado. Endurecer os units que realmente executam e versionar o gate.\n\n## Prova de encerramento\n\nSobre o SHA instalado: hashes dos units, threshold pré-documentado atendido sem redução, `systemd-analyze security` por unit, usuário/permissões, probes de redirects RFC1918/file:// e varredura redigida de journal/evidências.\n\n## Não reconstruir\n\nNão criar outro scheduler/sandbox, não baixar threshold, não usar unit apenas no repositório como prova do instalado e não expor DSN/tokens."
+    },
+    {
+      "number": 277,
+      "classification": "ACTIVE_DEFECT",
+      "operation": "rewrite",
+      "replacement_title": "[P1][backup defect] Restaurar backup off-host e provar restore conjunto",
+      "labels_add": ["priority:p1", "roadmap:now", "state:ready"],
+      "labels_remove": ["priority:p2", "roadmap:later"],
+      "replacement_body": "## O que já existe\n\nCódigo de inventory/checksum, criptografia, alerta e restore isolado existe em `scripts.ops.backup_integrity`; políticas de RPO/RTO e retenção estão documentadas.\n\n## Residual real\n\nA evidência live atual é `BACKUP_UNAVAILABLE`: cópia off-host está stale e não há restore conjunto atual de PostgreSQL, blobs e manifests. Corrigir o caminho operacional e produzir uma cópia off-site válida.\n\n## Prova de encerramento\n\nBackup fechado com inventário/checksums, cópia criptografada fora da VPS e restore isolado que recupera DB/job/blob escolhido com hash idêntico, duração/RPO/RTO e alerta de falha testado.\n\n## Não reconstruir\n\nNão criar novo sistema de backup antes de reparar o existente, não usar apenas dump local e não declarar `VPS_OPERATIONAL` sem restore conjunto."
+    },
+    {
+      "number": 279,
+      "classification": "PARTIAL_RESIDUAL",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nA migration 078 e o diagnóstico estruturado registram fonte, classe, HTTP, tentativa e próxima ação nos caminhos novos.\n\n## Residual real\n\nCobrir cada collector legado que ainda emite erro genérico, acrescentando URL sanitizada, etapa, página/cursor, classe, HTTP, tentativa e next action à autoridade existente.\n\n## Prova de encerramento\n\nInventário completo de collectors e regressões para 403, 404 drift, 429, 504, parse e persistência; relatório reproduz causa sem segredo e alimenta DLQ/alerta.\n\n## Não reconstruir\n\nNão criar taxonomia paralela, não persistir credenciais e não transformar erro não classificado em success/zero."
+    },
+    {
+      "number": 281,
+      "classification": "PARTIAL_RESIDUAL",
+      "operation": "rewrite",
+      "replacement_title": "[P2][sources residual] Reconciliar 1.737 observações com o registry canônico",
+      "labels_add": ["priority:p2", "roadmap:later"],
+      "labels_remove": ["priority:p1", "roadmap:next"],
+      "replacement_body": "## O que já existe\n\nO PR #384 entregou source IDs canônicos, aliases/capabilities e gates fail-closed de totais.\n\n## Residual real\n\nReconciliar as 1.737 observações live com o registry e preencher domínio/URL/origem quando conhecidos, sem contar aliases como fontes distintas.\n\n## Prova de encerramento\n\nRelatório nominal com set/totais fechados por `source_id` e capability, zero alias órfão, zero observação sem autoridade e QA que falha em divergência.\n\n## Não reconstruir\n\nNão criar novo registry, não renomear source sem migração/alias e não ajustar contagem apagando lineage."
+    },
+    {
+      "number": 285,
+      "classification": "LIVE_PROOF_ONLY",
+      "operation": "rewrite",
+      "replacement_title": "[P1][tests] Fechar seeds, tooling e isolamento da suíte real_db",
+      "replacement_body": "## O que já existe\n\nOs PRs #385/#443 entregaram admission/preflight explícitos. Nesta campanha, as regressões de conexão passaram 26/26 e 115 testes `real_db` passaram em migrations 001–101; os failures restantes são reais, não MagicMock.\n\n## Residual real\n\nFechar a execução canônica eliminando 6 falhas e 1 erro reproduzidos: seeds ausentes, `psql` ausente no clean-env e isolamento/disponibilidade do DB entre módulos.\n\n## Prova de encerramento\n\nSeleção integral `REQUIRE_REAL_DB=1 -m real_db` verde em DSN isolado plenamente migrado, tipo de conexão real inspecionado e nenhum skip quando o opt-in/schema estão presentes.\n\n## Não reconstruir\n\nNão criar segundo marker/fixture, não reintroduzir MagicMock, não silenciar a dívida real e não reabrir admission/preflight já entregues."
+    },
+    {
+      "number": 299,
+      "classification": "DEFER_STRATEGICALLY",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nA seed R-0 está internamente reconciliada: 2.085 identidades, 1.093 dentro do raio, 992 fora e nenhuma decisão de raio não resolvida. O denominador canônico permanece versionado.\n\n## Residual real\n\nQuando houver capacidade P3, auditar exaustividade externa contra snapshot oficial CNPJ e órgãos compradores observados, produzindo diff nominal para revisão humana.\n\n## Prova de encerramento\n\nSnapshot oficial com competência/URL/SHA, regras de natureza jurídica, geocálculo reproduzível e diff `confirmado|candidato_novo|removido|alterado|duplicado|não_resolvido`; nova seed somente após aprovação.\n\n## Não reconstruir\n\nNão alterar automaticamente os 1.093, não usar `sc_public_entities.raio_200km` como autoridade alternativa e não afirmar censo público atual sem auditoria."
+    },
+    {
+      "number": 301,
+      "classification": "DONE_BY_CURRENT_MAIN",
+      "operation": "close_completed",
+      "closure_comment": "O PR #386 preencheu exatamente os 19 códigos IBGE ausentes a partir de fonte oficial, com provenance/hash, validação de sete dígitos e set equality que preserva CNPJ, chave canônica, distância, decisão de raio e total 1.093. Fechando como completed no `main@fbde086a2e04061a659ba04530aa10976ea0d5bc`; auditoria externa futura permanece em #299."
+    },
+    {
+      "number": 302,
+      "classification": "PARTIAL_RESIDUAL",
+      "operation": "rewrite",
+      "labels_remove": ["state:ready"],
+      "replacement_body": "## O que já existe\n\nOs PRs #389, #417 e #437 entregaram gate nacional versionado, partições/estados fail-closed e consumer que proíbe claim quando a autoridade não fecha. O universo comercial 1.093 já permanece separado.\n\n## Residual real\n\nConstruir/importar o enumerador oficial nacional de aproximadamente 98 mil órgãos/unidades por competência. A autoridade live ainda não possui census autorizado e deve permanecer `HOLD_FOR_DATA`.\n\n## Prova de encerramento\n\n`national_universe_id`, fonte/cutoff/hash, órgãos/unidades e partições esperadas/consultadas reconciliadas; cada partição termina `FOUND|ZERO_CONFIRMED|BLOCKED|FAILED`, e reprocessamento reproduz contagens/hashes.\n\n## Não reconstruir\n\nNão usar contagem de contratos como cobertura, não usar os 1.093 como denominador nacional e não emitir `national complete` enquanto authorization for false."
+    },
+    {
+      "number": 315,
+      "classification": "PARTIAL_RESIDUAL",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nO PR #390 entregou workload versionado, seal e estrutura de benchmark para o desenho físico de contratos.\n\n## Residual real\n\nExecutar benchmark decisório com pelo menos 3,7 milhões de fatos e churn representativo, comparando índices/BRIN/particionamento, PK/sequence e migração online sem presumir solução.\n\n## Prova de encerramento\n\n`EXPLAIN (ANALYZE, BUFFERS)`, p50/p95/p99, WAL, CPU, memória, disco, pruning, constraints, rollback e trial online registrados em corpus selado.\n\n## Não reconstruir\n\nNão escolher arquitetura sem medição, não rodar corpus pequeno como proxy e não executar migração sem orçamento de disco/WAL e rollback."
+    },
+    {
+      "number": 317,
+      "classification": "PARTIAL_RESIDUAL",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nO PR #391 entregou contrato de admission e checkpoints fail-closed para ingestão nacional.\n\n## Residual real\n\nDefinir e medir Slice/CPU/Memory/IO, workers/conexões e calendário para impedir disputa danosa entre crawl, relatórios, manutenção e backup.\n\n## Prova de encerramento\n\nSoak concorrente na VPS com quotas reais, latência de leitura, saúde PostgreSQL, pause/reagenda sob overload, retomada íntegra e alerta persistente em quota/disco.\n\n## Não reconstruir\n\nNão criar scheduler/queue novos, não iniciar soak final #248 e não tratar unit declarado como prova de isolamento live."
+    },
+    {
+      "number": 331,
+      "classification": "DEFER_STRATEGICALLY",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nO PR #411 mediu recall único BNC igual a 1, abaixo do threshold material; seeds permanecem em #346.\n\n## Residual real\n\nNenhum adapter até novo ranking de #346 demonstrar miss comercial recorrente e ganho por esforço superior às alternativas.\n\n## Prova de encerramento\n\nSnapshot reproduzível de #346 que promova BNC ou mantenha defer com valor/contas, recorrência, reuse, esforço e fragilidade explícitos.\n\n## Não reconstruir\n\nNão iniciar implementação por 34 ocorrências-semente e não confundir presença com recall único relevante."
+    },
+    {
+      "number": 332,
+      "classification": "DEFER_STRATEGICALLY",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nO PR #411 mediu recall único DOU igual a 1 e score inferior; seeds permanecem em #346.\n\n## Residual real\n\nNenhum adapter até #346 provar contribuição comercial recorrente e ranqueada.\n\n## Prova de encerramento\n\nRanking versionado de #346 que autorize promoção ou decisão de defer renovada com ganho, esforço, reuse e risco.\n\n## Não reconstruir\n\nNão construir crawler DOU por ocorrência-semente e não tratar publicação oficial como ganho marginal automático."
+    },
+    {
+      "number": 333,
+      "classification": "DEFER_STRATEGICALLY",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nO PR #411 mediu recall único de portais municipais igual a 1, abaixo do threshold material; exemplos permanecem em #346.\n\n## Residual real\n\nNenhum adapter genérico novo até misses recorrentes serem atribuídos nominalmente e ranqueados por #346.\n\n## Prova de encerramento\n\nRanking reproduzível que identifique família reutilizável, contas/valor, recorrência e esforço suficiente para promoção; caso contrário, defer renovado.\n\n## Não reconstruir\n\nNão criar adapter por URL isolada, não ampliar generic_html sem variante real e não confundir portal próprio com miss relevante."
+    },
+    {
+      "number": 334,
+      "classification": "DEFER_STRATEGICALLY",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nO PR #413 mediu recall único Joinville igual a 1, abaixo do threshold material.\n\n## Residual real\n\nNenhum adapter dedicado até #346 provar miss recorrente e valor marginal que compense manutenção municipal.\n\n## Prova de encerramento\n\nSnapshot de #346 que promova com ganho/effort/reuse ou registre nova decisão de defer.\n\n## Não reconstruir\n\nNão construir adapter municipal por um caso e não criar exceção fora do registry/pipeline canônico."
+    },
+    {
+      "number": 335,
+      "classification": "DEFER_STRATEGICALLY",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nO PR #413 mediu recall único e-Publica igual a 1, abaixo do threshold material.\n\n## Residual real\n\nNenhum adapter até #346 provar misses recorrentes e reuse suficiente em tenants reais.\n\n## Prova de encerramento\n\nRanking versionado de #346 que autorize promoção ou mantenha defer com ganho, esforço, reuse e fragilidade.\n\n## Não reconstruir\n\nNão implementar pela disponibilidade da plataforma, não inferir múltiplos tenants sem evidência e não duplicar família genérica."
+    },
+    {
+      "number": 341,
+      "classification": "DONE_BY_CURRENT_MAIN",
+      "operation": "close_completed",
+      "closure_comment": "Os PRs #410/#443 entregaram o preflight fail-closed. Prova final da campanha no base SHA `fbde086a2e04061a659ba04530aa10976ea0d5bc`: migrations 001–101 aplicadas em PostgreSQL isolado, `REQUIRE_REAL_DB=1`, cinco testes `tests/national_intel/test_products_fixture.py` executados, **5 passed, 0 skipped**. As 26 regressões de preflight/política também passaram. Banco ausente/schema incompleto já têm reason code explícito; banco pronto executa de fato. Fechar como `DONE_BY_CURRENT_MAIN`; não há residual próprio além da dívida geral rastreada em #33/#285."
+    },
+    {
+      "number": 343,
+      "classification": "DONE_BY_CURRENT_MAIN",
+      "operation": "close_completed",
+      "closure_comment": "Os PRs #410/#443 removeram o mock silencioso. Prova final da campanha no base SHA `fbde086a2e04061a659ba04530aa10976ea0d5bc`: 26/26 regressões de admission/connection policy passaram; os quatro módulos canônicos, com `REQUIRE_REAL_DB=1` e migrations 001–101, produziram 18 passes e uma única falha objetiva de seed vazio (`0 >= 1000`), nunca resposta sintética. A seleção ampla confirmou 115 testes real-PG passando. O defeito desta issue está encerrado; seed/tooling/isolamento residual permanecem em #33/#285."
+    },
+    {
+      "number": 346,
+      "classification": "DEFER_STRATEGICALLY",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nO PR #401 entregou importador, reconciliador e ranking determinísticos. A fixture versionada tem 11 linhas; o workbook real de 197 linhas não está disponível.\n\n## Residual real\n\nAguardar o XLS real. Quando disponível, importá-lo imutavelmente, reconciliar toda linha em janela equivalente e atribuir cada `alerta_only` a causa/evidência antes de ranquear adapters.\n\n## Prova de encerramento\n\nImport idempotente com hash/layout, 100% das linhas em exatamente um estado, totais fechados, matches ambíguos `unresolved` e ranking por ganho comercial, reuse, esforço e fragilidade.\n\n## Não reconstruir\n\nNão recriar o ranker, não usar a fixture de 11 linhas como workbook real, não implementar adapters nesta issue e não retirar AlertaLicitação sem #35."
+    },
+    {
+      "number": 347,
+      "classification": "PARTIAL_RESIDUAL",
+      "operation": "rewrite",
+      "replacement_title": "[P2][LLM runtime residual] Ligar o contrato existente à fila e a providers opt-in",
+      "labels_add": ["priority:p2", "roadmap:later"],
+      "labels_remove": ["priority:p1", "roadmap:next"],
+      "replacement_body": "## O que já existe\n\nO PR #383 entregou interface provider-agnostic, contracts fake/echo, schema validation e fail-closed básico para inferência.\n\n## Residual real\n\nIntegrar jobs/attempts à fila PostgreSQL #246, adicionar dois providers reais opt-in, evidence linkage, custos/tokens, replay/DLQ e benchmark representativo antes de escolher default.\n\n## Prova de encerramento\n\nJob sobrevive restart, não duplica custo por idempotency key, registra provider/model/prompt/schema, rejeita output sem schema/evidência/confidence e compara qualidade/custo/latência em corpus real.\n\n## Não reconstruir\n\nNão criar nova fila, não acoplar domínio a um provider, não construir agente autônomo/Bedrock sem benchmark e não promover fallback silencioso."
+    },
+    {
+      "number": 350,
+      "classification": "BLOCKED_BY_EXTERNAL_EVIDENCE",
+      "operation": "rewrite",
+      "replacement_title": "[P1][human review only] Revisar evidência live de dual coverage",
+      "replacement_body": "## O que já existe\n\nO PR #429 corrigiu a identidade da evidência agregada e provou em PostgreSQL real os casos source-wide, mixed, unmappable e replay, mantendo o threshold 0,95. O censo nacional é residual separado em #302.\n\n## Residual real\n\nSomente a revisão humana exigida pelo gate `AWAITING_HUMAN_REVIEW`: confirmar que a evidência live sustenta o aceite técnico sem transformar ausência/unmappable em cobertura.\n\n## Prova de encerramento\n\nDecisão humana nominal registrada nesta issue sobre o pack/hash/SHA do PR #429; depois disso, fechar sem novo código se aprovado, ou abrir o finding factual específico se rejeitado.\n\n## Não reconstruir\n\nNão reimplementar dual coverage, não reduzir o threshold, não misturar o censo nacional #302 e não remover/burlar o gate humano por automação."
+    },
+    {
+      "number": 351,
+      "classification": "DONE_BY_CURRENT_MAIN",
+      "operation": "close_completed",
+      "closure_comment": "O probe PNCP foi corrigido para o contrato vigente e HTTP causado por request inválido agora é `INTERNAL_DEFECT`, nunca falha externa ou zero. Na campanha, `python3 -m scripts.ops.source_contract_tests --live --json` passou 22/22 no base SHA, incluindo PNCP HTTP 200 e regressão do parâmetro mínimo. Fechando como completed no `main@fbde086a2e04061a659ba04530aa10976ea0d5bc`."
+    },
+    {
+      "number": 370,
+      "classification": "DONE_BY_CURRENT_MAIN",
+      "operation": "close_completed",
+      "closure_comment": "O PR #447 e correções posteriores entregaram `confenge.outreach.v1` com route classes, provenance/epistemic class, controlled eligibility, preferred route/account e preservação de suppression/kill switch/`auto_send=false`. A suíte focal passou 84 testes e o Warmbly já consome o contrato. Ação comercial e outcomes reais permanecem em #372/#375/#381 e Warmbly #42/#47; não são implementação residual desta issue. Fechando como completed no `main@fbde086a2e04061a659ba04530aa10976ea0d5bc`."
+    },
+    {
+      "number": 372,
+      "classification": "PARTIAL_RESIDUAL",
+      "operation": "rewrite",
+      "replacement_title": "[P0][commercial outcome] Executar ação real e observar outcome Warmbly",
+      "replacement_body": "## O que já existe\n\nSlices de facts/events, Decision-Unit Intelligence, reachability e projeção consumer-agnostic foram entregues pelos PRs #405/#447 e `confenge.outreach.v1`. Route classes, rota preferencial e elegibilidade controlada vivem em #370 e não devem ser reimplementadas.\n\n## Residual real\n\nExecutar uma ação comercial humana real sobre conta×trigger×offer×DUI×route no Warmbly #42 e consumir o outcome observado sem copiar a verdade operacional para extra-cli. Validar evidence/freshness do trigger usado.\n\n## Prova de encerramento\n\nEvento Warmbly autoritativo ligado por IDs canônicos, com rota/policy/cohort, ação e outcome observado (`delivered|bounce|reply|meeting|proposal` ou estado honesto), mais evidence ref do trigger.\n\n## Não reconstruir\n\nNão criar CRM, scheduler, messaging ou route classifier no extra-cli; não inventar consentimento, dor, identidade ou resultado e não fechar só por merge."
+    },
+    {
+      "number": 375,
+      "classification": "PARTIAL_RESIDUAL",
+      "operation": "rewrite",
+      "replacement_title": "[P1][DUI outcomes] Provar benchmark e rollout por route class",
+      "replacement_body": "## O que já existe\n\n`benchmark.py`, `cohort.py`, migration 092 e #370 entregam cohort/funnel, route classes e denominador controlado; `BLOCKED` não é `R0` e named email não é requisito universal.\n\n## Residual real\n\nExecutar coorte real e reconciliar outcomes por route class contra o ledger Warmbly #47; expandir o shadow além do índice histórico somente com DSN live e policy versionada.\n\n## Prova de encerramento\n\nCohort/seed/hash reproduzíveis, denominador explícito, attempts/delivery/bounce/reply/outcome por classe e shadow operacional reconciliado, mantendo UNKNOWN/BLOCKED visíveis.\n\n## Não reconstruir\n\nNão recriar route classes, não medir coverage como `% EMAIL_VALIDATED`, não inventar meta de R1 e não montar infraestrutura de mass-send."
+    },
+    {
+      "number": 381,
+      "classification": "LIVE_PROOF_ONLY",
+      "operation": "rewrite",
+      "replacement_body": "## O que já existe\n\nOs PRs #388, #404 e #447 entregaram snapshot/replay, identidade, estágios e denominador por route class; extra-cli é autoridade pré-contato e Warmbly é autoridade de ação/outcome.\n\n## Residual real\n\nProduzir snapshot live reconciliado do universo ICP+DUI+Warmbly, ou declarar explicitamente `--warmbly-absent`, com X ICP, Y reachable, Z contacted, conversas, propostas e clientes.\n\n## Prova de encerramento\n\nVersão/hash/as_of, regras de cada estágio, join por canonical account ID, UNKNOWN/missing joins explícitos e fatias de reachability por email route class, call e outros canais.\n\n## Não reconstruir\n\nNão criar CRM, não rederivar outcomes Warmbly, não exigir named email para Y reachable e não usar fixture/replay #404 como snapshot live."
+    },
+    {
+      "number": 415,
+      "classification": "DONE_BY_CURRENT_MAIN",
+      "operation": "close_completed",
+      "closure_comment": "O PR #418 entregou o engine de peer groups/métricas fail-closed e o PR #435 executou o canário live honestamente como `HOLD_FOR_DATA`, sem reduzir sample thresholds nem fabricar comparável. O contrato preserva grain, scope, coverage, method/hash e limitações; comparações futuras reutilizam esta autoridade, inclusive #84, sem novo benchmark engine. Fechando como completed no `main@fbde086a2e04061a659ba04530aa10976ea0d5bc`."
+    },
+    {
+      "number": 436,
+      "classification": "BLOCKED_BY_EXTERNAL_EVIDENCE",
+      "operation": "rewrite",
+      "labels_add": ["state:blocked"],
+      "replacement_body": "## O que já existe\n\nO PR #440 entregou e implantou `public-read-integrity/1.0`, adapters CEIS/CNEP, paginação/dedupe/freshness, estados fail-closed e contrato consumer-bound para [web-cfg#156](https://github.com/tjsasakifln/web-cfg/issues/156). A prova sem chave retorna corretamente `UNKNOWN`. Os riscos históricos do SmartLic permanecem documentados em [`compliance_publicos.py`](https://github.com/tjsasakifln/SmartLic/blob/main/backend/routes/compliance_publicos.py) e na [página consumer](https://github.com/tjsasakifln/SmartLic/blob/main/frontend/app/compliance/%5Bcnpj%5D/page.tsx).\n\n## Residual real\n\nObter credencial/autorização oficial e executar canário keyed CEIS+CNEP para ocorrência e ausência confirmável, mantendo cada fonte independente.\n\n## Prova de encerramento\n\nRun live com páginas esperadas=obtidas, source status/coverage/as_of/freshness, match positivo e `NO_MATCH_CONFIRMED` somente quando ambas as fontes fecharem; CNPJ redigido em logs/artefatos públicos.\n\n## Não reconstruir\n\nNão recuperar runtime/brand SmartLic, não prometer seis cadastros, não inferir idoneidade/risco e não transformar falta de chave, timeout, stale ou parcial em lista vazia."
+    },
+    {
+      "number": 452,
+      "classification": "ACTIVE_DEFECT",
+      "operation": "close_after_proof",
+      "closure_comment": "Gate de fechamento da campanha: registrar o SHA aceito no `main`, PR e CI; provar via PostgreSQL real que view canônica e focal usam a mesma função/regra lexical, com regressões para TI legítimo, tecnologia da informação, domésticos, didáticos, artigos médicos, esportivos e alimentação/saúde. Anexar `pg_get_viewdef`/`pg_get_functiondef`, delta live antes/depois e rerun dos consumers. A simulação sobre o corpus live remove **116.930** linhas contaminadas (**84,7644%**), deixando 21.017 em TI; antes/depois P25/P50/P75: 715,32/3.800,00/26.150,00 → 335,64/1.870,20/30.867,98. Manter `LOW_PRECISION` porque o residual amplo de `sistema` ainda não é estatisticamente defensável. Só então fechar como `ACTIVE_DEFECT_FIXED`; não fechar por teste unitário ou migration não aplicada."
+    },
+    {
+      "number": 453,
+      "classification": "ACTIVE_DEFECT",
+      "operation": "close_after_proof",
+      "closure_comment": "Gate de fechamento da campanha: registrar SHA aceito no `main`, PR e CI; provar seleção explícita `REGIONAL|NATIONAL|BOTH`, metadata de scope/geography/denominator/as_of/source/version/sample/coverage/missingness/method/hash/limitations e ausência de posição nacional quando a autoridade nacional não fecha. Reexecutar canários nacionais e regionais: regional pode publicar somente dentro do mesmo scope; nacional deve permanecer `HOLD_FOR_DATA` enquanto o universe/coverage autorizado estiver vazio. Fechar apenas depois de demonstrar que nenhum prospect nacional recebe posição regional como comparável sem explicitação; não criar benchmark engine paralelo nem fabricar cobertura por row count."
+    }
+  ]
+}

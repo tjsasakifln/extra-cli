@@ -59,8 +59,8 @@ from scripts.dossier.sources import Source
 VOLATILE_KEYS = frozenset({"generated_at", "observed_at", "producer_sha", "content_hash", "duration_ms"})
 
 LIMITATION_REFERENCE_SCOPE = (
-    "O painel de preços usa o conjunto de referência de órgãos públicos no raio de 200 km "
-    "da base de referência; não é uma amostra nacional."
+    "Cada painel de preços declara scope_id e geografia. A referência regional de 200 km não é "
+    "amostra nacional; a referência nacional permanece DATA_HOLD sem percentis até existir autoridade."
 )
 LIMITATION_UNKNOWN = "Campo ausente permanece UNKNOWN e não entra no denominador. UNKNOWN não é zero."
 LIMITATION_NO_CLAIM = (
@@ -108,8 +108,8 @@ def content_hash(document: dict[str, Any]) -> str:
     return "sha256:" + hashlib.sha256(stable.encode("utf-8")).hexdigest()
 
 
-def dossier_id(cnpj: str, as_of: str, catalog_mode: str) -> str:
-    digest = hashlib.sha256(f"{cnpj}|{as_of}|{catalog_mode}".encode()).hexdigest()[:16]
+def dossier_id(cnpj: str, as_of: str, catalog_mode: str, reference_scope: str = "BOTH") -> str:
+    digest = hashlib.sha256(f"{cnpj}|{as_of}|{catalog_mode}|{reference_scope}".encode()).hexdigest()[:16]
     return f"cfg-dossier-{digest}"
 
 
@@ -227,7 +227,7 @@ def build_dossier(source: Source, request: DossierRequest) -> tuple[DossierResul
     if normalized is None:
         result = DossierResult(
             request=request,
-            dossier_id=dossier_id(request.cnpj, request.as_of, request.catalog_mode),
+            dossier_id=dossier_id(request.cnpj, request.as_of, request.catalog_mode, request.reference_scope),
             data_state=DATA_REJECT,
             sections=(),
             findings=(),
@@ -241,7 +241,7 @@ def build_dossier(source: Source, request: DossierRequest) -> tuple[DossierResul
     if request.catalog_mode == CATALOG_OFFICIAL_LIVE and source.catalog_mode != CATALOG_OFFICIAL_LIVE:
         result = DossierResult(
             request=request,
-            dossier_id=dossier_id(normalized, request.as_of, request.catalog_mode),
+            dossier_id=dossier_id(normalized, request.as_of, request.catalog_mode, request.reference_scope),
             data_state=DATA_REJECT,
             sections=(),
             findings=(),
@@ -257,14 +257,14 @@ def build_dossier(source: Source, request: DossierRequest) -> tuple[DossierResul
     buyers_read = source.buyers(normalized)
     totals_read = source.portfolio_totals(normalized)
     competitors_read = source.competitors(normalized)
-    price_read = source.price_panel(normalized)
+    price_read = source.price_panel(normalized, request.reference_scope)
     expiring_read = source.expiring(normalized, window_days, request.as_of)
     opportunities_read = source.opportunities(normalized)
 
     identity = build_identity(identity_read)
     buyer_map = build_buyer_map(buyers_read, contracts_read, totals_read)
     competitors = build_competitors(competitors_read, competitor_limit)
-    price_panel = build_price_panel(price_read)
+    price_panel = build_price_panel(price_read, request.reference_scope)
     expiring = build_expiring(expiring_read, window_days)
     opportunities = build_opportunities(opportunities_read)
 
@@ -287,7 +287,7 @@ def build_dossier(source: Source, request: DossierRequest) -> tuple[DossierResul
 
     result = DossierResult(
         request=request,
-        dossier_id=dossier_id(normalized, request.as_of, source.catalog_mode),
+        dossier_id=dossier_id(normalized, request.as_of, source.catalog_mode, request.reference_scope),
         data_state=state,
         sections=sections,
         findings=findings,
@@ -333,6 +333,7 @@ def _document(
         "parameters": {
             "competitor_limit": competitor_limit,
             "expiring_window_days": window_days,
+            "reference_scope": result.request.reference_scope,
         },
         "observed_at": min(observed) if observed else None,
         "totals": {

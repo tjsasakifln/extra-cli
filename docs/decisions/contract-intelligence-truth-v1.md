@@ -4,6 +4,22 @@
 **Decision:** Unified analytical layer over PNCP contracts for entities within 200 km of Florianópolis.
 **Author:** Claude Code (Opus 4.8) via `/goal` vertical slice.
 
+## Amendment — 2026-08-24 (`#452`, `#453`)
+
+Migration 101 preserves the original regional view but corrects two factual
+contracts. `public.contract_category_v1(text)` is now the single classifier used
+by the reference view and dossier focal; `TI` uses a lexical token rather than
+the bare substring `%ti%`, and health/food rungs precede the broad `sistema`
+family. The regional population is the active, versioned 200 km target universe.
+
+`public.v_contract_intel_reference_scopes_v1` exposes REGIONAL and NATIONAL
+contracts side by side with explicit scope/provenance/denominator metadata.
+NATIONAL is deliberately `DATA_HOLD` with no percentiles while the existing
+national coverage authority and a comparable national corpus cannot sustain the
+claim. A nationwide CNPJ is never positioned against the regional denominator
+without an explicit REGIONAL choice. This amendment supersedes any unscoped
+interpretation below; it does not claim national coverage from row counts.
+
 ---
 
 ## 1. Decisão

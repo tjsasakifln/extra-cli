@@ -7,7 +7,7 @@
   "keys": ["dossier_id"],
   "producer": {
     "id": "extra-cli",
-    "command": "python3 -m scripts.dossier build --cnpj <CNPJ14> --out <DIR>",
+    "command": "python3 -m scripts.dossier build --cnpj <CNPJ14> --reference-scope BOTH --out <DIR>",
     "verify": "python3 -m scripts.dossier verify --dir <DIR>",
     "module": "scripts/dossier/"
   },
@@ -29,6 +29,7 @@
     "supplier_registry",
     "v_contracts_canonical_v2",
     "v_contract_intel_percentis",
+    "v_contract_intel_reference_scopes_v1",
     "v_expiring_contracts",
     "v_open_opportunities_canonical"
   ],
@@ -59,6 +60,7 @@
     "fixture": "catalog_mode=fixture can never reach publication_readiness=DATA_READY.",
     "claim_scan": "Every emitted document is scanned for forbidden claim tokens and metric keys before it is written. Official objeto text is exempt because the engine must not rewrite official text.",
     "panel_range": "A category where the focal median sits more than 10x outside the panel interquartile band yields OUT_OF_PANEL_RANGE and no percentile position.",
+    "reference_scope": "Every price panel carries scope_id, geography, denominator, as_of, source/version, sample_count, coverage, missingness, method, hash and limitations. BOTH is the fail-closed default; NATIONAL never reuses a REGIONAL denominator and stays DATA_HOLD without an authorized comparable corpus.",
     "content_hash": "content_hash covers the document with volatile fields (generated_at, observed_at, producer_sha, content_hash) stripped, so two runs over the same data agree byte for byte."
   },
   "privacy": {

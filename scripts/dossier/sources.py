@@ -7,6 +7,7 @@ here interprets: interpretation lives in ``compose.py``.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from datetime import UTC, date, datetime
 from decimal import Decimal
@@ -22,36 +23,13 @@ from scripts.dossier.constants import (
 )
 from scripts.dossier.models import SourceRead
 
-# Same ladder as v_contract_intel_percentis. Duplicated deliberately so the
-# focal contract is classified by the exact rule that built the panel; if the
-# view changes, `test_category_ladder_matches_view` fails.
-CATEGORY_SQL = """
-CASE
-  WHEN {col} ILIKE '%%obra%%' OR {col} ILIKE '%%construção%%' OR {col} ILIKE '%%pavimentação%%'
-       OR {col} ILIKE '%%edificação%%' OR {col} ILIKE '%%engenharia%%' THEN 'OBRAS'
-  WHEN {col} ILIKE '%%limpeza%%' OR {col} ILIKE '%%conservação%%' OR {col} ILIKE '%%manutenção%%'
-       OR {col} ILIKE '%%zeladoria%%' THEN 'FACILITIES'
-  WHEN {col} ILIKE '%%software%%' OR {col} ILIKE '%%ti%%' OR {col} ILIKE '%%tecnologia%%'
-       OR {col} ILIKE '%%sistema%%' OR {col} ILIKE '%%informática%%' THEN 'TI'
-  WHEN {col} ILIKE '%%saúde%%' OR {col} ILIKE '%%medicamento%%' OR {col} ILIKE '%%hospitalar%%'
-       OR {col} ILIKE '%%medico%%' OR {col} ILIKE '%%farmacêutico%%'
-       OR {col} ILIKE '%%laboratório%%' THEN 'SAÚDE'
-  WHEN {col} ILIKE '%%alimentação%%' OR {col} ILIKE '%%alimento%%' OR {col} ILIKE '%%merenda%%'
-       OR {col} ILIKE '%%gênero alimentício%%' THEN 'ALIMENTAÇÃO'
-  WHEN {col} ILIKE '%%transporte%%' OR {col} ILIKE '%%veículo%%' OR {col} ILIKE '%%frota%%'
-       OR {col} ILIKE '%%ônibus%%' OR {col} ILIKE '%%locação de veículo%%' THEN 'TRANSPORTE'
-  WHEN {col} ILIKE '%%segurança%%' OR {col} ILIKE '%%vigilância%%' OR {col} ILIKE '%%monitoramento%%'
-       OR {col} ILIKE '%%porteiro%%' THEN 'SEGURANÇA'
-  WHEN {col} ILIKE '%%consultoria%%' OR {col} ILIKE '%%assessoria%%' OR {col} ILIKE '%%advocacia%%'
-       OR {col} ILIKE '%%jurídico%%' OR {col} ILIKE '%%contábil%%' THEN 'CONSULTORIA'
-  WHEN {col} ILIKE '%%combustível%%' OR {col} ILIKE '%%gasolina%%' OR {col} ILIKE '%%diesel%%'
-       OR {col} ILIKE '%%etanol%%' THEN 'COMBUSTÍVEL'
-  ELSE 'OUTROS'
-END
-"""
+# The focal and reference panel call the same PostgreSQL function.  This is a
+# mathematical identity, not two keyword ladders kept in sync by convention.
+CATEGORY_SQL = "public.contract_category_v1({col})"
 
 VIEW_CONTRACTS = "v_contracts_canonical_v2"
 VIEW_PERCENTIS = "v_contract_intel_percentis"
+VIEW_REFERENCE_SCOPES = "v_contract_intel_reference_scopes_v1"
 VIEW_OPPORTUNITIES = "v_open_opportunities_canonical"
 TABLE_REGISTRY = "supplier_registry"
 TABLE_SC_ENTITIES = "sc_public_entities"
@@ -82,7 +60,7 @@ class Source(Protocol):
     def buyers(self, cnpj: str) -> SourceRead: ...
     def portfolio_totals(self, cnpj: str) -> SourceRead: ...
     def competitors(self, cnpj: str) -> SourceRead: ...
-    def price_panel(self, cnpj: str) -> SourceRead: ...
+    def price_panel(self, cnpj: str, reference_scope: str = "BOTH") -> SourceRead: ...
     def expiring(self, cnpj: str, window_days: int, as_of: str | None) -> SourceRead: ...
     def opportunities(self, cnpj: str) -> SourceRead: ...
 
@@ -242,16 +220,16 @@ class DatalakeSource:
             (cnpj, cnpj, self._competitor_limit),
         )
 
-    def price_panel(self, cnpj: str) -> SourceRead:
-        """Reference percentiles by category, plus the focal position per category.
+    def price_panel(self, cnpj: str, reference_scope: str = "BOTH") -> SourceRead:
+        """Explicitly scoped references plus the like-for-like focal sample.
 
-        The focal rows are filtered by the SAME rule that built the panel
-        (`v_contract_intel_percentis`): buyers inside the 200 km reference set,
-        active contracts, published value above zero. A focal median built by a
-        wider rule and compared against that panel is not a comparison.
+        Regional focal and panel rows share the versioned target-universe
+        authority and the canonical category function.  National rows carry
+        the existing coverage authority but no percentile while that authority
+        and a comparable corpus are unavailable.
         """
         return self._query(
-            VIEW_PERCENTIS,
+            VIEW_REFERENCE_SCOPES,
             f"""
             WITH focal AS (
                 SELECT {CATEGORY_SQL.format(col="c.objeto")} AS categoria,
@@ -259,30 +237,29 @@ class DatalakeSource:
                        COUNT(c.valor) AS focal_valued_count,
                        percentile_cont(0.5) WITHIN GROUP (ORDER BY c.valor) AS focal_median
                   FROM {VIEW_CONTRACTS} c
-                  JOIN {TABLE_SC_ENTITIES} e ON LEFT(c.buyer_cnpj, 8) = e.cnpj_8
                  WHERE c.supplier_cnpj = %s
-                   AND e.raio_200km IS TRUE
                    AND c.is_active IS TRUE
                    AND c.valor IS NOT NULL
                    AND c.valor > 0
-                 GROUP BY 1
-            ),
-            focal_all AS (
-                SELECT {CATEGORY_SQL.format(col="objeto")} AS categoria, COUNT(*) AS total_count
-                  FROM {VIEW_CONTRACTS}
-                 WHERE supplier_cnpj = %s
+                   AND EXISTS (
+                       SELECT 1 FROM v_target_universe_active u
+                        WHERE u.cnpj8 = LEFT(c.buyer_cnpj, 8)
+                   )
                  GROUP BY 1
             )
-            SELECT p.categoria, p.qtd_contratos, p.valor_total, p.ticket_medio,
+            SELECT p.scope_kind, p.scope_id, p.reference_state, p.geography,
+                   p.denominator, p.as_of, p.source_id, p.source_version,
+                   p.sample_count, p.coverage, p.missingness, p.method,
+                   p.reference_hash, p.limitations,
+                   p.categoria, p.qtd_contratos, p.valor_total, p.ticket_medio,
                    p.p25_valor, p.p50_valor, p.p75_valor,
-                   f.focal_count, f.focal_valued_count, f.focal_median,
-                   a.total_count AS focal_total_count
-              FROM {VIEW_PERCENTIS} p
-              JOIN focal f ON f.categoria = p.categoria
-              LEFT JOIN focal_all a ON a.categoria = p.categoria
+                   f.focal_count, f.focal_valued_count, f.focal_median
+              FROM {VIEW_REFERENCE_SCOPES} p
+              LEFT JOIN focal f ON p.scope_kind = 'REGIONAL' AND f.categoria = p.categoria
+             WHERE (%s = 'BOTH' OR p.scope_kind = %s)
              ORDER BY p.categoria
             """,  # noqa: S608 -- view names are module constants; the CNPJ is bound via %s
-            (cnpj, cnpj),
+            (cnpj, reference_scope, reference_scope),
         )
 
     def expiring(self, cnpj: str, window_days: int = EXPIRING_WINDOW_DAYS, as_of: str | None = None) -> SourceRead:
@@ -338,8 +315,12 @@ class FixtureSource:
     catalog_mode = "fixture"
 
     def __init__(self, path: str | Path):
-        self._data = json.loads(Path(path).read_text(encoding="utf-8"))
+        fixture_path = Path(path)
+        raw = fixture_path.read_bytes()
+        self._data = json.loads(raw.decode("utf-8"))
         self._observed_at = self._data.get("observed_at", "1970-01-01T00:00:00Z")
+        self._fixture_version = fixture_path.name
+        self._fixture_hash = "sha256:" + hashlib.sha256(raw).hexdigest()
 
     def _read(self, key: str, view: str) -> SourceRead:
         block = self._data.get(key)
@@ -364,8 +345,39 @@ class FixtureSource:
     def competitors(self, cnpj: str) -> SourceRead:
         return self._read("competitors", VIEW_CONTRACTS)
 
-    def price_panel(self, cnpj: str) -> SourceRead:
-        return self._read("price_panel", VIEW_PERCENTIS)
+    def price_panel(self, cnpj: str, reference_scope: str = "BOTH") -> SourceRead:
+        read = self._read("price_panel", VIEW_PERCENTIS)
+        if not read.available:
+            return read
+        rows = tuple(
+            {
+                **row,
+                "scope_kind": "REGIONAL",
+                "scope_id": "regional_200km:fixture",
+                "reference_state": "DATA_READY",
+                "geography": {
+                    "kind": "radius",
+                    "radius_km": 200,
+                    "label": "fixture-only Florianopolis/SC reference",
+                },
+                "denominator": {"eligible_contracts": row.get("qtd_contratos")},
+                "as_of": self._observed_at,
+                "source_id": "fixture",
+                "source_version": self._fixture_version,
+                "sample_count": row.get("qtd_contratos"),
+                "coverage": None,
+                "missingness": {"status": "fixture"},
+                "method": {
+                    "classifier": "public.contract_category_v1",
+                    "filters": ["fixture"],
+                    "percentiles": "fixture values",
+                },
+                "reference_hash": self._fixture_hash,
+                "limitations": ["Fixture-only reference; never production evidence."],
+            }
+            for row in read.rows
+        )
+        return SourceRead(source=read.source, observed_at=read.observed_at, rows=rows)
 
     def expiring(self, cnpj: str, window_days: int = EXPIRING_WINDOW_DAYS, as_of: str | None = None) -> SourceRead:
         return self._read("expiring", VIEW_CONTRACTS)

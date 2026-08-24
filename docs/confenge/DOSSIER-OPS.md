@@ -70,7 +70,10 @@ Leia `reason_codes` no `manifest.json`:
 | `no_canonical_contracts` | a empresa não tem contrato canônico no DataLake |
 | `insufficient_contracts` / `insufficient_buyers` | carteira pequena demais para o diagnóstico prometido |
 | `no_price_reference` | nenhuma categoria com painel comparável |
+| `category_bucket_low_precision` | o bucket é amplo demais para publicar posição; os valores permanecem visíveis sem ranking |
 | `focal_outside_panel_range` | há categoria fora da faixa; a posição percentílica é omitida de propósito |
+| `national_reference_not_authorized` | o painel nacional está `DATA_HOLD`; não há percentil nem posição nacional autorizados |
+| `reference_scope_unavailable` | o escopo solicitado não possui contrato de referência disponível |
 | `no_open_opportunities_for_buyers` | nenhum edital aberto observado; ausência de observação não é ausência de edital |
 | `official_table_missing` | a view esperada não existe no DSN apontado |
 
@@ -84,8 +87,14 @@ No host de record:
 
 ```bash
 ssh ec-prod "cd /opt/extra-consultoria && DATABASE_URL=\$(grep -m1 '^DATABASE_URL=' .env | cut -d= -f2-) \
-  python3 -m scripts.dossier build --cnpj <CNPJ> --out artifacts/dossier/<CNPJ>"
+  python3 -m scripts.dossier build --cnpj <CNPJ> --reference-scope BOTH --out artifacts/dossier/<CNPJ>"
 ```
+
+`BOTH` é o default fail-closed: apresenta a referência regional com `scope_id`
+próprio e mantém o painel nacional em `DATA_HOLD` enquanto a autoridade nacional
+não puder sustentar uma amostra comparável. Use `REGIONAL` apenas quando o
+consumer tiver escolhido explicitamente esse recorte; `NATIONAL` nunca reaproveita
+o denominador regional.
 
 Não há timer para isso: um dossiê é produzido quando há uma conta para
 diagnosticar, não em ciclo.

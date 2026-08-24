@@ -26,7 +26,7 @@ It produces one artifact set with three destinations:
 
 ```bash
 python3 -m scripts.dossier build --cnpj 00820854000114 --as-of 2026-08-22 \
-  --out artifacts/dossier/<slug>
+  --reference-scope BOTH --out artifacts/dossier/<slug>
 python3 -m scripts.dossier verify --dir artifacts/dossier/<slug>
 ```
 
@@ -52,6 +52,15 @@ and not `DATA_READY` · `5` `DATA_REJECT`.
 - The category ladder is coarse. Where the focal median sits more than `10x`
   outside the panel interquartile band, the position is `OUT_OF_PANEL_RANGE`
   and **no percentile position and no finding** are emitted for that category.
+- Every price panel is explicitly scoped. `BOTH` is the fail-closed default and
+  carries the regional reference plus a national `DATA_HOLD` while no authorized
+  comparable national corpus exists. `NATIONAL` never borrows the regional
+  denominator. Consumers must read `scope_id`, geography, denominator, `as_of`,
+  source/version, sample count, coverage, missingness, method, hash and limitations.
+- The regional focal and panel use the same `public.contract_category_v1` and
+  active target-universe population. The `TI` rung uses lexical token matching,
+  never a bare `%ti%` substring. `TI` remains `LOW_PRECISION_BUCKET` until the
+  broader `sistema` family is statistically defensible.
 - Competitors are bound to the focal's **primary** category. Sharing a buyer is
   not enough: a municipality buys stationery and asphalt from the same list.
 - `content_hash` strips volatile fields, so two runs over the same data agree

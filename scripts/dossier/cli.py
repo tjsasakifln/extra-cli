@@ -25,6 +25,8 @@ from scripts.dossier.constants import (
     DATA_REJECT,
     EXPIRING_WINDOW_DAYS,
     REASON_DSN_UNAVAILABLE,
+    REFERENCE_SCOPE_BOTH,
+    REFERENCE_SCOPES,
 )
 from scripts.dossier.envelope import (
     build_dossier,
@@ -85,6 +87,7 @@ def _cmd_build(args: argparse.Namespace) -> int:
         producer_sha=producer_sha(),
         competitor_limit=args.competitor_limit,
         expiring_window_days=args.window_days,
+        reference_scope=args.reference_scope,
     )
     result, document = build_dossier(source, request)
 
@@ -257,6 +260,12 @@ def build_parser() -> argparse.ArgumentParser:
     build.add_argument("--competitor-limit", type=int, default=COMPETITOR_LIMIT)
     build.add_argument("--window-days", type=int, default=EXPIRING_WINDOW_DAYS)
     build.add_argument("--observed-at", default=None, help="Override the observation timestamp (RFC3339)")
+    build.add_argument(
+        "--reference-scope",
+        choices=REFERENCE_SCOPES,
+        default=REFERENCE_SCOPE_BOTH,
+        help="Reference geography. BOTH is fail-closed when the national reference is unavailable.",
+    )
     build.add_argument("--markdown", action="store_true", help="Print markdown instead of JSON")
     build.add_argument("--strict", action="store_true", help="Exit non-zero unless data_state is DATA_READY")
     build.set_defaults(func=_cmd_build)

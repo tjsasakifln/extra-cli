@@ -164,7 +164,25 @@ def render_markdown(document: dict[str, Any]) -> str:
         f"unidade: `{price_panel.get('unit', UNKNOWN)}`."
     )
     lines.append("")
-    lines.append(f"Escopo da referência: {price_panel.get('reference_scope', UNKNOWN)}.")
+    lines.append(f"Escopo solicitado: `{price_panel.get('requested_scope', UNKNOWN)}`.")
+    lines.append("")
+    lines.append("| Scope | Estado | Geografia | Amostra | Cobertura | As of | Fonte/versão | Hash |")
+    lines.append("| --- | --- | --- | ---: | ---: | --- | --- | --- |")
+    for panel in price_panel.get("panels", []):
+        source = panel.get("source") or {}
+        lines.append(
+            f"| `{panel.get('scope_id', UNKNOWN)}` | `{panel.get('state', UNKNOWN)}` | "
+            f"`{panel.get('geography', UNKNOWN)}` | {panel.get('sample_count', UNKNOWN)} | "
+            f"{panel.get('coverage', UNKNOWN)} | {panel.get('as_of', UNKNOWN)} | "
+            f"{source.get('id', UNKNOWN)}/{source.get('version', UNKNOWN)} | "
+            f"`{panel.get('hash', UNKNOWN)}` |"
+        )
+        if panel.get("limitations"):
+            lines.append("")
+            lines.append(
+                f"Limitações de `{panel.get('scope_id', UNKNOWN)}`: "
+                + "; ".join(str(item) for item in panel["limitations"])
+            )
     if price_panel.get("out_of_range_category_count"):
         lines.append("")
         lines.append(
