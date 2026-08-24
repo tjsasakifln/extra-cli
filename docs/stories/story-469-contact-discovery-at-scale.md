@@ -202,6 +202,7 @@ GPT-5 Codex (Dex / @dev)
 - `scripts/confenge_outreach_pipeline/cli.py`
 - `scripts/confenge_outreach_pipeline/pipeline.py`
 - `scripts/decision_unit_intelligence/batch_outcomes.py`
+- `scripts/decision_unit_intelligence/batch_contact_metadata.py`
 - `scripts/decision_unit_intelligence/batch_population.py`
 - `scripts/decision_unit_intelligence/batch_projection.py`
 - `scripts/decision_unit_intelligence/batch_queue.py`

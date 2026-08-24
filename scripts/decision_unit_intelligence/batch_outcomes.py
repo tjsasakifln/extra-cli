@@ -13,6 +13,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from scripts.decision_unit_intelligence.batch_contact_metadata import attach_projection_evidence
 from scripts.decision_unit_intelligence.batch_queue import ClaimedDiscoveryJob
 from scripts.decision_unit_intelligence.models import AccountInvestigation, AccountTerminal, ChannelType
 from scripts.decision_unit_intelligence.projection import project_warmbly_outreach
@@ -122,9 +123,12 @@ def classify_account(account: Any) -> Outcome:
     metrics = extract_metrics(account)
     domain = _domain_from_account(account)
     payload = account.to_dict() if hasattr(account, "to_dict") else dict(account)
-    contact_projection = (
-        project_warmbly_outreach(account) if isinstance(account, AccountInvestigation) else None
-    )
+    contact_projection = None
+    if isinstance(account, AccountInvestigation):
+        contact_projection = attach_projection_evidence(
+            project_warmbly_outreach(account),
+            account=payload,
+        )
 
     def result(**kwargs: Any) -> Outcome:
         return Outcome(

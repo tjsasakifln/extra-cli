@@ -9,6 +9,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from scripts.decision_unit_intelligence.batch_contact_metadata import attach_projection_evidence
 from scripts.decision_unit_intelligence.batch_queue import ContactDiscoveryQueue
 from scripts.decision_unit_intelligence.repository import write_json
 
@@ -64,98 +65,6 @@ def _blocked_row(job: dict[str, Any], reason: str) -> dict[str, Any]:
     }
 
 
-def _route_index(account: dict[str, Any]) -> tuple[dict[str, dict[str, Any]], dict[str, dict[str, Any]]]:
-    by_id: dict[str, dict[str, Any]] = {}
-    by_mailbox: dict[str, dict[str, Any]] = {}
-    for raw in account.get("routes") or []:
-        if not isinstance(raw, dict):
-            continue
-        route = dict(raw)
-        route_id = str(route.get("route_id") or "").strip()
-        mailbox = str(route.get("channel_value") or "").strip().lower()
-        if route_id:
-            by_id[route_id] = route
-        if mailbox and "@" in mailbox:
-            by_mailbox[mailbox] = route
-    return by_id, by_mailbox
-
-
-def _attach_route_evidence(
-    contacts: list[dict[str, Any]],
-    *,
-    account: dict[str, Any],
-) -> list[dict[str, Any]]:
-    """Join classifier output back to its durable route evidence.
-
-    This projection owns transport metadata; the frozen eligibility policy
-    remains untouched. The downstream mapper already preserves source,
-    provenance and observed timestamps, then re-stamps route class/rank using
-    the active campaign policy.
-    """
-    by_id, by_mailbox = _route_index(account)
-    enriched: list[dict[str, Any]] = []
-    for raw in contacts:
-        contact = dict(raw)
-        route_id = str(contact.get("source_contact_id") or contact.get("route_id") or "").strip()
-        mailbox = str(contact.get("email") or contact.get("mailbox") or "").strip().lower()
-        route = by_id.get(route_id) or by_mailbox.get(mailbox)
-        if route is None:
-            enriched.append(contact)
-            continue
-
-        source_type = str(route.get("source_type") or "").strip() or None
-        source_url = str(route.get("source_url") or "").strip() or None
-        observed_at = str(route.get("observed_at") or "").strip() or None
-        evidence_ids = [str(item) for item in (route.get("evidence_ids") or []) if item]
-        epistemic = str(route.get("epistemic_class") or "").strip() or None
-        target_role = str(route.get("target_role") or "").strip() or None
-        ownership = str(route.get("ownership") or "").strip() or None
-        freshness = str(route.get("freshness") or "").strip() or None
-        suppression = str(route.get("suppression") or "").strip() or None
-
-        if source_type:
-            contact["source"] = source_type
-            contact["source_type"] = source_type
-        if source_url:
-            contact["source_url"] = source_url
-        if observed_at:
-            contact["observed_at"] = observed_at
-        if evidence_ids:
-            contact["evidence_ids"] = evidence_ids
-        source_reference = source_url or (evidence_ids[0] if evidence_ids else None)
-        if source_reference:
-            contact["source_reference"] = source_reference
-        if target_role:
-            contact["mailbox_department"] = target_role
-            contact.setdefault("role", target_role)
-            contact.setdefault("role_class", target_role)
-        if ownership:
-            contact["ownership_status"] = ownership
-        if freshness:
-            contact["route_freshness"] = freshness
-        if suppression:
-            contact["route_suppression"] = suppression
-        if epistemic:
-            contact["provenance_class"] = epistemic
-
-        raw_provenance = contact.get("provenance")
-        provenance = dict(raw_provenance) if isinstance(raw_provenance, dict) else {}
-        if source_type:
-            provenance.setdefault("source_type", source_type)
-        if source_url:
-            provenance.setdefault("source_url", source_url)
-        if observed_at:
-            provenance.setdefault("observed_at", observed_at)
-        if evidence_ids:
-            provenance.setdefault("evidence_ids", evidence_ids)
-        if epistemic:
-            provenance.setdefault("epistemic_class", epistemic)
-        if provenance:
-            contact["provenance"] = provenance
-        enriched.append(contact)
-    return enriched
-
-
 def build_contact_projection(
     queue: ContactDiscoveryQueue,
     *,
@@ -198,18 +107,10 @@ def build_contact_projection(
         projection = projection if isinstance(projection, dict) else {}
         account = (payload or {}).get("account")
         account = account if isinstance(account, dict) else {}
-        contacts = _attach_route_evidence(
-            [dict(item) for item in (projection.get("contacts") or []) if isinstance(item, dict)],
-            account=account,
-        )
+        projection = attach_projection_evidence(projection, account=account)
+        contacts = [dict(item) for item in (projection.get("contacts") or []) if isinstance(item, dict)]
         preferred = projection.get("preferred_initial_route")
         preferred = preferred if isinstance(preferred, dict) else None
-        if preferred:
-            preferred_contacts = _attach_route_evidence(
-                [{**preferred, "email": preferred.get("mailbox")}],
-                account=account,
-            )
-            preferred = preferred_contacts[0] if preferred_contacts else preferred
         domain = ((account.get("extra") or {}).get("domain_resolution") or {}).get("canonical_domain")
         row = {
             "cnpj14": str(job["canonical_account_id"]),
