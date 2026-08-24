@@ -103,10 +103,11 @@ class SourceDecision:
     decision: Decision
     reason: str
     adapter_key: str | None
-    unique_recall: float
-    implementation_effort: float
-    score: float
-    n_misses: int
+    # Missing ranking rows are unknown, not measured zeroes.
+    unique_recall: float | None
+    implementation_effort: float | None
+    score: float | None
+    n_misses: int | None
     seed_identity: str
     seed_evidence: str
     snapshot_ref: str | None
@@ -179,10 +180,10 @@ def decide_promotion(
             decision="DEFER",
             reason="no commercially ranked row for this source on the #346 snapshot",
             adapter_key=None,
-            unique_recall=0.0,
-            implementation_effort=0.0,
-            score=0.0,
-            n_misses=0,
+            unique_recall=None,
+            implementation_effort=None,
+            score=None,
+            n_misses=None,
             seed_identity=str(meta["seed_identity"]),
             seed_evidence=seed_evidence,
             snapshot_ref=None,

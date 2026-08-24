@@ -36,7 +36,20 @@ def test_wave2_consume_346_snapshot_and_defer() -> None:
         assert item.seed_identity == ISSUE_SOURCES[issue]["seed_identity"]
         assert item.seed_evidence
         assert item.ranking_hash == report.report_hash
+    for issue in (252, 254, 255, 260):
+        item = by_issue[issue]
+        assert item.unique_recall is None
+        assert item.implementation_effort is None
+        assert item.score is None
+        assert item.n_misses is None
+        assert item.snapshot_ref is None
+        assert "no commercially ranked row" in item.reason
+    for issue in (334, 335):
+        item = by_issue[issue]
+        assert item.unique_recall is not None
         assert item.unique_recall < MATERIAL_UNIQUE_RECALL
+        assert item.n_misses == 1
+        assert item.snapshot_ref
     payload = decisions_payload(report, decisions)
     assert payload["consumes"] == "#346"
     assert payload["adapter_code_started"] is False
@@ -124,6 +137,13 @@ def test_wave2_cli_records_decisions_and_ranking_hash(tmp_path: Path) -> None:
     by_issue = {row["issue"]: row for row in payload["decisions"]}
     assert by_issue[334]["seed_identity"] == "JOI-334"
     assert by_issue[335]["seed_identity"] == "EPUB-335"
+    assert by_issue[334]["unique_recall"] == 1.0
+    assert by_issue[335]["unique_recall"] == 1.0
+    for issue in (252, 254, 255, 260):
+        assert by_issue[issue]["unique_recall"] is None
+        assert by_issue[issue]["implementation_effort"] is None
+        assert by_issue[issue]["score"] is None
+        assert by_issue[issue]["n_misses"] is None
     assert by_issue[252]["source"] == "Compras.gov OCDS"
     assert by_issue[254]["source"] == "DOE-SC"
     assert by_issue[255]["source"] == "TCE-SC"

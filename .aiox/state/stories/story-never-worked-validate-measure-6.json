@@ -1,7 +1,7 @@
 {
   "story_id": "story-never-worked-validate-measure-6",
   "risk_level": "STANDARD",
-  "status": "InProgress",
+  "status": "InReview",
   "po_validated": true,
   "qa_verdict": "PENDING",
   "po_closed": false,

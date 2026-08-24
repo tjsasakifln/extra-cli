@@ -1,6 +1,6 @@
 # Story: Never-worked VALIDATE promote-or-defer (#252 #254 #255 #260 #334 #335)
 
-**Status:** InProgress
+**Status:** Ready for Review
 **Branch:** `feat/never-worked-validate-measure`
 **Base:** `origin/main` (includes #411 promote-or-defer consumer)
 **Capability:** in-repo promote-or-defer measurement only
@@ -38,3 +38,13 @@ VALIDATE issues, consumed from the existing #346 ranking. No adapters.
 
 Rewriting the issue to a measured residual or closing it still needs the
 ranking evidence plus a human promotion decision.
+
+## Evidence boundary
+
+- The versioned corpus contains 11 rows, not the unavailable real 197-row XLS.
+- Joinville (#334) and e-Publica (#335) each have one measured ranked miss and
+  remain below the material threshold.
+- Compras.gov OCDS (#252), DOE-SC (#254), TCE-SC (#255), and PCP (#260) have no
+  ranked row in this corpus. Their metrics are serialized as `null`, never as a
+  measured zero; `DEFER` means insufficient promotion evidence.
+- No issue is closed and no operational or coverage claim is promoted here.
