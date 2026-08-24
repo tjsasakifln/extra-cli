@@ -70,7 +70,25 @@ python -m scripts.confenge_outreach_pipeline run \
   --skip-contacts
 ```
 
-### Atomic publish
+### Recurring production cycle
+
+Production uses the canonical pipeline plus its existing atomic publisher. It does not copy a second flat feed or treat a repeated hash as success:
+
+```bash
+python -m scripts.ops.confenge_feed_cycle \
+  --output-root /var/lib/extra-consultoria/output \
+  --durable-contacts /var/lib/extra-consultoria/output/contact-discovery/current/contacts.jsonl \
+  --publish-dir /opt/confenge-plane/feed-www \
+  --max-age-hours 24
+```
+
+Install and enable `extra-confenge-feed-cycle.timer` (12-hour cadence) and `extra-confenge-feed-monitor.timer` (hourly validation). Configure the non-secret paths from `deploy/systemd/confenge-feed.env.example`. The service account needs write access to `/var/lib/extra-consultoria` and the publication root. Warmbly reads `/current/manifest.json`; the `current` symlink changes only after the full manifest, every chunk hash, full target-fit coverage, PNCP freshness and both feed timestamps pass validation.
+
+The durable state is `/var/lib/extra-consultoria/confenge-feed/publication-state.json`. It preserves the last successful publication while recording the latest generation and monitor result, duration, snapshot, watermark, lead/contact totals, deltas, route classes and provenance sources. Alerts append to `/var/lib/extra-consultoria/alerts/confenge-feed.jsonl` and trigger the normal systemd `OnFailure` path.
+
+`SAME_SNAPSHOT_NOT_FRESHNESS` exits non-zero and alerts. A green timer that produced no new snapshot is not freshness. A stale, partial or corrupt build is refused and the last valid `current` release remains served.
+
+### Manual atomic publish
 
 After a successful cycle:
 
@@ -81,6 +99,14 @@ python -m scripts.confenge_activation publish \
 ```
 
 Warmbly should read `.../current/manifest.json` only after atomic promote.
+
+Validate the public release independently:
+
+```bash
+python -m scripts.confenge_activation check-publication \
+  --publish-dir /opt/confenge-plane/feed-www \
+  --max-age-hours 24
+```
 
 ## Manifest summary fields
 

@@ -16,6 +16,7 @@ Environment=PYTHONPATH=/opt/extra-consultoria
 Environment=RESILIENCE_ENV=production
 EnvironmentFile=-/opt/extra-consultoria/.env
 EnvironmentFile=-/etc/extra-consultoria/crawler.env
+EnvironmentFile=-/etc/extra-consultoria/contact-discovery.env
 EnvironmentFile=-/etc/extra-cli/extra-collector.env
 ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.decision_unit_intelligence batch worker --loop --idle-sleep 5 --worker-id cd-worker-%i --out /var/lib/extra-consultoria/contact-discovery
 Restart=on-failure
@@ -29,6 +30,7 @@ UMask=0077
 NoNewPrivileges=true
 PrivateTmp=true
 PrivateDevices=true
+LogsDirectory=extra-consultoria
 ProtectSystem=strict
 ProtectHome=true
 ProtectKernelTunables=true

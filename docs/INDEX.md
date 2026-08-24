@@ -33,6 +33,7 @@ Precedência: `DOD.md` → ADR vigente → código testado → evidência reprod
 | `docs/ops/dod-convergence.md` | Harness DOD |
 | `docs/ops/netcup-*.md`, handoffs Netcup | Host de record |
 | [`docs/ops/searxng-private-backend.md`](ops/searxng-private-backend.md) | SearXNG privado CONFENGE (HTTP boundary, runbook) |
+| [`docs/ops/confenge-activation-planner.md`](ops/confenge-activation-planner.md) | Ciclo canônico, publicação atômica e freshness do feed Warmbly |
 | `artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/` | Campanha HC (STATUS/HANDOFF) |
 | `specs/001-*`, `specs/002-*` | Spec Kit dual / historical contracts |
 | `deploy/systemd/` | Units de produção |

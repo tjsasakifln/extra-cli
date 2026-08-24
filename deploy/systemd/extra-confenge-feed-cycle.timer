@@ -1,0 +1,11 @@
+[Unit]
+Description=Timer — regenerate CONFENGE outreach feed within 24h SLO
+
+[Timer]
+OnCalendar=*-*-* 00,12:20:00
+Persistent=true
+RandomizedDelaySec=10m
+Unit=extra-confenge-feed-cycle.service
+
+[Install]
+WantedBy=timers.target

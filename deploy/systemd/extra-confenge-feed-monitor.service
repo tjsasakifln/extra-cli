@@ -1,0 +1,35 @@
+[Unit]
+Description=Extra Consultoria — fail-closed CONFENGE public feed freshness monitor
+After=network-online.target
+OnFailure=extra-onfailure@%n.service
+
+[Service]
+Type=oneshot
+User=extra-consultoria
+Group=extra-consultoria
+WorkingDirectory=/opt/extra-consultoria
+Environment=PYTHONPATH=/opt/extra-consultoria
+Environment=CONFENGE_FEED_MAX_AGE_HOURS=24
+EnvironmentFile=-/opt/extra-consultoria/.env
+EnvironmentFile=-/etc/extra-consultoria/confenge-feed.env
+ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.confenge_activation check-publication --publish-dir ${CONFENGE_FEED_PUBLISH_DIR} --max-age-hours ${CONFENGE_FEED_MAX_AGE_HOURS}
+TimeoutStartSec=30m
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+LogsDirectory=extra-consultoria
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+ReadWritePaths=/var/lib/extra-consultoria /var/log/extra-consultoria
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=extra-confenge-feed-monitor
+
+[Install]
+WantedBy=multi-user.target

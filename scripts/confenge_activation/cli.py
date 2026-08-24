@@ -11,7 +11,13 @@ from pathlib import Path
 from scripts.confenge_activation import MODULE_VERSION, PLANNER_ID
 from scripts.confenge_activation.planner import run_activation_cycle
 from scripts.confenge_activation.policy import load_policy
-from scripts.confenge_activation.publish import atomic_publish_directory
+from scripts.confenge_activation.publish import (
+    DEFAULT_ALERT_LEDGER,
+    DEFAULT_MAX_AGE_HOURS,
+    DEFAULT_STATE_PATH,
+    atomic_publish_directory,
+    check_current_publication,
+)
 from scripts.confenge_activation.store import (
     load_projections_jsonl,
     write_hot_set_jsonl,
@@ -47,6 +53,15 @@ def build_parser() -> argparse.ArgumentParser:
     pub = sub.add_parser("publish", help="Atomically publish a built feed directory")
     pub.add_argument("--build-dir", required=True, help="Completed feed build dir")
     pub.add_argument("--publish-dir", required=True, help="Publication root (current symlink)")
+    pub.add_argument("--max-age-hours", type=float, default=DEFAULT_MAX_AGE_HOURS)
+    pub.add_argument("--state", type=Path, default=DEFAULT_STATE_PATH)
+    pub.add_argument("--alert-ledger", type=Path, default=DEFAULT_ALERT_LEDGER)
+
+    check = sub.add_parser("check-publication", help="Validate freshness and integrity of the public current feed")
+    check.add_argument("--publish-dir", required=True, help="Publication root containing current symlink")
+    check.add_argument("--max-age-hours", type=float, default=DEFAULT_MAX_AGE_HOURS)
+    check.add_argument("--state", type=Path, default=DEFAULT_STATE_PATH)
+    check.add_argument("--alert-ledger", type=Path, default=DEFAULT_ALERT_LEDGER)
 
     return p
 
@@ -57,12 +72,28 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "publish":
         try:
-            result = atomic_publish_directory(Path(args.build_dir), Path(args.publish_dir))
+            result = atomic_publish_directory(
+                Path(args.build_dir),
+                Path(args.publish_dir),
+                max_age_hours=args.max_age_hours,
+                state_path=args.state,
+                alert_ledger=args.alert_ledger,
+            )
         except Exception as exc:  # noqa: BLE001
             print(json.dumps({"ok": False, "error": str(exc)}), file=sys.stderr)
             return 1
         print(json.dumps(result, indent=2, ensure_ascii=False))
-        return 0
+        return 3 if result.get("skipped_same") else 0
+
+    if args.command == "check-publication":
+        result = check_current_publication(
+            Path(args.publish_dir),
+            max_age_hours=args.max_age_hours,
+            state_path=args.state,
+            alert_ledger=args.alert_ledger,
+        )
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+        return 0 if result.get("ok") else 1
 
     if args.command == "plan":
         universe = Path(args.universe)
