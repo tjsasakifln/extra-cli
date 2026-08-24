@@ -1,0 +1,11 @@
+[Unit]
+Description=Timer — monitor CONFENGE public feed freshness hourly
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+RandomizedDelaySec=5m
+Unit=extra-confenge-feed-monitor.service
+
+[Install]
+WantedBy=timers.target

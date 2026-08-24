@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import json
 from copy import deepcopy
-from datetime import date
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 import pytest
@@ -309,6 +309,7 @@ def test_atomic_publish(tmp_path: Path):
             "snapshot_hash": "deadbeef",
             "profile_id": "p",
             "profile_version": "1",
+            "datalake_watermark": "2026-08-08T09:00:00Z",
         },
         "pagination": {"has_more": False, "chunk_index": 0},
         "leads": [],
@@ -320,13 +321,40 @@ def test_atomic_publish(tmp_path: Path):
     chash = hashlib.sha256(raw).hexdigest()
     manifest = {
         "schema_version": "confenge.outreach.manifest.v1",
+        "generated_at": payload["generated_at"],
         "source": payload["source"],
-        "chunks": [{"file": "chunk_0000.json", "content_hash": chash, "chunk_index": 0}],
+        "lead_count": 0,
+        "chunk_count": 1,
+        "chunks": [
+            {
+                "file": "chunk_0000.json",
+                "content_hash": chash,
+                "chunk_index": 0,
+                "lead_count": 0,
+            }
+        ],
         "deactivations": [],
+        "authoritative_target_fit": {
+            "coverage_complete": True,
+            "omission_preserves_authorization": False,
+            "full_decision_count": 0,
+            "ordering": {"watermarks_monotonic": True},
+        },
+        "authoritative_source_freshness": {
+            "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
+            "status": "FRESH",
+            "expires_at": "2026-08-08T11:00:00Z",
+        },
     }
     (build / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
     pub = tmp_path / "publish"
-    result = atomic_publish_directory(build, pub)
+    result = atomic_publish_directory(
+        build,
+        pub,
+        state_path=tmp_path / "state.json",
+        alert_ledger=tmp_path / "alerts.jsonl",
+        now=datetime(2026, 8, 8, 10, tzinfo=UTC),
+    )
     assert result["ok"]
     assert (pub / "current" / "manifest.json").is_file()
     assert (pub / "current" / "chunk_0000.json").is_file()
