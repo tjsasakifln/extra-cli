@@ -277,20 +277,91 @@ def test_worst_state_folds_to_the_worst():
 
 
 def test_category_ladder_covers_every_panel_bucket():
-    """The ladder is duplicated from v_contract_intel_percentis; keep the buckets aligned."""
-    for bucket in (
-        "OBRAS",
-        "FACILITIES",
-        "TI",
-        "SAÚDE",
-        "ALIMENTAÇÃO",
-        "TRANSPORTE",
-        "SEGURANÇA",
-        "CONSULTORIA",
-        "COMBUSTÍVEL",
-        "OUTROS",
-    ):
-        assert f"'{bucket}'" in CATEGORY_SQL
+    """Every focal consumer calls the same classifier used by the panel view."""
+    assert CATEGORY_SQL == "public.contract_category_v1({col})"
+
+
+def test_default_scope_is_both_and_national_hold_blocks_unqualified_position(built):
+    result, document = built
+    panel = document["sections"]["price_panel"]
+    assert document["parameters"]["reference_scope"] == "BOTH"
+    assert panel["payload"]["requested_scope"] == "BOTH"
+    assert [item["scope_kind"] for item in panel["payload"]["panels"]] == ["REGIONAL", "NATIONAL"]
+    assert panel["payload"]["panels"][1]["state"] == DATA_HOLD
+    assert panel["payload"]["panels"][1]["categories"] == []
+    required_metadata = {
+        "scope_id",
+        "reference_state",
+        "geography",
+        "denominator",
+        "as_of",
+        "source",
+        "sample_count",
+        "coverage",
+        "missingness",
+        "method",
+        "hash",
+        "limitations",
+    }
+    assert all(required_metadata <= item.keys() for item in panel["payload"]["panels"])
+    assert panel["state"] == DATA_HOLD
+    assert not [f for f in result.findings if f.finding_id.startswith("value_position_in_category")]
+
+
+def test_explicit_regional_scope_preserves_scoped_comparison():
+    result, document = build_dossier(FixtureSource(FIXTURE), _request(reference_scope="REGIONAL"))
+    panel = document["sections"]["price_panel"]
+    assert panel["payload"]["requested_scope"] == "REGIONAL"
+    assert [item["scope_kind"] for item in panel["payload"]["panels"]] == ["REGIONAL"]
+    assert panel["payload"]["panels"][0]["scope_id"] == "regional_200km:fixture"
+    assert panel["payload"]["panels"][0]["source"]["id"] == "fixture"
+    assert result.request.reference_scope == "REGIONAL"
+
+
+def test_regional_authority_hold_cannot_be_promoted_by_comparable_values():
+    read = SourceRead(
+        source="v_contract_intel_reference_scopes_v1",
+        observed_at="t",
+        rows=(
+            {
+                "scope_kind": "REGIONAL",
+                "scope_id": "regional:test",
+                "reference_state": DATA_HOLD,
+                "categoria": "OBRAS",
+                "p25_valor": "100",
+                "p50_valor": "200",
+                "p75_valor": "300",
+                "focal_median": "200",
+                "qtd_contratos": 10,
+                "focal_count": 1,
+                "focal_valued_count": 1,
+            },
+        ),
+    )
+    section = build_price_panel(read, reference_scope="REGIONAL")
+    panel = section.payload["panels"][0]
+    assert panel["reference_state"] == DATA_HOLD
+    assert panel["state"] == DATA_HOLD
+    assert section.state == DATA_HOLD
+
+
+def test_missing_official_regional_authority_is_unknown_not_fixture():
+    read = SourceRead(
+        source="v_contract_intel_reference_scopes_v1",
+        observed_at="t",
+        rows=(
+            {
+                "scope_kind": "NATIONAL",
+                "scope_id": "national:unavailable",
+                "reference_state": DATA_HOLD,
+            },
+        ),
+    )
+    panel = build_price_panel(read, reference_scope="BOTH").payload["panels"][0]
+    assert panel["scope_id"] == "regional:unavailable"
+    assert panel["reference_state"] == DATA_HOLD
+    assert panel["source"] == {"id": "UNKNOWN", "version": "UNKNOWN"}
+    assert panel["method"] == {"status": "UNAVAILABLE"}
 
 
 def test_cli_build_and_verify_roundtrip(tmp_path, capsys):
@@ -332,8 +403,8 @@ def test_cli_claim_live_on_fixture_exits_rejected(tmp_path, capsys):
 def test_cli_strict_fails_on_hold(tmp_path, capsys):
     code = cli.main(["build", "--cnpj", CNPJ, "--fixture", str(FIXTURE), "--as-of", "2026-08-22", "--strict"])
     capsys.readouterr()
-    # The fixture is DATA_READY on required sections, so strict must pass.
-    assert code == 0
+    # BOTH is the safe default and the fixture has no national authority.
+    assert code == 4
 
 
 def test_handoff_is_ready_only_for_official_live(tmp_path):
@@ -481,7 +552,7 @@ def test_portfolio_totals_are_not_computed_over_the_display_list():
 
 
 def test_low_precision_category_claims_no_position():
-    """The TI bucket is 84% non-TI; a panel built from household goods prices nothing."""
+    """Lexical TI is fixed, but the broad `sistema` rung still withholds position."""
     from scripts.dossier.compose import build_price_panel
 
     read = SourceRead(
@@ -490,15 +561,14 @@ def test_low_precision_category_claims_no_position():
         rows=(
             {
                 "categoria": "TI",
-                "qtd_contratos": 137934,
-                "p25_valor": "715.22",
-                "p50_valor": "3800.00",
-                "p75_valor": "26150.00",
-                "ticket_medio": "53724893.05",
+                "qtd_contratos": 21017,
+                "p25_valor": "335.64",
+                "p50_valor": "1870.20",
+                "p75_valor": "30867.98",
+                "ticket_medio": None,
                 "focal_count": 4,
                 "focal_valued_count": 4,
                 "focal_median": "5000.00",
-                "focal_total_count": 4,
             },
         ),
     )

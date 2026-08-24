@@ -8,6 +8,7 @@ loss, or that an adjustment is due.
 from __future__ import annotations
 
 import hashlib
+import json
 from datetime import date
 from decimal import Decimal, InvalidOperation
 from typing import Any
@@ -38,14 +39,19 @@ from scripts.dossier.constants import (
     REASON_INSUFFICIENT_BUYERS,
     REASON_INSUFFICIENT_CONTRACTS,
     REASON_LOW_PRECISION_BUCKET,
+    REASON_NATIONAL_REFERENCE_HOLD,
     REASON_NO_COMPETITORS,
     REASON_NO_CONTRACTS,
     REASON_NO_EXPIRING,
     REASON_NO_OPPORTUNITIES,
     REASON_NO_PRICE_REFERENCE,
     REASON_PANEL_OUT_OF_RANGE,
+    REASON_REFERENCE_SCOPE_UNAVAILABLE,
     REASON_TABLE_MISSING,
     REASON_VALUE_UNKNOWN,
+    REFERENCE_SCOPE_BOTH,
+    REFERENCE_SCOPE_NATIONAL,
+    REFERENCE_SCOPE_REGIONAL,
     SECTION_BUYER_MAP,
     SECTION_COMPETITORS,
     SECTION_EXPIRING,
@@ -286,21 +292,52 @@ def _position(focal_median: Decimal, p25: Decimal | None, p50: Decimal | None, p
     return UNKNOWN
 
 
-def build_price_panel(read: SourceRead) -> Section:
-    if not read.available:
-        return _unavailable(SECTION_PRICE_PANEL, read)
-    if not read.rows:
-        return Section(
-            section_id=SECTION_PRICE_PANEL,
-            state=DATA_HOLD,
-            payload={"category_count": 0, "categories": []},
-            sources=(read.source,),
-            observed_at=read.observed_at,
-            row_count=0,
-            reason_codes=(REASON_NO_PRICE_REFERENCE,),
-        )
+def _reference_metadata(row: dict[str, Any], scope_kind: str) -> dict[str, Any]:
+    """Normalize the provenance carried by the scope-aware SQL view."""
+    default_geography = (
+        {"kind": "radius", "radius_km": 200, "label": "Florianopolis/SC reference base"}
+        if scope_kind == REFERENCE_SCOPE_REGIONAL
+        else {"kind": "country", "country": "BR"}
+    )
+    return {
+        "scope_id": row.get("scope_id")
+        or ("regional:unavailable" if scope_kind == REFERENCE_SCOPE_REGIONAL else "national:unavailable"),
+        "scope_kind": scope_kind,
+        "reference_state": row.get("reference_state") or DATA_HOLD,
+        "geography": row.get("geography") or default_geography,
+        "denominator": row.get("denominator")
+        or {
+            "eligible_contracts": int(row.get("qtd_contratos") or 0) or None,
+            "expected_partitions": None,
+            "queried_partitions": None,
+            "closed_partitions": None,
+        },
+        "as_of": row.get("as_of") or UNKNOWN,
+        "source": {
+            "id": row.get("source_id") or "UNKNOWN",
+            "version": row.get("source_version") or "UNKNOWN",
+        },
+        "sample_count": int(row.get("sample_count") or row.get("qtd_contratos") or 0) or None,
+        "coverage": row.get("coverage"),
+        "missingness": row.get("missingness"),
+        "method": row.get("method") or {"status": "UNAVAILABLE"},
+        "authority_hash": row.get("reference_hash") or "UNKNOWN",
+        "limitations": list(row.get("limitations") or ["Reference authority unavailable."]),
+    }
+
+
+def _panel_hash(panel: dict[str, Any]) -> str:
+    stable = {key: value for key, value in panel.items() if key != "hash"}
+    payload = json.dumps(stable, ensure_ascii=False, sort_keys=True, separators=(",", ":"), default=str)
+    return "sha256:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _category_rows(rows: tuple[dict[str, Any], ...]) -> tuple[list[dict[str, Any]], list[str]]:
     categories: list[dict[str, Any]] = []
-    for row in read.rows:
+    reason_codes: list[str] = []
+    for row in rows:
+        if not row.get("categoria"):
+            continue
         categoria = row.get("categoria")
         p25, p50, p75 = _dec(row.get("p25_valor")), _dec(row.get("p50_valor")), _dec(row.get("p75_valor"))
         focal_median = _dec(row.get("focal_median"))
@@ -317,7 +354,7 @@ def build_price_panel(read: SourceRead) -> Section:
                 "focal_contract_count": int(row.get("focal_count") or 0),
                 "focal_valued_count": int(row.get("focal_valued_count") or 0),
                 "focal_median": money(focal_median),
-                "focal_contract_count_all": int(row.get("focal_total_count") or row.get("focal_count") or 0),
+                "focal_contract_count_in_scope": int(row.get("focal_count") or 0),
                 "focal_position": (
                     POSITION_LOW_PRECISION_BUCKET
                     if low_precision
@@ -331,17 +368,74 @@ def build_price_panel(read: SourceRead) -> Section:
         if c["focal_position"] not in (UNKNOWN, POSITION_OUT_OF_PANEL_RANGE, POSITION_LOW_PRECISION_BUCKET)
     ]
     out_of_range = [c for c in categories if c["focal_position"] == POSITION_OUT_OF_PANEL_RANGE]
-    reason_codes: list[str] = []
     if not comparable:
         reason_codes.append(REASON_NO_PRICE_REFERENCE)
     if out_of_range:
         reason_codes.append(REASON_PANEL_OUT_OF_RANGE)
     if [c for c in categories if c["bucket_precision"] == "LOW"]:
         reason_codes.append(REASON_LOW_PRECISION_BUCKET)
+    return categories, reason_codes
+
+
+def build_price_panel(read: SourceRead, reference_scope: str = REFERENCE_SCOPE_REGIONAL) -> Section:
+    if not read.available:
+        return _unavailable(SECTION_PRICE_PANEL, read)
+    regional_rows = tuple(
+        row for row in read.rows if row.get("scope_kind", REFERENCE_SCOPE_REGIONAL) == REFERENCE_SCOPE_REGIONAL
+    )
+    national_rows = tuple(row for row in read.rows if row.get("scope_kind") == REFERENCE_SCOPE_NATIONAL)
+    categories, regional_reasons = _category_rows(regional_rows)
+    comparable = [
+        c
+        for c in categories
+        if c["focal_position"] not in (UNKNOWN, POSITION_OUT_OF_PANEL_RANGE, POSITION_LOW_PRECISION_BUCKET)
+    ]
+    out_of_range = [c for c in categories if c["focal_position"] == POSITION_OUT_OF_PANEL_RANGE]
+
+    regional_meta = _reference_metadata(regional_rows[0] if regional_rows else {}, REFERENCE_SCOPE_REGIONAL)
+    if regional_meta["reference_state"] != DATA_READY and REASON_REFERENCE_SCOPE_UNAVAILABLE not in regional_reasons:
+        regional_reasons.append(REASON_REFERENCE_SCOPE_UNAVAILABLE)
+    regional_panel = {
+        **regional_meta,
+        "state": DATA_READY if regional_meta["reference_state"] == DATA_READY and comparable else DATA_HOLD,
+        "reason_codes": regional_reasons,
+        "category_count": len(categories),
+        "comparable_category_count": len(comparable),
+        "categories": categories,
+    }
+    national_row = national_rows[0] if national_rows else {}
+    national_meta = _reference_metadata(national_row, REFERENCE_SCOPE_NATIONAL)
+    national_panel = {
+        **national_meta,
+        "state": DATA_HOLD,
+        "reason_codes": [REASON_NATIONAL_REFERENCE_HOLD],
+        "category_count": 0,
+        "comparable_category_count": 0,
+        "categories": [],
+    }
+    regional_panel["hash"] = _panel_hash(regional_panel)
+    national_panel["hash"] = _panel_hash(national_panel)
+
+    panels = []
+    if reference_scope in (REFERENCE_SCOPE_REGIONAL, REFERENCE_SCOPE_BOTH):
+        panels.append(regional_panel)
+    if reference_scope in (REFERENCE_SCOPE_NATIONAL, REFERENCE_SCOPE_BOTH):
+        panels.append(national_panel)
+    if not panels:
+        panels.append({**national_panel, "reason_codes": [REASON_REFERENCE_SCOPE_UNAVAILABLE]})
+
+    selected_reasons: list[str] = []
+    for panel in panels:
+        for code in panel["reason_codes"]:
+            if code not in selected_reasons:
+                selected_reasons.append(code)
+    state = DATA_READY if panels and all(panel["state"] == DATA_READY for panel in panels) else DATA_HOLD
     return Section(
         section_id=SECTION_PRICE_PANEL,
-        state=DATA_READY if comparable else DATA_HOLD,
+        state=state,
         payload={
+            "requested_scope": reference_scope,
+            "panels": panels,
             "category_count": len(categories),
             "comparable_category_count": len(comparable),
             "out_of_range_category_count": len(out_of_range),
@@ -349,15 +443,13 @@ def build_price_panel(read: SourceRead) -> Section:
             "low_precision_categories": sorted(LOW_PRECISION_CATEGORIES),
             "value_semantic": "valor_integral_nominal",
             "unit": "BRL_TOTAL",
-            "reference_scope": (
-                "contratos de órgãos públicos do conjunto de referência no raio de 200 km; não é amostra nacional"
-            ),
+            "reference_scope": "explicit scope panels; inspect panels[].scope_id and panels[].state",
             "categories": categories,
         },
         sources=(read.source,),
         observed_at=read.observed_at,
-        row_count=len(categories),
-        reason_codes=tuple(reason_codes),
+        row_count=len(read.rows),
+        reason_codes=tuple(selected_reasons),
     )
 
 
@@ -542,7 +634,7 @@ def build_findings(
             )
         )
 
-    for category in price_panel.payload.get("categories", []):
+    for category in price_panel.payload.get("categories", []) if price_panel.state == DATA_READY else []:
         # A panel the focal sits orders of magnitude outside of is not a
         # reference; emitting a position from it would be a claim, not a fact.
         if category.get("focal_position") in (

@@ -41,6 +41,7 @@ pytestmark = [
 ]
 
 MIGRATION_026 = _PROJECT_ROOT / "db" / "migrations" / "026_contract_intel_truth_v1.sql"
+MIGRATION_101 = _PROJECT_ROOT / "db" / "migrations" / "101_contract_reference_scope_truth.sql"
 
 
 # ---------------------------------------------------------------------------
@@ -57,6 +58,10 @@ def pg_conn(db_conn):
     # Apply migration 026
     if MIGRATION_026.exists():
         cur.execute(MIGRATION_026.read_text())
+    # Migration 026 is historical and overwrites the current view. Restore the
+    # effective #452/#453 definition before executing any assertions.
+    if MIGRATION_101.exists():
+        cur.execute(MIGRATION_101.read_text())
     # Clean any previous test data
     cur.execute("DELETE FROM pncp_supplier_contracts WHERE source = 'test_fixture'")
     cur.execute("DELETE FROM sc_public_entities WHERE cnpj_8 LIKE '99%'")

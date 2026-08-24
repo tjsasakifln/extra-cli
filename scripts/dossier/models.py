@@ -12,6 +12,7 @@ from scripts.dossier.constants import (
     DATA_READY,
     DATA_REJECT,
     DATA_STATE_RANK,
+    REFERENCE_SCOPE_BOTH,
 )
 
 _NON_DIGITS = re.compile(r"\D+")
@@ -121,6 +122,7 @@ class DossierRequest:
     producer_sha: str | None = None
     competitor_limit: int | None = None
     expiring_window_days: int | None = None
+    reference_scope: str = REFERENCE_SCOPE_BOTH
 
 
 @dataclass(frozen=True)
