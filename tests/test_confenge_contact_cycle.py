@@ -200,3 +200,4 @@ def test_systemd_cycle_and_workers_share_private_search_endpoint_contract() -> N
     assert "CONFENGE_SEARXNG_URL=http://127.0.0.1:18888" in env
     for unit in (cycle, worker):
         assert "EnvironmentFile=-/etc/extra-consultoria/contact-discovery.env" in unit
+    assert "--out /var/lib/extra-consultoria/output/contact-discovery" in worker
