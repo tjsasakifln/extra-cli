@@ -24,3 +24,11 @@ def test_offsite_backup_is_published_atomically() -> None:
     assert publish in source
     assert source.index(staging) < source.index(copy) < source.index(publish)
     assert 'cp -f "$staging_path" "$dump_path"' not in source
+
+
+def test_offsite_directories_are_observable_without_exposing_dump_contents() -> None:
+    source = SCRIPT.read_text(encoding="utf-8")
+    assert 'OBSERVER_GROUP="${BACKUP_OBSERVER_GROUP:-extra-consultoria}"' in source
+    assert 'chgrp "$OBSERVER_GROUP" "$base/daily" "$base/weekly"' in source
+    assert 'chmod 0750 "$base/daily" "$base/weekly"' in source
+    assert "chmod -R" not in source

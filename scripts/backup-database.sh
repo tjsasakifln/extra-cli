@@ -20,6 +20,7 @@
 #   BACKUP_RETENTION_DAILY      - Qtde diários a manter (def: 7)
 #   BACKUP_RETENTION_WEEKLY     - Qtde semanais a manter (def: 4)
 #   BACKUP_LOG_FILE             - Arquivo de log (def: /var/log/backup-database.log)
+#   BACKUP_OBSERVER_GROUP       - Grupo read-only que observa freshness (def: extra-consultoria)
 #   BACKUP_NOTIFY_CMD           - Comando executado em falha (opcional)
 #   SSHFS_OPTIONS               - Opções extras para sshfs (opcional)
 #
@@ -54,6 +55,7 @@ TEMP_DIR="${BACKUP_TEMP_DIR:-/tmp/pg-backup}"
 RETENTION_DAILY="${BACKUP_RETENTION_DAILY:-7}"
 RETENTION_WEEKLY="${BACKUP_RETENTION_WEEKLY:-4}"
 LOG_FILE="${BACKUP_LOG_FILE:-/var/log/backup-database.log}"
+OBSERVER_GROUP="${BACKUP_OBSERVER_GROUP:-extra-consultoria}"
 NOTIFY_CMD="${BACKUP_NOTIFY_CMD:-}"
 SSHFS_OPTS="${SSHFS_OPTIONS:--o reconnect,ServerAliveInterval=15,ServerAliveCountMax=3}"
 NFS_OPTS="${BACKUP_NFS_OPTIONS:-vers=3,nolock,hard,timeo=600,retrans=2}"
@@ -148,7 +150,7 @@ fi
 log "INFO" "=== Início da execução (modo: $MODE) ==="
 
 # Verifica dependências
-for cmd in pg_dump gzip; do
+for cmd in pg_dump gzip getent; do
   if ! command -v "$cmd" &>/dev/null; then
     log "FATAL" "Comando não encontrado: $cmd"
     notify_failure "Backup DB - Falha" "Comando não encontrado: $cmd"
@@ -277,6 +279,14 @@ ensure_remote_dirs() {
     return 0
   fi
   mkdir -p "$base/daily" "$base/weekly"
+  if ! getent group "$OBSERVER_GROUP" >/dev/null; then
+    log "FATAL" "Grupo observador de backup não existe: $OBSERVER_GROUP"
+    return 1
+  fi
+  # The health worker only needs directory traversal/listing to stat the newest
+  # immutable dump. Dump contents remain governed by their existing file mode.
+  chgrp "$OBSERVER_GROUP" "$base/daily" "$base/weekly"
+  chmod 0750 "$base/daily" "$base/weekly"
 }
 
 # ─── Backup ──────────────────────────────────────────────────────────────────
