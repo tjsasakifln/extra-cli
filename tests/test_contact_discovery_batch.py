@@ -17,6 +17,7 @@ from scripts.decision_unit_intelligence.batch_outcomes import (
     classify_exception,
     persist_outcome,
 )
+from scripts.decision_unit_intelligence.batch_projection import write_contact_projection
 from scripts.decision_unit_intelligence.batch_queue import (
     ContactDiscoveryQueue,
     connect,
@@ -28,7 +29,19 @@ from scripts.decision_unit_intelligence.batch_worker import (
     execute_claimed,
 )
 from scripts.decision_unit_intelligence.cli import main
-from scripts.decision_unit_intelligence.models import AccountTerminal, SearchLedger
+from scripts.decision_unit_intelligence.models import (
+    AccountInvestigation,
+    AccountTerminal,
+    ActionMode,
+    ChannelType,
+    EpistemicClass,
+    FreshnessState,
+    OwnershipStatus,
+    ReachabilityClass,
+    ReachabilityRoute,
+    RouteRelation,
+    SearchLedger,
+)
 
 MIGRATION = Path(__file__).resolve().parents[1] / "db" / "migrations" / "093_contact_discovery_batch.sql"
 DSN = (
@@ -100,6 +113,44 @@ def _account(cnpj: str, terminal: AccountTerminal = AccountTerminal.ACTIONABLE_R
     )
 
 
+def _auditable_role_account(cnpj: str) -> AccountInvestigation:
+    return AccountInvestigation(
+        company_entity_id=cnpj,
+        cnpj=cnpj,
+        legal_name="ACME ENGENHARIA LTDA",
+        service_context="reajuste_14133",
+        why_now="TARGET_CONFIRMED",
+        routes=[
+            ReachabilityRoute(
+                route_id=f"route-{cnpj}",
+                company_entity_id=cnpj,
+                channel_type=ChannelType.ROLE_MAILBOX,
+                reachability_class=ReachabilityClass.R4_ROLE_ROUTE,
+                action_mode=ActionMode.ROLE_EMAIL,
+                target_role="licitacoes",
+                channel_value="licitacoes@acme.example.com",
+                route_relation=RouteRelation.ROUTES_TO_ROLE,
+                epistemic_class=EpistemicClass.OBSERVED,
+                source_type="company_website",
+                source_url="https://acme.example.com/contato",
+                evidence_ids=["ev-contact-page"],
+                freshness=FreshnessState.FRESH,
+                ownership=OwnershipStatus.COMPANY_OWNED,
+                observed_at="2026-08-24T12:00:00Z",
+                extra={
+                    "official_domain": "acme.example.com",
+                    "mailbox_company_evidence": "OBSERVED",
+                    "mailbox_department_evidence": "OBSERVED",
+                    "email_discovery_class": "ROLE_MAILBOX",
+                },
+            )
+        ],
+        terminal=AccountTerminal.ACTIONABLE_ROUTE,
+        ledger=SearchLedger(tiers_completed=[0, 1, 2, 3]),
+        extra={"domain_resolution": {"canonical_domain": "acme.example.com"}},
+    )
+
+
 def _seed(queue: ContactDiscoveryQueue, *, cohort: str, accounts: list[str], policy: str = "dui.policy.v1", backend: str = "off", budget: str = "budget.test", service: str = "reajuste_14133") -> list[int]:
     queue.upsert_cohort(
         cohort_id=cohort,
@@ -157,6 +208,85 @@ def test_duplicate_enqueue_does_not_create_second_truth(dsn: str) -> None:
         )
 
 
+def test_canonical_population_enqueue_preserves_selection_evidence(
+    dsn: str, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from scripts.confenge_contact_resolution.enrichment_batch import CompanyJob
+    from scripts.decision_unit_intelligence import cli
+    from scripts.decision_unit_intelligence.batch_population import DiscoveryPopulation
+
+    jobs = (
+        CompanyJob(
+            cnpj14="11222333000181",
+            priority_tier="A1",
+            priority_rank=5,
+            meta={
+                "company_key": "cnpj:11222333",
+                "cnpj_raiz": "11222333",
+                "representative_establishment_observed": True,
+                "target_fit_class": "TARGET_CONFIRMED",
+            },
+        ),
+        CompanyJob(
+            cnpj14="44555666000177",
+            priority_tier="A2",
+            priority_rank=10,
+            meta={
+                "company_key": "cnpj:44555666",
+                "cnpj_raiz": "44555666",
+                "representative_establishment_observed": True,
+                "target_fit_class": "TARGET_CONFIRMED",
+            },
+        ),
+    )
+    selection = DiscoveryPopulation(
+        name="target-confirmed",
+        jobs=jobs,
+        selection_hash="a" * 64,
+        input_evidence_version="target-fit.aaaaaaaaaaaaaaaa",
+        metadata={
+            "population": "target-confirmed",
+            "population_total": 2,
+            "runnable_total": 2,
+            "selection_hash": "a" * 64,
+            "selection_complete": True,
+            "sampled": False,
+        },
+    )
+    monkeypatch.setattr(cli, "load_discovery_population", lambda *_args, **_kwargs: selection)
+
+    assert (
+        cli.main(
+            [
+                "batch",
+                "enqueue",
+                "--cohort",
+                "c-population",
+                "--population",
+                "target-confirmed",
+                "--search-backend",
+                "searxng",
+                "--searxng-url",
+                "http://search.invalid",
+                "--dsn",
+                dsn,
+            ]
+        )
+        == 0
+    )
+    payload = __import__("json").loads(capsys.readouterr().out)
+    assert payload["enqueued"] == 2
+    assert payload["job_ids_omitted"] == 0
+    assert payload["input_evidence_version"] == "target-fit.aaaaaaaaaaaaaaaa"
+    with connect(dsn) as connection:
+        rows = ContactDiscoveryQueue(connection).inspect(cohort_id="c-population")
+    assert len(rows) == 2
+    assert rows[0]["input_evidence_version"] == "target-fit.aaaaaaaaaaaaaaaa"
+    assert rows[0]["cursor"]["population"]["target_fit_class"] == "TARGET_CONFIRMED"
+    by_account = {row["canonical_account_id"]: row for row in rows}
+    assert by_account["11222333000181"]["priority"] > by_account["44555666000177"]["priority"]
+
+
 def test_policy_change_creates_new_revision_identity(dsn: str) -> None:
     with connect(dsn) as connection:
         queue = ContactDiscoveryQueue(connection)
@@ -186,6 +316,23 @@ def test_policy_change_creates_new_revision_identity(dsn: str) -> None:
         assert new_id != 0
         assert len(queue.inspect(cohort_id="c-policy-a")) == 1
         assert len(queue.inspect(cohort_id="c-policy-b")) == 1
+
+
+def test_cohort_id_cannot_mix_input_evidence_versions(dsn: str) -> None:
+    with connect(dsn) as connection:
+        queue = ContactDiscoveryQueue(connection)
+        _seed(queue, cohort="c-immutable", accounts=["11222333000181"])
+        with pytest.raises(ValueError, match="cohort c-immutable is immutable"):
+            queue.upsert_cohort(
+                cohort_id="c-immutable",
+                service="reajuste_14133",
+                offer_context="canary",
+                discovery_policy_version="dui.policy.v1",
+                search_backend="off",
+                budget_version="budget.test",
+                code_sha="sha-test",
+                input_evidence_version="input.v2",
+            )
 
 
 def test_two_workers_claim_same_job_exactly_once(dsn: str, tmp_path: Path) -> None:
@@ -225,6 +372,40 @@ def test_two_workers_claim_same_job_exactly_once(dsn: str, tmp_path: Path) -> No
                 (jobs[0]["id"],),
             )
             assert int(cursor.fetchone()["n"]) == 1
+
+
+def test_complete_cohort_exports_verified_bridge_projection(dsn: str, tmp_path: Path) -> None:
+    with connect(dsn) as connection:
+        _seed(
+            ContactDiscoveryQueue(connection),
+            cohort="c-export",
+            accounts=["11222333000181"],
+            backend="searxng",
+        )
+    worker = ContactDiscoveryWorker(
+        dsn=dsn,
+        worker_id="projection-worker",
+        output_root=tmp_path / "outputs",
+        admission_probe=lambda: [],
+        discovery=lambda job: _auditable_role_account(job.canonical_account_id),
+    )
+    assert worker.run_once()["status"] == "SUCCEEDED"
+
+    with connect(dsn) as connection:
+        result = write_contact_projection(
+            ContactDiscoveryQueue(connection),
+            cohort_id="c-export",
+            output_path=tmp_path / "contacts.jsonl",
+            report_path=tmp_path / "report.json",
+        )
+
+    assert result["written"] is True
+    assert result["terminal_coverage_complete"] is True
+    assert result["enrichment_states"] == {"EMAIL_ROUTE_READY": 1}
+    row = __import__("json").loads((tmp_path / "contacts.jsonl").read_text(encoding="utf-8"))
+    assert row["cnpj14"] == "11222333000181"
+    assert row["contacts"][0]["route_class"] == "ROLE_OR_DEPARTMENT"
+    assert row["contacts"][0]["source_url"] == "https://acme.example.com/contato"
 
 
 def test_crash_before_commit_resumes_same_job(dsn: str, tmp_path: Path) -> None:

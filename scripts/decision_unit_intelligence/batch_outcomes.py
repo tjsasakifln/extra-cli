@@ -14,7 +14,8 @@ from pathlib import Path
 from typing import Any
 
 from scripts.decision_unit_intelligence.batch_queue import ClaimedDiscoveryJob
-from scripts.decision_unit_intelligence.models import AccountTerminal, ChannelType
+from scripts.decision_unit_intelligence.models import AccountInvestigation, AccountTerminal, ChannelType
+from scripts.decision_unit_intelligence.projection import project_warmbly_outreach
 from scripts.decision_unit_intelligence.repository import account_hash, write_json
 
 FORBIDDEN_REASON_CODES = frozenset(
@@ -51,6 +52,9 @@ class Outcome:
     metrics: dict[str, Any] = field(default_factory=dict)
     domain_key: str | None = None
     account_payload: dict[str, Any] | None = None
+    contact_projection: dict[str, Any] | None = None
+    enrichment_state: str | None = None
+    enrichment_reason: str | None = None
     output_pointer: str | None = None
     output_hash: str | None = None
 
@@ -104,7 +108,7 @@ def _provider_failure_count(account: Any) -> int:
     ledger = getattr(account, "ledger", None)
     if ledger is None:
         return 0
-    count = 0
+    count = len(getattr(ledger, "blocked_sources", None) or [])
     for attempt in ledger.attempts or []:
         extra = getattr(attempt, "extra", {}) or {}
         count += len(extra.get("failures") or [])
@@ -118,47 +122,49 @@ def classify_account(account: Any) -> Outcome:
     metrics = extract_metrics(account)
     domain = _domain_from_account(account)
     payload = account.to_dict() if hasattr(account, "to_dict") else dict(account)
+    contact_projection = (
+        project_warmbly_outreach(account) if isinstance(account, AccountInvestigation) else None
+    )
+
+    def result(**kwargs: Any) -> Outcome:
+        return Outcome(
+            metrics=metrics,
+            domain_key=domain,
+            account_payload=payload,
+            contact_projection=contact_projection,
+            **kwargs,
+        )
 
     if any(token in blob for token in ("429", "RateLimit", "Ratelimit", "TooManyRequests")):
-        return Outcome(
+        return result(
             job_status="RETRYABLE",
             reason_code="PROVIDER_429",
             discovery_terminal=terminal,
             error_message=blob[:500] or None,
-            metrics=metrics,
-            domain_key=domain,
-            account_payload=payload,
         )
     if any(token in blob for token in ("TimeoutException", "ReadTimeout", "ConnectTimeout", "TimeoutError")):
-        return Outcome(
+        return result(
             job_status="RETRYABLE",
             reason_code="PROVIDER_TIMEOUT",
             discovery_terminal=terminal,
             error_message=blob[:500] or None,
-            metrics=metrics,
-            domain_key=domain,
-            account_payload=payload,
         )
     if "HTTPStatusError" in blob or re.search(r"\b5\d\d\b", blob):
-        return Outcome(
+        return result(
             job_status="RETRYABLE",
             reason_code="PROVIDER_5XX" if re.search(r"\b5\d\d\b", blob) else "PROVIDER_HTTP_ERROR",
             discovery_terminal=terminal,
             error_message=blob[:500] or None,
-            metrics=metrics,
-            domain_key=domain,
-            account_payload=payload,
         )
 
     if terminal == AccountTerminal.BLOCKED.value:
-        return Outcome(
+        return result(
             job_status="BLOCKED",
             reason_code="SOURCE_BLOCKED",
             discovery_terminal=terminal,
             error_message=blob[:500] or None,
-            metrics=metrics,
-            domain_key=domain,
-            account_payload=payload,
+            enrichment_state="BLOCKED_WITH_REASON",
+            enrichment_reason="SOURCE_BLOCKED",
         )
 
     reason = "DISCOVERY_COMPLETED"
@@ -170,14 +176,49 @@ def classify_account(account: Any) -> Outcome:
         reason = "PERSON_WITHOUT_ROUTE"
     elif terminal == AccountTerminal.NEEDS_ENRICHMENT.value:
         reason = "NEEDS_ENRICHMENT"
-    return Outcome(
+    preferred = (contact_projection or {}).get("preferred_initial_route")
+    if preferred:
+        enrichment_state = "EMAIL_ROUTE_READY"
+        enrichment_reason = "CONTROLLED_EMAIL_ROUTE_SELECTED"
+    else:
+        enrichment_state = "NO_PUBLIC_EMAIL_FOUND"
+        enrichment_reason = "WATERFALL_COMPLETED_WITHOUT_ELIGIBLE_ROUTE"
+    return result(
         job_status="SUCCEEDED",
         reason_code=reason,
         discovery_terminal=terminal,
-        metrics=metrics,
-        domain_key=domain,
-        account_payload=payload,
+        enrichment_state=enrichment_state,
+        enrichment_reason=enrichment_reason,
     )
+
+
+def finalize_enrichment_state(outcome: Outcome, *, job: ClaimedDiscoveryJob) -> Outcome:
+    """Make a terminal claim only when the configured waterfall supports it."""
+    if outcome.contact_projection is None:
+        return outcome
+    if outcome.job_status == "BLOCKED":
+        outcome.enrichment_state = "BLOCKED_WITH_REASON"
+        outcome.enrichment_reason = outcome.reason_code
+        return outcome
+    if outcome.job_status != "SUCCEEDED":
+        outcome.enrichment_state = None
+        outcome.enrichment_reason = None
+        return outcome
+    if outcome.contact_projection.get("preferred_initial_route"):
+        outcome.enrichment_state = "EMAIL_ROUTE_READY"
+        outcome.enrichment_reason = "CONTROLLED_EMAIL_ROUTE_SELECTED"
+        return outcome
+    if job.search_backend == "off":
+        outcome.enrichment_state = "BLOCKED_WITH_REASON"
+        outcome.enrichment_reason = "PUBLIC_DISCOVERY_DISABLED"
+        return outcome
+    if int((outcome.metrics or {}).get("provider_failures") or 0) > 0:
+        outcome.enrichment_state = "BLOCKED_WITH_REASON"
+        outcome.enrichment_reason = "WATERFALL_PROVIDER_FAILURE"
+        return outcome
+    outcome.enrichment_state = "NO_PUBLIC_EMAIL_FOUND"
+    outcome.enrichment_reason = "WATERFALL_COMPLETED_WITHOUT_ELIGIBLE_ROUTE"
+    return outcome
 
 
 def extract_metrics(account: Any) -> dict[str, Any]:
@@ -245,8 +286,9 @@ def _domain_from_account(account: Any) -> str | None:
 def persist_outcome(outcome: Outcome, *, job: ClaimedDiscoveryJob, output_root: Path) -> Outcome:
     if outcome.reason_code in FORBIDDEN_REASON_CODES:
         raise ValueError(f"forbidden reason code: {outcome.reason_code}")
+    outcome = finalize_enrichment_state(outcome, job=job)
     payload = {
-        "schema_id": "confenge.contact_discovery.job_output.v1",
+        "schema_id": "confenge.contact_discovery.job_output.v2",
         "job_type": "CONFENGE_CONTACT_DISCOVERY",
         "job_id": job.id,
         "cohort_id": job.cohort_id,
@@ -257,12 +299,15 @@ def persist_outcome(outcome: Outcome, *, job: ClaimedDiscoveryJob, output_root: 
         "job_status": outcome.job_status,
         "reason_code": outcome.reason_code,
         "discovery_terminal": outcome.discovery_terminal,
+        "enrichment_state": outcome.enrichment_state,
+        "enrichment_reason": outcome.enrichment_reason,
         "policy_version": job.discovery_policy_version,
         "search_backend": job.search_backend,
         "budget_version": job.budget_version,
         "code_sha": job.code_sha,
         "input_evidence_version": job.input_evidence_version,
         "metrics": outcome.metrics,
+        "contact_projection": outcome.contact_projection,
         "account": outcome.account_payload,
     }
     directory = Path(output_root) / job.cohort_id

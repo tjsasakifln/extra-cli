@@ -78,6 +78,7 @@ def _route(
     source_type: str = "company_website",
     source_url: str | None = "https://empresaexemplo.com.br/contato",
     observed_at: str = "2026-08-01T00:00:00Z",
+    target_role: str | None = None,
 ) -> ReachabilityRoute:
     payload = dict(extra or {})
     return ReachabilityRoute(
@@ -87,6 +88,7 @@ def _route(
         reachability_class=reachability,
         action_mode=action,
         decision_unit_candidate_id=candidate_id,
+        target_role=target_role,
         channel_value=mailbox,
         route_relation=relation,
         epistemic_class=epistemic,

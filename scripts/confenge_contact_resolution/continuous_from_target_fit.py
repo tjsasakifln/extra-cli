@@ -79,7 +79,11 @@ def load_construction_jobs_from_dsn(
                            s.sector_class,
                            s.sector_confidence,
                            t.shadow_class AS target_fit_class,
-                           t.shadow_confidence AS target_fit_confidence
+                           t.shadow_confidence AS target_fit_confidence,
+                           t.target_fit_version,
+                           t.input_fingerprint AS target_fit_input_fingerprint,
+                           t.source_watermark AS target_fit_source_watermark,
+                           t.computed_at AS target_fit_computed_at
                     FROM confenge_company_sector_current s
                     LEFT JOIN confenge_target_fit_shadow t USING (company_key)
                     WHERE s.sector_class IN ('CONSTRUCTION_CONFIRMED', 'CONSTRUCTION_PROBABLE')
@@ -101,7 +105,11 @@ def load_construction_jobs_from_dsn(
                            s.sector_class,
                            s.sector_confidence,
                            t.target_fit_class,
-                           t.target_fit_confidence
+                           t.target_fit_confidence,
+                           t.target_fit_version,
+                           t.input_fingerprint AS target_fit_input_fingerprint,
+                           t.source_watermark AS target_fit_source_watermark,
+                           t.computed_at AS target_fit_computed_at
                     FROM confenge_company_sector_current s
                     LEFT JOIN confenge_company_target_fit_current t USING (company_key)
                     WHERE s.sector_class IN ('CONSTRUCTION_CONFIRMED', 'CONSTRUCTION_PROBABLE')
@@ -151,6 +159,14 @@ def load_construction_jobs_from_dsn(
                         "sector_confidence": r.get("sector_confidence"),
                         "target_fit_class": target_class,
                         "target_fit_confidence": conf,
+                        "target_fit_version": r.get("target_fit_version"),
+                        "target_fit_input_fingerprint": r.get("target_fit_input_fingerprint"),
+                        "target_fit_source_watermark": r.get("target_fit_source_watermark"),
+                        "target_fit_computed_at": (
+                            r.get("target_fit_computed_at").isoformat()
+                            if hasattr(r.get("target_fit_computed_at"), "isoformat")
+                            else r.get("target_fit_computed_at")
+                        ),
                         "source": "continuous_construction_universe",
                     },
                 )

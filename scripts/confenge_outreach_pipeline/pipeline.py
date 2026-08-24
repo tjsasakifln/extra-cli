@@ -60,6 +60,8 @@ from scripts.confenge_universe import (
     DEFAULT_MANIFEST_NAME,
 )
 from scripts.confenge_universe.pipeline import run_universe_build
+from scripts.decision_unit_intelligence import POLICY_VERSION as CONTACT_DISCOVERY_POLICY_VERSION
+from scripts.decision_unit_intelligence.controlled_email import dedupe_feed_contacts_by_mailbox
 from scripts.warmbly_bridge.export import ExportConfig, export_outreach
 
 
@@ -196,6 +198,66 @@ def _dedupe_decision_rows(rows: list[dict[str, Any]]) -> tuple[list[dict[str, An
     return out, duplicate_count
 
 
+def merge_contact_rows(
+    durable_rows: list[dict[str, Any]],
+    current_rows: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], dict[str, int]]:
+    """Merge durable waterfall contacts with this run's hot-set corroboration."""
+    durable_policies = {
+        str(row.get("contact_discovery_policy_version"))
+        for row in durable_rows
+        if row.get("contact_discovery_policy_version")
+    }
+    durable_inputs = {
+        str(row.get("contact_discovery_input_evidence_version"))
+        for row in durable_rows
+        if row.get("contact_discovery_input_evidence_version")
+    }
+    if len(durable_policies) > 1 or len(durable_inputs) > 1:
+        raise ValueError(
+            "durable contact projection mixes discovery policy/input versions; "
+            f"policies={sorted(durable_policies)} inputs={sorted(durable_inputs)}"
+        )
+    if durable_policies and durable_policies != {CONTACT_DISCOVERY_POLICY_VERSION}:
+        raise ValueError(
+            "durable contact projection policy differs from runtime; "
+            f"expected={CONTACT_DISCOVERY_POLICY_VERSION} observed={sorted(durable_policies)}"
+        )
+    by_cnpj: dict[str, dict[str, Any]] = {}
+    durable_accounts: set[str] = set()
+    current_accounts: set[str] = set()
+    for source_name, rows in (("durable", durable_rows), ("current", current_rows)):
+        for row in rows:
+            cnpj = canonical_cnpj14(row.get("cnpj14") or row.get("cnpj"))
+            if not cnpj:
+                continue
+            if source_name == "durable":
+                durable_accounts.add(cnpj)
+            else:
+                current_accounts.add(cnpj)
+            existing = by_cnpj.get(cnpj, {"cnpj14": cnpj, "contacts": []})
+            # Durable discovery is the persistent base. Same-run resolution adds
+            # corroboration and newly observed alternatives; ranking is redone at
+            # the bridge boundary over the union.
+            combined = [*(existing.get("contacts") or []), *(row.get("contacts") or [])]
+            merged = {**row, **existing, "cnpj14": cnpj}
+            merged["contacts"] = dedupe_feed_contacts_by_mailbox(combined)
+            merged["contact_projection_sources"] = sorted(
+                set(existing.get("contact_projection_sources") or []) | {source_name}
+            )
+            if not merged.get("official_domain") and row.get("official_domain"):
+                merged["official_domain"] = row["official_domain"]
+            by_cnpj[cnpj] = merged
+    merged_rows = [by_cnpj[cnpj] for cnpj in sorted(by_cnpj)]
+    return merged_rows, {
+        "durable_accounts": len(durable_accounts),
+        "current_accounts": len(current_accounts),
+        "merged_accounts": len(merged_rows),
+        "accounts_in_both": len(durable_accounts & current_accounts),
+        "accounts_with_contacts": sum(bool(row.get("contacts")) for row in merged_rows),
+    }
+
+
 def _published_target_fit_snapshot(
     rows: list[dict[str, Any]],
     *,
@@ -273,6 +335,7 @@ class PipelineConfig:
     enable_web_search: bool = False
     fixtures_dir: Path | None = None
     contact_fixtures_dir: Path | None = None
+    durable_contacts_path: Path | None = None
     include_dnc_in_sample: bool = True
     feed_limit: int | None = None
     # Activation planner (production default when True)
@@ -666,6 +729,18 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
             # Contact metrics
             metrics = _contact_metrics(resolutions)
             contact_meta["metrics"] = metrics
+
+        durable_contacts: list[dict[str, Any]] = []
+        if cfg.durable_contacts_path is not None:
+            durable_path = Path(cfg.durable_contacts_path)
+            if not durable_path.is_file():
+                raise ValueError(f"durable contact projection not found: {durable_path}")
+            durable_contacts = _read_jsonl(durable_path)
+        bridge_contacts, merge_metrics = merge_contact_rows(durable_contacts, bridge_contacts)
+        contact_meta["durable_projection"] = {
+            **merge_metrics,
+            "path": str(cfg.durable_contacts_path) if cfg.durable_contacts_path else None,
+        }
 
         bridge_contacts_path = dirs["bridge_inputs"] / "contacts.jsonl"
         _write_jsonl(bridge_contacts_path, bridge_contacts)

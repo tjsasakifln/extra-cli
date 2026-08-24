@@ -265,6 +265,30 @@ def _map_contact(item: dict[str, Any], *, idx: int, cnpj: str) -> dict[str, Any]
         out["mailbox_company_evidence"] = _as_str(item.get("mailbox_company_evidence"))
     if item.get("person_id"):
         out["person_id"] = _as_str(item.get("person_id"))
+    for key in (
+        "route_class",
+        "controlled_email_eligible",
+        "preferred_initial",
+        "preferred_rank",
+        "risk_class",
+        "channel_epistemic_class",
+        "route_freshness",
+        "route_suppression",
+        "mailbox_company_evidence",
+        "mailbox_department_evidence",
+        "mailbox_person_evidence",
+        "mailbox_department",
+        "person_unknown",
+        "email_validated",
+        "policy_version",
+        "schema_version",
+        "source_reference",
+        "provenance_class",
+        "evidence_ids",
+        "reason_codes",
+    ):
+        if key in item:
+            out[key] = item[key]
     return out
 
 

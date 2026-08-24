@@ -181,6 +181,13 @@ class ContactDiscoveryQueue:
                 ON CONFLICT (cohort_id) DO UPDATE SET
                     updated_at = now(),
                     metadata = contact_discovery_cohorts.metadata || EXCLUDED.metadata
+                WHERE contact_discovery_cohorts.service = EXCLUDED.service
+                  AND contact_discovery_cohorts.offer_context IS NOT DISTINCT FROM EXCLUDED.offer_context
+                  AND contact_discovery_cohorts.discovery_policy_version = EXCLUDED.discovery_policy_version
+                  AND contact_discovery_cohorts.search_backend = EXCLUDED.search_backend
+                  AND contact_discovery_cohorts.budget_version = EXCLUDED.budget_version
+                  AND contact_discovery_cohorts.code_sha = EXCLUDED.code_sha
+                  AND contact_discovery_cohorts.input_evidence_version = EXCLUDED.input_evidence_version
                 RETURNING *
                 """,
                 (
@@ -197,7 +204,32 @@ class ContactDiscoveryQueue:
             )
             row = fetch_one(cursor)
             if row is None:
-                raise RuntimeError("cohort upsert returned no row")
+                cursor.execute(
+                    "SELECT * FROM contact_discovery_cohorts WHERE cohort_id = %s",
+                    (cohort_id,),
+                )
+                row = fetch_one(cursor)
+            if row is None:
+                raise RuntimeError("cohort upsert returned no row and no conflicting cohort exists")
+            immutable = {
+                "service": service,
+                "offer_context": offer_context,
+                "discovery_policy_version": discovery_policy_version,
+                "search_backend": search_backend,
+                "budget_version": budget_version,
+                "code_sha": code_sha,
+                "input_evidence_version": input_evidence_version,
+            }
+            mismatches = {
+                key: {"existing": row.get(key), "requested": expected}
+                for key, expected in immutable.items()
+                if row.get(key) != expected
+            }
+            if mismatches:
+                raise ValueError(
+                    f"cohort {cohort_id} is immutable; use a new cohort id for changed execution contract: "
+                    f"{mismatches}"
+                )
             return row
 
     def enqueue(
@@ -815,7 +847,8 @@ class ContactDiscoveryQueue:
                        lease_expires_at, heartbeat_at, next_run_at,
                        discovery_policy_version, search_backend, budget_version,
                        code_sha, input_evidence_version, idempotency_key,
-                       cost_metrics, domain_key, backend_key, cancel_requested
+                       cost_metrics, domain_key, backend_key, cancel_requested,
+                       priority, cursor
                 FROM contact_discovery_jobs
                 WHERE {where}
                 ORDER BY id

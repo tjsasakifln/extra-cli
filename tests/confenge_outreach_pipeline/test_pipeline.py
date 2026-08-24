@@ -17,6 +17,7 @@ from scripts.confenge_outreach_pipeline.pipeline import (
     _published_target_fit_snapshot,
     build_pipeline_contact_resolver,
     contact_job_meta,
+    merge_contact_rows,
     run_pipeline,
 )
 from scripts.confenge_outreach_pipeline.sample import classify_profile, select_diverse_sample
@@ -71,12 +72,174 @@ def test_limit_downstream_does_not_shrink_universe(tmp_path: Path) -> None:
     assert (out / "pipeline-checkpoint.json").is_file()
 
 
+def test_durable_projection_reaches_feed_accounts_outside_hot_set(tmp_path: Path) -> None:
+    durable_path = tmp_path / "durable-contacts.jsonl"
+    candidate_cnpjs = (
+        "11222333000181",
+        "44555666000181",
+        "33445566000186",
+        "77888999000181",
+        "99887766000105",
+        "12345678000195",
+    )
+    durable_rows = []
+    for cnpj in candidate_cnpjs:
+        host = f"empresa{cnpj[:8]}.com.br"
+        durable_rows.append(
+            {
+                "cnpj14": cnpj,
+                "enrichment_state": "EMAIL_ROUTE_READY",
+                "contacts": [
+                    {
+                        "email": f"contato@{host}",
+                        "source": "company_website",
+                        "source_url": f"https://{host}/contato",
+                        "observed_at": "2026-08-24T12:00:00Z",
+                        "ownership_status": "COMPANY_OWNED",
+                        "mailbox_company_evidence": "OBSERVED",
+                        "channel_epistemic_class": "OBSERVED",
+                        "route_freshness": "FRESH",
+                        "route_suppression": "NONE",
+                    }
+                ],
+            }
+        )
+    durable_path.write_text(
+        "".join(json.dumps(row) + "\n" for row in durable_rows),
+        encoding="utf-8",
+    )
+    out = tmp_path / "run-durable"
+    result = run_pipeline(
+        PipelineConfig(
+            out_dir=out,
+            csv_path=str(FIXTURE_CSV),
+            as_of=__import__("datetime").date(2026, 8, 1),
+            limit_downstream=1,
+            max_workers=1,
+            skip_contacts=True,
+            durable_contacts_path=durable_path,
+            progress=False,
+            force_sample_mode=True,
+        )
+    )
+    assert result.ok, result.errors
+    sample_rows = [
+        json.loads(line)
+        for line in (out / "02_downstream_sample" / "downstream-sample.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+        if line
+    ]
+    sample_cnpjs = {row["cnpj14"] for row in sample_rows}
+    feed_leads = []
+    for chunk in sorted((out / "06_warmbly_feed").glob("chunk_*.json")):
+        feed_leads.extend(json.loads(chunk.read_text(encoding="utf-8"))["leads"])
+    outside = [
+        lead
+        for lead in feed_leads
+        if lead["company"]["cnpj14"] not in sample_cnpjs and lead.get("contacts")
+    ]
+    assert outside, "durable contact projection must not be restricted to this run's hot set"
+    contact = outside[0]["contacts"][0]
+    assert contact["controlled_email_eligible"] is True
+    assert contact["preferred_initial"] is True
+    assert contact["route_class"] == "GENERIC_COMPANY"
+
+
 def test_offline_snapshot_uses_embedded_decisions() -> None:
     rows = [{"cnpj14": "11222333000181", "target_fit_class": "TARGET_CONFIRMED"}]
     snapshot, authority, watermark = _published_target_fit_snapshot(rows, dsn=None)
     assert snapshot == rows
     assert authority == "universe_embedded_snapshot"
     assert watermark is None
+
+
+def test_durable_contacts_extend_beyond_current_hot_set_and_rerank() -> None:
+    durable = [
+        {
+            "cnpj14": "11222333000181",
+            "enrichment_state": "EMAIL_ROUTE_READY",
+            "contacts": [
+                {
+                    "email": "contato@acme.example.com",
+                    "route_class": "GENERIC_COMPANY",
+                    "source": "company_website",
+                    "source_url": "https://acme.example.com/contato",
+                    "observed_at": "2026-08-24T12:00:00Z",
+                    "ownership_status": "COMPANY_OWNED",
+                    "mailbox_company_evidence": "OBSERVED",
+                    "channel_epistemic_class": "OBSERVED",
+                    "route_freshness": "FRESH",
+                    "route_suppression": "NONE",
+                }
+            ],
+        },
+        {
+            "cnpj14": "44555666000181",
+            "enrichment_state": "EMAIL_ROUTE_READY",
+            "contacts": [
+                {
+                    "email": "licitacoes@mega.example.com",
+                    "route_class": "ROLE_OR_DEPARTMENT",
+                    "source": "company_website",
+                    "source_url": "https://mega.example.com/licitacoes",
+                    "observed_at": "2026-08-24T12:00:00Z",
+                    "ownership_status": "COMPANY_OWNED",
+                    "mailbox_company_evidence": "OBSERVED",
+                    "mailbox_department_evidence": "OBSERVED",
+                    "channel_epistemic_class": "OBSERVED",
+                    "route_freshness": "FRESH",
+                    "route_suppression": "NONE",
+                }
+            ],
+        },
+    ]
+    current = [
+        {
+            "cnpj14": "11222333000181",
+            "contacts": [
+                {
+                    "email": "comercial@acme.example.com",
+                    "source": "company_website",
+                    "source_url": "https://acme.example.com/comercial",
+                    "ownership_status": "COMPANY_OWNED",
+                    "mailbox_company_evidence": "OBSERVED",
+                }
+            ],
+        }
+    ]
+
+    merged, metrics = merge_contact_rows(durable, current)
+
+    assert metrics == {
+        "durable_accounts": 2,
+        "current_accounts": 1,
+        "merged_accounts": 2,
+        "accounts_in_both": 1,
+        "accounts_with_contacts": 2,
+    }
+    by_cnpj = {row["cnpj14"]: row for row in merged}
+    assert len(by_cnpj["11222333000181"]["contacts"]) == 2
+    assert by_cnpj["44555666000181"]["contacts"][0]["email"] == "licitacoes@mega.example.com"
+
+
+def test_durable_projection_rejects_mixed_input_versions() -> None:
+    rows = [
+        {
+            "cnpj14": "11222333000181",
+            "contact_discovery_policy_version": "dui.policy.v1",
+            "contact_discovery_input_evidence_version": "target-fit.first",
+            "contacts": [],
+        },
+        {
+            "cnpj14": "44555666000181",
+            "contact_discovery_policy_version": "dui.policy.v1",
+            "contact_discovery_input_evidence_version": "target-fit.second",
+            "contacts": [],
+        },
+    ]
+    with __import__("pytest").raises(ValueError, match="mixes discovery policy/input versions"):
+        merge_contact_rows(rows, [])
 
 
 def test_authoritative_decision_universe_dedupes_canonical_cnpj() -> None:
