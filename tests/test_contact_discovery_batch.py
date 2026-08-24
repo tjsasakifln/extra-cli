@@ -117,7 +117,9 @@ def _auditable_role_account(cnpj: str) -> AccountInvestigation:
     return AccountInvestigation(
         company_entity_id=cnpj,
         cnpj=cnpj,
-        legal_name="ACME ENGENHARIA LTDA",
+        # Non-ASCII text is intentional: worker and projection must hash the
+        # same semantic JSON regardless of the pretty-printed file encoding.
+        legal_name="ACME ENGENHARIA SÃO JOSÉ LTDA",
         service_context="reajuste_14133",
         why_now="TARGET_CONFIRMED",
         routes=[

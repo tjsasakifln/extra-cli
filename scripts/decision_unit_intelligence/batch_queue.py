@@ -57,6 +57,15 @@ def budget_version_from_knobs(knobs: dict[str, Any]) -> str:
     return "budget." + hashlib.sha256(payload.encode("utf-8")).hexdigest()[:12]
 
 
+def canonical_payload_hash(payload: Any) -> str:
+    """Hash one JSON value with a single cross-writer canonical encoding."""
+    # Preserve the escaped-ASCII representation used by production worker
+    # outcomes before this helper was centralized. This keeps persisted hashes
+    # valid while making every writer and verifier use the same encoding.
+    raw = json.dumps(payload, ensure_ascii=True, sort_keys=True, separators=(",", ":"), default=str)
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
 def idempotency_key(
     *,
     canonical_account_id: str,

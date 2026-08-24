@@ -6,15 +6,13 @@ Discovery remains a black box. This module only classifies outcomes so
 
 from __future__ import annotations
 
-import hashlib
-import json
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 from scripts.decision_unit_intelligence.batch_contact_metadata import attach_projection_evidence
-from scripts.decision_unit_intelligence.batch_queue import ClaimedDiscoveryJob
+from scripts.decision_unit_intelligence.batch_queue import ClaimedDiscoveryJob, canonical_payload_hash
 from scripts.decision_unit_intelligence.models import AccountInvestigation, AccountTerminal, ChannelType
 from scripts.decision_unit_intelligence.projection import project_warmbly_outreach
 from scripts.decision_unit_intelligence.repository import account_hash, write_json
@@ -317,15 +315,11 @@ def persist_outcome(outcome: Outcome, *, job: ClaimedDiscoveryJob, output_root: 
     directory = Path(output_root) / job.cohort_id
     path = directory / f"{job.canonical_account_id}.json"
     write_json(path, payload)
-    digest = hashlib.sha256(
-        json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str).encode("utf-8")
-    ).hexdigest()
+    digest = canonical_payload_hash(payload)
     if outcome.account_payload:
         payload["account_hash"] = account_hash(outcome.account_payload)
         write_json(path, payload)
-        digest = hashlib.sha256(
-            json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str).encode("utf-8")
-        ).hexdigest()
+        digest = canonical_payload_hash(payload)
     outcome.output_pointer = str(path)
     outcome.output_hash = digest
     return outcome
