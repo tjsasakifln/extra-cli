@@ -176,6 +176,7 @@ def test_incremental_cli_rebind_with_mocked_pilot(tmp_path: Path, monkeypatch: p
                 "meta": {
                     "run_id": "contracts-90d-stale",
                     "run_ids": ["contracts-90d-stale"],
+                    "window_days": 1,
                 },
             }
         ),

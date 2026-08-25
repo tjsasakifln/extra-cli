@@ -954,6 +954,7 @@ def run_pilot(
     dsn: str,
     *,
     days: int = CONTRACTS_FULL_DAYS,
+    window_days: int = CONTRACTS_WINDOW_DAYS,
     output_json: str | None = None,
     dry_run: bool = False,
     checkpoint_dir: str | None = None,
@@ -962,13 +963,15 @@ def run_pilot(
     campaign_id: str | None = None,
     query_kind: str = "publication",
 ) -> dict[str, Any]:
+    if window_days < 1:
+        raise ValueError("window_days must be >= 1")
     started = datetime.now(UTC)
     mode = "full"
     today = utc_today()
     start, closed_through, range_end_exclusive = closed_crawl_range(today, days)
     if query_kind not in {"publication", "update"}:
         raise ValueError(f"unsupported contracts query_kind={query_kind!r}")
-    planned_windows = count_planned_windows(start, range_end_exclusive, CONTRACTS_WINDOW_DAYS)
+    planned_windows = count_planned_windows(start, range_end_exclusive, window_days)
     run_id = run_id or new_run_id(prefix="contracts-90d")
 
     ckpt_dir = _configure_checkpoint_dir(checkpoint_dir)
@@ -1002,7 +1005,7 @@ def run_pilot(
         "previous_run_ids": previous_run_ids,
         "mode": mode,
         "days": days,
-        "window_days": CONTRACTS_WINDOW_DAYS,
+        "window_days": window_days,
         "query_kind": query_kind,
         "window_boundary": "closed_through_d_minus_1",
         "planned_windows": planned_windows,
@@ -1040,7 +1043,7 @@ def run_pilot(
         while cur_date < today:
             # Half-open planning range [start, today): never checkpoint the open
             # current day as complete. This is the root boundary contract for #458.
-            window_end = min(cur_date + timedelta(days=CONTRACTS_WINDOW_DAYS - 1), closed_through)
+            window_end = min(cur_date + timedelta(days=window_days - 1), closed_through)
             window_key = f"{_fmt(cur_date)}_{_fmt(window_end)}"
             data_ini, data_fim = _fmt(cur_date), _fmt(window_end)
             w_started = time.time()
@@ -1628,6 +1631,7 @@ def run_pilot(
         command="scripts/crawl/run_contracts_90d_pilot.py",
         args={
             "days": days,
+            "window_days": window_days,
             "mode": mode,
             "dry_run": dry_run,
             "planned_windows": planned_windows,

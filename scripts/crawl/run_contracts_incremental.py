@@ -57,23 +57,39 @@ logger = logging.getLogger("contracts_incremental")
 DEFAULT_CHECKPOINT_DIR = "data/contracts_checkpoints/incremental"
 DEFAULT_CAMPAIGN = "historical_contracts_incremental"
 INCREMENTAL_QUERY_KIND = "update"
+INCREMENTAL_WINDOW_DAYS = 1
 
 
-def current_incremental_window_key(*, days: int, today: date | None = None) -> str:
-    """Return the latest closed window key that must be revalidated."""
+def current_incremental_window_keys(
+    *,
+    days: int,
+    today: date | None = None,
+    window_days: int = INCREMENTAL_WINDOW_DAYS,
+) -> list[str]:
+    """Return every closed overlap window that must be revalidated.
+
+    Incremental observations deliberately use daily partitions.  A mutable
+    seven-day PNCP result set can change while 100+ pages are traversed; daily
+    windows keep the same lookback while making each completion unit small,
+    independently auditable, and retryable.
+    """
     from scripts.crawl.run_contracts_90d_pilot import (
-        CONTRACTS_WINDOW_DAYS,
         closed_crawl_range,
         iter_planned_window_keys,
         utc_today,
     )
 
     operational_today = today or utc_today()
-    start, closed_through, _exclusive_end = closed_crawl_range(operational_today, days)
-    keys = iter_planned_window_keys(start, closed_through, CONTRACTS_WINDOW_DAYS)
+    start, _closed_through, exclusive_end = closed_crawl_range(operational_today, days)
+    keys = iter_planned_window_keys(start, exclusive_end, window_days)
     if not keys:
         raise ValueError(f"incremental range produced no window for days={days}")
-    return keys[-1]
+    return keys
+
+
+def current_incremental_window_key(*, days: int, today: date | None = None) -> str:
+    """Return the latest daily window key (compatibility helper)."""
+    return current_incremental_window_keys(days=days, today=today)[-1]
 
 
 def reopen_current_window(checkpoint: object, *, window_key: str) -> bool:
@@ -90,6 +106,16 @@ def reopen_current_window(checkpoint: object, *, window_key: str) -> bool:
         return False
     setattr(checkpoint, "completed_windows", [key for key in completed if key != window_key])
     return True
+
+
+def reopen_incremental_windows(checkpoint: object, *, window_keys: list[str]) -> list[str]:
+    """Reopen the complete moving lookback, returning the removed keys."""
+    completed = list(getattr(checkpoint, "completed_windows", []) or [])
+    moving = set(window_keys)
+    reopened = [key for key in completed if key in moving]
+    if reopened:
+        setattr(checkpoint, "completed_windows", [key for key in completed if key not in moving])
+    return reopened
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -234,6 +260,7 @@ def _run_incremental(args: argparse.Namespace) -> int:
         meta["reset_cleared_run_id"] = True
         meta["campaign_role"] = "historical_contracts_incremental"
         meta["query_kind"] = INCREMENTAL_QUERY_KIND
+        meta["window_days"] = INCREMENTAL_WINDOW_DAYS
         data["meta"] = meta
         save_raw(cp_path, data)
         logger.info("Incremental checkpoint reset (archived prior file)")
@@ -254,7 +281,19 @@ def _run_incremental(args: argparse.Namespace) -> int:
                     f"query_kind mismatch existing={prior_query_kind!r} "
                     f"requested={INCREMENTAL_QUERY_KIND!r}; use --reset-checkpoint after archive"
                 )
+            prior_window_days = (data.get("meta") or {}).get("window_days")
+            if prior_window_days is None and data.get("completed_windows"):
+                raise ValueError(
+                    "checkpoint has completed windows without window_days binding; "
+                    "daily-window migration requires --reset-checkpoint after archive"
+                )
+            if prior_window_days is not None and int(prior_window_days) != INCREMENTAL_WINDOW_DAYS:
+                raise ValueError(
+                    f"window_days mismatch existing={prior_window_days!r} "
+                    f"requested={INCREMENTAL_WINDOW_DAYS!r}; use --reset-checkpoint after archive"
+                )
             data.setdefault("meta", {})["query_kind"] = INCREMENTAL_QUERY_KIND
+            data.setdefault("meta", {})["window_days"] = INCREMENTAL_WINDOW_DAYS
             save_raw(cp_path, data)
         except Exception as exc:  # noqa: BLE001
             # Wrong campaign/days → hard fail with guidance
@@ -266,17 +305,25 @@ def _run_incremental(args: argparse.Namespace) -> int:
             )
             return 1
 
-    # A completed moving window is not durable freshness evidence. Revalidate
-    # it on every 4h slot; success re-adds it, any failure remains fail-closed.
+    # Completed moving windows are not durable freshness evidence. Revalidate
+    # the full daily-partitioned lookback on every 4h slot; success re-adds
+    # every unit, while any failed unit remains fail-closed.
     checkpoint = load_checkpoint("full")
-    refresh_key = current_incremental_window_key(days=int(args.days))
-    if reopen_current_window(checkpoint, window_key=refresh_key):
+    refresh_keys = current_incremental_window_keys(days=int(args.days))
+    reopened = reopen_incremental_windows(checkpoint, window_keys=refresh_keys)
+    if reopened:
         save_checkpoint(checkpoint)
-        logger.info("Reopened current incremental window for refresh: %s", refresh_key)
+        logger.info(
+            "Reopened %d daily incremental windows for refresh: %s..%s",
+            len(reopened),
+            reopened[0],
+            reopened[-1],
+        )
 
     report = run_pilot(
         dsn=args.dsn,
         days=args.days,
+        window_days=INCREMENTAL_WINDOW_DAYS,
         output_json=str(args.output_json),
         checkpoint_dir=args.checkpoint_dir,
         dry_run=bool(args.dry_run),
@@ -295,6 +342,7 @@ def _run_incremental(args: argparse.Namespace) -> int:
         meta_after["checkpoint_version"] = int(meta_after.get("checkpoint_version") or 2)
         meta_after["capability"] = "historical_contracts"
         meta_after["query_kind"] = INCREMENTAL_QUERY_KIND
+        meta_after["window_days"] = INCREMENTAL_WINDOW_DAYS
         if report.get("run_id"):
             meta_after["attempt_run_id"] = report["run_id"]
             meta_after["run_id"] = report["run_id"]
@@ -305,6 +353,7 @@ def _run_incremental(args: argparse.Namespace) -> int:
 
     report["command"] = "run_contracts_incremental"
     report["incremental_days"] = args.days
+    report["window_days"] = INCREMENTAL_WINDOW_DAYS
     report["campaign_role"] = "historical_contracts_incremental"
     report["logical_job_id"] = str(args.logical_job_id)
     report["campaign_id"] = str(args.campaign_id)
