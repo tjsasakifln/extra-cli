@@ -941,6 +941,14 @@ def test_shipped_timer_is_every_4h_or_6h_with_explicit_timezone() -> None:
     assert REASON_CADENCE_CANNOT_MEET_24H not in build_contract(_snapshot()).get("reason_codes")
 
 
+def test_shipped_timer_survives_triggered_oneshot_failure() -> None:
+    text = TIMER_UNIT_PATH.read_text(encoding="utf-8")
+
+    unit_section = text.split("[Timer]", 1)[0]
+    assert "Requires=pncp-contracts.service" not in unit_section
+    assert "BindsTo=pncp-contracts.service" not in unit_section
+
+
 def test_lock_busy_exit_75_is_not_fresh_or_closed_window() -> None:
     service = load_shipped_service_text()
     assert LOCK_BUSY_EXIT in parse_success_exit_statuses(service)
