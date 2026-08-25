@@ -2,7 +2,10 @@
 Description=Timer — regenerate CONFENGE outreach feed within 24h SLO
 
 [Timer]
-OnCalendar=*-*-* 00,12:20:00
+# PNCP runs at 00/04/08/12/16/20 and a full window can take about 40 minutes.
+# Publish after the 00/12 source windows close so an in-flight window cannot turn
+# a healthy source into UNCLOSED_CURRENT_WINDOW at the publication boundary.
+OnCalendar=*-*-* 01,13:20:00
 Persistent=true
 RandomizedDelaySec=10m
 Unit=extra-confenge-feed-cycle.service
