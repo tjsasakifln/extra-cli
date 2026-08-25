@@ -16,6 +16,7 @@ from scripts.confenge_outreach_pipeline.pipeline import (
     PipelineConfig,
     _dedupe_decision_rows,
     _published_target_fit_snapshot,
+    _select_intelligence_rows,
     build_pipeline_contact_resolver,
     contact_job_meta,
     merge_contact_rows,
@@ -27,6 +28,53 @@ from scripts.warmbly_bridge.mapping import build_leads
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURE_CSV = ROOT / "tests" / "fixtures" / "confenge_universe" / "contracts_sample.csv"
 DNC_TXT = ROOT / "tests" / "fixtures" / "confenge_universe" / "dnc.txt"
+
+
+def test_account_intelligence_covers_target_confirmed_outside_hot_set() -> None:
+    hot = {"cnpj14": "11222333000181", "razao_social": "Canary"}
+    target_outside_hot = {"cnpj14": "22333444000155", "razao_social": "Target"}
+    non_target = {"cnpj14": "33444555000129", "razao_social": "Other"}
+
+    selected, metrics = _select_intelligence_rows(
+        decision_rows=[hot, target_outside_hot, non_target],
+        downstream_rows=[hot],
+        target_fit_snapshot_rows=[
+            {"cnpj14": hot["cnpj14"], "target_fit_class": "TARGET_CONFIRMED"},
+            {"cnpj14": target_outside_hot["cnpj14"], "target_fit_class": "TARGET_CONFIRMED"},
+            {"cnpj14": non_target["cnpj14"], "target_fit_class": "TARGET_OUT_OF_SCOPE"},
+        ],
+        include_all_target_confirmed=True,
+    )
+
+    assert [row["cnpj14"] for row in selected] == [hot["cnpj14"], target_outside_hot["cnpj14"]]
+    assert metrics == {
+        "scope": "target_confirmed_plus_activation_hot_set",
+        "target_confirmed_total": 2,
+        "target_confirmed_processed": 2,
+        "target_confirmed_missing": 0,
+        "activation_or_sample_count": 1,
+        "selected_count": 2,
+    }
+
+
+def test_smoke_sample_does_not_expand_account_intelligence_scope() -> None:
+    sample = {"cnpj14": "11222333000181"}
+    target_outside_sample = {"cnpj14": "22333444000155"}
+
+    selected, metrics = _select_intelligence_rows(
+        decision_rows=[sample, target_outside_sample],
+        downstream_rows=[sample],
+        target_fit_snapshot_rows=[
+            {"cnpj14": sample["cnpj14"], "target_fit_class": "TARGET_CONFIRMED"},
+            {"cnpj14": target_outside_sample["cnpj14"], "target_fit_class": "TARGET_CONFIRMED"},
+        ],
+        include_all_target_confirmed=False,
+    )
+
+    assert selected == [sample]
+    assert metrics["scope"] == "downstream_sample_only"
+    assert metrics["target_confirmed_processed"] == 1
+    assert metrics["target_confirmed_missing"] == 1
 
 
 def test_limit_downstream_does_not_shrink_universe(tmp_path: Path) -> None:
@@ -497,6 +545,10 @@ def test_production_activation_does_not_use_limit_downstream_as_capacity(tmp_pat
     assert act.get("capacity_this_round") != default_limit_downstream or planned == default_limit_downstream
     assert result.stages["sample"]["mode"] == "activation_hot_set"
     assert result.stages["universe_row_count"] >= result.stages["sample"]["count"]
+    intelligence = result.stages["account_intelligence"]
+    assert intelligence["scope"] == "target_confirmed_plus_activation_hot_set"
+    assert intelligence["target_confirmed_processed"] == intelligence["target_confirmed_total"]
+    assert intelligence["target_confirmed_missing"] == 0
 
 
 def test_cli_run_fixture_end_to_end(tmp_path: Path, monkeypatch) -> None:

@@ -198,6 +198,66 @@ def _dedupe_decision_rows(rows: list[dict[str, Any]]) -> tuple[list[dict[str, An
     return out, duplicate_count
 
 
+def _select_intelligence_rows(
+    *,
+    decision_rows: list[dict[str, Any]],
+    downstream_rows: list[dict[str, Any]],
+    target_fit_snapshot_rows: list[dict[str, Any]],
+    include_all_target_confirmed: bool,
+) -> tuple[list[dict[str, Any]], dict[str, int | str]]:
+    """Select account-intelligence scope without using activation as a hard gate.
+
+    The activation hot set continues to bound contact/network work and preserve
+    its canary role. Account intelligence is local and deterministic, so a
+    production activation run also covers every account in the authoritative
+    ``TARGET_CONFIRMED`` snapshot.
+    """
+    target_cnpjs = {
+        cnpj
+        for row in target_fit_snapshot_rows
+        if str(row.get("target_fit_class") or "").upper() == "TARGET_CONFIRMED"
+        for cnpj in (canonical_cnpj14(row.get("cnpj14") or row.get("cnpj")),)
+        if cnpj
+    }
+    selected: list[dict[str, Any]] = []
+    selected_cnpjs: set[str] = set()
+
+    def _append(row: dict[str, Any]) -> None:
+        cnpj = canonical_cnpj14(row.get("cnpj14") or row.get("cnpj"))
+        if not cnpj or cnpj in selected_cnpjs:
+            return
+        selected.append(row)
+        selected_cnpjs.add(cnpj)
+
+    for row in downstream_rows:
+        _append(row)
+    if include_all_target_confirmed:
+        for row in decision_rows:
+            cnpj = canonical_cnpj14(row.get("cnpj14") or row.get("cnpj"))
+            if cnpj in target_cnpjs:
+                _append(row)
+
+    downstream_cnpjs = {
+        cnpj
+        for row in downstream_rows
+        for cnpj in (canonical_cnpj14(row.get("cnpj14") or row.get("cnpj")),)
+        if cnpj
+    }
+    covered_targets = len(target_cnpjs & selected_cnpjs)
+    return selected, {
+        "scope": (
+            "target_confirmed_plus_activation_hot_set"
+            if include_all_target_confirmed
+            else "downstream_sample_only"
+        ),
+        "target_confirmed_total": len(target_cnpjs),
+        "target_confirmed_processed": covered_targets,
+        "target_confirmed_missing": len(target_cnpjs) - covered_targets,
+        "activation_or_sample_count": len(downstream_cnpjs),
+        "selected_count": len(selected),
+    }
+
+
 def merge_contact_rows(
     durable_rows: list[dict[str, Any]],
     current_rows: list[dict[str, Any]],
@@ -625,7 +685,8 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
             # Map hot set back to universe rows (preserve order of hot set)
             by_cnpj = {"".join(ch for ch in str(r.get("cnpj14") or "") if ch.isdigit()): r for r in universe_rows}
             sample_rows = [by_cnpj[c] for c in (p.cnpj14 for p in cycle.hot_set) if c in by_cnpj]
-            # Safety: never silent-truncate reservoir; expensive path is hot set only
+            # Preserve the activation canary for network contact work. Deterministic
+            # account intelligence expands to authoritative TARGET_CONFIRMED below.
             sample_path = dirs["sample"] / "downstream-hot-set.jsonl"
             _write_jsonl(sample_path, sample_rows)
             planned_cap = int(capacity) if capacity is not None else policy.capacity.planned_capacity()
@@ -639,7 +700,8 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
                 ),
                 "note": (
                     "Hot set is capacity-aware activation planning, not arbitrary Top-N. "
-                    "Full reservoir remains monitored; only hot set enters expensive stages. "
+                    "Full reservoir remains monitored; only hot set enters network contact discovery. "
+                    "Deterministic intelligence also covers authoritative TARGET_CONFIRMED. "
                     "--limit-downstream is smoke/batch-only and does NOT set commercial capacity."
                 ),
             }
@@ -649,7 +711,7 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
                 "mode": "activation_hot_set",
                 "profile_counts": sample_profile_counts(sample_rows),
                 "note": (
-                    "Downstream rows selected by activation planner hot set. "
+                    "Network-contact rows selected by activation planner hot set. "
                     f"capacity={planned_cap}; reservoir={len(universe_rows)}."
                 ),
             }
@@ -704,7 +766,21 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
         # ── 3. Account intelligence ──────────────────────────────────────
         ckpt.mark_running("intelligence")
         save_checkpoint(out, ckpt)
-        intel_inputs = [universe_row_to_intelligence_input(r, as_of=as_of.isoformat()) for r in sample_rows]
+        intelligence_rows, intelligence_scope = _select_intelligence_rows(
+            decision_rows=decision_rows,
+            downstream_rows=sample_rows,
+            target_fit_snapshot_rows=target_fit_snapshot_rows,
+            include_all_target_confirmed=use_activation,
+        )
+        if use_activation and intelligence_scope["target_confirmed_missing"]:
+            raise ValueError(
+                "authoritative TARGET_CONFIRMED account missing from account-intelligence scope: "
+                f"missing={intelligence_scope['target_confirmed_missing']} "
+                f"total={intelligence_scope['target_confirmed_total']}"
+            )
+        intel_inputs = [
+            universe_row_to_intelligence_input(r, as_of=as_of.isoformat()) for r in intelligence_rows
+        ]
         intel_input_path = dirs["intel"] / "intelligence-inputs.jsonl"
         _write_jsonl(intel_input_path, intel_inputs)
 
@@ -734,11 +810,17 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
             "raw_path": str(intel_raw_path),
             "bridge_path": str(bridge_intel_path),
             "count": len(dossiers),
+            **intelligence_scope,
             "service_distribution": dict(sorted(service_dist.items(), key=lambda x: (-x[1], x[0]))),
         }
         ckpt.mark_completed("intelligence", counts={"dossiers": len(dossiers)})
         save_checkpoint(out, ckpt)
-        _progress(cfg.progress, f"[intelligence] {len(dossiers)} / {len(universe_rows)} processed")
+        _progress(
+            cfg.progress,
+            f"[intelligence] {len(dossiers)} processed; "
+            f"TARGET_CONFIRMED={intelligence_scope['target_confirmed_processed']}/"
+            f"{intelligence_scope['target_confirmed_total']}",
+        )
 
         # ── 4. Contact resolution ────────────────────────────────────────
         ckpt.mark_running("contacts")
@@ -878,7 +960,7 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
             export_result = export_outreach(export_cfg)
         stages["feed"] = export_result
         stages["feed_count"] = (export_result or {}).get("lead_count")
-        stages["expensive_enrichment_count"] = len(sample_rows)
+        stages["expensive_enrichment_count"] = len(intelligence_rows)
 
         # Persist funnel progress: mark exported / no-contact on projections
         if use_activation and cycle_projections:

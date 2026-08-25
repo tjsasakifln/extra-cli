@@ -55,8 +55,10 @@ python -m scripts.confenge_outreach_pipeline run \
 | `--durable-contacts` | Hash-verified derived projection from the durable waterfall; merged across the full decision universe |
 
 `--limit-downstream` does **not** limit universe discovery or feed decisions.
-It limits only expensive intelligence/contact work. The feed also includes
-valid-CNPJ exclusions and DNC. Missing target-fit rows become explicit
+It limits intelligence/contact work only in smoke/sample mode. In production,
+the activation hot set bounds network contact work while deterministic
+intelligence covers all authoritative `TARGET_CONFIRMED` accounts. The feed also
+includes valid-CNPJ exclusions and DNC. Missing target-fit rows become explicit
 `TARGET_FIT_MISSING` tombstones.
 
 With `--dsn`, decisions come from the mode-aware published target-fit store
@@ -69,6 +71,12 @@ outputs, not a second authority. Its discovery policy and input evidence must
 be uniform; mixed or incompatible policy versions fail closed. Same-run hot-set
 contacts corroborate/extend it by canonical CNPJ and mailbox, after which the
 bridge recalculates exactly one preferred initial route per account.
+
+In production activation mode, the hot set remains the canary/capacity boundary
+for network contact discovery, but it does not limit deterministic account
+intelligence. Every account in the authoritative `TARGET_CONFIRMED` snapshot is
+processed for service, public factual context and message spine before the
+complete decision feed is exported. Smoke/sample mode remains bounded.
 
 ## Outputs
 
