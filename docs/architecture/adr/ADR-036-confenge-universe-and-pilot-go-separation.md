@@ -4,6 +4,9 @@
 **Date:** 2026-08-10
 **Capability:** CONFENGE commercial activation
 
+**Amended 2026-08-25:** ADR-037 replaces items 7 and 8 only for the standard
+first-touch routing campaign. Other flows retain the human gate below.
+
 ## Context
 
 Os pacotes de fechamento misturavam três populações distintas: todos os fornecedores presentes no histórico contratual, as empresas pertencentes ao setor de construção e o estado comercial mutável de target-fit. A reserva de contatos `EMAIL_SEND_READY` é uma quarta métrica operacional. Contagens de snapshots históricos chegaram a coincidir ou divergir sem provar relação entre os conjuntos; nenhuma delas é constante. A publicação de evidência também alterava o HEAD e provocava PRs sucessivos de SHA rebind.
@@ -16,8 +19,8 @@ Os pacotes de fechamento misturavam três populações distintas: todos os forne
 4. A dimensão setorial e target-fit compartilham CDC/dirty queue, mas possuem materializações e históricos independentes. Enriquecimento contínuo enumera todo `CONSTRUCTION_UNIVERSE`; target-fit, contato, DNC e provenance controlam somente prioridade e envio.
 5. Top-N, auditorias, hot sets, Top-20, ESR e a reserva 900 são subsets/métricas de validação ou operação. Não podem limitar scan, classificação, materialização, enriquecimento contínuo ou reconsideração.
 6. `confenge.go_no_go.v2` separa `UNIVERSE_HEALTH`, `PILOT_QUALITY`, `HUMAN_ACCEPTANCE`, `PILOT_GO` e `NATIONAL_RESERVOIR_HEALTH`.
-7. O piloto pode receber GO abaixo de 900 quando o universo está reconciliado, os gates técnicos passam, o Top-20 foi revisado e ao menos 10 leads foram aprovados por humano atribuível.
-8. Mesmo após GO, Warmbly permanece `PAUSED_MANUAL_START`, e-mail apenas, WhatsApp desligado e 10 envios/h até comando explícito de Tiago.
+7. Fora de ADR-037, o piloto pode receber GO abaixo de 900 quando o universo está reconciliado, os gates técnicos passam, o Top-20 foi revisado e ao menos 10 leads foram aprovados por humano atribuível. O primeiro toque de roteamento usa a autoridade delegada e versionada da ADR-037.
+8. Fora de ADR-037, o Warmbly permanece `PAUSED_MANUAL_START` após GO. Na campanha delegada, pausa e kill switch continuam operacionais e só são liberados de forma explícita para a cadência existente; e-mail permanece o único canal e WhatsApp continua desligado.
 9. `evaluated_code_sha` identifica o código provado; `evidence_publication_sha` identifica somente a publicação de ponteiros. A segunda identidade não invalida a primeira.
 10. `scripts.confenge_activation.pilot_go_policy.evaluate_pilot_go` é a única autoridade de decisão terminal; o emissor de pacote apenas coleta gates e delega à política. Emissores anteriores são `SUPERSEDED_NON_TERMINAL`.
 11. O rebuild setorial integral lê contratos ordenados por CNPJ-raiz no snapshot, fecha cada raiz uma única vez e publica por staging bounded. `row_batch_size` e `root_batch_size` são controles de I/O/memória, nunca limites de população; checkpoints registram linhas e raízes processadas antes da troca atômica da materialização corrente.

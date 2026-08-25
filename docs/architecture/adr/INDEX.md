@@ -1,6 +1,6 @@
 # Índice de ADRs — Extra Consultoria
 
-**Atualizado:** 2026-08-13
+**Atualizado:** 2026-08-25
 
 | ADR | Título | Status |
 |-----|--------|--------|
@@ -19,6 +19,7 @@
 | ADR-034 | CONFENGE commercial lead evidence model | **Accepted** (2026-07-25) |
 | ADR-035 | CONFENGE authoritative target-fit feed | **Proposed** (2026-08-12) |
 | ADR-036 | Universo integral e GO do piloto CONFENGE | **Proposed** (2026-08-10) |
+| ADR-037 | Papel da contratada e primeiro toque delegado da CONFENGE | **Accepted by founder decision** (2026-08-25) |
 
 ## ADRs revogadas / supersedidas
 

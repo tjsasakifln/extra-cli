@@ -59,6 +59,7 @@
         "messaging_context",
         "contacts",
         "contracts",
+        "contractor_role",
         "evidence",
         "commercial_state",
         "construction_universe_member",
@@ -136,6 +137,46 @@
         },
         "contracts": {
           "type": "array"
+        },
+        "contractor_role": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "target_party_role", "policy_version", "source", "source_run_id", "observed_at", "evidence_hash", "evidence_reference", "evidence_ids", "reason_codes", "supplier_cnpj14", "supplier_identity_ref", "buyer_cnpj14", "buyer_identity_ref", "role_match_method", "confidence"],
+          "properties": {
+            "status": { "type": "string", "enum": ["CONTRACTOR_ROLE_CONFIRMED", "PARTY_ROLE_CONFLICT", "UNKNOWN"] },
+            "target_party_role": { "type": "string", "enum": ["SUPPLIER", "BUYER_CONFLICT", "UNKNOWN"] },
+            "policy_version": { "const": "contract-party-role.v1" },
+            "source": { "type": "string", "minLength": 1 },
+            "source_run_id": { "type": "string", "minLength": 1 },
+            "observed_at": { "type": "string", "minLength": 1 },
+            "evidence_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+            "evidence_reference": { "type": "string", "pattern": "^extra-cli:v_contracts_canonical_v2:sha256:[0-9a-f]{64}$" },
+            "evidence_ids": { "type": "array", "items": { "type": "string" } },
+            "reason_codes": { "type": "array", "items": { "type": "string" } },
+            "supplier_cnpj14": { "type": "string" },
+            "supplier_identity_ref": { "type": "string" },
+            "buyer_cnpj14": { "type": "string" },
+            "buyer_identity_ref": { "type": "string" },
+            "role_match_method": { "type": "string", "enum": ["SUPPLIER_EXACT_CNPJ14", "SUPPLIER_CNPJ_ROOT", "BUYER_EXACT_CNPJ14", "BUYER_CNPJ_ROOT", "NONE"] },
+            "confidence": { "type": "string", "enum": ["HIGH", "MEDIUM", "CONFLICT", "UNKNOWN"] }
+          },
+          "allOf": [
+            {
+              "if": { "properties": { "status": { "const": "CONTRACTOR_ROLE_CONFIRMED" } } },
+              "then": {
+                "properties": {
+                  "target_party_role": { "const": "SUPPLIER" },
+                  "supplier_cnpj14": { "pattern": "^[0-9]{14}$" },
+                  "supplier_identity_ref": { "pattern": "^cnpj:[0-9]{14}$" },
+                  "buyer_cnpj14": { "pattern": "^[0-9]{14}$" },
+                  "buyer_identity_ref": { "pattern": "^cnpj:[0-9]{14}$" },
+                  "role_match_method": { "const": "SUPPLIER_EXACT_CNPJ14" },
+                  "confidence": { "const": "HIGH" },
+                  "evidence_ids": { "minItems": 1 }
+                }
+              }
+            }
+          ]
         },
         "evidence": {
           "type": "array",

@@ -35,7 +35,7 @@ quality_gate_tools: ["pytest", "ruff", "dod_controller", "coderabbit"]
 8. Manifesto/relatório do ciclo expõe, no denominador correto, pelo menos: `population_count`, `population_hash`, `population_as_of`, modo e SHAs dos classificadores, jobs por estado, equação população = jobs = contas terminais, contas tentadas, contas com algum contato, contas com e-mail, contas com contato utilizável, contas incorporadas ao feed, pendentes, bloqueadas/DLQ e distribuição de reason codes. Fixture valida lógica, não prova escala live.
 9. Testes adversariais cobrem seleção integral sem truncamento, prioridade A1/A2, idempotência, projeção de job para contato, merge entre snapshot durável e hot set, conflito de política/input, deduplicação, ausência de contato, stale target-fit e DNC. As suítes focadas e a regressão canônica passam sem `skip`/`xfail` ou mocks irreais.
 10. Evidência live da story fecha 100% da população `TARGET_CONFIRMED` corrente versionada nas três condições terminais e reconcilia separadamente 8.245/8.245 contas do baseline, sem usar o número antigo para truncar o run nem omitir candidatos novos. Registra o yield legitimamente obtido sem impor porcentagem arbitrária e publica hashes, timestamps, parâmetros, distribuição por route class/provenance/reason code e amostra auditável protegida fora do Git. Amostra de 30/100/1.000 valida a onda; não fecha este AC.
-11. Segurança operacional é preservada e reconfirmada: `CONFENGE_AUTO_SEND_ENABLED=false`, kill switch de envio pausado, `confenge_dispatch_control.paused=true`, zero envios e zero aprovações automáticas. Esta story não altera `min_wait_time=600s`, `confenge.composer.v6`, o fluxo Comercial → Rascunhos nem o Warmbly.
+11. Segurança operacional é preservada e reconfirmada: `CONFENGE_AUTO_SEND_ENABLED=false`, autorun global desligado, kill switch e `confenge_dispatch_control` obedecidos. ADR-037 permite aprovação delegada apenas ao primeiro toque versionado; não altera `min_wait_time=600s`, composer, fila, scheduler, suppression ou follow-ups do Warmbly.
 12. Runbook, ADR/handoff e DOD recebem os deltas/evidências cabíveis. O item só pode virar `ACCEPTED` no `main`, com CI verde e o teste específico passando; somente então qualquer checkbox correspondente do `DOD.md` pode ser marcado.
 13. O waterfall determinístico/incremental reutiliza, nesta ordem aproximada conforme yield medido: contatos canônicos/históricos já existentes; dados públicos cadastrais ligados por CNPJ; website/domínio oficial; documentos e fontes B2G já coletados; busca pública adicional bounded. Não contorna login/CAPTCHA/paywall/robots, não depende de provider pago e não promove mailbox inferida por padrão a fato.
 14. Por account, uma única `preferred email route` é selecionada na ordem default `DIRECT_PERSON` → `ROLE_OR_DEPARTMENT` → `GENERIC_COMPANY` → `PUBLIC_COMPANY_FREEMAIL`; alternativas permanecem armazenadas/rankeadas e não são usadas simultaneamente no primeiro toque. Bounce definitivo pode liberar a próxima rota somente pela policy do Warmbly.
@@ -114,7 +114,7 @@ quality_gate_tools: ["pytest", "ruff", "dod_controller", "coderabbit"]
   - [ ] Publicar funil/estados/reason codes no manifesto leve e no relatório operacional.
   - [ ] Atualizar o runbook de batch e unidade systemd somente no raio necessário.
   - [ ] Executar testes focados, Ruff, source contracts, full suite e golden path conforme aplicável.
-  - [ ] Reconfirmar zero sends/approvals e controles pausados; não tocar composer/cohort/min_wait_time.
+  - [ ] Reconciliar sends e approvals por tipo de autoridade, provar controles e não tocar composer/cohort/min_wait_time.
 - [ ] Task 5 — Produzir prova live e handoff (AC: 10, 12)
   - [ ] Executar a seleção/enqueue/worker no host autorizado com budget explícito e fechar o denominador corrente versionado (`population_count`/hash/`as_of`/modo/SHAs), reconciliando também o baseline de 8.245.
   - [ ] Publicar feed novo apenas se os gates autoritativos passarem; armazenar PII/evidência pesada fora do Git.
@@ -189,7 +189,7 @@ GPT-5 Codex (Dex / @dev)
 
 ### Completion Notes List
 
-- Implementação local cobre seleção integral, terminais honestos, projeção hash-verificada e composição no feed.
+- Implementação local cobre seleção integral, terminais honestos, projeção hash-verificada e composição no feed. ADR-037 adiciona o papel contratada/contratante sem fazer o feed autorizar envio sozinho.
 - Artefatos históricos de contatos agora entram como inputs explícitos, SHA-256-bound e verificados no primeiro degrau do worker; alteração/missing vira blocker nominal.
 - O cadastro oficial local é consultado por CNPJ exato; e-mail cadastral preserva release/autoridade, não inventa pessoa e registra indisponibilidade como blocker factual de waterfall. Freemail público continua regido pela associação defensável da policy ativa.
 - Evidência live do denominador corrente versionado, reconciliação 8.245/8.245 do baseline, deploy e aceitação continuam abertos; fixture não foi tratada como prova operacional.

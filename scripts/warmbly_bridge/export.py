@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from scripts.confenge_outreach_pipeline.party_role import project_contractor_role
 from scripts.confenge_target_fit.published import build_published_index_from_rows
 from scripts.warmbly_bridge import (
     DEFAULT_MAX_BYTES_PER_CHUNK,
@@ -202,6 +203,19 @@ def _normalize_authoritative_timestamps(leads: list[dict[str, Any]]) -> None:
         cnpj = str((lead.get("company") or {}).get("cnpj14") or "")
         for field in ("target_fit_source_watermark", "target_fit_computed_at"):
             lead[field] = _rfc3339_timestamp(lead.get(field), field=field, cnpj=cnpj)
+
+
+def _attach_contractor_roles(leads: list[dict[str, Any]], *, run_id: str, observed_at: str) -> None:
+    """Bind typed supplier/buyer truth at the canonical publication boundary."""
+    for lead in leads:
+        company = lead.get("company") if isinstance(lead.get("company"), dict) else {}
+        contracts = lead.get("contracts") if isinstance(lead.get("contracts"), list) else []
+        lead["contractor_role"] = project_contractor_role(
+            company.get("cnpj14"),
+            contracts,
+            source_run_id=run_id,
+            observed_at=observed_at,
+        )
 
 
 def _decision_order_key(lead: dict[str, Any]) -> tuple[datetime, datetime, str, str]:
@@ -420,6 +434,7 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
         published_index=published_index,
         datalake_watermark=datalake_watermark,
     )
+    _attach_contractor_roles(leads, run_id=run_id, observed_at=datalake_watermark)
     _normalize_authoritative_timestamps(leads)
     leads.sort(key=_decision_order_key)
     if cfg.limit is not None:
