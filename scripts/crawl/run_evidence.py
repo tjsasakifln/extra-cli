@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import socket
 import subprocess
 import uuid
@@ -50,6 +51,8 @@ _ENV_SECRET_MARKERS = (
     "PRIVATE",
     "AUTH",
 )
+_IMMUTABLE_RELEASE_PARENT = "extra-consultoria-releases"
+_FULL_GIT_SHA_RE = re.compile(r"^[0-9a-f]{40}$", re.IGNORECASE)
 
 
 def new_run_id(prefix: str = "run") -> str:
@@ -60,14 +63,33 @@ def new_run_id(prefix: str = "run") -> str:
     return f"{safe_prefix}-{stamp}-{short}"
 
 
+def runtime_release_sha(path: str | Path | None = None) -> str | None:
+    """Infer the deployed SHA from an immutable release directory, if present."""
+    resolved = Path(path or __file__).resolve()
+    for parent in resolved.parents:
+        if parent.parent.name == _IMMUTABLE_RELEASE_PARENT and _FULL_GIT_SHA_RE.fullmatch(parent.name):
+            return parent.name.lower()
+    return None
+
+
 def get_git_meta() -> dict[str, str | None]:
-    """Return git_sha and git_branch; soft-fail to None on any error."""
+    """Return code-bound git metadata without consulting an unrelated CWD repo."""
+    env_sha = (os.getenv("EXTRA_DEPLOYED_SHA") or os.getenv("GIT_SHA") or "").strip()
+    env_branch = (os.getenv("EXTRA_DEPLOYED_BRANCH") or os.getenv("GIT_BRANCH") or "").strip()
+    release_sha = runtime_release_sha()
+    if env_sha or release_sha:
+        return {
+            "git_sha": env_sha or release_sha,
+            "git_branch": env_branch or None,
+        }
+
     git_sha: str | None = None
     git_branch: str | None = None
+    repo_root = Path(__file__).resolve().parents[2]
     try:
         git_sha = (
-            subprocess.check_output(
-                ["git", "rev-parse", "HEAD"],  # noqa: S607
+            subprocess.check_output(  # noqa: S603
+                ["git", "-C", str(repo_root), "rev-parse", "HEAD"],  # noqa: S607
                 stderr=subprocess.DEVNULL,
                 timeout=5,
             )
@@ -79,8 +101,8 @@ def get_git_meta() -> dict[str, str | None]:
         git_sha = None
     try:
         git_branch = (
-            subprocess.check_output(
-                ["git", "rev-parse", "--abbrev-ref", "HEAD"],  # noqa: S607
+            subprocess.check_output(  # noqa: S603
+                ["git", "-C", str(repo_root), "rev-parse", "--abbrev-ref", "HEAD"],  # noqa: S607
                 stderr=subprocess.DEVNULL,
                 timeout=5,
             )
