@@ -10,7 +10,8 @@
 
 [Unit]
 Description=PNCP Contracts Crawler Timer — Extra Consultoria
-Requires=pncp-contracts.service
+# Do not add Requires=/BindsTo= for the triggered oneshot.  A failed source
+# attempt must leave this timer active so the next calendar slot can recover.
 
 [Timer]
 OnCalendar=*-*-* 00,04,08,12,16,20:00:00 America/Sao_Paulo

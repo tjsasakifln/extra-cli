@@ -87,6 +87,20 @@ Relação com issues:
 
 O freshness SLO não foi relaxado. O soak foi endurecido para p95 `<=24h`.
 
+### Continuidade do timer após falha (2026-08-25)
+
+A auditoria live encontrou `Requires=pncp-contracts.service` no unit do timer.
+Como o coletor é `Type=oneshot`, um timeout/stop do serviço propagava a parada
+para o próprio timer: `UnitFileState=enabled`, mas `ActiveState=inactive` e sem
+`NextElapseUSecRealtime`. Reativar o timer com `Persistent=true` iniciava um
+catch-up imediato, ocultando o defeito até a próxima falha.
+
+O timer não deve vincular seu ciclo de vida ao oneshot que ele dispara.
+`Requires=`/`BindsTo=` para `pncp-contracts.service` são proibidos; uma tentativa
+falha continua fail-closed e alerta, enquanto o timer permanece `active/waiting`
+para a próxima janela de quatro horas. O aceite live exige provocar/observar um
+exit não-zero do serviço e provar que o timer conserva um próximo disparo.
+
 ## Validação local pré-PR
 
 - 244 testes focais/regressão passaram após rebase sobre #465, incluindo a
