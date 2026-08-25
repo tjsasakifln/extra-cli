@@ -159,6 +159,77 @@ def _merge_account_contacts(
     return [by_mailbox[mailbox] for mailbox in order]
 
 
+def _contact_observed_at(contact: dict[str, Any]) -> str:
+    """Return the public observation timestamp carried by one route."""
+    direct = str(contact.get("observed_at") or "").strip()
+    if direct:
+        return direct
+    for field in ("provenance", "source_provenance"):
+        nested = contact.get(field)
+        if isinstance(nested, dict):
+            observed = str(nested.get("observed_at") or "").strip()
+            if observed:
+                return observed
+    return ""
+
+
+def _rank_publishable_contacts(
+    contacts: list[dict[str, Any]],
+    *,
+    account_id: str,
+    official_domain: str | None,
+) -> tuple[list[dict[str, Any]], int]:
+    """Rank routes while refusing an eligible route with no observation time.
+
+    Discovery evidence remains stored as an alternative, but the publication
+    contract cannot call it ready or preferred without the timestamp needed to
+    assess freshness.  This guard lives at the durable projection boundary so
+    historical serializers cannot bypass it by replaying stale derived flags.
+    """
+    stamped = stamp_and_rank_feed_contacts(
+        contacts,
+        account_id=account_id,
+        official_domain=official_domain,
+    )
+    rejected_mailboxes = {
+        _canonical_mailbox(contact)
+        for contact in stamped
+        if contact.get("controlled_email_eligible") and not _contact_observed_at(contact)
+    }
+    rejected_mailboxes.discard("")
+    if not rejected_mailboxes:
+        return stamped, 0
+
+    reranked = stamp_and_rank_feed_contacts(
+        [contact for contact in stamped if _canonical_mailbox(contact) not in rejected_mailboxes],
+        account_id=account_id,
+        official_domain=official_domain,
+    )
+    valid_by_mailbox = {_canonical_mailbox(contact): contact for contact in reranked}
+    guarded: list[dict[str, Any]] = []
+    for contact in stamped:
+        mailbox = _canonical_mailbox(contact)
+        if mailbox not in rejected_mailboxes:
+            guarded.append(valid_by_mailbox.get(mailbox, contact))
+            continue
+        demoted = dict(contact)
+        reasons = [str(item) for item in (demoted.get("reason_codes") or []) if item]
+        reasons.extend(("missing_observed_at", "publication_contract_rejected"))
+        demoted.update(
+            {
+                "controlled_email_eligible": False,
+                "preferred_initial": False,
+                "recommended": False,
+                "preferred_rank": None,
+                "risk_class": "RISKY",
+                "publication_block_reason": "MISSING_OBSERVED_AT",
+                "reason_codes": list(dict.fromkeys(reasons)),
+            }
+        )
+        guarded.append(demoted)
+    return guarded, len(rejected_mailboxes)
+
+
 def _preferred_route_from_contact(account_id: str, contact: dict[str, Any]) -> dict[str, Any]:
     route = dict(contact)
     route["canonical_account_id"] = account_id
@@ -195,7 +266,7 @@ def reconcile_prior_contact_rows(
         prior_contacts = [dict(item) for item in (prior.get("contacts") or []) if isinstance(item, dict)]
         combined = _merge_account_contacts(prior_contacts, current_contacts)
         official_domain = str(row.get("official_domain") or prior.get("official_domain") or "").strip()
-        stamped = stamp_and_rank_feed_contacts(
+        stamped, rejected_missing_observed_at = _rank_publishable_contacts(
             combined,
             account_id=account_id,
             official_domain=official_domain or None,
@@ -214,6 +285,12 @@ def reconcile_prior_contact_rows(
         row["official_domain"] = official_domain or None
         row["latest_enrichment_state"] = latest_state
         row["latest_enrichment_reason"] = latest_reason
+        if rejected_missing_observed_at:
+            row["publication_guard_failures"] = {
+                "MISSING_OBSERVED_AT": rejected_missing_observed_at,
+            }
+        else:
+            row.pop("publication_guard_failures", None)
         if preferred_contact is not None:
             row["preferred_email_route"] = _preferred_route_from_contact(account_id, preferred_contact)
             row["enrichment_state"] = "EMAIL_ROUTE_READY"
@@ -224,7 +301,11 @@ def reconcile_prior_contact_rows(
             row.pop("preferred_email_route", None)
             if latest_state == "EMAIL_ROUTE_READY":
                 row["enrichment_state"] = "BLOCKED_WITH_REASON"
-                row["enrichment_reason"] = "CURRENT_POLICY_NO_ELIGIBLE_ROUTE"
+                row["enrichment_reason"] = (
+                    "CONTACT_ROUTE_MISSING_OBSERVED_AT"
+                    if rejected_missing_observed_at
+                    else "CURRENT_POLICY_NO_ELIGIBLE_ROUTE"
+                )
         reconciled.append(row)
     after_preferred = sum(bool(row.get("preferred_email_route")) for row in reconciled)
     return reconciled, {
@@ -237,6 +318,10 @@ def reconcile_prior_contact_rows(
         "preferred_before_reconciliation": before_preferred,
         "preferred_after_reconciliation": after_preferred,
         "preferred_recovered_from_prior": recovered_from_prior,
+        "routes_rejected_missing_observed_at": sum(
+            int((row.get("publication_guard_failures") or {}).get("MISSING_OBSERVED_AT") or 0)
+            for row in reconciled
+        ),
     }
 
 
@@ -451,16 +536,30 @@ def build_contact_projection(
         account = account if isinstance(account, dict) else {}
         projection = _current_policy_projection(projection, account=account)
         projection = attach_projection_evidence(projection, account=account)
-        contacts = [dict(item) for item in (projection.get("contacts") or []) if isinstance(item, dict)]
-        preferred = projection.get("preferred_initial_route")
-        preferred = preferred if isinstance(preferred, dict) else None
+        domain = ((account.get("extra") or {}).get("domain_resolution") or {}).get("canonical_domain")
+        contacts, rejected_missing_observed_at = _rank_publishable_contacts(
+            [dict(item) for item in (projection.get("contacts") or []) if isinstance(item, dict)],
+            account_id=str(job["canonical_account_id"]),
+            official_domain=str(domain or "").strip() or None,
+        )
+        preferred = next(
+            (
+                item
+                for item in contacts
+                if item.get("preferred_initial") and item.get("controlled_email_eligible")
+            ),
+            None,
+        )
         if status == "SUCCEEDED" and preferred:
             state = "EMAIL_ROUTE_READY"
             reason = "CONTROLLED_EMAIL_ROUTE_SELECTED"
         elif status == "SUCCEEDED" and state == "EMAIL_ROUTE_READY":
             state = "BLOCKED_WITH_REASON"
-            reason = "CURRENT_POLICY_NO_ELIGIBLE_ROUTE"
-        domain = ((account.get("extra") or {}).get("domain_resolution") or {}).get("canonical_domain")
+            reason = (
+                "CONTACT_ROUTE_MISSING_OBSERVED_AT"
+                if rejected_missing_observed_at
+                else "CURRENT_POLICY_NO_ELIGIBLE_ROUTE"
+            )
         row = {
             "cnpj14": str(job["canonical_account_id"]),
             "canonical_account_id": str(job["canonical_account_id"]),
@@ -474,6 +573,10 @@ def build_contact_projection(
             "contact_discovery_policy_version": job.get("discovery_policy_version"),
             "contact_discovery_input_evidence_version": job.get("input_evidence_version"),
         }
+        if rejected_missing_observed_at:
+            row["publication_guard_failures"] = {
+                "MISSING_OBSERVED_AT": rejected_missing_observed_at,
+            }
         rows.append(row)
         states[state] += 1
         if state == "BLOCKED_WITH_REASON":
@@ -532,6 +635,10 @@ def build_contact_projection(
         and not integrity_failures
     )
     projection_hash = canonical_payload_hash(rows)
+    publication_guard_failures: Counter[str] = Counter()
+    for row in rows:
+        for guard, count in (row.get("publication_guard_failures") or {}).items():
+            publication_guard_failures[str(guard)] += int(count or 0)
     report = {
         "schema_id": "confenge.contact_discovery.projection_report.v1",
         "generated_at": _utcnow(),
@@ -567,6 +674,7 @@ def build_contact_projection(
         "preferred_route_class_distribution": dict(sorted(preferred_classes.items())),
         "provenance_source_distribution": dict(sorted(sources.items())),
         "integrity_failures": dict(sorted(integrity_failures.items())),
+        "publication_guard_failures": dict(sorted(publication_guard_failures.items())),
         "projection_hash": projection_hash,
         "controlled_email_policy_version": CONTROLLED_EMAIL_POLICY_VERSION,
         "policy_version": progress.get("policy_version"),
