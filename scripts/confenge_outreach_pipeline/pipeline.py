@@ -53,7 +53,7 @@ from scripts.confenge_outreach_pipeline.adapt import (
 from scripts.confenge_outreach_pipeline.sample import sample_profile_counts, select_diverse_sample
 from scripts.confenge_target_fit.company_key import canonical_cnpj14
 from scripts.confenge_target_fit.published import load_published_index
-from scripts.confenge_target_fit.store import get_control
+from scripts.confenge_target_fit.store import get_control, queue_counts
 from scripts.confenge_universe import (
     DEFAULT_EXCLUSIONS_JSONL_NAME,
     DEFAULT_JSONL_NAME,
@@ -262,6 +262,7 @@ def _published_target_fit_snapshot(
     rows: list[dict[str, Any]],
     *,
     dsn: str | None,
+    authoritative_source_freshness: dict[str, Any] | None = None,
 ) -> tuple[list[dict[str, Any]], str, str | None]:
     """Resolve production decisions from the mode-aware published store.
 
@@ -279,11 +280,46 @@ def _published_target_fit_snapshot(
 
     raw_cnpjs = [str(row.get("cnpj14") or row.get("cnpj") or "") for row in rows]
     lookup_cnpjs = sorted({cnpj for raw in raw_cnpjs for cnpj in (raw, canonical_cnpj14(raw)) if cnpj})
+    source_observed_at = str((authoritative_source_freshness or {}).get("source_observed_at") or "").strip()
+    if authoritative_source_freshness is not None:
+        if authoritative_source_freshness.get("status") != "FRESH":
+            raise ValueError("target-fit observation requires a FRESH authoritative PNCP source")
+        if not source_observed_at:
+            raise ValueError("FRESH authoritative PNCP source is missing source_observed_at")
+        try:
+            observed_dt = datetime.fromisoformat(source_observed_at.replace("Z", "+00:00"))
+        except ValueError as exc:
+            raise ValueError("authoritative PNCP source_observed_at is invalid") from exc
+        if observed_dt.tzinfo is None:
+            raise ValueError("authoritative PNCP source_observed_at must be timezone-aware")
+
     conn = connect(dsn, readonly=True)
     try:
         published = load_published_index(conn, cnpj14s=lookup_cnpjs)
         control = get_control(conn, "cdc_watermark")
         datalake_watermark = str(control.get("watermark") or "").strip() or None
+        if source_observed_at:
+            coverage = get_control(conn, "target_fit_coverage")
+            last_full = str(coverage.get("last_full_reconcile_completed_at") or "").strip()
+            try:
+                last_full_dt = datetime.fromisoformat(last_full.replace("Z", "+00:00"))
+            except ValueError as exc:
+                raise ValueError("target-fit full-reconcile observation is missing or invalid") from exc
+            if last_full_dt.tzinfo is None or last_full_dt < observed_dt:
+                raise ValueError("target-fit full reconcile must complete after the authoritative PNCP observation")
+            if (
+                float(coverage.get("coverage_ratio") or 0.0) < 1.0
+                or int(coverage.get("last_full_reconcile_unexplained_missing") or 0) != 0
+                or not bool(coverage.get("pagination_exhausted_normally"))
+            ):
+                raise ValueError("target-fit national coverage is incomplete for source re-observation")
+            queue = queue_counts(conn)
+            unresolved = sum(int(queue.get(status) or 0) for status in ("pending", "processing", "retry", "dead"))
+            if unresolved:
+                raise ValueError(f"target-fit source re-observation has {unresolved} unresolved queue items")
+            # This is the observation watermark for the fully reconciled target-fit
+            # snapshot.  The evidence-change watermark remains on each decision.
+            datalake_watermark = source_observed_at
     finally:
         conn.close()
 
@@ -297,9 +333,16 @@ def _published_target_fit_snapshot(
             continue
         if not str(decision.get("source_watermark") or decision.get("target_fit_source_watermark") or "").strip():
             continue
+        projected = dict(decision)
+        if source_observed_at:
+            projected["target_fit_evidence_watermark"] = str(
+                decision.get("source_watermark") or decision.get("target_fit_source_watermark") or ""
+            )
+            projected["source_watermark"] = source_observed_at
+            projected["target_fit_observation_run_id"] = str((authoritative_source_freshness or {}).get("run_id") or "")
         snapshot.append(
             {
-                **decision,
+                **projected,
                 "cnpj14": canonical,
                 "cnpj_raiz": canonical[:8],
                 "company_key": f"cnpj_root:{canonical[:8]}",
@@ -500,6 +543,7 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
         ) = _published_target_fit_snapshot(
             decision_rows,
             dsn=cfg.dsn,
+            authoritative_source_freshness=cfg.authoritative_source_freshness,
         )
         stages["universe_row_count"] = len(universe_rows)
         stages["reservoir_count"] = len(universe_rows)

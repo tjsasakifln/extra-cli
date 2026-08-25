@@ -197,7 +197,16 @@
           "type": "string",
           "minLength": 1,
           "format": "date-time",
-          "description": "Datalake watermark observed when target-fit was computed."
+          "description": "Authoritative source-observation watermark after a complete target-fit reconciliation."
+        },
+        "target_fit_evidence_watermark": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "Watermark of the last evidence change used by the classifier; preserved separately from no-delta source re-observation."
+        },
+        "target_fit_observation_run_id": {
+          "type": ["string", "null"],
+          "description": "Run id of the complete authoritative source observation that refreshed target-fit freshness."
         },
         "target_fit_fresh": {
           "type": "boolean",

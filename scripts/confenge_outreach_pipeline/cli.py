@@ -226,6 +226,7 @@ def cmd_run(args: argparse.Namespace) -> int:
                 "source_window",
                 "latest_successful_closed_window",
                 "current_lag_hours",
+                "source_observed_at",
                 "pages_expected",
                 "pages_fetched",
             )

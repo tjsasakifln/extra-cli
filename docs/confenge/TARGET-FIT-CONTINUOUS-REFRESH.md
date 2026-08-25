@@ -129,6 +129,11 @@ python -m scripts.confenge_target_fit set-mode SHADOW --clear-auto-pause
 source_watermark_target_fit << datalake watermark
   → TARGET_FIT_STALE → EMAIL_SEND_READY blocked
 
+latest complete PNCP observation + full reconcile after it + 100% coverage
++ empty pending/processing/retry/dead queue
+  → target_fit_source_watermark advances for the reconciled snapshot
+  → prior per-company change clock remains target_fit_evidence_watermark
+
 REFRESH_FAILED / RECOMPUTE_REQUIRED
   → fail-closed (no autorun)
 
@@ -154,6 +159,8 @@ Feed fields for `confenge.outreach.v1`:
 - `target_fit_version`
 - `target_fit_computed_at`
 - `target_fit_source_watermark`
+- `target_fit_evidence_watermark`
+- `target_fit_observation_run_id`
 - `target_fit_fresh`
 - `target_fit_evidence_ids`
 - `target_fit_send_tier`
@@ -165,6 +172,12 @@ fresh and still has `email_send_ready=false`. Missing materialization is
 published as a non-fresh `TARGET_FIT_MISSING` tombstone. Feed order is
 `source_watermark`, `computed_at`, CNPJ ascending so consumers can apply the
 snapshot deterministically.
+
+The source and evidence clocks deliberately differ after a successful
+no-delta crawl. The former proves when the whole source was last observed and
+reconciled; the latter proves when the account's classifier input last changed.
+The publisher refuses to advance the source clock while target-fit has any
+unresolved work or incomplete national coverage.
 
 Warmbly must **not** rescore. Fail-closed if not `TARGET_CONFIRMED` or not fresh.
 
