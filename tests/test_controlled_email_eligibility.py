@@ -805,6 +805,70 @@ def test_duplicate_preferred_mailbox_across_accounts_keeps_one() -> None:
     assert sum(1 for lead in gated for c in lead["contacts"] if c.get("preferred_initial")) == 1
 
 
+def _evidenced_shared_registry_contact(account: str) -> dict:
+    return {
+        "email": "licitacoes@grupo.example.com",
+        "preferred_initial": True,
+        "recommended": True,
+        "controlled_email_eligible": True,
+        "company_associated": True,
+        "mailbox_company_evidence": "OBSERVED",
+        "channel_epistemic_class": "OBSERVED",
+        "ownership_status": "COMPANY_OWNED",
+        "route_freshness": "FRESH",
+        "route_suppression": "NONE",
+        "source_type": "company_registry",
+        "source_reference": f"registry-contact:{account}",
+        "evidence_ids": [f"registry-evidence:{account}"],
+        "registry_cnpj14": account,
+        "official_match_status": "MATCHED",
+        "official_authority": "RECEITA_FEDERAL",
+        "official_release_id": "registry-release-1",
+    }
+
+
+def test_shared_mailbox_keeps_each_independently_evidenced_account_claim() -> None:
+    accounts = ("11111111000191", "22222222000172")
+    leads = [
+        {
+            "company": {"cnpj14": account},
+            "contacts": [_evidenced_shared_registry_contact(account)],
+        }
+        for account in accounts
+    ]
+
+    gated = apply_cross_account_preferred_mailbox_gate(leads)
+
+    assert [
+        lead["company"]["cnpj14"]
+        for lead in gated
+        if any(contact.get("preferred_initial") for contact in lead["contacts"])
+    ] == list(accounts)
+
+
+def test_specific_shared_mailbox_proof_beats_ambiguous_lexicographic_claim() -> None:
+    ambiguous_account = "11111111000191"
+    evidenced_account = "22222222000172"
+    ambiguous = {
+        **_evidenced_shared_registry_contact(ambiguous_account),
+        "source_reference": "",
+        "evidence_ids": [],
+    }
+    leads = [
+        {"company": {"cnpj14": ambiguous_account}, "contacts": [ambiguous]},
+        {
+            "company": {"cnpj14": evidenced_account},
+            "contacts": [_evidenced_shared_registry_contact(evidenced_account)],
+        },
+    ]
+
+    gated = apply_cross_account_preferred_mailbox_gate(leads)
+
+    assert gated[0]["contacts"][0]["preferred_initial"] is False
+    assert "duplicate_preferred_mailbox_across_accounts" in gated[0]["contacts"][0]["reason_codes"]
+    assert gated[1]["contacts"][0]["preferred_initial"] is True
+
+
 def test_hr_mailbox_not_controlled_eligible() -> None:
     route = _route("vagas@empresaexemplo.com.br")
     classified = evaluate_controlled_email_eligible(route, person=None)

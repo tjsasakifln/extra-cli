@@ -88,6 +88,14 @@ def _build(root: Path, *, snapshot: str = "snapshot-a", generated_at: datetime =
             "status": "FRESH",
             "expires_at": (generated_at + timedelta(hours=6)).isoformat().replace("+00:00", "Z"),
         },
+        "authoritative_contact_projection": {
+            "input_declared": True,
+            "input_preferred_route_count": 1,
+            "output_preferred_route_count": 1,
+            "preferred_routes_reconciled": True,
+            "input_preferred_routes_hash": "preferred-route-hash",
+            "output_preferred_routes_hash": "preferred-route-hash",
+        },
         "deactivations": [],
         "deactivation_count": 0,
     }
@@ -113,6 +121,7 @@ def test_publish_records_live_contact_metrics_and_immutable_release(tmp_path: Pa
     assert result["accounts_with_contacts"] == 1
     assert result["accounts_with_preferred_route"] == 1
     assert result["route_class_distribution"] == {"ROLE_OR_DEPARTMENT": 1}
+    assert result["authoritative_contact_projection"]["preferred_routes_reconciled"] is True
     assert result["snapshot_changed"] is True
     assert result["contact_count_delta"] is None
     assert (public / "current").is_symlink()
@@ -154,6 +163,20 @@ def test_partial_manifest_is_refused_without_replacing_current(tmp_path: Path) -
     with pytest.raises(ValueError, match="coverage_complete"):
         atomic_publish_directory(bad, public, state_path=state, alert_ledger=alerts, now=NOW)
     assert (public / "current").resolve() == prior
+    assert "PUBLICATION_REFUSED" in alerts.read_text()
+
+
+def test_unreconciled_contact_projection_is_refused_before_publication(tmp_path: Path) -> None:
+    public, state, alerts = _paths(tmp_path)
+    bad = _build(tmp_path / "bad")
+    manifest = json.loads((bad / "manifest.json").read_text())
+    manifest["authoritative_contact_projection"]["output_preferred_route_count"] = 0
+    (bad / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="preferred route count mismatch"):
+        atomic_publish_directory(bad, public, state_path=state, alert_ledger=alerts, now=NOW)
+
+    assert not (public / "current").exists()
     assert "PUBLICATION_REFUSED" in alerts.read_text()
 
 

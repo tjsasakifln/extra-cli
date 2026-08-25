@@ -13,6 +13,7 @@ from typing import Any
 from scripts.confenge_outreach_pipeline.party_role import project_contractor_role
 from scripts.confenge_target_fit.published import build_published_index_from_rows
 from scripts.crawl.run_evidence import runtime_release_sha
+from scripts.decision_unit_intelligence.controlled_email import canonicalize_mailbox
 from scripts.warmbly_bridge import (
     DEFAULT_MAX_BYTES_PER_CHUNK,
     DEFAULT_MAX_LEADS_PER_CHUNK,
@@ -23,7 +24,7 @@ from scripts.warmbly_bridge import (
     SCHEMA_OUTREACH,
 )
 from scripts.warmbly_bridge.io_jsonl import InputError, content_hash_obj, read_jsonl, require_readable_file
-from scripts.warmbly_bridge.mapping import build_leads
+from scripts.warmbly_bridge.mapping import build_leads, normalize_cnpj14
 
 
 def _utcnow() -> str:
@@ -182,6 +183,59 @@ def _decision_cursor(lead: dict[str, Any]) -> str:
             str((lead.get("company") or {}).get("cnpj14") or ""),
         )
     )
+
+
+def _preferred_route_claims(rows: list[dict[str, Any]], *, feed_leads: bool) -> set[tuple[str, str]]:
+    """Return identity-bound preferred routes without exposing them in metrics."""
+
+    claims: set[tuple[str, str]] = set()
+    for row in rows:
+        company = row.get("company") if feed_leads and isinstance(row.get("company"), dict) else row
+        cnpj = normalize_cnpj14(str(company.get("cnpj14") or company.get("cnpj") or ""))
+        if not cnpj:
+            continue
+        for contact in row.get("contacts") or []:
+            if not isinstance(contact, dict) or contact.get("preferred_initial") is not True:
+                continue
+            mailbox = canonicalize_mailbox(str(contact.get("email") or ""))
+            if mailbox:
+                claims.add((cnpj, mailbox))
+    return claims
+
+
+def _reconcile_preferred_route_projection(
+    contact_rows: list[dict[str, Any]],
+    leads: list[dict[str, Any]],
+    *,
+    full_snapshot: bool,
+) -> dict[str, Any]:
+    """Fail closed when a declared canonical preferred route disappears."""
+
+    expected = _preferred_route_claims(contact_rows, feed_leads=False)
+    observed = _preferred_route_claims(leads, feed_leads=True)
+    if not full_snapshot:
+        output_accounts = {
+            normalize_cnpj14(str((lead.get("company") or {}).get("cnpj14") or "")) for lead in leads
+        }
+        expected = {claim for claim in expected if claim[0] in output_accounts}
+    expected_hash = content_hash_obj(sorted(expected))
+    observed_hash = content_hash_obj(sorted(observed))
+    if expected and expected != observed:
+        raise InputError(
+            "preferred route projection does not reconcile with generated feed: "
+            f"input={len(expected)} output={len(observed)} "
+            f"missing={len(expected - observed)} unexpected={len(observed - expected)} "
+            f"input_hash={expected_hash} output_hash={observed_hash}"
+        )
+    return {
+        "input_declared": bool(expected),
+        "scope": "FULL_INPUT" if full_snapshot else "OUTPUT_SLICE",
+        "input_preferred_route_count": len(expected),
+        "output_preferred_route_count": len(observed),
+        "preferred_routes_reconciled": expected == observed if expected else None,
+        "input_preferred_routes_hash": expected_hash,
+        "output_preferred_routes_hash": observed_hash,
+    }
 
 
 def _parse_timestamp(value: Any, *, field: str, cnpj: str) -> datetime:
@@ -443,6 +497,11 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
     if cfg.limit is not None:
         leads = leads[: cfg.limit]
     ordering = _assert_authoritative_leads(leads)
+    preferred_route_projection = _reconcile_preferred_route_projection(
+        contact_rows,
+        leads,
+        full_snapshot=cfg.limit is None,
+    )
 
     source = {
         "system": cfg.system,
@@ -565,6 +624,7 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
             "ordering": ordering,
         },
         "authoritative_source_freshness": freshness or None,
+        "authoritative_contact_projection": preferred_route_projection,
         "chunks": chunk_meta,
         # Approach B: explicit deactivation delta (idempotent; Warmbly applies without DB coupling)
         "deactivations": deacts,
@@ -600,6 +660,7 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
         "snapshot_hash": snapshot_hash,
         "lead_count": len(leads),
         "chunk_count": len(chunk_meta),
+        "authoritative_contact_projection": preferred_route_projection,
         "manifest": str(manifest_path.resolve()),
         "chunks": chunk_meta,
     }
