@@ -1,13 +1,13 @@
 {
   "ok": true,
   "status": "PASS",
-  "current_pr_head_sha": "fdf964622d9036099058482ec3c9cad16e43adc6",
-  "pr_head_sha": "fdf964622d9036099058482ec3c9cad16e43adc6",
+  "current_pr_head_sha": "a0eb414df9cce167b0d1ded267b1d5b3b7c53645",
+  "pr_head_sha": "a0eb414df9cce167b0d1ded267b1d5b3b7c53645",
   "workflow_merge_sha": null,
-  "checked_out_sha": "fdf964622d9036099058482ec3c9cad16e43adc6",
-  "final_integrity_code_freeze_sha": "fdf964622d9036099058482ec3c9cad16e43adc6",
-  "final_code_freeze_sha": "fdf964622d9036099058482ec3c9cad16e43adc6",
-  "executed_code_sha": "fdf964622d9036099058482ec3c9cad16e43adc6",
+  "checked_out_sha": "a0eb414df9cce167b0d1ded267b1d5b3b7c53645",
+  "final_integrity_code_freeze_sha": "a0eb414df9cce167b0d1ded267b1d5b3b7c53645",
+  "final_code_freeze_sha": "a0eb414df9cce167b0d1ded267b1d5b3b7c53645",
+  "executed_code_sha": "a0eb414df9cce167b0d1ded267b1d5b3b7c53645",
   "match_run_to_head": true,
   "code_changed_after_execution": false,
   "artifact_only_commits_after_execution": false,
@@ -16,6 +16,6 @@
   "freeze_policy": "frozen_confenge_inputs_v1",
   "protected_changed": [],
   "free_changed": [],
-  "verified_at": "2026-08-25T03:23:48Z",
+  "verified_at": "2026-08-25T03:38:34Z",
   "policy": "post-freeze protected CONFENGE inputs vs pr_head must be unchanged; unrelated monorepo paths are free; match_run_to_head true only when executed_code_sha == pr_head_sha; workflow_merge_sha / checked_out merge ref is never used as pr_head"
 }
