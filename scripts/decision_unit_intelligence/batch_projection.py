@@ -234,6 +234,12 @@ def _preferred_route_from_contact(account_id: str, contact: dict[str, Any]) -> d
     route = dict(contact)
     route["canonical_account_id"] = account_id
     route["mailbox"] = _canonical_mailbox(contact)
+    # Keep the preferred-route contract stable when the publication guard has
+    # to rebuild it from the ingestible contact row.  Feed contacts use `name`,
+    # while the controlled route contract deliberately uses `person_name` and
+    # represents an unknown person as an explicit null.
+    route.setdefault("person_id", contact.get("person_id"))
+    route.setdefault("person_name", contact.get("name"))
     route.setdefault("epistemic_class", contact.get("channel_epistemic_class"))
     route.setdefault("freshness", contact.get("route_freshness"))
     route.setdefault("suppression_state", contact.get("route_suppression"))
@@ -564,7 +570,11 @@ def build_contact_projection(
             "cnpj14": str(job["canonical_account_id"]),
             "canonical_account_id": str(job["canonical_account_id"]),
             "contacts": contacts,
-            "preferred_email_route": preferred,
+            "preferred_email_route": (
+                _preferred_route_from_contact(str(job["canonical_account_id"]), preferred)
+                if preferred is not None
+                else None
+            ),
             "enrichment_state": state,
             "enrichment_reason": reason,
             "official_domain": domain,
