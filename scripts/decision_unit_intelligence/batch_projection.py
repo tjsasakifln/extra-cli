@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from collections import Counter
 from datetime import UTC, datetime
@@ -14,6 +15,7 @@ from scripts.decision_unit_intelligence.controlled_email import (
     CONTROLLED_EMAIL_POLICY_VERSION,
     classify_account_email_routes,
     feed_contact_from_classified,
+    stamp_and_rank_feed_contacts,
 )
 from scripts.decision_unit_intelligence.models import (
     AccountInvestigation,
@@ -36,6 +38,15 @@ from scripts.decision_unit_intelligence.repository import write_json
 TERMINAL_JOB_STATUSES = frozenset({"SUCCEEDED", "BLOCKED", "DLQ", "CANCELLED"})
 ENRICHMENT_TERMINALS = frozenset(
     {"EMAIL_ROUTE_READY", "NO_PUBLIC_EMAIL_FOUND", "BLOCKED_WITH_REASON"}
+)
+
+_CLEAR_SUPPRESSION = frozenset({"", "NONE", "CLEAR", "NOT_SUPPRESSED"})
+_OFFICIAL_ASSOCIATION_FIELDS = (
+    "official_match_status",
+    "official_authority",
+    "official_release_id",
+    "registry_cnpj14",
+    "source_provenance",
 )
 
 
@@ -78,6 +89,171 @@ def _blocked_row(job: dict[str, Any], reason: str) -> dict[str, Any]:
         "contact_discovery_job_id": int(job["id"]),
         "contact_discovery_output_hash": job.get("output_hash"),
     }
+
+
+def _canonical_mailbox(contact: dict[str, Any]) -> str:
+    return str(contact.get("email") or contact.get("mailbox") or "").strip().lower()
+
+
+def _has_official_match(contact: dict[str, Any]) -> bool:
+    return str(contact.get("official_match_status") or "").upper() == "MATCHED"
+
+
+def _merge_contact_evidence(prior: dict[str, Any], current: dict[str, Any]) -> dict[str, Any]:
+    """Union the same observed mailbox without allowing evidence regression.
+
+    Current facts win generally, but a later provider failure or an older
+    serializer cannot erase an exact official CNPJ association.  Suppression is
+    fail-closed: a known non-clear state from either observation survives.
+    Eligibility/rank fields are derived again after the factual union.
+    """
+    merged = {**prior, **current}
+    prior_exact = _has_official_match(prior)
+    current_exact = _has_official_match(current)
+    if prior_exact and not current_exact:
+        for field in (*_OFFICIAL_ASSOCIATION_FIELDS, "source_reference", "source_url"):
+            if prior.get(field) is not None:
+                value = prior[field]
+                merged[field] = dict(value) if isinstance(value, dict) else value
+
+    evidence_ids = [
+        str(item)
+        for item in [*(prior.get("evidence_ids") or []), *(current.get("evidence_ids") or [])]
+        if item
+    ]
+    if evidence_ids:
+        merged["evidence_ids"] = list(dict.fromkeys(evidence_ids))
+
+    for field in ("route_suppression", "suppression_state", "suppression"):
+        values = [str(source.get(field) or "").upper() for source in (current, prior)]
+        suppressing = next((value for value in values if value not in _CLEAR_SUPPRESSION), None)
+        if suppressing:
+            merged[field] = suppressing
+
+    merged["email"] = _canonical_mailbox(current) or _canonical_mailbox(prior)
+    return merged
+
+
+def _merge_account_contacts(
+    prior_contacts: list[dict[str, Any]],
+    current_contacts: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    by_mailbox: dict[str, dict[str, Any]] = {}
+    order: list[str] = []
+    for contact in prior_contacts:
+        mailbox = _canonical_mailbox(contact)
+        if not mailbox or "@" not in mailbox:
+            continue
+        if mailbox not in by_mailbox:
+            order.append(mailbox)
+            by_mailbox[mailbox] = dict(contact)
+    for contact in current_contacts:
+        mailbox = _canonical_mailbox(contact)
+        if not mailbox or "@" not in mailbox:
+            continue
+        if mailbox not in by_mailbox:
+            order.append(mailbox)
+            by_mailbox[mailbox] = dict(contact)
+        else:
+            by_mailbox[mailbox] = _merge_contact_evidence(by_mailbox[mailbox], contact)
+    return [by_mailbox[mailbox] for mailbox in order]
+
+
+def _preferred_route_from_contact(account_id: str, contact: dict[str, Any]) -> dict[str, Any]:
+    route = dict(contact)
+    route["canonical_account_id"] = account_id
+    route["mailbox"] = _canonical_mailbox(contact)
+    route.setdefault("epistemic_class", contact.get("channel_epistemic_class"))
+    route.setdefault("freshness", contact.get("route_freshness"))
+    route.setdefault("suppression_state", contact.get("route_suppression"))
+    return route
+
+
+def reconcile_prior_contact_rows(
+    current_rows: list[dict[str, Any]],
+    prior_rows: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], dict[str, int]]:
+    """Reconcile the latest full cohort with prior durable public evidence.
+
+    The latest cohort remains the denominator.  Prior rows can restore evidence
+    for the same account/mailbox, but can never add an account that the current
+    TARGET_CONFIRMED population did not process.
+    """
+    prior_by_account = {
+        str(row.get("canonical_account_id") or row.get("cnpj14") or ""): row
+        for row in prior_rows
+        if str(row.get("canonical_account_id") or row.get("cnpj14") or "")
+    }
+    before_preferred = sum(bool(row.get("preferred_email_route")) for row in current_rows)
+    recovered_from_prior = 0
+    reconciled: list[dict[str, Any]] = []
+    for raw in current_rows:
+        row = dict(raw)
+        account_id = str(row.get("canonical_account_id") or row.get("cnpj14") or "")
+        prior = prior_by_account.get(account_id) or {}
+        current_contacts = [dict(item) for item in (row.get("contacts") or []) if isinstance(item, dict)]
+        prior_contacts = [dict(item) for item in (prior.get("contacts") or []) if isinstance(item, dict)]
+        combined = _merge_account_contacts(prior_contacts, current_contacts)
+        official_domain = str(row.get("official_domain") or prior.get("official_domain") or "").strip()
+        stamped = stamp_and_rank_feed_contacts(
+            combined,
+            account_id=account_id,
+            official_domain=official_domain or None,
+        )
+        preferred_contact = next(
+            (
+                item
+                for item in stamped
+                if item.get("preferred_initial") and item.get("controlled_email_eligible")
+            ),
+            None,
+        )
+        latest_state = str(row.get("enrichment_state") or "")
+        latest_reason = str(row.get("enrichment_reason") or "")
+        row["contacts"] = stamped
+        row["official_domain"] = official_domain or None
+        row["latest_enrichment_state"] = latest_state
+        row["latest_enrichment_reason"] = latest_reason
+        if preferred_contact is not None:
+            row["preferred_email_route"] = _preferred_route_from_contact(account_id, preferred_contact)
+            row["enrichment_state"] = "EMAIL_ROUTE_READY"
+            row["enrichment_reason"] = "DURABLE_EVIDENCE_ROUTE_SELECTED"
+            if not raw.get("preferred_email_route"):
+                recovered_from_prior += 1
+        else:
+            row.pop("preferred_email_route", None)
+            if latest_state == "EMAIL_ROUTE_READY":
+                row["enrichment_state"] = "BLOCKED_WITH_REASON"
+                row["enrichment_reason"] = "CURRENT_POLICY_NO_ELIGIBLE_ROUTE"
+        reconciled.append(row)
+    after_preferred = sum(bool(row.get("preferred_email_route")) for row in reconciled)
+    return reconciled, {
+        "prior_accounts": len(prior_by_account),
+        "current_accounts": len(current_rows),
+        "accounts_in_both": sum(
+            str(row.get("canonical_account_id") or row.get("cnpj14") or "") in prior_by_account
+            for row in current_rows
+        ),
+        "preferred_before_reconciliation": before_preferred,
+        "preferred_after_reconciliation": after_preferred,
+        "preferred_recovered_from_prior": recovered_from_prior,
+    }
+
+
+def _load_prior_rows(path: Path) -> tuple[list[dict[str, Any]], str]:
+    digest = hashlib.sha256()
+    rows: list[dict[str, Any]] = []
+    with path.open("rb") as handle:
+        for raw in handle:
+            digest.update(raw)
+            text = raw.decode("utf-8").strip()
+            if not text:
+                continue
+            value = json.loads(text)
+            if not isinstance(value, dict):
+                raise ValueError("prior contacts projection contains a non-object row")
+            rows.append(value)
+    return rows, digest.hexdigest()
 
 
 def _enum(enum_type: type[Any], raw: Any, default: Any) -> Any:
@@ -221,6 +397,8 @@ def build_contact_projection(
     queue: ContactDiscoveryQueue,
     *,
     cohort_id: str,
+    prior_rows: list[dict[str, Any]] | None = None,
+    prior_evidence: dict[str, Any] | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     jobs = queue.inspect(cohort_id=cohort_id)
     progress = queue.progress(cohort_id=cohort_id)
@@ -307,6 +485,35 @@ def build_contact_projection(
             sources[str(contact.get("source") or "UNKNOWN")] += 1
 
     rows.sort(key=lambda row: str(row["cnpj14"]))
+    reconciliation: dict[str, Any] | None = None
+    if prior_rows is not None:
+        rows, reconciliation_metrics = reconcile_prior_contact_rows(rows, prior_rows)
+        reconciliation = {**(prior_evidence or {}), **reconciliation_metrics}
+        # The union changes only derived account outcomes.  Recompute every
+        # report distribution from the rows that will actually be published.
+        states = Counter(str(row.get("enrichment_state") or "UNKNOWN") for row in rows)
+        blockers = Counter(
+            str(row.get("enrichment_reason") or "UNSPECIFIED")
+            for row in rows
+            if row.get("enrichment_state") == "BLOCKED_WITH_REASON"
+        )
+        route_classes = Counter(
+            str(contact.get("route_class") or "UNKNOWN")
+            for row in rows
+            for contact in (row.get("contacts") or [])
+            if isinstance(contact, dict)
+        )
+        preferred_classes = Counter(
+            str((row.get("preferred_email_route") or {}).get("route_class") or "UNKNOWN")
+            for row in rows
+            if row.get("preferred_email_route")
+        )
+        sources = Counter(
+            str(contact.get("source") or "UNKNOWN")
+            for row in rows
+            for contact in (row.get("contacts") or [])
+            if isinstance(contact, dict)
+        )
     denominator = int(progress.get("denominator") or len(jobs))
     population_contract = progress.get("population_contract")
     population_contract = population_contract if isinstance(population_contract, dict) else {}
@@ -368,6 +575,8 @@ def build_contact_projection(
         "search_backend": progress.get("search_backend"),
         "budget_version": progress.get("budget_version"),
     }
+    if reconciliation is not None:
+        report["durable_reconciliation"] = reconciliation
     return rows, report
 
 
@@ -378,8 +587,22 @@ def write_contact_projection(
     output_path: Path,
     report_path: Path,
     allow_partial: bool = False,
+    prior_contacts_path: Path | None = None,
 ) -> dict[str, Any]:
-    rows, report = build_contact_projection(queue, cohort_id=cohort_id)
+    prior_rows: list[dict[str, Any]] | None = None
+    prior_evidence: dict[str, Any] | None = None
+    if prior_contacts_path is not None:
+        prior_rows, prior_sha256 = _load_prior_rows(prior_contacts_path)
+        prior_evidence = {
+            "prior_contacts_path": str(prior_contacts_path),
+            "prior_contacts_sha256": prior_sha256,
+        }
+    rows, report = build_contact_projection(
+        queue,
+        cohort_id=cohort_id,
+        prior_rows=prior_rows,
+        prior_evidence=prior_evidence,
+    )
     if not allow_partial and not report["terminal_coverage_complete"]:
         return {**report, "written": False, "reason": "TERMINAL_COVERAGE_INCOMPLETE"}
     output_path.parent.mkdir(parents=True, exist_ok=True)

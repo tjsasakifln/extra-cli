@@ -1,7 +1,7 @@
 {
   "schema_version": "confenge-frozen-inputs/1.0",
   "campaign": "CONFENGE-COMMERCIAL-READY-01",
-  "freeze_sha": "f183784ce3dcf675512e8e77446a39fbe4f2d1be",
+  "freeze_sha": "acf1ed93385549c88002ff5a63422572ab77b2d9",
   "policy": "frozen_confenge_inputs_v1",
   "inputs": [
     {

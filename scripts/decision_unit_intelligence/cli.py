@@ -470,6 +470,7 @@ def cmd_batch_export_contacts(args: argparse.Namespace) -> int:
             output_path=Path(args.out),
             report_path=Path(args.report),
             allow_partial=args.allow_partial,
+            prior_contacts_path=Path(args.prior_contacts) if args.prior_contacts else None,
         )
     _print(result)
     return 0 if result.get("written") else 2
@@ -628,6 +629,10 @@ def build_parser() -> argparse.ArgumentParser:
     export_contacts.add_argument("--out", required=True)
     export_contacts.add_argument("--report", required=True)
     export_contacts.add_argument("--allow-partial", action="store_true")
+    export_contacts.add_argument(
+        "--prior-contacts",
+        help="Prior durable contacts JSONL to reconcile without evidence regression",
+    )
     export_contacts.add_argument("--dsn")
     export_contacts.set_defaults(func=cmd_batch_export_contacts)
 
