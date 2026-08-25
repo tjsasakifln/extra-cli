@@ -880,3 +880,15 @@ def test_git_sha_is_resolved_from_runtime_checkout(monkeypatch) -> None:
     command = captured["command"]
     assert isinstance(command, list)
     assert command[1:3] == ["-C", str(runtime_root)]
+
+
+def test_git_sha_prefers_immutable_release_identity(monkeypatch) -> None:
+    release_sha = "a" * 40
+
+    def fail_git(*_args: object, **_kwargs: object) -> str:
+        raise AssertionError("git must not override immutable release identity")
+
+    monkeypatch.setattr(pipeline_module, "runtime_release_sha", lambda: release_sha)
+    monkeypatch.setattr(pipeline_module.subprocess, "check_output", fail_git)
+
+    assert pipeline_module._git_sha() == release_sha

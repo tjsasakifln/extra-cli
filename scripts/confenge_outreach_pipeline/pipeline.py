@@ -60,6 +60,7 @@ from scripts.confenge_universe import (
     DEFAULT_MANIFEST_NAME,
 )
 from scripts.confenge_universe.pipeline import run_universe_build
+from scripts.crawl.run_evidence import runtime_release_sha
 from scripts.decision_unit_intelligence import POLICY_VERSION as CONTACT_DISCOVERY_POLICY_VERSION
 from scripts.decision_unit_intelligence.controlled_email import dedupe_feed_contacts_by_mailbox
 from scripts.warmbly_bridge.export import ExportConfig, export_outreach
@@ -137,6 +138,8 @@ def _utcnow() -> str:
 def _git_sha() -> str:
     import shutil
 
+    if release_sha := runtime_release_sha():
+        return release_sha
     git_bin = shutil.which("git")
     if not git_bin:
         return "unknown"

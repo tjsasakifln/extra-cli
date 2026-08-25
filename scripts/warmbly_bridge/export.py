@@ -12,6 +12,7 @@ from typing import Any
 
 from scripts.confenge_outreach_pipeline.party_role import project_contractor_role
 from scripts.confenge_target_fit.published import build_published_index_from_rows
+from scripts.crawl.run_evidence import runtime_release_sha
 from scripts.warmbly_bridge import (
     DEFAULT_MAX_BYTES_PER_CHUNK,
     DEFAULT_MAX_LEADS_PER_CHUNK,
@@ -32,6 +33,8 @@ def _utcnow() -> str:
 def _git_sha() -> str:
     import shutil
 
+    if release_sha := runtime_release_sha():
+        return release_sha
     git_bin = shutil.which("git")
     if not git_bin:
         return "unknown"

@@ -21,7 +21,20 @@ from scripts.warmbly_bridge import (
     REQUIRED_SOURCE_FIELDS,
     SCHEMA_OUTREACH,
 )
+from scripts.warmbly_bridge import export as export_module
 from scripts.warmbly_bridge.export import ExportConfig, export_outreach
+
+
+def test_export_git_sha_prefers_immutable_release_identity(monkeypatch) -> None:
+    release_sha = "b" * 40
+    monkeypatch.setattr(export_module, "runtime_release_sha", lambda: release_sha)
+    monkeypatch.setattr(
+        export_module.subprocess,
+        "check_output",
+        lambda *_args, **_kwargs: pytest.fail("git must not override immutable release identity"),
+    )
+
+    assert export_module._git_sha() == release_sha
 
 
 def _assert_required(obj: dict[str, Any], required: list[str] | tuple[str, ...], *, ctx: str) -> None:
