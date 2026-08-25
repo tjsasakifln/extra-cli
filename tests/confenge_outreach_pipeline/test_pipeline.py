@@ -720,6 +720,10 @@ def test_adapt_intelligence_and_contacts_join() -> None:
                     "data_fim": "2025-12-31",
                     "uf": "SC",
                     "orgao_nome": "Pref Joinville",
+                    "supplier_cnpj14": "11222333000181",
+                    "supplier_role": "CONTRATADA",
+                    "buyer_cnpj14": "83169623000110",
+                    "buyer_role": "ORGAO_CONTRATANTE",
                 }
             ],
         },
@@ -727,6 +731,7 @@ def test_adapt_intelligence_and_contacts_join() -> None:
     intel_in = universe_row_to_intelligence_input(universe, as_of="2026-08-01")
     assert intel_in["contracts"]
     assert intel_in["cnpj14"] == "11222333000181"
+    assert intel_in["contractor_role"]["status"] == "CONTRACTOR_ROLE_CONFIRMED"
 
     dossier = {
         "schema_id": "confenge-account-intelligence-v1",
@@ -762,8 +767,10 @@ def test_adapt_intelligence_and_contacts_join() -> None:
         "dominant_state": {"state": "NEW"},
         "generated_at": "2026-08-01T00:00:00Z",
         "as_of": "2026-08-01",
+        "_pipeline_contracts": intel_in["contracts"],
     }
     bridge_intel = intelligence_dossier_to_bridge_row(dossier)
+    assert bridge_intel["contractor_role"]["status"] == "CONTRACTOR_ROLE_CONFIRMED"
     # confenge.service.v1: warmbly service_code is canonical playbook code
     assert bridge_intel["offer"]["service_code"] == "MONITORAMENTO_CONTRATUAL"
     assert bridge_intel["offer"]["canonical_service_code"] == "MONITORAMENTO_CONTRATUAL"

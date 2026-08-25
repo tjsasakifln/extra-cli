@@ -6,6 +6,14 @@
 **Capability:** Authoritative, auditable human-recipient resolution for the Warmbly pilot
 **DOD item:** `DOD-definition-of-done-extra-1cd551b906` (OPEN; do not accept before main + CI + live evidence)
 
+> **Superseded for eligible first touch on 2026-08-25:** this story preserves
+> the historical named-human experiment and its then-current safety evidence.
+> ADR-037 and `CFG-FIRST-TOUCH-ROUTING-v1` now accept attributable
+> `DIRECT_PERSON`, `ROLE_OR_DEPARTMENT`, `GENERIC_COMPANY` and
+> `PUBLIC_COMPANY_FREEMAIL` routes. A named human and individual human approval
+> are therefore not prerequisites for an eligible first touch; unknown,
+> conflict and unattributed routes still fail closed.
+
 ## Goal
 
 Replace the old functional-mailbox interpretation of `EMAIL_SEND_READY` with a

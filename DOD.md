@@ -405,6 +405,16 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 
 ### 2.7 Inteligência comercial CONFENGE — prioridade imediata
 
+> **Decisão vigente do founder em 25/08/2026:** para a campanha específica de
+> primeiro toque de roteamento, ADR-037 substitui a exigência anterior de
+> revisão/aprovação humana individual. O agente pode reconciliar evidência,
+> selecionar uma rota observada, gerar, revisar, reparar, aprovar e enfileirar
+> sob `CFG-FIRST-TOUCH-ROUTING-v1`. Órgão contratante, `UNKNOWN`, conflito de
+> papel, mailbox sem associação, suppression, opt-out, bounce, reply, kill
+> switch ou falha de readback continuam bloqueando. Follow-ups e conversas após
+> resposta permanecem fora dessa autoridade. Esta decisão não marca item como
+> aceito sem teste, CI, deploy e evidência operacional no estado correspondente.
+
 > **Objetivo imediato:** usar o dataset canônico de contratos para identificar pessoas jurídicas com dores, transições ou complexidade B2G observáveis e priorizar a prospecção humana da CONFENGE.
 >
 > **Regra de linguagem:** antes de validação com resultados comerciais reais, o sistema produz **sinais de necessidade/aderência** e um **score de priorização**. Não denomina esses resultados como desejo, intenção de compra, probabilidade de contratação ou propensão estatística.
@@ -463,13 +473,13 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 - [ ] Cada item possui estado comercial controlado: `NEW`, `REVIEWED`, `QUALIFIED`, `DISQUALIFIED`, `CONTACTED`, `REPLIED`, `MEETING`, `PROPOSAL`, `WON`, `LOST` ou `DO_NOT_CONTACT`.
 - [ ] Revisões, overrides e desqualificações registram autor, data e motivo.
 - [ ] Dados de contato, quando enriquecidos, possuem origem lícita e data de verificação; o ranking funciona mesmo sem esse enriquecimento.
-- [ ] A fila informa uma ação humana concreta e uma mensagem de valor compatível com o sinal, sem automatizar contato em nome da CONFENGE.
+- [ ] A fila informa uma ação concreta e uma mensagem compatível com o sinal. O primeiro toque de roteamento pode usar ADR-037; demais contatos permanecem humanos ou exigem nova policy.
 - [ ] A rotina evita milhares de alertas: há limite configurável, supressão de repetição e indicação do que mudou desde a execução anterior.
 - [ ] Limites de fila, amostra e hot set controlam apresentação ou vazão, mas toda empresa do universo permanece materializada e reconsiderável conforme novos sinais.
 
 #### Validação, aprendizado comercial e claims
 
-- [ ] Os top-20, ou todos os casos quando houver menos, passam por revisão manual inicial de Tiago contra o perfil comercial.
+- [ ] Os top-20, ou todos os casos quando houver menos, passam por QA do perfil comercial; isso não cria gate de revisão individual de mensagem sob ADR-037.
 - [ ] Cem por cento dos top-10 possuem CNPJ, evidência contratual reproduzível e pelo menos um sinal confirmado; caso contrário o gate falha.
 - [ ] A validação mede `precision@10`, `precision@20`, cobertura dos campos, estabilidade do ranking e concordância entre score e revisão humana.
 - [ ] O baseline inicial é comparado com uma seleção simples, como valor contratado ou recência, para provar ganho de priorização.
@@ -478,7 +488,7 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 - [ ] Resultados de contato real retroalimentam a avaliação e o ajuste de sinais, sem reescrever silenciosamente o histórico.
 - [ ] Não são usados atributos pessoais sensíveis ou proxies discriminatórios; `DO_NOT_CONTACT` e restrições legais/comerciais são respeitados.
 - [ ] O `confenge.outreach.v1` publica uma decisão target-fit completa para todo CNPJ endereçável do universo reconciliado, inclusive OUT, insuficiente, stale, DNC, downgrades e tombstones; omissão nunca preserva autorização anterior.
-- [ ] O primeiro ciclo de uso real registra decisões de Tiago, contatos realizados e resultados observados, inclusive quando não houver conversão.
+- [ ] O primeiro ciclo de uso real registra decisões delegadas/humanas conforme a policy, contatos realizados e resultados observados, inclusive quando não houver conversão.
 
 #### Contact resolution público e defensável
 
@@ -497,7 +507,7 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 - [ ] O pipeline lê o dataset canônico de contratos e gera a fila por um comando CLI reproduzível.
 - [ ] Pelo menos 12 sinais estão implementados, testados e explicáveis, ou os não computáveis estão explicitamente identificados sem falso-verde.
 - [ ] Os top-10 passam pela validação de evidência e os top-20 pela revisão humana inicial.
-- [ ] O GO do piloto exige pelo menos 10 leads explicitamente aprovados entre decisões humanas atribuíveis; a meta de reserva 900 é reportada separadamente e não bloqueia o piloto controlado.
+- [ ] O GO operacional exige leads aprovados por autoridade atribuível: humana nos fluxos gerais ou delegada sob ADR-037; a meta de reserva 900 é reportada separadamente e não bloqueia o primeiro toque controlado.
 - [ ] A fila registra estado, próximo passo, feedback e outcomes comerciais.
 - [ ] Existe relatório de baseline, limitações, métricas de qualidade e comparação com ranking simples.
 - [ ] Tiago aceita formalmente a fila como utilizável para iniciar a prospecção da CONFENGE.

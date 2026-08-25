@@ -69,6 +69,10 @@ def _safe_float(v: Any) -> float:
         return 0.0
 
 
+def _digits(value: Any) -> str:
+    return "".join(ch for ch in str(value or "") if ch.isdigit())
+
+
 @dataclass
 class EstablishmentAgg:
     cnpj14: str
@@ -210,6 +214,12 @@ class EntityBucket:
                 self.object_snippets_pass.append(obj)
             sample = {
                 "contrato_id": row.get("contrato_id"),
+                "supplier_cnpj14": identity.cnpj14,
+                "supplier_cnpj_root": identity.cnpj_root,
+                "supplier_role": "CONTRATADA",
+                "buyer_cnpj14": _digits(row.get("orgao_cnpj")),
+                "buyer_cnpj_root": _digits(row.get("orgao_cnpj"))[:8],
+                "buyer_role": "CONTRATANTE",
                 "orgao_nome": row.get("orgao_nome"),
                 "objeto": obj,
                 "valor_total": valor if valor else None,

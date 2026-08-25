@@ -8,6 +8,8 @@ from __future__ import annotations
 from datetime import date
 from typing import Any
 
+from scripts.confenge_outreach_pipeline.party_role import project_contractor_role
+
 
 def _digits(value: Any) -> str:
     return "".join(ch for ch in str(value or "") if ch.isdigit())
@@ -119,6 +121,10 @@ def universe_row_to_intelligence_input(
                 "publication_date": c.get("data_publicacao") or c.get("publication_date"),
                 "uf": c.get("uf"),
                 "orgao": c.get("orgao_nome") or c.get("orgao"),
+                "supplier_cnpj14": c.get("supplier_cnpj14") or c.get("fornecedor_cnpj"),
+                "supplier_role": c.get("supplier_role"),
+                "buyer_cnpj14": c.get("buyer_cnpj14") or c.get("orgao_cnpj"),
+                "buyer_role": c.get("buyer_role"),
                 "has_addendum": has_addendum,
                 "addendum_count": int(c.get("addendum_count") or (1 if has_addendum else 0)),
                 "has_reajuste": has_reajuste,
@@ -162,6 +168,13 @@ def universe_row_to_intelligence_input(
     cnpj = _digits(row.get("cnpj14") or row.get("cnpj") or "")
     ce = row.get("construction_evidence") if isinstance(row.get("construction_evidence"), dict) else {}
 
+    party_role = project_contractor_role(
+        cnpj,
+        contracts,
+        source_run_id=str(row.get("source_run_id") or ""),
+        observed_at=str(row.get("target_fit_source_watermark") or as_of_value),
+    )
+
     return {
         "cnpj": cnpj,
         "cnpj14": cnpj,
@@ -175,6 +188,7 @@ def universe_row_to_intelligence_input(
         "commercial_state": commercial_state,
         "signals": signals,
         "contracts": contracts,
+        "contractor_role": party_role,
         "evidence": [],
         "source_lead_id": row.get("source_lead_id") or f"cnpj:{cnpj}",
         "priority_score": row.get("priority_score"),
@@ -282,6 +296,10 @@ def intelligence_dossier_to_bridge_row(dossier: dict[str, Any]) -> dict[str, Any
                 "publication_date": c.get("publication_date"),
                 "agency": c.get("orgao") or c.get("agency"),
                 "uf": c.get("uf"),
+                "supplier_cnpj14": c.get("supplier_cnpj14") or c.get("fornecedor_cnpj"),
+                "supplier_role": c.get("supplier_role"),
+                "buyer_cnpj14": c.get("buyer_cnpj14") or c.get("orgao_cnpj"),
+                "buyer_role": c.get("buyer_role"),
             }
         )
 
@@ -312,6 +330,15 @@ def intelligence_dossier_to_bridge_row(dossier: dict[str, Any]) -> dict[str, Any
         dossier.get("why_this_account")
         or (f"empresa com execução pública de engenharia/construção observável: {razao}" if razao else "")
     )
+
+    party_role = dossier.get("contractor_role")
+    if not isinstance(party_role, dict):
+        party_role = project_contractor_role(
+            cnpj,
+            bridge_contracts,
+            source_run_id=str(dossier.get("source_run_id") or ""),
+            observed_at=str(dossier.get("as_of") or ""),
+        )
 
     return {
         "cnpj14": cnpj,
@@ -361,6 +388,7 @@ def intelligence_dossier_to_bridge_row(dossier: dict[str, Any]) -> dict[str, Any
             "why_now_code": str(why.get("trigger") or why.get("code") or "").upper(),
         },
         "contracts": bridge_contracts,
+        "contractor_role": party_role,
         "evidence": evidence,
         "inferences": inferences,
         "primary_service": primary,

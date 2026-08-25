@@ -44,6 +44,12 @@ def _validate_against_schema_required(feed: dict[str, Any], schema: dict[str, An
         _assert_required(lead, lead_required, ctx=f"leads[{i}]")
         company_req = ((lead_def.get("properties") or {}).get("company") or {}).get("required") or []
         _assert_required(lead.get("company") or {}, company_req, ctx=f"leads[{i}].company")
+        role_schema = ((lead_def.get("properties") or {}).get("contractor_role") or {})
+        _assert_required(
+            lead.get("contractor_role") or {},
+            role_schema.get("required") or [],
+            ctx=f"leads[{i}].contractor_role",
+        )
         msg_req = ((lead_def.get("properties") or {}).get("messaging_context") or {}).get("required") or []
         _assert_required(
             lead.get("messaging_context") or {},
@@ -104,12 +110,32 @@ def test_feed_required_fields_and_schema(exported: Path, schemas_dir: Path) -> N
                 assert field in lead["messaging_context"]
             assert isinstance(lead["contacts"], list)
             assert isinstance(lead["contracts"], list)
+            assert lead["contractor_role"]["target_party_role"] in {
+                "SUPPLIER",
+                "BUYER_CONFLICT",
+                "UNKNOWN",
+            }
+            assert lead["contractor_role"]["source"] == "extra-cli:v_contracts_canonical_v2"
+            assert lead["contractor_role"]["source_run_id"] == feed["source"]["run_id"]
+            assert lead["contractor_role"]["evidence_hash"]
             assert isinstance(lead["evidence"], list)
             assert "rank" in lead["priority"]
             assert "score" in lead["priority"]
             assert "code" in lead["moment"] or "summary" in lead["moment"]
             assert "service_code" in lead["offer"] or "service_name" in lead["offer"]
             assert lead["commercial_state"]
+
+
+def test_confirmed_contractor_schema_requires_exact_branch_and_high_confidence(schemas_dir: Path) -> None:
+    schema = json.loads((schemas_dir / "confenge.outreach.v1.json").read_text(encoding="utf-8"))
+    role_schema = schema["$defs"]["lead"]["properties"]["contractor_role"]
+    confirmed = next(
+        rule["then"]["properties"]
+        for rule in role_schema["allOf"]
+        if rule["if"]["properties"]["status"].get("const") == "CONTRACTOR_ROLE_CONFIRMED"
+    )
+    assert confirmed["role_match_method"] == {"const": "SUPPLIER_EXACT_CNPJ14"}
+    assert confirmed["confidence"] == {"const": "HIGH"}
 
 
 def test_inferences_not_promoted_to_confirmed_fact(exported: Path) -> None:
