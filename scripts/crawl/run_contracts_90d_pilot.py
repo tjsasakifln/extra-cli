@@ -74,7 +74,15 @@ UPSERT_BATCH = int(os.getenv("CONTRACTS_UPSERT_BATCH", "500"))
 DEFAULT_PILOT_CKPT_DIR = str(_PROJECT_ROOT / "data" / "contracts_checkpoints" / "a5_next30d")
 
 # Pilot-level page retries (on top of contracts_crawler internal retries).
-_PAGE_RETRY_MAX = 3
+# Production may widen the *time window* for transient PNCP load-balancer
+# bursts.  The budget remains finite and every failed page still makes the
+# source window partial/fail-closed.
+_PAGE_RETRY_MAX = max(0, int(os.getenv("CONTRACTS_PAGE_RETRY_MAX", "3")))
+_PAGE_RETRY_BASE_SECONDS = max(0.0, float(os.getenv("CONTRACTS_PAGE_RETRY_BASE_SECONDS", "1")))
+_PAGE_RETRY_CAP_SECONDS = max(
+    _PAGE_RETRY_BASE_SECONDS,
+    float(os.getenv("CONTRACTS_PAGE_RETRY_CAP_SECONDS", "30")),
+)
 _PAGE_RETRYABLE = frozenset(
     {
         FetchStatus.HTTP_RATE_LIMIT,
@@ -325,6 +333,8 @@ def _fetch_page_with_retry(
     telemetry: list[dict[str, Any]] | None = None,
     sleeper: Callable[[float], None] = time.sleep,
     jitter: Callable[[float, float], float] = random.uniform,
+    base_delay_seconds: float = _PAGE_RETRY_BASE_SECONDS,
+    cap_delay_seconds: float = _PAGE_RETRY_CAP_SECONDS,
 ) -> Any:
     """Fetch one page with exponential backoff + jitter on 429/5xx/timeout.
 
@@ -356,9 +366,11 @@ def _fetch_page_with_retry(
             return last
         if last.status not in _PAGE_RETRYABLE or attempt >= max_retries:
             return last
-        # exponential backoff with full jitter: base 1s → 2 → 4 ...
-        base = 2**attempt
-        delay = base + jitter(0, base)  # noqa: S311 — retry jitter, not crypto
+        # Exponential backoff with bounded additive jitter.  Cap includes the
+        # jitter, so a configured production retry horizon remains auditable.
+        base = min(float(cap_delay_seconds), float(base_delay_seconds) * (2**attempt))
+        jitter_ceiling = min(base, max(0.0, float(cap_delay_seconds) - base))
+        delay = base + jitter(0, jitter_ceiling)  # noqa: S311 — retry jitter, not crypto
         if telemetry is not None:
             telemetry[-1]["backoff_seconds"] = round(delay, 3)
         logger.warning(

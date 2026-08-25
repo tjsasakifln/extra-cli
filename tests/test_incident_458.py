@@ -120,6 +120,32 @@ def test_retry_is_bounded_with_backoff_jitter_and_telemetry(monkeypatch) -> None
     assert telemetry[0]["classification"]["class"] == "transient"
 
 
+def test_production_retry_window_is_finite_and_capped(monkeypatch) -> None:
+    from scripts.crawl import run_contracts_90d_pilot as pilot
+
+    outcomes = [*[_result(FetchStatus.HTTP_SERVER_ERROR) for _ in range(5)], _result(FetchStatus.SUCCESS_DATA)]
+    monkeypatch.setattr(pilot, "_fetch_page", lambda *_a, **_k: outcomes.pop(0))
+    sleeps: list[float] = []
+    telemetry: list[dict] = []
+
+    result = _fetch_page_with_retry(
+        "20260815",
+        "20260821",
+        19,
+        max_retries=5,
+        telemetry=telemetry,
+        sleeper=sleeps.append,
+        jitter=lambda _a, b: b,
+        base_delay_seconds=5,
+        cap_delay_seconds=30,
+    )
+
+    assert result.status == FetchStatus.SUCCESS_DATA
+    assert sleeps == [10.0, 20.0, 30.0, 30.0, 30.0]
+    assert len(telemetry) == 6
+    assert sum(sleeps) == 120.0
+
+
 def test_permanent_page_failure_is_not_retried(monkeypatch) -> None:
     from scripts.crawl import run_contracts_90d_pilot as pilot
 

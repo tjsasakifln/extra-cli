@@ -548,6 +548,9 @@ def test_pncp_contracts_service_has_production_read_timeout() -> None:
     service = Path("deploy/systemd/pncp-contracts.service").read_text(encoding="utf-8")
 
     assert "Environment=CONTRACTS_READ_TIMEOUT=60" in service
+    assert "Environment=CONTRACTS_PAGE_RETRY_MAX=5" in service
+    assert "Environment=CONTRACTS_PAGE_RETRY_BASE_SECONDS=5" in service
+    assert "Environment=CONTRACTS_PAGE_RETRY_CAP_SECONDS=30" in service
 
 
 def test_collect_timer_snapshot_parses_systemd_stamps() -> None:
