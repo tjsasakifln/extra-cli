@@ -14,6 +14,7 @@ from scripts.crawl.run_evidence import (
     get_git_meta,
     host_id,
     new_run_id,
+    runtime_release_sha,
     sha256_bytes,
     sha256_file,
 )
@@ -48,6 +49,20 @@ def test_get_git_meta_soft_fail_shape():
     # In this repo git should usually work; values may be str or None
     assert meta["git_sha"] is None or isinstance(meta["git_sha"], str)
     assert meta["git_branch"] is None or isinstance(meta["git_branch"], str)
+
+
+def test_runtime_release_sha_is_bound_to_immutable_release_path():
+    sha = "a" * 40
+    path = Path("/opt/extra-consultoria-releases") / sha / "scripts/crawl/run_evidence.py"
+    assert runtime_release_sha(path) == sha
+    assert runtime_release_sha("/opt/extra-consultoria/scripts/crawl/run_evidence.py") is None
+
+
+def test_get_git_meta_prefers_explicit_deployed_sha(monkeypatch: pytest.MonkeyPatch):
+    sha = "b" * 40
+    monkeypatch.setenv("EXTRA_DEPLOYED_SHA", sha)
+    monkeypatch.setenv("EXTRA_DEPLOYED_BRANCH", "main")
+    assert get_git_meta() == {"git_sha": sha, "git_branch": "main"}
 
 
 def test_host_id_is_short_hex():
