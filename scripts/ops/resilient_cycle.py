@@ -160,6 +160,19 @@ def _pncp_request_windows(
     return ordered
 
 
+def _pncp_observation_id(observed_at: datetime) -> str:
+    """Return the stable UTC hour that owns a recurring PNCP observation.
+
+    A same-day request scope cannot be permanent: otherwise its committed
+    watermark suppresses every later scheduled HTTP observation that day.
+    The hourly identity keeps retries within an hour idempotent while making
+    the next scheduled cycle observe the public source again.
+    """
+    if observed_at.tzinfo is None:
+        observed_at = observed_at.replace(tzinfo=UTC)
+    return observed_at.astimezone(UTC).strftime("%Y-%m-%dT%H")
+
+
 def _aggregate_source_runs(runs: list[dict[str, Any]]) -> dict[str, Any]:
     if len(runs) == 1:
         return runs[0]
@@ -198,6 +211,7 @@ def run_cycle(
     config: ResilienceConfig | None = None,
     persistence: Any | None = None,
     crash_after: str | None = None,
+    observed_at: datetime | None = None,
 ) -> tuple[int, dict[str, Any]]:
     if config is None:
         env = "fixture" if not live else None
@@ -221,7 +235,11 @@ def run_cycle(
     log_path = config.ops_path / "logs" / f"{run_id}.jsonl"
     logger = JsonLogger(log_path)
     started = time.monotonic()
-    started_at = datetime.now(UTC).isoformat()
+    cycle_observed_at = observed_at or datetime.now(UTC)
+    if cycle_observed_at.tzinfo is None:
+        cycle_observed_at = cycle_observed_at.replace(tzinfo=UTC)
+    cycle_observed_at = cycle_observed_at.astimezone(UTC)
+    started_at = cycle_observed_at.isoformat()
     pipeline = OperationalPipeline(config, persistence=persistence, crash_after=crash_after)
     selected_source = "ciga_dom" if source == "ciga_ckan" else source
     initial_dlq_pending = len(pipeline.dlq.pending(selected_source))
@@ -243,7 +261,7 @@ def run_cycle(
 
     for adapter in adapters:
         source_started = time.monotonic()
-        request_start = date_from or datetime.now(UTC).date()
+        request_start = date_from or cycle_observed_at.date()
         request_end = date_to or request_start
         health = adapter.health()
         steps.append({"step": f"source-health:{adapter.source_id}", "status": health.status})
@@ -255,6 +273,8 @@ def run_cycle(
             scope = (
                 f"mode=incremental|date={window_start.isoformat()}:{window_end.isoformat()}|target={target or 'all'}"
             )
+            if live and adapter.source_id == "pncp" and date_from is None and date_to is None:
+                scope = f"{scope}|observation={_pncp_observation_id(cycle_observed_at)}"
             window_run_id = run_id if len(windows) == 1 else f"{run_id}-w{index + 1:02d}"
             request = CrawlRequest(
                 mode="incremental",

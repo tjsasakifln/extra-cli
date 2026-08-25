@@ -4,6 +4,15 @@ Status: `IMPLEMENTED + LIVE_WINDOW_ACCEPTED + SOAK_ADMISSION_BLOCKED`; o soak
 permanece `NOT_STARTED` até todos os gates de admissão passarem. Não é
 `PROVEN`, `VPS_OPERATIONAL` nem aceite de #241/#248.
 
+## Identidade da observação recorrente (2026-08-25)
+
+O coletor PNCP resiliente usa uma identidade horária UTC na janela implícita
+do dia corrente. Reexecuções dentro da mesma hora reutilizam checkpoints e o
+watermark comprometido. Uma hora posterior recebe escopos distintos de run e
+página, então um checkpoint concluído no mesmo dia não pode suprimir uma nova
+observação HTTP nem fazer evidência stale parecer saudável. Replays com intervalo
+de datas explícito preservam a semântica anterior de checkpoint.
+
 ## Diagnóstico e classificação
 
 Baseline sanitizada de 2026-08-22 no `ec-prod`:

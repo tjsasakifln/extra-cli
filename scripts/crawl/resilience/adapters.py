@@ -67,6 +67,15 @@ def _reusable_pncp_page(raw_doc: Any) -> list[dict[str, Any]] | None:
     return records
 
 
+def _pncp_observation_suffix(request_scope: str) -> str:
+    """Keep page checkpoints inside the recurring observation that owns them."""
+    marker = "|observation="
+    if marker not in request_scope:
+        return ""
+    observation = request_scope.split(marker, 1)[1].split("|", 1)[0].strip()
+    return f"|observation={observation}" if observation else ""
+
+
 class _AdapterBase:
     source_id = "unknown"
     supports_pagination = True
@@ -164,13 +173,17 @@ class PNCPAdapter(_AdapterBase):
         pages_complete = pages_expected = pages_reused = pages_reprocessed = 0
         local_corruption_count = 0
         terminal_status: FetchStatus = "success"
+        observation_suffix = _pncp_observation_suffix(request.request_scope)
 
         for window_start, window_end in self.legacy._windowed_dates(start, end):
             for modalidade in self.legacy.INGESTION_MODALIDADES or self.legacy.DEFAULT_MODALIDADES:
                 page = 1
                 modality_expected: int | None = None
                 while page <= self.config.max_pages:
-                    scope = f"window={window_start}:{window_end}|modalidade={modalidade}|page={page}"
+                    scope = (
+                        f"window={window_start}:{window_end}|modalidade={modalidade}|page={page}"
+                        f"{observation_suffix}"
+                    )
                     page_scopes.append(scope)
                     prior = self.checkpoints.load(self.source_id, scope)
                     if prior and prior.pages_expected is not None and modality_expected is None:
