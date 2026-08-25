@@ -34,6 +34,17 @@ older CONFIRMED authorization because it never received a revocation.
    the full authoritative universe and target-fit snapshot.
 9. The historical PREVENCAO alias `01489370000105` is emitted canonically as
    `14893700000105` (`14.893.700/0001-05`) without rewriting raw evidence.
+10. Target-fit publishes two independent clocks. `target_fit_evidence_watermark`
+    records the last source change used by the classifier; it is immutable when
+    a later complete crawl observes no delta. `target_fit_source_watermark`
+    records the latest complete source observation that was followed by a full
+    national reconciliation and an empty target-fit work queue. Its source run
+    is carried in `target_fit_observation_run_id`.
+11. A source re-observation fails closed unless PNCP is `FRESH`, the national
+    reconciliation completed after that source observation, coverage is 100%
+    with no unexplained omissions, and no pending, processing, retry or dead
+    target-fit work remains. A green no-delta crawl may refresh observation
+    currency; it may never rewrite historical evidence currency.
 
 ## Consequences
 
@@ -43,3 +54,6 @@ older CONFIRMED authorization because it never received a revocation.
 - Operational raw chunks remain outside Git under ADR-020; small manifests,
   hashes and reproducible tests are the review evidence.
 - No dispatch or campaign authorization is implied by successful export.
+- Source freshness no longer depends on rows changing: a successful complete
+  no-delta observation is represented honestly without pretending the evidence
+  itself changed.

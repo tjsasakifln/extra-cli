@@ -52,6 +52,8 @@ def _row_target_fit_payload(row: dict[str, Any]) -> dict[str, Any]:
         or [],
         "computed_at": row.get("target_fit_computed_at") or row.get("computed_at"),
         "source_watermark": row.get("target_fit_source_watermark") or row.get("source_watermark"),
+        "target_fit_evidence_watermark": row.get("target_fit_evidence_watermark"),
+        "target_fit_observation_run_id": row.get("target_fit_observation_run_id"),
         "operational_status": row.get("target_fit_operational_status") or row.get("operational_status"),
     }
 
@@ -353,6 +355,8 @@ def enrich_row_with_published(
     out["target_fit_version"] = published.get("target_fit_version")
     out["target_fit_computed_at"] = published.get("computed_at")
     out["target_fit_source_watermark"] = published.get("source_watermark")
+    out["target_fit_evidence_watermark"] = published.get("target_fit_evidence_watermark")
+    out["target_fit_observation_run_id"] = published.get("target_fit_observation_run_id")
     out["target_fit_evidence"] = published.get("target_fit_evidence")
     out["target_fit_reason_codes"] = published.get("target_fit_reason_codes")
     out["target_fit_operational_status"] = published.get("operational_status")
@@ -420,6 +424,8 @@ def _embed_from_row(row: dict[str, Any]) -> dict[str, Any] | None:
             "target_fit_evidence": row.get("target_fit_evidence") or [],
             "computed_at": row.get("target_fit_computed_at") or row.get("computed_at"),
             "source_watermark": row.get("target_fit_source_watermark") or row.get("source_watermark"),
+            "target_fit_evidence_watermark": row.get("target_fit_evidence_watermark"),
+            "target_fit_observation_run_id": row.get("target_fit_observation_run_id"),
             "operational_status": row.get("target_fit_operational_status") or row.get("operational_status") or "ok",
             "input_fingerprint": row.get("input_fingerprint"),
         }
@@ -583,6 +589,8 @@ def attach_published_fields(
             "target_fit_computed_at": computed,
             "target_fit_source_watermark": published.get("source_watermark")
             or published.get("target_fit_source_watermark"),
+            "target_fit_evidence_watermark": published.get("target_fit_evidence_watermark"),
+            "target_fit_observation_run_id": published.get("target_fit_observation_run_id"),
             "target_fit_fresh": fresh_ok,
             "target_fit_evidence_ids": ids,
             "target_fit_freshness_reason": (freshness.reason if freshness else None),

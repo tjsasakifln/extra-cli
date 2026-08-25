@@ -126,20 +126,14 @@ def test_durable_projection_reaches_feed_accounts_outside_hot_set(tmp_path: Path
     assert result.ok, result.errors
     sample_rows = [
         json.loads(line)
-        for line in (out / "02_downstream_sample" / "downstream-sample.jsonl")
-        .read_text(encoding="utf-8")
-        .splitlines()
+        for line in (out / "02_downstream_sample" / "downstream-sample.jsonl").read_text(encoding="utf-8").splitlines()
         if line
     ]
     sample_cnpjs = {row["cnpj14"] for row in sample_rows}
     feed_leads = []
     for chunk in sorted((out / "06_warmbly_feed").glob("chunk_*.json")):
         feed_leads.extend(json.loads(chunk.read_text(encoding="utf-8"))["leads"])
-    outside = [
-        lead
-        for lead in feed_leads
-        if lead["company"]["cnpj14"] not in sample_cnpjs and lead.get("contacts")
-    ]
+    outside = [lead for lead in feed_leads if lead["company"]["cnpj14"] not in sample_cnpjs and lead.get("contacts")]
     assert outside, "durable contact projection must not be restricted to this run's hot set"
     contact = outside[0]["contacts"][0]
     assert contact["controlled_email_eligible"] is True
@@ -345,6 +339,130 @@ def test_published_decision_without_a_watermark_is_tombstoned_not_exported(monke
     )
 
     assert [row["cnpj_raiz"] for row in snapshot] == ["11222333"]
+
+
+def test_fresh_closed_source_reobserves_full_target_fit_without_erasing_evidence_watermark(
+    monkeypatch,
+) -> None:
+    import scripts.confenge_outreach_pipeline.pipeline as pipeline
+    import scripts.confenge_target_fit.db as target_fit_db
+
+    class FakeConnection:
+        closed = False
+
+        def close(self) -> None:
+            self.closed = True
+
+    conn = FakeConnection()
+    monkeypatch.setattr(target_fit_db, "connect", lambda dsn, readonly: conn)
+    monkeypatch.setattr(
+        pipeline,
+        "load_published_index",
+        lambda connection, cnpj14s: {
+            "11222333": {
+                "cnpj_raiz": "11222333",
+                "company_key": "cnpj_root:11222333",
+                "target_fit_class": "TARGET_CONFIRMED",
+                "source_watermark": "2026-08-16T08:30:23Z",
+            }
+        },
+    )
+
+    def control(connection, key):
+        if key == "cdc_watermark":
+            return {"watermark": "2026-08-24T03:26:43Z"}
+        assert key == "target_fit_coverage"
+        return {
+            "coverage_ratio": 1.0,
+            "pagination_exhausted_normally": True,
+            "last_full_reconcile_unexplained_missing": 0,
+            "last_full_reconcile_completed_at": "2026-08-25T02:45:00Z",
+        }
+
+    monkeypatch.setattr(pipeline, "get_control", control)
+    monkeypatch.setattr(pipeline, "queue_counts", lambda connection: {"done": 407_513})
+
+    snapshot, authority, watermark = _published_target_fit_snapshot(
+        [{"cnpj14": "11222333000181"}],
+        dsn="postgresql://unused",
+        authoritative_source_freshness={
+            "status": "FRESH",
+            "source_observed_at": "2026-08-25T02:42:00Z",
+            "run_id": "contracts-live-1",
+        },
+    )
+
+    assert conn.closed is True
+    assert authority == "published_target_fit_store"
+    assert watermark == "2026-08-25T02:42:00Z"
+    assert snapshot[0]["source_watermark"] == "2026-08-25T02:42:00Z"
+    assert snapshot[0]["target_fit_evidence_watermark"] == "2026-08-16T08:30:23Z"
+    assert snapshot[0]["target_fit_observation_run_id"] == "contracts-live-1"
+
+
+def test_target_fit_reobservation_fails_closed_until_full_reconcile_and_queue_drain(
+    monkeypatch,
+) -> None:
+    import scripts.confenge_outreach_pipeline.pipeline as pipeline
+    import scripts.confenge_target_fit.db as target_fit_db
+
+    class FakeConnection:
+        def close(self) -> None:
+            return None
+
+    monkeypatch.setattr(target_fit_db, "connect", lambda dsn, readonly: FakeConnection())
+    monkeypatch.setattr(pipeline, "load_published_index", lambda connection, cnpj14s: {})
+    monkeypatch.setattr(
+        pipeline,
+        "get_control",
+        lambda connection, key: (
+            {"watermark": "2026-08-24T03:26:43Z"}
+            if key == "cdc_watermark"
+            else {
+                "coverage_ratio": 1.0,
+                "pagination_exhausted_normally": True,
+                "last_full_reconcile_unexplained_missing": 0,
+                "last_full_reconcile_completed_at": "2026-08-25T02:40:00Z",
+            }
+        ),
+    )
+    monkeypatch.setattr(pipeline, "queue_counts", lambda connection: {"pending": 1})
+
+    with __import__("pytest").raises(ValueError, match="full reconcile must complete after"):
+        _published_target_fit_snapshot(
+            [{"cnpj14": "11222333000181"}],
+            dsn="postgresql://unused",
+            authoritative_source_freshness={
+                "status": "FRESH",
+                "source_observed_at": "2026-08-25T02:42:00Z",
+                "run_id": "contracts-live-1",
+            },
+        )
+
+    monkeypatch.setattr(
+        pipeline,
+        "get_control",
+        lambda connection, key: (
+            {"watermark": "2026-08-24T03:26:43Z"}
+            if key == "cdc_watermark"
+            else {
+                "coverage_ratio": 1.0,
+                "pagination_exhausted_normally": True,
+                "last_full_reconcile_unexplained_missing": 0,
+                "last_full_reconcile_completed_at": "2026-08-25T02:45:00Z",
+            }
+        ),
+    )
+    with __import__("pytest").raises(ValueError, match="1 unresolved queue items"):
+        _published_target_fit_snapshot(
+            [{"cnpj14": "11222333000181"}],
+            dsn="postgresql://unused",
+            authoritative_source_freshness={
+                "status": "FRESH",
+                "source_observed_at": "2026-08-25T02:42:00Z",
+                "run_id": "contracts-live-1",
+            },
+        )
 
 
 def test_production_activation_does_not_use_limit_downstream_as_capacity(tmp_path: Path) -> None:

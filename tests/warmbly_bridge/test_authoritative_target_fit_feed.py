@@ -394,6 +394,8 @@ def test_database_datetime_strings_are_serialized_as_rfc3339(tmp_path: Path) -> 
         watermark=database_timestamp,
         evidence_ids=["e1"],
     )
+    decision["target_fit_evidence_watermark"] = "2026-08-10T09:00:00Z"
+    decision["target_fit_observation_run_id"] = "contracts-live-1"
 
     _, leads = _export(
         tmp_path,
@@ -405,6 +407,8 @@ def test_database_datetime_strings_are_serialized_as_rfc3339(tmp_path: Path) -> 
 
     assert leads[0]["target_fit_computed_at"] == "2026-08-12T12:00:00.123456Z"
     assert leads[0]["target_fit_source_watermark"] == "2026-08-12T12:00:00.123456Z"
+    assert leads[0]["target_fit_evidence_watermark"] == "2026-08-10T09:00:00Z"
+    assert leads[0]["target_fit_observation_run_id"] == "contracts-live-1"
 
 
 def test_cli_exposes_canonical_datalake_watermark() -> None:

@@ -1018,6 +1018,12 @@ def build_contract(snapshot: Mapping[str, Any]) -> dict[str, Any]:
         "source_publication_or_update_at": source_at.isoformat().replace("+00:00", "Z") if source_at else None,
         "first_observed_at": first_observed.isoformat().replace("+00:00", "Z") if first_observed else None,
         "persisted_at": persisted.isoformat().replace("+00:00", "Z") if persisted else None,
+        # Completion of the latest fully closed, paginated source window is the
+        # factual observation clock.  It advances even when every fetched row is
+        # a duplicate, unlike MAX(ingested_at), which only advances on data
+        # changes.  Downstream target-fit freshness must use this clock without
+        # overwriting the older evidence-change watermark.
+        "source_observed_at": closed_at.isoformat().replace("+00:00", "Z") if closed_at else None,
         "run_id": snapshot.get("run_id") or checkpoint.get("attempt_run_id") or (latest_closed or {}).get("run_id"),
         "attempt_id": snapshot.get("attempt_id") or checkpoint.get("attempt_run_id"),
         "source_window": (latest_closed or {}).get("source_window") or snapshot.get("source_window") or latest_window,

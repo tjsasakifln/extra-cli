@@ -416,6 +416,7 @@ def test_build_contract_required_fields_and_status_domain() -> None:
         "source_publication_or_update_at",
         "first_observed_at",
         "persisted_at",
+        "source_observed_at",
         "run_id",
         "attempt_id",
         "source_window",
@@ -441,6 +442,7 @@ def test_build_contract_required_fields_and_status_domain() -> None:
         assert field in artifact, field
     assert artifact["status"] in STATUSES
     assert artifact["latest_successful_closed_window"] == "20260812_20260819"
+    assert artifact["source_observed_at"] == "2026-08-19T09:21:14Z"
     assert artifact["oldest_unresolved_gap"] == "20260810_20260817"
     assert artifact["expected"] == 45703
     assert artifact["pages_expected"] == artifact["pages_fetched"] == 92

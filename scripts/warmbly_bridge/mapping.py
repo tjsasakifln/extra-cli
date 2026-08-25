@@ -544,6 +544,8 @@ def map_lead(
         "target_fit_version",
         "target_fit_computed_at",
         "target_fit_source_watermark",
+        "target_fit_evidence_watermark",
+        "target_fit_observation_run_id",
         "target_fit_fresh",
         "target_fit_evidence",
         "target_fit_evidence_ids",
