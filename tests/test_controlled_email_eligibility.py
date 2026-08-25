@@ -1145,6 +1145,7 @@ def test_a_document_mailbox_on_the_proven_official_domain_is_associated():
     """The account's own proven domain is what binds it, not the document host."""
     verdict = evaluate_controlled_email_eligible(_doc_route())
     assert verdict.mailbox_company_evidence == "OBSERVED"
+    assert verdict.to_dict()["company_associated"] is True
     assert verdict.controlled_email_eligible is True
     assert verdict.route_class == EmailRouteClass.ROLE_OR_DEPARTMENT
 
@@ -1158,6 +1159,7 @@ def test_a_document_route_without_a_proven_domain_has_no_association_at_all():
     """
     verdict = evaluate_controlled_email_eligible(_doc_route(official_domain=""))
     assert verdict.mailbox_company_evidence == "UNKNOWN"
+    assert verdict.to_dict()["company_associated"] is False
     assert verdict.controlled_email_eligible is False
     assert "mailbox_company_evidence_unknown" in verdict.reason_codes
 
@@ -1322,6 +1324,7 @@ def test_registry_freemail_proof_survives_bridge_mapping_and_reranking() -> None
     assert contact["preferred_initial"] is True
     assert contact["person_unknown"] is True
     assert contact["email_validated"] is False
+    assert contact["company_associated"] is True
     assert contact["mailbox_company_evidence"] == "OBSERVED"
     assert contact["official_authority"] == "RECEITA_FEDERAL"
     assert contact["official_release_id"] == "rfb-2026-08"
