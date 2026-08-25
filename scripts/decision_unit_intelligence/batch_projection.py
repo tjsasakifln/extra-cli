@@ -232,7 +232,9 @@ def _rank_publishable_contacts(
     rejected_mailboxes = {
         _canonical_mailbox(contact)
         for contact in stamped
-        if contact.get("controlled_email_eligible") and not _contact_observed_at(contact)
+        if not _contact_observed_at(contact)
+        and "controlled_email_eligible" in (contact.get("reason_codes") or [])
+        and "missing_observed_at" in (contact.get("reason_codes") or [])
     }
     rejected_mailboxes.discard("")
     if not rejected_mailboxes:

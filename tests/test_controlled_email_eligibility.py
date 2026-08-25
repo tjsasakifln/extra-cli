@@ -13,6 +13,7 @@ from pathlib import Path
 from scripts.confenge_contact_resolution.send_readiness import evaluate_email_send_ready
 from scripts.decision_unit_intelligence.controlled_email import (
     CONTROLLED_EMAIL_POLICY_VERSION,
+    ControlledRiskClass,
     EmailRouteClass,
     alternative_after_preferred_bounce,
     apply_cross_account_preferred_mailbox_gate,
@@ -170,6 +171,30 @@ def test_contato_eligible_without_inventing_person() -> None:
     assert "person_unknown" in classified.reason_codes
     assert classified.email_validated is False
     assert is_email_safe_for_warmbly(route) is False
+
+
+def test_fresh_contact_page_without_observed_at_is_not_eligible_or_preferred() -> None:
+    stamped = stamp_and_rank_feed_contacts(
+        [
+            {
+                "email": "contato@empresaexemplo.com.br",
+                "source_type": "contact_page",
+                "source_url": "https://empresaexemplo.com.br/contato",
+                "ownership_status": "COMPANY_OWNED",
+                "route_freshness": "FRESH",
+                "observed_at": "",
+            }
+        ],
+        account_id=ACCOUNT_ID,
+        official_domain="empresaexemplo.com.br",
+    )
+
+    assert stamped[0]["route_freshness"] == FreshnessState.FRESH.value
+    assert stamped[0]["controlled_email_eligible"] is False
+    assert stamped[0]["preferred_initial"] is False
+    assert stamped[0]["risk_class"] == ControlledRiskClass.RISKY.value
+    assert stamped[0]["publication_block_reason"] == "MISSING_OBSERVED_AT"
+    assert "missing_observed_at" in stamped[0]["reason_codes"]
 
 
 def test_associated_gmail_is_public_company_freemail() -> None:
@@ -756,6 +781,7 @@ def test_duplicate_preferred_mailbox_across_accounts_keeps_one() -> None:
                 "ownership_status": "COMPANY_OWNED",
                 "source_type": "site",
                 "source_url": "https://energia.com.br/contato",
+                "observed_at": "2026-08-24T12:00:00Z",
             }
         ]
     }
@@ -793,11 +819,13 @@ def test_stamp_and_rank_feed_contacts_emits_route_class_without_person() -> None
                 "email": "comercial@empresaexemplo.com.br",
                 "ownership_status": "COMPANY_OWNED",
                 "source_url": "https://empresaexemplo.com.br/contato",
+                "observed_at": "2026-08-24T12:00:00Z",
             },
             {
                 "email": "contato@empresaexemplo.com.br",
                 "ownership_status": "COMPANY_OWNED",
                 "source_url": "https://empresaexemplo.com.br/contato",
+                "observed_at": "2026-08-24T12:00:00Z",
             },
         ],
         account_id=ACCOUNT_ID,
@@ -1000,6 +1028,7 @@ def _five_class_universe_intel_contacts() -> tuple[dict, dict, dict]:
                 "identity_explicitly_associated": True,
                 "email_discovery_class": "EMAIL_VALIDATED",
                 "source_contact_id": "c-ana",
+                "observed_at": "2026-08-24T12:00:00Z",
             },
             {
                 "email": "comercial@empresaexemplo.com.br",
@@ -1008,6 +1037,7 @@ def _five_class_universe_intel_contacts() -> tuple[dict, dict, dict]:
                 "source_type": "company_website",
                 "source_url": "https://empresaexemplo.com.br/contato",
                 "source_contact_id": "c-comercial",
+                "observed_at": "2026-08-24T12:00:00Z",
             },
             {
                 "email": "contato@empresaexemplo.com.br",
@@ -1016,6 +1046,7 @@ def _five_class_universe_intel_contacts() -> tuple[dict, dict, dict]:
                 "source_type": "company_website",
                 "source_url": "https://empresaexemplo.com.br/contato",
                 "source_contact_id": "c-contato",
+                "observed_at": "2026-08-24T12:00:00Z",
             },
             {
                 "email": "empresa@gmail.com",
@@ -1024,12 +1055,14 @@ def _five_class_universe_intel_contacts() -> tuple[dict, dict, dict]:
                 "source_url": "https://empresaexemplo.com.br/contato",
                 "mailbox_company_evidence": "OBSERVED",
                 "source_contact_id": "c-gmail",
+                "observed_at": "2026-08-24T12:00:00Z",
             },
             {
                 "email": "joao.silva@empresaexemplo.com.br",
                 "email_derivation": "INFERRED",
                 "email_discovery_class": "INFERRED_PATTERN_EMAIL",
                 "source_contact_id": "c-inferred",
+                "observed_at": "2026-08-24T12:00:00Z",
             },
         ],
     }
@@ -1046,11 +1079,13 @@ def test_stamp_and_rank_uses_observed_feed_name_for_direct_person() -> None:
                 "identity_explicitly_associated": True,
                 "email_discovery_class": "EMAIL_VALIDATED",
                 "source_url": "https://empresaexemplo.com.br/contato",
+                "observed_at": "2026-08-24T12:00:00Z",
             },
             {
                 "email": "contato@empresaexemplo.com.br",
                 "ownership_status": "COMPANY_OWNED",
                 "source_url": "https://empresaexemplo.com.br/contato",
+                "observed_at": "2026-08-24T12:00:00Z",
             },
         ],
         account_id=ACCOUNT_ID,
@@ -1273,6 +1308,7 @@ def test_a_suppressed_contact_never_reaches_eligibility():
         "source": "contact_page",
         "source_type": "contact_page",
         "source_url": "https://empresaexemplo.com.br/contato",
+        "observed_at": "2026-08-24T12:00:00Z",
     }
     for payload in ({"suppression": "opt-out"}, {"suppressed": True}, {"opt_out": "true"}):
         route = route_from_feed_contact({**base, **payload}, account_id=ACCOUNT_ID)

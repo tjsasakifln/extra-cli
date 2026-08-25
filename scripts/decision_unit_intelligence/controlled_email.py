@@ -1283,6 +1283,13 @@ def stamp_and_rank_feed_contacts(
                     dict.fromkeys((*item.reason_codes, "provenance_chain_invalid"))
                 ),
             )
+        if not str(route.observed_at or "").strip():
+            item = replace(
+                item,
+                controlled_email_eligible=False,
+                risk_class=ControlledRiskClass.RISKY,
+                reason_codes=tuple(dict.fromkeys((*item.reason_codes, "missing_observed_at"))),
+            )
         classified.append(item)
         indexed.append(contact)
     ranking = rank_account_email_routes(classified)
@@ -1295,6 +1302,8 @@ def stamp_and_rank_feed_contacts(
             stamped.append(contact)
             continue
         merged = {**contact, **feed_contact_from_classified(item)}
+        if "missing_observed_at" in item.reason_codes:
+            merged["publication_block_reason"] = "MISSING_OBSERVED_AT"
         if contact.get("corroborating_sources"):
             merged["corroborating_sources"] = list(contact["corroborating_sources"])
             merged["corroborated"] = True

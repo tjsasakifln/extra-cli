@@ -303,11 +303,13 @@ def test_two_sources_same_mailbox_dedupe_and_one_preferred() -> None:
                 "email": "comercial@empresaexemplo.com.br",
                 "ownership_status": "COMPANY_OWNED",
                 "source_url": "https://empresaexemplo.com.br/",
+                "observed_at": "2026-08-24T12:00:00Z",
             },
             {
                 "email": "COMERCIAL@empresaexemplo.com.br",
                 "ownership_status": "COMPANY_OWNED",
                 "source_url": "https://empresaexemplo.com.br/contato",
+                "observed_at": "2026-08-24T12:00:00Z",
             },
         ],
         account_id=ACCOUNT,

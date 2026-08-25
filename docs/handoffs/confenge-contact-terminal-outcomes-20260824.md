@@ -53,3 +53,13 @@ terminal: 8,625 `SUCCEEDED`, 12 `DLQ`, 6,666 `EMAIL_ROUTE_READY` and 1,971
 `BLOCKED_WITH_REASON`; the terminal equation held with zero integrity failures.
 Its projection hash is
 `73b2d40f9995ea0b8afc253a92e276eb719850701aacf7cb2e7eca7bda2c066e`.
+
+## Publication observation boundary
+
+A live all-chunk scan of feed run `run-e27950c5f75c9459` found one legacy
+`contact_page` route marked `FRESH` and preferred without `observed_at`. A
+freshness label cannot substitute for the observation that anchors it. Feed
+stamping therefore demotes any route without `observed_at` from
+`controlled_email_eligible` and preferred ranking with the explicit reason
+`missing_observed_at`. The route remains stored as evidence; it is not promoted
+to the Warmbly controlled-review lane.
