@@ -10,6 +10,7 @@ User=extra-consultoria
 Group=extra-consultoria
 WorkingDirectory=/opt/extra-consultoria
 Environment=PYTHONPATH=/opt/extra-consultoria
+Environment=PYTHONSAFEPATH=1
 Environment=RESILIENCE_ENV=production
 EnvironmentFile=/opt/extra-consultoria/.env
 # production env: operational paths under /var/lib; fail-closed on blocked sources
