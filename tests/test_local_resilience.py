@@ -12,7 +12,12 @@ from typing import Any
 import pytest
 
 from scripts.crawl.ingestion._base.crawler import CrawlRequest, FetchResult
-from scripts.crawl.resilience.adapters import PNCPAdapter, ScComprasAdapter, _reusable_pncp_page
+from scripts.crawl.resilience.adapters import (
+    PNCPAdapter,
+    ScComprasAdapter,
+    _pncp_observation_suffix,
+    _reusable_pncp_page,
+)
 from scripts.crawl.resilience.circuit_breaker import PersistentCircuitBreaker
 from scripts.crawl.resilience.config import ResilienceConfig
 from scripts.crawl.resilience.http_policy import HttpResiliencePolicy
@@ -29,7 +34,12 @@ from scripts.crawl.resilience.state import (
     coerce_canonical_checkpoint,
 )
 from scripts.ops.health import collect_health
-from scripts.ops.resilient_cycle import _aggregate_source_runs, _pncp_request_windows, run_cycle
+from scripts.ops.resilient_cycle import (
+    _aggregate_source_runs,
+    _pncp_observation_id,
+    _pncp_request_windows,
+    run_cycle,
+)
 from scripts.ops.validate_systemd import validate as validate_systemd
 
 
@@ -280,6 +290,68 @@ def test_checkpoint_atomic_resume_and_no_reprocess(tmp_path: Path) -> None:
     assert second.metadata["pages_reused"] == 1
     assert second.pages_expected == 1
     assert second.pages_fetched == 1
+
+
+def test_pncp_recurring_observation_is_idempotent_per_utc_hour_and_then_refetches(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    calls = 0
+
+    def fetcher(_request, _modalidade, _page):
+        nonlocal calls
+        calls += 1
+        return FetchResult(
+            status="empty_confirmed",
+            records=[],
+            request_completed=True,
+            http_status=204,
+            pages_fetched=1,
+            pages_expected=1,
+            empty_confirmed=True,
+            provenance={"test": True},
+            metadata={
+                "pagination": {"totalPaginas": 1, "paginasRestantes": 0},
+                "url": "fixture://pncp",
+            },
+        )
+
+    cfg = config(tmp_path, environment="production", execution_mode="live", require_db=False)
+    adapter = PNCPAdapter(cfg, page_fetcher=fetcher)
+    adapter.legacy.INGESTION_MODALIDADES = [1]
+    monkeypatch.setattr("scripts.ops.resilient_cycle._live_adapters", lambda _cfg: [adapter])
+    persistence = InMemoryPersistence()
+
+    first_time = datetime(2026, 8, 25, 5, 5, tzinfo=UTC)
+    same_hour = datetime(2026, 8, 25, 5, 59, tzinfo=UTC)
+    next_hour = datetime(2026, 8, 25, 6, 0, tzinfo=UTC)
+    first_code, first = run_cycle(
+        live=True, source="pncp", config=cfg, persistence=persistence, observed_at=first_time
+    )
+    retry_code, retry = run_cycle(
+        live=True, source="pncp", config=cfg, persistence=persistence, observed_at=same_hour
+    )
+    next_code, following = run_cycle(
+        live=True, source="pncp", config=cfg, persistence=persistence, observed_at=next_hour
+    )
+
+    assert first_code == retry_code == next_code == 0, (first, retry, following)
+    assert calls == 2
+    assert first["results"]["pncp"].get("resumed") is not True
+    assert retry["results"]["pncp"]["resumed"] is True
+    assert following["results"]["pncp"].get("resumed") is not True
+    assert first["results"]["pncp"]["request_scope"].endswith("|observation=2026-08-25T05")
+    assert following["results"]["pncp"]["request_scope"].endswith("|observation=2026-08-25T06")
+    page_scopes = sorted(path.name for path in (cfg.checkpoint_path / "pncp").glob("*.json"))
+    assert any("observation_2026-08-25T05" in scope for scope in page_scopes)
+    assert any("observation_2026-08-25T06" in scope for scope in page_scopes)
+
+
+def test_pncp_observation_identity_is_utc_and_optional_on_legacy_scopes() -> None:
+    assert _pncp_observation_id(datetime(2026, 8, 25, 2, tzinfo=UTC)) == "2026-08-25T02"
+    assert _pncp_observation_suffix("mode=incremental|observation=2026-08-25T02|target=all") == (
+        "|observation=2026-08-25T02"
+    )
+    assert _pncp_observation_suffix("mode=incremental|date=2026-08-25") == ""
 
 
 def test_completed_pncp_page_with_invalid_envelope_is_refetched(tmp_path: Path) -> None:
