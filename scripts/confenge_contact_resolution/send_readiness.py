@@ -1173,7 +1173,20 @@ def evaluate_email_send_ready(
                 c_for_prov["source"]["source_type"] = source_type
                 if source_url:
                     c_for_prov["source"]["source_url"] = source_url
-        prov_res = evaluate_contact_provenance(c_for_prov)
+        canonical_account_id = None
+        if company:
+            canonical_account_id = next(
+                (
+                    str(company.get(field) or "").strip()
+                    for field in ("canonical_account_id", "cnpj14", "cnpj", "company_key", "account_id")
+                    if str(company.get(field) or "").strip()
+                ),
+                None,
+            )
+        prov_res = evaluate_contact_provenance(
+            c_for_prov,
+            canonical_account_id=canonical_account_id,
+        )
     else:
         prov_res = evaluate_provenance_trust(
             email=email_norm,

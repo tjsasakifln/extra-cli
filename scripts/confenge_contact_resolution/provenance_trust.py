@@ -95,6 +95,7 @@ _REAL_SOURCE_TYPES = {
     "site": RootSourceType.REAL_OFFICIAL_SITE.value,
     "contact_page": RootSourceType.REAL_OFFICIAL_SITE.value,
     "official_site": RootSourceType.REAL_OFFICIAL_SITE.value,
+    "company_website": RootSourceType.REAL_OFFICIAL_SITE.value,
     "official_domain": RootSourceType.REAL_OFFICIAL_SITE.value,
     "website": RootSourceType.REAL_OFFICIAL_SITE.value,
     "homepage": RootSourceType.REAL_OFFICIAL_SITE.value,
@@ -204,6 +205,7 @@ _SITE_BOUND_SOURCE_TYPES = frozenset(
         "site",
         "contact_page",
         "official_site",
+        "company_website",
         "company_site",
         "website",
         "site_scrape",
@@ -453,6 +455,51 @@ def _looks_fixture_notes(notes: str | None) -> bool:
         return False
     n = str(notes).lower()
     return any(m in n for m in _TAINT_NOTE_MARKERS)
+
+
+def has_exact_official_registry_association(
+    contact: dict[str, Any] | None,
+    canonical_account_id: str | None,
+) -> bool:
+    """Return true only for an immutable RFB observation of this exact CNPJ.
+
+    ``company_registry`` is an internal projection label, not intrinsically a
+    trusted root.  It becomes equivalent to the canonical ``registry`` source
+    only when the complete official tuple survives serialization.  This keeps
+    a copied label or a cross-CNPJ mailbox fail-closed.
+    """
+    c = contact or {}
+    provenance = c.get("source_provenance")
+    if not isinstance(provenance, dict):
+        return False
+    source = c.get("source")
+    source_type = (
+        c.get("source_type")
+        or (source.get("source_type") if isinstance(source, dict) else source)
+        or ((c.get("provenance") or {}).get("source_type") if isinstance(c.get("provenance"), dict) else None)
+    )
+    release_id = str(c.get("official_release_id") or "").strip()
+    registry_cnpj = "".join(char for char in str(c.get("registry_cnpj14") or "") if char.isdigit())
+    account_cnpj = "".join(char for char in str(canonical_account_id or "") if char.isdigit())
+    authority = str(c.get("official_authority") or provenance.get("authority") or "").upper()
+    observed_at = str(
+        c.get("observed_at")
+        or ((c.get("provenance") or {}).get("observed_at") if isinstance(c.get("provenance"), dict) else "")
+        or provenance.get("observed_at")
+        or ""
+    ).strip()
+    return bool(
+        str(c.get("official_match_status") or "").upper() == "MATCHED"
+        and authority == "RECEITA_FEDERAL"
+        and str(source_type or "").lower() in {"company_registry", "registry"}
+        and c.get("company_associated") is True
+        and len(registry_cnpj) == 14
+        and registry_cnpj == account_cnpj
+        and release_id
+        and str(provenance.get("release_id") or "").strip() == release_id
+        and str(c.get("source_reference") or "").strip()
+        and observed_at
+    )
 
 
 def classify_root_source_type(
@@ -755,8 +802,24 @@ def extract_provenance_fields(contact: dict[str, Any] | None) -> dict[str, Any]:
     }
 
 
-def evaluate_contact_provenance(contact: dict[str, Any] | None) -> ProvenanceTrustResult:
+def evaluate_contact_provenance(
+    contact: dict[str, Any] | None,
+    *,
+    canonical_account_id: str | None = None,
+) -> ProvenanceTrustResult:
     fields = extract_provenance_fields(contact)
+    # ``company_registry`` is deliberately absent from _REAL_SOURCE_TYPES: a
+    # label alone cannot grant trust.  Normalize it to the canonical trusted
+    # registry root only after the exact official association is proven.
+    if str(fields.get("source_type") or "").lower() == "company_registry" and has_exact_official_registry_association(
+        contact,
+        canonical_account_id,
+    ):
+        fields["source_type"] = "registry"
+        fields["source_url"] = fields.get("source_url") or "official_company_registry"
+        fields["source_document"] = fields.get("source_document") or str(
+            (contact or {}).get("official_release_id") or ""
+        )
     return evaluate_provenance_trust(**fields)
 
 
