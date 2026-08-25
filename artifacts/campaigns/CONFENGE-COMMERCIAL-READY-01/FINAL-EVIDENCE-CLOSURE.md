@@ -1,6 +1,6 @@
 # FINAL EVIDENCE CLOSURE — CONFENGE-COMMERCIAL-READY-01
 
-Generated: 2026-08-25T04:03:19Z
+Generated: 2026-08-25T04:20:03Z
 Aggregator: `build_final_campaign_status()`
 
 ## Terminal
@@ -16,11 +16,11 @@ Aggregator: `build_final_campaign_status()`
 
 | Field | Value |
 |-------|-------|
-| pr_head_sha / current_pr_head_sha | `c2799d1c3d0661606958fbef0abe2576164dd86e` |
+| pr_head_sha / current_pr_head_sha | `25a57013737c69a6e1c97472d94fe4387c3accef` |
 | workflow_merge_sha | `None` |
-| checked_out_sha | `c2799d1c3d0661606958fbef0abe2576164dd86e` |
-| executed_code_sha | `c2799d1c3d0661606958fbef0abe2576164dd86e` |
-| final_integrity_code_freeze_sha | `c2799d1c3d0661606958fbef0abe2576164dd86e` |
+| checked_out_sha | `25a57013737c69a6e1c97472d94fe4387c3accef` |
+| executed_code_sha | `25a57013737c69a6e1c97472d94fe4387c3accef` |
+| final_integrity_code_freeze_sha | `25a57013737c69a6e1c97472d94fe4387c3accef` |
 | match_run_to_head | `True` |
 | code_changed_after_execution | `False` |
 | artifact_only_commits_after_execution | `False` |

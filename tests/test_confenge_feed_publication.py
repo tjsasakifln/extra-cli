@@ -20,6 +20,18 @@ from scripts.ops import confenge_feed_cycle
 NOW = datetime(2026, 8, 24, 18, tzinfo=UTC)
 
 
+def test_recurring_feed_cycle_runs_after_pncp_source_window() -> None:
+    timer = (
+        Path("deploy/systemd/extra-confenge-feed-cycle.timer")
+        .read_text(encoding="utf-8")
+        .splitlines()
+    )
+
+    assert "OnCalendar=*-*-* 01,13:20:00" in timer
+    assert "RandomizedDelaySec=10m" in timer
+    assert "OnCalendar=*-*-* 00,12:20:00" not in timer
+
+
 def _build(root: Path, *, snapshot: str = "snapshot-a", generated_at: datetime = NOW) -> Path:
     root.mkdir()
     generated = generated_at.isoformat().replace("+00:00", "Z")

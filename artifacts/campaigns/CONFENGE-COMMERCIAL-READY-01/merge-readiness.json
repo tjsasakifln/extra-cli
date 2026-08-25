@@ -1,8 +1,8 @@
 {
-  "actual_pr_head_sha": "c2799d1c3d0661606958fbef0abe2576164dd86e",
+  "actual_pr_head_sha": "25a57013737c69a6e1c97472d94fe4387c3accef",
   "workflow_merge_sha": null,
-  "freeze_sha": "c2799d1c3d0661606958fbef0abe2576164dd86e",
-  "executed_code_sha": "c2799d1c3d0661606958fbef0abe2576164dd86e",
+  "freeze_sha": "25a57013737c69a6e1c97472d94fe4387c3accef",
+  "executed_code_sha": "25a57013737c69a6e1c97472d94fe4387c3accef",
   "artifact_only_diff": false,
   "non_artifact_changes": [],
   "latest_workflow_run_id": "30217720692",
@@ -36,7 +36,7 @@
   "terminal_declaration": "CODE_MERGE_READY_COMMERCIAL_RELEASE_BLOCKED",
   "terminal_reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
   "answers": {
-    "1_actual_pr_head_sha": "c2799d1c3d0661606958fbef0abe2576164dd86e",
+    "1_actual_pr_head_sha": "25a57013737c69a6e1c97472d94fe4387c3accef",
     "2_workflow_merge_sha": null,
     "3_commercial_execution_matches_freeze": true,
     "4_code_changed_after_freeze": false,
@@ -52,9 +52,9 @@
     "9_code_merge_ready": true,
     "10_commercial_release_ready": false
   },
-  "updated_at": "2026-08-25T04:03:19Z",
+  "updated_at": "2026-08-25T04:20:03Z",
   "aggregator": "build_final_campaign_status",
   "workflow_artifact_head_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6",
-  "package_tip_sha": "c2799d1c3d0661606958fbef0abe2576164dd86e",
+  "package_tip_sha": "25a57013737c69a6e1c97472d94fe4387c3accef",
   "bound_workflow_run_head_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6"
 }
