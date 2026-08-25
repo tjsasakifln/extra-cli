@@ -166,6 +166,8 @@ def run_cycle(
     started_at = now()
     started_monotonic = time.monotonic()
     projection_dir = projections / cohort
+    durable_contacts = output_root / "current" / "contacts.jsonl"
+    prior_contacts = durable_contacts.resolve() if durable_contacts.is_file() else None
 
     try:
         if projection_dir.is_dir():
@@ -222,9 +224,8 @@ def run_cycle(
             ]
             if searxng_url:
                 enqueue.extend(("--searxng-url", searxng_url))
-            current_contacts = output_root / "current" / "contacts.jsonl"
-            if current_contacts.is_file():
-                enqueue.extend(("--existing-contacts", str(current_contacts.resolve())))
+            if prior_contacts is not None:
+                enqueue.extend(("--existing-contacts", str(prior_contacts)))
             enqueued = runner(_batch_command(*enqueue))
             enqueued_progress = enqueued.get("progress")
             progress = enqueued_progress if isinstance(enqueued_progress, dict) else {}
@@ -285,17 +286,18 @@ def run_cycle(
 
         staging = Path(tempfile.mkdtemp(prefix=f".{cohort}.", dir=str(projections)))
         try:
-            exported = runner(
-                _batch_command(
-                    "export-contacts",
-                    "--cohort",
-                    cohort,
-                    "--out",
-                    str(staging / "contacts.jsonl"),
-                    "--report",
-                    str(staging / "contact-projection-report.json"),
-                )
+            export_command = _batch_command(
+                "export-contacts",
+                "--cohort",
+                cohort,
+                "--out",
+                str(staging / "contacts.jsonl"),
+                "--report",
+                str(staging / "contact-projection-report.json"),
             )
+            if prior_contacts is not None:
+                export_command.extend(("--prior-contacts", str(prior_contacts)))
+            exported = runner(export_command)
             if exported.get("written") is not True:
                 raise RuntimeError("full contact projection was not written")
             cycle_result = {

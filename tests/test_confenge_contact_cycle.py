@@ -102,6 +102,8 @@ def test_full_cycle_promotes_only_after_terminal_projection(tmp_path: Path) -> N
     assert str(output / "search-cache") in enqueue
     assert sum(command[4] == "publish" for command in runner.commands) == 1
     assert sum(command[4] == "export-contacts" for command in runner.commands) == 1
+    export = next(command for command in runner.commands if command[4] == "export-contacts")
+    assert export[export.index("--prior-contacts") + 1] == str((previous / "contacts.jsonl").resolve())
 
 
 def test_failed_partial_cycle_keeps_previous_projection_and_is_resumable(tmp_path: Path) -> None:
