@@ -291,6 +291,134 @@ def test_target_confirmed_does_not_override_explicit_non_construction(
     assert leads[0]["email_send_ready"] is False
 
 
+def test_independently_attributed_shared_mailbox_reconciles_without_route_loss(tmp_path: Path) -> None:
+    accounts = ("11222333000181", "22333444000172")
+    universe = [
+        {"cnpj14": account, "razao_social": f"CONSTRUTORA {index}", "commercial_state": "NEW"}
+        for index, account in enumerate(accounts, start=1)
+    ]
+    source = tmp_path / "shared-attributed"
+    source.mkdir()
+    universe_path = _write_jsonl(source / "universe.jsonl", universe)
+    target_fit_path = _write_jsonl(
+        source / "target-fit.jsonl",
+        [_decision(account, "TARGET_CONFIRMED", evidence_ids=[f"contract-{account}"]) for account in accounts],
+    )
+    contacts = []
+    for account in accounts:
+        contacts.append(
+            {
+                "cnpj14": account,
+                "contacts": [
+                    {
+                        "email": "licitacoes@grupo.example.com",
+                        "preferred_initial": True,
+                        "recommended": True,
+                        "ownership_status": "COMPANY_OWNED",
+                        "company_associated": True,
+                        "mailbox_company_evidence": "OBSERVED",
+                        "channel_epistemic_class": "OBSERVED",
+                        "route_freshness": "FRESH",
+                        "route_suppression": "NONE",
+                        "source_type": "company_registry",
+                        "source_reference": f"registry-contact:{account}",
+                        "evidence_ids": [f"registry-evidence:{account}"],
+                        "registry_cnpj14": account,
+                        "official_match_status": "MATCHED",
+                        "official_authority": "RECEITA_FEDERAL",
+                        "official_release_id": "registry-release-1",
+                        "official_domain": "grupo.example.com",
+                        "provenance": {
+                            "source_type": "company_registry",
+                            "observed_at": NOW,
+                            "evidence_ids": [f"registry-evidence:{account}"],
+                        },
+                        "source_provenance": {
+                            "authority": "RECEITA_FEDERAL",
+                            "release_id": "registry-release-1",
+                            "source_label": "rfb_public_cadastral",
+                        },
+                        "observed_at": NOW,
+                    }
+                ],
+            }
+        )
+    contacts_path = _write_jsonl(source / "contacts.jsonl", contacts)
+    intel_path = _write_jsonl(source / "intelligence.jsonl", [])
+
+    result = export_outreach(
+        ExportConfig(
+            universe=universe_path,
+            account_intelligence=intel_path,
+            contacts=contacts_path,
+            target_fit_snapshot=target_fit_path,
+            expected_universe_count=len(universe),
+            out_dir=source / "feed",
+            generated_at=NOW,
+            datalake_watermark=NOW,
+            repo_sha="authoritative-test",
+        )
+    )
+
+    projection = result["authoritative_contact_projection"]
+    assert projection["input_preferred_route_count"] == 2
+    assert projection["output_preferred_route_count"] == 2
+    assert projection["preferred_routes_reconciled"] is True
+    assert projection["input_preferred_routes_hash"] == projection["output_preferred_routes_hash"]
+
+
+def test_declared_ambiguous_shared_mailbox_fails_projection_reconciliation(tmp_path: Path) -> None:
+    accounts = ("11222333000181", "22333444000172")
+    universe = [
+        {"cnpj14": account, "razao_social": f"CONSTRUTORA {index}", "commercial_state": "NEW"}
+        for index, account in enumerate(accounts, start=1)
+    ]
+    source = tmp_path / "shared-ambiguous"
+    source.mkdir()
+    universe_path = _write_jsonl(source / "universe.jsonl", universe)
+    target_fit_path = _write_jsonl(
+        source / "target-fit.jsonl",
+        [_decision(account, "TARGET_CONFIRMED", evidence_ids=[f"contract-{account}"]) for account in accounts],
+    )
+    contacts_path = _write_jsonl(
+        source / "contacts.jsonl",
+        [
+            {
+                "cnpj14": account,
+                "official_domain": "grupo.example.com",
+                "contacts": [
+                    {
+                        "email": "licitacoes@grupo.example.com",
+                        "preferred_initial": True,
+                        "recommended": True,
+                        "ownership_status": "COMPANY_OWNED",
+                        "source_type": "site",
+                        "source_url": "https://grupo.example.com/contato",
+                        "observed_at": NOW,
+                    }
+                ],
+            }
+            for account in accounts
+        ],
+    )
+    intel_path = _write_jsonl(source / "intelligence.jsonl", [])
+
+    with pytest.raises(InputError, match="preferred route projection does not reconcile"):
+        export_outreach(
+            ExportConfig(
+                universe=universe_path,
+                account_intelligence=intel_path,
+                contacts=contacts_path,
+                target_fit_snapshot=target_fit_path,
+                expected_universe_count=len(universe),
+                out_dir=source / "feed",
+                generated_at=NOW,
+                datalake_watermark=NOW,
+                repo_sha="authoritative-test",
+            )
+        )
+
+
 def test_null_new_membership_field_falls_back_to_explicit_canonical_value(
     tmp_path: Path,
 ) -> None:

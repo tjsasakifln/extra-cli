@@ -1,7 +1,7 @@
 {
   "schema_version": "confenge-frozen-inputs/1.0",
   "campaign": "CONFENGE-COMMERCIAL-READY-01",
-  "freeze_sha": "0b12d22d626e29fb740d3ae5c7de6ce5952b2cc8",
+  "freeze_sha": "0a486aab4e67b28886160473facfc7b970389a44",
   "policy": "frozen_confenge_inputs_v1",
   "inputs": [
     {
@@ -381,8 +381,8 @@
     {
       "path": "scripts/decision_unit_intelligence/controlled_email.py",
       "kind": "file",
-      "blob_sha": "25c50a179e4163effcbb9a5cfb0fd81ee5a0d351",
-      "sha256": "3ba07f18aba3bb1d23eb9d1d79a31cf96e72e3b4466bde6a52d0249b92e7510e"
+      "blob_sha": "c087c379a1fbbedc6f8507ea54b09cf61f659a20",
+      "sha256": "b2104ea14f196ba13636983db2d4a53534ed2dae2302ac681d24d228d934381a"
     },
     {
       "path": "scripts/decision_unit_intelligence/corroboration.py",

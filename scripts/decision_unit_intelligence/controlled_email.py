@@ -1311,6 +1311,50 @@ def stamp_and_rank_feed_contacts(
     return apply_preferred_recommended_alias(stamped)
 
 
+def _has_account_specific_mailbox_evidence(contact: dict[str, Any], *, account: str) -> bool:
+    """True only when a shared mailbox is independently bound to this account.
+
+    A mailbox appearing on two accounts is not itself evidence that either
+    association is wrong.  The durable waterfall can, for example, observe the
+    same group mailbox in two distinct Receita Federal establishment records.
+    Preserve those independently evidenced claims while keeping the global
+    one-owner gate for inferred, stale, suppressed, or otherwise ambiguous
+    sharing.
+    """
+
+    evidence_ids = [str(value).strip() for value in (contact.get("evidence_ids") or []) if str(value).strip()]
+    source_reference = str(contact.get("source_reference") or "").strip()
+    source_type = str(contact.get("source_type") or contact.get("source") or "").strip().lower()
+    common_proof = (
+        bool(account)
+        and contact.get("company_associated") is True
+        and str(contact.get("mailbox_company_evidence") or "").upper() == EVIDENCE_OBSERVED
+        and str(contact.get("channel_epistemic_class") or "").upper() == EpistemicClass.OBSERVED.value
+        and str(contact.get("ownership_status") or "").upper() == OwnershipStatus.COMPANY_OWNED.value
+        and str(contact.get("route_freshness") or "").upper() == FreshnessState.FRESH.value
+        and str(contact.get("route_suppression") or "").upper() == SuppressionState.NONE.value
+        and bool(evidence_ids)
+        and bool(source_reference)
+    )
+    if not common_proof:
+        return False
+
+    if source_type == "company_registry":
+        return (
+            normalize_cnpj(str(contact.get("registry_cnpj14") or "")) == normalize_cnpj(account)
+            and str(contact.get("official_match_status") or "").upper() == "MATCHED"
+            and bool(str(contact.get("official_authority") or "").strip())
+            and bool(str(contact.get("official_release_id") or "").strip())
+        )
+
+    return (
+        source_type in {"company_website", "contact_page", "site"}
+        and bool(str(contact.get("official_domain") or "").strip())
+        and bool(str(contact.get("source_url") or "").strip())
+        and isinstance(contact.get("provenance"), dict)
+    )
+
+
 def _shared_mailbox_owner(leads: Iterable[dict[str, Any]]) -> dict[str, str]:
     """Pick the one account that keeps each shared mailbox, stably across runs.
 
@@ -1320,6 +1364,7 @@ def _shared_mailbox_owner(leads: Iterable[dict[str, Any]]) -> dict[str, str]:
     in mailbox evidence. Decide on the account id instead.
     """
     owner: dict[str, str] = {}
+    owner_rank: dict[str, tuple[int, str]] = {}
     for lead in leads:
         if not isinstance(lead, dict):
             continue
@@ -1333,9 +1378,11 @@ def _shared_mailbox_owner(leads: Iterable[dict[str, Any]]) -> dict[str, str]:
             mailbox = canonicalize_mailbox(str(contact.get("email") or ""))
             if not mailbox:
                 continue
-            current = owner.get(mailbox)
-            if current is None or account < current:
+            rank = (0 if _has_account_specific_mailbox_evidence(contact, account=account) else 1, account)
+            current_rank = owner_rank.get(mailbox)
+            if current_rank is None or rank < current_rank:
                 owner[mailbox] = account
+                owner_rank[mailbox] = rank
     return owner
 
 
@@ -1370,8 +1417,9 @@ def apply_cross_account_preferred_mailbox_gate(
             item = dict(contact)
             mailbox = canonicalize_mailbox(str(item.get("email") or ""))
             if item.get("preferred_initial") and mailbox:
-                owner = claimed.get(mailbox)
-                if owner is not None and owner != account:
+                chosen_owner = claimed.get(mailbox)
+                independently_attributed = _has_account_specific_mailbox_evidence(item, account=account)
+                if chosen_owner is not None and chosen_owner != account and not independently_attributed:
                     item["preferred_initial"] = False
                     item["recommended"] = False
                     item["controlled_email_eligible"] = False
