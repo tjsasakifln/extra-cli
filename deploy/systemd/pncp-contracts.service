@@ -18,8 +18,9 @@ EnvironmentFile=/opt/extra-consultoria/.env
 # SuccessExitStatus=75 keeps systemd from treating expected writer contention as
 # a unit failure (avoids OnFailure storms). It is NOT a closed window and NOT
 # freshness success: PNCP_CONTRACT_FRESHNESS classifies LOCK_BUSY_NO_CLOSE and
-# the next 4h OnCalendar is the catch-up/retry. --days 7 is overlap for late
-# arrivals/retificações; checkpoint skips already-completed windows.
+# the next 4h OnCalendar is the catch-up/retry. --days 7 remains the overlap for
+# late arrivals/retificações, split by the runner into seven daily completion
+# units so mutable upstream pagination cannot invalidate the whole lookback.
 SuccessExitStatus=75
 ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.crawl.run_contracts_incremental --days 7
 User=extra-consultoria
