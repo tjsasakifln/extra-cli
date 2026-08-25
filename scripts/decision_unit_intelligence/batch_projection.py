@@ -95,11 +95,46 @@ def _canonical_mailbox(contact: dict[str, Any]) -> str:
     return str(contact.get("email") or contact.get("mailbox") or "").strip().lower()
 
 
-def _has_official_match(contact: dict[str, Any]) -> bool:
-    return str(contact.get("official_match_status") or "").upper() == "MATCHED"
+def _contact_observed_at(contact: dict[str, Any]) -> str:
+    """Return the public observation timestamp carried by one route."""
+    direct = str(contact.get("observed_at") or "").strip()
+    if direct:
+        return direct
+    for field in ("provenance", "source_provenance"):
+        nested = contact.get(field)
+        if isinstance(nested, dict):
+            observed = str(nested.get("observed_at") or "").strip()
+            if observed:
+                return observed
+    return ""
 
 
-def _merge_contact_evidence(prior: dict[str, Any], current: dict[str, Any]) -> dict[str, Any]:
+def _has_official_match(contact: dict[str, Any], account_id: str) -> bool:
+    """Verify the complete immutable registry tuple for this exact CNPJ."""
+    provenance = contact.get("source_provenance")
+    release_id = str(contact.get("official_release_id") or "").strip()
+    registry_cnpj = "".join(char for char in str(contact.get("registry_cnpj14") or "") if char.isdigit())
+    account_cnpj = "".join(char for char in str(account_id or "") if char.isdigit())
+    return bool(
+        str(contact.get("official_match_status") or "").upper() == "MATCHED"
+        and str(contact.get("official_authority") or "").upper() == "RECEITA_FEDERAL"
+        and str(contact.get("source") or contact.get("source_type") or "").lower()
+        in {"company_registry", "registry"}
+        and len(registry_cnpj) == 14
+        and registry_cnpj == account_cnpj
+        and release_id
+        and isinstance(provenance, dict)
+        and str(provenance.get("release_id") or "").strip() == release_id
+        and _contact_observed_at(contact)
+    )
+
+
+def _merge_contact_evidence(
+    prior: dict[str, Any],
+    current: dict[str, Any],
+    *,
+    account_id: str,
+) -> dict[str, Any]:
     """Union the same observed mailbox without allowing evidence regression.
 
     Current facts win generally, but a later provider failure or an older
@@ -108,13 +143,24 @@ def _merge_contact_evidence(prior: dict[str, Any], current: dict[str, Any]) -> d
     Eligibility/rank fields are derived again after the factual union.
     """
     merged = {**prior, **current}
-    prior_exact = _has_official_match(prior)
-    current_exact = _has_official_match(current)
+    prior_exact = _has_official_match(prior, account_id)
+    current_exact = _has_official_match(current, account_id)
     if prior_exact and not current_exact:
-        for field in (*_OFFICIAL_ASSOCIATION_FIELDS, "source_reference", "source_url"):
+        for field in (
+            *_OFFICIAL_ASSOCIATION_FIELDS,
+            "source_reference",
+            "source_url",
+            "observed_at",
+        ):
             if prior.get(field) is not None:
                 value = prior[field]
                 merged[field] = dict(value) if isinstance(value, dict) else value
+    if prior_exact or current_exact:
+        # These are derived from the complete immutable official tuple above,
+        # not trusted merely because an older serializer emitted them.
+        merged["company_associated"] = True
+        merged["mailbox_company_evidence"] = "OBSERVED"
+        merged["ownership_status"] = "COMPANY_OWNED"
 
     evidence_ids = [
         str(item)
@@ -137,6 +183,8 @@ def _merge_contact_evidence(prior: dict[str, Any], current: dict[str, Any]) -> d
 def _merge_account_contacts(
     prior_contacts: list[dict[str, Any]],
     current_contacts: list[dict[str, Any]],
+    *,
+    account_id: str,
 ) -> list[dict[str, Any]]:
     by_mailbox: dict[str, dict[str, Any]] = {}
     order: list[str] = []
@@ -155,22 +203,12 @@ def _merge_account_contacts(
             order.append(mailbox)
             by_mailbox[mailbox] = dict(contact)
         else:
-            by_mailbox[mailbox] = _merge_contact_evidence(by_mailbox[mailbox], contact)
+            by_mailbox[mailbox] = _merge_contact_evidence(
+                by_mailbox[mailbox],
+                contact,
+                account_id=account_id,
+            )
     return [by_mailbox[mailbox] for mailbox in order]
-
-
-def _contact_observed_at(contact: dict[str, Any]) -> str:
-    """Return the public observation timestamp carried by one route."""
-    direct = str(contact.get("observed_at") or "").strip()
-    if direct:
-        return direct
-    for field in ("provenance", "source_provenance"):
-        nested = contact.get(field)
-        if isinstance(nested, dict):
-            observed = str(nested.get("observed_at") or "").strip()
-            if observed:
-                return observed
-    return ""
 
 
 def _rank_publishable_contacts(
@@ -270,7 +308,11 @@ def reconcile_prior_contact_rows(
         prior = prior_by_account.get(account_id) or {}
         current_contacts = [dict(item) for item in (row.get("contacts") or []) if isinstance(item, dict)]
         prior_contacts = [dict(item) for item in (prior.get("contacts") or []) if isinstance(item, dict)]
-        combined = _merge_account_contacts(prior_contacts, current_contacts)
+        combined = _merge_account_contacts(
+            prior_contacts,
+            current_contacts,
+            account_id=account_id,
+        )
         official_domain = str(row.get("official_domain") or prior.get("official_domain") or "").strip()
         stamped, rejected_missing_observed_at = _rank_publishable_contacts(
             combined,

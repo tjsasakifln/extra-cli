@@ -38,9 +38,12 @@ def _current_blocked_contact(*, suppression: str = "NONE") -> dict:
         "channel_epistemic_class": "OBSERVED",
         "route_freshness": "FRESH",
         "route_suppression": suppression,
-        "ownership_status": "COMPANY_OWNED",
-        "company_associated": True,
-        "mailbox_company_evidence": "OBSERVED",
+        # Reproduce the live serializer regression: the current attempt kept
+        # the mailbox but lost the prior immutable registry tuple and therefore
+        # emitted no association verdict of its own.
+        "ownership_status": "UNKNOWN",
+        "company_associated": False,
+        "mailbox_company_evidence": "UNKNOWN",
         # These are stale derived values from a serializer that lost the exact
         # registry association. Reconciliation must derive them again.
         "route_class": "PROBABILISTIC_OR_RISKY",
@@ -104,6 +107,27 @@ def test_current_hard_bounce_survives_prior_ready_route_and_blocks_selection() -
     assert rows[0]["enrichment_reason"] == "HARD_BOUNCE"
     assert rows[0].get("preferred_email_route") is None
     assert rows[0]["contacts"][0]["route_suppression"] == "HARD_BOUNCE"
+
+
+def test_registry_match_for_another_cnpj_cannot_restore_company_association() -> None:
+    prior_contact = _prior_registry_contact()
+    prior_contact["registry_cnpj14"] = "99888777000166"
+    prior = [_row(prior_contact, state="EMAIL_ROUTE_READY", reason="selected")]
+    current = [
+        _row(
+            _current_blocked_contact(),
+            state="BLOCKED_WITH_REASON",
+            reason="WATERFALL_PROVIDER_FAILURE",
+        )
+    ]
+
+    rows, metrics = reconcile_prior_contact_rows(current, prior)
+
+    assert metrics["preferred_after_reconciliation"] == 0
+    assert rows[0]["enrichment_state"] == "BLOCKED_WITH_REASON"
+    assert rows[0].get("preferred_email_route") is None
+    assert rows[0]["contacts"][0]["company_associated"] is False
+    assert rows[0]["contacts"][0]["controlled_email_eligible"] is False
 
 
 def test_unobserved_historical_route_remains_stored_but_cannot_be_preferred() -> None:
