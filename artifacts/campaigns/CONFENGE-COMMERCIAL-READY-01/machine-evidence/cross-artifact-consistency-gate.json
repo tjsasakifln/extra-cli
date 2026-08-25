@@ -76,15 +76,18 @@
     "workflow-artifact-publication.json",
     "workflow-job-status.json"
   ],
+  "pr_head_sha": "a0eb414df9cce167b0d1ded267b1d5b3b7c53645",
+  "executed_code_sha": "a0eb414df9cce167b0d1ded267b1d5b3b7c53645",
+  "workflow_run_id": "30217720692",
+  "real_data_ci_status": "NOT_EXECUTED",
+  "verified_at": "2026-08-25T03:38:34Z",
   "terminal_reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
   "terminal_declaration": "BLOCKED_ONLY_OFFICIAL_REGISTRY_AND_HUMAN_REVIEW",
-  "pr_head_sha": "38fd3d639278292dbb78d14df1de4567a841bb0b",
-  "current_pr_head_sha": "38fd3d639278292dbb78d14df1de4567a841bb0b",
-  "live_pr_head_sha": "38fd3d639278292dbb78d14df1de4567a841bb0b",
+  "current_pr_head_sha": "a0eb414df9cce167b0d1ded267b1d5b3b7c53645",
+  "workflow_artifact_head_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6",
+  "evidence_commit_sha": "a0eb414df9cce167b0d1ded267b1d5b3b7c53645",
   "workflow_merge_sha": null,
-  "executed_code_sha": "38fd3d639278292dbb78d14df1de4567a841bb0b",
-  "evidence_commit_sha": "38fd3d639278292dbb78d14df1de4567a841bb0b",
-  "real_data_ci_status": "NOT_EXECUTED",
   "match_run_to_head": true,
-  "verified_at": "2026-08-25T02:48:52Z"
+  "live_pr_head_sha": "a0eb414df9cce167b0d1ded267b1d5b3b7c53645",
+  "package_tip_mode": true
 }

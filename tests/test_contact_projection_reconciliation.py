@@ -104,3 +104,31 @@ def test_current_hard_bounce_survives_prior_ready_route_and_blocks_selection() -
     assert rows[0]["enrichment_reason"] == "HARD_BOUNCE"
     assert rows[0].get("preferred_email_route") is None
     assert rows[0]["contacts"][0]["route_suppression"] == "HARD_BOUNCE"
+
+
+def test_unobserved_historical_route_remains_stored_but_cannot_be_preferred() -> None:
+    unobserved = {
+        "email": "info@ncsecu.org",
+        "source": "contact_page",
+        "source_type": "contact_page",
+        "source_reference": "https://locations.ncsecu.org/search",
+        "source_url": "https://locations.ncsecu.org/search",
+        "channel_epistemic_class": "OBSERVED",
+        "route_freshness": "UNKNOWN",
+        "route_suppression": "NONE",
+        "ownership_status": "COMPANY_OWNED",
+        "company_associated": True,
+        "mailbox_company_evidence": "OBSERVED",
+    }
+    current = [_row(unobserved, state="EMAIL_ROUTE_READY", reason="selected")]
+
+    rows, metrics = reconcile_prior_contact_rows(current, [])
+
+    assert metrics["routes_rejected_missing_observed_at"] == 1
+    assert metrics["preferred_after_reconciliation"] == 0
+    assert rows[0]["enrichment_state"] == "BLOCKED_WITH_REASON"
+    assert rows[0]["enrichment_reason"] == "CONTACT_ROUTE_MISSING_OBSERVED_AT"
+    assert rows[0].get("preferred_email_route") is None
+    assert rows[0]["contacts"][0]["controlled_email_eligible"] is False
+    assert rows[0]["contacts"][0]["risk_class"] == "RISKY"
+    assert rows[0]["contacts"][0]["publication_block_reason"] == "MISSING_OBSERVED_AT"
