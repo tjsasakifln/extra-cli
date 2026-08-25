@@ -61,6 +61,8 @@ def test_continuous_enrichment_population_is_sector_not_target_fit() -> None:
     assert "WHERE target_fit_class" not in src
     assert 'raiz + "0001"' not in src
     assert "representative_cnpj14" in src
+    assert "pncp_supplier_contract_identity.v1" in src
+    assert "fornecedor_cnpj_8 = s.cnpj_raiz" in src
 
 
 def test_process_harvest_never_synthesizes_establishment_cnpj() -> None:

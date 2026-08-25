@@ -92,15 +92,34 @@ def load_construction_jobs_from_dsn(
                            t.input_fingerprint AS target_fit_input_fingerprint,
                            t.source_watermark AS target_fit_source_watermark,
                            t.computed_at AS target_fit_computed_at,
-                           r.razao_social AS registry_razao_social,
+                           COALESCE(NULLIF(BTRIM(r.razao_social), ''), pc.razao_social)
+                               AS registry_razao_social,
                            r.nome_fantasia AS registry_nome_fantasia,
-                           r.source AS registry_source,
-                           r.source_version AS registry_source_version,
-                           r.source_date AS registry_source_date
+                           CASE
+                               WHEN NULLIF(BTRIM(r.razao_social), '') IS NOT NULL THEN r.source
+                               WHEN pc.razao_social IS NOT NULL THEN 'pncp_supplier_contracts'
+                           END AS registry_source,
+                           CASE
+                               WHEN NULLIF(BTRIM(r.razao_social), '') IS NOT NULL THEN r.source_version
+                               WHEN pc.razao_social IS NOT NULL THEN 'pncp_supplier_contract_identity.v1'
+                           END AS registry_source_version,
+                           CASE
+                               WHEN NULLIF(BTRIM(r.razao_social), '') IS NOT NULL THEN r.source_date
+                               ELSE pc.source_date
+                           END AS registry_source_date
                     FROM confenge_company_sector_current s
                     LEFT JOIN confenge_target_fit_shadow t USING (company_key)
                     LEFT JOIN supplier_registry r
                       ON r.cnpj14 = s.representative_cnpj14
+                    LEFT JOIN LATERAL (
+                        SELECT NULLIF(BTRIM(c.fornecedor_nome), '') AS razao_social,
+                               c.data_publicacao AS source_date
+                        FROM pncp_supplier_contracts c
+                        WHERE c.fornecedor_cnpj_8 = s.cnpj_raiz
+                          AND NULLIF(BTRIM(c.fornecedor_nome), '') IS NOT NULL
+                        ORDER BY c.data_publicacao DESC NULLS LAST, c.id DESC
+                        LIMIT 1
+                    ) pc ON TRUE
                     WHERE (
                         (%s AND t.shadow_class = 'TARGET_CONFIRMED')
                         OR (
@@ -138,15 +157,34 @@ def load_construction_jobs_from_dsn(
                            t.input_fingerprint AS target_fit_input_fingerprint,
                            t.source_watermark AS target_fit_source_watermark,
                            t.computed_at AS target_fit_computed_at,
-                           r.razao_social AS registry_razao_social,
+                           COALESCE(NULLIF(BTRIM(r.razao_social), ''), pc.razao_social)
+                               AS registry_razao_social,
                            r.nome_fantasia AS registry_nome_fantasia,
-                           r.source AS registry_source,
-                           r.source_version AS registry_source_version,
-                           r.source_date AS registry_source_date
+                           CASE
+                               WHEN NULLIF(BTRIM(r.razao_social), '') IS NOT NULL THEN r.source
+                               WHEN pc.razao_social IS NOT NULL THEN 'pncp_supplier_contracts'
+                           END AS registry_source,
+                           CASE
+                               WHEN NULLIF(BTRIM(r.razao_social), '') IS NOT NULL THEN r.source_version
+                               WHEN pc.razao_social IS NOT NULL THEN 'pncp_supplier_contract_identity.v1'
+                           END AS registry_source_version,
+                           CASE
+                               WHEN NULLIF(BTRIM(r.razao_social), '') IS NOT NULL THEN r.source_date
+                               ELSE pc.source_date
+                           END AS registry_source_date
                     FROM confenge_company_sector_current s
                     LEFT JOIN confenge_company_target_fit_current t USING (company_key)
                     LEFT JOIN supplier_registry r
                       ON r.cnpj14 = s.representative_cnpj14
+                    LEFT JOIN LATERAL (
+                        SELECT NULLIF(BTRIM(c.fornecedor_nome), '') AS razao_social,
+                               c.data_publicacao AS source_date
+                        FROM pncp_supplier_contracts c
+                        WHERE c.fornecedor_cnpj_8 = s.cnpj_raiz
+                          AND NULLIF(BTRIM(c.fornecedor_nome), '') IS NOT NULL
+                        ORDER BY c.data_publicacao DESC NULLS LAST, c.id DESC
+                        LIMIT 1
+                    ) pc ON TRUE
                     WHERE (
                         (%s AND t.target_fit_class = 'TARGET_CONFIRMED')
                         OR (
@@ -298,11 +336,7 @@ def run_continuous_enrichment(
         migrate_legacy_checkpoint(out)
 
     jobs = load_construction_jobs_from_dsn(dsn)
-    construction_keys = list(
-        dict.fromkeys(
-            str((j.meta or {}).get("cnpj_raiz") or j.cnpj14[:8]) for j in jobs
-        )
-    )
+    construction_keys = list(dict.fromkeys(str((j.meta or {}).get("cnpj_raiz") or j.cnpj14[:8]) for j in jobs))
 
     rcfg = resolver_config or ResolverConfig(
         allow_network=cfg.allow_network,
@@ -314,11 +348,7 @@ def run_continuous_enrichment(
         resolver_config=rcfg,
         run_id=f"continuous-{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}",
     )
-    runnable_jobs = [
-        job
-        for job in jobs
-        if bool((job.meta or {}).get("representative_establishment_observed"))
-    ]
+    runnable_jobs = [job for job in jobs if bool((job.meta or {}).get("representative_establishment_observed"))]
     summary = runner.run(
         runnable_jobs,
         resume=cfg.resume,
@@ -347,15 +377,12 @@ def run_continuous_enrichment(
     # (never_attempted = all CONFIRMED). Checkpoint still tracks resume state.
     discovery_attempted = list(attempted_roots) if network_discovery else []
     rejection_reasons = {
-        "no_email_found": int(metrics.get("companies_without_contact") or 0)
-        if network_discovery
-        else 0,
+        "no_email_found": int(metrics.get("companies_without_contact") or 0) if network_discovery else 0,
         "identity_rejected": 0,
         "third_party_rejected": int(metrics.get("third_party_rejected") or 0),
         "mailbox_purpose_rejected": 0,
         "provenance_rejected": 0,
-        "network_failure": int(metrics.get("timeouts") or 0)
-        + int(metrics.get("http_429") or 0),
+        "network_failure": int(metrics.get("timeouts") or 0) + int(metrics.get("http_429") or 0),
         "crawl_failure": 0,
         "no_official_domain": 0,
     }
