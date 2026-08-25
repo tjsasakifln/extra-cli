@@ -83,6 +83,8 @@ _PAGE_RETRY_CAP_SECONDS = max(
     _PAGE_RETRY_BASE_SECONDS,
     float(os.getenv("CONTRACTS_PAGE_RETRY_CAP_SECONDS", "30")),
 )
+_WINDOW_RETRY_MAX = max(0, int(os.getenv("CONTRACTS_WINDOW_RETRY_MAX", "0")))
+_WINDOW_RETRY_DELAY_SECONDS = max(0.0, float(os.getenv("CONTRACTS_WINDOW_RETRY_DELAY_SECONDS", "60")))
 _PAGE_RETRYABLE = frozenset(
     {
         FetchStatus.HTTP_RATE_LIMIT,
@@ -150,6 +152,28 @@ def classify_incident_error_text(message: str) -> dict[str, Any]:
     if "http_client_error" in text:
         return {"class": "permanent", "transience": "permanent", "owner": "request_contract"}
     return {"class": "permanent", "transience": "unknown", "owner": "unknown"}
+
+
+def should_replay_mutable_window(
+    errors: Sequence[str],
+    *,
+    pages_exhausted: bool,
+    persistence_failed: bool,
+    retries_used: int,
+    max_retries: int,
+) -> bool:
+    """Retry a fully read window only when source drift is the sole failure.
+
+    The replay starts from page 1 and must independently converge. It never
+    turns the discarded mixed-population pass into success.
+    """
+    return bool(
+        errors
+        and pages_exhausted
+        and not persistence_failed
+        and retries_used < max(0, int(max_retries))
+        and all(str(error).startswith("source_population_drift:") for error in errors)
+    )
 
 
 def evaluate_window_completion(
@@ -1037,6 +1061,7 @@ def run_pilot(
             "page_retries": 0,
             "pages_reprocessed": 0,
             "page_errors": 0,
+            "window_retries": 0,
             "windows_ok": 0,
             "windows_partial": 0,
             "windows_failed": 0,
@@ -1044,12 +1069,14 @@ def run_pilot(
         },
         "status": "running",
         "errors": [],
+        "window_retry_events": [],
     }
 
     conn = None if dry_run else psycopg2.connect(dsn)
     if conn is not None:
         conn.autocommit = False
 
+    window_retry_counts: dict[str, int] = {}
     try:
         cur_date = start
         while cur_date < today:
@@ -1395,6 +1422,50 @@ def run_pilot(
                     {"error": err, **classify_incident_error_text(err)}
                 )
                 fully_ok = False
+            retries_used = int(window_retry_counts.get(window_key) or 0)
+            if not fully_ok and should_replay_mutable_window(
+                window_errors,
+                pages_exhausted=pages_exhausted,
+                persistence_failed=persist_failed,
+                retries_used=retries_used,
+                max_retries=_WINDOW_RETRY_MAX,
+            ):
+                retry_number = retries_used + 1
+                window_retry_counts[window_key] = retry_number
+                report["totals"]["window_retries"] += 1
+                retry_event = {
+                    "window_key": window_key,
+                    "retry_number": retry_number,
+                    "max_retries": _WINDOW_RETRY_MAX,
+                    "delay_seconds": _WINDOW_RETRY_DELAY_SECONDS,
+                    "pages": window_pages,
+                    "transformed": window_transformed,
+                    "errors": window_errors[:5],
+                    "population_drift": drift_report,
+                }
+                report["window_retry_events"].append(retry_event)
+                checkpoint.last_error = "; ".join(window_errors[:3])
+                _apply_run_id_to_checkpoint(checkpoint, run_id)
+                save_checkpoint(checkpoint)
+                logger.warning(
+                    "Window %s will replay from page 1 after source drift "
+                    "retry=%d/%d sleep=%.1fs",
+                    window_key,
+                    retry_number,
+                    _WINDOW_RETRY_MAX,
+                    _WINDOW_RETRY_DELAY_SECONDS,
+                )
+                if output_json:
+                    interim = dict(report)
+                    interim["status"] = "running"
+                    interim["checkpoint"] = checkpoint.to_dict()
+                    Path(output_json).parent.mkdir(parents=True, exist_ok=True)
+                    Path(output_json).write_text(
+                        json.dumps(interim, indent=2, default=str),
+                        encoding="utf-8",
+                    )
+                time.sleep(_WINDOW_RETRY_DELAY_SECONDS)
+                continue
             usable_partial = bool(window_transformed > 0 and not persist_failed)
             w_status = "completed" if fully_ok else ("partial" if usable_partial else "failed")
             if fully_ok:

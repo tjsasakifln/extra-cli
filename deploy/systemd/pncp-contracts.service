@@ -22,6 +22,11 @@ Environment=CONTRACTS_READ_TIMEOUT=60
 Environment=CONTRACTS_PAGE_RETRY_MAX=5
 Environment=CONTRACTS_PAGE_RETRY_BASE_SECONDS=5
 Environment=CONTRACTS_PAGE_RETRY_CAP_SECONDS=30
+# The update-date population is legitimately mutable while PNCP retifications
+# move contracts between days. Replay from page 1; only a later stable full
+# pass may close the window. The whole oneshot remains bounded to 150 minutes.
+Environment=CONTRACTS_WINDOW_RETRY_MAX=2
+Environment=CONTRACTS_WINDOW_RETRY_DELAY_SECONDS=60
 # ONE_PRODUCTION_LOCK_DOMAIN — lock acquired inside run_contracts_incremental
 # (/run/lock/extra-contracts-writer.lock). Do NOT wrap with outer flock on the
 # same path (would always exit 75). Exit 75 = lock busy (not a source failure).
@@ -35,7 +40,7 @@ SuccessExitStatus=75
 ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.crawl.run_contracts_incremental --days 7
 User=extra-consultoria
 Group=extra-consultoria
-TimeoutStartSec=90min
+TimeoutStartSec=150min
 Restart=no
 StandardOutput=journal
 StandardError=journal

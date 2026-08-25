@@ -551,6 +551,9 @@ def test_pncp_contracts_service_has_production_read_timeout() -> None:
     assert "Environment=CONTRACTS_PAGE_RETRY_MAX=5" in service
     assert "Environment=CONTRACTS_PAGE_RETRY_BASE_SECONDS=5" in service
     assert "Environment=CONTRACTS_PAGE_RETRY_CAP_SECONDS=30" in service
+    assert "Environment=CONTRACTS_WINDOW_RETRY_MAX=2" in service
+    assert "Environment=CONTRACTS_WINDOW_RETRY_DELAY_SECONDS=60" in service
+    assert "TimeoutStartSec=150min" in service
 
 
 def test_collect_timer_snapshot_parses_systemd_stamps() -> None:

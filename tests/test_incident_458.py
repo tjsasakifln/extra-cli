@@ -19,6 +19,7 @@ from scripts.crawl.run_contracts_90d_pilot import (
     _fetch_page_with_retry,
     classify_incident_error_text,
     closed_crawl_range,
+    should_replay_mutable_window,
 )
 
 
@@ -144,6 +145,82 @@ def test_production_retry_window_is_finite_and_capped(monkeypatch) -> None:
     assert sleeps == [10.0, 20.0, 30.0, 30.0, 30.0]
     assert len(telemetry) == 6
     assert sum(sleeps) == 120.0
+
+
+def test_mutable_window_replay_is_bounded_and_source_drift_only() -> None:
+    drift = [
+        "source_population_drift:source_population_drift:population_shrink:totalRegistros 11925 -> 11921",
+        "source_population_drift:totalRegistros 11925 -> 11921",
+    ]
+
+    assert should_replay_mutable_window(
+        drift,
+        pages_exhausted=True,
+        persistence_failed=False,
+        retries_used=0,
+        max_retries=2,
+    )
+    assert not should_replay_mutable_window(
+        drift,
+        pages_exhausted=True,
+        persistence_failed=False,
+        retries_used=2,
+        max_retries=2,
+    )
+    assert not should_replay_mutable_window(
+        [*drift, "Page 19: [http_server_error] 503"],
+        pages_exhausted=True,
+        persistence_failed=False,
+        retries_used=0,
+        max_retries=2,
+    )
+    assert not should_replay_mutable_window(
+        drift,
+        pages_exhausted=True,
+        persistence_failed=True,
+        retries_used=0,
+        max_retries=2,
+    )
+
+
+def test_mutable_window_replay_closes_only_after_stable_full_pass(monkeypatch, tmp_path) -> None:
+    from scripts.crawl import run_contracts_90d_pilot as pilot
+
+    monkeypatch.setattr(pilot, "CONTRACTS_REQUEST_DELAY", 0)
+    monkeypatch.setattr(pilot, "CONTRACTS_JANELA_DELAY", 0)
+    monkeypatch.setattr(pilot, "UPSERT_BATCH", 1)
+    monkeypatch.setattr(pilot, "_WINDOW_RETRY_MAX", 1)
+    monkeypatch.setattr(pilot, "_WINDOW_RETRY_DELAY_SECONDS", 0)
+    monkeypatch.setattr(pilot, "transform", lambda rows: rows)
+    totals = iter((2, 1, 2, 2))
+    calls: list[int] = []
+
+    def fetch(_start, _end, page, **_kwargs):
+        calls.append(page)
+        return FetchResult(
+            status=FetchStatus.SUCCESS_DATA,
+            items=[{"numeroControlePNCP": f"pass-{(len(calls) - 1) // 2}-page-{page}"}],
+            total_records=next(totals),
+            total_pages=2,
+            current_page=page,
+        )
+
+    monkeypatch.setattr(pilot, "_fetch_page", fetch)
+    report = pilot.run_pilot(
+        "",
+        days=1,
+        dry_run=True,
+        checkpoint_dir=str(tmp_path),
+        run_id="incident-458-window-replay",
+    )
+
+    assert report["status"] == "success"
+    assert report["totals"]["window_retries"] == 1
+    assert report["totals"]["windows_ok"] == 1
+    assert report["totals"]["windows_partial"] == 0
+    assert calls == [1, 2, 1, 2]
+    assert len(report["window_retry_events"]) == 1
+    assert report["windows"][0]["status"] == "completed"
 
 
 def test_permanent_page_failure_is_not_retried(monkeypatch) -> None:
