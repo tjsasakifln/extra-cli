@@ -411,6 +411,8 @@ def atomic_publish_directory(
             "last_success_at": clock.isoformat().replace("+00:00", "Z"),
             "last_status": "PUBLISHED",
             **result,
+            "status": "PUBLISHED",
+            "error": None,
         },
     )
     return result
@@ -461,6 +463,8 @@ def check_current_publication(
             "schema_id": "confenge.feed_publication_state.v1",
             "last_monitor_at": clock.isoformat().replace("+00:00", "Z"),
             "last_monitor_status": "HEALTHY",
+            **result,
+            "error": None,
             "monitor": result,
         },
     )

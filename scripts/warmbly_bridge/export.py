@@ -36,7 +36,7 @@ def _git_sha() -> str:
         return "unknown"
     try:
         out = subprocess.check_output(  # noqa: S603 — absolute git path, fixed argv
-            [git_bin, "rev-parse", "--short=12", "HEAD"],
+            [git_bin, "-C", str(Path(__file__).resolve().parents[2]), "rev-parse", "--short=12", "HEAD"],
             stderr=subprocess.DEVNULL,
             text=True,
             timeout=5,

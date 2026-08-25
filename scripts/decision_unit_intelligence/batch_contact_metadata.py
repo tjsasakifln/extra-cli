@@ -4,6 +4,19 @@ from __future__ import annotations
 
 from typing import Any
 
+ASSOCIATION_EVIDENCE_FIELDS = (
+    "company_associated",
+    "mailbox_company_evidence",
+    "mailbox_department_evidence",
+    "mailbox_person_evidence",
+    "official_match_status",
+    "official_authority",
+    "official_release_id",
+    "registry_cnpj14",
+    "source_provenance",
+    "official_domain",
+)
+
 
 def _route_index(account: dict[str, Any]) -> tuple[dict[str, dict[str, Any]], dict[str, dict[str, Any]]]:
     by_id: dict[str, dict[str, Any]] = {}
@@ -47,6 +60,8 @@ def attach_route_evidence(
         ownership = str(route.get("ownership") or "").strip() or None
         freshness = str(route.get("freshness") or "").strip() or None
         suppression = str(route.get("suppression") or "").strip() or None
+        route_extra = route.get("extra")
+        route_extra = route_extra if isinstance(route_extra, dict) else {}
 
         if source_type:
             contact["source"] = source_type
@@ -72,6 +87,14 @@ def attach_route_evidence(
             contact["route_suppression"] = suppression
         if epistemic:
             contact["provenance_class"] = epistemic
+        # Preserve the public evidence used to bind a mailbox to this exact
+        # account.  The downstream feed deliberately re-derives route class;
+        # dropping this proof would turn an observed registry freemail into a
+        # risky, unassociated guess.
+        for field in ASSOCIATION_EVIDENCE_FIELDS:
+            value = route.get(field) if route.get(field) is not None else route_extra.get(field)
+            if value is not None:
+                contact[field] = dict(value) if isinstance(value, dict) else value
 
         raw_provenance = contact.get("provenance")
         provenance = dict(raw_provenance) if isinstance(raw_provenance, dict) else {}

@@ -229,3 +229,39 @@ def test_cycle_binds_child_pipeline_to_same_checkout(monkeypatch: pytest.MonkeyP
     assert isinstance(child_env, dict)
     assert str(child_env["PYTHONPATH"]).split(os.pathsep)[0] == str(runtime_root)
     assert result["ok"] is True
+
+
+def test_fresh_publication_and_monitor_clear_prior_unhealthy_state(tmp_path: Path) -> None:
+    public, state, alerts = _paths(tmp_path)
+    atomic_publish_directory(
+        _build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW
+    )
+    check_current_publication(
+        public,
+        state_path=state,
+        alert_ledger=alerts,
+        now=NOW + timedelta(hours=25),
+    )
+    replacement_at = NOW + timedelta(hours=25)
+    atomic_publish_directory(
+        _build(tmp_path / "replacement", snapshot="snapshot-b", generated_at=replacement_at),
+        public,
+        state_path=state,
+        alert_ledger=alerts,
+        now=replacement_at,
+    )
+    published = json.loads(state.read_text())
+    assert published["status"] == "PUBLISHED"
+    assert published["error"] is None
+
+    result = check_current_publication(
+        public,
+        state_path=state,
+        alert_ledger=alerts,
+        now=replacement_at,
+    )
+    assert result["status"] == "HEALTHY"
+    healthy = json.loads(state.read_text())
+    assert healthy["status"] == "HEALTHY"
+    assert healthy["last_monitor_status"] == "HEALTHY"
+    assert healthy["error"] is None

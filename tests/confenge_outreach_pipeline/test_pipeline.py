@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from scripts.confenge_outreach_pipeline import pipeline as pipeline_module
 from scripts.confenge_outreach_pipeline.adapt import (
     contact_resolution_to_bridge_row,
     intelligence_dossier_to_bridge_row,
@@ -634,3 +635,19 @@ def test_contract_schema_matches_warmbly_constants() -> None:
     if "properties" in schema:
         for key in ("schema_version", "source", "leads"):
             assert key in schema["properties"] or key in (schema.get("required") or [])
+
+
+def test_git_sha_is_resolved_from_runtime_checkout(monkeypatch) -> None:
+    captured: dict[str, object] = {}
+
+    def fake_check_output(command: list[str], **_kwargs: object) -> str:
+        captured["command"] = command
+        return "feedsha12345\n"
+
+    monkeypatch.setattr(pipeline_module.subprocess, "check_output", fake_check_output)
+
+    assert pipeline_module._git_sha() == "feedsha12345"
+    runtime_root = Path(pipeline_module.__file__).resolve().parents[2]
+    command = captured["command"]
+    assert isinstance(command, list)
+    assert command[1:3] == ["-C", str(runtime_root)]
