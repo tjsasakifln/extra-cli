@@ -16,6 +16,7 @@ from scripts.confenge_outreach_pipeline.pipeline import (
     PipelineConfig,
     _dedupe_decision_rows,
     _published_target_fit_snapshot,
+    _reconcile_target_confirmed_decision_rows,
     _select_intelligence_rows,
     build_pipeline_contact_resolver,
     contact_job_meta,
@@ -28,6 +29,57 @@ from scripts.warmbly_bridge.mapping import build_leads
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURE_CSV = ROOT / "tests" / "fixtures" / "confenge_universe" / "contracts_sample.csv"
 DNC_TXT = ROOT / "tests" / "fixtures" / "confenge_universe" / "dnc.txt"
+
+
+def test_target_confirmed_reconciliation_emits_one_canonical_account_per_root() -> None:
+    decision_rows = [
+        {
+            "cnpj14": "11222333000181",
+            "razao_social": "Contexto menos rico",
+            "portfolio": {"contract_count_total": 1},
+            "priority_score": 20,
+        },
+        {
+            "cnpj14": "11222333000262",
+            "razao_social": "Contexto preservado",
+            "portfolio": {"contract_count_total": 9},
+            "priority_score": 80,
+        },
+        {"cnpj14": "33444555000129", "razao_social": "Não target"},
+    ]
+    target_identities = [
+        {
+            "cnpj14": "11222333000343",
+            "cnpj_root": "11222333",
+            "target_fit_class": "TARGET_CONFIRMED",
+        },
+        {
+            "cnpj14": "22333444000155",
+            "cnpj_root": "22333444",
+            "razao_social": "Target fora do universo",
+            "target_fit_class": "TARGET_CONFIRMED",
+        },
+    ]
+
+    reconciled, metrics = _reconcile_target_confirmed_decision_rows(decision_rows, target_identities)
+
+    target_rows = [row for row in reconciled if row.get("target_fit_class") == "TARGET_CONFIRMED"]
+    assert {row["cnpj14"] for row in target_rows} == {"11222333000343", "22333444000155"}
+    preserved = next(row for row in target_rows if row["cnpj_root"] == "11222333")
+    assert preserved["razao_social"] == "Contexto preservado"
+    assert preserved["portfolio"]["contract_count_total"] == 9
+    assert any(row["cnpj14"] == "33444555000129" for row in reconciled)
+    assert metrics == {
+        "authoritative_target_roots": 2,
+        "base_target_establishments": 2,
+        "base_target_roots": 1,
+        "target_roots_added": 1,
+        "branch_duplicates_collapsed": 1,
+        "canonical_establishments_replaced": 1,
+        "target_roots_emitted": 2,
+        "target_rows_missing_legal_name": 0,
+        "output_decision_rows": 3,
+    }
 
 
 def test_account_intelligence_covers_target_confirmed_outside_hot_set() -> None:

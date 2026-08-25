@@ -198,6 +198,149 @@ def _dedupe_decision_rows(rows: list[dict[str, Any]]) -> tuple[list[dict[str, An
     return out, duplicate_count
 
 
+def _load_target_confirmed_identity_rows(dsn: str) -> list[dict[str, Any]]:
+    """Load the canonical establishment selected for every confirmed root.
+
+    Target fit and the continuous contact waterfall are root-scoped, while the
+    broad contract universe is establishment-scoped. The waterfall already
+    resolves that boundary through ``representative_cnpj14``. Reuse the same
+    identity here so a route discovered for the representative establishment
+    cannot be stranded on a different branch in the feed.
+    """
+    from scripts.confenge_contact_resolution.continuous_from_target_fit import (
+        load_construction_jobs_from_dsn,
+    )
+
+    jobs = load_construction_jobs_from_dsn(dsn, target_confirmed_only=True)
+    rows: list[dict[str, Any]] = []
+    invalid_identity_count = 0
+    for job in jobs:
+        cnpj = canonical_cnpj14(job.cnpj14)
+        if not cnpj:
+            invalid_identity_count += 1
+            continue
+        meta = job.meta if isinstance(job.meta, dict) else {}
+        root = str(meta.get("cnpj_raiz") or cnpj[:8]).strip()
+        rows.append(
+            {
+                "cnpj14": cnpj,
+                "cnpj_root": root,
+                "cnpj_raiz": root,
+                "company_key": meta.get("company_key") or f"cnpj_root:{root}",
+                "razao_social": job.razao_social or meta.get("razao_social"),
+                "nome_fantasia": meta.get("nome_fantasia"),
+                "target_fit_class": "TARGET_CONFIRMED",
+                "target_fit_confidence": meta.get("target_fit_confidence"),
+                "target_fit_version": meta.get("target_fit_version"),
+                "target_fit_computed_at": meta.get("target_fit_computed_at"),
+                "target_fit_source_watermark": meta.get("target_fit_source_watermark"),
+                "source_lead_id": f"target-fit:{root}:{cnpj}",
+                "target_fit_identity_source": "confenge_company_sector_current.representative_cnpj14",
+            }
+        )
+    if invalid_identity_count:
+        raise ValueError(
+            f"TARGET_CONFIRMED account is missing an observed representative CNPJ14; count={invalid_identity_count}"
+        )
+    return rows
+
+
+def _reconcile_target_confirmed_decision_rows(
+    decision_rows: list[dict[str, Any]],
+    target_identity_rows: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], dict[str, int]]:
+    """Emit exactly one feed account per confirmed company root.
+
+    A root can occur under multiple establishments in the contract universe,
+    and the contact waterfall may select a representative establishment that
+    is absent from that universe. Keep the richest same-root universe row for
+    commercial context, replace its identity with the waterfall's canonical
+    representative, collapse branch duplicates, and append roots not present
+    in the contract universe. No target-fit class is inferred here: callers
+    supply identities selected from the authoritative TARGET_CONFIRMED store.
+    """
+
+    target_by_root: dict[str, dict[str, Any]] = {}
+    for raw in target_identity_rows:
+        cnpj = canonical_cnpj14(raw.get("cnpj14") or raw.get("cnpj"))
+        root = str(raw.get("cnpj_root") or raw.get("cnpj_raiz") or (cnpj or "")[:8]).strip()
+        if not cnpj or len(root) != 8 or not root.isdigit() or cnpj[:8] != root:
+            raise ValueError("TARGET_CONFIRMED identity reconciliation received an invalid canonical identity")
+        prior = target_by_root.get(root)
+        if prior is not None and prior["cnpj14"] != cnpj:
+            raise ValueError("TARGET_CONFIRMED identity reconciliation found multiple representatives for one root")
+        target_by_root[root] = {**raw, "cnpj14": cnpj, "cnpj_root": root, "cnpj_raiz": root}
+
+    base_target_rows: dict[str, list[dict[str, Any]]] = {root: [] for root in target_by_root}
+    non_target_rows: list[dict[str, Any]] = []
+    for row in decision_rows:
+        cnpj = canonical_cnpj14(row.get("cnpj14") or row.get("cnpj"))
+        if cnpj and cnpj[:8] in target_by_root:
+            base_target_rows[cnpj[:8]].append(row)
+        else:
+            non_target_rows.append(row)
+
+    def _context_rank(row: dict[str, Any], representative: str) -> tuple[int, int, float, int, str]:
+        portfolio = row.get("portfolio") if isinstance(row.get("portfolio"), dict) else {}
+        try:
+            priority = float(row.get("priority_score") or 0.0)
+        except (TypeError, ValueError):
+            priority = 0.0
+        contract_count = int(portfolio.get("contract_count_total") or len(portfolio.get("recent_contracts") or []))
+        cnpj = canonical_cnpj14(row.get("cnpj14") or row.get("cnpj")) or ""
+        has_name = int(bool(str(row.get("razao_social") or row.get("legal_name") or "").strip()))
+        return has_name, contract_count, priority, int(cnpj == representative), cnpj
+
+    reconciled_targets: list[dict[str, Any]] = []
+    roots_present_in_base = 0
+    canonical_replacements = 0
+    for root in sorted(target_by_root):
+        identity = target_by_root[root]
+        representative = str(identity["cnpj14"])
+        candidates = base_target_rows[root]
+        context = max(candidates, key=lambda row: _context_rank(row, representative)) if candidates else {}
+        if candidates:
+            roots_present_in_base += 1
+            if not any(canonical_cnpj14(row.get("cnpj14") or row.get("cnpj")) == representative for row in candidates):
+                canonical_replacements += 1
+
+        merged = {**context}
+        for key, value in identity.items():
+            if value is not None and value != "":
+                merged[key] = value
+        merged["cnpj14"] = representative
+        merged["cnpj_root"] = root
+        merged["cnpj_raiz"] = root
+        merged["source_lead_id"] = f"target-fit:{root}:{representative}"
+        merged["target_fit_class"] = "TARGET_CONFIRMED"
+        reconciled_targets.append(merged)
+
+    reconciled = [*non_target_rows, *reconciled_targets]
+    output_target_roots = {
+        cnpj[:8]
+        for row in reconciled
+        for cnpj in (canonical_cnpj14(row.get("cnpj14") or row.get("cnpj")),)
+        if cnpj and cnpj[:8] in target_by_root
+    }
+    if output_target_roots != set(target_by_root):
+        raise ValueError("TARGET_CONFIRMED identity reconciliation omitted an authoritative root")
+
+    base_target_count = sum(len(rows) for rows in base_target_rows.values())
+    return reconciled, {
+        "authoritative_target_roots": len(target_by_root),
+        "base_target_establishments": base_target_count,
+        "base_target_roots": roots_present_in_base,
+        "target_roots_added": len(target_by_root) - roots_present_in_base,
+        "branch_duplicates_collapsed": base_target_count - roots_present_in_base,
+        "canonical_establishments_replaced": canonical_replacements,
+        "target_roots_emitted": len(output_target_roots),
+        "target_rows_missing_legal_name": sum(
+            not bool(str(row.get("razao_social") or row.get("legal_name") or "").strip()) for row in reconciled_targets
+        ),
+        "output_decision_rows": len(reconciled),
+    }
+
+
 def _select_intelligence_rows(
     *,
     decision_rows: list[dict[str, Any]],
@@ -238,17 +381,12 @@ def _select_intelligence_rows(
                 _append(row)
 
     downstream_cnpjs = {
-        cnpj
-        for row in downstream_rows
-        for cnpj in (canonical_cnpj14(row.get("cnpj14") or row.get("cnpj")),)
-        if cnpj
+        cnpj for row in downstream_rows for cnpj in (canonical_cnpj14(row.get("cnpj14") or row.get("cnpj")),) if cnpj
     }
     covered_targets = len(target_cnpjs & selected_cnpjs)
     return selected, {
         "scope": (
-            "target_confirmed_plus_activation_hot_set"
-            if include_all_target_confirmed
-            else "downstream_sample_only"
+            "target_confirmed_plus_activation_hot_set" if include_all_target_confirmed else "downstream_sample_only"
         ),
         "target_confirmed_total": len(target_cnpjs),
         "target_confirmed_processed": covered_targets,
@@ -595,7 +733,26 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
 
         universe_rows = _read_jsonl(universe_jsonl)
         exclusion_rows = _read_jsonl(exclusions_jsonl)
-        decision_rows, duplicate_decision_rows = _dedupe_decision_rows([*universe_rows, *exclusion_rows])
+        base_decision_rows, duplicate_decision_rows = _dedupe_decision_rows([*universe_rows, *exclusion_rows])
+        if cfg.dsn:
+            target_identity_rows = _load_target_confirmed_identity_rows(cfg.dsn)
+            decision_rows, target_identity_reconciliation = _reconcile_target_confirmed_decision_rows(
+                base_decision_rows,
+                target_identity_rows,
+            )
+        else:
+            decision_rows = base_decision_rows
+            target_identity_reconciliation = {
+                "authoritative_target_roots": 0,
+                "base_target_establishments": 0,
+                "base_target_roots": 0,
+                "target_roots_added": 0,
+                "branch_duplicates_collapsed": 0,
+                "canonical_establishments_replaced": 0,
+                "target_roots_emitted": 0,
+                "target_rows_missing_legal_name": 0,
+                "output_decision_rows": len(decision_rows),
+            }
         (
             target_fit_snapshot_rows,
             target_fit_authority,
@@ -607,10 +764,12 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
         )
         stages["universe_row_count"] = len(universe_rows)
         stages["reservoir_count"] = len(universe_rows)
+        stages["target_fit_base_decision_universe_count"] = len(base_decision_rows)
         stages["target_fit_decision_universe_count"] = len(decision_rows)
         stages["target_fit_duplicate_cnpj_collapsed"] = duplicate_decision_rows
+        stages["target_fit_identity_reconciliation"] = target_identity_reconciliation
         stages["target_fit_unaddressable_exclusion_count"] = len(exclusion_rows) - (
-            len(decision_rows) - len(universe_rows)
+            len(base_decision_rows) - len(universe_rows)
         )
         stages["target_fit_snapshot_count"] = len(target_fit_snapshot_rows)
         stages["target_fit_authority"] = target_fit_authority
@@ -778,9 +937,7 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
                 f"missing={intelligence_scope['target_confirmed_missing']} "
                 f"total={intelligence_scope['target_confirmed_total']}"
             )
-        intel_inputs = [
-            universe_row_to_intelligence_input(r, as_of=as_of.isoformat()) for r in intelligence_rows
-        ]
+        intel_inputs = [universe_row_to_intelligence_input(r, as_of=as_of.isoformat()) for r in intelligence_rows]
         intel_input_path = dirs["intel"] / "intelligence-inputs.jsonl"
         _write_jsonl(intel_input_path, intel_inputs)
 
