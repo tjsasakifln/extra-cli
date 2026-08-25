@@ -544,6 +544,12 @@ def test_parse_dt_systemd_show_stamp() -> None:
     assert parse_dt("n/a") is None
 
 
+def test_pncp_contracts_service_has_production_read_timeout() -> None:
+    service = Path("deploy/systemd/pncp-contracts.service").read_text(encoding="utf-8")
+
+    assert "Environment=CONTRACTS_READ_TIMEOUT=60" in service
+
+
 def test_collect_timer_snapshot_parses_systemd_stamps() -> None:
     snap = collect_timer_snapshot(
         show_timer={
