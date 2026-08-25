@@ -1,15 +1,15 @@
 {
   "ok": true,
   "status": "PASS",
-  "current_pr_head_sha": "25a57013737c69a6e1c97472d94fe4387c3accef",
-  "pr_head_sha": "25a57013737c69a6e1c97472d94fe4387c3accef",
-  "checked_out_sha": "25a57013737c69a6e1c97472d94fe4387c3accef",
+  "current_pr_head_sha": "934f37225a555066180daa099bbf1593c4d8bd14",
+  "pr_head_sha": "934f37225a555066180daa099bbf1593c4d8bd14",
+  "checked_out_sha": "934f37225a555066180daa099bbf1593c4d8bd14",
   "workflow_merge_sha": null,
-  "final_code_freeze_sha": "25a57013737c69a6e1c97472d94fe4387c3accef",
-  "final_integrity_code_freeze_sha": "25a57013737c69a6e1c97472d94fe4387c3accef",
-  "executed_code_sha": "25a57013737c69a6e1c97472d94fe4387c3accef",
-  "code_tree_hash_at_execution": "3a12ce9a1151b29b7491c64c1965fd868d194f9306d824ecb458f19efc292a08",
-  "code_tree_hash_at_current_head": "3a12ce9a1151b29b7491c64c1965fd868d194f9306d824ecb458f19efc292a08",
+  "final_code_freeze_sha": "934f37225a555066180daa099bbf1593c4d8bd14",
+  "final_integrity_code_freeze_sha": "934f37225a555066180daa099bbf1593c4d8bd14",
+  "executed_code_sha": "934f37225a555066180daa099bbf1593c4d8bd14",
+  "code_tree_hash_at_execution": "e703dff94799334ebd8e20e10370ba619a871bb9021c07a543fcc2a2360f3feb",
+  "code_tree_hash_at_current_head": "e703dff94799334ebd8e20e10370ba619a871bb9021c07a543fcc2a2360f3feb",
   "code_changed_after_execution": false,
   "artifact_only_commits_after_execution": false,
   "files_changed_after_freeze": [],
@@ -24,9 +24,9 @@
     "ok": true,
     "status": "PASS",
     "protected_input_count": 101,
-    "manifest_freeze_sha": "25a57013737c69a6e1c97472d94fe4387c3accef"
+    "manifest_freeze_sha": "934f37225a555066180daa099bbf1593c4d8bd14"
   },
-  "verified_at": "2026-08-25T04:20:02Z",
+  "verified_at": "2026-08-25T06:26:44Z",
   "note": "pr_head from CONFENGE_PR_HEAD_SHA when set; never label merge checkout as pr_head; freeze protects explicit CONFENGE inputs only (not monorepo-wide allowlist)",
   "policy": "post-freeze: only frozen CONFENGE inputs are protected; evidence lag under campaign artifacts/docs/ops/evals real"
 }

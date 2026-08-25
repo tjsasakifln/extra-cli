@@ -1,6 +1,6 @@
 # CONFENGE contact discovery terminal outcomes
 
-Date: 2026-08-24  
+Date: 2026-08-25
 Owner: `extra-cli`  
 Scope: durable contact discovery projection for `TARGET_CONFIRMED`
 
@@ -37,3 +37,19 @@ integrity for successful jobs.
 
 Runtime deployment, rerun identifiers and consumer reconciliation evidence are
 recorded on `extra-cli#469`; this handoff defines the durable code contract only.
+
+## Exact official-registry trust boundary
+
+`company_registry` is a projection label, not proof by itself. It is promoted
+to the trusted `REAL_REGISTRY` root only when the route carries a `MATCHED`
+Receita Federal observation for the same canonical CNPJ, an identical official
+release ID in the contact and source-provenance blocks, a source reference, an
+observation timestamp and the explicit company-association verdict. A copied
+label, a cross-CNPJ route or an incomplete tuple remains provenance-invalid and
+cannot become controlled-eligible or preferred during reranking.
+
+The next full production cohort completed on 2026-08-25 with all 8,637 accounts
+terminal: 8,625 `SUCCEEDED`, 12 `DLQ`, 6,666 `EMAIL_ROUTE_READY` and 1,971
+`BLOCKED_WITH_REASON`; the terminal equation held with zero integrity failures.
+Its projection hash is
+`73b2d40f9995ea0b8afc253a92e276eb719850701aacf7cb2e7eca7bda2c066e`.

@@ -995,6 +995,7 @@ def _five_class_universe_intel_contacts() -> tuple[dict, dict, dict]:
                 "role": "Gerente de Contratos",
                 "ownership_status": "COMPANY_OWNED",
                 "verification_status": "OFFICIAL_SOURCE",
+                "source_type": "company_website",
                 "source_url": "https://empresaexemplo.com.br/contato",
                 "identity_explicitly_associated": True,
                 "email_discovery_class": "EMAIL_VALIDATED",
@@ -1004,6 +1005,7 @@ def _five_class_universe_intel_contacts() -> tuple[dict, dict, dict]:
                 "email": "comercial@empresaexemplo.com.br",
                 "ownership_status": "COMPANY_OWNED",
                 "verification_status": "INSTITUTIONAL_GENERIC",
+                "source_type": "company_website",
                 "source_url": "https://empresaexemplo.com.br/contato",
                 "source_contact_id": "c-comercial",
             },
@@ -1011,14 +1013,15 @@ def _five_class_universe_intel_contacts() -> tuple[dict, dict, dict]:
                 "email": "contato@empresaexemplo.com.br",
                 "ownership_status": "COMPANY_OWNED",
                 "verification_status": "INSTITUTIONAL_GENERIC",
+                "source_type": "company_website",
                 "source_url": "https://empresaexemplo.com.br/contato",
                 "source_contact_id": "c-contato",
             },
             {
                 "email": "empresa@gmail.com",
                 "ownership_status": "COMPANY_OWNED",
-                "source_url": "https://empresaexemplo.com.br/contato",
                 "source_type": "company_website",
+                "source_url": "https://empresaexemplo.com.br/contato",
                 "mailbox_company_evidence": "OBSERVED",
                 "source_contact_id": "c-gmail",
             },
@@ -1333,6 +1336,42 @@ def test_registry_freemail_proof_survives_bridge_mapping_and_reranking() -> None
     assert contact["source_reference"] == "registry-evidence-1"
     assert contact["route_freshness"] == "FRESH"
     assert contact["route_suppression"] == "NONE"
+    assert contact["provenance_chain_valid"] is True
+    assert contact["root_source_type"] == "REAL_REGISTRY"
+
+
+def test_registry_provenance_requires_exact_account_and_complete_release_tuple() -> None:
+    universe, intel, _contacts = _five_class_universe_intel_contacts()
+    base = _exact_registry_extra()
+    source_provenance = base.pop("source_provenance")
+    contact = {
+        "email": "empresa@gmail.com",
+        "source": "company_registry",
+        "source_type": "company_registry",
+        "source_reference": "registry-evidence-1",
+        "observed_at": "2026-08-24T12:00:00Z",
+        "ownership_status": "COMPANY_OWNED",
+        "channel_epistemic_class": "OBSERVED",
+        "route_freshness": "FRESH",
+        "route_suppression": "NONE",
+        "source_provenance": source_provenance,
+        **base,
+    }
+
+    for mutation in (
+        {"registry_cnpj14": "99888777000166"},
+        {"official_release_id": ""},
+        {"source_reference": ""},
+        {"company_associated": False},
+    ):
+        contacts = {"cnpj14": ACCOUNT_ID, "contacts": [{**contact, **mutation}]}
+        lead = map_lead(universe, intel=intel, contacts_row=contacts, conn=None)
+        assert lead is not None
+        mapped = lead["contacts"][0]
+        assert mapped["provenance_chain_valid"] is False, mutation
+        assert mapped["root_source_type"] == "UNKNOWN", mutation
+        assert mapped["controlled_email_eligible"] is False, mutation
+        assert mapped["preferred_initial"] is False, mutation
 
 
 def test_bridge_mapping_never_drops_known_route_suppression() -> None:

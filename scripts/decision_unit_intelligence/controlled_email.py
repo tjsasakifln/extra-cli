@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Callable, Iterable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import StrEnum
 from typing import Any
 from urllib.parse import urlparse
@@ -1270,6 +1270,19 @@ def stamp_and_rank_feed_contacts(
             continue
         route = route_from_feed_contact(contact, account_id=account_id, official_domain=official_domain)
         item = evaluate_controlled_email_eligible(route, person=None)
+        # The route classifier proves mailbox↔company association, but it must
+        # never erase a stricter provenance verdict computed at the feed
+        # boundary.  An explicitly invalid chain remains stored for review and
+        # diagnostics, while staying outside preferred/default-pilot ranking.
+        if contact.get("provenance_chain_valid") is False:
+            item = replace(
+                item,
+                controlled_email_eligible=False,
+                risk_class=ControlledRiskClass.RISKY,
+                reason_codes=tuple(
+                    dict.fromkeys((*item.reason_codes, "provenance_chain_invalid"))
+                ),
+            )
         classified.append(item)
         indexed.append(contact)
     ranking = rank_account_email_routes(classified)
