@@ -78,13 +78,13 @@
   ],
   "terminal_reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
   "terminal_declaration": "BLOCKED_ONLY_OFFICIAL_REGISTRY_AND_HUMAN_REVIEW",
-  "pr_head_sha": "f86f85754a9c4e3ec4306c94cd8dfa359c045893",
-  "current_pr_head_sha": "f86f85754a9c4e3ec4306c94cd8dfa359c045893",
-  "live_pr_head_sha": "f86f85754a9c4e3ec4306c94cd8dfa359c045893",
+  "pr_head_sha": "1ecb5f33f420a07ed515152641204da192d98e18",
+  "current_pr_head_sha": "1ecb5f33f420a07ed515152641204da192d98e18",
+  "live_pr_head_sha": "1ecb5f33f420a07ed515152641204da192d98e18",
   "workflow_merge_sha": null,
-  "executed_code_sha": "f86f85754a9c4e3ec4306c94cd8dfa359c045893",
-  "evidence_commit_sha": "f86f85754a9c4e3ec4306c94cd8dfa359c045893",
+  "executed_code_sha": "1ecb5f33f420a07ed515152641204da192d98e18",
+  "evidence_commit_sha": "1ecb5f33f420a07ed515152641204da192d98e18",
   "real_data_ci_status": "NOT_EXECUTED",
   "match_run_to_head": true,
-  "verified_at": "2026-08-24T20:53:38Z"
+  "verified_at": "2026-08-25T01:07:17Z"
 }

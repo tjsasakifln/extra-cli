@@ -1287,3 +1287,74 @@ def test_paraguayan_company_domain_is_not_a_parser_leftover():
         )
     )
     assert "implausible_mailbox_host" not in verdict.reason_codes
+
+
+def test_registry_freemail_proof_survives_bridge_mapping_and_reranking() -> None:
+    universe, intel, _contacts = _five_class_universe_intel_contacts()
+    proof = _exact_registry_extra()
+    source_provenance = proof.pop("source_provenance")
+    contacts = {
+        "cnpj14": ACCOUNT_ID,
+        "contacts": [
+            {
+                "email": "empresa@gmail.com",
+                "source_contact_id": "registry-route-1",
+                "source": "company_registry",
+                "source_type": "company_registry",
+                "source_reference": "registry-evidence-1",
+                "evidence_ids": ["registry-evidence-1"],
+                "observed_at": "2026-08-24T12:00:00Z",
+                "ownership_status": "COMPANY_OWNED",
+                "channel_epistemic_class": "OBSERVED",
+                "route_freshness": "FRESH",
+                "route_suppression": "NONE",
+                "source_provenance": source_provenance,
+                **proof,
+            }
+        ],
+    }
+
+    lead = map_lead(universe, intel=intel, contacts_row=contacts, conn=None)
+    assert lead is not None
+    contact = lead["contacts"][0]
+    assert contact["route_class"] == EmailRouteClass.PUBLIC_COMPANY_FREEMAIL.value
+    assert contact["controlled_email_eligible"] is True
+    assert contact["preferred_initial"] is True
+    assert contact["person_unknown"] is True
+    assert contact["email_validated"] is False
+    assert contact["mailbox_company_evidence"] == "OBSERVED"
+    assert contact["official_authority"] == "RECEITA_FEDERAL"
+    assert contact["official_release_id"] == "rfb-2026-08"
+    assert contact["registry_cnpj14"] == ACCOUNT_ID
+    assert contact["source_provenance"]["release_id"] == "rfb-2026-08"
+    assert contact["source_reference"] == "registry-evidence-1"
+    assert contact["route_freshness"] == "FRESH"
+    assert contact["route_suppression"] == "NONE"
+
+
+def test_bridge_mapping_never_drops_known_route_suppression() -> None:
+    universe, intel, _contacts = _five_class_universe_intel_contacts()
+    contacts = {
+        "cnpj14": ACCOUNT_ID,
+        "contacts": [
+            {
+                "email": "contato@empresaexemplo.com.br",
+                "source": "company_website",
+                "source_type": "company_website",
+                "source_url": "https://empresaexemplo.com.br/contato",
+                "observed_at": "2026-08-24T12:00:00Z",
+                "ownership_status": "COMPANY_OWNED",
+                "channel_epistemic_class": "OBSERVED",
+                "route_freshness": "FRESH",
+                "route_suppression": "OPT_OUT",
+            }
+        ],
+    }
+
+    lead = map_lead(universe, intel=intel, contacts_row=contacts, conn=None)
+    assert lead is not None
+    contact = lead["contacts"][0]
+    assert contact["route_suppression"] == "OPT_OUT"
+    assert contact["controlled_email_eligible"] is False
+    assert contact["preferred_initial"] is False
+    assert "suppressed:OPT_OUT" in contact["reason_codes"]

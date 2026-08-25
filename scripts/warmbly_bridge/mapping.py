@@ -33,6 +33,24 @@ _INFERENCE_TYPES = frozenset(
     }
 )
 
+_CONTACT_EVIDENCE_FIELDS = (
+    "source_reference",
+    "evidence_ids",
+    "route_freshness",
+    "route_suppression",
+    "channel_epistemic_class",
+    "mailbox_company_evidence",
+    "mailbox_department_evidence",
+    "mailbox_person_evidence",
+    "company_associated",
+    "official_match_status",
+    "official_authority",
+    "official_release_id",
+    "registry_cnpj14",
+    "source_provenance",
+    "official_domain",
+)
+
 
 def digits_only(value: str | None) -> str:
     return "".join(ch for ch in (value or "") if ch.isdigit())
@@ -265,6 +283,10 @@ def _map_contact(item: dict[str, Any], *, idx: int, cnpj: str) -> dict[str, Any]
         out["mailbox_company_evidence"] = _as_str(item.get("mailbox_company_evidence"))
     if item.get("person_id"):
         out["person_id"] = _as_str(item.get("person_id"))
+    for field in _CONTACT_EVIDENCE_FIELDS:
+        value = item.get(field)
+        if value is not None:
+            out[field] = dict(value) if isinstance(value, dict) else value
     return out
 
 

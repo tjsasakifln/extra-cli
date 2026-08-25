@@ -38,6 +38,29 @@ def _fsync_dir(path: Path) -> None:
         os.close(fd)
 
 
+def _make_public_feed_tree_readable(root: Path) -> None:
+    """Make an immutable feed release traversable by the serving process.
+
+    The publication service and nginx intentionally run as different users in
+    production. ``mkdtemp`` starts at 0700 and ``copy2`` preserves restrictive
+    build modes, so relying on the service umask makes an otherwise valid
+    release return 404 from nginx. Feed artifacts are public by contract;
+    normalize directories to 0755 and regular files to 0644 before promotion.
+    """
+    root.chmod(0o755)
+    for directory, names, files in os.walk(root):
+        base = Path(directory)
+        base.chmod(0o755)
+        for name in names:
+            path = base / name
+            if not path.is_symlink():
+                path.chmod(0o755)
+        for name in files:
+            path = base / name
+            if not path.is_symlink():
+                path.chmod(0o644)
+
+
 def _parse_timestamp(value: Any, *, field: str) -> datetime:
     text = str(value or "").strip()
     try:
@@ -362,6 +385,7 @@ def atomic_publish_directory(
                 # fsync file
                 with dest.open("rb") as f:
                     os.fsync(f.fileno())
+        _make_public_feed_tree_readable(tmp)
         _fsync_dir(tmp)
         os.replace(str(tmp), str(release_dir))
         _fsync_dir(releases)
@@ -411,6 +435,8 @@ def atomic_publish_directory(
             "last_success_at": clock.isoformat().replace("+00:00", "Z"),
             "last_status": "PUBLISHED",
             **result,
+            "status": "PUBLISHED",
+            "error": None,
         },
     )
     return result
@@ -461,6 +487,8 @@ def check_current_publication(
             "schema_id": "confenge.feed_publication_state.v1",
             "last_monitor_at": clock.isoformat().replace("+00:00", "Z"),
             "last_monitor_status": "HEALTHY",
+            **result,
+            "error": None,
             "monitor": result,
         },
     )

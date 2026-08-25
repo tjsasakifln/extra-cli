@@ -1070,6 +1070,19 @@ def route_from_feed_contact(
         extra.setdefault("company_associated", True)
     if contact.get("mailbox_company_evidence"):
         extra["mailbox_company_evidence"] = str(contact["mailbox_company_evidence"])
+    for field in (
+        "company_associated",
+        "mailbox_department_evidence",
+        "mailbox_person_evidence",
+        "official_match_status",
+        "official_authority",
+        "official_release_id",
+        "registry_cnpj14",
+        "source_provenance",
+    ):
+        value = contact.get(field)
+        if value is not None:
+            extra[field] = dict(value) if isinstance(value, dict) else value
     if contact.get("identity_explicitly_associated") is True or (
         contact.get("name_explicitly_published") is True and contact.get("email_explicitly_published") is True
     ):
@@ -1105,6 +1118,12 @@ def route_from_feed_contact(
         epistemic = EpistemicClass.INFERRED
     if str(contact.get("email_derivation") or "").upper() == "INFERRED":
         epistemic = EpistemicClass.INFERRED
+    raw_freshness = str(contact.get("route_freshness") or contact.get("freshness") or "").upper()
+    freshness = (
+        FreshnessState(raw_freshness)
+        if raw_freshness in {item.value for item in FreshnessState}
+        else FreshnessState.UNKNOWN
+    )
     return ReachabilityRoute(
         route_id=str(contact.get("source_contact_id") or contact.get("route_id") or mailbox),
         company_entity_id=account_id,
@@ -1116,7 +1135,8 @@ def route_from_feed_contact(
         epistemic_class=epistemic,
         source_type=_feed_contact_source_type(contact),
         source_url=_feed_contact_source_url(contact) or None,
-        freshness=FreshnessState.FRESH,
+        evidence_ids=[str(item) for item in (contact.get("evidence_ids") or []) if item],
+        freshness=freshness,
         ownership=ownership,
         suppression=suppression,
         observed_at=str(contact.get("observed_at") or contact.get("source_date") or "") or None,

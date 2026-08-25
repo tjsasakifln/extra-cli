@@ -1,7 +1,7 @@
 {
   "schema_version": "confenge-frozen-inputs/1.0",
   "campaign": "CONFENGE-COMMERCIAL-READY-01",
-  "freeze_sha": "f86f85754a9c4e3ec4306c94cd8dfa359c045893",
+  "freeze_sha": "1ecb5f33f420a07ed515152641204da192d98e18",
   "policy": "frozen_confenge_inputs_v1",
   "inputs": [
     {
@@ -381,8 +381,8 @@
     {
       "path": "scripts/decision_unit_intelligence/controlled_email.py",
       "kind": "file",
-      "blob_sha": "570b75a18f114ec733a644b42d661ba204cfc34e",
-      "sha256": "15fc74d4807c4d3693d8202db608ed0bb64430c9f4e60ddafad97bf5c1dc6443"
+      "blob_sha": "26667a17d7edd6563ada12fa03ae83f60cab01ec",
+      "sha256": "98fe92576a30caf0f028bb8d2e743f96a8b43f5fea13763e68e87210e5252774"
     },
     {
       "path": "scripts/decision_unit_intelligence/corroboration.py",
@@ -621,8 +621,8 @@
     {
       "path": "scripts/warmbly_bridge/mapping.py",
       "kind": "file",
-      "blob_sha": "31942cea5414fb794b86d074360b503ef1c5c720",
-      "sha256": "741a568ce099f9f223ed177a99707e3511f4a8ab25bd34e5c8227f7228604dde"
+      "blob_sha": "cacc6911665ea47272ef9b5236e4d378cfdaa642",
+      "sha256": "b2234fc516ed8e3393a7ac37e8f93cde93c296493d840fde98491826c5db929c"
     }
   ],
   "missing_at_build": [],

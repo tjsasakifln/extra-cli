@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import stat
 import subprocess
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -106,6 +107,26 @@ def test_publish_records_live_contact_metrics_and_immutable_release(tmp_path: Pa
     assert (public / "current" / "manifest.json").is_file()
     assert json.loads(state.read_text())["last_status"] == "PUBLISHED"
     assert not alerts.exists()
+
+
+def test_publish_is_readable_by_a_separate_web_server_user(tmp_path: Path) -> None:
+    public, state, alerts = _paths(tmp_path)
+    prior_umask = os.umask(0o077)
+    try:
+        result = atomic_publish_directory(
+            _build(tmp_path / "build"),
+            public,
+            state_path=state,
+            alert_ledger=alerts,
+            now=NOW,
+        )
+    finally:
+        os.umask(prior_umask)
+
+    release = Path(result["release_dir"])
+    assert stat.S_IMODE(release.stat().st_mode) == 0o755
+    assert stat.S_IMODE((release / "manifest.json").stat().st_mode) == 0o644
+    assert stat.S_IMODE((release / "chunk_0000.json").stat().st_mode) == 0o644
 
 
 def test_partial_manifest_is_refused_without_replacing_current(tmp_path: Path) -> None:
@@ -229,3 +250,39 @@ def test_cycle_binds_child_pipeline_to_same_checkout(monkeypatch: pytest.MonkeyP
     assert isinstance(child_env, dict)
     assert str(child_env["PYTHONPATH"]).split(os.pathsep)[0] == str(runtime_root)
     assert result["ok"] is True
+
+
+def test_fresh_publication_and_monitor_clear_prior_unhealthy_state(tmp_path: Path) -> None:
+    public, state, alerts = _paths(tmp_path)
+    atomic_publish_directory(
+        _build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW
+    )
+    check_current_publication(
+        public,
+        state_path=state,
+        alert_ledger=alerts,
+        now=NOW + timedelta(hours=25),
+    )
+    replacement_at = NOW + timedelta(hours=25)
+    atomic_publish_directory(
+        _build(tmp_path / "replacement", snapshot="snapshot-b", generated_at=replacement_at),
+        public,
+        state_path=state,
+        alert_ledger=alerts,
+        now=replacement_at,
+    )
+    published = json.loads(state.read_text())
+    assert published["status"] == "PUBLISHED"
+    assert published["error"] is None
+
+    result = check_current_publication(
+        public,
+        state_path=state,
+        alert_ledger=alerts,
+        now=replacement_at,
+    )
+    assert result["status"] == "HEALTHY"
+    healthy = json.loads(state.read_text())
+    assert healthy["status"] == "HEALTHY"
+    assert healthy["last_monitor_status"] == "HEALTHY"
+    assert healthy["error"] is None
