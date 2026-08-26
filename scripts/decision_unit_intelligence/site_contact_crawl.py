@@ -1198,12 +1198,15 @@ def contacts_to_observations(
             ambiguous=record.candidate and not associated,
         )
         foreign = bool(expected and _foreign_or_generic_domain(record.email, expected))
+        page_cnpj = normalize_cnpj(record.structured_data.get("page_cnpj14"))
+        page_sha256 = str(record.structured_data.get("page_cnpj_evidence_sha256") or "").lower()
         email_evidence = make_evidence(
             field="email",
             value=record.email,
             epistemic_class=EpistemicClass.OBSERVED,
             source_type="company_website",
             source_url=record.source_url,
+            document_sha256=page_sha256 or None,
             evidence_snippet=record.snippet,
             observed_at=record.observed_at,
             extraction_method=record.extraction_method,
@@ -1217,8 +1220,6 @@ def contacts_to_observations(
             },
         )
         evidence.append(email_evidence)
-        page_cnpj = normalize_cnpj(record.structured_data.get("page_cnpj14"))
-        page_sha256 = str(record.structured_data.get("page_cnpj_evidence_sha256") or "").lower()
         route_evidence_id = email_evidence.evidence_id
         page_identity: dict[str, Any] = {}
         if page_cnpj == cnpj and re.fullmatch(r"[0-9a-f]{64}", page_sha256):
@@ -1228,6 +1229,7 @@ def contacts_to_observations(
                 epistemic_class=EpistemicClass.OBSERVED,
                 source_type="company_website",
                 source_url=record.source_url,
+                document_sha256=page_sha256,
                 evidence_snippet=(
                     f"{record.structured_data.get('page_cnpj_snippet') or ''} | {record.snippet}"
                 ).strip(" |"),

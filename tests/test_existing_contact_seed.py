@@ -12,6 +12,8 @@ from scripts.decision_unit_intelligence.controlled_email import (
     EmailRouteClass,
     classify_account_email_routes,
 )
+from scripts.decision_unit_intelligence.evidence import make_evidence
+from scripts.decision_unit_intelligence.models import EpistemicClass
 from scripts.decision_unit_intelligence.projection import project_warmbly_outreach
 from scripts.decision_unit_intelligence.providers.base import InvestigationContext
 from scripts.decision_unit_intelligence.providers.existing_contacts import (
@@ -63,8 +65,34 @@ def _write_bound_seed(path: Path) -> None:
     mailbox = contact["email"]
     source_url = contact["source_url"]
     observed_at = contact["observed_at"]
-    binding_id = "historical-page-binding"
-    email_evidence_id = "historical-page-email"
+    page_sha256 = "a" * 64
+    email_evidence = make_evidence(
+        field="email",
+        value=mailbox,
+        epistemic_class=EpistemicClass.OBSERVED,
+        source_type="company_website",
+        source_url=source_url,
+        document_sha256=page_sha256,
+        evidence_snippet=f"Contato: {mailbox}",
+        observed_at=observed_at,
+        extraction_method="public_page_exact_text",
+    )
+    binding_evidence = make_evidence(
+        field="account_mailbox_binding",
+        value=f"{account}|{mailbox}",
+        epistemic_class=EpistemicClass.OBSERVED,
+        source_type="company_website",
+        source_url=source_url,
+        document_sha256=page_sha256,
+        evidence_snippet=f"CNPJ {account} | Contato: {mailbox}",
+        observed_at=observed_at,
+        extraction_method="official_page_exact_cnpj_and_email:official_domain_mailbox",
+        extra={
+            "page_cnpj14": account,
+            "page_content_sha256": page_sha256,
+            "email_evidence_id": email_evidence.evidence_id,
+        },
+    )
     contact.update(
         {
             "company_associated": True,
@@ -73,31 +101,12 @@ def _write_bound_seed(path: Path) -> None:
             "route_freshness": "FRESH",
             "route_suppression": "NONE",
             "official_domain": rows[0]["official_domain"],
-            "evidence_ids": [binding_id],
+            "evidence_ids": [binding_evidence.evidence_id],
             "page_cnpj14": account,
-            "page_cnpj_evidence_id": binding_id,
-            "page_cnpj_evidence_sha256": "a" * 64,
-            "account_mailbox_binding_evidence": {
-                "evidence_id": binding_id,
-                "field": "account_mailbox_binding",
-                "value": f"{account}|{mailbox}",
-                "epistemic_class": "OBSERVED",
-                "source_url": source_url,
-                "observed_at": observed_at,
-                "extra": {
-                    "page_cnpj14": account,
-                    "page_content_sha256": "a" * 64,
-                    "email_evidence_id": email_evidence_id,
-                },
-            },
-            "mailbox_observation_evidence": {
-                "evidence_id": email_evidence_id,
-                "field": "email",
-                "value": mailbox,
-                "epistemic_class": "OBSERVED",
-                "source_url": source_url,
-                "observed_at": observed_at,
-            },
+            "page_cnpj_evidence_id": binding_evidence.evidence_id,
+            "page_cnpj_evidence_sha256": page_sha256,
+            "account_mailbox_binding_evidence": binding_evidence.to_dict(),
+            "mailbox_observation_evidence": email_evidence.to_dict(),
         }
     )
     path.write_text(

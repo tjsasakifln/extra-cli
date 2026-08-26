@@ -86,8 +86,23 @@ _COUNTERPARTY_CONTEXT_MARKERS = (
     "orgao comprador",
     "orgao publico",
     "prefeitura",
+    "pregoeiro",
     "procurador do cliente",
     "tomador",
+)
+
+_COMPANY_CONTACT_CONTEXT_MARKERS = (
+    "administrativo",
+    "atendimento",
+    "comercial",
+    "contato",
+    "e-mail",
+    "email",
+    "engenharia",
+    "fale conosco",
+    "financeiro",
+    "licitacao",
+    "orcamento",
 )
 
 
@@ -103,8 +118,11 @@ def account_mailbox_binding_context(
 
     A corporate-domain mailbox is attributable on the exact-CNPJ official page
     unless its local context explicitly identifies a buyer/third party.  A
-    public freemail additionally has to be near the target CNPJ.  Foreign
-    corporate domains never inherit the page's CNPJ merely by co-occurrence.
+    public freemail additionally has to be near the target CNPJ *and* appear in
+    an explicit company-contact context.  Mere proximity is negative evidence
+    at best: procurement pages often co-locate a supplier CNPJ with a buyer or
+    auctioneer's freemail.  Foreign corporate domains never inherit the page's
+    CNPJ merely by co-occurrence.
     """
 
     local = fold_text(snippet)
@@ -128,7 +146,12 @@ def account_mailbox_binding_context(
         window = fold_text(page_text[window_start:window_end])
         if any(marker in window for marker in _COUNTERPARTY_CONTEXT_MARKERS):
             return False, "COUNTERPARTY_MAILBOX_CONTEXT"
-        return True, "FREEMAIL_NEAR_EXACT_CNPJ"
+        email_start = max(0, match.start() - 180)
+        email_end = min(len(page_text), match.end() + 180)
+        email_context = fold_text(page_text[email_start:email_end])
+        if not any(marker in email_context for marker in _COMPANY_CONTACT_CONTEXT_MARKERS):
+            return False, "FREEMAIL_WITHOUT_COMPANY_CONTACT_CONTEXT"
+        return True, "FREEMAIL_EXACT_CNPJ_WITH_COMPANY_CONTACT_CONTEXT"
     return False, "FREEMAIL_NOT_LOCALLY_BOUND_TO_CNPJ"
 
 
@@ -825,6 +848,7 @@ def extract_public_evidence(
             epistemic_class=EpistemicClass.OBSERVED,
             source_type="company_website",
             source_url=document.url,
+            document_sha256=page_content_sha256,
             evidence_snippet=association.snippet,
             observed_at=document.retrieved_at,
             extraction_method=association.extraction_method,
@@ -854,6 +878,7 @@ def extract_public_evidence(
                 epistemic_class=EpistemicClass.OBSERVED,
                 source_type="company_website",
                 source_url=document.url,
+                document_sha256=page_content_sha256,
                 evidence_snippet=f"{cnpj_snippet} | {association.snippet}".strip(" |"),
                 observed_at=document.retrieved_at,
                 extraction_method=f"official_page_exact_cnpj_and_email:{binding_reason.lower()}",

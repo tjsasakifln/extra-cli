@@ -25,6 +25,7 @@ from scripts.confenge_outreach_pipeline.pipeline import (
 )
 from scripts.confenge_outreach_pipeline.sample import classify_profile, select_diverse_sample
 from scripts.warmbly_bridge.mapping import build_leads
+from tests.recipient_attestation_fixtures import exact_page_attestation
 
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURE_CSV = ROOT / "tests" / "fixtures" / "confenge_universe" / "contracts_sample.csv"
@@ -188,8 +189,6 @@ def test_durable_projection_reaches_feed_accounts_outside_hot_set(tmp_path: Path
         host = f"empresa{cnpj[:8]}.com.br"
         mailbox = f"contato@{host}"
         source_url = f"https://{host}/contato"
-        binding_id = f"page-cnpj:{cnpj}"
-        email_evidence_id = f"page-email:{cnpj}"
         page_sha256 = (cnpj * 5)[:64]
         observed_at = "2026-08-24T12:00:00Z"
         durable_rows.append(
@@ -202,7 +201,6 @@ def test_durable_projection_reaches_feed_accounts_outside_hot_set(tmp_path: Path
                             "source": "company_website",
                             "source_url": source_url,
                             "source_reference": source_url,
-                            "evidence_ids": [binding_id],
                             "observed_at": observed_at,
                             "ownership_status": "COMPANY_OWNED",
                             "company_associated": True,
@@ -211,30 +209,13 @@ def test_durable_projection_reaches_feed_accounts_outside_hot_set(tmp_path: Path
                             "route_freshness": "FRESH",
                             "route_suppression": "NONE",
                             "official_domain": host,
-                            "page_cnpj14": cnpj,
-                            "page_cnpj_evidence_id": binding_id,
-                            "page_cnpj_evidence_sha256": page_sha256,
-                            "account_mailbox_binding_evidence": {
-                                "evidence_id": binding_id,
-                                "field": "account_mailbox_binding",
-                                "value": f"{cnpj}|{mailbox}",
-                                "epistemic_class": "OBSERVED",
-                                "source_url": source_url,
-                                "observed_at": observed_at,
-                                "extra": {
-                                    "page_cnpj14": cnpj,
-                                    "page_content_sha256": page_sha256,
-                                    "email_evidence_id": email_evidence_id,
-                                },
-                            },
-                            "mailbox_observation_evidence": {
-                                "evidence_id": email_evidence_id,
-                                "field": "email",
-                                "value": mailbox,
-                                "epistemic_class": "OBSERVED",
-                                "source_url": source_url,
-                                "observed_at": observed_at,
-                            },
+                            **exact_page_attestation(
+                                account=cnpj,
+                                mailbox=mailbox,
+                                source_url=source_url,
+                                observed_at=observed_at,
+                                page_sha256=page_sha256,
+                            ),
                         }
                 ],
             }

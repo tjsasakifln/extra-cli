@@ -12,6 +12,7 @@ import pytest
 from scripts.confenge_target_fit.company_key import canonical_cnpj14, canonical_target_membership
 from scripts.warmbly_bridge.export import ExportConfig, export_outreach
 from scripts.warmbly_bridge.io_jsonl import InputError
+from tests.recipient_attestation_fixtures import exact_page_attestation
 
 NOW = "2026-08-12T12:00:00Z"
 
@@ -198,31 +199,17 @@ def _export(
         cnpj = account_contacts["cnpj14"]
         for contact in account_contacts["contacts"]:
             source_url = contact["source_url"]
-            binding_id = contact["page_cnpj_evidence_id"]
             page_sha256 = contact["page_cnpj_evidence_sha256"]
-            email_evidence_id = f"email:{binding_id}"
             contact["observed_at"] = NOW
-            contact["account_mailbox_binding_evidence"] = {
-                "evidence_id": binding_id,
-                "field": "account_mailbox_binding",
-                "value": f"{cnpj}|{contact['email']}",
-                "epistemic_class": "OBSERVED",
-                "source_url": source_url,
-                "observed_at": NOW,
-                "extra": {
-                    "page_cnpj14": cnpj,
-                    "page_content_sha256": page_sha256,
-                    "email_evidence_id": email_evidence_id,
-                },
-            }
-            contact["mailbox_observation_evidence"] = {
-                "evidence_id": email_evidence_id,
-                "field": "email",
-                "value": contact["email"],
-                "epistemic_class": "OBSERVED",
-                "source_url": source_url,
-                "observed_at": NOW,
-            }
+            contact.update(
+                exact_page_attestation(
+                    account=cnpj,
+                    mailbox=contact["email"],
+                    source_url=source_url,
+                    observed_at=NOW,
+                    page_sha256=page_sha256,
+                )
+            )
     intel_path = _write_jsonl(source / "intelligence.jsonl", intelligence)
     if authoritative_contact_report:
         confirmed_cnpjs = {
@@ -739,7 +726,7 @@ def test_declared_ambiguous_shared_mailbox_is_policy_excluded_and_reconciles(tmp
     )
 
     projection = result["authoritative_contact_projection"]
-    assert projection["projection_policy_version"] == "controlled-email-policy.v4"
+    assert projection["projection_policy_version"] == "controlled-email-policy.v5"
     assert projection["raw_input_preferred_route_count"] == 2
     assert projection["policy_excluded_preferred_route_count"] == 2
     assert projection["input_preferred_route_count"] == 0

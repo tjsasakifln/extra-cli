@@ -170,6 +170,7 @@ quality_gate_tools: ["pytest", "ruff", "dod_controller", "coderabbit"]
 | 2026-08-24 | 0.2.1 | Validated GO (10/10) — Status: Draft → Ready após refinamento executivo | Pax (@po) |
 | 2026-08-24 | 0.3.0 | Implementação local: seleção canônica, terminais, projeção hash-verificada e merge no feed amplo | Dex (@dev) |
 | 2026-08-26 | 0.4.0 | Policy v4: vínculo recipient↔CNPJ no ledger e feed, reranking seguro e auditoria adversarial live | Dex (@dev) |
+| 2026-08-26 | 0.5.0 | Policy v5: freshness efetiva, prova de página determinística e freemail fail-closed para buyer/pregoeiro | Dex (@dev) |
 
 ## Dev Agent Record
 
@@ -194,6 +195,9 @@ GPT-5 Codex (Dex / @dev)
 - 2026-08-26: QA adversarial independente bloqueou a primeira correção por coocorrência de buyer contact, lavagem de provenance incremental, freshness renovada por crawl e terminal ausente em output corrompido; nenhum desses casos foi aceito como risco residual.
 - 2026-08-26: após o reparo, 144 testes focados passaram, cobrindo cadeia semântica da attestation, buyer/third-party, página stale/cache, crawl de duas páginas, merge atômico, alias cadastral, idempotência e yield preferred por provenance; 20/20 testes PostgreSQL reais passaram.
 - 2026-08-26: golden path local terminou honestamente `partial`: PNCP excedeu 720s e o freshness gate permaneceu FAIL; a execução live PNCP também encerrou exit 1 com janelas parciais. Nenhum target-fit/contact/feed novo foi promovido.
+- 2026-08-26: a segunda auditoria adversarial reproduziu freemail de pregoeiro atribuído por mera proximidade, `FRESH` persistido sobre fonte vencida, early-stop em página stale e evidence IDs arbitrários; policy v5 fechou os quatro casos sem promover dados.
+- 2026-08-26: replay v5 read-only sobre as 8.653 contas preservou 6.501 READY / 2.152 BLOCKED, com expiry em 100% das rotas preferidas; amostra estratificada 30+30+30 não encontrou falha de atribuição, freshness, expiry, suppression ou origem inferida.
+- 2026-08-26: 259 testes amplos de contato/outreach passaram (20 integrações real-DB separadas); a rodada explícita PostgreSQL passou 21/21 e fixou o claim no relógio transacional do banco contra skew processo↔DB.
 
 ### Completion Notes List
 
@@ -206,6 +210,7 @@ GPT-5 Codex (Dex / @dev)
 - A prova de página inclui objetos semânticos ligados para mailbox e binding, rejeita contexto de comprador/terceiro e mantém data publicada, observação e expiry separados. Reconciliation nunca combina campos de duas observações para completar uma prova.
 - Job terminal com output ausente/adulterado continua visível como `BLOCKED_WITH_REASON`, mas a falha de integridade global impede publicação.
 - `public_search` e `company_website` continuam sendo os providers existentes; eles percorrem o budget restante quando domínio/mailbox não carregam prova CNPJ-bound, em vez de encerrar cedo num homônimo.
+- Policy v5 nunca confia no texto persistido de freshness: recalcula a classe e o expiry a partir de `source_published_at`/`observed_at` em cada gate. A attestation de página valida IDs determinísticos, SHA-256 comum e witnesses exatos; freemail exige marcador positivo de contato empresarial e rejeita buyer/pregoeiro.
 
 ### File List
 
@@ -245,6 +250,7 @@ GPT-5 Codex (Dex / @dev)
 - `tests/test_contact_discovery_batch.py`
 - `tests/test_contact_discovery_population.py`
 - `tests/test_existing_contact_seed.py`
+- `tests/recipient_attestation_fixtures.py`
 
 ## QA Results
 

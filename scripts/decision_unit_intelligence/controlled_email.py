@@ -36,6 +36,7 @@ from scripts.decision_unit_intelligence.models import (
     RouteRelation,
     SuppressionState,
     normalize_cnpj,
+    stable_id,
 )
 from scripts.decision_unit_intelligence.reachability import (
     email_domain,
@@ -60,7 +61,7 @@ DEPARTMENTAL_HYPOTHESIS_LOCALS: tuple[str, ...] = (
     "contato",
 )
 
-CONTROLLED_EMAIL_POLICY_VERSION = "controlled-email-policy.v4"
+CONTROLLED_EMAIL_POLICY_VERSION = "controlled-email-policy.v5"
 CONTROLLED_EMAIL_SCHEMA_VERSION = "confenge.outreach.controlled_email.v1"
 
 # Tokens that genuinely mean "not suppressed". Anything else is treated as
@@ -741,7 +742,8 @@ def evaluate_controlled_email_eligible(
     department_ev = mailbox_department_evidence(route)
     person_ev = mailbox_person_evidence(route, person)
     suppression = route.suppression.value if route.suppression else SuppressionState.NONE.value
-    freshness = route.freshness.value if route.freshness else FreshnessState.UNKNOWN.value
+    freshness_reference = str(extra.get("source_published_at") or route.observed_at or "").strip()
+    freshness = freshness_from_observed_at(freshness_reference).value
     reasons: list[str] = [f"route_class:{route_class.value}"]
     risk = (
         ControlledRiskClass.RISKY
@@ -784,9 +786,11 @@ def evaluate_controlled_email_eligible(
     if domain and is_third_party_professional_domain(domain):
         eligible = False
         reasons.append("third_party_professional_domain")
-    if freshness == FreshnessState.STALE.value:
+    if freshness != FreshnessState.FRESH.value:
         eligible = False
-        reasons.append("stale")
+        reasons.append(f"freshness_not_fresh:{freshness.lower()}")
+        if freshness == FreshnessState.STALE.value:
+            reasons.append("stale")
     if route_class not in allowed_classes:
         eligible = False
         reasons.append("route_class_outside_default_pilot")
@@ -1132,12 +1136,14 @@ def route_from_feed_contact(
         epistemic = EpistemicClass.INFERRED
     if str(contact.get("email_derivation") or "").upper() == "INFERRED":
         epistemic = EpistemicClass.INFERRED
-    raw_freshness = str(contact.get("route_freshness") or contact.get("freshness") or "").upper()
-    freshness = (
-        FreshnessState(raw_freshness)
-        if raw_freshness in {item.value for item in FreshnessState}
-        else FreshnessState.UNKNOWN
-    )
+    freshness_reference = str(
+        contact.get("source_published_at")
+        or extra.get("source_published_at")
+        or contact.get("observed_at")
+        or contact.get("source_date")
+        or ""
+    ).strip()
+    freshness = freshness_from_observed_at(freshness_reference)
     return ReachabilityRoute(
         route_id=str(contact.get("source_contact_id") or contact.get("route_id") or mailbox),
         company_entity_id=account_id,
@@ -1385,6 +1391,44 @@ def contact_has_account_identity_attestation(contact: dict[str, Any], *, account
         mailbox_evidence = contact.get("mailbox_observation_evidence")
         mailbox_evidence = mailbox_evidence if isinstance(mailbox_evidence, dict) else {}
         email_evidence_id = str(binding_extra.get("email_evidence_id") or "").strip()
+
+        def _authentic_evidence(
+            item: dict[str, Any],
+            *,
+            field: str,
+            value: str,
+            extraction_prefix: str | None = None,
+        ) -> bool:
+            item_source_type = str(item.get("source_type") or "").strip()
+            item_source_url = str(item.get("source_url") or "").strip()
+            item_snippet = str(item.get("evidence_snippet") or "").strip()
+            item_method = str(item.get("extraction_method") or "").strip()
+            item_document_sha = str(item.get("document_sha256") or "").strip().lower()
+            expected_id = stable_id(
+                field,
+                value,
+                EpistemicClass.OBSERVED.value,
+                item_source_type,
+                item_source_url,
+                str(item.get("document_id") or ""),
+                str(item.get("page") or ""),
+                item_snippet,
+            )
+            method_folded = item_method.lower()
+            return bool(
+                item_source_type == "company_website"
+                and item_source_url == source_url
+                and item_document_sha == page_evidence_sha256
+                and item_snippet
+                and item_method
+                and not any(token in method_folded for token in ("infer", "pattern", "guess"))
+                and (extraction_prefix is None or method_folded.startswith(extraction_prefix))
+                and str(item.get("evidence_id") or "").strip() == expected_id
+            )
+
+        binding_snippet = str(binding.get("evidence_snippet") or "")
+        mailbox_snippet = str(mailbox_evidence.get("evidence_snippet") or "")
+        binding_digits = re.sub(r"\D", "", binding_snippet)
         return (
             page_cnpj == normalize_cnpj(account)
             and bool(page_evidence_id)
@@ -1400,6 +1444,14 @@ def contact_has_account_identity_attestation(contact: dict[str, Any], *, account
             and str(binding.get("epistemic_class") or "").upper() == EpistemicClass.OBSERVED.value
             and str(binding.get("source_url") or "").strip() == source_url
             and str(binding.get("observed_at") or "").strip() == observed_at
+            and _authentic_evidence(
+                binding,
+                field="account_mailbox_binding",
+                value=f"{normalize_cnpj(account)}|{mailbox}",
+                extraction_prefix="official_page_exact_cnpj_and_email:",
+            )
+            and normalize_cnpj(account) in binding_digits
+            and mailbox in binding_snippet.lower()
             and normalize_cnpj(str(binding_extra.get("page_cnpj14") or ""))
             == normalize_cnpj(account)
             and str(binding_extra.get("page_content_sha256") or "").strip().lower()
@@ -1412,6 +1464,8 @@ def contact_has_account_identity_attestation(contact: dict[str, Any], *, account
             == EpistemicClass.OBSERVED.value
             and str(mailbox_evidence.get("source_url") or "").strip() == source_url
             and str(mailbox_evidence.get("observed_at") or "").strip() == observed_at
+            and _authentic_evidence(mailbox_evidence, field="email", value=mailbox)
+            and mailbox in mailbox_snippet.lower()
         )
 
     return False
@@ -1422,7 +1476,10 @@ def _has_account_specific_mailbox_evidence(contact: dict[str, Any], *, account: 
 
     return bool(
         contact_has_account_identity_attestation(contact, account=account)
-        and str(contact.get("route_freshness") or "").upper() == FreshnessState.FRESH.value
+        and freshness_from_observed_at(
+            str(contact.get("source_published_at") or contact.get("observed_at") or "")
+        )
+        == FreshnessState.FRESH
         and str(contact.get("route_suppression") or "").upper() == SuppressionState.NONE.value
     )
 
@@ -1464,11 +1521,9 @@ def observed_channels_have_account_identity_route(
             payload.get("source_url") or evidence_id,
         )
         freshness_reference = payload.get("source_published_at") or payload.get("observed_at")
-        if freshness_reference:
-            payload.setdefault(
-                "route_freshness",
-                freshness_from_observed_at(str(freshness_reference)).value,
-            )
+        payload["route_freshness"] = freshness_from_observed_at(
+            str(freshness_reference or "")
+        ).value
         payload.setdefault("route_suppression", SuppressionState.NONE.value)
         if not observed_contact_is_controlled_eligible_company_route(
             payload,

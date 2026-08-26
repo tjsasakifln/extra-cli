@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import threading
+from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -14,6 +15,7 @@ pytestmark = pytest.mark.real_db
 
 from scripts.confenge_target_fit.company_key import canonical_target_membership
 from scripts.crawl.worker import AdmissionLimits, admission_blockers
+from scripts.decision_unit_intelligence import batch_queue as batch_queue_module
 from scripts.decision_unit_intelligence.batch_outcomes import (
     classify_account,
     classify_exception,
@@ -48,6 +50,7 @@ from scripts.decision_unit_intelligence.models import (
     RouteRelation,
     SearchLedger,
 )
+from tests.recipient_attestation_fixtures import exact_page_attestation
 
 MIGRATION = Path(__file__).resolve().parents[1] / "db" / "migrations" / "093_contact_discovery_batch.sql"
 DSN = os.getenv("LOCAL_DATALAKE_DSN") or os.getenv("TEST_DSN") or "postgresql://test:test@127.0.0.1:5433/extra_test"
@@ -119,8 +122,13 @@ def _auditable_role_account(cnpj: str) -> AccountInvestigation:
     mailbox = "licitacoes@acme.example.com"
     source_url = "https://acme.example.com/contato"
     observed_at = "2026-08-24T12:00:00Z"
-    email_evidence_id = "ev-email-contact-page"
-    binding_evidence_id = "ev-contact-page"
+    attestation = exact_page_attestation(
+        account=cnpj,
+        mailbox=mailbox,
+        source_url=source_url,
+        observed_at=observed_at,
+        page_sha256="a" * 64,
+    )
     return AccountInvestigation(
         company_entity_id=cnpj,
         cnpj=cnpj,
@@ -142,7 +150,7 @@ def _auditable_role_account(cnpj: str) -> AccountInvestigation:
                 epistemic_class=EpistemicClass.OBSERVED,
                 source_type="company_website",
                 source_url=source_url,
-                evidence_ids=[binding_evidence_id],
+                evidence_ids=attestation["evidence_ids"],
                 freshness=FreshnessState.FRESH,
                 ownership=OwnershipStatus.COMPANY_OWNED,
                 observed_at=observed_at,
@@ -151,30 +159,7 @@ def _auditable_role_account(cnpj: str) -> AccountInvestigation:
                     "mailbox_company_evidence": "OBSERVED",
                     "mailbox_department_evidence": "OBSERVED",
                     "email_discovery_class": "ROLE_MAILBOX",
-                    "page_cnpj14": cnpj,
-                    "page_cnpj_evidence_id": binding_evidence_id,
-                    "page_cnpj_evidence_sha256": "a" * 64,
-                    "account_mailbox_binding_evidence": {
-                        "evidence_id": binding_evidence_id,
-                        "field": "account_mailbox_binding",
-                        "value": f"{cnpj}|{mailbox}",
-                        "epistemic_class": "OBSERVED",
-                        "source_url": source_url,
-                        "observed_at": observed_at,
-                        "extra": {
-                            "page_cnpj14": cnpj,
-                            "page_content_sha256": "a" * 64,
-                            "email_evidence_id": email_evidence_id,
-                        },
-                    },
-                    "mailbox_observation_evidence": {
-                        "evidence_id": email_evidence_id,
-                        "field": "email",
-                        "value": mailbox,
-                        "epistemic_class": "OBSERVED",
-                        "source_url": source_url,
-                        "observed_at": observed_at,
-                    },
+                    **attestation,
                 },
             )
         ],
@@ -292,6 +277,24 @@ def test_duplicate_enqueue_does_not_create_second_truth(dsn: str) -> None:
             search_backend="off",
             budget_version="budget.test",
         )
+
+
+def test_claim_without_injected_time_uses_database_clock(
+    dsn: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    with connect(dsn) as connection:
+        queue = ContactDiscoveryQueue(connection)
+        _seed(queue, cohort="c-db-clock", accounts=["11222333000181"])
+        monkeypatch.setattr(
+            batch_queue_module,
+            "utcnow",
+            lambda: datetime(2000, 1, 1, tzinfo=UTC),
+        )
+
+        claimed = queue.claim(worker_id="clock-worker")
+
+    assert len(claimed) == 1
+    assert claimed[0].canonical_account_id == "11222333000181"
 
 
 def test_canonical_population_enqueue_preserves_selection_evidence(
@@ -520,7 +523,7 @@ def test_complete_cohort_exports_verified_bridge_projection(dsn: str, tmp_path: 
     assert result["target_fit_mode"] == "SHADOW"
     assert result["target_fit_classifier_sha"] == "sha256:target-fit-test"
     assert result["sector_classifier_sha"] == "sha256:sector-test"
-    assert result["controlled_email_policy_version"] == "controlled-email-policy.v4"
+    assert result["controlled_email_policy_version"] == "controlled-email-policy.v5"
     assert result["terminal_equation"] == {
         "population_count": 1,
         "job_denominator": 1,
@@ -538,7 +541,10 @@ def test_complete_cohort_exports_verified_bridge_projection(dsn: str, tmp_path: 
     assert row["contacts"][0]["route_class"] == "ROLE_OR_DEPARTMENT"
     assert row["contacts"][0]["source_url"] == "https://acme.example.com/contato"
     assert row["contacts"][0]["source_reference"] == "https://acme.example.com/contato"
-    assert row["contacts"][0]["evidence_ids"] == ["ev-contact-page"]
+    assert row["contacts"][0]["evidence_ids"] == [
+        row["contacts"][0]["page_cnpj_evidence_id"]
+    ]
+    assert len(row["contacts"][0]["page_cnpj_evidence_id"]) == 24
     assert row["contacts"][0]["mailbox_department"] == "licitacoes"
     assert row["contacts"][0]["provenance"]["source_type"] == "company_website"
     assert row["contacts"][0]["route_expires_at"] == "2027-02-20T12:00:00Z"

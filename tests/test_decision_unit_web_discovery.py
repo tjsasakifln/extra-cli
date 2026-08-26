@@ -102,6 +102,27 @@ class TwoPageCrawler:
         )
 
 
+class StaleThenFreshCrawler:
+    def fetch(self, url: str, *, max_bytes: int) -> CrawlDocument:
+        if url.endswith("/diretoria"):
+            text = "CNPJ 12.345.678/0001-90. Contato antigo@empresaexemplo.com.br"
+            html = (
+                '<html><body><time datetime="2018-01-01T00:00:00Z">2018</time>'
+                f"{text}</body></html>"
+            )
+        else:
+            text = "CNPJ 12.345.678/0001-90. Contato atual@empresaexemplo.com.br"
+            html = f"<html><body>{text}</body></html>"
+        return CrawlDocument(
+            url=url,
+            text=text,
+            html=html,
+            content_type="text/html",
+            retrieved_at="2026-08-14T12:00:00Z",
+            bytes_touched=len(html.encode()),
+        )
+
+
 class PreloadedProvider:
     provider_id = "preloaded"
     tier = 0
@@ -264,6 +285,58 @@ def test_exact_cnpj_page_does_not_bind_explicit_buyer_freemail():
     assert not any(item.field == "account_mailbox_binding" for item in extracted.evidence)
 
 
+def test_exact_cnpj_page_does_not_bind_auctioneer_freemail_by_proximity():
+    text = "CNPJ 12.345.678/0001-90. Pregoeiro responsável: agente.publico@gmail.com."
+    document = CrawlDocument(
+        url="https://empresaexemplo.com.br/contrato",
+        text=text,
+        html=f"<html><body>{text}</body></html>",
+        content_type="text/html",
+        retrieved_at="2026-08-14T12:00:00Z",
+        bytes_touched=len(text.encode()),
+    )
+
+    extracted = extract_public_evidence(
+        _context(), document, canonical_domain="empresaexemplo.com.br"
+    )
+
+    channel = next(item for item in extracted.channels if item.channel_value)
+    assert channel.ownership == OwnershipStatus.UNKNOWN
+    assert "page_cnpj14" not in channel.extra
+    assert channel.extra["account_binding_context"] == "COUNTERPARTY_MAILBOX_CONTEXT"
+    assert not observed_channels_have_account_identity_route(
+        extracted.channels,
+        account_id=_context().cnpj,
+    )
+
+
+def test_exact_cnpj_company_contact_label_can_bind_public_freemail():
+    text = "CNPJ 12.345.678/0001-90. Contato comercial: empresa.exemplo@gmail.com."
+    document = CrawlDocument(
+        url="https://empresaexemplo.com.br/contato",
+        text=text,
+        html=f"<html><body>{text}</body></html>",
+        content_type="text/html",
+        retrieved_at="2026-08-14T12:00:00Z",
+        bytes_touched=len(text.encode()),
+    )
+
+    extracted = extract_public_evidence(
+        _context(), document, canonical_domain="empresaexemplo.com.br"
+    )
+
+    channel = next(item for item in extracted.channels if item.channel_value)
+    assert channel.ownership == OwnershipStatus.COMPANY_OWNED
+    assert channel.extra["page_cnpj14"] == _context().cnpj
+    assert channel.extra["account_binding_context"] == (
+        "FREEMAIL_EXACT_CNPJ_WITH_COMPANY_CONTACT_CONTEXT"
+    )
+    assert observed_channels_have_account_identity_route(
+        extracted.channels,
+        account_id=_context().cnpj,
+    )
+
+
 def test_named_page_without_cnpj_does_not_stop_before_bound_contact_page():
     provider = PublicSearchProvider(
         backend=TwoPageSearch(),
@@ -307,6 +380,25 @@ def test_web_page_declared_staleness_blocks_identity_early_stop():
         extracted.channels,
         account_id=_context().cnpj,
     )
+
+
+def test_public_search_does_not_stop_on_stale_bound_page_before_fresh_page():
+    provider = PublicSearchProvider(
+        backend=TwoPageSearch(),
+        crawler=StaleThenFreshCrawler(),
+        budget=SearchBudget(
+            max_queries=1,
+            max_results_per_query=2,
+            max_pages=2,
+            max_bytes=20_000,
+            min_query_interval_seconds=0,
+        ),
+    )
+
+    result = provider.collect(_context())
+
+    assert result.attempts[0].documents_checked == 2
+    assert any(channel.channel_value == "atual@empresaexemplo.com.br" for channel in result.channels)
 
 
 def test_enabled_web_search_runs_before_positive_early_stop_and_persists_evidence():
