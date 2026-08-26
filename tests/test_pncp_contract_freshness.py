@@ -42,6 +42,7 @@ from scripts.ops.pncp_contract_freshness import (
     REASON_STALE_CHECKPOINT,
     REASON_TIMER_ACTIVE_NOT_PROOF,
     REASON_TIMER_DELAYED,
+    REASON_UNCLOSED_CURRENT_WINDOW,
     REASON_WINDOW_EMPTY_COMPLETE,
     REASON_WINDOW_EMPTY_INCOMPLETE,
     REASON_WINDOW_INCOMPLETE,
@@ -977,6 +978,29 @@ def test_lock_busy_exit_75_is_not_fresh_or_closed_window() -> None:
     )
     assert artifact["status"] != "FRESH"
     assert REASON_LOCK_BUSY_NO_CLOSE in artifact["reason_codes"]
+    assert health_exit(artifact["status"]) != 0
+
+
+def test_newer_unclosed_attempt_cannot_reuse_previous_fresh_close() -> None:
+    artifact = build_contract(
+        _snapshot(
+            windows=[_closed_window(closed_at="2026-08-20T12:00:00Z")],
+            timer={
+                "active": True,
+                "last_run_at": "2026-08-20T12:10:00Z",
+                "next_run_at": "2026-08-20T16:00:00Z",
+                "last_exec_status": 0,
+                "last_result": "success",
+                "on_calendar": "*-*-* 00,04,08,12,16,20:00:00 America/Sao_Paulo",
+            },
+            as_of="2026-08-20T12:30:00Z",
+        )
+    )
+
+    assert artifact["source_observed_at"] == "2026-08-20T12:00:00Z"
+    assert artifact["status"] == "STALE"
+    assert REASON_UNCLOSED_CURRENT_WINDOW in artifact["reason_codes"]
+    assert REASON_WINDOW_INCOMPLETE in artifact["reason_codes"]
     assert health_exit(artifact["status"]) != 0
 
 

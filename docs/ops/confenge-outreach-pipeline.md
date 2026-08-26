@@ -85,6 +85,70 @@ intelligence. Every account in the authoritative `TARGET_CONFIRMED` snapshot is
 processed for service, public factual context and message spine before the
 complete decision feed is exported. Smoke/sample mode remains bounded.
 
+## Continuous production refresh
+
+The production data path is one fail-closed systemd cascade:
+
+```text
+pncp-contracts.service
+  --OnSuccess--> extra-confenge-source-freshness-gate.service
+  --OnSuccess--> extra-confenge-target-fit-reconcile.service
+  --OnSuccess--> extra-confenge-contact-cycle.service
+  --OnSuccess--> extra-confenge-feed-cycle.service
+```
+
+The source gate runs `scripts.ops.pncp_contract_freshness --live --health` and
+advances only on `PNCP_CONTRACT_FRESHNESS/1.0` status `FRESH` (exit 0). This is
+required because source writer contention exits 75 and is intentionally listed
+in `SuccessExitStatus` for systemd alert hygiene; semantically it remains
+`LOCK_BUSY_NO_CLOSE` and cannot trigger target-fit. A prior successful close
+also cannot certify a newer unclosed source invocation.
+
+Every stage is a oneshot. `OnSuccess` is the only forward edge and `OnFailure`
+alerts without starting the successor. Existing per-stage locks prevent two
+writers; the publisher independently requires the exact current source run,
+membership hash, complete terminal contact coverage and max-age before its
+atomic `current` swap. A failed, partial, stale or identical-semantic build
+therefore leaves the previous release untouched. The feed monitor remains an
+independent hourly readback.
+
+Only `pncp-contracts.timer` needs to be enabled to drive this graph. The legacy
+independent target-fit/contact/feed timers are not prerequisites and should
+remain disabled to avoid inverted cadence. This graph refreshes data; it does
+not schedule email, create a commercial queue, approve outreach or mutate
+Warmbly.
+
+Install/upgrade the five services from the exact deployed release, then verify
+before observing a live cycle:
+
+```bash
+sudo cp deploy/systemd/{pncp-contracts,extra-confenge-source-freshness-gate,extra-confenge-target-fit-reconcile,extra-confenge-contact-cycle,extra-confenge-feed-cycle}.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemd-analyze verify \
+  pncp-contracts.service \
+  extra-confenge-source-freshness-gate.service \
+  extra-confenge-target-fit-reconcile.service \
+  extra-confenge-contact-cycle.service \
+  extra-confenge-feed-cycle.service
+sudo systemctl show pncp-contracts.service \
+  extra-confenge-source-freshness-gate.service \
+  extra-confenge-target-fit-reconcile.service \
+  extra-confenge-contact-cycle.service \
+  extra-confenge-feed-cycle.service \
+  -p Id -p OnSuccess -p OnFailure -p FragmentPath
+```
+
+Observe the exact invocation chain with `systemctl show ... -p InvocationID -p
+Result -p ExecMainStatus -p ExecMainStartTimestamp -p ExecMainExitTimestamp`
+and each unit's journal. The gate journal contains the versioned freshness JSON;
+the feed cycle state and publication manifest contain the source run/hash and
+promotion outcome.
+
+Rollback is non-destructive: restore the prior five unit files (or remove only
+the four added `OnSuccess` edges and the gate unit), run `daemon-reload`, and
+leave `current`, release directories and durable state untouched. A rollback
+does not authorize running the independent downstream timers.
+
 ## Outputs
 
 ```text

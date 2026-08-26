@@ -6,6 +6,10 @@ Description=PNCP Contracts Crawler — Extra Consultoria
 After=network-online.target
 Wants=network-online.target
 OnFailure=extra-onfailure@%n.service
+# SuccessExitStatus=75 below is intentionally considered successful by
+# systemd. Never point this unit directly at target-fit: the dedicated gate
+# re-evaluates the semantic source contract and blocks 75/partial/stale/error.
+OnSuccess=extra-confenge-source-freshness-gate.service
 
 [Service]
 Type=oneshot

@@ -82,7 +82,18 @@ python -m scripts.ops.confenge_feed_cycle \
   --max-age-hours 24
 ```
 
-Install and enable `extra-confenge-feed-cycle.timer` (12-hour cadence, at 01:20 and 13:20 local time) and `extra-confenge-feed-monitor.timer` (hourly validation). The feed schedule deliberately starts after the PNCP 00:00/12:00 source windows have time to close; an in-flight source window remains a fail-closed publication blocker. Configure the non-secret paths from `deploy/systemd/confenge-feed.env.example`. The service account needs write access to `/var/lib/extra-consultoria` and the publication root. Warmbly reads the manifest from the HTTP document root that mounts the atomic `current` release; the `current` symlink changes only after the full manifest, every chunk hash, full target-fit coverage, PNCP freshness and both feed timestamps pass validation.
+Production refresh is driven by the canonical `pncp-contracts.timer` and the
+fail-closed service cascade documented in
+[`confenge-outreach-pipeline.md`](./confenge-outreach-pipeline.md#continuous-production-refresh).
+Do not enable the independent target-fit/contact/feed timers as a substitute:
+their clocks can invert the required source → target-fit → contacts → feed
+order. Keep `extra-confenge-feed-monitor.timer` enabled for hourly readback.
+Configure the non-secret paths from `deploy/systemd/confenge-feed.env.example`.
+The service account needs write access to `/var/lib/extra-consultoria` and the
+publication root. Warmbly reads the manifest from the HTTP document root that
+mounts the atomic `current` release; the `current` symlink changes only after
+the full manifest, every chunk hash, full target-fit coverage, PNCP freshness
+and both feed timestamps pass validation.
 
 The durable state is `/var/lib/extra-consultoria/confenge-feed/publication-state.json`. It preserves the last successful publication while recording the latest generation and monitor result, duration, snapshot, watermark, lead/contact totals, deltas, route classes and provenance sources. Alerts append to `/var/lib/extra-consultoria/alerts/confenge-feed.jsonl` and trigger the normal systemd `OnFailure` path.
 
