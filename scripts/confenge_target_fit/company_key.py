@@ -2,8 +2,14 @@
 
 from __future__ import annotations
 
+import hashlib
 import re
+from collections import Counter
 from typing import Any
+
+TARGET_MEMBERSHIP_SCHEMA_VERSION = "confenge.target_membership.v1"
+TARGET_MEMBERSHIP_IDENTITY_KEY = "cnpj_root8"
+TARGET_MEMBERSHIP_HASH_ALGORITHM = "sha256(sorted_unique_cnpj_root8_newline_utf8)"
 
 # Curated corrections are applied at the commercial-feed boundary as identity
 # aliases.  Keep the raw source evidence unchanged; every emitted decision uses
@@ -29,6 +35,49 @@ def cnpj_raiz_from_cnpj14(cnpj: str | None) -> str | None:
     if len(d) >= 8:
         return d[:8]
     return None
+
+
+def canonical_target_membership(cnpjs: list[Any]) -> dict[str, Any]:
+    """Return the reproducible one-company-per-root TARGET membership contract.
+
+    The digest intentionally matches the operational proof used in #468:
+    canonical eight-digit roots, byte-sorted, one UTF-8 root per newline.  A
+    repeated root is refused rather than silently publishing two Warmbly
+    accounts for the same commercial company.
+    """
+
+    roots: list[str] = []
+    invalid: list[str] = []
+    for value in cnpjs:
+        cnpj14 = canonical_cnpj14(value)
+        if not cnpj14:
+            invalid.append(str(value or ""))
+            continue
+        roots.append(cnpj14[:8])
+    if invalid:
+        raise ValueError(
+            f"target membership contains non-canonical CNPJ14 values: count={len(invalid)} sample={invalid[:10]}"
+        )
+
+    ordered = sorted(roots)
+    unique = sorted(set(ordered))
+    duplicate_count = len(ordered) - len(unique)
+    if duplicate_count:
+        duplicate_roots = sorted(root for root, count in Counter(ordered).items() if count > 1)
+        raise ValueError(
+            "target membership contains duplicate CNPJ roots; reconcile before publication: "
+            f"duplicate_rows={duplicate_count} sample={duplicate_roots[:10]}"
+        )
+
+    encoded = "".join(f"{root}\n" for root in unique).encode("utf-8")
+    return {
+        "schema_version": TARGET_MEMBERSHIP_SCHEMA_VERSION,
+        "identity_key": TARGET_MEMBERSHIP_IDENTITY_KEY,
+        "hash_algorithm": TARGET_MEMBERSHIP_HASH_ALGORITHM,
+        "population_count": len(unique),
+        "membership_hash": hashlib.sha256(encoded).hexdigest(),
+        "duplicate_member_count": 0,
+    }
 
 
 def company_key_from_raiz(cnpj_raiz: str) -> str:

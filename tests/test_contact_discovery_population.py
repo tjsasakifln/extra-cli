@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from scripts.confenge_contact_resolution.enrichment_batch import CompanyJob
+from scripts.confenge_target_fit.company_key import canonical_target_membership
 from scripts.decision_unit_intelligence.batch_population import (
     TARGET_CONFIRMED_POPULATION,
     build_discovery_population,
@@ -59,6 +60,10 @@ def test_population_selects_every_confirmed_account_without_a_cap() -> None:
     assert selected.metadata["population_total"] == 2
     assert selected.metadata["population_count"] == 2
     assert selected.metadata["population_hash"] == selected.selection_hash
+    expected_membership = canonical_target_membership(["11111111000101", "22222222000102"])
+    assert selected.metadata["membership_count"] == 2
+    assert selected.metadata["membership_hash"] == expected_membership["membership_hash"]
+    assert selected.metadata["membership_hash_algorithm"] == expected_membership["hash_algorithm"]
     assert selected.metadata["population_as_of"] == "2026-08-24T12:00:00+00:00"
     assert selected.metadata["target_fit_mode"] == "SHADOW"
     assert selected.metadata["target_fit_classifier_sha"] == "sha256:target-fit-test"

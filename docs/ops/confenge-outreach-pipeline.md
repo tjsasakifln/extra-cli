@@ -52,7 +52,7 @@ python -m scripts.confenge_outreach_pipeline run \
 | `--max-rows` | **Diagnostic sampling** of universe source; never claim full-scale when set |
 | `--csv` | Offline fixture path |
 | `--skip-contacts` | Empty contacts (offline speed) |
-| `--durable-contacts` | Hash-verified derived projection from the durable waterfall; merged across the full decision universe |
+| `--durable-contacts` | Hash-verified derived projection from the durable waterfall; its sibling `contact-projection-report.json` is mandatory for live publication |
 
 `--limit-downstream` does **not** limit universe discovery or feed decisions.
 It limits intelligence/contact work only in smoke/sample mode. In production,
@@ -71,6 +71,13 @@ outputs, not a second authority. Its discovery policy and input evidence must
 be uniform; mixed or incompatible policy versions fail closed. Same-run hot-set
 contacts corroborate/extend it by canonical CNPJ and mailbox, after which the
 bridge recalculates exactly one preferred initial route per account.
+
+For a live DSN run, the projection report must prove complete terminal coverage
+of the exact `TARGET_CONFIRMED` root membership. The exporter copies its
+population, membership/projection hashes, terminal counts, route classes and
+policy versions into the manifest. The atomic publisher recomputes membership
+from all chunks and refuses partial, stale, mismatched or buyer-conflicted
+authorization without replacing the last valid `current` release.
 
 In production activation mode, the hot set remains the canary/capacity boundary
 for network contact discovery, but it does not limit deterministic account

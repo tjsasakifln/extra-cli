@@ -25,6 +25,8 @@ from scripts.confenge_activation.policy import load_policy
 from scripts.confenge_activation.publish import atomic_publish_directory
 from scripts.confenge_activation.score import compute_activation_score
 from scripts.confenge_activation.triggers import detect_triggers
+from scripts.confenge_outreach_pipeline.party_role import PARTY_ROLE_POLICY_V1
+from scripts.confenge_target_fit.company_key import canonical_target_membership
 from scripts.warmbly_bridge.mapping import map_lead
 
 POLICY = load_policy()
@@ -340,6 +342,54 @@ def test_atomic_publish(tmp_path: Path):
             "full_decision_count": 0,
             "ordering": {"watermarks_monotonic": True},
         },
+        "authoritative_target_membership": {
+            **canonical_target_membership([]),
+            "target_fit_class": "TARGET_CONFIRMED",
+            "target_confirmed_count": 0,
+            "supplier_confirmed_count": 0,
+            "source_member_count": 0,
+            "membership_complete": True,
+            "target_fit_policy_versions": ["confenge-target-fit-v2"],
+            "target_party_role_distribution": {},
+            "contractor_role_status_distribution": {},
+        },
+        "authoritative_party_roles": {
+            "policy_version": PARTY_ROLE_POLICY_V1,
+            "target_party_role_distribution": {},
+            "status_distribution": {},
+            "supplier_confirmed_count": 0,
+            "buyer_supplier_conflict_fails_closed": True,
+        },
+        "authoritative_contact_projection": {
+            "schema_id": "confenge.contact_discovery.projection_report.v1",
+            "report_sha256": "a" * 64,
+            "cohort_id": "cohort-test",
+            "generated_at": payload["generated_at"],
+            "population_hash": "b" * 64,
+            "population_as_of": payload["generated_at"],
+            "projection_hash": "c" * 64,
+            "controlled_email_policy_version": "controlled-email-policy.v3",
+            "discovery_policy_version": "dui.policy.v1",
+            "input_evidence_version": "target-fit.test",
+            "code_sha": "abc123",
+            "coverage_complete": True,
+            "terminal_coverage_complete": True,
+            "terminal_equation": {"holds": True},
+            "population_count": 0,
+            "membership_schema_version": canonical_target_membership([])["schema_version"],
+            "membership_identity_key": canonical_target_membership([])["identity_key"],
+            "membership_hash_algorithm": canonical_target_membership([])["hash_algorithm"],
+            "membership_count": 0,
+            "membership_hash": canonical_target_membership([])["membership_hash"],
+            "enrichment_states": {},
+            "recipient_states": {
+                "RECIPIENT_ATTRIBUTED": 0,
+                "READY": 0,
+                "NO_PUBLIC_EMAIL_FOUND": 0,
+                "BLOCKED_WITH_REASON": 0,
+            },
+            "output_preferred_route_class_distribution": {},
+        },
         "authoritative_source_freshness": {
             "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
             "status": "FRESH",
@@ -447,6 +497,7 @@ def test_capacity_override_none_uses_policy_planned_capacity():
     assert cycle.hot_set_count <= planned
     assert cycle.hot_set_count <= POLICY.capacity.max_hot_set
     # Must not silently collapse to default limit_downstream=200
-    assert cycle.hot_set_count > 200 or cycle.activation_counts.get("ACTIONABLE_NOW", 0) + cycle.activation_counts.get(
-        "RESEARCH_REQUIRED", 0
-    ) <= 200
+    assert (
+        cycle.hot_set_count > 200
+        or cycle.activation_counts.get("ACTIONABLE_NOW", 0) + cycle.activation_counts.get("RESEARCH_REQUIRED", 0) <= 200
+    )

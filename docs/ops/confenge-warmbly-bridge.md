@@ -23,6 +23,7 @@ python3 -m scripts.warmbly_bridge export-outreach \
   --universe scripts/warmbly_bridge/fixtures/universe.jsonl \
   --account-intelligence scripts/warmbly_bridge/fixtures/account_intelligence.jsonl \
   --contacts scripts/warmbly_bridge/fixtures/contacts.jsonl \
+  --contact-projection-report /path/to/contact-projection-report.json \
   --target-fit-snapshot /path/to/full-target-fit-snapshot.jsonl \
   --expected-universe-count 12345 \
   --out /tmp/confenge-outreach-out
@@ -45,6 +46,20 @@ python3 -m scripts.warmbly_bridge export-outreach \
 Re-running with the **same inputs** reuses `generated_at` from the prior
 manifest (when `snapshot_hash` matches) and leaves chunk files `unchanged`
 when content hashes match (resume / idempotency).
+
+Authoritative publication also binds `authoritative_target_membership` to the
+sorted unique `TARGET_CONFIRMED` CNPJ roots. Its `membership_hash` is SHA-256
+over one canonical eight-digit root per newline. Duplicate roots abort instead
+of creating two commercial accounts. The paired contact report must close the
+same population/hash in `EMAIL_ROUTE_READY | NO_PUBLIC_EMAIL_FOUND |
+BLOCKED_WITH_REASON`. After shared-mailbox and buyer/supplier guards, the
+manifest exposes consumer-ready `RECIPIENT_ATTRIBUTED`/`READY`, terminal
+`NO_PUBLIC_EMAIL_FOUND`/`BLOCKED_WITH_REASON`, and the preferred `route_class`
+distribution. Those terminal states close the same target denominator.
+
+Bridge module `1.1.0` hashes contact-report business content while preserving
+the raw report SHA separately. Operational clocks and cohort labels therefore
+cannot create a new snapshot or refresh an identical publication.
 
 Missing any of `--universe`, `--account-intelligence`, or `--contacts`
 exits non-zero with an explicit error — no shallow feed is written.
@@ -77,8 +92,11 @@ Chunks are ordered ascending by source watermark, computation timestamp and
 CNPJ. Import is authorized only when
 `manifest.authoritative_target_fit.coverage_complete=true`,
 `ordering.watermarks_monotonic=true` and
-`omission_preserves_authorization=false`. A smoke limit or undeclared universe
-produces a visibly partial manifest.
+`omission_preserves_authorization=false`, target membership matches the chunks,
+and contact terminal coverage closes that same membership. Buyer/supplier role
+conflicts clear every authorization-bearing route flag at the producer and are
+revalidated before the atomic `current` swap. A smoke limit or undeclared
+universe produces a visibly partial manifest.
 
 ## Serve / import chunks
 

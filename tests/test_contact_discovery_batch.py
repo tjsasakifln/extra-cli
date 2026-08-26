@@ -12,6 +12,7 @@ import pytest
 
 pytestmark = pytest.mark.real_db
 
+from scripts.confenge_target_fit.company_key import canonical_target_membership
 from scripts.crawl.worker import AdmissionLimits, admission_blockers
 from scripts.decision_unit_intelligence.batch_outcomes import (
     classify_account,
@@ -46,11 +47,7 @@ from scripts.decision_unit_intelligence.models import (
 )
 
 MIGRATION = Path(__file__).resolve().parents[1] / "db" / "migrations" / "093_contact_discovery_batch.sql"
-DSN = (
-    os.getenv("LOCAL_DATALAKE_DSN")
-    or os.getenv("TEST_DSN")
-    or "postgresql://test:test@127.0.0.1:5433/extra_test"
-)
+DSN = os.getenv("LOCAL_DATALAKE_DSN") or os.getenv("TEST_DSN") or "postgresql://test:test@127.0.0.1:5433/extra_test"
 
 
 def _skip_without_pg() -> None:
@@ -343,9 +340,7 @@ def test_canonical_population_enqueue_preserves_selection_evidence(
     payload = __import__("json").loads(capsys.readouterr().out)
     assert payload["enqueued"] == 2
     assert payload["job_ids_omitted"] == 0
-    assert payload["input_evidence_version"].startswith(
-        "target-fit.aaaaaaaaaaaaaaaa.contacts-"
-    )
+    assert payload["input_evidence_version"].startswith("target-fit.aaaaaaaaaaaaaaaa.contacts-")
     assert len(payload["contact_seed_inputs"]) == 1
     with connect(dsn) as connection:
         rows = ContactDiscoveryQueue(connection).inspect(cohort_id="c-population")
@@ -484,6 +479,10 @@ def test_complete_cohort_exports_verified_bridge_projection(dsn: str, tmp_path: 
     assert result["terminal_coverage_complete"] is True
     assert result["population_count"] == 1
     assert result["population_hash"] == "a" * 64
+    expected_membership = canonical_target_membership(["11222333000181"])
+    assert result["membership_count"] == 1
+    assert result["membership_hash"] == expected_membership["membership_hash"]
+    assert result["membership_contract_matches_population"] is True
     assert result["population_as_of"] == "2026-08-24T12:00:00Z"
     assert result["target_fit_mode"] == "SHADOW"
     assert result["target_fit_classifier_sha"] == "sha256:target-fit-test"
@@ -951,7 +950,9 @@ def test_classify_never_emits_sem_contato() -> None:
     assert classified.reason_code == "PROVIDER_TIMEOUT"
 
 
-def test_cli_enqueue_worker_progress_publish_is_idempotent(dsn: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_cli_enqueue_worker_progress_publish_is_idempotent(
+    dsn: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.setenv("LOCAL_DATALAKE_DSN", dsn)
     monkeypatch.setenv("DATABASE_URL", dsn)
     out = tmp_path / "cli-out"

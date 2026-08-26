@@ -5,12 +5,18 @@ from __future__ import annotations
 import hashlib
 import json
 import subprocess
+from collections import Counter
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from scripts.confenge_outreach_pipeline.party_role import project_contractor_role
+from scripts.confenge_outreach_pipeline.party_role import (
+    PARTY_ROLE_CONFLICT,
+    PARTY_ROLE_POLICY_V1,
+    project_contractor_role,
+)
+from scripts.confenge_target_fit.company_key import canonical_target_membership
 from scripts.confenge_target_fit.published import build_published_index_from_rows
 from scripts.crawl.run_evidence import runtime_release_sha
 from scripts.decision_unit_intelligence.controlled_email import (
@@ -55,7 +61,13 @@ def _git_sha() -> str:
         return "unknown"
 
 
-def _snapshot_hash(universe: Path, intel: Path, contacts: Path, target_fit: Path | None) -> str:
+def _snapshot_hash(
+    universe: Path,
+    intel: Path,
+    contacts: Path,
+    target_fit: Path | None,
+    contact_projection_report: Path | None,
+) -> str:
     h = hashlib.sha256()
     for p in (universe, intel, contacts, target_fit):
         if p is None:
@@ -63,6 +75,39 @@ def _snapshot_hash(universe: Path, intel: Path, contacts: Path, target_fit: Path
         h.update(p.name.encode())
         h.update(b"\0")
         h.update(p.read_bytes())
+        h.update(b"\0")
+    if contact_projection_report is not None:
+        try:
+            report = json.loads(contact_projection_report.read_bytes())
+        except (OSError, json.JSONDecodeError) as exc:
+            raise InputError(f"invalid authoritative contact projection report: {contact_projection_report}") from exc
+        if not isinstance(report, dict):
+            raise InputError("authoritative contact projection report must be a JSON object")
+        # Operational run labels and clocks are evidence, not new business data.
+        # Keep their raw SHA in the manifest, but exclude them from the source
+        # snapshot so an identical projection cannot manufacture freshness.
+        semantic_report = {
+            key: value
+            for key, value in report.items()
+            if key
+            not in {
+                "generated_at",
+                "cohort_id",
+                "code_sha",
+                "durable_reconciliation",
+            }
+        }
+        h.update(contact_projection_report.name.encode())
+        h.update(b"\0")
+        h.update(
+            json.dumps(
+                semantic_report,
+                ensure_ascii=True,
+                sort_keys=True,
+                separators=(",", ":"),
+                default=str,
+            ).encode("utf-8")
+        )
         h.update(b"\0")
     return h.hexdigest()
 
@@ -87,6 +132,7 @@ class ExportConfig:
     contacts: Path
     out_dir: Path
     target_fit_snapshot: Path | None = None
+    contact_projection_report: Path | None = None
     expected_universe_count: int | None = None
     limit: int | None = None
     max_leads_per_chunk: int = DEFAULT_MAX_LEADS_PER_CHUNK
@@ -97,6 +143,7 @@ class ExportConfig:
     generated_at: str | None = None  # inject for deterministic tests
     datalake_watermark: str | None = None
     require_authoritative_target_fit_metadata: bool = True
+    require_authoritative_contact_projection_metadata: bool = False
     repo_sha: str | None = None
     authoritative_source_freshness: dict[str, Any] | None = None
     require_authoritative_source_freshness: bool = False
@@ -111,6 +158,10 @@ def validate_inputs(cfg: ExportConfig) -> None:
     require_readable_file(cfg.contacts, label="--contacts")
     if cfg.target_fit_snapshot is not None:
         require_readable_file(cfg.target_fit_snapshot, label="--target-fit-snapshot")
+    if cfg.contact_projection_report is not None:
+        require_readable_file(cfg.contact_projection_report, label="--contact-projection-report")
+    elif cfg.require_authoritative_contact_projection_metadata:
+        raise InputError("--contact-projection-report is required for authoritative publication")
     if cfg.max_leads_per_chunk < 1:
         raise InputError("--max-leads-per-chunk must be >= 1")
     if cfg.max_bytes_per_chunk < 1024:
@@ -198,6 +249,11 @@ def _preferred_route_claims(rows: list[dict[str, Any]], *, feed_leads: bool) -> 
         cnpj = normalize_cnpj14(str(company.get("cnpj14") or company.get("cnpj") or ""))
         if not cnpj:
             continue
+        declared = row.get("preferred_email_route")
+        if isinstance(declared, dict):
+            mailbox = canonicalize_mailbox(str(declared.get("email") or ""))
+            if mailbox:
+                claims.add((cnpj, mailbox))
         for contact in row.get("contacts") or []:
             if not isinstance(contact, dict) or contact.get("preferred_initial") is not True:
                 continue
@@ -215,6 +271,11 @@ def _reconcile_preferred_route_projection(
 ) -> dict[str, Any]:
     """Reconcile output against the same identity policy used by the mapper."""
 
+    target_accounts = {
+        normalize_cnpj14(str((lead.get("company") or {}).get("cnpj14") or ""))
+        for lead in leads
+        if str(lead.get("target_fit_class") or "") == "TARGET_CONFIRMED"
+    }
     raw_expected = _preferred_route_claims(contact_rows, feed_leads=False)
     policy_input = [
         {
@@ -226,13 +287,22 @@ def _reconcile_preferred_route_projection(
         if normalize_cnpj14(str(row.get("cnpj14") or row.get("cnpj") or ""))
     ]
     normalized_rows = apply_cross_account_preferred_mailbox_gate(policy_input)
-    expected = _preferred_route_claims(normalized_rows, feed_leads=True)
+    shared_mailbox_expected = _preferred_route_claims(normalized_rows, feed_leads=True)
+    party_role_blocked_accounts = {
+        normalize_cnpj14(str((lead.get("company") or {}).get("cnpj14") or ""))
+        for lead in leads
+        if str((lead.get("contractor_role") or {}).get("target_party_role") or "") == "BUYER_CONFLICT"
+    }
+    expected = {claim for claim in shared_mailbox_expected if claim[0] not in party_role_blocked_accounts}
     observed = _preferred_route_claims(leads, feed_leads=True)
+    raw_expected = {claim for claim in raw_expected if claim[0] in target_accounts}
+    shared_mailbox_expected = {claim for claim in shared_mailbox_expected if claim[0] in target_accounts}
+    expected = {claim for claim in expected if claim[0] in target_accounts}
+    observed = {claim for claim in observed if claim[0] in target_accounts}
     if not full_snapshot:
-        output_accounts = {
-            normalize_cnpj14(str((lead.get("company") or {}).get("cnpj14") or "")) for lead in leads
-        }
+        output_accounts = {normalize_cnpj14(str((lead.get("company") or {}).get("cnpj14") or "")) for lead in leads}
         raw_expected = {claim for claim in raw_expected if claim[0] in output_accounts}
+        shared_mailbox_expected = {claim for claim in shared_mailbox_expected if claim[0] in output_accounts}
         expected = {claim for claim in expected if claim[0] in output_accounts}
     raw_expected_hash = content_hash_obj(sorted(raw_expected))
     expected_hash = content_hash_obj(sorted(expected))
@@ -244,18 +314,189 @@ def _reconcile_preferred_route_projection(
             f"missing={len(expected - observed)} unexpected={len(observed - expected)} "
             f"input_hash={expected_hash} output_hash={observed_hash}"
         )
+    raw_accounts = {account for account, _mailbox in raw_expected}
+    shared_mailbox_accounts = {account for account, _mailbox in shared_mailbox_expected}
+    expected_accounts = {account for account, _mailbox in expected}
+    observed_accounts = {account for account, _mailbox in observed}
+    output_route_classes: Counter[str] = Counter()
+    for lead in leads:
+        company = lead.get("company") if isinstance(lead.get("company"), dict) else {}
+        if normalize_cnpj14(str(company.get("cnpj14") or "")) not in target_accounts:
+            continue
+        for contact in lead.get("contacts") or []:
+            if isinstance(contact, dict) and contact.get("preferred_initial") is True:
+                output_route_classes[str(contact.get("route_class") or "UNKNOWN")] += 1
     return {
         "input_declared": bool(raw_expected),
         "scope": "FULL_INPUT" if full_snapshot else "OUTPUT_SLICE",
         "projection_policy_version": CONTROLLED_EMAIL_POLICY_VERSION,
         "raw_input_preferred_route_count": len(raw_expected),
+        "raw_input_preferred_account_count": len(raw_accounts),
         "raw_input_preferred_routes_hash": raw_expected_hash,
+        "shared_mailbox_excluded_preferred_route_count": len(raw_expected - shared_mailbox_expected),
+        "shared_mailbox_excluded_account_count": len(raw_accounts - shared_mailbox_accounts),
+        "party_role_excluded_preferred_route_count": len(shared_mailbox_expected - expected),
+        "party_role_excluded_account_count": len(shared_mailbox_accounts - expected_accounts),
         "policy_excluded_preferred_route_count": len(raw_expected - expected),
+        "policy_excluded_account_count": len(raw_accounts - expected_accounts),
         "input_preferred_route_count": len(expected),
         "output_preferred_route_count": len(observed),
+        "input_preferred_account_count": len(expected_accounts),
+        "output_preferred_account_count": len(observed_accounts),
+        "output_preferred_route_class_distribution": dict(sorted(output_route_classes.items())),
         "preferred_routes_reconciled": expected == observed if raw_expected else None,
         "input_preferred_routes_hash": expected_hash,
         "output_preferred_routes_hash": observed_hash,
+    }
+
+
+def _read_contact_projection_report(path: Path | None) -> tuple[dict[str, Any], str | None]:
+    if path is None:
+        return {}, None
+    try:
+        raw = path.read_bytes()
+        report = json.loads(raw)
+    except (OSError, json.JSONDecodeError) as exc:
+        raise InputError(f"invalid authoritative contact projection report: {path}") from exc
+    if not isinstance(report, dict):
+        raise InputError("authoritative contact projection report must be a JSON object")
+    return report, hashlib.sha256(raw).hexdigest()
+
+
+def _authoritative_contact_projection(
+    preferred_routes: dict[str, Any],
+    report: dict[str, Any],
+    *,
+    report_hash: str | None,
+    target_membership: dict[str, Any],
+    contact_rows: list[dict[str, Any]],
+    required: bool,
+) -> dict[str, Any]:
+    if not report:
+        if required:
+            raise InputError("authoritative contact projection report is required")
+        return preferred_routes
+    if report.get("schema_id") != "confenge.contact_discovery.projection_report.v1":
+        raise InputError("unsupported authoritative contact projection report schema")
+    required_metadata = (
+        "cohort_id",
+        "generated_at",
+        "population_hash",
+        "population_as_of",
+        "projection_hash",
+        "controlled_email_policy_version",
+        "policy_version",
+        "input_evidence_version",
+        "code_sha",
+    )
+    missing_metadata = [field for field in required_metadata if not str(report.get(field) or "").strip()]
+    if missing_metadata:
+        raise InputError(f"contact projection report is missing versioned source metadata: {missing_metadata}")
+    _parse_timestamp(report["generated_at"], field="contact_projection.generated_at", cnpj="authoritative-projection")
+    _parse_timestamp(
+        report["population_as_of"], field="contact_projection.population_as_of", cnpj="authoritative-projection"
+    )
+    terminal_equation = report.get("terminal_equation")
+    terminal_equation = terminal_equation if isinstance(terminal_equation, dict) else {}
+    if report.get("terminal_coverage_complete") is not True or terminal_equation.get("holds") is not True:
+        raise InputError("contact projection terminal coverage is incomplete")
+    if report.get("membership_contract_matches_population") is not True:
+        raise InputError("contact projection membership does not match its population contract")
+    if int(report.get("population_count") or -1) != int(target_membership["population_count"]):
+        raise InputError("contact projection population_count does not match TARGET_CONFIRMED membership")
+    if int(report.get("membership_count") or -1) != int(target_membership["population_count"]):
+        raise InputError("contact projection membership_count does not match TARGET_CONFIRMED membership")
+    if str(report.get("membership_hash") or "") != str(target_membership["membership_hash"]):
+        raise InputError("contact projection membership_hash does not match TARGET_CONFIRMED membership")
+    if str(report.get("membership_schema_version") or "") != str(target_membership["schema_version"]):
+        raise InputError("contact projection membership schema does not match TARGET_CONFIRMED membership")
+    if str(report.get("membership_identity_key") or "") != str(target_membership["identity_key"]):
+        raise InputError("contact projection identity key does not match TARGET_CONFIRMED membership")
+    if str(report.get("membership_hash_algorithm") or "") != str(target_membership["hash_algorithm"]):
+        raise InputError("contact projection hash algorithm does not match TARGET_CONFIRMED membership")
+    integrity_failures = report.get("integrity_failures")
+    if isinstance(integrity_failures, dict) and any(int(value or 0) for value in integrity_failures.values()):
+        raise InputError("contact projection contains integrity failures")
+
+    raw_states = report.get("enrichment_states")
+    states = raw_states if isinstance(raw_states, dict) else {}
+    allowed = {"EMAIL_ROUTE_READY", "NO_PUBLIC_EMAIL_FOUND", "BLOCKED_WITH_REASON"}
+    unexpected = sorted(set(states) - allowed)
+    if unexpected:
+        raise InputError(f"contact projection contains non-terminal states: {unexpected}")
+    state_counts = {name: int(states.get(name) or 0) for name in sorted(allowed)}
+    if sum(state_counts.values()) != int(target_membership["population_count"]):
+        raise InputError("contact projection terminal states do not close the TARGET_CONFIRMED denominator")
+    if int(report.get("accounts_with_preferred_route") or 0) != state_counts["EMAIL_ROUTE_READY"]:
+        raise InputError("contact projection EMAIL_ROUTE_READY does not match preferred-route accounts")
+    if state_counts["EMAIL_ROUTE_READY"] and preferred_routes.get("input_declared") is not True:
+        raise InputError("contact projection EMAIL_ROUTE_READY lacks declared preferred routes")
+    if int(preferred_routes.get("raw_input_preferred_account_count") or 0) != state_counts["EMAIL_ROUTE_READY"]:
+        raise InputError("declared preferred-route accounts do not match contact EMAIL_ROUTE_READY accounts")
+
+    terminal_rows = [row for row in contact_rows if str(row.get("enrichment_state") or "") in allowed]
+    try:
+        observed_contact_membership = canonical_target_membership(
+            [str(row.get("cnpj14") or row.get("canonical_account_id") or "") for row in terminal_rows]
+        )
+    except ValueError as exc:
+        raise InputError(str(exc)) from exc
+    if observed_contact_membership["membership_hash"] != target_membership["membership_hash"]:
+        raise InputError("contact projection rows do not match TARGET_CONFIRMED membership")
+    observed_states = Counter(str(row.get("enrichment_state")) for row in terminal_rows)
+    if {name: int(observed_states.get(name) or 0) for name in sorted(allowed)} != state_counts:
+        raise InputError("contact projection row states do not match its report")
+    if any(
+        row.get("preferred_email_route") for row in terminal_rows if row.get("enrichment_state") != "EMAIL_ROUTE_READY"
+    ):
+        raise InputError("non-ready contact terminal carries a preferred route")
+
+    ready = int(preferred_routes.get("output_preferred_account_count") or 0)
+    policy_blocked = state_counts["EMAIL_ROUTE_READY"] - ready
+    if policy_blocked < 0:
+        raise InputError("published preferred-route accounts exceed contact EMAIL_ROUTE_READY accounts")
+    publication_blockers = {
+        **(report.get("blockers") or {}),
+        "SHARED_MAILBOX_CONFLICT": int(preferred_routes.get("shared_mailbox_excluded_account_count") or 0),
+        "PARTY_ROLE_CONFLICT": int(preferred_routes.get("party_role_excluded_account_count") or 0),
+    }
+    return {
+        **preferred_routes,
+        "schema_id": report["schema_id"],
+        "report_sha256": report_hash,
+        "cohort_id": report.get("cohort_id"),
+        "generated_at": report.get("generated_at"),
+        "coverage_complete": True,
+        "terminal_coverage_complete": True,
+        "terminal_equation": terminal_equation,
+        "population_count": int(report["population_count"]),
+        "population_hash": report.get("population_hash"),
+        "population_as_of": report.get("population_as_of"),
+        "membership_schema_version": report.get("membership_schema_version"),
+        "membership_identity_key": report.get("membership_identity_key"),
+        "membership_count": int(report["membership_count"]),
+        "membership_hash": report.get("membership_hash"),
+        "membership_hash_algorithm": report.get("membership_hash_algorithm"),
+        "enrichment_states": state_counts,
+        "recipient_states": {
+            "RECIPIENT_ATTRIBUTED": ready,
+            "READY": ready,
+            "NO_PUBLIC_EMAIL_FOUND": state_counts["NO_PUBLIC_EMAIL_FOUND"],
+            "BLOCKED_WITH_REASON": state_counts["BLOCKED_WITH_REASON"] + policy_blocked,
+        },
+        "policy_blocked_from_ready": policy_blocked,
+        "blockers": report.get("blockers") or {},
+        "publication_blockers": dict(sorted(publication_blockers.items())),
+        "accounts_with_any_email": int(report.get("accounts_with_any_email") or 0),
+        "accounts_with_preferred_route": int(report.get("accounts_with_preferred_route") or 0),
+        "route_class_distribution": report.get("route_class_distribution") or {},
+        "preferred_route_class_distribution": report.get("preferred_route_class_distribution") or {},
+        "provenance_source_distribution": report.get("provenance_source_distribution") or {},
+        "projection_hash": report.get("projection_hash"),
+        "controlled_email_policy_version": report.get("controlled_email_policy_version"),
+        "discovery_policy_version": report.get("policy_version"),
+        "input_evidence_version": report.get("input_evidence_version"),
+        "code_sha": report.get("code_sha"),
     }
 
 
@@ -296,6 +537,94 @@ def _attach_contractor_roles(leads: list[dict[str, Any]], *, run_id: str, observ
         )
 
 
+def _apply_contractor_role_gate(leads: list[dict[str, Any]]) -> dict[str, Any]:
+    """Make a buyer/supplier conflict non-authorizing at the producer boundary."""
+
+    role_distribution: Counter[str] = Counter()
+    status_distribution: Counter[str] = Counter()
+    conflict_authorizations_removed = 0
+    for lead in leads:
+        role = lead.get("contractor_role")
+        if not isinstance(role, dict):
+            raise InputError("every lead requires a typed contractor_role")
+        if role.get("policy_version") != PARTY_ROLE_POLICY_V1:
+            raise InputError("unsupported or missing contractor role policy version")
+        target_role = str(role.get("target_party_role") or "UNKNOWN")
+        status = str(role.get("status") or "UNKNOWN")
+        if str(lead.get("target_fit_class") or "") == "TARGET_CONFIRMED":
+            role_distribution[target_role] += 1
+            status_distribution[status] += 1
+        if status != PARTY_ROLE_CONFLICT and target_role != "BUYER_CONFLICT":
+            continue
+
+        lead["contractor_role_eligible"] = False
+        lead["outreach_block_reason"] = "PARTY_ROLE_CONFLICT"
+        lead["email_send_ready"] = False
+        lead["preferred_email_route"] = None
+        for contact in lead.get("contacts") or []:
+            if not isinstance(contact, dict):
+                continue
+            if any(
+                contact.get(field) is True
+                for field in (
+                    "controlled_email_eligible",
+                    "email_send_ready",
+                    "enrollable",
+                    "preferred_initial",
+                    "recommended",
+                )
+            ):
+                conflict_authorizations_removed += 1
+            contact["controlled_email_eligible"] = False
+            contact["email_send_ready"] = False
+            contact["enrollable"] = False
+            contact["preferred_initial"] = False
+            contact["recommended"] = False
+            contact["outreach_block_reason"] = "PARTY_ROLE_CONFLICT"
+
+    return {
+        "policy_version": PARTY_ROLE_POLICY_V1,
+        "target_party_role_distribution": dict(sorted(role_distribution.items())),
+        "status_distribution": dict(sorted(status_distribution.items())),
+        "supplier_confirmed_count": int(role_distribution.get("SUPPLIER") or 0),
+        "unknown_role_count": int(role_distribution.get("UNKNOWN") or 0),
+        "buyer_conflict_count": int(role_distribution.get("BUYER_CONFLICT") or 0),
+        "conflict_authorizations_removed": conflict_authorizations_removed,
+        "buyer_supplier_conflict_fails_closed": True,
+    }
+
+
+def _target_membership_contract(
+    leads: list[dict[str, Any]],
+    *,
+    party_roles: dict[str, Any],
+    coverage_complete: bool,
+) -> dict[str, Any]:
+    confirmed = [lead for lead in leads if str(lead.get("target_fit_class") or "") == "TARGET_CONFIRMED"]
+    try:
+        membership = canonical_target_membership(
+            [str((lead.get("company") or {}).get("cnpj14") or "") for lead in confirmed]
+        )
+    except ValueError as exc:
+        raise InputError(str(exc)) from exc
+    versions = sorted({str(lead.get("target_fit_version") or "") for lead in confirmed})
+    if "" in versions:
+        raise InputError("TARGET_CONFIRMED membership contains a missing target_fit_version")
+    return {
+        **membership,
+        "target_fit_class": "TARGET_CONFIRMED",
+        "target_confirmed_count": membership["population_count"],
+        "supplier_confirmed_count": party_roles["supplier_confirmed_count"],
+        "source_member_count": len(confirmed),
+        "membership_complete": coverage_complete,
+        "target_fit_policy_versions": versions,
+        "contractor_role_policy_version": party_roles["policy_version"],
+        "target_party_role_distribution": party_roles["target_party_role_distribution"],
+        "contractor_role_status_distribution": party_roles["status_distribution"],
+        "buyer_supplier_conflict_fails_closed": party_roles["buyer_supplier_conflict_fails_closed"],
+    }
+
+
 def _decision_order_key(lead: dict[str, Any]) -> tuple[datetime, datetime, str, str]:
     cnpj = str((lead.get("company") or {}).get("cnpj14") or "")
     return (
@@ -329,7 +658,15 @@ def _assert_authoritative_leads(leads: list[dict[str, Any]]) -> dict[str, Any]:
     order_keys: list[tuple[datetime, datetime, str, str]] = []
     seen: set[str] = set()
     for lead in leads:
-        cnpj = str((lead.get("company") or {}).get("cnpj14") or "")
+        company = lead.get("company") if isinstance(lead.get("company"), dict) else {}
+        cnpj = str(company.get("cnpj14") or "")
+        canonical = normalize_cnpj14(cnpj)
+        if not canonical or canonical != cnpj:
+            raise InputError(f"non-canonical company.cnpj14 in authoritative feed: {cnpj!r}")
+        declared_root = str(company.get("cnpj_root") or "").strip()
+        if declared_root and declared_root != cnpj[:8]:
+            raise InputError(f"company.cnpj_root does not match canonical CNPJ14 for {cnpj}: {declared_root!r}")
+        company["cnpj_root"] = cnpj[:8]
         missing = [field for field in required if field not in lead or lead[field] is None]
         if missing:
             raise InputError(f"authoritative target-fit decision incomplete for {cnpj}: {missing}")
@@ -424,6 +761,9 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
     universe_rows = read_jsonl(cfg.universe, label="--universe")
     intel_rows = read_jsonl(cfg.account_intelligence, label="--account-intelligence")
     contact_rows = read_jsonl(cfg.contacts, label="--contacts")
+    contact_projection_report, contact_projection_report_hash = _read_contact_projection_report(
+        cfg.contact_projection_report
+    )
 
     if not universe_rows:
         raise InputError("--universe has no records; refusing empty shallow export")
@@ -436,6 +776,7 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
         cfg.account_intelligence,
         cfg.contacts,
         cfg.target_fit_snapshot,
+        cfg.contact_projection_report,
     )
     freshness = dict(cfg.authoritative_source_freshness or {})
     freshness_hash = content_hash_obj(freshness) if freshness else None
@@ -517,11 +858,30 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
     leads.sort(key=_decision_order_key)
     if cfg.limit is not None:
         leads = leads[: cfg.limit]
+    party_role_projection = _apply_contractor_role_gate(leads)
+    coverage_complete = bool(
+        cfg.expected_universe_count is not None
+        and cfg.limit is None
+        and len(leads) == len(universe_rows) == cfg.expected_universe_count
+    )
     ordering = _assert_authoritative_leads(leads)
     preferred_route_projection = _reconcile_preferred_route_projection(
         contact_rows,
         leads,
         full_snapshot=cfg.limit is None,
+    )
+    target_membership = _target_membership_contract(
+        leads,
+        party_roles=party_role_projection,
+        coverage_complete=coverage_complete,
+    )
+    contact_projection = _authoritative_contact_projection(
+        preferred_route_projection,
+        contact_projection_report,
+        report_hash=contact_projection_report_hash,
+        target_membership=target_membership,
+        contact_rows=contact_rows,
+        required=cfg.require_authoritative_contact_projection_metadata,
     )
 
     source = {
@@ -610,11 +970,6 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
             stale.unlink(missing_ok=True)
 
     deacts = list(cfg.deactivations or [])
-    coverage_complete = bool(
-        cfg.expected_universe_count is not None
-        and cfg.limit is None
-        and len(leads) == len(universe_rows) == cfg.expected_universe_count
-    )
     manifest = {
         "schema_version": "confenge.outreach.manifest.v1",
         "module_version": MODULE_VERSION,
@@ -624,6 +979,9 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
             "universe": str(cfg.universe.resolve()),
             "account_intelligence": str(cfg.account_intelligence.resolve()),
             "contacts": str(cfg.contacts.resolve()),
+            "contact_projection_report": (
+                str(cfg.contact_projection_report.resolve()) if cfg.contact_projection_report is not None else None
+            ),
             "target_fit_snapshot": (
                 str(cfg.target_fit_snapshot.resolve())
                 if cfg.target_fit_snapshot is not None
@@ -645,7 +1003,9 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
             "ordering": ordering,
         },
         "authoritative_source_freshness": freshness or None,
-        "authoritative_contact_projection": preferred_route_projection,
+        "authoritative_target_membership": target_membership,
+        "authoritative_party_roles": party_role_projection,
+        "authoritative_contact_projection": contact_projection,
         "chunks": chunk_meta,
         # Approach B: explicit deactivation delta (idempotent; Warmbly applies without DB coupling)
         "deactivations": deacts,
@@ -681,7 +1041,8 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
         "snapshot_hash": snapshot_hash,
         "lead_count": len(leads),
         "chunk_count": len(chunk_meta),
-        "authoritative_contact_projection": preferred_route_projection,
+        "authoritative_target_membership": target_membership,
+        "authoritative_contact_projection": contact_projection,
         "manifest": str(manifest_path.resolve()),
         "chunks": chunk_meta,
     }

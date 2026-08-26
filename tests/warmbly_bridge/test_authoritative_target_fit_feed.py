@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import json
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
 import pytest
 
+from scripts.confenge_target_fit.company_key import canonical_cnpj14, canonical_target_membership
 from scripts.warmbly_bridge.export import ExportConfig, export_outreach
 from scripts.warmbly_bridge.io_jsonl import InputError
 
@@ -59,6 +61,10 @@ def _export(
     target_fit: list[dict[str, Any]],
     suffix: str,
     datalake_watermark: str | None = None,
+    authoritative_contact_report: bool = False,
+    contact_membership_hash: str | None = None,
+    contact_coverage_complete: bool = True,
+    no_public_email_cnpjs: set[str] | None = None,
 ) -> tuple[Path, list[dict[str, Any]]]:
     source = tmp_path / suffix
     source.mkdir()
@@ -163,19 +169,88 @@ def _export(
         for index, row in enumerate(universe)
     ]
     intel_path = _write_jsonl(source / "intelligence.jsonl", intelligence)
+    if authoritative_contact_report:
+        confirmed_cnpjs = {
+            canonical_cnpj14(row["cnpj14"]) for row in target_fit if row.get("target_fit_class") == "TARGET_CONFIRMED"
+        }
+        for row in contacts:
+            if canonical_cnpj14(row["cnpj14"]) in confirmed_cnpjs:
+                if canonical_cnpj14(row["cnpj14"]) in (no_public_email_cnpjs or set()):
+                    row["contacts"] = []
+                    row["enrichment_state"] = "NO_PUBLIC_EMAIL_FOUND"
+                    row["preferred_email_route"] = None
+                else:
+                    row["enrichment_state"] = "EMAIL_ROUTE_READY"
+                    row["contacts"][1]["preferred_initial"] = True
+                    row["contacts"][1]["recommended"] = True
+                    row["contacts"][1]["controlled_email_eligible"] = True
+                    row["preferred_email_route"] = {
+                        "email": row["contacts"][1]["email"],
+                        "route_class": "DIRECT_PERSON",
+                    }
     contacts_path = _write_jsonl(source / "contacts.jsonl", contacts)
+    contact_report_path: Path | None = None
+    if authoritative_contact_report:
+        confirmed = [
+            canonical_cnpj14(row["cnpj14"]) for row in target_fit if row.get("target_fit_class") == "TARGET_CONFIRMED"
+        ]
+        membership = canonical_target_membership(confirmed)
+        terminal_states = Counter(str(row.get("enrichment_state")) for row in contacts if row.get("enrichment_state"))
+        contact_report_path = source / "contact-projection-report.json"
+        contact_report_path.write_text(
+            json.dumps(
+                {
+                    "schema_id": "confenge.contact_discovery.projection_report.v1",
+                    "generated_at": NOW,
+                    "cohort_id": "test-contact-cohort",
+                    "population_count": membership["population_count"],
+                    "population_hash": "f" * 64,
+                    "population_as_of": NOW,
+                    "membership_schema_version": membership["schema_version"],
+                    "membership_identity_key": membership["identity_key"],
+                    "membership_count": membership["population_count"],
+                    "membership_hash": contact_membership_hash or membership["membership_hash"],
+                    "membership_hash_algorithm": membership["hash_algorithm"],
+                    "membership_contract_matches_population": True,
+                    "terminal_coverage_complete": contact_coverage_complete,
+                    "terminal_equation": {"holds": contact_coverage_complete},
+                    "enrichment_states": dict(terminal_states),
+                    "integrity_failures": {},
+                    "blockers": {},
+                    "accounts_with_any_email": sum(
+                        bool(row["contacts"]) for row in contacts if canonical_cnpj14(row["cnpj14"]) in confirmed_cnpjs
+                    ),
+                    "accounts_with_preferred_route": sum(
+                        bool(row.get("preferred_email_route"))
+                        for row in contacts
+                        if canonical_cnpj14(row["cnpj14"]) in confirmed_cnpjs
+                    ),
+                    "route_class_distribution": {"DIRECT_PERSON": membership["population_count"]},
+                    "preferred_route_class_distribution": {"DIRECT_PERSON": membership["population_count"]},
+                    "provenance_source_distribution": {"site": membership["population_count"]},
+                    "projection_hash": "e" * 64,
+                    "controlled_email_policy_version": "controlled-email-policy.v3",
+                    "policy_version": "dui.policy.v1",
+                    "input_evidence_version": "target-fit.test",
+                    "code_sha": "authoritative-test",
+                }
+            ),
+            encoding="utf-8",
+        )
     out = source / "feed"
     result = export_outreach(
         ExportConfig(
             universe=universe_path,
             account_intelligence=intel_path,
             contacts=contacts_path,
+            contact_projection_report=contact_report_path,
             target_fit_snapshot=target_fit_path,
             expected_universe_count=len(universe),
             out_dir=out,
             generated_at=NOW,
             datalake_watermark=datalake_watermark,
             repo_sha="authoritative-test",
+            require_authoritative_contact_projection_metadata=authoritative_contact_report,
             max_leads_per_chunk=3,
         )
     )
@@ -259,6 +334,197 @@ def test_full_snapshot_publishes_negative_decisions_and_temporal_order(tmp_path:
     assert authority["full_decision_count"] == len(universe)
     assert authority["ordering"]["watermarks_monotonic"] is True
     assert authority["omission_preserves_authorization"] is False
+
+
+def test_authoritative_contact_membership_is_bound_into_manifest(tmp_path: Path) -> None:
+    cnpj = "11222333000181"
+    out, _ = _export(
+        tmp_path,
+        universe=[{"cnpj14": cnpj, "razao_social": "ALFA ENGENHARIA", "commercial_state": "NEW"}],
+        target_fit=[_decision(cnpj, "TARGET_CONFIRMED", evidence_ids=["contract-1"])],
+        suffix="contact-membership",
+        authoritative_contact_report=True,
+    )
+
+    manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+    membership = manifest["authoritative_target_membership"]
+    contact = manifest["authoritative_contact_projection"]
+    expected = canonical_target_membership([cnpj])
+    assert membership["population_count"] == 1
+    assert membership["membership_hash"] == expected["membership_hash"]
+    assert contact["terminal_coverage_complete"] is True
+    assert contact["membership_hash"] == membership["membership_hash"]
+    assert contact["recipient_states"] == {
+        "RECIPIENT_ATTRIBUTED": 1,
+        "READY": 1,
+        "NO_PUBLIC_EMAIL_FOUND": 0,
+        "BLOCKED_WITH_REASON": 0,
+    }
+
+
+def test_missing_contact_remains_in_target_denominator(tmp_path: Path) -> None:
+    ready = "11222333000181"
+    no_public = "22333444000172"
+    out, leads = _export(
+        tmp_path,
+        universe=[
+            {"cnpj14": ready, "razao_social": "ALFA ENGENHARIA", "commercial_state": "NEW"},
+            {"cnpj14": no_public, "razao_social": "BETA ENGENHARIA", "commercial_state": "NEW"},
+        ],
+        target_fit=[
+            _decision(ready, "TARGET_CONFIRMED", evidence_ids=["contract-1"]),
+            _decision(no_public, "TARGET_CONFIRMED", evidence_ids=["contract-2"]),
+        ],
+        suffix="missing-contact-denominator",
+        authoritative_contact_report=True,
+        no_public_email_cnpjs={no_public},
+    )
+
+    manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["authoritative_target_membership"]["population_count"] == 2
+    assert manifest["authoritative_contact_projection"]["recipient_states"] == {
+        "RECIPIENT_ATTRIBUTED": 1,
+        "READY": 1,
+        "NO_PUBLIC_EMAIL_FOUND": 1,
+        "BLOCKED_WITH_REASON": 0,
+    }
+    missing = next(lead for lead in leads if lead["company"]["cnpj14"] == no_public)
+    assert missing["target_fit_class"] == "TARGET_CONFIRMED"
+    assert missing["contacts"] == []
+
+
+def test_non_target_contact_does_not_inflate_recipient_denominator(tmp_path: Path) -> None:
+    target = "11222333000181"
+    out_of_scope = "22333444000172"
+    out, _leads = _export(
+        tmp_path,
+        universe=[
+            {"cnpj14": target, "razao_social": "ALFA ENGENHARIA", "commercial_state": "NEW"},
+            {"cnpj14": out_of_scope, "razao_social": "BETA VAREJO", "commercial_state": "NEW"},
+        ],
+        target_fit=[
+            _decision(target, "TARGET_CONFIRMED", evidence_ids=["contract-1"]),
+            _decision(out_of_scope, "TARGET_OUT_OF_SCOPE", evidence_ids=["contract-2"]),
+        ],
+        suffix="non-target-contact",
+        authoritative_contact_report=True,
+    )
+
+    manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["authoritative_target_membership"]["population_count"] == 1
+    assert manifest["authoritative_contact_projection"]["recipient_states"]["RECIPIENT_ATTRIBUTED"] == 1
+
+
+def test_contact_report_clock_only_change_keeps_snapshot_and_generated_at(tmp_path: Path) -> None:
+    cnpj = "11222333000181"
+    out, _ = _export(
+        tmp_path,
+        universe=[{"cnpj14": cnpj, "razao_social": "ALFA ENGENHARIA", "commercial_state": "NEW"}],
+        target_fit=[_decision(cnpj, "TARGET_CONFIRMED", evidence_ids=["contract-1"])],
+        suffix="contact-report-clock",
+        authoritative_contact_report=True,
+    )
+    first = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+    report_path = out.parent / "contact-projection-report.json"
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    report["generated_at"] = "2026-08-13T12:00:00Z"
+    report["cohort_id"] = "retry-with-identical-facts"
+    report["code_sha"] = "new-runtime-only"
+    report_path.write_text(json.dumps(report), encoding="utf-8")
+
+    second_result = export_outreach(
+        ExportConfig(
+            universe=out.parent / "universe.jsonl",
+            account_intelligence=out.parent / "intelligence.jsonl",
+            contacts=out.parent / "contacts.jsonl",
+            contact_projection_report=report_path,
+            target_fit_snapshot=out.parent / "target-fit.jsonl",
+            expected_universe_count=1,
+            out_dir=out,
+            generated_at=None,
+            datalake_watermark=NOW,
+            repo_sha=None,
+            require_authoritative_contact_projection_metadata=True,
+        )
+    )
+    second = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+
+    assert second_result["snapshot_hash"] == first["source"]["snapshot_hash"]
+    assert second["generated_at"] == first["generated_at"]
+    assert (
+        second["authoritative_contact_projection"]["report_sha256"]
+        != first["authoritative_contact_projection"]["report_sha256"]
+    )
+
+
+@pytest.mark.parametrize(
+    ("membership_hash", "coverage_complete", "message"),
+    [
+        ("0" * 64, True, "membership_hash"),
+        (None, False, "terminal coverage"),
+    ],
+)
+def test_authoritative_contact_report_must_match_closed_membership(
+    tmp_path: Path,
+    membership_hash: str | None,
+    coverage_complete: bool,
+    message: str,
+) -> None:
+    cnpj = "11222333000181"
+    with pytest.raises(InputError, match=message):
+        _export(
+            tmp_path,
+            universe=[{"cnpj14": cnpj, "razao_social": "ALFA ENGENHARIA", "commercial_state": "NEW"}],
+            target_fit=[_decision(cnpj, "TARGET_CONFIRMED", evidence_ids=["contract-1"])],
+            suffix=f"contact-report-{coverage_complete}-{membership_hash is not None}",
+            authoritative_contact_report=True,
+            contact_membership_hash=membership_hash,
+            contact_coverage_complete=coverage_complete,
+        )
+
+
+def test_duplicate_target_roots_fail_before_export(tmp_path: Path) -> None:
+    universe = [
+        {"cnpj14": "11222333000181", "razao_social": "ALFA MATRIZ", "commercial_state": "NEW"},
+        {"cnpj14": "11222333000262", "razao_social": "ALFA FILIAL", "commercial_state": "NEW"},
+    ]
+    target_fit = [_decision(row["cnpj14"], "TARGET_CONFIRMED", evidence_ids=[row["cnpj14"]]) for row in universe]
+
+    with pytest.raises(InputError, match="duplicate CNPJ roots"):
+        _export(tmp_path, universe=universe, target_fit=target_fit, suffix="duplicate-roots")
+
+
+def test_buyer_supplier_conflict_removes_all_route_authorization(tmp_path: Path) -> None:
+    cnpj = "11222333000181"
+    out, leads = _export(
+        tmp_path,
+        universe=[
+            {
+                "cnpj14": cnpj,
+                "razao_social": "ORGAO CONFLITANTE",
+                "commercial_state": "NEW",
+                "contracts": [
+                    {
+                        "id": "contract-conflict",
+                        "supplier_cnpj14": cnpj,
+                        "buyer_cnpj14": cnpj,
+                        "supplier_role": "CONTRATADA",
+                        "buyer_role": "CONTRATANTE",
+                    }
+                ],
+            }
+        ],
+        target_fit=[_decision(cnpj, "TARGET_CONFIRMED", evidence_ids=["contract-conflict"])],
+        suffix="buyer-conflict",
+    )
+
+    lead = leads[0]
+    assert lead["contractor_role"]["target_party_role"] == "BUYER_CONFLICT"
+    assert lead["email_send_ready"] is False
+    assert not any(contact.get("preferred_initial") for contact in lead["contacts"])
+    assert not any(contact.get("controlled_email_eligible") for contact in lead["contacts"])
+    manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["authoritative_party_roles"]["buyer_supplier_conflict_fails_closed"] is True
 
 
 def test_target_confirmed_does_not_override_explicit_non_construction(
