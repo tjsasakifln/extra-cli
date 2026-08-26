@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -13,6 +12,33 @@ import pytest
 from scripts.golden_path import run_snapshot_reconciliation
 
 pytestmark = pytest.mark.real_db
+
+
+def _dsn_with_bid() -> str:
+    from scripts.testing.real_db_guard import admit_ready_connection
+
+    conn, dsn = admit_ready_connection(
+        required_tables=("pncp_raw_bids",),
+        context="golden_path_snapshot",
+    )
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO pncp_raw_bids (
+                    pncp_id, objeto_compra, uf, source, content_hash,
+                    is_active, synthetic_id
+                ) VALUES (
+                    'REALDB-SNAPSHOT-001', 'snapshot deterministic seed', 'SC',
+                    'real_db_test', %s, TRUE, TRUE
+                ) ON CONFLICT (pncp_id) DO UPDATE SET is_active = TRUE
+                """,
+                ("e" * 64,),
+            )
+        conn.commit()
+    finally:
+        conn.close()
+    return dsn
 
 
 def test_help_documents_execute_snapshot_only() -> None:
@@ -28,19 +54,7 @@ def test_help_documents_execute_snapshot_only() -> None:
 
 
 def test_snapshot_baseline_then_stable(tmp_path: Path) -> None:
-    dsn = os.getenv("LOCAL_DATALAKE_DSN", "postgresql://test:test@127.0.0.1:5433/extra_test")
-    try:
-        import psycopg2
-
-        conn = psycopg2.connect(dsn, connect_timeout=3)
-        with conn.cursor() as cur:
-            cur.execute("SELECT count(*) FROM pncp_raw_bids")
-            n = int(cur.fetchone()[0])
-        conn.close()
-        if n == 0:
-            pytest.skip("pncp_raw_bids empty — run crawl first")
-    except Exception:
-        pytest.skip("no local test-db")
+    dsn = _dsn_with_bid()
 
     snap_dir = tmp_path / "snapshots"
     r1 = run_snapshot_reconciliation(dsn, snapshot_dir=snap_dir)
@@ -59,19 +73,7 @@ def test_snapshot_baseline_then_stable(tmp_path: Path) -> None:
 
 
 def test_snapshot_detects_removed_id(tmp_path: Path) -> None:
-    dsn = os.getenv("LOCAL_DATALAKE_DSN", "postgresql://test:test@127.0.0.1:5433/extra_test")
-    try:
-        import psycopg2
-
-        conn = psycopg2.connect(dsn, connect_timeout=3)
-        with conn.cursor() as cur:
-            cur.execute("SELECT count(*) FROM pncp_raw_bids")
-            n = int(cur.fetchone()[0])
-        conn.close()
-        if n == 0:
-            pytest.skip("pncp_raw_bids empty — run crawl first")
-    except Exception:
-        pytest.skip("no local test-db")
+    dsn = _dsn_with_bid()
 
     snap_dir = tmp_path / "snap2"
     r1 = run_snapshot_reconciliation(dsn, snapshot_dir=snap_dir)

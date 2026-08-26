@@ -51,6 +51,7 @@ help:
 	@echo '── Testes ─────────────────────────────────────────────────────────'
 	@echo '  test           Roda testes (exceto slow) com cobertura'
 	@echo '  test-all       Roda todos os testes (inclui slow) com cobertura'
+	@echo '  test-real-db   Roda -m real_db 2x em DBs novos (normal + inversa)'
 	@echo '  resilient-smoke       Contrato/fail-closed/checkpoint/DLQ/chaos controlado'
 	@echo '  resilient-local-cycle Ciclo canônico local com fixtures (sem VPS/internet)'
 	@echo '  resilience-gate       Gate completo de prontidão técnica pré-VPS'
@@ -165,6 +166,12 @@ test-all:
 	@echo '==> [$(ENV)] Canonical full suite (no slow exclusion; isolated DSN required)'
 	@test -n "$${DATABASE_URL}$${LOCAL_DATALAKE_DSN}" || (echo 'DATABASE_URL or LOCAL_DATALAKE_DSN required for make test-all' && exit 2)
 	python -m scripts.ops.run_full_suite
+
+.PHONY: test-real-db
+test-real-db:
+	@echo '==> [$(ENV)] real_db isolado (2 execuções: ordem normal + inversa)'
+	@test -n "$${DATABASE_URL}$${LOCAL_DATALAKE_DSN}" || (echo 'DATABASE_URL or LOCAL_DATALAKE_DSN required for make test-real-db' && exit 2)
+	python -m scripts.ops.run_full_suite --real-db-only --repeat 2
 
 .PHONY: resilient-smoke
 resilient-smoke:

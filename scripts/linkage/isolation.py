@@ -32,6 +32,7 @@ FORBIDDEN_PATH_MARKERS = (
 # Allowed local isolated hosts/ports for this campaign
 ALLOWED_LOCAL_HOSTS = ("127.0.0.1", "localhost", "::1")
 PREFERRED_PORTS = (5438,)
+GENERATED_TEST_DB_PREFIX = "extra_real_db_"
 
 
 @dataclass
@@ -105,8 +106,9 @@ def check_dsn(dsn: str | None, *, require_isolated_port: bool = True) -> Isolati
     if host and host not in ALLOWED_LOCAL_HOSTS:
         hits.append(f"non_local_host:{host}")
 
-    if require_isolated_port and port is not None and port not in PREFERRED_PORTS:
-        # Campaign isolation: only preferred local RC ports are accepted.
+    generated_database = bool(db and db.startswith(GENERATED_TEST_DB_PREFIX))
+    if require_isolated_port and port is not None and port not in PREFERRED_PORTS and not generated_database:
+        # A unique database-per-run is stronger isolation than a fixed port.
         hits.append(f"port_not_isolated:{port}")
         reasons.append(f"port_{port}_not_preferred_5438")
 
@@ -120,11 +122,11 @@ def check_dsn(dsn: str | None, *, require_isolated_port: bool = True) -> Isolati
         and not policy_fail
         and bool(host)
         and host in ALLOWED_LOCAL_HOSTS
-        and (not require_isolated_port or port in PREFERRED_PORTS or port is None)
+        and (not require_isolated_port or port in PREFERRED_PORTS or port is None or generated_database)
     )
 
     if ok:
-        reasons.append("local_isolated_dsn")
+        reasons.append("local_database_per_run" if generated_database else "local_isolated_dsn")
     else:
         reasons.append("isolation_failed")
 

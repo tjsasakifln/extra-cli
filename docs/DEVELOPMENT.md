@@ -2,7 +2,7 @@
 
 **Path canônico:** `docs/DEVELOPMENT.md`  
 **Status:** canônico (DoD §32.1)  
-**Atualizado:** 2026-07-25  
+**Atualizado:** 2026-08-26
 **Precedência em conflito:** `DOD.md` → ADR vigente → código testado → evidência reproduzível.  
 **Contrato de entry-points:** `docs/canonical-entry-points.yaml`  
 **Onboarding / visão de produto:** `README.md`  
@@ -59,10 +59,15 @@ python3 -m scripts.ops.source_contract_tests --json
 #     é preflight acionável (DB_UNAVAILABLE / DB_REACHABLE_SCHEMA_MISSING), não skip.
 #   Sem opt-in: skip rápido com o reason code nomeado (nunca hang, nunca UndefinedTable tardio).
 #   Banco plenamente migrado: DB_READY e os testes reais executam.
-# Porta 5436 NÃO é exclusiva — o DSN canônico vence.
-export REQUIRE_REAL_DB=1
+# O entrypoint cria um banco local irmão por execução, aplica todas as migrations
+# e seeds obrigatórias, valida conexão/ledger/fixtures e executa a seleção duas
+# vezes: ordem normal e inversa. O usuário do DSN precisa de CREATEDB.
+# `psql` não é requisito: a administração usa o psycopg2 canônico.
 export LOCAL_DATALAKE_DSN="${LOCAL_DATALAKE_DSN:-postgresql://test:test@127.0.0.1:5433/extra_test}"
-python3 -m pytest tests/ -m real_db -q --tb=short
+python3 -m scripts.ops.run_full_suite --real-db-only --repeat 2
+
+# Diagnóstico equivalente dentro de um DSN isolado já migrado/semeado:
+# REQUIRE_REAL_DB=1 python3 -m pytest tests/ -m real_db -q --tb=short
 
 # Golden path (fail-closed — prova técnica de pipeline)
 python3 -m scripts.golden_path --dsn "$LOCAL_DATALAKE_DSN"

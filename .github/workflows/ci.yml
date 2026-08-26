@@ -274,6 +274,9 @@ jobs:
       - name: Canonical full suite (migrations + seeds + pytest no marker exclusion)
         run: python -m scripts.ops.run_full_suite
 
+      - name: Canonical real_db twice (fresh DB, normal + reverse order)
+        run: python -m scripts.ops.run_full_suite --real-db-only --repeat 2
+
   # ============================================================================
   # RESILIENCE GATE — pre-VPS truth (fail-closed, no continue-on-error)
   # ============================================================================

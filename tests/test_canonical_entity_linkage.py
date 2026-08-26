@@ -134,6 +134,11 @@ class TestIsolation:
         assert chk.ok is False
         assert any("port_not_isolated" in h for h in chk.forbidden_hits)
 
+    def test_database_per_run_is_isolated_on_caller_port(self):
+        chk = check_dsn("postgresql://test:test@127.0.0.1:5432/extra_real_db_123_deadbeef")
+        assert chk.ok is True
+        assert "local_database_per_run" in chk.reasons
+
     def test_blocks_ec_prod(self):
         chk = check_dsn("postgresql://u:p@ec-prod.example:5432/extra")
         assert chk.ok is False
@@ -209,35 +214,102 @@ class TestShippedEntryPoints:
 
 @pytest.mark.real_db
 def test_linkage_pipeline_on_isolated_dsn():
-    dsn = os.environ.get("LINKAGE_TEST_DSN")
-    if not dsn:
-        pytest.skip("LINKAGE_TEST_DSN not set")
+    from scripts.testing.real_db_guard import canonical_dsn
+
+    dsn = canonical_dsn()
     from scripts.linkage.isolation import check_dsn
     from scripts.linkage.pipeline import connect, run_linkage
 
     chk = check_dsn(dsn)
     if not chk.ok:
-        pytest.skip(f"DSN not isolated: {chk.as_dict()}")
-    conn = connect(dsn)
-    try:
-        with conn.cursor() as cur:
-            cur.execute("SELECT to_regclass('public.entity_linkage_runs') AS t")
-            row = cur.fetchone()
-            reg = row["t"] if isinstance(row, dict) else row[0]
-            if reg is None:
-                pytest.skip("migration 061 not applied")
-            cur.execute("SELECT count(*) AS n FROM opportunity_intel WHERE is_active")
-            row = cur.fetchone()
-            n = int(row["n"] if isinstance(row, dict) else row[0])
-            if n == 0:
-                pytest.skip("no opportunities seeded")
-    finally:
-        conn.close()
+        pytest.fail(f"REAL_DB_ISOLATION_FAIL: {chk.as_dict()}")
 
-    res = run_linkage(dsn, run_id="test-pytest-linkage", contract_limit_per_opp=10, max_opportunities=3)
-    assert res.status == "completed"
-    assert res.production_touched is False
-    assert res.metrics["organ_links"]["total"] >= 1
-    # unresolved stay in denominator
-    assert res.metrics["organ_links"]["unresolved_in_denominator"] is True
-    assert res.metrics["organ_links"]["hard_cases_excluded"] is False
+    def cleanup() -> None:
+        cleanup_conn = connect(dsn)
+        try:
+            with cleanup_conn.cursor() as cur:
+                cur.execute("DELETE FROM entity_linkage_review_queue WHERE run_id = 'test-pytest-linkage'")
+                cur.execute("DELETE FROM canonical_entity_aliases WHERE run_id = 'test-pytest-linkage'")
+                cur.execute("DELETE FROM entity_linkage_runs WHERE run_id = 'test-pytest-linkage'")
+                cur.execute(
+                    "DELETE FROM opportunity_intel WHERE source = 'real_db_test' AND source_id = 'REALDB-LINK-O-001'"
+                )
+                cur.execute("DELETE FROM pncp_supplier_contracts WHERE contrato_id = 'REALDB-LINK-C-001'")
+                cur.execute("DELETE FROM canonical_organs WHERE first_seen_run_id = 'test-pytest-linkage'")
+                cur.execute("DELETE FROM canonical_suppliers WHERE first_seen_run_id = 'test-pytest-linkage'")
+            cleanup_conn.commit()
+        finally:
+            cleanup_conn.close()
+
+    cleanup()
+    try:
+        conn = connect(dsn)
+        try:
+            from psycopg2.extras import Json
+
+            with conn.cursor() as cur:
+                cur.execute("SELECT to_regclass('public.entity_linkage_runs') AS t")
+                row = cur.fetchone()
+                reg = row["t"] if isinstance(row, dict) else row[0]
+                if reg is None:
+                    pytest.fail("REAL_DB_SCHEMA_DRIFT: migration 061 not applied")
+                organ_cnpj = _make_cnpj("123456780001")
+                supplier_cnpj = _make_cnpj("987654320001")
+                cur.execute(
+                    "SELECT * FROM upsert_pncp_supplier_contracts(%s::jsonb)",
+                    (
+                        Json(
+                            [
+                                {
+                                    "contrato_id": "REALDB-LINK-C-001",
+                                    "orgao_cnpj": organ_cnpj,
+                                    "orgao_nome": "Orgao Linkage",
+                                    "fornecedor_cnpj": supplier_cnpj,
+                                    "fornecedor_nome": "Fornecedor Linkage",
+                                    "supplier_id_type": "CNPJ",
+                                    "supplier_identifier": supplier_cnpj,
+                                    "supplier_country": "BR",
+                                    "objeto_contrato": "reforma predial",
+                                    "valor_total": "125000",
+                                    "data_publicacao": "2026-01-15",
+                                    "uf": "SC",
+                                    "municipio": "Florianopolis",
+                                    "source": "real_db_test",
+                                    "source_id": "REALDB-LINK-C-001",
+                                }
+                            ]
+                        ),
+                    ),
+                )
+                cur.execute(
+                    """
+                    INSERT INTO opportunity_intel (
+                        source, source_id, content_hash, numero_controle_pncp,
+                        orgao_cnpj, orgao_nome, uf, municipio, objeto,
+                        status_canonico, is_active, ranking
+                    ) VALUES (
+                        'real_db_test', 'REALDB-LINK-O-001', %s,
+                        'REALDB-LINK-O-001', %s, 'Orgao Linkage', 'SC',
+                        'Florianopolis', 'reforma predial', 'open', TRUE, 'REVIEW'
+                    ) ON CONFLICT DO NOTHING
+                    """,
+                    ("f" * 64, organ_cnpj),
+                )
+            conn.commit()
+        finally:
+            conn.close()
+
+        res = run_linkage(
+            dsn,
+            run_id="test-pytest-linkage",
+            contract_limit_per_opp=10,
+            max_opportunities=3,
+        )
+        assert res.status == "completed"
+        assert res.production_touched is False
+        assert res.metrics["organ_links"]["total"] >= 1
+        # unresolved stay in denominator
+        assert res.metrics["organ_links"]["unresolved_in_denominator"] is True
+        assert res.metrics["organ_links"]["hard_cases_excluded"] is False
+    finally:
+        cleanup()

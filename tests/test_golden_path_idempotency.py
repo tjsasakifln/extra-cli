@@ -53,9 +53,19 @@ def test_dual_snapshot_stable_ids_sha() -> None:
     )
     try:
         with conn.cursor() as cur:
-            cur.execute("SELECT count(*) FROM pncp_raw_bids")
-            if int(cur.fetchone()[0]) == 0:
-                pytest.skip("no bids")
+            cur.execute(
+                """
+                INSERT INTO pncp_raw_bids (
+                    pncp_id, objeto_compra, uf, source, content_hash,
+                    is_active, synthetic_id
+                ) VALUES (
+                    'REALDB-IDEMPOTENCY-001', 'idempotency deterministic seed',
+                    'SC', 'real_db_test', %s, TRUE, TRUE
+                ) ON CONFLICT (pncp_id) DO UPDATE SET is_active = TRUE
+                """,
+                ("d" * 64,),
+            )
+        conn.commit()
     finally:
         conn.close()
 

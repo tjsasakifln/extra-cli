@@ -38,7 +38,7 @@ def test_write_contratos_report_domain_file(tmp_path: Path) -> None:
     except Exception:
         pytest.skip("no test-db")
 
-    # Ensure table exists; seed one synthetic contract if empty
+    # Ensure the canonical table exists. Header-only output is valid on a clean DB.
     try:
         import psycopg2
 
@@ -54,25 +54,6 @@ def test_write_contratos_report_domain_file(tmp_path: Path) -> None:
             )
             if not cur.fetchone()[0]:
                 pytest.skip("pncp_supplier_contracts missing")
-            cur.execute("SELECT count(*) FROM pncp_supplier_contracts WHERE COALESCE(is_active,true)")
-            n = int(cur.fetchone()[0])
-            if n == 0:
-                # Best-effort seed; if columns differ, report still writes header-only honestly
-                try:
-                    cur.execute(
-                        """
-                        INSERT INTO pncp_supplier_contracts (
-                          orgao_cnpj, orgao_nome, fornecedor_cnpj, fornecedor_nome,
-                          valor_total, is_active
-                        ) VALUES (
-                          '00000000000191', 'Orgao Teste', '11111111000191', 'Fornecedor Teste',
-                          1000.0, true
-                        )
-                        """
-                    )
-                    conn.commit()
-                except Exception:
-                    conn.rollback()
         conn.close()
     except Exception as exc:
         pytest.skip(f"cannot inspect contracts table: {exc}")
