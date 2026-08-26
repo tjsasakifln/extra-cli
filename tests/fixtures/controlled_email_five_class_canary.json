@@ -132,7 +132,7 @@
           "channel_epistemic_class": "OBSERVED",
           "route_freshness": "UNKNOWN",
           "route_suppression": "NONE",
-          "policy_version": "controlled-email-policy.v2",
+          "policy_version": "controlled-email-policy.v3",
           "schema_version": "confenge.outreach.controlled_email.v1",
           "reason_codes": [
             "route_class:DIRECT_PERSON",
@@ -208,7 +208,7 @@
           "channel_epistemic_class": "OBSERVED",
           "route_freshness": "UNKNOWN",
           "route_suppression": "NONE",
-          "policy_version": "controlled-email-policy.v2",
+          "policy_version": "controlled-email-policy.v3",
           "schema_version": "confenge.outreach.controlled_email.v1",
           "reason_codes": [
             "route_class:ROLE_OR_DEPARTMENT",
@@ -284,7 +284,7 @@
           "channel_epistemic_class": "OBSERVED",
           "route_freshness": "UNKNOWN",
           "route_suppression": "NONE",
-          "policy_version": "controlled-email-policy.v2",
+          "policy_version": "controlled-email-policy.v3",
           "schema_version": "confenge.outreach.controlled_email.v1",
           "reason_codes": [
             "route_class:GENERIC_COMPANY",
@@ -360,7 +360,7 @@
           "channel_epistemic_class": "OBSERVED",
           "route_freshness": "UNKNOWN",
           "route_suppression": "NONE",
-          "policy_version": "controlled-email-policy.v2",
+          "policy_version": "controlled-email-policy.v3",
           "schema_version": "confenge.outreach.controlled_email.v1",
           "reason_codes": [
             "route_class:PUBLIC_COMPANY_FREEMAIL",
@@ -438,7 +438,7 @@
           "channel_epistemic_class": "INFERRED",
           "route_freshness": "UNKNOWN",
           "route_suppression": "NONE",
-          "policy_version": "controlled-email-policy.v2",
+          "policy_version": "controlled-email-policy.v3",
           "schema_version": "confenge.outreach.controlled_email.v1",
           "reason_codes": [
             "route_class:PROBABILISTIC_OR_RISKY",

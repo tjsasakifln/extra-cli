@@ -367,7 +367,7 @@ def test_independently_attributed_shared_mailbox_reconciles_without_route_loss(t
     assert projection["input_preferred_routes_hash"] == projection["output_preferred_routes_hash"]
 
 
-def test_declared_ambiguous_shared_mailbox_fails_projection_reconciliation(tmp_path: Path) -> None:
+def test_declared_ambiguous_shared_mailbox_is_policy_excluded_and_reconciles(tmp_path: Path) -> None:
     accounts = ("11222333000181", "22333444000172")
     universe = [
         {"cnpj14": account, "razao_social": f"CONSTRUTORA {index}", "commercial_state": "NEW"}
@@ -403,20 +403,30 @@ def test_declared_ambiguous_shared_mailbox_fails_projection_reconciliation(tmp_p
     )
     intel_path = _write_jsonl(source / "intelligence.jsonl", [])
 
-    with pytest.raises(InputError, match="preferred route projection does not reconcile"):
-        export_outreach(
-            ExportConfig(
-                universe=universe_path,
-                account_intelligence=intel_path,
-                contacts=contacts_path,
-                target_fit_snapshot=target_fit_path,
-                expected_universe_count=len(universe),
-                out_dir=source / "feed",
-                generated_at=NOW,
-                datalake_watermark=NOW,
-                repo_sha="authoritative-test",
-            )
+    result = export_outreach(
+        ExportConfig(
+            universe=universe_path,
+            account_intelligence=intel_path,
+            contacts=contacts_path,
+            target_fit_snapshot=target_fit_path,
+            expected_universe_count=len(universe),
+            out_dir=source / "feed",
+            generated_at=NOW,
+            datalake_watermark=NOW,
+            repo_sha="authoritative-test",
         )
+    )
+
+    projection = result["authoritative_contact_projection"]
+    assert projection["projection_policy_version"] == "controlled-email-policy.v3"
+    assert projection["raw_input_preferred_route_count"] == 2
+    assert projection["policy_excluded_preferred_route_count"] == 2
+    assert projection["input_preferred_route_count"] == 0
+    assert projection["output_preferred_route_count"] == 0
+    assert projection["preferred_routes_reconciled"] is True
+    chunk = json.loads((source / "feed" / "chunk_0000.json").read_text())
+    contacts = [contact for lead in chunk["leads"] for contact in lead["contacts"]]
+    assert not any(contact.get("preferred_initial") for contact in contacts)
 
 
 def test_null_new_membership_field_falls_back_to_explicit_canonical_value(

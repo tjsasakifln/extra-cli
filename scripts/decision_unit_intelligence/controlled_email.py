@@ -54,7 +54,7 @@ DEPARTMENTAL_HYPOTHESIS_LOCALS: tuple[str, ...] = (
     "contato",
 )
 
-CONTROLLED_EMAIL_POLICY_VERSION = "controlled-email-policy.v2"
+CONTROLLED_EMAIL_POLICY_VERSION = "controlled-email-policy.v3"
 CONTROLLED_EMAIL_SCHEMA_VERSION = "confenge.outreach.controlled_email.v1"
 
 # Tokens that genuinely mean "not suppressed". Anything else is treated as
@@ -1317,9 +1317,9 @@ def _has_account_specific_mailbox_evidence(contact: dict[str, Any], *, account: 
     A mailbox appearing on two accounts is not itself evidence that either
     association is wrong.  The durable waterfall can, for example, observe the
     same group mailbox in two distinct Receita Federal establishment records.
-    Preserve those independently evidenced claims while keeping the global
-    one-owner gate for inferred, stale, suppressed, or otherwise ambiguous
-    sharing.
+    Preserve those independently evidenced claims. A website/domain match is
+    deliberately insufficient here: the same incorrectly resolved website can
+    make its URL, domain and mailbox agree for several unrelated CNPJs.
     """
 
     evidence_ids = [str(value).strip() for value in (contact.get("evidence_ids") or []) if str(value).strip()]
@@ -1347,24 +1347,20 @@ def _has_account_specific_mailbox_evidence(contact: dict[str, Any], *, account: 
             and bool(str(contact.get("official_release_id") or "").strip())
         )
 
-    return (
-        source_type in {"company_website", "contact_page", "site"}
-        and bool(str(contact.get("official_domain") or "").strip())
-        and bool(str(contact.get("source_url") or "").strip())
-        and isinstance(contact.get("provenance"), dict)
-    )
+    return False
 
 
 def _shared_mailbox_owner(leads: Iterable[dict[str, Any]]) -> dict[str, str]:
-    """Pick the one account that keeps each shared mailbox, stably across runs.
+    """Resolve a mailbox only when its cross-account identity is defensible.
 
-    Feed order is sorted by target-fit freshness timestamps, which advance on
-    every refresh, so "first lead wins" silently moved a shared mailbox between
-    accounts — and dropped last run's account out of the pilot — with no change
-    in mailbox evidence. Decide on the account id instead.
+    A value of ``""`` is an explicit conflict: more than one account claims the
+    mailbox and none has account-specific evidence.  Choosing a lexicographic
+    winner would turn ordering into identity proof. If one or more claims do
+    have typed account evidence, ambiguous claims lose while each independently
+    evidenced claim remains eligible.
     """
-    owner: dict[str, str] = {}
-    owner_rank: dict[str, tuple[int, str]] = {}
+    claimants: dict[str, set[str]] = {}
+    independently_evidenced: dict[str, set[str]] = {}
     for lead in leads:
         if not isinstance(lead, dict):
             continue
@@ -1378,11 +1374,18 @@ def _shared_mailbox_owner(leads: Iterable[dict[str, Any]]) -> dict[str, str]:
             mailbox = canonicalize_mailbox(str(contact.get("email") or ""))
             if not mailbox:
                 continue
-            rank = (0 if _has_account_specific_mailbox_evidence(contact, account=account) else 1, account)
-            current_rank = owner_rank.get(mailbox)
-            if current_rank is None or rank < current_rank:
-                owner[mailbox] = account
-                owner_rank[mailbox] = rank
+            claimants.setdefault(mailbox, set()).add(account)
+            if _has_account_specific_mailbox_evidence(contact, account=account):
+                independently_evidenced.setdefault(mailbox, set()).add(account)
+    owner: dict[str, str] = {}
+    for mailbox, accounts in claimants.items():
+        specific = independently_evidenced.get(mailbox, set())
+        if len(accounts) == 1:
+            owner[mailbox] = next(iter(accounts))
+        elif specific:
+            owner[mailbox] = min(specific)
+        else:
+            owner[mailbox] = ""
     return owner
 
 
@@ -1396,7 +1399,7 @@ def apply_cross_account_preferred_mailbox_gate(
     *,
     owner: dict[str, str] | None = None,
 ) -> list[dict[str, Any]]:
-    """Exactly one account may keep a preferred mailbox. Other claimants lose it.
+    """Reject ambiguous sharing; preserve only identity-bound shared claims.
 
     ``owner`` carries a whole-feed decision computed elsewhere, so a streaming
     caller can apply the gate one lead at a time without holding the feed.
@@ -1419,13 +1422,30 @@ def apply_cross_account_preferred_mailbox_gate(
             if item.get("preferred_initial") and mailbox:
                 chosen_owner = claimed.get(mailbox)
                 independently_attributed = _has_account_specific_mailbox_evidence(item, account=account)
-                if chosen_owner is not None and chosen_owner != account and not independently_attributed:
+                if chosen_owner == "":
                     item["preferred_initial"] = False
                     item["recommended"] = False
                     item["controlled_email_eligible"] = False
-                    item["reason_codes"] = list(item.get("reason_codes") or []) + [
-                        "duplicate_preferred_mailbox_across_accounts"
-                    ]
+                    item["reason_codes"] = list(
+                        dict.fromkeys(
+                            [
+                                *(item.get("reason_codes") or []),
+                                "shared_mailbox_without_account_identity_evidence",
+                            ]
+                        )
+                    )
+                elif chosen_owner is not None and chosen_owner != account and not independently_attributed:
+                    item["preferred_initial"] = False
+                    item["recommended"] = False
+                    item["controlled_email_eligible"] = False
+                    item["reason_codes"] = list(
+                        dict.fromkeys(
+                            [
+                                *(item.get("reason_codes") or []),
+                                "duplicate_preferred_mailbox_across_accounts",
+                            ]
+                        )
+                    )
                 else:
                     claimed[mailbox] = account
             updated_contacts.append(item)

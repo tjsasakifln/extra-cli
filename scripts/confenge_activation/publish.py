@@ -268,8 +268,8 @@ def _validate_authoritative_manifest(
         raise ValueError("authoritative target-fit decision count does not match feed")
     contact_projection = manifest.get("authoritative_contact_projection")
     if isinstance(contact_projection, dict) and contact_projection.get("input_declared") is True:
-        input_count = int(contact_projection.get("input_preferred_route_count") or -1)
-        output_count = int(contact_projection.get("output_preferred_route_count") or -1)
+        input_count = int(contact_projection.get("input_preferred_route_count", -1))
+        output_count = int(contact_projection.get("output_preferred_route_count", -1))
         if contact_projection.get("preferred_routes_reconciled") is not True:
             raise ValueError("authoritative contact projection is not reconciled")
         if input_count != output_count or output_count != accounts_with_preferred_route:

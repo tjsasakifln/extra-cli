@@ -742,8 +742,8 @@ def test_a_social_page_is_never_an_official_company_domain():
     assert official_domain_host("https://www.construtoraalvo.com.br/contato") == "construtoraalvo.com.br"
 
 
-def test_a_shared_preferred_mailbox_picks_the_same_account_across_runs():
-    """Feed order follows target-fit freshness, which advances on every refresh."""
+def test_an_ambiguous_shared_preferred_mailbox_fails_closed_across_runs():
+    """Feed ordering must never choose which legal identity owns a mailbox."""
     from scripts.decision_unit_intelligence.controlled_email import (
         apply_cross_account_preferred_mailbox_gate,
     )
@@ -767,4 +767,4 @@ def test_a_shared_preferred_mailbox_picks_the_same_account_across_runs():
     # A refresh moves account A's watermark past B's, flipping feed order.
     second = [lead("22222222000172", "2026-08-20T00:00:00Z"), lead("11111111000191", "2026-08-21T00:00:00Z")]
 
-    assert winners(first) == winners(second) == ["11111111000191"]
+    assert winners(first) == winners(second) == []

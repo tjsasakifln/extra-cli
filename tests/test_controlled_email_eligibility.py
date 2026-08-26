@@ -766,7 +766,7 @@ def test_parser_minted_mailbox_host_is_not_eligible() -> None:
     assert stamped[0]["controlled_email_eligible"] is False
 
 
-def test_duplicate_preferred_mailbox_across_accounts_keeps_one() -> None:
+def test_duplicate_preferred_mailbox_across_accounts_fails_closed_for_both() -> None:
     universe_a, intel, _ = _five_class_universe_intel_contacts()
     universe_a = dict(universe_a)
     universe_a["cnpj14"] = "11111111000191"
@@ -799,10 +799,9 @@ def test_duplicate_preferred_mailbox_across_accounts_keeps_one() -> None:
         for c in lead["contacts"]
         if c.get("preferred_initial") and c.get("email")
     ]
-    assert len(preferred) == 1
-    assert preferred[0][1] == "secretaria@energia.com.br"
+    assert preferred == []
     gated = apply_cross_account_preferred_mailbox_gate(leads)
-    assert sum(1 for lead in gated for c in lead["contacts"] if c.get("preferred_initial")) == 1
+    assert sum(1 for lead in gated for c in lead["contacts"] if c.get("preferred_initial")) == 0
 
 
 def _evidenced_shared_registry_contact(account: str) -> dict:
@@ -867,6 +866,42 @@ def test_specific_shared_mailbox_proof_beats_ambiguous_lexicographic_claim() -> 
     assert gated[0]["contacts"][0]["preferred_initial"] is False
     assert "duplicate_preferred_mailbox_across_accounts" in gated[0]["contacts"][0]["reason_codes"]
     assert gated[1]["contacts"][0]["preferred_initial"] is True
+
+
+def test_shared_website_mailbox_without_cnpj_specific_proof_fails_for_every_claimant() -> None:
+    accounts = ("11111111000191", "22222222000172")
+    contact = {
+        "email": "geral@empresa.example.com",
+        "preferred_initial": True,
+        "recommended": True,
+        "controlled_email_eligible": True,
+        "company_associated": True,
+        "mailbox_company_evidence": "OBSERVED",
+        "channel_epistemic_class": "OBSERVED",
+        "ownership_status": "COMPANY_OWNED",
+        "route_freshness": "FRESH",
+        "route_suppression": "NONE",
+        "source_type": "site",
+        "source_reference": "site:https://empresa.example.com/contato",
+        "source_url": "https://empresa.example.com/contato",
+        "official_domain": "empresa.example.com",
+        "evidence_ids": ["site-evidence"],
+        "provenance": {"source_type": "site"},
+    }
+    leads = [
+        {"company": {"cnpj14": account}, "contacts": [dict(contact)]}
+        for account in accounts
+    ]
+
+    gated = apply_cross_account_preferred_mailbox_gate(leads)
+
+    assert not any(c.get("preferred_initial") for lead in gated for c in lead["contacts"])
+    assert all(c.get("controlled_email_eligible") is False for lead in gated for c in lead["contacts"])
+    assert all(
+        "shared_mailbox_without_account_identity_evidence" in c.get("reason_codes", [])
+        for lead in gated
+        for c in lead["contacts"]
+    )
 
 
 def test_hr_mailbox_not_controlled_eligible() -> None:
