@@ -1,7 +1,7 @@
 {
   "schema_version": "confenge-frozen-inputs/1.0",
   "campaign": "CONFENGE-COMMERCIAL-READY-01",
-  "freeze_sha": "cf0e1b29726d1405f1902a8a834e27750308b1b9",
+  "freeze_sha": "69661fcb5f2157080f22681a48aecc720fbd1e1b",
   "policy": "frozen_confenge_inputs_v1",
   "inputs": [
     {
@@ -543,8 +543,8 @@
     {
       "path": "scripts/decision_unit_intelligence/batch_contact_metadata.py",
       "kind": "file",
-      "blob_sha": "b8fc29250bd9a6009712875d1ef06d8163d92d6d",
-      "sha256": "f796405a66204562edf7cbee468635ead8dea0abdb69ec05d3c9008cf0375b9e"
+      "blob_sha": "df4740c8934322d2091dd911e189024e00303a82",
+      "sha256": "9e85a87b5e276ca7e2dd29df8b436d04d67b9d888d50b64808f35a2982199ad6"
     },
     {
       "path": "scripts/decision_unit_intelligence/batch_projection.py",
@@ -567,8 +567,8 @@
     {
       "path": "scripts/decision_unit_intelligence/controlled_email.py",
       "kind": "file",
-      "blob_sha": "3757efbbbb51aae66cec4be120658cd2dacba011",
-      "sha256": "a782d971d5bbd7eb85d55e63eab8f61ac05b1165f1b38cdf135963cbb861eadd"
+      "blob_sha": "43332fbdc86571272ef8f47cd3d010f3f91a244c",
+      "sha256": "ff69f4b36b8456d273b9a196f09fe4dbbc44cbe1a61e64e0f3e0eba03b2e4cb9"
     },
     {
       "path": "scripts/decision_unit_intelligence/corroboration.py",
@@ -621,8 +621,8 @@
     {
       "path": "scripts/decision_unit_intelligence/evidence.py",
       "kind": "file",
-      "blob_sha": "f92289ff6ccd9cae9f78f314deb6aecefd72b16b",
-      "sha256": "59ea066340d2faa7e85de375fe4f038619cd2e7d68b4d0ef6beaf1e96d843d64"
+      "blob_sha": "d06887a11f2ea7f3d0c197c420377f32544724b3",
+      "sha256": "e4e485620e95f92a4e883ef37b749d2bfe16b96ffdf772e844109b31ffc36325"
     },
     {
       "path": "scripts/decision_unit_intelligence/models.py",
@@ -681,8 +681,8 @@
     {
       "path": "scripts/decision_unit_intelligence/providers/historical_campaign.py",
       "kind": "file",
-      "blob_sha": "e0df50d5257ea51c26e40377b7cf1ceb98a11fcd",
-      "sha256": "6c98b82f836a4575c73f672b6b7c9a53b37a27acca148fb85b707245bdb03916"
+      "blob_sha": "2ccfb18e3da572ed81fe3c351145704ed886f405",
+      "sha256": "0f17a3a2e435b6f62b6bbda52b421121b7eb8ee2d8d68e962b767d5a1f37eabb"
     },
     {
       "path": "scripts/decision_unit_intelligence/providers/official_company_registry.py",
@@ -741,8 +741,8 @@
     {
       "path": "scripts/decision_unit_intelligence/route_class.py",
       "kind": "file",
-      "blob_sha": "66bbfa250fea92a0f47674ada7e41a4602875c7e",
-      "sha256": "ec66f50f8461ac9f1ea2599aca4fe427de542e8f6c679c783254ed36fb5e54a8"
+      "blob_sha": "0eae87b089adb6ee51dba69b43c0d7af4be118d0",
+      "sha256": "deaf3b9b3a168323df9a7f5bd5dbde4624bac1d7b3690c10ee44ddd6701983c4"
     },
     {
       "path": "scripts/decision_unit_intelligence/runner.py",
@@ -759,14 +759,14 @@
     {
       "path": "scripts/decision_unit_intelligence/site_contact_crawl.py",
       "kind": "file",
-      "blob_sha": "509ab129e4720a4d2080c6eee79711cf4dfa6989",
-      "sha256": "d3ee9a7f69f0ee46aa4c5ffb51d6b66d5b60844e8c989deccc4bf99044fc42a5"
+      "blob_sha": "38f7dd67aec03e3943d375bb49acd7d4b04d8105",
+      "sha256": "869e2b209c1ec240d5c10341dd8e0d3015a10f2a1a2a36780df1d1605e2083dc"
     },
     {
       "path": "scripts/decision_unit_intelligence/web_discovery.py",
       "kind": "file",
-      "blob_sha": "60ee29f154180a3f6d7d0b7c902362a93bd4145a",
-      "sha256": "e6f94e2fb54b9308c51adeeb1d4f17f01dd186c4f235b66fca59e0e7018f5a38"
+      "blob_sha": "3aa4361df959b56faeda7b1ab168c820e55a0cb9",
+      "sha256": "272d12bc00816ba5a5c3bf64addef26247d7e91c39dd9df1e29f1440c8d47087"
     },
     {
       "path": "scripts/linkage/keys.py",
@@ -975,8 +975,8 @@
     {
       "path": "scripts/warmbly_bridge/mapping.py",
       "kind": "file",
-      "blob_sha": "5e89947adb1687fbb1c3a672a99cbe2e3a3728a5",
-      "sha256": "a9f45d83ffb9059f6bae5ba5e50c8ae3fccbeb18713d300c32a7815c873d73a0"
+      "blob_sha": "701739f71f31f64de4a13435dc3278a1c5ca0013",
+      "sha256": "056f3d4949b624f2fdabab266708aa3e2f017544b983e288e2f85a967eae12ae"
     }
   ],
   "missing_at_build": [],
