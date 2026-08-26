@@ -193,15 +193,22 @@ def test_durable_projection_reaches_feed_accounts_outside_hot_set(tmp_path: Path
                 "contacts": [
                     {
                         "email": f"contato@{host}",
-                        "source": "company_website",
-                        "source_url": f"https://{host}/contato",
-                        "observed_at": "2026-08-24T12:00:00Z",
-                        "ownership_status": "COMPANY_OWNED",
-                        "mailbox_company_evidence": "OBSERVED",
-                        "channel_epistemic_class": "OBSERVED",
-                        "route_freshness": "FRESH",
-                        "route_suppression": "NONE",
-                    }
+                            "source": "company_website",
+                            "source_url": f"https://{host}/contato",
+                            "source_reference": f"https://{host}/contato",
+                            "evidence_ids": [f"page-cnpj:{cnpj}"],
+                            "observed_at": "2026-08-24T12:00:00Z",
+                            "ownership_status": "COMPANY_OWNED",
+                            "company_associated": True,
+                            "mailbox_company_evidence": "OBSERVED",
+                            "channel_epistemic_class": "OBSERVED",
+                            "route_freshness": "FRESH",
+                            "route_suppression": "NONE",
+                            "official_domain": host,
+                            "page_cnpj14": cnpj,
+                            "page_cnpj_evidence_id": f"page-cnpj:{cnpj}",
+                            "page_cnpj_evidence_sha256": (cnpj * 5)[:64],
+                        }
                 ],
             }
         )
