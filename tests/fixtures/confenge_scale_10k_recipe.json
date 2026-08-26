@@ -1,0 +1,20 @@
+{
+  "schema_version": "confenge.synthetic-scale-rehearsal.v1",
+  "generator_version": "confenge-scale-corpus.v1",
+  "seed": 468469155151,
+  "account_count": 10000,
+  "refresh_membership_change_percent": 10,
+  "max_leads_per_chunk": 500,
+  "scenarios": [
+    "supplier_confirmed",
+    "buyer_conflict",
+    "direct_person",
+    "role_mailbox",
+    "generic_mailbox",
+    "company_freemail",
+    "shared_mailbox_conflict",
+    "no_public_email",
+    "stale_evidence",
+    "suppression"
+  ]
+}
