@@ -23,6 +23,7 @@ from scripts.decision_unit_intelligence.providers.official_company_registry impo
     OfficialCompanyRegistryProvider,
 )
 from scripts.decision_unit_intelligence.runner import run_account
+from tests.recipient_attestation_fixtures import exact_page_attestation
 
 
 def _write_seed(path: Path) -> None:
@@ -49,6 +50,38 @@ def _write_seed(path: Path) -> None:
             "contacts": [],
         },
     ]
+    path.write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in rows),
+        encoding="utf-8",
+    )
+
+
+def _write_bound_seed(path: Path) -> None:
+    _write_seed(path)
+    rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
+    contact = rows[0]["contacts"][0]
+    account = rows[0]["cnpj14"]
+    mailbox = contact["email"]
+    source_url = contact["source_url"]
+    observed_at = contact["observed_at"]
+    attestation = exact_page_attestation(
+        account=account,
+        mailbox=mailbox,
+        source_url=source_url,
+        observed_at=observed_at,
+        page_content=f"CNPJ {account} | Contato: {mailbox}",
+    )
+    contact.update(
+        {
+            "company_associated": True,
+            "mailbox_company_evidence": "OBSERVED",
+            "channel_epistemic_class": "OBSERVED",
+            "route_freshness": "FRESH",
+            "route_suppression": "NONE",
+            "official_domain": rows[0]["official_domain"],
+            **attestation,
+        }
+    )
     path.write_text(
         "".join(json.dumps(row, sort_keys=True) + "\n" for row in rows),
         encoding="utf-8",
@@ -98,7 +131,7 @@ def test_seed_hash_change_is_a_factual_provider_failure(tmp_path: Path) -> None:
         )
 
 
-def test_run_account_uses_seed_before_public_search_without_minting_person(tmp_path: Path) -> None:
+def test_unbound_seed_is_reused_but_does_not_stop_public_search(tmp_path: Path) -> None:
     seed = tmp_path / "contacts.jsonl"
     _write_seed(seed)
     inputs = manifest_contact_seed_inputs([str(seed)])
@@ -116,6 +149,21 @@ def test_run_account_uses_seed_before_public_search_without_minting_person(tmp_p
     assert ranking.preferred_initial_route.route_class == EmailRouteClass.ROLE_OR_DEPARTMENT
     assert ranking.preferred_initial_route.email_validated is False
     assert ranking.preferred_initial_route.person_name is None
+    assert account.ledger.search_queries
+
+
+def test_semantically_bound_seed_stops_later_public_search_spend(tmp_path: Path) -> None:
+    seed = tmp_path / "contacts-bound.jsonl"
+    _write_bound_seed(seed)
+    inputs = manifest_contact_seed_inputs([str(seed)])
+
+    account = run_account(
+        "11222333000181",
+        search_backend="off",
+        contact_seed_inputs=inputs,
+        account_meta={"razao_social": "ACME ENGENHARIA LTDA"},
+    )
+
     assert account.ledger.search_queries == []
 
 

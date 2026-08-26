@@ -7,11 +7,12 @@ Does not rewrite public search, domain resolution, or query planning.
 
 from __future__ import annotations
 
+import hashlib
 import html as html_lib
 import json
 import re
 from collections.abc import Iterable
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
 from time import monotonic, sleep
 from typing import Any
@@ -31,7 +32,7 @@ from scripts.decision_unit_intelligence.email_resolution import (
     is_third_party_professional_domain,
     name_tokens,
 )
-from scripts.decision_unit_intelligence.evidence import make_evidence
+from scripts.decision_unit_intelligence.evidence import make_evidence, make_page_document_witness
 from scripts.decision_unit_intelligence.models import (
     ChannelObservation,
     ChannelType,
@@ -57,9 +58,13 @@ from scripts.decision_unit_intelligence.reachability import (
     is_generic_mailbox,
     is_role_mailbox,
 )
-from scripts.decision_unit_intelligence.web_discovery import CrawlDocument, WebCrawler
+from scripts.decision_unit_intelligence.web_discovery import (
+    CrawlDocument,
+    WebCrawler,
+    account_mailbox_binding_context,
+)
 
-SITE_CRAWL_VERSION = "dui.site-contact-crawl.v1"
+SITE_CRAWL_VERSION = "dui.site-contact-crawl.v3"
 
 SITE_PROFILE_EMAIL = "SITE_PROFILE_EMAIL"
 SITE_TEAM_CARD_EMAIL = "SITE_TEAM_CARD_EMAIL"
@@ -69,6 +74,7 @@ SITE_GENERIC_ONLY = "SITE_GENERIC_ONLY"
 SITE_JS_BLOCKED = "SITE_JS_BLOCKED"
 SITE_NO_HIGH_VALUE_PATH = "SITE_NO_HIGH_VALUE_PATH"
 SITE_STALE_OR_UNKNOWN = "SITE_STALE_OR_UNKNOWN"
+SITE_ACCOUNT_MAILBOX_CONTEXT_AMBIGUOUS = "SITE_ACCOUNT_MAILBOX_CONTEXT_AMBIGUOUS"
 
 STRONG_SITE_CODES = frozenset(
     {
@@ -199,6 +205,9 @@ _OBFUSCATED_EMAIL_RE = re.compile(
     re.I,
 )
 _PHONE_RE = re.compile(r"(?<!\d)(?:\+?55\s*)?(?:\(?\d{2}\)?[\s.-]*)?\d{4,5}[\s.-]*\d{4}(?!\d)")
+_CNPJ_TEXT_RE = re.compile(
+    r"(?<!\d)(\d{2}[.\s]?\d{3}[.\s]?\d{3}[\/\s]?\d{4}[-\s]?\d{2})(?!\d)"
+)
 _SITEMAP_LOC_RE = re.compile(r"<loc>\s*([^<\s]+)\s*</loc>", re.I)
 _FRESHNESS_RE = re.compile(
     r"(?:atualizado|publicado|last(?:[- ]modified)?|datePublished|dateModified)"
@@ -330,6 +339,7 @@ class SiteContactRecord:
     same_block: bool
     page_title: str
     structured_data: dict[str, Any]
+    observed_at: str
     freshness: str | None
     reason_codes: tuple[str, ...]
     extraction_method: str
@@ -877,6 +887,7 @@ def extract_site_contacts(
     document: CrawlDocument,
     *,
     canonical_domain: str,
+    target_cnpj: str | None = None,
 ) -> list[SiteContactRecord]:
     html = document.html or ""
     text = _visible_text(html) if html else (document.text or "")
@@ -901,6 +912,7 @@ def extract_site_contacts(
                 same_block=False,
                 page_title=title,
                 structured_data={},
+                observed_at=document.retrieved_at,
                 freshness=freshness,
                 reason_codes=(SITE_JS_BLOCKED,),
                 extraction_method="js_blocked",
@@ -946,6 +958,7 @@ def extract_site_contacts(
                 same_block=True,
                 title=title,
                 structured={"source": item["source"], "coherent": item["coherent"]},
+                observed_at=document.retrieved_at,
                 freshness=freshness,
                 reasons=reasons,
                 method=method,
@@ -1003,6 +1016,7 @@ def extract_site_contacts(
                     same_block=True,
                     title=title,
                     structured={},
+                    observed_at=document.retrieved_at,
                     freshness=freshness,
                     reasons=reasons if reasons else ((SITE_GENERIC_ONLY,) if in_footer or _generic_box(email) else ()),
                     method=method if method != "unresolved" or len(names) <= 1 else "ambiguous_nearby_not_promoted",
@@ -1062,6 +1076,7 @@ def extract_site_contacts(
                 same_block=bool(unique_profile),
                 title=title,
                 structured={},
+                observed_at=document.retrieved_at,
                 freshness=freshness,
                 reasons=reasons if reasons else ((SITE_GENERIC_ONLY,) if generic or in_footer else ()),
                 method=method,
@@ -1072,6 +1087,66 @@ def extract_site_contacts(
         )
         claimed_emails.add(email)
 
+    normalized_target = normalize_cnpj(target_cnpj)
+    page_cnpj_match = next(
+        (
+            match
+            for match in _CNPJ_TEXT_RE.finditer(text)
+            if normalize_cnpj(match.group(1)) == normalized_target
+        ),
+        None,
+    )
+    document_host = (urlsplit(document.url).hostname or "").lower().removeprefix("www.")
+    if normalized_target and page_cnpj_match is not None and document_host == expected:
+        page_content = document.html or document.text or ""
+        page_sha256 = hashlib.sha256(page_content.encode("utf-8")).hexdigest()
+        page_document_witness = make_page_document_witness(page_content)
+        cnpj_snippet = _snippet(text, page_cnpj_match.group(1))
+        attested_records: list[SiteContactRecord] = []
+        for record in records:
+            if not record.email:
+                attested_records.append(record)
+                continue
+            allowed, binding_reason = account_mailbox_binding_context(
+                email=record.email,
+                snippet=record.snippet,
+                page_text=text,
+                cnpj_span=(page_cnpj_match.start(), page_cnpj_match.end()),
+                canonical_domain=expected,
+            )
+            if allowed and page_document_witness is None:
+                allowed = False
+                binding_reason = "PAGE_DOCUMENT_WITNESS_UNAVAILABLE"
+            if allowed:
+                attested_records.append(
+                    replace(
+                        record,
+                        structured_data={
+                            **record.structured_data,
+                            "page_cnpj14": normalized_target,
+                            "page_cnpj_evidence_sha256": page_sha256,
+                            "page_cnpj_snippet": cnpj_snippet,
+                            "page_document_witness": page_document_witness,
+                            "account_binding_context": binding_reason,
+                        },
+                    )
+                )
+            else:
+                attested_records.append(
+                    replace(
+                        record,
+                        reason_codes=tuple(
+                            dict.fromkeys(
+                                (*record.reason_codes, SITE_ACCOUNT_MAILBOX_CONTEXT_AMBIGUOUS)
+                            )
+                        ),
+                        structured_data={
+                            **record.structured_data,
+                            "account_binding_context": binding_reason,
+                        },
+                    )
+                )
+        records = attested_records
     return records
 
 
@@ -1097,7 +1172,7 @@ def contacts_to_observations(
                 source_type="company_website",
                 source_url=record.source_url,
                 evidence_snippet=record.snippet,
-                observed_at=now_iso(),
+                observed_at=record.observed_at,
                 extraction_method=record.extraction_method,
                 extra={"reason_codes": list(record.reason_codes), "page_title": record.page_title},
             )
@@ -1113,7 +1188,7 @@ def contacts_to_observations(
                     source_type="company_website",
                     source_url=record.source_url,
                     snippet=record.snippet,
-                    observed_at=now_iso(),
+                    observed_at=record.observed_at,
                     epistemic_class=EpistemicClass.OBSERVED,
                     evidence_id=person_evidence.evidence_id,
                     extra={"reason_codes": list(record.reason_codes), "freshness": record.freshness},
@@ -1129,15 +1204,18 @@ def contacts_to_observations(
             ambiguous=record.candidate and not associated,
         )
         foreign = bool(expected and _foreign_or_generic_domain(record.email, expected))
-        company_owned = not foreign or is_freemail(record.email)
+        page_cnpj = normalize_cnpj(record.structured_data.get("page_cnpj14"))
+        page_sha256 = str(record.structured_data.get("page_cnpj_evidence_sha256") or "").lower()
+        page_document_witness = record.structured_data.get("page_document_witness")
         email_evidence = make_evidence(
             field="email",
             value=record.email,
             epistemic_class=EpistemicClass.OBSERVED,
             source_type="company_website",
             source_url=record.source_url,
+            document_sha256=page_sha256 or None,
             evidence_snippet=record.snippet,
-            observed_at=now_iso(),
+            observed_at=record.observed_at,
             extraction_method=record.extraction_method,
             extra={
                 "reason_codes": list(record.reason_codes),
@@ -1149,6 +1227,45 @@ def contacts_to_observations(
             },
         )
         evidence.append(email_evidence)
+        route_evidence_id = email_evidence.evidence_id
+        page_identity: dict[str, Any] = {}
+        if page_cnpj == cnpj and re.fullmatch(r"[0-9a-f]{64}", page_sha256):
+            binding = make_evidence(
+                field="account_mailbox_binding",
+                value=f"{cnpj}|{record.email}",
+                epistemic_class=EpistemicClass.OBSERVED,
+                source_type="company_website",
+                source_url=record.source_url,
+                document_sha256=page_sha256,
+                evidence_snippet=(
+                    f"{record.structured_data.get('page_cnpj_snippet') or ''} | {record.snippet}"
+                ).strip(" |"),
+                observed_at=record.observed_at,
+                extraction_method=(
+                    "official_page_exact_cnpj_and_email:"
+                    f"{str(record.structured_data.get('account_binding_context') or '').lower()}"
+                ),
+                extra={
+                    "page_cnpj14": cnpj,
+                    "page_content_sha256": page_sha256,
+                    "email_evidence_id": email_evidence.evidence_id,
+                },
+            )
+            evidence.append(binding)
+            route_evidence_id = binding.evidence_id
+            page_identity = {
+                "company_associated": True,
+                "mailbox_company_evidence": "OBSERVED",
+                "official_domain": expected,
+                "page_cnpj14": cnpj,
+                "page_cnpj_evidence_id": binding.evidence_id,
+                "page_cnpj_evidence_sha256": page_sha256,
+                "page_document_witness": page_document_witness,
+                "account_mailbox_binding_evidence": binding.to_dict(),
+                "mailbox_observation_evidence": email_evidence.to_dict(),
+            }
+        page_attested = bool(page_identity)
+        company_owned = bool((not foreign and not is_freemail(record.email)) or page_attested)
         channels.append(
             ChannelObservation(
                 observation_id=stable_id("site-email", cnpj, record.email, record.source_url),
@@ -1159,10 +1276,10 @@ def contacts_to_observations(
                 source_type="company_website",
                 source_url=record.source_url,
                 snippet=record.snippet,
-                observed_at=now_iso(),
+                observed_at=record.observed_at,
                 epistemic_class=EpistemicClass.OBSERVED,
                 ownership=OwnershipStatus.COMPANY_OWNED if company_owned else OwnershipStatus.UNKNOWN,
-                evidence_id=email_evidence.evidence_id,
+                evidence_id=route_evidence_id,
                 extra={
                     "identity_explicitly_associated": associated,
                     "identity_ambiguous": bool(record.candidate and not associated),
@@ -1170,6 +1287,9 @@ def contacts_to_observations(
                     "mailbox_company_evidence": "OBSERVED" if company_owned else "UNKNOWN",
                     "email_discovery_class": discovery.value,
                     "association_reason_codes": list(record.reason_codes),
+                    "account_binding_context": record.structured_data.get(
+                        "account_binding_context"
+                    ),
                     "extraction_method": record.extraction_method,
                     "site_association_strength": "strong"
                     if associated
@@ -1182,8 +1302,10 @@ def contacts_to_observations(
                     "page_title": record.page_title,
                     "page_type": record.page_type,
                     "freshness": record.freshness,
+                    **({"source_published_at": record.freshness} if record.freshness else {}),
                     "same_block": record.same_block,
                     "site_crawl_version": SITE_CRAWL_VERSION,
+                    **page_identity,
                 },
             )
         )
@@ -1195,7 +1317,7 @@ def contacts_to_observations(
                 source_type="company_website",
                 source_url=record.source_url,
                 evidence_snippet=record.snippet,
-                observed_at=now_iso(),
+                observed_at=record.observed_at,
                 extraction_method="site_card_phone",
             )
             evidence.append(phone_evidence)
@@ -1208,7 +1330,7 @@ def contacts_to_observations(
                     source_type="company_website",
                     source_url=record.source_url,
                     snippet=record.snippet,
-                    observed_at=now_iso(),
+                    observed_at=record.observed_at,
                     epistemic_class=EpistemicClass.OBSERVED,
                     ownership=OwnershipStatus.COMPANY_OWNED,
                     evidence_id=phone_evidence.evidence_id,
@@ -1289,7 +1411,11 @@ def run_site_contact_crawl(
                     )
 
         if _looks_markup(document):
-            contacts = extract_site_contacts(document, canonical_domain=expected)
+            contacts = extract_site_contacts(
+                document,
+                canonical_domain=expected,
+                target_cnpj=context.cnpj,
+            )
             result.contacts.extend(contacts)
             people, channels, evidence = contacts_to_observations(context, contacts, canonical_domain=expected)
             result.people.extend(people)
@@ -1520,6 +1646,7 @@ def _record(
     same_block: bool,
     title: str,
     structured: dict[str, Any],
+    observed_at: str,
     freshness: str | None,
     reasons: Iterable[str],
     method: str,
@@ -1545,6 +1672,7 @@ def _record(
         same_block=same_block,
         page_title=title,
         structured_data=structured,
+        observed_at=observed_at,
         freshness=freshness,
         reason_codes=codes,
         extraction_method=method,

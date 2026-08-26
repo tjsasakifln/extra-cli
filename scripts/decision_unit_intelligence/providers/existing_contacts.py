@@ -287,6 +287,10 @@ class ExistingContactsProvider:
                     or extra.get("mailbox_person_evidence"),
                 }
             )
+            route_evidence_id = next(
+                (str(value) for value in route.evidence_ids if str(value).strip()),
+                item_evidence.evidence_id if item_evidence else None,
+            )
             channels.append(
                 ChannelObservation(
                     observation_id=stable_id("seed-channel", cnpj, email, route.source_url or ""),
@@ -302,7 +306,10 @@ class ExistingContactsProvider:
                     observed_at=route.observed_at,
                     epistemic_class=route.epistemic_class,
                     ownership=route.ownership,
-                    evidence_id=(item_evidence.evidence_id if item_evidence else None),
+                    # Keep the identity-binding evidence principal when the
+                    # historical route carries one. The seed-file observation
+                    # remains separately recorded in ``evidence`` above.
+                    evidence_id=route_evidence_id,
                     extra=extra,
                 )
             )

@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import threading
+from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -14,12 +15,16 @@ pytestmark = pytest.mark.real_db
 
 from scripts.confenge_target_fit.company_key import canonical_target_membership
 from scripts.crawl.worker import AdmissionLimits, admission_blockers
+from scripts.decision_unit_intelligence import batch_queue as batch_queue_module
 from scripts.decision_unit_intelligence.batch_outcomes import (
     classify_account,
     classify_exception,
     persist_outcome,
 )
-from scripts.decision_unit_intelligence.batch_projection import write_contact_projection
+from scripts.decision_unit_intelligence.batch_projection import (
+    build_contact_projection,
+    write_contact_projection,
+)
 from scripts.decision_unit_intelligence.batch_queue import (
     ContactDiscoveryQueue,
     canonical_payload_hash,
@@ -45,6 +50,7 @@ from scripts.decision_unit_intelligence.models import (
     RouteRelation,
     SearchLedger,
 )
+from tests.recipient_attestation_fixtures import exact_page_attestation
 
 MIGRATION = Path(__file__).resolve().parents[1] / "db" / "migrations" / "093_contact_discovery_batch.sql"
 DSN = os.getenv("LOCAL_DATALAKE_DSN") or os.getenv("TEST_DSN") or "postgresql://test:test@127.0.0.1:5433/extra_test"
@@ -113,6 +119,16 @@ def _account(cnpj: str, terminal: AccountTerminal = AccountTerminal.ACTIONABLE_R
 
 
 def _auditable_role_account(cnpj: str) -> AccountInvestigation:
+    mailbox = "licitacoes@acme.example.com"
+    source_url = "https://acme.example.com/contato"
+    observed_at = "2026-08-24T12:00:00Z"
+    attestation = exact_page_attestation(
+        account=cnpj,
+        mailbox=mailbox,
+        source_url=source_url,
+        observed_at=observed_at,
+        page_content=f"CNPJ {cnpj} | Contato: {mailbox}",
+    )
     return AccountInvestigation(
         company_entity_id=cnpj,
         cnpj=cnpj,
@@ -129,20 +145,21 @@ def _auditable_role_account(cnpj: str) -> AccountInvestigation:
                 reachability_class=ReachabilityClass.R4_ROLE_ROUTE,
                 action_mode=ActionMode.ROLE_EMAIL,
                 target_role="licitacoes",
-                channel_value="licitacoes@acme.example.com",
+                channel_value=mailbox,
                 route_relation=RouteRelation.ROUTES_TO_ROLE,
                 epistemic_class=EpistemicClass.OBSERVED,
                 source_type="company_website",
-                source_url="https://acme.example.com/contato",
-                evidence_ids=["ev-contact-page"],
+                source_url=source_url,
+                evidence_ids=attestation["evidence_ids"],
                 freshness=FreshnessState.FRESH,
                 ownership=OwnershipStatus.COMPANY_OWNED,
-                observed_at="2026-08-24T12:00:00Z",
+                observed_at=observed_at,
                 extra={
                     "official_domain": "acme.example.com",
                     "mailbox_company_evidence": "OBSERVED",
                     "mailbox_department_evidence": "OBSERVED",
                     "email_discovery_class": "ROLE_MAILBOX",
+                    **attestation,
                 },
             )
         ],
@@ -170,6 +187,7 @@ def _exact_registry_freemail_account(cnpj: str) -> AccountInvestigation:
                 route_relation=RouteRelation.ACCOUNT_LEVEL_ONLY,
                 epistemic_class=EpistemicClass.OBSERVED,
                 source_type="company_registry",
+                evidence_ids=[f"registry-evidence:{cnpj}"],
                 freshness=FreshnessState.FRESH,
                 ownership=OwnershipStatus.COMPANY_OWNED,
                 observed_at="2026-08-24T12:00:00Z",
@@ -259,6 +277,24 @@ def test_duplicate_enqueue_does_not_create_second_truth(dsn: str) -> None:
             search_backend="off",
             budget_version="budget.test",
         )
+
+
+def test_claim_without_injected_time_uses_database_clock(
+    dsn: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    with connect(dsn) as connection:
+        queue = ContactDiscoveryQueue(connection)
+        _seed(queue, cohort="c-db-clock", accounts=["11222333000181"])
+        monkeypatch.setattr(
+            batch_queue_module,
+            "utcnow",
+            lambda: datetime(2000, 1, 1, tzinfo=UTC),
+        )
+
+        claimed = queue.claim(worker_id="clock-worker")
+
+    assert len(claimed) == 1
+    assert claimed[0].canonical_account_id == "11222333000181"
 
 
 def test_canonical_population_enqueue_preserves_selection_evidence(
@@ -487,7 +523,7 @@ def test_complete_cohort_exports_verified_bridge_projection(dsn: str, tmp_path: 
     assert result["target_fit_mode"] == "SHADOW"
     assert result["target_fit_classifier_sha"] == "sha256:target-fit-test"
     assert result["sector_classifier_sha"] == "sha256:sector-test"
-    assert result["controlled_email_policy_version"] == "controlled-email-policy.v3"
+    assert result["controlled_email_policy_version"] == "controlled-email-policy.v6"
     assert result["terminal_equation"] == {
         "population_count": 1,
         "job_denominator": 1,
@@ -496,14 +532,22 @@ def test_complete_cohort_exports_verified_bridge_projection(dsn: str, tmp_path: 
         "holds": True,
     }
     assert result["enrichment_states"] == {"EMAIL_ROUTE_READY": 1}
+    assert result["preferred_provenance_source_distribution"] == {"company_website": 1}
+    assert result["preferred_route_class_by_provenance"] == {
+        "ROLE_OR_DEPARTMENT": {"company_website": 1}
+    }
     row = __import__("json").loads((tmp_path / "contacts.jsonl").read_text(encoding="utf-8"))
     assert row["cnpj14"] == "11222333000181"
     assert row["contacts"][0]["route_class"] == "ROLE_OR_DEPARTMENT"
     assert row["contacts"][0]["source_url"] == "https://acme.example.com/contato"
     assert row["contacts"][0]["source_reference"] == "https://acme.example.com/contato"
-    assert row["contacts"][0]["evidence_ids"] == ["ev-contact-page"]
+    assert row["contacts"][0]["evidence_ids"] == [
+        row["contacts"][0]["page_cnpj_evidence_id"]
+    ]
+    assert len(row["contacts"][0]["page_cnpj_evidence_id"]) == 24
     assert row["contacts"][0]["mailbox_department"] == "licitacoes"
     assert row["contacts"][0]["provenance"]["source_type"] == "company_website"
+    assert row["contacts"][0]["route_expires_at"] == "2027-02-20T12:00:00Z"
     assert row["preferred_email_route"]["source_url"] == "https://acme.example.com/contato"
 
 
@@ -564,6 +608,44 @@ def test_dlq_with_verified_partial_output_exports_explicit_blocker(
     assert row["contacts"] == []
     assert row["enrichment_state"] == "BLOCKED_WITH_REASON"
     assert row["enrichment_reason"] == "PROVIDER_HTTP_ERROR"
+
+
+def test_succeeded_job_with_missing_output_remains_a_visible_blocked_terminal(
+    dsn: str,
+) -> None:
+    cohort = "c-succeeded-missing-output"
+    cnpj = "11222333000181"
+    with connect(dsn) as connection:
+        queue = ContactDiscoveryQueue(connection)
+        _seed(
+            queue,
+            cohort=cohort,
+            accounts=[cnpj],
+            backend="searxng",
+            metadata={"population_count": 1},
+        )
+        job = queue.inspect(cohort_id=cohort)[0]
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE contact_discovery_jobs
+                SET status = 'SUCCEEDED', last_outcome = 'SUCCEEDED',
+                    output_pointer = NULL, output_hash = NULL
+                WHERE id = %s
+                """,
+                (job["id"],),
+            )
+
+        rows, report = build_contact_projection(queue, cohort_id=cohort)
+
+    assert len(rows) == 1
+    assert rows[0]["canonical_account_id"] == cnpj
+    assert rows[0]["enrichment_state"] == "BLOCKED_WITH_REASON"
+    assert rows[0]["enrichment_reason"] == "OUTPUT_POINTER_MISSING"
+    assert report["terminal_account_count"] == 1
+    assert report["enrichment_states"] == {"BLOCKED_WITH_REASON": 1}
+    assert report["integrity_failures"] == {"OUTPUT_POINTER_MISSING": 1}
+    assert report["terminal_coverage_complete"] is False
 
 
 def test_export_reclassifies_signed_discovery_evidence_under_current_policy(

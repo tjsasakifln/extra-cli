@@ -286,7 +286,10 @@ def _reconcile_preferred_route_projection(
         for row in contact_rows
         if normalize_cnpj14(str(row.get("cnpj14") or row.get("cnpj") or ""))
     ]
-    normalized_rows = apply_cross_account_preferred_mailbox_gate(policy_input)
+    normalized_rows = apply_cross_account_preferred_mailbox_gate(
+        policy_input,
+        require_account_identity_evidence=True,
+    )
     shared_mailbox_expected = _preferred_route_claims(normalized_rows, feed_leads=True)
     party_role_blocked_accounts = {
         normalize_cnpj14(str((lead.get("company") or {}).get("cnpj14") or ""))

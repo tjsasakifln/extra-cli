@@ -49,6 +49,13 @@ _CONTACT_EVIDENCE_FIELDS = (
     "registry_cnpj14",
     "source_provenance",
     "official_domain",
+    "page_cnpj14",
+    "page_cnpj_evidence_id",
+    "page_cnpj_evidence_sha256",
+    "page_document_witness",
+    "account_mailbox_binding_evidence",
+    "mailbox_observation_evidence",
+    "route_expires_at",
 )
 
 
@@ -855,4 +862,7 @@ def build_leads(
     )
     from scripts.decision_unit_intelligence.controlled_email import apply_cross_account_preferred_mailbox_gate
 
-    return apply_cross_account_preferred_mailbox_gate(leads)
+    return apply_cross_account_preferred_mailbox_gate(
+        leads,
+        require_account_identity_evidence=True,
+    )

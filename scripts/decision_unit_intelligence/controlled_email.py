@@ -13,6 +13,7 @@ from __future__ import annotations
 import re
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, replace
+from datetime import timedelta
 from enum import StrEnum
 from typing import Any
 from urllib.parse import urlparse
@@ -22,6 +23,7 @@ from scripts.confenge_contact_resolution.mailbox_purpose import (
     classify_mailbox_purpose,
 )
 from scripts.decision_unit_intelligence.email_resolution import is_third_party_professional_domain
+from scripts.decision_unit_intelligence.evidence import verified_page_document_bytes
 from scripts.decision_unit_intelligence.models import (
     AccountInvestigation,
     ActionMode,
@@ -34,7 +36,9 @@ from scripts.decision_unit_intelligence.models import (
     ReachabilityRoute,
     RouteRelation,
     SuppressionState,
+    fold_text,
     normalize_cnpj,
+    stable_id,
 )
 from scripts.decision_unit_intelligence.reachability import (
     email_domain,
@@ -43,6 +47,11 @@ from scripts.decision_unit_intelligence.reachability import (
     is_generic_mailbox,
     is_role_mailbox,
     looks_nominal_local,
+)
+from scripts.decision_unit_intelligence.route_class import (
+    FRESH_MAX_DAYS,
+    freshness_from_observed_at,
+    parse_observed_at,
 )
 
 MAX_DEPARTMENTAL_HYPOTHESES = 3
@@ -54,7 +63,7 @@ DEPARTMENTAL_HYPOTHESIS_LOCALS: tuple[str, ...] = (
     "contato",
 )
 
-CONTROLLED_EMAIL_POLICY_VERSION = "controlled-email-policy.v3"
+CONTROLLED_EMAIL_POLICY_VERSION = "controlled-email-policy.v6"
 CONTROLLED_EMAIL_SCHEMA_VERSION = "confenge.outreach.controlled_email.v1"
 
 # Tokens that genuinely mean "not suppressed". Anything else is treated as
@@ -105,6 +114,47 @@ SUPPRESSION_FLAG_FIELDS = (
 )
 _FALSEY_TOKENS = frozenset({"", "0", "FALSE", "NO", "NONE", "NULL", "N"})
 
+_DOCUMENT_CNPJ_RE = re.compile(
+    r"(?<!\d)(\d{2}[.\s]?\d{3}[.\s]?\d{3}[/\s]?\d{4}[-\s]?\d{2})(?!\d)"
+)
+_DOCUMENT_COUNTERPARTY_MARKERS = (
+    "agente publico",
+    "agente de contratacao",
+    "assessoria contabil",
+    "buyer",
+    "comprador",
+    "comissao de contratacao",
+    "contratante",
+    "contabilidade",
+    "equipe de apoio",
+    "escritorio contabil",
+    "fiscal do contrato",
+    "gestor do contrato",
+    "leiloeiro",
+    "oab ",
+    "orgao comprador",
+    "orgao licitante",
+    "orgao publico",
+    "prefeitura",
+    "pregoeiro",
+    "procurador do cliente",
+    "responsavel pela contratacao",
+    "tomador",
+)
+_DOCUMENT_COMPANY_CONTACT_MARKERS = (
+    "administrativo",
+    "comercial",
+    "contato",
+    "contratos",
+    "engenharia",
+    "fale conosco",
+    "financeiro",
+    "licitacao",
+    "licitacoes",
+    "orcamento",
+    "propostas",
+)
+
 EVIDENCE_OBSERVED = "OBSERVED"
 EVIDENCE_UNKNOWN = "UNKNOWN"
 
@@ -122,6 +172,7 @@ COMPANY_ASSOCIATION_SOURCES = frozenset(
         "official_documents",
         "official_document",
         "company_registry",
+        "registry",
         "site",
         "institutional_site",
         "contact_page",
@@ -734,7 +785,8 @@ def evaluate_controlled_email_eligible(
     department_ev = mailbox_department_evidence(route)
     person_ev = mailbox_person_evidence(route, person)
     suppression = route.suppression.value if route.suppression else SuppressionState.NONE.value
-    freshness = route.freshness.value if route.freshness else FreshnessState.UNKNOWN.value
+    freshness_reference = str(extra.get("source_published_at") or route.observed_at or "").strip()
+    freshness = freshness_from_observed_at(freshness_reference).value
     reasons: list[str] = [f"route_class:{route_class.value}"]
     risk = (
         ControlledRiskClass.RISKY
@@ -777,9 +829,11 @@ def evaluate_controlled_email_eligible(
     if domain and is_third_party_professional_domain(domain):
         eligible = False
         reasons.append("third_party_professional_domain")
-    if freshness == FreshnessState.STALE.value:
+    if freshness != FreshnessState.FRESH.value:
         eligible = False
-        reasons.append("stale")
+        reasons.append(f"freshness_not_fresh:{freshness.lower()}")
+        if freshness == FreshnessState.STALE.value:
+            reasons.append("stale")
     if route_class not in allowed_classes:
         eligible = False
         reasons.append("route_class_outside_default_pilot")
@@ -1080,6 +1134,13 @@ def route_from_feed_contact(
         "official_release_id",
         "registry_cnpj14",
         "source_provenance",
+        "page_cnpj14",
+        "page_cnpj_evidence_id",
+        "page_cnpj_evidence_sha256",
+        "page_document_witness",
+        "account_mailbox_binding_evidence",
+        "mailbox_observation_evidence",
+        "source_published_at",
     ):
         value = contact.get(field)
         if value is not None:
@@ -1119,12 +1180,14 @@ def route_from_feed_contact(
         epistemic = EpistemicClass.INFERRED
     if str(contact.get("email_derivation") or "").upper() == "INFERRED":
         epistemic = EpistemicClass.INFERRED
-    raw_freshness = str(contact.get("route_freshness") or contact.get("freshness") or "").upper()
-    freshness = (
-        FreshnessState(raw_freshness)
-        if raw_freshness in {item.value for item in FreshnessState}
-        else FreshnessState.UNKNOWN
-    )
+    freshness_reference = str(
+        contact.get("source_published_at")
+        or extra.get("source_published_at")
+        or contact.get("observed_at")
+        or contact.get("source_date")
+        or ""
+    ).strip()
+    freshness = freshness_from_observed_at(freshness_reference)
     return ReachabilityRoute(
         route_id=str(contact.get("source_contact_id") or contact.get("route_id") or mailbox),
         company_entity_id=account_id,
@@ -1302,6 +1365,15 @@ def stamp_and_rank_feed_contacts(
             stamped.append(contact)
             continue
         merged = {**contact, **feed_contact_from_classified(item)}
+        freshness_reference = str(
+            contact.get("source_published_at") or contact.get("observed_at") or ""
+        ).strip()
+        parsed_freshness_reference = parse_observed_at(freshness_reference)
+        merged.pop("route_expires_at", None)
+        if parsed_freshness_reference is not None and item.freshness != FreshnessState.UNKNOWN.value:
+            merged["route_expires_at"] = (
+                parsed_freshness_reference + timedelta(days=FRESH_MAX_DAYS)
+            ).isoformat().replace("+00:00", "Z")
         if "missing_observed_at" in item.reason_codes:
             merged["publication_block_reason"] = "MISSING_OBSERVED_AT"
         if contact.get("corroborating_sources"):
@@ -1311,15 +1383,68 @@ def stamp_and_rank_feed_contacts(
     return apply_preferred_recommended_alias(stamped)
 
 
-def _has_account_specific_mailbox_evidence(contact: dict[str, Any], *, account: str) -> bool:
-    """True only when a shared mailbox is independently bound to this account.
+def _document_binds_account_mailbox(
+    document_text: str,
+    *,
+    account: str,
+    mailbox: str,
+    official_domain: str,
+) -> bool:
+    """Re-evaluate page semantics from the witnessed bytes at publication time."""
 
-    A mailbox appearing on two accounts is not itself evidence that either
-    association is wrong.  The durable waterfall can, for example, observe the
-    same group mailbox in two distinct Receita Federal establishment records.
-    Preserve those independently evidenced claims. A website/domain match is
-    deliberately insufficient here: the same incorrectly resolved website can
-    make its URL, domain and mailbox agree for several unrelated CNPJs.
+    normalized_account = normalize_cnpj(account)
+    cnpj_spans = [
+        (match.start(), match.end())
+        for match in _DOCUMENT_CNPJ_RE.finditer(document_text)
+        if normalize_cnpj(match.group(1)) == normalized_account
+    ]
+    mailbox_matches = list(re.finditer(re.escape(mailbox), document_text.lower()))
+    if not cnpj_spans or not mailbox_matches:
+        return False
+
+    mailbox_domain = email_domain(mailbox)
+    if not is_freemail(mailbox):
+        if not _hosts_equivalent(mailbox_domain, official_domain):
+            return False
+        return any(
+            not any(
+                marker in fold_text(document_text[max(0, match.start() - 240) : match.end() + 240])
+                for marker in _DOCUMENT_COUNTERPARTY_MARKERS
+            )
+            for match in mailbox_matches
+        )
+
+    safe_binding_found = False
+    ambiguous_binding_found = False
+    for match in mailbox_matches:
+        for cnpj_start, cnpj_end in cnpj_spans:
+            distance = min(abs(match.start() - cnpj_end), abs(cnpj_start - match.end()))
+            if distance > 800:
+                continue
+            binding_window = fold_text(
+                document_text[
+                    max(0, min(match.start(), cnpj_start) - 240) :
+                    max(match.end(), cnpj_end) + 240
+                ]
+            )
+            if any(marker in binding_window for marker in _DOCUMENT_COUNTERPARTY_MARKERS):
+                ambiguous_binding_found = True
+                continue
+            email_context = fold_text(
+                document_text[max(0, match.start() - 180) : match.end() + 180]
+            )
+            if any(marker in email_context for marker in _DOCUMENT_COMPANY_CONTACT_MARKERS):
+                safe_binding_found = True
+    return safe_binding_found and not ambiguous_binding_found
+
+
+def contact_has_account_identity_attestation(contact: dict[str, Any], *, account: str) -> bool:
+    """Return whether one observation atomically binds a mailbox to an account.
+
+    Freshness and suppression are intentionally evaluated by the caller.  This
+    helper validates the immutable registry/page tuple itself so reconciliation
+    can keep a prior attestation without combining it with fields from a newer,
+    unrelated observation of the same mailbox.
     """
 
     evidence_ids = [str(value).strip() for value in (contact.get("evidence_ids") or []) if str(value).strip()]
@@ -1331,22 +1456,202 @@ def _has_account_specific_mailbox_evidence(contact: dict[str, Any], *, account: 
         and str(contact.get("mailbox_company_evidence") or "").upper() == EVIDENCE_OBSERVED
         and str(contact.get("channel_epistemic_class") or "").upper() == EpistemicClass.OBSERVED.value
         and str(contact.get("ownership_status") or "").upper() == OwnershipStatus.COMPANY_OWNED.value
-        and str(contact.get("route_freshness") or "").upper() == FreshnessState.FRESH.value
-        and str(contact.get("route_suppression") or "").upper() == SuppressionState.NONE.value
         and bool(evidence_ids)
         and bool(source_reference)
+        and bool(str(contact.get("observed_at") or "").strip())
     )
     if not common_proof:
         return False
 
-    if source_type == "company_registry":
+    if source_type in {"company_registry", "registry"}:
+        release_id = str(contact.get("official_release_id") or "").strip()
+        source_provenance = contact.get("source_provenance")
         return (
             normalize_cnpj(str(contact.get("registry_cnpj14") or "")) == normalize_cnpj(account)
             and str(contact.get("official_match_status") or "").upper() == "MATCHED"
-            and bool(str(contact.get("official_authority") or "").strip())
-            and bool(str(contact.get("official_release_id") or "").strip())
+            and str(contact.get("official_authority") or "").upper() == "RECEITA_FEDERAL"
+            and bool(release_id)
+            and isinstance(source_provenance, dict)
+            and str(source_provenance.get("release_id") or "").strip() == release_id
+            and bool(str(source_provenance.get("source_label") or "").strip())
         )
 
+    if source_type in COMPANY_ASSOCIATION_SOURCES:
+        page_cnpj = normalize_cnpj(str(contact.get("page_cnpj14") or ""))
+        page_evidence_id = str(contact.get("page_cnpj_evidence_id") or "").strip()
+        page_evidence_sha256 = str(contact.get("page_cnpj_evidence_sha256") or "").strip().lower()
+        source_url = str(contact.get("source_url") or "").strip()
+        official_domain = str(contact.get("official_domain") or "").strip()
+        mailbox = canonicalize_mailbox(str(contact.get("email") or contact.get("mailbox") or ""))
+        observed_at = str(contact.get("observed_at") or "").strip()
+        binding = contact.get("account_mailbox_binding_evidence")
+        binding = binding if isinstance(binding, dict) else {}
+        binding_extra = binding.get("extra")
+        binding_extra = binding_extra if isinstance(binding_extra, dict) else {}
+        mailbox_evidence = contact.get("mailbox_observation_evidence")
+        mailbox_evidence = mailbox_evidence if isinstance(mailbox_evidence, dict) else {}
+        email_evidence_id = str(binding_extra.get("email_evidence_id") or "").strip()
+        document_bytes = verified_page_document_bytes(
+            contact.get("page_document_witness"),
+            expected_sha256=page_evidence_sha256,
+        )
+        document_text = document_bytes.decode("utf-8", errors="replace") if document_bytes else ""
+
+        def _authentic_evidence(
+            item: dict[str, Any],
+            *,
+            field: str,
+            value: str,
+            extraction_prefix: str | None = None,
+        ) -> bool:
+            item_source_type = str(item.get("source_type") or "").strip()
+            item_source_url = str(item.get("source_url") or "").strip()
+            item_snippet = str(item.get("evidence_snippet") or "").strip()
+            item_method = str(item.get("extraction_method") or "").strip()
+            item_document_sha = str(item.get("document_sha256") or "").strip().lower()
+            expected_id = stable_id(
+                field,
+                value,
+                EpistemicClass.OBSERVED.value,
+                item_source_type,
+                item_source_url,
+                str(item.get("source_id") or ""),
+                str(item.get("document_id") or ""),
+                item_document_sha,
+                str(item.get("page") or ""),
+                str(item.get("section") or ""),
+                item_snippet,
+                str(item.get("observed_at") or ""),
+                str(item.get("published_at") or ""),
+                item_method,
+            )
+            method_folded = item_method.lower()
+            return bool(
+                item_source_type == "company_website"
+                and item_source_url == source_url
+                and item_document_sha == page_evidence_sha256
+                and str(item.get("extractor_version") or "") == "dui.extract.v2"
+                and item_snippet
+                and item_method
+                and not any(token in method_folded for token in ("infer", "pattern", "guess"))
+                and (extraction_prefix is None or method_folded.startswith(extraction_prefix))
+                and str(item.get("evidence_id") or "").strip() == expected_id
+            )
+
+        binding_snippet = str(binding.get("evidence_snippet") or "")
+        mailbox_snippet = str(mailbox_evidence.get("evidence_snippet") or "")
+        binding_digits = re.sub(r"\D", "", binding_snippet)
+        return (
+            page_cnpj == normalize_cnpj(account)
+            and bool(page_evidence_id)
+            and page_evidence_id in evidence_ids
+            and bool(re.fullmatch(r"[0-9a-f]{64}", page_evidence_sha256))
+            and document_bytes is not None
+            and _document_binds_account_mailbox(
+                document_text,
+                account=account,
+                mailbox=mailbox,
+                official_domain=official_domain,
+            )
+            and bool(source_url)
+            and bool(official_domain)
+            and _hosts_equivalent(_url_host(source_url), official_domain)
+            and str(binding.get("evidence_id") or "").strip() == page_evidence_id
+            and str(binding.get("field") or "").strip() == "account_mailbox_binding"
+            and str(binding.get("value") or "").strip().lower()
+            == f"{normalize_cnpj(account)}|{mailbox}"
+            and str(binding.get("epistemic_class") or "").upper() == EpistemicClass.OBSERVED.value
+            and str(binding.get("source_url") or "").strip() == source_url
+            and str(binding.get("observed_at") or "").strip() == observed_at
+            and _authentic_evidence(
+                binding,
+                field="account_mailbox_binding",
+                value=f"{normalize_cnpj(account)}|{mailbox}",
+                extraction_prefix="official_page_exact_cnpj_and_email:",
+            )
+            and normalize_cnpj(account) in binding_digits
+            and mailbox in binding_snippet.lower()
+            and normalize_cnpj(str(binding_extra.get("page_cnpj14") or ""))
+            == normalize_cnpj(account)
+            and str(binding_extra.get("page_content_sha256") or "").strip().lower()
+            == page_evidence_sha256
+            and bool(email_evidence_id)
+            and str(mailbox_evidence.get("evidence_id") or "").strip() == email_evidence_id
+            and str(mailbox_evidence.get("field") or "").strip() == "email"
+            and canonicalize_mailbox(str(mailbox_evidence.get("value") or "")) == mailbox
+            and str(mailbox_evidence.get("epistemic_class") or "").upper()
+            == EpistemicClass.OBSERVED.value
+            and str(mailbox_evidence.get("source_url") or "").strip() == source_url
+            and str(mailbox_evidence.get("observed_at") or "").strip() == observed_at
+            and _authentic_evidence(mailbox_evidence, field="email", value=mailbox)
+            and mailbox in mailbox_snippet.lower()
+        )
+
+    return False
+
+
+def _has_account_specific_mailbox_evidence(contact: dict[str, Any], *, account: str) -> bool:
+    """True only when a usable route is independently bound to this account."""
+
+    return bool(
+        contact_has_account_identity_attestation(contact, account=account)
+        and freshness_from_observed_at(
+            str(contact.get("source_published_at") or contact.get("observed_at") or "")
+        )
+        == FreshnessState.FRESH
+        and str(contact.get("route_suppression") or "").upper() == SuppressionState.NONE.value
+    )
+
+
+def observed_channels_have_account_identity_route(
+    channels: list[Any],
+    *,
+    account_id: str,
+) -> bool:
+    """Stop discovery only for a controlled route bound to the exact account."""
+
+    for channel in channels or []:
+        if isinstance(channel, dict):
+            raw = dict(channel)
+            raw_extra = raw.get("extra")
+            extra: dict[str, Any] = dict(raw_extra) if isinstance(raw_extra, dict) else {}
+            payload: dict[str, Any] = {**extra, **raw}
+            evidence_id = str(payload.get("evidence_id") or "").strip()
+        else:
+            channel_extra = getattr(channel, "extra", None)
+            extra = dict(channel_extra) if isinstance(channel_extra, dict) else {}
+            evidence_id = str(getattr(channel, "evidence_id", None) or "").strip()
+            epistemic = getattr(channel, "epistemic_class", None)
+            ownership = getattr(channel, "ownership", None)
+            payload = {
+                **extra,
+                "email": getattr(channel, "channel_value", None),
+                "name": getattr(channel, "person_name", None),
+                "ownership_status": ownership.value if hasattr(ownership, "value") else ownership,
+                "source_type": getattr(channel, "source_type", None),
+                "source_url": getattr(channel, "source_url", None),
+                "observed_at": getattr(channel, "observed_at", None),
+                "channel_epistemic_class": epistemic.value if hasattr(epistemic, "value") else epistemic,
+            }
+        if evidence_id and not payload.get("evidence_ids"):
+            payload["evidence_ids"] = [evidence_id]
+        payload.setdefault(
+            "source_reference",
+            payload.get("source_url") or evidence_id,
+        )
+        freshness_reference = payload.get("source_published_at") or payload.get("observed_at")
+        payload["route_freshness"] = freshness_from_observed_at(
+            str(freshness_reference or "")
+        ).value
+        payload.setdefault("route_suppression", SuppressionState.NONE.value)
+        if not observed_contact_is_controlled_eligible_company_route(
+            payload,
+            account_id=account_id,
+            official_domain=str(payload.get("official_domain") or "") or None,
+        ):
+            continue
+        if _has_account_specific_mailbox_evidence(payload, account=account_id):
+            return True
     return False
 
 
@@ -1398,14 +1703,88 @@ def apply_cross_account_preferred_mailbox_gate(
     leads: list[dict[str, Any]],
     *,
     owner: dict[str, str] | None = None,
+    require_account_identity_evidence: bool = False,
 ) -> list[dict[str, Any]]:
-    """Reject ambiguous sharing; preserve only identity-bound shared claims.
+    """Reject shared ambiguity and optionally require target-CNPJ evidence.
 
     ``owner`` carries a whole-feed decision computed elsewhere, so a streaming
     caller can apply the gate one lead at a time without holding the feed.
+    ``require_account_identity_evidence`` is the authoritative feed/delegated
+    policy boundary: a unique mailbox is not automatically an attributed
+    mailbox because website/domain name alignment can resolve the wrong
+    homonymous company. Until the producer carries an equally strong page-level
+    CNPJ attestation, only typed per-CNPJ registry evidence can remain on that
+    route. Human-reviewed cohort tooling keeps its existing domain diagnostics.
     """
     claimed: dict[str, str] = dict(owner if owner is not None else _shared_mailbox_owner(leads))
     out: list[dict[str, Any]] = []
+
+    def _demote(item: dict[str, Any], reason: str) -> None:
+        item["preferred_initial"] = False
+        item["recommended"] = False
+        item["controlled_email_eligible"] = False
+        item["email_send_ready"] = False
+        item["enrollable"] = False
+        item["preferred_rank"] = None
+        item["reason_codes"] = list(
+            dict.fromkeys(
+                [
+                    *(
+                        code
+                        for code in (item.get("reason_codes") or [])
+                        if code not in {"preferred_initial_route", "alternative_route"}
+                    ),
+                    reason,
+                ]
+            )
+        )
+
+    def _rerank_identity_bound(items: list[Any]) -> list[Any]:
+        """Promote the best surviving route without reclassifying a rejection."""
+
+        eligible: list[tuple[int, dict[str, Any]]] = []
+        for index, item in enumerate(items):
+            if not isinstance(item, dict) or item.get("controlled_email_eligible") is not True:
+                continue
+            eligible.append((index, item))
+
+        def _contact_sort_key(entry: tuple[int, dict[str, Any]]) -> tuple[int, int, str]:
+            _, item = entry
+            try:
+                route_class = EmailRouteClass(str(item.get("route_class") or ""))
+            except ValueError:
+                class_rank = 99
+            else:
+                class_rank = ROUTE_CLASS_RANK.get(route_class, 99)
+            mailbox = canonicalize_mailbox(str(item.get("email") or ""))
+            return (class_rank, classify_mailbox_purpose(mailbox).rank, mailbox)
+
+        ranked = sorted(eligible, key=_contact_sort_key)
+        rank_by_index = {item_index: rank for rank, (item_index, _) in enumerate(ranked, start=1)}
+        refreshed: list[Any] = []
+        for index, raw in enumerate(items):
+            if not isinstance(raw, dict):
+                refreshed.append(raw)
+                continue
+            item = dict(raw)
+            rank = rank_by_index.get(index)
+            if rank is None:
+                refreshed.append(item)
+                continue
+            preferred = rank == 1
+            item["preferred_rank"] = rank
+            item["preferred_initial"] = preferred
+            item["recommended"] = preferred
+            ranking_reason = "preferred_initial_route" if preferred else "alternative_route"
+            item["reason_codes"] = [
+                reason
+                for reason in (item.get("reason_codes") or [])
+                if reason not in {"preferred_initial_route", "alternative_route"}
+            ]
+            item["reason_codes"].append(ranking_reason)
+            refreshed.append(item)
+        return refreshed
+
     for lead in leads:
         if not isinstance(lead, dict):
             out.append(lead)
@@ -1419,37 +1798,37 @@ def apply_cross_account_preferred_mailbox_gate(
                 continue
             item = dict(contact)
             mailbox = canonicalize_mailbox(str(item.get("email") or ""))
-            if item.get("preferred_initial") and mailbox:
+            authorization_bearing = any(
+                item.get(field) is True
+                for field in (
+                    "preferred_initial",
+                    "recommended",
+                    "controlled_email_eligible",
+                    "email_send_ready",
+                )
+            )
+            if authorization_bearing and mailbox:
                 chosen_owner = claimed.get(mailbox)
                 independently_attributed = _has_account_specific_mailbox_evidence(item, account=account)
-                if chosen_owner == "":
-                    item["preferred_initial"] = False
-                    item["recommended"] = False
-                    item["controlled_email_eligible"] = False
-                    item["reason_codes"] = list(
-                        dict.fromkeys(
-                            [
-                                *(item.get("reason_codes") or []),
-                                "shared_mailbox_without_account_identity_evidence",
-                            ]
-                        )
-                    )
+                if item.get("preferred_initial") and chosen_owner == "":
+                    _demote(item, "shared_mailbox_without_account_identity_evidence")
                 elif chosen_owner is not None and chosen_owner != account and not independently_attributed:
-                    item["preferred_initial"] = False
-                    item["recommended"] = False
-                    item["controlled_email_eligible"] = False
-                    item["reason_codes"] = list(
-                        dict.fromkeys(
-                            [
-                                *(item.get("reason_codes") or []),
-                                "duplicate_preferred_mailbox_across_accounts",
-                            ]
-                        )
-                    )
-                else:
+                    _demote(item, "duplicate_preferred_mailbox_across_accounts")
+                elif require_account_identity_evidence and not independently_attributed:
+                    _demote(item, "recipient_without_account_identity_evidence")
+                elif item.get("preferred_initial"):
                     claimed[mailbox] = account
             updated_contacts.append(item)
+        if require_account_identity_evidence:
+            updated_contacts = _rerank_identity_bound(updated_contacts)
         refreshed = dict(lead)
         refreshed["contacts"] = updated_contacts
+        if "email_send_ready" in refreshed:
+            refreshed["email_send_ready"] = any(
+                contact.get("email_send_ready") is True
+                and contact.get("controlled_email_eligible") is True
+                for contact in updated_contacts
+                if isinstance(contact, dict)
+            )
         out.append(refreshed)
     return out

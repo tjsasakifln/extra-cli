@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from scripts.decision_unit_intelligence.batch_projection import reconcile_prior_contact_rows
+from tests.recipient_attestation_fixtures import exact_page_attestation
 
 ACCOUNT = "11222333000181"
 MAILBOX = "acmeengenharia@gmail.com"
@@ -24,7 +25,10 @@ def _prior_registry_contact() -> dict:
         "official_authority": "RECEITA_FEDERAL",
         "official_release_id": "rfb-2026-08",
         "registry_cnpj14": ACCOUNT,
-        "source_provenance": {"release_id": "rfb-2026-08"},
+        "source_provenance": {
+            "release_id": "rfb-2026-08",
+            "source_label": "rfb_public_cadastral",
+        },
     }
 
 
@@ -156,3 +160,57 @@ def test_unobserved_historical_route_remains_stored_but_cannot_be_preferred() ->
     assert rows[0]["contacts"][0]["controlled_email_eligible"] is False
     assert rows[0]["contacts"][0]["risk_class"] == "RISKY"
     assert rows[0]["contacts"][0]["publication_block_reason"] == "MISSING_OBSERVED_AT"
+
+
+def test_page_attestation_is_not_laundered_through_new_unbound_observation() -> None:
+    old_url = "https://valid-a.example/contato"
+    observed_at = "2024-01-01T00:00:00Z"
+    attestation = exact_page_attestation(
+        account=ACCOUNT,
+        mailbox=MAILBOX,
+        source_url=old_url,
+        observed_at=observed_at,
+        page_content=f"CNPJ {ACCOUNT} | Contato: {MAILBOX}",
+    )
+    prior_contact = {
+        "email": MAILBOX,
+        "source": "contact_page",
+        "source_type": "contact_page",
+        "source_reference": old_url,
+        "source_url": old_url,
+        "official_domain": "valid-a.example",
+        "observed_at": observed_at,
+        "channel_epistemic_class": "OBSERVED",
+        "route_freshness": "STALE",
+        "route_suppression": "NONE",
+        "ownership_status": "COMPANY_OWNED",
+        "company_associated": True,
+        "mailbox_company_evidence": "OBSERVED",
+        **attestation,
+    }
+    current_contact = {
+        "email": MAILBOX,
+        "source": "contact_page",
+        "source_type": "contact_page",
+        "source_reference": "https://wrong-b.example/contato",
+        "source_url": "https://wrong-b.example/contato",
+        "observed_at": "2026-08-26T12:00:00Z",
+        "channel_epistemic_class": "OBSERVED",
+        "route_freshness": "FRESH",
+        "route_suppression": "NONE",
+        "ownership_status": "UNKNOWN",
+        "company_associated": False,
+        "mailbox_company_evidence": "UNKNOWN",
+    }
+
+    rows, metrics = reconcile_prior_contact_rows(
+        [_row(current_contact, state="BLOCKED_WITH_REASON", reason="NO_IDENTITY_PROOF")],
+        [_row(prior_contact, state="EMAIL_ROUTE_READY", reason="selected")],
+    )
+
+    assert metrics["preferred_after_reconciliation"] == 0
+    merged = rows[0]["contacts"][0]
+    assert merged["source_url"] == old_url
+    assert merged["observed_at"] == "2024-01-01T00:00:00Z"
+    assert merged["route_freshness"] == "STALE"
+    assert rows[0]["enrichment_state"] == "BLOCKED_WITH_REASON"

@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from scripts.decision_unit_intelligence.batch_contact_metadata import attach_route_evidence
+from scripts.decision_unit_intelligence.evidence import verified_page_document_bytes
+from scripts.warmbly_bridge.mapping import _map_contact
+from tests.recipient_attestation_fixtures import exact_page_attestation
 
 
 def test_exact_registry_association_proof_survives_contact_projection() -> None:
@@ -46,3 +49,44 @@ def test_exact_registry_association_proof_survives_contact_projection() -> None:
     assert contact["route_freshness"] == "FRESH"
     assert contact["route_suppression"] == "NONE"
     assert contact["provenance"]["epistemic_class"] == "OBSERVED"
+
+
+def test_page_document_witness_survives_projection_and_warmbly_mapping() -> None:
+    cnpj = "12345678000190"
+    mailbox = "contato@empresa.example"
+    source_url = "https://empresa.example/contato"
+    observed_at = "2026-08-24T12:00:00Z"
+    attestation = exact_page_attestation(
+        account=cnpj,
+        mailbox=mailbox,
+        source_url=source_url,
+        observed_at=observed_at,
+    )
+    account = {
+        "routes": [
+            {
+                "route_id": "page-route-1",
+                "channel_value": mailbox,
+                "source_type": "company_website",
+                "source_url": source_url,
+                "observed_at": observed_at,
+                "ownership": "COMPANY_OWNED",
+                "freshness": "FRESH",
+                "suppression": "NONE",
+                "epistemic_class": "OBSERVED",
+                "extra": {"official_domain": "empresa.example", **attestation},
+            }
+        ]
+    }
+
+    projected = attach_route_evidence(
+        [{"source_contact_id": "page-route-1", "email": mailbox}],
+        account=account,
+    )[0]
+    mapped = _map_contact(projected, idx=0, cnpj=cnpj)
+
+    assert mapped["page_document_witness"] == attestation["page_document_witness"]
+    assert verified_page_document_bytes(
+        mapped["page_document_witness"],
+        expected_sha256=mapped["page_cnpj_evidence_sha256"],
+    ) is not None

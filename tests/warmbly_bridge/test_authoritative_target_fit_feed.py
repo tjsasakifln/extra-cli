@@ -12,6 +12,7 @@ import pytest
 from scripts.confenge_target_fit.company_key import canonical_cnpj14, canonical_target_membership
 from scripts.warmbly_bridge.export import ExportConfig, export_outreach
 from scripts.warmbly_bridge.io_jsonl import InputError
+from tests.recipient_attestation_fixtures import exact_page_attestation
 
 NOW = "2026-08-12T12:00:00Z"
 
@@ -130,6 +131,11 @@ def _export(
                     "role": "Diretora Comercial",
                     "email": f"maria.souza@{domains[index]}",
                     "ownership_status": "COMPANY_OWNED",
+                    "company_associated": True,
+                    "mailbox_company_evidence": "OBSERVED",
+                    "channel_epistemic_class": "OBSERVED",
+                    "route_freshness": "FRESH",
+                    "route_suppression": "NONE",
                     "verification_status": "OBSERVED",
                     "email_explicitly_published": True,
                     "name_explicitly_published": True,
@@ -137,8 +143,16 @@ def _export(
                     "human_identity_evidence_valid": True,
                     "identity_evidence_urls": [f"https://{domains[index]}/equipe"],
                     "evidence_sha256": f"{index + 1:064x}",
+                    "source_type": "contact_page",
+                    "source_url": f"https://{domains[index]}/equipe",
+                    "source_reference": f"https://{domains[index]}/equipe",
+                    "evidence_ids": [f"page-cnpj:{row['cnpj14']}:equipe"],
+                    "page_cnpj14": row["cnpj14"],
+                    "page_cnpj_evidence_id": f"page-cnpj:{row['cnpj14']}:equipe",
+                    "page_cnpj_evidence_sha256": f"{index + 1000:064x}",
+                    "official_domain": domains[index],
                     "provenance": {
-                        "source_type": "site",
+                        "source_type": "contact_page",
                         "source_url": f"https://{domains[index]}/equipe",
                         "observed_at": NOW,
                         "evidence_sha256": f"{index + 1:064x}",
@@ -149,6 +163,11 @@ def _export(
                     "role": "Responsavel Tecnico",
                     "email": f"joao.lima@{domains[index]}",
                     "ownership_status": "COMPANY_OWNED",
+                    "company_associated": True,
+                    "mailbox_company_evidence": "OBSERVED",
+                    "channel_epistemic_class": "OBSERVED",
+                    "route_freshness": "FRESH",
+                    "route_suppression": "NONE",
                     "verification_status": "OBSERVED",
                     "confidence": "0.8",
                     "email_explicitly_published": True,
@@ -157,8 +176,16 @@ def _export(
                     "human_identity_evidence_valid": True,
                     "identity_evidence_urls": [f"https://{domains[index]}/equipe-tecnica"],
                     "evidence_sha256": f"{index + 100:064x}",
+                    "source_type": "contact_page",
+                    "source_url": f"https://{domains[index]}/equipe-tecnica",
+                    "source_reference": f"https://{domains[index]}/equipe-tecnica",
+                    "evidence_ids": [f"page-cnpj:{row['cnpj14']}:equipe-tecnica"],
+                    "page_cnpj14": row["cnpj14"],
+                    "page_cnpj_evidence_id": f"page-cnpj:{row['cnpj14']}:equipe-tecnica",
+                    "page_cnpj_evidence_sha256": f"{index + 2000:064x}",
+                    "official_domain": domains[index],
                     "provenance": {
-                        "source_type": "site",
+                        "source_type": "contact_page",
                         "source_url": f"https://{domains[index]}/equipe-tecnica",
                         "observed_at": NOW,
                         "evidence_sha256": f"{index + 100:064x}",
@@ -168,6 +195,20 @@ def _export(
         }
         for index, row in enumerate(universe)
     ]
+    for account_contacts in contacts:
+        cnpj = account_contacts["cnpj14"]
+        for contact in account_contacts["contacts"]:
+            source_url = contact["source_url"]
+            contact["observed_at"] = NOW
+            contact.update(
+                exact_page_attestation(
+                    account=cnpj,
+                    mailbox=contact["email"],
+                    source_url=source_url,
+                    observed_at=NOW,
+                    page_content=f"CNPJ {cnpj} | Contato: {contact['email']}",
+                )
+            )
     intel_path = _write_jsonl(source / "intelligence.jsonl", intelligence)
     if authoritative_contact_report:
         confirmed_cnpjs = {
@@ -684,7 +725,7 @@ def test_declared_ambiguous_shared_mailbox_is_policy_excluded_and_reconciles(tmp
     )
 
     projection = result["authoritative_contact_projection"]
-    assert projection["projection_policy_version"] == "controlled-email-policy.v3"
+    assert projection["projection_policy_version"] == "controlled-email-policy.v6"
     assert projection["raw_input_preferred_route_count"] == 2
     assert projection["policy_excluded_preferred_route_count"] == 2
     assert projection["input_preferred_route_count"] == 0
@@ -693,6 +734,75 @@ def test_declared_ambiguous_shared_mailbox_is_policy_excluded_and_reconciles(tmp
     chunk = json.loads((source / "feed" / "chunk_0000.json").read_text())
     contacts = [contact for lead in chunk["leads"] for contact in lead["contacts"]]
     assert not any(contact.get("preferred_initial") for contact in contacts)
+
+
+def test_unique_website_mailbox_without_cnpj_attestation_is_policy_excluded(tmp_path: Path) -> None:
+    account = "20368709000151"
+    source = tmp_path / "unique-unattributed"
+    source.mkdir()
+    universe_path = _write_jsonl(
+        source / "universe.jsonl",
+        [{"cnpj14": account, "razao_social": "PIMENTA E SANTOS LTDA", "commercial_state": "NEW"}],
+    )
+    target_fit_path = _write_jsonl(
+        source / "target-fit.jsonl",
+        [_decision(account, "TARGET_CONFIRMED", evidence_ids=["contract-pimenta"])],
+    )
+    contacts_path = _write_jsonl(
+        source / "contacts.jsonl",
+        [
+            {
+                "cnpj14": account,
+                "official_domain": "pimenta.com.br",
+                "contacts": [
+                    {
+                        "email": "escritorio@pimenta.com.br",
+                        "preferred_initial": True,
+                        "recommended": True,
+                        "ownership_status": "COMPANY_OWNED",
+                        "company_associated": True,
+                        "mailbox_company_evidence": "OBSERVED",
+                        "channel_epistemic_class": "OBSERVED",
+                        "route_freshness": "FRESH",
+                        "route_suppression": "NONE",
+                        "source_type": "contact_page",
+                        "source_reference": "https://pimenta.com.br/contato",
+                        "source_url": "https://pimenta.com.br/contato",
+                        "evidence_ids": ["website-contact-evidence"],
+                        "observed_at": NOW,
+                    }
+                ],
+            }
+        ],
+    )
+
+    result = export_outreach(
+        ExportConfig(
+            universe=universe_path,
+            account_intelligence=_write_jsonl(source / "intelligence.jsonl", []),
+            contacts=contacts_path,
+            target_fit_snapshot=target_fit_path,
+            expected_universe_count=1,
+            out_dir=source / "feed",
+            generated_at=NOW,
+            datalake_watermark=NOW,
+            repo_sha="authoritative-test",
+        )
+    )
+
+    projection = result["authoritative_contact_projection"]
+    assert projection["raw_input_preferred_route_count"] == 1
+    assert projection["policy_excluded_preferred_route_count"] == 1
+    assert projection["input_preferred_route_count"] == 0
+    assert projection["output_preferred_route_count"] == 0
+    assert projection["preferred_routes_reconciled"] is True
+    chunk = json.loads((source / "feed" / "chunk_0000.json").read_text())
+    contact = chunk["leads"][0]["contacts"][0]
+    assert chunk["leads"][0]["email_send_ready"] is False
+    assert contact["preferred_initial"] is False
+    assert contact["controlled_email_eligible"] is False
+    assert contact["email_send_ready"] is False
+    assert "recipient_without_account_identity_evidence" in contact["reason_codes"]
 
 
 def test_null_new_membership_field_falls_back_to_explicit_canonical_value(

@@ -130,16 +130,17 @@
           "email_validated": false,
           "risk_class": "ALLOWED",
           "channel_epistemic_class": "OBSERVED",
-          "route_freshness": "UNKNOWN",
+          "route_freshness": "FRESH",
           "route_suppression": "NONE",
-          "policy_version": "controlled-email-policy.v3",
+          "policy_version": "controlled-email-policy.v6",
           "schema_version": "confenge.outreach.controlled_email.v1",
           "reason_codes": [
             "route_class:DIRECT_PERSON",
             "named_person_evidence_present",
             "controlled_email_eligible",
             "preferred_initial_route"
-          ]
+          ],
+          "route_expires_at": "2027-02-20T12:00:00Z"
         },
         {
           "source_contact_id": "c-comercial",
@@ -206,16 +207,17 @@
           "email_validated": false,
           "risk_class": "ALLOWED",
           "channel_epistemic_class": "OBSERVED",
-          "route_freshness": "UNKNOWN",
+          "route_freshness": "FRESH",
           "route_suppression": "NONE",
-          "policy_version": "controlled-email-policy.v3",
+          "policy_version": "controlled-email-policy.v6",
           "schema_version": "confenge.outreach.controlled_email.v1",
           "reason_codes": [
             "route_class:ROLE_OR_DEPARTMENT",
             "person_unknown",
             "controlled_email_eligible",
             "alternative_route"
-          ]
+          ],
+          "route_expires_at": "2027-02-20T12:00:00Z"
         },
         {
           "source_contact_id": "c-contato",
@@ -282,16 +284,17 @@
           "email_validated": false,
           "risk_class": "ALLOWED",
           "channel_epistemic_class": "OBSERVED",
-          "route_freshness": "UNKNOWN",
+          "route_freshness": "FRESH",
           "route_suppression": "NONE",
-          "policy_version": "controlled-email-policy.v3",
+          "policy_version": "controlled-email-policy.v6",
           "schema_version": "confenge.outreach.controlled_email.v1",
           "reason_codes": [
             "route_class:GENERIC_COMPANY",
             "person_unknown",
             "controlled_email_eligible",
             "alternative_route"
-          ]
+          ],
+          "route_expires_at": "2027-02-20T12:00:00Z"
         },
         {
           "source_contact_id": "c-gmail",
@@ -358,16 +361,17 @@
           "email_validated": false,
           "risk_class": "ALLOWED",
           "channel_epistemic_class": "OBSERVED",
-          "route_freshness": "UNKNOWN",
+          "route_freshness": "FRESH",
           "route_suppression": "NONE",
-          "policy_version": "controlled-email-policy.v3",
+          "policy_version": "controlled-email-policy.v6",
           "schema_version": "confenge.outreach.controlled_email.v1",
           "reason_codes": [
             "route_class:PUBLIC_COMPANY_FREEMAIL",
             "person_unknown",
             "controlled_email_eligible",
             "alternative_route"
-          ]
+          ],
+          "route_expires_at": "2027-02-20T12:00:00Z"
         },
         {
           "source_contact_id": "c-inferred",
@@ -436,9 +440,9 @@
           "email_validated": false,
           "risk_class": "RISKY",
           "channel_epistemic_class": "INFERRED",
-          "route_freshness": "UNKNOWN",
+          "route_freshness": "FRESH",
           "route_suppression": "NONE",
-          "policy_version": "controlled-email-policy.v3",
+          "policy_version": "controlled-email-policy.v6",
           "schema_version": "confenge.outreach.controlled_email.v1",
           "reason_codes": [
             "route_class:PROBABILISTIC_OR_RISKY",
@@ -450,7 +454,8 @@
             "missing_provenance",
             "person_unknown",
             "provenance_chain_invalid"
-          ]
+          ],
+          "route_expires_at": "2027-02-20T12:00:00Z"
         }
       ],
       "contracts": [],

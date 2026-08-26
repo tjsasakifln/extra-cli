@@ -21,6 +21,7 @@ from scripts.decision_unit_intelligence.models import (
 
 FRESH_MAX_DAYS = 180
 AGING_MAX_DAYS = 365
+MAX_FUTURE_CLOCK_SKEW = timedelta(minutes=5)
 
 _EXPLICIT_WHATSAPP_TOKENS = (
     "whatsapp",
@@ -79,7 +80,7 @@ def freshness_from_observed_at(
     *,
     now: datetime | None = None,
 ) -> FreshnessState:
-    """UNKNOWN only when no parseable observed_at exists."""
+    """Classify a timestamp, rejecting materially future-dated observations."""
     parsed = parse_observed_at(observed_at)
     if parsed is None:
         return FreshnessState.UNKNOWN
@@ -87,6 +88,8 @@ def freshness_from_observed_at(
     if current.tzinfo is None:
         current = current.replace(tzinfo=UTC)
     age = current - parsed
+    if age < -MAX_FUTURE_CLOCK_SKEW:
+        return FreshnessState.UNKNOWN
     if age <= timedelta(days=FRESH_MAX_DAYS):
         return FreshnessState.FRESH
     if age <= timedelta(days=AGING_MAX_DAYS):
@@ -300,7 +303,11 @@ def finalize_route_draft(
                 reachability = ReachabilityClass.R5_CORPORATE_ONLY
                 action = ActionMode.MANUAL_WHATSAPP
 
-    freshness = freshness_from_observed_at(obs.observed_at)
+    source_published_at = str(extra.get("source_published_at") or "").strip() or None
+    freshness = freshness_from_observed_at(source_published_at or obs.observed_at)
+    if source_published_at:
+        extra["source_published_at"] = source_published_at
+        extra["freshness_reference"] = "SOURCE_PUBLICATION"
     if ctx.stale_marked:
         freshness = FreshnessState.STALE
         reasons.append("STALE_NUMBER_MARKED")

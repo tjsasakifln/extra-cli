@@ -70,6 +70,16 @@ _SEED_PATHS: tuple[str, ...] = (
     "scripts/ops/confenge_rerank_after_registry.py",
     "scripts/ops/confenge_contract_status.py",
     "scripts/ops/confenge_opencnpj_bulk.py",
+    # #469 durable contact discovery and authoritative publication surface.
+    # Import discovery expands these entry points through providers, projection,
+    # controlled-email policy and the Warmbly bridge.
+    "scripts/ops/confenge_contact_cycle.py",
+    "scripts/ops/confenge_feed_cycle.py",
+    "scripts/decision_unit_intelligence/batch_projection.py",
+    "scripts/decision_unit_intelligence/providers/public_search.py",
+    "scripts/decision_unit_intelligence/runner.py",
+    "scripts/decision_unit_intelligence/site_contact_crawl.py",
+    "scripts/warmbly_bridge/export.py",
     "scripts/ops/eval_contract_relevance_holdout.py",
     "scripts/ops/eval_contract_relevance_real_holdout.py",
     "scripts/ops/extract_confenge_real_holdout_corpus.py",

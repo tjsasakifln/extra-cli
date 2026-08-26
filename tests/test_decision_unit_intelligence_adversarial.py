@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from scripts.decision_unit_intelligence import evidence as evidence_module
 from scripts.decision_unit_intelligence.cohort import TRACK_A_CNPJS
 from scripts.decision_unit_intelligence.decision_policy import (
     SERVICE_REAJUSTE_14133,
@@ -40,7 +41,12 @@ from scripts.decision_unit_intelligence.models import (
 )
 from scripts.decision_unit_intelligence.operator_pack import build_card
 from scripts.decision_unit_intelligence.orchestrator import investigate_account
-from scripts.decision_unit_intelligence.providers.historical_campaign import parse_qsa_blob
+from scripts.decision_unit_intelligence.providers.base import InvestigationContext
+from scripts.decision_unit_intelligence.providers.historical_campaign import (
+    CAMPAIGN_OBSERVED_AT,
+    HistoricalCampaignProvider,
+    parse_qsa_blob,
+)
 from scripts.decision_unit_intelligence.reachability import (
     assert_no_auto_send,
     classify_channel_observation,
@@ -624,3 +630,36 @@ def test_track_a_manifest_has_thirty_real_cnpjs():
         payload = json.loads(artifact.read_text(encoding="utf-8"))
         live = [r["cnpj"] for r in payload["reviews"]]
         assert live == TRACK_A_CNPJS
+
+
+def test_historical_campaign_replay_has_stable_evidence_and_one_timestamp(monkeypatch) -> None:
+    moments = iter(
+        (
+            "2026-08-26T12:00:00Z",
+            "2026-08-26T12:00:00Z",
+            "2026-08-26T12:00:01Z",
+            "2026-08-26T12:00:01Z",
+        )
+    )
+    monkeypatch.setattr(evidence_module, "now_iso", lambda: next(moments))
+    cnpj = "12345678000190"
+    provider = HistoricalCampaignProvider(
+        index={
+            cnpj: {
+                "qsa": "MARIA SILVA (Sócia-Administradora)",
+                "email": "contato@empresa.example",
+                "fonte": "https://empresa.example/contato",
+            }
+        }
+    )
+    context = InvestigationContext(cnpj=cnpj)
+
+    first = provider.collect(context)
+    second = provider.collect(context)
+
+    assert [item.evidence_id for item in first.evidence] == [
+        item.evidence_id for item in second.evidence
+    ]
+    assert {item.observed_at for item in first.evidence} == {CAMPAIGN_OBSERVED_AT}
+    assert {item.observed_at for item in first.people} == {CAMPAIGN_OBSERVED_AT}
+    assert {item.observed_at for item in first.channels} == {CAMPAIGN_OBSERVED_AT}

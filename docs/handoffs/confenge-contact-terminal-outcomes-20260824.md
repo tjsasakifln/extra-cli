@@ -63,3 +63,66 @@ stamping therefore demotes any route without `observed_at` from
 `controlled_email_eligible` and preferred ranking with the explicit reason
 `missing_observed_at`. The route remains stored as evidence; it is not promoted
 to the Warmbly controlled-review lane.
+
+## Authoritative recipient identity boundary
+
+Policy `controlled-email-policy.v6` makes the terminal projection and the
+authoritative feed apply the same target-identity gate. A unique website
+mailbox is not account evidence: it is publishable only when the official page
+also carries the exact target CNPJ, a bound evidence ID and a bounded document
+witness whose bytes reproduce the SHA-256. The gate rechecks the target CNPJ,
+mailbox and buyer/contracting-agent semantics from those bytes; metadata cannot
+self-certify a page. Materially future-dated observations become `UNKNOWN` and
+cannot carry an expiry. Evidence IDs bind explicit source timestamps while
+remaining stable when a non-observation inference merely records its execution
+time; historical campaign evidence and observations share their fixed source
+date. The trusted registry path still requires the complete
+Receita Federal tuple for that CNPJ.
+Shared mailboxes without independent evidence for each claimant fail closed,
+and a surviving identity-bound alternative is reranked instead of losing the
+account unnecessarily.
+
+A final v6 read-only replay over a local copy of production cohort
+`target-confirmed-auto-20260826T035908Z` (8,653 terminal accounts) projects
+6,501 `EMAIL_ROUTE_READY` and 2,152 `BLOCKED_WITH_REASON`: 168 accounts are
+demoted from the v3 result, while 18 retain READY through a valid registry
+alternative. Preferred yield becomes 1,810 `GENERIC_COMPANY`, 4,395
+`PUBLIC_COMPANY_FREEMAIL`, 296 `ROLE_OR_DEPARTMENT` and zero unproven
+`DIRECT_PERSON`; every preferred route in this cohort came from the exact-CNPJ
+company-registry provenance. This remains a pre-deploy simulation, not a live
+publication claim; post-deploy run and publication hashes remain to be recorded
+on issue #469.
+
+The same replay persisted expiry on all 6,501 preferred routes. Rehashing the
+document witness is fail-closed for legacy page attestations, so every surviving
+preferred route came from the exact-CNPJ registry tuple. A deterministic
+stratified audit of 30 routes in each populated class (90 total) found zero
+failures for exact account attestation, effective freshness, expiry consistency,
+suppression, or guessed/inferred origin. `DIRECT_PERSON` had no population to
+sample. The five largest terminal blockers were waterfall/provider failure
+(1,964), recipient without account identity evidence (151), shared mailbox
+without identity evidence (16), provider HTTP error (9), and provider timeout
+(9).
+
+The existing `public_search` and `company_website` providers emit that page
+attestation only when the mailbox context is attributable to the target. The
+binding carries two linked semantic evidence objects and reconciles page URL,
+observation, exact CNPJ, mailbox and content hash. Buyer/contracting-authority
+context (including an auctioneer/pregoeiro) and foreign corporate domains are
+rejected; a public freemail must be locally near the target CNPJ and carry a
+positive company-contact label in that same context. A search result snippet
+never emits the binding.
+Discovery continues through its bounded tiers when a named route lacks this
+proof instead of treating identity/domain alignment as a positive early stop.
+
+Page publication time is distinct from crawl observation time and controls
+freshness plus the persisted `route_expires_at`; every gate recomputes freshness
+from that timestamp instead of trusting a stored `FRESH` label, and a cache
+replay does not renew stale material. Page evidence IDs are recomputed from the
+persisted evidence fields, while both linked records must carry the same
+document SHA-256 and exact CNPJ/mailbox witness. Reconciliation keeps one
+complete observation tuple instead of mixing an old attestation with a newer
+URL/evidence list. Terminal jobs with a broken output remain visible as nominal
+blockers while continuing to block publication globally. These are local
+post-review corrections; the 6,501/2,152 figures above remain a precursor,
+registry-dominated replay, not live proof.

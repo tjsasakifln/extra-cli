@@ -53,6 +53,17 @@ def _wait_job(client: TestClient, job_id: str) -> dict:
     return final
 
 
+def _wait_pending_reviews(client: TestClient) -> list[dict]:
+    """Terminal state precedes post-commit review enqueue; await that contract."""
+
+    for _ in range(80):
+        reviews = client.get("/api/reviews?status=pending").json()["reviews"]
+        if reviews:
+            return reviews
+        time.sleep(0.1)
+    return []
+
+
 def test_use_fixture_false_is_real_fail_closed(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """use_fixture=False selects REAL; without DSN it blocks — never falls back to fixture."""
     monkeypatch.delenv("LOCAL_DATALAKE_DSN", raising=False)
@@ -155,7 +166,7 @@ def test_regenerate_obsoletes_accept_naturally(client: TestClient, tmp_path: Pat
     job_id = start.json()["job"]["job_id"]
     _wait_job(client, job_id)
 
-    reviews = client.get("/api/reviews?status=pending").json()["reviews"]
+    reviews = _wait_pending_reviews(client)
     assert reviews, "workflow should enqueue reviews"
     item = reviews[0]
     payload = item.get("payload") or {}

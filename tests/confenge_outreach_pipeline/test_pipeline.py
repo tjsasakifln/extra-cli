@@ -25,6 +25,7 @@ from scripts.confenge_outreach_pipeline.pipeline import (
 )
 from scripts.confenge_outreach_pipeline.sample import classify_profile, select_diverse_sample
 from scripts.warmbly_bridge.mapping import build_leads
+from tests.recipient_attestation_fixtures import exact_page_attestation
 
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURE_CSV = ROOT / "tests" / "fixtures" / "confenge_universe" / "contracts_sample.csv"
@@ -186,22 +187,35 @@ def test_durable_projection_reaches_feed_accounts_outside_hot_set(tmp_path: Path
     durable_rows = []
     for cnpj in candidate_cnpjs:
         host = f"empresa{cnpj[:8]}.com.br"
+        mailbox = f"contato@{host}"
+        source_url = f"https://{host}/contato"
+        observed_at = "2026-08-24T12:00:00Z"
         durable_rows.append(
             {
                 "cnpj14": cnpj,
                 "enrichment_state": "EMAIL_ROUTE_READY",
                 "contacts": [
                     {
-                        "email": f"contato@{host}",
-                        "source": "company_website",
-                        "source_url": f"https://{host}/contato",
-                        "observed_at": "2026-08-24T12:00:00Z",
-                        "ownership_status": "COMPANY_OWNED",
-                        "mailbox_company_evidence": "OBSERVED",
-                        "channel_epistemic_class": "OBSERVED",
-                        "route_freshness": "FRESH",
-                        "route_suppression": "NONE",
-                    }
+                        "email": mailbox,
+                            "source": "company_website",
+                            "source_url": source_url,
+                            "source_reference": source_url,
+                            "observed_at": observed_at,
+                            "ownership_status": "COMPANY_OWNED",
+                            "company_associated": True,
+                            "mailbox_company_evidence": "OBSERVED",
+                            "channel_epistemic_class": "OBSERVED",
+                            "route_freshness": "FRESH",
+                            "route_suppression": "NONE",
+                            "official_domain": host,
+                            **exact_page_attestation(
+                                account=cnpj,
+                                mailbox=mailbox,
+                                source_url=source_url,
+                                observed_at=observed_at,
+                                page_content=f"CNPJ {cnpj} | Contato: {mailbox}",
+                            ),
+                        }
                 ],
             }
         )

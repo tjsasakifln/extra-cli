@@ -384,13 +384,22 @@ class ContactDiscoveryQueue:
     ) -> list[ClaimedDiscoveryJob]:
         if limit < 1 or lease_seconds < 1:
             raise ValueError("claim limit and lease_seconds must be positive")
-        clock = now or utcnow()
-        lease_expires = clock + timedelta(seconds=lease_seconds)
+        clock = now
         with self.cursor() as cursor:
             cursor.execute(
                 "SELECT pg_advisory_xact_lock(hashtext(%s))",
                 (ADMISSION_LOCK,),
             )
+            if clock is None:
+                # Jobs are admitted with PostgreSQL's NOW() default. Anchor an
+                # ordinary claim to that same clock so small host/DB skew
+                # cannot make a freshly inserted job appear scheduled in the
+                # future. Explicit `now=` remains available for deterministic
+                # recovery tests.
+                cursor.execute("SELECT clock_timestamp() AS clock")
+                clock_row = fetch_one(cursor)
+                clock = clock_row["clock"] if clock_row else utcnow()
+            lease_expires = clock + timedelta(seconds=lease_seconds)
             switch = self.kill_switch()
             if switch.get("enabled"):
                 self.connection.commit()

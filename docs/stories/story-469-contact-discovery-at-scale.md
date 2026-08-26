@@ -169,6 +169,9 @@ quality_gate_tools: ["pytest", "ruff", "dod_controller", "coderabbit"]
 | 2026-08-24 | 0.2.0 | Refinado pelo novo DoD: 8.245/8.245 terminais, route classes não nominais válidas, waterfall e anti-shotgun | River (@sm) |
 | 2026-08-24 | 0.2.1 | Validated GO (10/10) — Status: Draft → Ready após refinamento executivo | Pax (@po) |
 | 2026-08-24 | 0.3.0 | Implementação local: seleção canônica, terminais, projeção hash-verificada e merge no feed amplo | Dex (@dev) |
+| 2026-08-26 | 0.4.0 | Policy v4: vínculo recipient↔CNPJ no ledger e feed, reranking seguro e auditoria adversarial live | Dex (@dev) |
+| 2026-08-26 | 0.5.0 | Policy v5: freshness efetiva, prova de página determinística e freemail fail-closed para buyer/pregoeiro | Dex (@dev) |
+| 2026-08-26 | 0.6.0 | Policy v6: witness rehashável, semântica de agente contratante no gate final e timestamp futuro fail-closed | Dex (@dev) |
 
 ## Dev Agent Record
 
@@ -186,6 +189,19 @@ GPT-5 Codex (Dex / @dev)
 - 2026-08-24: suíte canônica `5806 passed, 235 skipped, 11 deselected`; Ruff e 17/17 source contracts verdes.
 - 2026-08-24: suíte canônica final da implementação `5838 passed, 240 skipped, 11 deselected` em 510,50s; sem alteração dos gates congelados.
 - 2026-08-24: CodeRabbit CLI não encontrado no host (`/home/tjsasakifln/.local/bin/coderabbit` ausente); revisão automática permanece gate de PR/CI, sem falso-verde local.
+- 2026-08-26: auditoria adversarial do feed live encontrou 4/4 `DIRECT_PERSON` atribuídos a domínios de empresas estrangeiras não relacionadas; a publicação seguinte foi bloqueada antes de qualquer import/dispatch.
+- 2026-08-26: replay read-only da policy v4 sobre 8.653 contas resultou em 6.501 READY e 2.152 BLOCKED; 168 contas foram rebaixadas e 18 recuperadas por alternativa cadastral CNPJ-bound.
+- 2026-08-26: 74 testes unitários/focados e 19 testes PostgreSQL real passaram após o delta de identidade; CodeRabbit CLI continua indisponível no host.
+- 2026-08-26: 127 testes de crawl/associação passaram após o provider existente passar a emitir attestation de CNPJ+mailbox somente a partir da mesma página oficial; 17/17 source contracts passaram.
+- 2026-08-26: QA adversarial independente bloqueou a primeira correção por coocorrência de buyer contact, lavagem de provenance incremental, freshness renovada por crawl e terminal ausente em output corrompido; nenhum desses casos foi aceito como risco residual.
+- 2026-08-26: após o reparo, 144 testes focados passaram, cobrindo cadeia semântica da attestation, buyer/third-party, página stale/cache, crawl de duas páginas, merge atômico, alias cadastral, idempotência e yield preferred por provenance; 20/20 testes PostgreSQL reais passaram.
+- 2026-08-26: golden path local terminou honestamente `partial`: PNCP excedeu 720s e o freshness gate permaneceu FAIL; a execução live PNCP também encerrou exit 1 com janelas parciais. Nenhum target-fit/contact/feed novo foi promovido.
+- 2026-08-26: a segunda auditoria adversarial reproduziu freemail de pregoeiro atribuído por mera proximidade, `FRESH` persistido sobre fonte vencida, early-stop em página stale e evidence IDs arbitrários; policy v5 fechou os quatro casos sem promover dados.
+- 2026-08-26: replay v5 read-only sobre as 8.653 contas preservou 6.501 READY / 2.152 BLOCKED, com expiry em 100% das rotas preferidas; amostra estratificada 30+30+30 não encontrou falha de atribuição, freshness, expiry, suppression ou origem inferida.
+- 2026-08-26: 259 testes amplos de contato/outreach passaram (20 integrações real-DB separadas); a rodada explícita PostgreSQL passou 21/21 e fixou o claim no relógio transacional do banco contra skew processo↔DB.
+- 2026-08-26: QA adversarial independente reprovou v5 por `agente de contratação`, hash de página autoatestável e timestamp 2099; v6 persiste witness UTF-8 comprimido e limitado, recalcula o digest e a semântica no gate final e classifica futuro material como `UNKNOWN`.
+- 2026-08-26: replay v6 read-only nas mesmas 8.653 contas manteve 6.501 READY / 2.152 BLOCKED e yield 1.810 GENERIC / 4.395 FREEMAIL / 296 ROLE; as 6.501 rotas sobreviventes têm attestation, freshness e expiry válidos e origem cadastral CNPJ-bound.
+- 2026-08-26: a terceira revisão adversarial encontrou evidence ID não idempotente em dois campos do provider histórico; o timestamp fixo do artefato agora é único entre evidência e observação, o ID usa apenas timestamp explicitamente fornecido e o witness limita base64 antes de alocar/decomprimir.
 
 ### Completion Notes List
 
@@ -193,6 +209,12 @@ GPT-5 Codex (Dex / @dev)
 - Artefatos históricos de contatos agora entram como inputs explícitos, SHA-256-bound e verificados no primeiro degrau do worker; alteração/missing vira blocker nominal.
 - O cadastro oficial local é consultado por CNPJ exato; e-mail cadastral preserva release/autoridade, não inventa pessoa e registra indisponibilidade como blocker factual de waterfall. Freemail público continua regido pela associação defensável da policy ativa.
 - Evidência live do denominador corrente versionado, reconciliação 8.245/8.245 do baseline, deploy e aceitação continuam abertos; fixture não foi tratada como prova operacional.
+- O ledger terminal agora reaplica a mesma policy de identidade do feed completo: mailbox única não basta, shared ambiguity bloqueia e uma alternativa forte é reranqueada antes de rebaixar a conta.
+- Website/documento só cruza o gate autoritativo quando a página no domínio oficial carrega CNPJ exato, evidence ID e SHA-256; o cadastro continua preso ao tuple imutável da Receita Federal.
+- A prova de página inclui objetos semânticos ligados para mailbox e binding, rejeita contexto de comprador/terceiro e mantém data publicada, observação e expiry separados. Reconciliation nunca combina campos de duas observações para completar uma prova.
+- Job terminal com output ausente/adulterado continua visível como `BLOCKED_WITH_REASON`, mas a falha de integridade global impede publicação.
+- `public_search` e `company_website` continuam sendo os providers existentes; eles percorrem o budget restante quando domínio/mailbox não carregam prova CNPJ-bound, em vez de encerrar cedo num homônimo.
+- Policy v6 nunca confia no texto persistido de freshness: recalcula a classe e o expiry a partir de `source_published_at`/`observed_at` em cada gate e rejeita relógio materialmente futuro. A attestation de página reabre um witness UTF-8 comprimido e limitado, recalcula SHA-256 e evidence IDs e exige CNPJ+mailbox exatos no documento; freemail exige marcador positivo e rejeita buyer, pregoeiro e agente de contratação também no gate final.
 
 ### File List
 
@@ -211,11 +233,28 @@ GPT-5 Codex (Dex / @dev)
 - `scripts/decision_unit_intelligence/cli.py`
 - `scripts/decision_unit_intelligence/providers/existing_contacts.py`
 - `scripts/decision_unit_intelligence/providers/official_company_registry.py`
+- `scripts/decision_unit_intelligence/controlled_email.py`
+- `scripts/decision_unit_intelligence/providers/public_search.py`
+- `scripts/decision_unit_intelligence/route_class.py`
+- `scripts/decision_unit_intelligence/runner.py`
+- `scripts/decision_unit_intelligence/site_contact_crawl.py`
+- `scripts/decision_unit_intelligence/web_discovery.py`
+- `scripts/warmbly_bridge/export.py`
+- `scripts/warmbly_bridge/mapping.py`
+- `scripts/ops/confenge_frozen_inputs.py`
+- `tests/test_contact_discovery_outcomes.py`
+- `tests/test_controlled_email_eligibility.py`
+- `tests/test_decision_unit_site_contact_crawl.py`
+- `tests/test_decision_unit_web_discovery.py`
+- `tests/test_contact_projection_reconciliation.py`
+- `tests/commercial_leads/test_confenge_frozen_inputs_policy.py`
+- `tests/fixtures/controlled_email_five_class_canary.json`
+- `tests/warmbly_bridge/test_authoritative_target_fit_feed.py`
 - `tests/confenge_outreach_pipeline/test_pipeline.py`
 - `tests/test_contact_discovery_batch.py`
-- `tests/test_contact_discovery_outcomes.py`
 - `tests/test_contact_discovery_population.py`
 - `tests/test_existing_contact_seed.py`
+- `tests/recipient_attestation_fixtures.py`
 
 ## QA Results
 

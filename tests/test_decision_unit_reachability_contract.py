@@ -251,6 +251,13 @@ def test_freshness_unknown_only_without_observed_at():
         == FreshnessState.STALE
     )
     assert freshness_from_observed_at(None) == FreshnessState.UNKNOWN
+    assert (
+        freshness_from_observed_at(
+            "2099-01-01T00:00:00Z",
+            now=__import__("datetime").datetime(2026, 8, 15, tzinfo=__import__("datetime").UTC),
+        )
+        == FreshnessState.UNKNOWN
+    )
     blank = _classify(_obs("4833330001", snippet="Telefone geral", observed_at=None))
     assert blank.freshness == FreshnessState.UNKNOWN
     dated = _classify(_obs("4833330002", snippet="Telefone geral", observed_at="2026-07-01"))

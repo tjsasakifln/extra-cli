@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+from datetime import timedelta
 from typing import Any
+
+from scripts.decision_unit_intelligence.route_class import FRESH_MAX_DAYS, parse_observed_at
 
 ASSOCIATION_EVIDENCE_FIELDS = (
     "company_associated",
@@ -15,6 +18,13 @@ ASSOCIATION_EVIDENCE_FIELDS = (
     "registry_cnpj14",
     "source_provenance",
     "official_domain",
+    "page_cnpj14",
+    "page_cnpj_evidence_id",
+    "page_cnpj_evidence_sha256",
+    "page_document_witness",
+    "account_mailbox_binding_evidence",
+    "mailbox_observation_evidence",
+    "source_published_at",
 )
 
 
@@ -70,6 +80,15 @@ def attach_route_evidence(
             contact["source_url"] = source_url
         if observed_at:
             contact["observed_at"] = observed_at
+        source_published_at = str(route_extra.get("source_published_at") or "").strip() or None
+        freshness_reference = source_published_at or observed_at
+        parsed_freshness_reference = parse_observed_at(freshness_reference)
+        if source_published_at:
+            contact["source_published_at"] = source_published_at
+        if parsed_freshness_reference is not None:
+            contact["route_expires_at"] = (
+                parsed_freshness_reference + timedelta(days=FRESH_MAX_DAYS)
+            ).isoformat().replace("+00:00", "Z")
         if evidence_ids:
             contact["evidence_ids"] = evidence_ids
         source_reference = source_url or (evidence_ids[0] if evidence_ids else None)
@@ -104,6 +123,10 @@ def attach_route_evidence(
             provenance.setdefault("source_url", source_url)
         if observed_at:
             provenance.setdefault("observed_at", observed_at)
+        if source_published_at:
+            provenance.setdefault("source_published_at", source_published_at)
+        if contact.get("route_expires_at"):
+            provenance.setdefault("expires_at", contact["route_expires_at"])
         if evidence_ids:
             provenance.setdefault("evidence_ids", evidence_ids)
         if epistemic:

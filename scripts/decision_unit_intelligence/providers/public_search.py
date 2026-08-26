@@ -4,7 +4,9 @@ from __future__ import annotations
 
 from time import perf_counter
 
-from scripts.confenge_contact_resolution.mailbox_purpose import is_mailbox_controlled_eligible
+from scripts.decision_unit_intelligence.controlled_email import (
+    observed_channels_have_account_identity_route,
+)
 from scripts.decision_unit_intelligence.email_discovery import discover_internal_targets
 from scripts.decision_unit_intelligence.evidence import make_evidence
 from scripts.decision_unit_intelligence.models import EpistemicClass, SearchAttempt, normalize_cnpj, now_iso, stable_id
@@ -17,7 +19,6 @@ from scripts.decision_unit_intelligence.query_planner import (
     load_policy,
     plan_queries,
 )
-from scripts.decision_unit_intelligence.reachability import email_domain as _email_domain
 from scripts.decision_unit_intelligence.web_discovery import (
     SearchBackend,
     SearchBudget,
@@ -176,16 +177,13 @@ class PublicSearchProvider:
                 evidence.extend(extracted.evidence)
                 if any((channel.extra or {}).get("identity_explicitly_associated") for channel in extracted.channels):
                     identity_yield = True
-                control_eligible_yield = any(
-                    channel.channel_value
-                    and is_mailbox_controlled_eligible(str(channel.channel_value))
-                    and (
-                        _email_domain(str(channel.channel_value)) == resolution.canonical_domain
-                        or (channel.extra or {}).get("company_associated") is True
-                    )
-                    for channel in extracted.channels
+                control_eligible_yield = observed_channels_have_account_identity_route(
+                    extracted.channels,
+                    account_id=cnpj,
                 )
-                if identity_yield or control_eligible_yield:
+                # A named mailbox is not account identity. Continue the bounded
+                # crawl until an exact CNPJ-bound controlled route is observed.
+                if control_eligible_yield:
                     break
                 for link in discover_internal_targets(
                     links=document.links,
