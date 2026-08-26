@@ -63,3 +63,23 @@ stamping therefore demotes any route without `observed_at` from
 `controlled_email_eligible` and preferred ranking with the explicit reason
 `missing_observed_at`. The route remains stored as evidence; it is not promoted
 to the Warmbly controlled-review lane.
+
+## Authoritative recipient identity boundary
+
+Policy `controlled-email-policy.v4` makes the terminal projection and the
+authoritative feed apply the same target-identity gate. A unique website
+mailbox is not account evidence: it is publishable only when the official page
+also carries the exact target CNPJ, a bound evidence ID and SHA-256. The trusted
+registry path still requires the complete Receita Federal tuple for that CNPJ.
+Shared mailboxes without independent evidence for each claimant fail closed,
+and a surviving identity-bound alternative is reranked instead of losing the
+account unnecessarily.
+
+A read-only replay over production cohort
+`target-confirmed-auto-20260826T035908Z` (8,653 terminal accounts) projects
+6,501 `EMAIL_ROUTE_READY` and 2,152 `BLOCKED_WITH_REASON`: 168 accounts are
+demoted from the v3 result, while 18 retain READY through a valid registry
+alternative. Preferred yield becomes 1,810 `GENERIC_COMPANY`, 4,395
+`PUBLIC_COMPANY_FREEMAIL`, 296 `ROLE_OR_DEPARTMENT` and zero unproven
+`DIRECT_PERSON`. This is a pre-deploy simulation, not a publication claim; the
+post-deploy run and hashes remain recorded on issue #469.

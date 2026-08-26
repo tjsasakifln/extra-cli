@@ -57,6 +57,13 @@ Each v2 job output also carries one enrichment terminal:
 - `BLOCKED_WITH_REASON`: search was disabled, a provider/source failed, policy
   blocked the run, or another factual blocker prevented a complete negative.
 
+Before publication, the complete cohort is reprojected under the authoritative
+identity policy. A producer-level `EMAIL_ROUTE_READY` becomes
+`BLOCKED_WITH_REASON` when its preferred mailbox lacks target-CNPJ evidence;
+an independently bound alternative is reranked first. This whole-population
+step also detects a mailbox claimed by multiple CNPJs, so the terminal ledger,
+route-class yield and feed projection use the same effective result.
+
 `export-contacts` verifies job/account IDs and output hashes before writing a
 derived bridge JSONL. By default it refuses an incomplete denominator.
 `--allow-partial` is only for observable incremental feed refreshes and never
@@ -72,10 +79,11 @@ is spent only when the reconciled evidence has no controlled-eligible route.
 The next tier consults the locally activated, versioned Receita Federal
 company-registry release by exact CNPJ. A corporate-domain e-mail from that row
 is a company route, but never evidence of a person or department. Public
-freemail remains stored and is eligible only when the active controlled-email
-policy can also prove its public company association (for example, publication
-on the resolved official site); the batch does not bypass the frozen policy. If
-no official release is active, the attempt records
+freemail remains eligible only when the complete registry tuple binds the
+mailbox to the same CNPJ. Website/document routes require a page on the resolved
+official domain that exposes the exact CNPJ, with evidence ID and content hash;
+domain/name alignment by itself remains insufficient. If no official release
+is active, the attempt records
 `OFFICIAL_REGISTRY_UNAVAILABLE`; a no-route result remains
 `BLOCKED_WITH_REASON` while website/document/public-search tiers still run and
 may independently produce `EMAIL_ROUTE_READY`.

@@ -27,9 +27,13 @@ primeiro toque de roteamento.
    o primeiro toque.
 4. A projeção preserva CNPJs, papéis, IDs de contrato, source run, observado em,
    versão, reason codes e SHA-256 da evidência. Warmbly não reclassifica papel.
-5. O agente CLI cruza essa evidência com fonte web original atual e escolhe uma
-   única mailbox observada por CNPJ-raiz. Snippet, MX e email sintetizado não
-   provam associação.
+5. O agente CLI escolhe uma única mailbox observada por CNPJ. Unicidade,
+   semelhança de nome e domínio resolvido não provam identidade: cadastro
+   empresarial exige o tuple completo da Receita Federal para o mesmo CNPJ;
+   página oficial exige domínio coincidente, CNPJ exato observado na página,
+   evidence ID e SHA-256. Mailbox compartilhada entre CNPJs sem uma dessas
+   provas por conta fica bloqueada. Snippet, MX e email sintetizado não provam
+   associação.
 6. Somente o primeiro email curto de roteamento pode usar
    `CFG-FIRST-TOUCH-ROUTING-v1`. A decisão é `DELEGATED_POLICY_APPROVE`, com
    `approved_by_type=delegated_agent`, autoridade

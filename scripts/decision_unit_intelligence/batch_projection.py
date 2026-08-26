@@ -14,6 +14,7 @@ from scripts.decision_unit_intelligence.batch_contact_metadata import attach_pro
 from scripts.decision_unit_intelligence.batch_queue import ContactDiscoveryQueue, canonical_payload_hash
 from scripts.decision_unit_intelligence.controlled_email import (
     CONTROLLED_EMAIL_POLICY_VERSION,
+    apply_cross_account_preferred_mailbox_gate,
     classify_account_email_routes,
     feed_contact_from_classified,
     stamp_and_rank_feed_contacts,
@@ -365,6 +366,106 @@ def reconcile_prior_contact_rows(
     }
 
 
+_IDENTITY_GUARD_BLOCKERS = (
+    (
+        "shared_mailbox_without_account_identity_evidence",
+        "CONTACT_SHARED_MAILBOX_WITHOUT_ACCOUNT_IDENTITY_EVIDENCE",
+    ),
+    (
+        "duplicate_preferred_mailbox_across_accounts",
+        "CONTACT_DUPLICATE_PREFERRED_MAILBOX_ACROSS_ACCOUNTS",
+    ),
+    (
+        "recipient_without_account_identity_evidence",
+        "CONTACT_RECIPIENT_WITHOUT_ACCOUNT_IDENTITY_EVIDENCE",
+    ),
+)
+_IDENTITY_GUARD_REASON_CODES = frozenset(reason for reason, _ in _IDENTITY_GUARD_BLOCKERS)
+
+
+def apply_authoritative_identity_gate(
+    rows: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], dict[str, int]]:
+    """Make the durable terminal ledger match the authoritative feed policy."""
+
+    policy_input = [
+        {
+            "source_lead_id": str(row.get("canonical_account_id") or row.get("cnpj14") or ""),
+            "company": {
+                "cnpj14": str(row.get("canonical_account_id") or row.get("cnpj14") or ""),
+            },
+            "contacts": row.get("contacts") or [],
+        }
+        for row in rows
+    ]
+    gated = apply_cross_account_preferred_mailbox_gate(
+        policy_input,
+        require_account_identity_evidence=True,
+    )
+    preferred_before = sum(bool(row.get("preferred_email_route")) for row in rows)
+    rejected_routes: Counter[str] = Counter()
+    accounts_demoted = 0
+    out: list[dict[str, Any]] = []
+    for raw, policy_row in zip(rows, gated, strict=True):
+        row = dict(raw)
+        contacts = [dict(item) for item in (policy_row.get("contacts") or []) if isinstance(item, dict)]
+        row["contacts"] = contacts
+        preferred = next(
+            (
+                item
+                for item in contacts
+                if item.get("preferred_initial") and item.get("controlled_email_eligible")
+            ),
+            None,
+        )
+        guard_counts = Counter(
+            reason
+            for contact in contacts
+            for reason in (contact.get("reason_codes") or [])
+            if reason in _IDENTITY_GUARD_REASON_CODES
+        )
+        failures = dict(row.get("publication_guard_failures") or {})
+        for reason, count in guard_counts.items():
+            failures[reason.upper()] = int(count)
+            rejected_routes[reason] += int(count)
+        if failures:
+            row["publication_guard_failures"] = failures
+        else:
+            row.pop("publication_guard_failures", None)
+
+        if preferred is not None:
+            account_id = str(row.get("canonical_account_id") or row.get("cnpj14") or "")
+            row["preferred_email_route"] = _preferred_route_from_contact(account_id, preferred)
+            row["enrichment_state"] = "EMAIL_ROUTE_READY"
+            row["enrichment_reason"] = "AUTHORITATIVE_IDENTITY_ROUTE_SELECTED"
+        else:
+            had_preferred = bool(row.pop("preferred_email_route", None))
+            if had_preferred or row.get("enrichment_state") == "EMAIL_ROUTE_READY":
+                accounts_demoted += 1
+                row["enrichment_state"] = "BLOCKED_WITH_REASON"
+                row["enrichment_reason"] = next(
+                    (
+                        blocker
+                        for reason, blocker in _IDENTITY_GUARD_BLOCKERS
+                        if guard_counts.get(reason)
+                    ),
+                    "CURRENT_POLICY_NO_ELIGIBLE_ROUTE",
+                )
+        out.append(row)
+
+    preferred_after = sum(bool(row.get("preferred_email_route")) for row in out)
+    return out, {
+        "accounts_with_preferred_before": preferred_before,
+        "accounts_with_preferred_after": preferred_after,
+        "accounts_demoted": accounts_demoted,
+        "routes_rejected": sum(rejected_routes.values()),
+        **{
+            f"routes_rejected_{reason}": rejected_routes[reason]
+            for reason, _ in _IDENTITY_GUARD_BLOCKERS
+        },
+    }
+
+
 def _load_prior_rows(path: Path) -> tuple[list[dict[str, Any]], str]:
     digest = hashlib.sha256()
     rows: list[dict[str, Any]] = []
@@ -632,31 +733,32 @@ def build_contact_projection(
     if prior_rows is not None:
         rows, reconciliation_metrics = reconcile_prior_contact_rows(rows, prior_rows)
         reconciliation = {**(prior_evidence or {}), **reconciliation_metrics}
-        # The union changes only derived account outcomes.  Recompute every
-        # report distribution from the rows that will actually be published.
-        states = Counter(str(row.get("enrichment_state") or "UNKNOWN") for row in rows)
-        blockers = Counter(
-            str(row.get("enrichment_reason") or "UNSPECIFIED")
-            for row in rows
-            if row.get("enrichment_state") == "BLOCKED_WITH_REASON"
-        )
-        route_classes = Counter(
-            str(contact.get("route_class") or "UNKNOWN")
-            for row in rows
-            for contact in (row.get("contacts") or [])
-            if isinstance(contact, dict)
-        )
-        preferred_classes = Counter(
-            str((row.get("preferred_email_route") or {}).get("route_class") or "UNKNOWN")
-            for row in rows
-            if row.get("preferred_email_route")
-        )
-        sources = Counter(
-            str(contact.get("source") or "UNKNOWN")
-            for row in rows
-            for contact in (row.get("contacts") or [])
-            if isinstance(contact, dict)
-        )
+    rows, identity_gate_metrics = apply_authoritative_identity_gate(rows)
+    # Reconciliation and the whole-population identity gate both change
+    # derived account outcomes. Recompute the report from what is publishable.
+    states = Counter(str(row.get("enrichment_state") or "UNKNOWN") for row in rows)
+    blockers = Counter(
+        str(row.get("enrichment_reason") or "UNSPECIFIED")
+        for row in rows
+        if row.get("enrichment_state") == "BLOCKED_WITH_REASON"
+    )
+    route_classes = Counter(
+        str(contact.get("route_class") or "UNKNOWN")
+        for row in rows
+        for contact in (row.get("contacts") or [])
+        if isinstance(contact, dict)
+    )
+    preferred_classes = Counter(
+        str((row.get("preferred_email_route") or {}).get("route_class") or "UNKNOWN")
+        for row in rows
+        if row.get("preferred_email_route")
+    )
+    sources = Counter(
+        str(contact.get("source") or "UNKNOWN")
+        for row in rows
+        for contact in (row.get("contacts") or [])
+        if isinstance(contact, dict)
+    )
     denominator = int(progress.get("denominator") or len(jobs))
     population_contract = progress.get("population_contract")
     population_contract = population_contract if isinstance(population_contract, dict) else {}
@@ -727,6 +829,7 @@ def build_contact_projection(
         "provenance_source_distribution": dict(sorted(sources.items())),
         "integrity_failures": dict(sorted(integrity_failures.items())),
         "publication_guard_failures": dict(sorted(publication_guard_failures.items())),
+        "authoritative_identity_gate": identity_gate_metrics,
         "projection_hash": projection_hash,
         "controlled_email_policy_version": CONTROLLED_EMAIL_POLICY_VERSION,
         "policy_version": progress.get("policy_version"),

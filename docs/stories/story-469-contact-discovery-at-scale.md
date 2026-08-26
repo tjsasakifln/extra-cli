@@ -169,6 +169,7 @@ quality_gate_tools: ["pytest", "ruff", "dod_controller", "coderabbit"]
 | 2026-08-24 | 0.2.0 | Refinado pelo novo DoD: 8.245/8.245 terminais, route classes não nominais válidas, waterfall e anti-shotgun | River (@sm) |
 | 2026-08-24 | 0.2.1 | Validated GO (10/10) — Status: Draft → Ready após refinamento executivo | Pax (@po) |
 | 2026-08-24 | 0.3.0 | Implementação local: seleção canônica, terminais, projeção hash-verificada e merge no feed amplo | Dex (@dev) |
+| 2026-08-26 | 0.4.0 | Policy v4: vínculo recipient↔CNPJ no ledger e feed, reranking seguro e auditoria adversarial live | Dex (@dev) |
 
 ## Dev Agent Record
 
@@ -186,6 +187,9 @@ GPT-5 Codex (Dex / @dev)
 - 2026-08-24: suíte canônica `5806 passed, 235 skipped, 11 deselected`; Ruff e 17/17 source contracts verdes.
 - 2026-08-24: suíte canônica final da implementação `5838 passed, 240 skipped, 11 deselected` em 510,50s; sem alteração dos gates congelados.
 - 2026-08-24: CodeRabbit CLI não encontrado no host (`/home/tjsasakifln/.local/bin/coderabbit` ausente); revisão automática permanece gate de PR/CI, sem falso-verde local.
+- 2026-08-26: auditoria adversarial do feed live encontrou 4/4 `DIRECT_PERSON` atribuídos a domínios de empresas estrangeiras não relacionadas; a publicação seguinte foi bloqueada antes de qualquer import/dispatch.
+- 2026-08-26: replay read-only da policy v4 sobre 8.653 contas resultou em 6.501 READY e 2.152 BLOCKED; 168 contas foram rebaixadas e 18 recuperadas por alternativa cadastral CNPJ-bound.
+- 2026-08-26: 74 testes unitários/focados e 19 testes PostgreSQL real passaram após o delta de identidade; CodeRabbit CLI continua indisponível no host.
 
 ### Completion Notes List
 
@@ -193,6 +197,8 @@ GPT-5 Codex (Dex / @dev)
 - Artefatos históricos de contatos agora entram como inputs explícitos, SHA-256-bound e verificados no primeiro degrau do worker; alteração/missing vira blocker nominal.
 - O cadastro oficial local é consultado por CNPJ exato; e-mail cadastral preserva release/autoridade, não inventa pessoa e registra indisponibilidade como blocker factual de waterfall. Freemail público continua regido pela associação defensável da policy ativa.
 - Evidência live do denominador corrente versionado, reconciliação 8.245/8.245 do baseline, deploy e aceitação continuam abertos; fixture não foi tratada como prova operacional.
+- O ledger terminal agora reaplica a mesma policy de identidade do feed completo: mailbox única não basta, shared ambiguity bloqueia e uma alternativa forte é reranqueada antes de rebaixar a conta.
+- Website/documento só cruza o gate autoritativo quando a página no domínio oficial carrega CNPJ exato, evidence ID e SHA-256; o cadastro continua preso ao tuple imutável da Receita Federal.
 
 ### File List
 
@@ -211,9 +217,14 @@ GPT-5 Codex (Dex / @dev)
 - `scripts/decision_unit_intelligence/cli.py`
 - `scripts/decision_unit_intelligence/providers/existing_contacts.py`
 - `scripts/decision_unit_intelligence/providers/official_company_registry.py`
+- `scripts/decision_unit_intelligence/controlled_email.py`
+- `scripts/warmbly_bridge/export.py`
+- `scripts/warmbly_bridge/mapping.py`
+- `tests/test_contact_discovery_outcomes.py`
+- `tests/test_controlled_email_eligibility.py`
+- `tests/warmbly_bridge/test_authoritative_target_fit_feed.py`
 - `tests/confenge_outreach_pipeline/test_pipeline.py`
 - `tests/test_contact_discovery_batch.py`
-- `tests/test_contact_discovery_outcomes.py`
 - `tests/test_contact_discovery_population.py`
 - `tests/test_existing_contact_seed.py`
 

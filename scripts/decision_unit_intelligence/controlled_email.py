@@ -1340,11 +1340,32 @@ def _has_account_specific_mailbox_evidence(contact: dict[str, Any], *, account: 
         return False
 
     if source_type == "company_registry":
+        release_id = str(contact.get("official_release_id") or "").strip()
+        source_provenance = contact.get("source_provenance")
         return (
             normalize_cnpj(str(contact.get("registry_cnpj14") or "")) == normalize_cnpj(account)
             and str(contact.get("official_match_status") or "").upper() == "MATCHED"
-            and bool(str(contact.get("official_authority") or "").strip())
-            and bool(str(contact.get("official_release_id") or "").strip())
+            and str(contact.get("official_authority") or "").upper() == "RECEITA_FEDERAL"
+            and bool(release_id)
+            and isinstance(source_provenance, dict)
+            and str(source_provenance.get("release_id") or "").strip() == release_id
+            and bool(str(source_provenance.get("source_label") or "").strip())
+        )
+
+    if source_type in COMPANY_ASSOCIATION_SOURCES:
+        page_cnpj = normalize_cnpj(str(contact.get("page_cnpj14") or ""))
+        page_evidence_id = str(contact.get("page_cnpj_evidence_id") or "").strip()
+        page_evidence_sha256 = str(contact.get("page_cnpj_evidence_sha256") or "").strip().lower()
+        source_url = str(contact.get("source_url") or "").strip()
+        official_domain = str(contact.get("official_domain") or "").strip()
+        return (
+            page_cnpj == normalize_cnpj(account)
+            and bool(page_evidence_id)
+            and page_evidence_id in evidence_ids
+            and bool(re.fullmatch(r"[0-9a-f]{64}", page_evidence_sha256))
+            and bool(source_url)
+            and bool(official_domain)
+            and _hosts_equivalent(_url_host(source_url), official_domain)
         )
 
     return False
@@ -1420,9 +1441,65 @@ def apply_cross_account_preferred_mailbox_gate(
         item["controlled_email_eligible"] = False
         item["email_send_ready"] = False
         item["enrollable"] = False
+        item["preferred_rank"] = None
         item["reason_codes"] = list(
-            dict.fromkeys([*(item.get("reason_codes") or []), reason])
+            dict.fromkeys(
+                [
+                    *(
+                        code
+                        for code in (item.get("reason_codes") or [])
+                        if code not in {"preferred_initial_route", "alternative_route"}
+                    ),
+                    reason,
+                ]
+            )
         )
+
+    def _rerank_identity_bound(items: list[Any]) -> list[Any]:
+        """Promote the best surviving route without reclassifying a rejection."""
+
+        eligible: list[tuple[int, dict[str, Any]]] = []
+        for index, item in enumerate(items):
+            if not isinstance(item, dict) or item.get("controlled_email_eligible") is not True:
+                continue
+            eligible.append((index, item))
+
+        def _contact_sort_key(entry: tuple[int, dict[str, Any]]) -> tuple[int, int, str]:
+            _, item = entry
+            try:
+                route_class = EmailRouteClass(str(item.get("route_class") or ""))
+            except ValueError:
+                class_rank = 99
+            else:
+                class_rank = ROUTE_CLASS_RANK.get(route_class, 99)
+            mailbox = canonicalize_mailbox(str(item.get("email") or ""))
+            return (class_rank, classify_mailbox_purpose(mailbox).rank, mailbox)
+
+        ranked = sorted(eligible, key=_contact_sort_key)
+        rank_by_index = {item_index: rank for rank, (item_index, _) in enumerate(ranked, start=1)}
+        refreshed: list[Any] = []
+        for index, raw in enumerate(items):
+            if not isinstance(raw, dict):
+                refreshed.append(raw)
+                continue
+            item = dict(raw)
+            rank = rank_by_index.get(index)
+            if rank is None:
+                refreshed.append(item)
+                continue
+            preferred = rank == 1
+            item["preferred_rank"] = rank
+            item["preferred_initial"] = preferred
+            item["recommended"] = preferred
+            ranking_reason = "preferred_initial_route" if preferred else "alternative_route"
+            item["reason_codes"] = [
+                reason
+                for reason in (item.get("reason_codes") or [])
+                if reason not in {"preferred_initial_route", "alternative_route"}
+            ]
+            item["reason_codes"].append(ranking_reason)
+            refreshed.append(item)
+        return refreshed
 
     for lead in leads:
         if not isinstance(lead, dict):
@@ -1458,6 +1535,8 @@ def apply_cross_account_preferred_mailbox_gate(
                 elif item.get("preferred_initial"):
                     claimed[mailbox] = account
             updated_contacts.append(item)
+        if require_account_identity_evidence:
+            updated_contacts = _rerank_identity_bound(updated_contacts)
         refreshed = dict(lead)
         refreshed["contacts"] = updated_contacts
         if "email_send_ready" in refreshed:

@@ -7,6 +7,7 @@ from dataclasses import replace
 from pathlib import Path
 
 from scripts.decision_unit_intelligence.batch_outcomes import classify_account, persist_outcome
+from scripts.decision_unit_intelligence.batch_projection import apply_authoritative_identity_gate
 from scripts.decision_unit_intelligence.batch_queue import ClaimedDiscoveryJob
 from scripts.decision_unit_intelligence.batch_worker import default_discovery
 from scripts.decision_unit_intelligence.models import (
@@ -24,6 +25,47 @@ from scripts.decision_unit_intelligence.models import (
 )
 
 ACCOUNT_ID = "12345678000190"
+
+
+def test_authoritative_identity_gate_reprojects_unbound_ready_route_as_blocked() -> None:
+    contact = {
+        "email": "diretoria@unrelated.example.com",
+        "route_class": "DIRECT_PERSON",
+        "preferred_rank": 1,
+        "preferred_initial": True,
+        "recommended": True,
+        "controlled_email_eligible": True,
+        "email_send_ready": True,
+        "company_associated": True,
+        "mailbox_company_evidence": "OBSERVED",
+        "channel_epistemic_class": "OBSERVED",
+        "ownership_status": "COMPANY_OWNED",
+        "route_freshness": "FRESH",
+        "route_suppression": "NONE",
+        "source_type": "contact_page",
+        "source_reference": "https://unrelated.example.com/contact",
+        "evidence_ids": ["website-contact-evidence"],
+    }
+    rows, metrics = apply_authoritative_identity_gate(
+        [
+            {
+                "cnpj14": ACCOUNT_ID,
+                "canonical_account_id": ACCOUNT_ID,
+                "contacts": [contact],
+                "preferred_email_route": dict(contact),
+                "enrichment_state": "EMAIL_ROUTE_READY",
+                "enrichment_reason": "CONTROLLED_EMAIL_ROUTE_SELECTED",
+            }
+        ]
+    )
+
+    row = rows[0]
+    assert row["enrichment_state"] == "BLOCKED_WITH_REASON"
+    assert row["enrichment_reason"] == "CONTACT_RECIPIENT_WITHOUT_ACCOUNT_IDENTITY_EVIDENCE"
+    assert row.get("preferred_email_route") is None
+    assert row["contacts"][0]["email_send_ready"] is False
+    assert metrics["accounts_demoted"] == 1
+    assert metrics["accounts_with_preferred_after"] == 0
 
 
 def _job(*, search_backend: str) -> ClaimedDiscoveryJob:

@@ -143,6 +143,9 @@ def _auditable_role_account(cnpj: str) -> AccountInvestigation:
                     "mailbox_company_evidence": "OBSERVED",
                     "mailbox_department_evidence": "OBSERVED",
                     "email_discovery_class": "ROLE_MAILBOX",
+                    "page_cnpj14": cnpj,
+                    "page_cnpj_evidence_id": "ev-contact-page",
+                    "page_cnpj_evidence_sha256": "a" * 64,
                 },
             )
         ],
@@ -170,6 +173,7 @@ def _exact_registry_freemail_account(cnpj: str) -> AccountInvestigation:
                 route_relation=RouteRelation.ACCOUNT_LEVEL_ONLY,
                 epistemic_class=EpistemicClass.OBSERVED,
                 source_type="company_registry",
+                evidence_ids=[f"registry-evidence:{cnpj}"],
                 freshness=FreshnessState.FRESH,
                 ownership=OwnershipStatus.COMPANY_OWNED,
                 observed_at="2026-08-24T12:00:00Z",

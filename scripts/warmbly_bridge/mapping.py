@@ -49,6 +49,9 @@ _CONTACT_EVIDENCE_FIELDS = (
     "registry_cnpj14",
     "source_provenance",
     "official_domain",
+    "page_cnpj14",
+    "page_cnpj_evidence_id",
+    "page_cnpj_evidence_sha256",
 )
 
 
