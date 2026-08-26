@@ -1065,6 +1065,18 @@ def test_official_page_mailbox_requires_complete_exact_cnpj_attestation() -> Non
                 "value": f"99888777000166|{contact['email']}",
             }
         },
+        {
+            "account_mailbox_binding_evidence": {
+                **contact["account_mailbox_binding_evidence"],
+                "observed_at": "2026-08-24T12:00:01Z",
+            }
+        },
+        {
+            "mailbox_observation_evidence": {
+                **contact["mailbox_observation_evidence"],
+                "extraction_method": "guessed_pattern",
+            }
+        },
     ):
         rejected = apply_cross_account_preferred_mailbox_gate(
             [

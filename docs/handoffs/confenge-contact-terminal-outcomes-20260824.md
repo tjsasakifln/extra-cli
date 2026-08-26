@@ -73,7 +73,10 @@ also carries the exact target CNPJ, a bound evidence ID and a bounded document
 witness whose bytes reproduce the SHA-256. The gate rechecks the target CNPJ,
 mailbox and buyer/contracting-agent semantics from those bytes; metadata cannot
 self-certify a page. Materially future-dated observations become `UNKNOWN` and
-cannot carry an expiry. The trusted registry path still requires the complete
+cannot carry an expiry. Evidence IDs bind explicit source timestamps while
+remaining stable when a non-observation inference merely records its execution
+time; historical campaign evidence and observations share their fixed source
+date. The trusted registry path still requires the complete
 Receita Federal tuple for that CNPJ.
 Shared mailboxes without independent evidence for each claimant fail closed,
 and a surviving identity-bound alternative is reranked instead of losing the

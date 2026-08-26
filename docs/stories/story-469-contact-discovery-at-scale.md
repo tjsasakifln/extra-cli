@@ -201,6 +201,7 @@ GPT-5 Codex (Dex / @dev)
 - 2026-08-26: 259 testes amplos de contato/outreach passaram (20 integrações real-DB separadas); a rodada explícita PostgreSQL passou 21/21 e fixou o claim no relógio transacional do banco contra skew processo↔DB.
 - 2026-08-26: QA adversarial independente reprovou v5 por `agente de contratação`, hash de página autoatestável e timestamp 2099; v6 persiste witness UTF-8 comprimido e limitado, recalcula o digest e a semântica no gate final e classifica futuro material como `UNKNOWN`.
 - 2026-08-26: replay v6 read-only nas mesmas 8.653 contas manteve 6.501 READY / 2.152 BLOCKED e yield 1.810 GENERIC / 4.395 FREEMAIL / 296 ROLE; as 6.501 rotas sobreviventes têm attestation, freshness e expiry válidos e origem cadastral CNPJ-bound.
+- 2026-08-26: a terceira revisão adversarial encontrou evidence ID não idempotente em dois campos do provider histórico; o timestamp fixo do artefato agora é único entre evidência e observação, o ID usa apenas timestamp explicitamente fornecido e o witness limita base64 antes de alocar/decomprimir.
 
 ### Completion Notes List
 

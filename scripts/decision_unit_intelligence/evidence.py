@@ -21,6 +21,9 @@ from scripts.decision_unit_intelligence.models import (
 PAGE_DOCUMENT_WITNESS_SCHEMA = "dui.page_document_witness.v1"
 MAX_PAGE_DOCUMENT_WITNESS_BYTES = 2_500_000
 MAX_PAGE_DOCUMENT_WITNESS_COMPRESSED_BYTES = 1_000_000
+MAX_PAGE_DOCUMENT_WITNESS_BASE64_CHARS = 4 * (
+    (MAX_PAGE_DOCUMENT_WITNESS_COMPRESSED_BYTES + 2) // 3
+)
 
 
 def make_page_document_witness(content: str) -> dict[str, Any] | None:
@@ -65,11 +68,15 @@ def verified_page_document_bytes(
     declared = str(witness.get("sha256") or "").strip().lower()
     if not re.fullmatch(r"[0-9a-f]{64}", expected) or declared != expected:
         return None
+    encoded = witness.get("content_gzip_b64")
+    if (
+        not isinstance(encoded, str)
+        or not encoded
+        or len(encoded) > MAX_PAGE_DOCUMENT_WITNESS_BASE64_CHARS
+    ):
+        return None
     try:
-        compressed = base64.b64decode(
-            str(witness.get("content_gzip_b64") or ""),
-            validate=True,
-        )
+        compressed = base64.b64decode(encoded, validate=True)
     except (binascii.Error, ValueError, TypeError):
         return None
     if not compressed or len(compressed) > MAX_PAGE_DOCUMENT_WITNESS_COMPRESSED_BYTES:
@@ -137,7 +144,7 @@ def make_evidence(
         str(page or ""),
         section or "",
         evidence_snippet or "",
-        resolved_observed_at,
+        observed_at or "",
         published_at or "",
         extraction_method or "",
     )

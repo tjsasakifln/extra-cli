@@ -33,6 +33,7 @@ from scripts.decision_unit_intelligence.models import (
 from scripts.decision_unit_intelligence.providers.base import InvestigationContext, ProviderResult
 
 QSA_ITEM_RE = re.compile(r"^\s*([^()]+?)\s*(?:\(([^)]+)\))?\s*$")
+CAMPAIGN_OBSERVED_AT = "2026-08-05"
 
 PACKAGE_OBSERVATIONS = Path(__file__).resolve().parents[1] / "data" / "track_a_30.observations.json"
 
@@ -186,6 +187,7 @@ class HistoricalCampaignProvider:
                     source_url=row.get("fonte") or "rfb/brasilapi",
                     source_id=cnpj,
                     evidence_snippet=f"{name} ({role})" if role else name,
+                    observed_at=CAMPAIGN_OBSERVED_AT,
                     extraction_method="qsa_cadastre",
                 )
                 evidence.append(ev)
@@ -199,7 +201,7 @@ class HistoricalCampaignProvider:
                         relation=classify_person_relation(observed_role=role),
                         source_type="qsa_rfb",
                         source_url=row.get("fonte"),
-                        observed_at="2026-08-05",
+                        observed_at=CAMPAIGN_OBSERVED_AT,
                         epistemic_class=EpistemicClass.OBSERVED,
                         evidence_id=ev.evidence_id,
                         extra={"qsa_only": True},
@@ -215,7 +217,7 @@ class HistoricalCampaignProvider:
                 source_url=row.get("fonte") or "rfb/brasilapi",
                 source_id=cnpj,
                 evidence_snippet=str(tel),
-                observed_at="2026-08-05",
+                observed_at=CAMPAIGN_OBSERVED_AT,
                 extraction_method="rfb_phone",
             )
             evidence.append(ev)
@@ -227,7 +229,7 @@ class HistoricalCampaignProvider:
                     channel_value=str(tel),
                     source_type="rfb_cadastre",
                     source_url=row.get("fonte"),
-                    observed_at="2026-08-05",
+                    observed_at=CAMPAIGN_OBSERVED_AT,
                     epistemic_class=EpistemicClass.OBSERVED,
                     ownership=OwnershipStatus.COMPANY_OWNED,
                     evidence_id=ev.evidence_id,
@@ -244,7 +246,7 @@ class HistoricalCampaignProvider:
                 source_url=row.get("fonte") or "rfb/brasilapi",
                 source_id=cnpj,
                 evidence_snippet=str(tel2),
-                observed_at="2026-08-05",
+                observed_at=CAMPAIGN_OBSERVED_AT,
                 extraction_method="rfb_secondary_phone",
             )
             evidence.append(ev2)
@@ -257,7 +259,7 @@ class HistoricalCampaignProvider:
                     source_type="rfb_cadastre",
                     source_url=row.get("fonte"),
                     snippet="Telefone 2 (coluna ambígua Telefone 2 / WhatsApp — não prova WhatsApp)",
-                    observed_at="2026-08-05",
+                    observed_at=CAMPAIGN_OBSERVED_AT,
                     epistemic_class=EpistemicClass.OBSERVED,
                     ownership=OwnershipStatus.COMPANY_OWNED,
                     evidence_id=ev2.evidence_id,
@@ -279,6 +281,7 @@ class HistoricalCampaignProvider:
                 source_url=row.get("fonte"),
                 source_id=cnpj,
                 evidence_snippet=email,
+                observed_at=CAMPAIGN_OBSERVED_AT,
                 extraction_method="public_or_manual_override",
             )
             evidence.append(ev)
@@ -290,7 +293,7 @@ class HistoricalCampaignProvider:
                     channel_value=email,
                     source_type="public_page",
                     source_url=row.get("fonte"),
-                    observed_at="2026-08-05",
+                    observed_at=CAMPAIGN_OBSERVED_AT,
                     epistemic_class=EpistemicClass.OBSERVED,
                     ownership=OwnershipStatus.COMPANY_OWNED,
                     evidence_id=ev.evidence_id,
@@ -306,7 +309,7 @@ class HistoricalCampaignProvider:
                     channel_value=str(site),
                     source_type="company_site",
                     source_url=str(site),
-                    observed_at="2026-08-05",
+                    observed_at=CAMPAIGN_OBSERVED_AT,
                     epistemic_class=EpistemicClass.OBSERVED,
                     ownership=OwnershipStatus.COMPANY_OWNED,
                 )
@@ -321,7 +324,7 @@ class HistoricalCampaignProvider:
                         channel_value=fonte,
                         source_type="professional_profile",
                         source_url=fonte,
-                        observed_at="2026-08-05",
+                        observed_at=CAMPAIGN_OBSERVED_AT,
                         epistemic_class=EpistemicClass.OBSERVED,
                     )
                 )
