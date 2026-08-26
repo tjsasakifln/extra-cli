@@ -1,0 +1,77 @@
+{
+  "schema_version": "confenge.scale-rehearsal-evidence.v1",
+  "date": "2026-08-26",
+  "status": "PASS",
+  "scope": "synthetic feed production only",
+  "no_smtp": true,
+  "provider_send_invocations": 0,
+  "recipe": {
+    "schema_version": "confenge.synthetic-scale-rehearsal.v1",
+    "generator_version": "confenge-scale-corpus.v1",
+    "seed": 468469155151,
+    "sha256": "ffae0ccc6147834d89ab0442e1e05800fc287185421ce73ae917d98dba54075a",
+    "account_count": 10000,
+    "scenario_count": 10,
+    "accounts_per_scenario": 1000,
+    "max_leads_per_chunk": 500
+  },
+  "run_v1": {
+    "run_id": "run-863b0abcbaa0e637",
+    "snapshot_hash": "b8c9fb3cdad7c006e4d0ef634eea607cc01c370fda352ba68dbae3041a262a19",
+    "feed_identity_sha256": "2cbdf370508439610ac2ff04670b60a9cd985c8f35f6297db7245d40e86f28a2",
+    "lead_count": 10000,
+    "chunk_count": 157,
+    "preferred_route_count": 6000,
+    "freshness_status": "FRESH"
+  },
+  "run_v2": {
+    "run_id": "run-f48073c9f1d66736",
+    "snapshot_hash": "06bc3e5d73960f633866c2115a46a146455f13437e0c2da713e3d57fad002e6a",
+    "feed_identity_sha256": "c4f3efba9397030608fdd0800282d5cc9cf84e52dc01507c58744c873a213f5d",
+    "lead_count": 10000,
+    "chunk_count": 157,
+    "preferred_route_count": 6000,
+    "freshness_status": "FRESH",
+    "membership_added": 1000,
+    "membership_removed": 1000,
+    "deactivation_count": 1000,
+    "deactivation_state": "SUPPRESSED"
+  },
+  "discovery_terminals": {
+    "RESOLVED": 8000,
+    "NOT_FOUND": 1000,
+    "SUPPRESSED": 1000
+  },
+  "route_classes": {
+    "DIRECT_PERSON": 1000,
+    "ROLE_OR_DEPARTMENT": 1000,
+    "GENERIC_COMPANY": 5000,
+    "PUBLIC_COMPANY_FREEMAIL": 1000,
+    "PROBABILISTIC_OR_RISKY": 1000
+  },
+  "idempotency": {
+    "repeat_count": 10,
+    "two_x_passed": true,
+    "ten_x_passed": true,
+    "duplicate_count": 0,
+    "orphan_count": 0,
+    "silent_loss_count": 0
+  },
+  "resources": {
+    "producer_report_duration_seconds": 289.096998,
+    "process_wall_seconds": 267.94,
+    "process_max_rss_kib": 310452,
+    "file_system_output_blocks": 446264
+  },
+  "assertions": {
+    "complete_target_membership": true,
+    "freshness_bound": true,
+    "snapshot_advanced": true,
+    "ten_percent_refresh": true,
+    "omission_never_authorizes": true,
+    "zero_duplicates": true,
+    "zero_silent_loss": true,
+    "no_transport_invoked": true
+  },
+  "interpretation_limit": "This measures deterministic synthetic feed generation and scheduling input headroom. It is not a live source run, SMTP authorization, provider benchmark, or send-rate claim."
+}

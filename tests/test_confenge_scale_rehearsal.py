@@ -43,3 +43,14 @@ def test_synthetic_scale_recipe_exercises_every_terminal_idempotently(tmp_path: 
     assert report["producer"]["membership_removed"] == 10
     assert report["producer"]["membership_added"] == 10
     assert report["producer"]["run1"]["preferred_route_count"] > 0
+
+    manifest = json.loads((tmp_path / "run" / "feed-v1" / "manifest.json").read_text(encoding="utf-8"))
+    chunk = json.loads(
+        (tmp_path / "run" / "feed-v1" / manifest["chunks"][0]["file"]).read_text(encoding="utf-8")
+    )
+    for lead in chunk["leads"]:
+        assert not any(character.isdigit() for character in lead["company"]["nome_fantasia"])
+        assert {evidence["type"] for evidence in lead["evidence"]} == {"CONTRACT"}
+
+    refresh_manifest = json.loads((tmp_path / "run" / "feed-v2" / "manifest.json").read_text(encoding="utf-8"))
+    assert {row["to_state"] for row in refresh_manifest["deactivations"]} == {"SUPPRESSED"}

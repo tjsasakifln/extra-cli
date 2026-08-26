@@ -45,6 +45,16 @@ def synthetic_cnpj(ordinal: int, *, root_offset: int = 10_000_000) -> str:
     return base + first + _cnpj_check_digit(base + first)
 
 
+def _alpha_label(value: int) -> str:
+    """Encode a stable ordinal without digits so routing copy stays fact-safe."""
+    chars: list[str] = []
+    value += 1
+    while value:
+        value, remainder = divmod(value - 1, 26)
+        chars.append(chr(ord("A") + remainder))
+    return "".join(reversed(chars))
+
+
 def _contact(
     *,
     cnpj: str,
@@ -96,11 +106,12 @@ def _rows_for_account(index: int, ordinal: int, scenario: str, generated_at: dat
     observed_text = _rfc3339(observed)
     generated_text = _rfc3339(generated_at)
     company_host = f"account-{cnpj}.rehearsal.confenge.com.br"
+    company_label = _alpha_label(index)
 
     universe = {
         "cnpj14": cnpj,
-        "razao_social": f"Synthetic Scale Account {index:05d} Ltda",
-        "nome_fantasia": f"Scale Account {index:05d}",
+        "razao_social": f"Synthetic Scale Account {company_label} Ltda",
+        "nome_fantasia": f"Scale Account {company_label}",
         "municipio": "Synthetic City",
         "uf": "SC",
         "website": f"https://{company_host}",
@@ -148,7 +159,7 @@ def _rows_for_account(index: int, ordinal: int, scenario: str, generated_at: dat
         "evidence": [
             {
                 "id": evidence_id,
-                "type": "SYNTHETIC_CONTRACT",
+                "type": "CONTRACT",
                 "title": "Synthetic public contract",
                 "url": f"https://evidence.rehearsal.confenge.com.br/{cnpj}",
                 "date": observed_text[:10],
@@ -371,7 +382,7 @@ def run_rehearsal(recipe_path: Path, out_dir: Path, *, repeat: int) -> dict[str,
     removed = sorted(old_members - new_members)
     added = sorted(new_members - old_members)
     deactivations = [
-        {"cnpj14": cnpj, "to_state": "NOT_ACTIONABLE", "reason": "synthetic_membership_refresh"}
+        {"cnpj14": cnpj, "to_state": "SUPPRESSED", "reason": "synthetic_membership_refresh"}
         for cnpj in removed
     ]
     run2, run2_duration = _export(
