@@ -1,6 +1,6 @@
 [Unit]
 Description=Extra Consultoria — build and atomically publish CONFENGE outreach feed
-After=network-online.target postgresql.service extra-confenge-target-fit-refresh.service
+After=network-online.target postgresql.service extra-confenge-target-fit-refresh.service extra-confenge-contact-cycle.service
 Wants=network-online.target
 Requires=postgresql.service
 OnFailure=extra-onfailure@%n.service

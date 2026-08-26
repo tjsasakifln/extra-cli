@@ -1,9 +1,10 @@
 [Unit]
 Description=Extra Consultoria — continuously reconcile TARGET_CONFIRMED contact routes
-After=network-online.target postgresql.service extra-confenge-target-fit-refresh.service
+After=network-online.target postgresql.service extra-confenge-target-fit-refresh.service extra-confenge-target-fit-reconcile.service
 Wants=network-online.target
 Requires=postgresql.service
 OnFailure=extra-onfailure@%n.service
+OnSuccess=extra-confenge-feed-cycle.service
 
 [Service]
 Type=oneshot

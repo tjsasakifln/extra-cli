@@ -955,8 +955,12 @@ def build_contract(snapshot: Mapping[str, Any]) -> dict[str, Any]:
     if not cadence.get("timezone_explicit", bool(cadence.get("timezone"))):
         extra_reasons.append(REASON_TIMER_TIMEZONE_AMBIGUOUS)
 
-    if not closed and last_run_at is not None:
+    # A previously closed window cannot certify a newer source invocation. This
+    # matters for the systemd refresh cascade: a stopped/crashed attempt must
+    # not reuse a still-young prior close to trigger target-fit and publication.
+    if last_run_at is not None and (closed_at is None or last_run_at > closed_at):
         extra_reasons.append(REASON_UNCLOSED_CURRENT_WINDOW)
+        material_incomplete = True
 
     backup = dict(snapshot.get("backup") or {})
     backup_reason = classify_backup(
