@@ -61,6 +61,9 @@ def run_cycle(
 ) -> dict:
     if not durable_contacts.is_file():
         raise FileNotFoundError(f"durable contact projection not found: {durable_contacts}")
+    contact_report = durable_contacts.with_name("contact-projection-report.json")
+    if not contact_report.is_file():
+        raise FileNotFoundError(f"durable contact projection report not found: {contact_report}")
     if not (os.getenv("LOCAL_DATALAKE_DSN") or os.getenv("DATABASE_URL")):
         raise RuntimeError("LOCAL_DATALAKE_DSN or DATABASE_URL is required")
 

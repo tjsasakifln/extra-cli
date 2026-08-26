@@ -50,6 +50,7 @@ def cmd_export(args: argparse.Namespace) -> int:
         account_intelligence=Path(args.account_intelligence),
         contacts=Path(args.contacts),
         target_fit_snapshot=(Path(args.target_fit_snapshot) if args.target_fit_snapshot else None),
+        contact_projection_report=(Path(args.contact_projection_report) if args.contact_projection_report else None),
         expected_universe_count=args.expected_universe_count,
         out_dir=Path(args.out),
         limit=args.limit,
@@ -185,6 +186,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--target-fit-snapshot",
         default=None,
         help="Authoritative full target-fit snapshot JSONL; defaults to embedded universe decisions",
+    )
+    e.add_argument(
+        "--contact-projection-report",
+        default=None,
+        help="Terminal full-population contact projection report paired with --contacts",
     )
     e.add_argument(
         "--expected-universe-count",

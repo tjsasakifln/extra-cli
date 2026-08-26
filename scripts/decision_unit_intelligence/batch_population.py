@@ -13,6 +13,7 @@ from scripts.confenge_contact_resolution.continuous_from_target_fit import (
 )
 from scripts.confenge_contact_resolution.enrichment_batch import CompanyJob
 from scripts.confenge_target_fit import TARGET_CONFIRMED
+from scripts.confenge_target_fit.company_key import canonical_target_membership
 
 TARGET_CONFIRMED_POPULATION = "target-confirmed"
 
@@ -75,11 +76,7 @@ def build_discovery_population(
     if population != TARGET_CONFIRMED_POPULATION:
         raise ValueError(f"unsupported contact-discovery population: {population}")
 
-    selected = [
-        job
-        for job in jobs
-        if str((job.meta or {}).get("target_fit_class") or "") == TARGET_CONFIRMED
-    ]
+    selected = [job for job in jobs if str((job.meta or {}).get("target_fit_class") or "") == TARGET_CONFIRMED]
     if not selected:
         raise ValueError("target-confirmed population is empty; refusing a zero-denominator full-scale claim")
     invalid = [
@@ -131,6 +128,8 @@ def build_discovery_population(
             f"duplicate_count={len(duplicates)} sample={duplicates[:10]}"
         )
 
+    membership = canonical_target_membership(account_ids)
+
     rows = [_stable_selection_row(job) for job in selected]
     encoded = json.dumps(rows, ensure_ascii=False, sort_keys=True, separators=(",", ":"), default=str)
     digest = hashlib.sha256(encoded.encode("utf-8")).hexdigest()
@@ -173,18 +172,10 @@ def build_discovery_population(
         }
     )
     target_fit_modes = sorted(
-        {
-            str((job.meta or {}).get("target_fit_mode"))
-            for job in selected
-            if (job.meta or {}).get("target_fit_mode")
-        }
+        {str((job.meta or {}).get("target_fit_mode")) for job in selected if (job.meta or {}).get("target_fit_mode")}
     )
     sector_versions = sorted(
-        {
-            str((job.meta or {}).get("sector_version"))
-            for job in selected
-            if (job.meta or {}).get("sector_version")
-        }
+        {str((job.meta or {}).get("sector_version")) for job in selected if (job.meta or {}).get("sector_version")}
     )
     sector_watermarks = sorted(
         {
@@ -199,6 +190,12 @@ def build_discovery_population(
         "population_total": len(selected),
         "population_count": len(selected),
         "population_hash": digest,
+        "membership_schema_version": membership["schema_version"],
+        "membership_identity_key": membership["identity_key"],
+        "membership_hash_algorithm": membership["hash_algorithm"],
+        "membership_count": membership["population_count"],
+        "membership_hash": membership["membership_hash"],
+        "duplicate_member_count": membership["duplicate_member_count"],
         "population_as_of": computed[-1] if computed else None,
         "runnable_total": len(selected),
         "selection_hash": digest,
@@ -206,9 +203,7 @@ def build_discovery_population(
         "sampled": False,
         "target_fit_versions": versions,
         "target_fit_classifier_shas": target_fit_classifier_shas,
-        "target_fit_classifier_sha": (
-            target_fit_classifier_shas[0] if len(target_fit_classifier_shas) == 1 else None
-        ),
+        "target_fit_classifier_sha": (target_fit_classifier_shas[0] if len(target_fit_classifier_shas) == 1 else None),
         "target_fit_modes": target_fit_modes,
         "target_fit_mode": target_fit_modes[0] if len(target_fit_modes) == 1 else "MIXED",
         "source_watermarks": watermarks,

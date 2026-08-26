@@ -1108,10 +1108,22 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
                 account_intelligence=bridge_intel_path,
                 contacts=bridge_contacts_path,
                 target_fit_snapshot=target_fit_snapshot_path,
+                contact_projection_report=(
+                    Path(cfg.durable_contacts_path).with_name("contact-projection-report.json")
+                    if cfg.durable_contacts_path is not None
+                    and (
+                        cfg.dsn is not None
+                        or Path(cfg.durable_contacts_path).with_name("contact-projection-report.json").is_file()
+                    )
+                    else None
+                ),
                 expected_universe_count=len(bridge_universe),
                 out_dir=dirs["feed"],
                 datalake_watermark=target_fit_datalake_watermark,
                 require_authoritative_target_fit_metadata=bool(cfg.dsn),
+                require_authoritative_contact_projection_metadata=bool(
+                    cfg.dsn and cfg.durable_contacts_path is not None
+                ),
                 repo_sha=repo_sha,
                 authoritative_source_freshness=cfg.authoritative_source_freshness,
                 require_authoritative_source_freshness=bool(cfg.dsn),

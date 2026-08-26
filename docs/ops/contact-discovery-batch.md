@@ -82,7 +82,8 @@ may independently produce `EMAIL_ROUTE_READY`.
 
 The number recorded before implementation is a comparison baseline, not a
 runtime cap. A canonical population enqueue binds `population_count`,
-`population_hash`, `population_as_of`, target-fit mode, and target-fit/sector
+`population_hash`, the canonical root-only `membership_hash`, `population_as_of`,
+target-fit mode, and target-fit/sector
 classifier SHAs into cohort metadata. The final projection closes only when the
 population count, durable job denominator, terminal projection count, and
 unique terminal account count are equal. A population that grows between the
@@ -126,7 +127,8 @@ identity evidence.
 
 Install `deploy/systemd/contact-discovery.env.example` as
 `/etc/extra-consultoria/contact-discovery.env`, then enable both the workers and
-the timer. The feed cycle consumes only
-`contact-discovery/current/contacts.jsonl`; therefore contact discovery and
-feed publication remain one truth plane without coupling a long crawl to the
-12-hour feed freshness timer.
+the timer. The feed cycle consumes the atomic pair
+`contact-discovery/current/{contacts.jsonl,contact-projection-report.json}`.
+The report membership must match the `TARGET_CONFIRMED` roots recomputed from
+the feed. These are pre-contact data-refresh timers, not a commercial queue or
+send scheduler; no import, dispatch or SMTP action is performed here.

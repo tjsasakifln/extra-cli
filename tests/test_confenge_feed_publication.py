@@ -15,17 +15,15 @@ from scripts.confenge_activation.publish import (
     check_current_publication,
     record_feed_cycle_state,
 )
+from scripts.confenge_outreach_pipeline.party_role import PARTY_ROLE_POLICY_V1
+from scripts.confenge_target_fit.company_key import canonical_target_membership
 from scripts.ops import confenge_feed_cycle
 
 NOW = datetime(2026, 8, 24, 18, tzinfo=UTC)
 
 
 def test_recurring_feed_cycle_runs_after_pncp_source_window() -> None:
-    timer = (
-        Path("deploy/systemd/extra-confenge-feed-cycle.timer")
-        .read_text(encoding="utf-8")
-        .splitlines()
-    )
+    timer = Path("deploy/systemd/extra-confenge-feed-cycle.timer").read_text(encoding="utf-8").splitlines()
 
     assert "OnCalendar=*-*-* 01,13:20:00" in timer
     assert "RandomizedDelaySec=10m" in timer
@@ -44,6 +42,14 @@ def _build(root: Path, *, snapshot: str = "snapshot-a", generated_at: datetime =
     }
     lead = {
         "company": {"cnpj14": "12345678000195"},
+        "target_fit_class": "TARGET_CONFIRMED",
+        "target_fit_version": "confenge-target-fit-v2",
+        "email_send_ready": True,
+        "contractor_role": {
+            "policy_version": PARTY_ROLE_POLICY_V1,
+            "status": "CONTRACTOR_ROLE_CONFIRMED",
+            "target_party_role": "SUPPLIER",
+        },
         "contacts": [
             {
                 "email": "licitacao@example.com",
@@ -83,12 +89,58 @@ def _build(root: Path, *, snapshot: str = "snapshot-a", generated_at: datetime =
             "full_decision_count": 1,
             "ordering": {"watermarks_monotonic": True},
         },
+        "authoritative_target_membership": {
+            **canonical_target_membership(["12345678000195"]),
+            "target_fit_class": "TARGET_CONFIRMED",
+            "target_confirmed_count": 1,
+            "supplier_confirmed_count": 1,
+            "source_member_count": 1,
+            "membership_complete": True,
+            "target_fit_policy_versions": ["confenge-target-fit-v2"],
+            "target_party_role_distribution": {"SUPPLIER": 1},
+            "contractor_role_status_distribution": {"CONTRACTOR_ROLE_CONFIRMED": 1},
+        },
+        "authoritative_party_roles": {
+            "policy_version": PARTY_ROLE_POLICY_V1,
+            "target_party_role_distribution": {"SUPPLIER": 1},
+            "status_distribution": {"CONTRACTOR_ROLE_CONFIRMED": 1},
+            "supplier_confirmed_count": 1,
+            "buyer_supplier_conflict_fails_closed": True,
+        },
         "authoritative_source_freshness": {
             "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
             "status": "FRESH",
             "expires_at": (generated_at + timedelta(hours=6)).isoformat().replace("+00:00", "Z"),
         },
         "authoritative_contact_projection": {
+            "schema_id": "confenge.contact_discovery.projection_report.v1",
+            "report_sha256": "a" * 64,
+            "cohort_id": "cohort-test",
+            "generated_at": generated,
+            "population_hash": "b" * 64,
+            "population_as_of": generated,
+            "projection_hash": "c" * 64,
+            "controlled_email_policy_version": "controlled-email-policy.v3",
+            "discovery_policy_version": "dui.policy.v1",
+            "input_evidence_version": "target-fit.test",
+            "code_sha": "abc123",
+            "coverage_complete": True,
+            "terminal_coverage_complete": True,
+            "terminal_equation": {"holds": True},
+            "population_count": 1,
+            "membership_schema_version": canonical_target_membership(["12345678000195"])["schema_version"],
+            "membership_identity_key": canonical_target_membership(["12345678000195"])["identity_key"],
+            "membership_hash_algorithm": canonical_target_membership(["12345678000195"])["hash_algorithm"],
+            "membership_count": 1,
+            "membership_hash": canonical_target_membership(["12345678000195"])["membership_hash"],
+            "enrichment_states": {"EMAIL_ROUTE_READY": 1},
+            "recipient_states": {
+                "RECIPIENT_ATTRIBUTED": 1,
+                "READY": 1,
+                "NO_PUBLIC_EMAIL_FOUND": 0,
+                "BLOCKED_WITH_REASON": 0,
+            },
+            "output_preferred_route_class_distribution": {"ROLE_OR_DEPARTMENT": 1},
             "input_declared": True,
             "input_preferred_route_count": 1,
             "output_preferred_route_count": 1,
@@ -152,9 +204,7 @@ def test_publish_is_readable_by_a_separate_web_server_user(tmp_path: Path) -> No
 
 def test_partial_manifest_is_refused_without_replacing_current(tmp_path: Path) -> None:
     public, state, alerts = _paths(tmp_path)
-    first = atomic_publish_directory(
-        _build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW
-    )
+    first = atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
     prior = Path(first["current"]).resolve()
     bad = _build(tmp_path / "bad", snapshot="snapshot-b")
     manifest = json.loads((bad / "manifest.json").read_text())
@@ -164,6 +214,44 @@ def test_partial_manifest_is_refused_without_replacing_current(tmp_path: Path) -
         atomic_publish_directory(bad, public, state_path=state, alert_ledger=alerts, now=NOW)
     assert (public / "current").resolve() == prior
     assert "PUBLICATION_REFUSED" in alerts.read_text()
+
+
+def test_membership_hash_mismatch_is_refused_without_replacing_current(tmp_path: Path) -> None:
+    public, state, alerts = _paths(tmp_path)
+    first = atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
+    prior = Path(first["current"]).resolve()
+    bad = _build(tmp_path / "bad", snapshot="snapshot-b")
+    manifest = json.loads((bad / "manifest.json").read_text())
+    manifest["authoritative_target_membership"]["membership_hash"] = "0" * 64
+    (bad / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="membership membership_hash mismatch"):
+        atomic_publish_directory(bad, public, state_path=state, alert_ledger=alerts, now=NOW)
+
+    assert (public / "current").resolve() == prior
+
+
+def test_buyer_supplier_conflict_with_authorized_route_is_refused(tmp_path: Path) -> None:
+    public, state, alerts = _paths(tmp_path)
+    bad = _build(tmp_path / "bad")
+    chunk_path = bad / "chunk_0000.json"
+    chunk = json.loads(chunk_path.read_text())
+    role = chunk["leads"][0]["contractor_role"]
+    role.update({"status": "PARTY_ROLE_CONFLICT", "target_party_role": "BUYER_CONFLICT"})
+    raw = (json.dumps(chunk, ensure_ascii=False, sort_keys=True) + "\n").encode()
+    chunk_path.write_bytes(raw)
+    manifest = json.loads((bad / "manifest.json").read_text())
+    manifest["chunks"][0]["content_hash"] = hashlib.sha256(raw).hexdigest()
+    manifest["authoritative_target_membership"]["target_party_role_distribution"] = {"BUYER_CONFLICT": 1}
+    manifest["authoritative_target_membership"]["contractor_role_status_distribution"] = {"PARTY_ROLE_CONFLICT": 1}
+    manifest["authoritative_party_roles"]["target_party_role_distribution"] = {"BUYER_CONFLICT": 1}
+    manifest["authoritative_party_roles"]["status_distribution"] = {"PARTY_ROLE_CONFLICT": 1}
+    (bad / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="conflict authorizes outreach"):
+        atomic_publish_directory(bad, public, state_path=state, alert_ledger=alerts, now=NOW)
+
+    assert not (public / "current").exists()
 
 
 def test_unreconciled_contact_projection_is_refused_before_publication(tmp_path: Path) -> None:
@@ -195,6 +283,14 @@ def test_policy_excluded_preferred_routes_can_reconcile_at_zero(tmp_path: Path) 
             "output_preferred_routes_hash": "empty-route-hash",
         }
     )
+    projection["recipient_states"].update(
+        {
+            "RECIPIENT_ATTRIBUTED": 0,
+            "READY": 0,
+            "BLOCKED_WITH_REASON": 1,
+        }
+    )
+    projection["output_preferred_route_class_distribution"] = {}
     chunk_path = build / "chunk_0000.json"
     chunk = json.loads(chunk_path.read_text())
     chunk["leads"][0]["contacts"][0]["preferred_initial"] = False
@@ -217,24 +313,24 @@ def test_policy_excluded_preferred_routes_can_reconcile_at_zero(tmp_path: Path) 
 
 def test_same_snapshot_is_not_freshness_and_alerts(tmp_path: Path) -> None:
     public, state, alerts = _paths(tmp_path)
-    atomic_publish_directory(
-        _build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW
-    )
+    first = atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
+    first_generated_at = json.loads((Path(first["current"]) / "manifest.json").read_text(encoding="utf-8"))[
+        "generated_at"
+    ]
     second = atomic_publish_directory(
         _build(tmp_path / "second"), public, state_path=state, alert_ledger=alerts, now=NOW
     )
     assert second["ok"] is False
     assert second["skipped_same"] is True
     assert second["reason"] == "SAME_SNAPSHOT_NOT_FRESHNESS"
+    assert json.loads((public / "current" / "manifest.json").read_text())["generated_at"] == first_generated_at
     assert json.loads(state.read_text())["last_status"] == "SKIPPED_SAME_SNAPSHOT"
     assert "SAME_SNAPSHOT_NOT_FRESHNESS" in alerts.read_text()
 
 
 def test_monitor_fails_after_24_hours_without_touching_publication(tmp_path: Path) -> None:
     public, state, alerts = _paths(tmp_path)
-    atomic_publish_directory(
-        _build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW
-    )
+    atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
     result = check_current_publication(
         public,
         state_path=state,
@@ -253,9 +349,7 @@ def test_monitor_fails_after_24_hours_without_touching_publication(tmp_path: Pat
 
 def test_cycle_failure_preserves_last_publication_and_records_alert(tmp_path: Path) -> None:
     public, state, alerts = _paths(tmp_path)
-    atomic_publish_directory(
-        _build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW
-    )
+    atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
     record_feed_cycle_state(
         state,
         alert_ledger=alerts,
@@ -283,6 +377,7 @@ def test_hash_mismatch_is_refused_before_promotion(tmp_path: Path) -> None:
 def test_cycle_binds_child_pipeline_to_same_checkout(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     durable_contacts = tmp_path / "contacts.jsonl"
     durable_contacts.write_text("", encoding="utf-8")
+    durable_contacts.with_name("contact-projection-report.json").write_text("{}", encoding="utf-8")
     captured: dict[str, object] = {}
     monkeypatch.setenv("LOCAL_DATALAKE_DSN", "postgresql://test:test@127.0.0.1:5433/extra_test")
 
@@ -324,9 +419,7 @@ def test_cycle_binds_child_pipeline_to_same_checkout(monkeypatch: pytest.MonkeyP
 
 def test_fresh_publication_and_monitor_clear_prior_unhealthy_state(tmp_path: Path) -> None:
     public, state, alerts = _paths(tmp_path)
-    atomic_publish_directory(
-        _build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW
-    )
+    atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
     check_current_publication(
         public,
         state_path=state,

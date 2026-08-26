@@ -9,6 +9,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from scripts.confenge_target_fit.company_key import canonical_target_membership
 from scripts.decision_unit_intelligence.batch_contact_metadata import attach_projection_evidence
 from scripts.decision_unit_intelligence.batch_queue import ContactDiscoveryQueue, canonical_payload_hash
 from scripts.decision_unit_intelligence.controlled_email import (
@@ -36,9 +37,7 @@ from scripts.decision_unit_intelligence.projection import is_email_safe_for_warm
 from scripts.decision_unit_intelligence.repository import write_json
 
 TERMINAL_JOB_STATUSES = frozenset({"SUCCEEDED", "BLOCKED", "DLQ", "CANCELLED"})
-ENRICHMENT_TERMINALS = frozenset(
-    {"EMAIL_ROUTE_READY", "NO_PUBLIC_EMAIL_FOUND", "BLOCKED_WITH_REASON"}
-)
+ENRICHMENT_TERMINALS = frozenset({"EMAIL_ROUTE_READY", "NO_PUBLIC_EMAIL_FOUND", "BLOCKED_WITH_REASON"})
 
 _CLEAR_SUPPRESSION = frozenset({"", "NONE", "CLEAR", "NOT_SUPPRESSED"})
 _OFFICIAL_ASSOCIATION_FIELDS = (
@@ -118,8 +117,7 @@ def _has_official_match(contact: dict[str, Any], account_id: str) -> bool:
     return bool(
         str(contact.get("official_match_status") or "").upper() == "MATCHED"
         and str(contact.get("official_authority") or "").upper() == "RECEITA_FEDERAL"
-        and str(contact.get("source") or contact.get("source_type") or "").lower()
-        in {"company_registry", "registry"}
+        and str(contact.get("source") or contact.get("source_type") or "").lower() in {"company_registry", "registry"}
         and len(registry_cnpj) == 14
         and registry_cnpj == account_cnpj
         and release_id
@@ -163,9 +161,7 @@ def _merge_contact_evidence(
         merged["ownership_status"] = "COMPANY_OWNED"
 
     evidence_ids = [
-        str(item)
-        for item in [*(prior.get("evidence_ids") or []), *(current.get("evidence_ids") or [])]
-        if item
+        str(item) for item in [*(prior.get("evidence_ids") or []), *(current.get("evidence_ids") or [])] if item
     ]
     if evidence_ids:
         merged["evidence_ids"] = list(dict.fromkeys(evidence_ids))
@@ -322,11 +318,7 @@ def reconcile_prior_contact_rows(
             official_domain=official_domain or None,
         )
         preferred_contact = next(
-            (
-                item
-                for item in stamped
-                if item.get("preferred_initial") and item.get("controlled_email_eligible")
-            ),
+            (item for item in stamped if item.get("preferred_initial") and item.get("controlled_email_eligible")),
             None,
         )
         latest_state = str(row.get("enrichment_state") or "")
@@ -362,15 +354,13 @@ def reconcile_prior_contact_rows(
         "prior_accounts": len(prior_by_account),
         "current_accounts": len(current_rows),
         "accounts_in_both": sum(
-            str(row.get("canonical_account_id") or row.get("cnpj14") or "") in prior_by_account
-            for row in current_rows
+            str(row.get("canonical_account_id") or row.get("cnpj14") or "") in prior_by_account for row in current_rows
         ),
         "preferred_before_reconciliation": before_preferred,
         "preferred_after_reconciliation": after_preferred,
         "preferred_recovered_from_prior": recovered_from_prior,
         "routes_rejected_missing_observed_at": sum(
-            int((row.get("publication_guard_failures") or {}).get("MISSING_OBSERVED_AT") or 0)
-            for row in reconciled
+            int((row.get("publication_guard_failures") or {}).get("MISSING_OBSERVED_AT") or 0) for row in reconciled
         ),
     }
 
@@ -593,11 +583,7 @@ def build_contact_projection(
             official_domain=str(domain or "").strip() or None,
         )
         preferred = next(
-            (
-                item
-                for item in contacts
-                if item.get("preferred_initial") and item.get("controlled_email_eligible")
-            ),
+            (item for item in contacts if item.get("preferred_initial") and item.get("controlled_email_eligible")),
             None,
         )
         if status == "SUCCEEDED" and preferred:
@@ -675,15 +661,21 @@ def build_contact_projection(
     population_contract = progress.get("population_contract")
     population_contract = population_contract if isinstance(population_contract, dict) else {}
     population_count = int(
-        population_contract.get("population_count")
-        or population_contract.get("population_total")
-        or denominator
+        population_contract.get("population_count") or population_contract.get("population_total") or denominator
     )
+    membership = canonical_target_membership([str(job.get("canonical_account_id") or "") for job in jobs])
+    declared_membership_count = population_contract.get("membership_count")
+    declared_membership_hash = population_contract.get("membership_hash")
+    membership_contract_matches = (
+        declared_membership_count is None or int(declared_membership_count) == membership["population_count"]
+    ) and (declared_membership_hash is None or str(declared_membership_hash) == membership["membership_hash"])
     terminal_projection_total = sum(states.values())
     terminal_account_count = len({str(row["canonical_account_id"]) for row in rows})
     population_contract_matches_denominator = population_count == denominator
     terminal_equation_holds = (
         population_contract_matches_denominator
+        and membership_contract_matches
+        and membership["population_count"] == denominator
         and terminal_projection_total == denominator
         and terminal_account_count == denominator
         and not integrity_failures
@@ -699,8 +691,14 @@ def build_contact_projection(
         "cohort_id": cohort_id,
         "denominator": denominator,
         "population_count": population_count,
-        "population_hash": population_contract.get("population_hash")
-        or population_contract.get("selection_hash"),
+        "population_hash": population_contract.get("population_hash") or population_contract.get("selection_hash"),
+        "membership_schema_version": membership["schema_version"],
+        "membership_identity_key": membership["identity_key"],
+        "membership_hash_algorithm": membership["hash_algorithm"],
+        "membership_count": membership["population_count"],
+        "membership_hash": membership["membership_hash"],
+        "duplicate_member_count": membership["duplicate_member_count"],
+        "membership_contract_matches_population": membership_contract_matches,
         "population_as_of": population_contract.get("population_as_of"),
         "target_fit_mode": population_contract.get("target_fit_mode"),
         "target_fit_classifier_sha": population_contract.get("target_fit_classifier_sha"),
