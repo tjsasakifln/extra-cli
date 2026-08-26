@@ -177,7 +177,7 @@ def run_account(
     site = company_site
     blocked = False
     from scripts.decision_unit_intelligence.controlled_email import (
-        observed_channels_have_controlled_eligible_route,
+        observed_channels_have_account_identity_route,
     )
 
     site_provider = next((p for p in providers if getattr(p, "provider_id", "") == "company_website"), None)
@@ -240,7 +240,7 @@ def run_account(
             p.provider_id for p in providers if getattr(p, "first_class", False) and getattr(p, "enabled", False)
         }
         attempted = {attempt.provider_id for attempt in ledger.attempts}
-        commercial_success = observed_channels_have_controlled_eligible_route(
+        commercial_success = observed_channels_have_account_identity_route(
             channels,
             account_id=cnpj,
         )

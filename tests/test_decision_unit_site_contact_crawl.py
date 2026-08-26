@@ -22,6 +22,7 @@ from scripts.decision_unit_intelligence.site_contact_crawl import (
     SiteCrawlBudget,
     associate_site_email,
     canonicalize_site_url,
+    contacts_to_observations,
     extract_site_contacts,
     load_fixture_corpus,
     parse_sitemap_urls,
@@ -121,6 +122,35 @@ def test_mailto_in_card_is_strong_team_association():
     assert SITE_TEAM_CARD_EMAIL in hit.reason_codes
     assert SITE_MAILTO_ASSOCIATED in hit.reason_codes
     assert set(hit.reason_codes) & STRONG_SITE_CODES
+
+
+def test_same_official_page_cnpj_and_mailbox_emit_account_binding_evidence():
+    html = """
+    <html><body>
+      <article class="card">
+        <h3>João da Silva</h3>
+        <p>Diretor de Engenharia</p>
+        <a href="mailto:joao.silva@empresaexemplo.com.br">escrever</a>
+      </article>
+      <footer>CNPJ 12.345.678/0001-90</footer>
+    </body></html>
+    """
+    records = extract_site_contacts(
+        _doc(html),
+        canonical_domain="empresaexemplo.com.br",
+        target_cnpj=_context().cnpj,
+    )
+    _people, channels, evidence = contacts_to_observations(
+        _context(),
+        records,
+        canonical_domain="empresaexemplo.com.br",
+    )
+
+    route = next(channel for channel in channels if channel.channel_value and "@" in channel.channel_value)
+    assert route.extra["page_cnpj14"] == "12345678000190"
+    assert route.extra["page_cnpj_evidence_id"] == route.evidence_id
+    assert len(route.extra["page_cnpj_evidence_sha256"]) == 64
+    assert any(item.field == "account_mailbox_binding" for item in evidence)
 
 
 def test_cross_card_mailto_is_not_promoted(stop_the_line=True):

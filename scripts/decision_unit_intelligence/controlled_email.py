@@ -1371,6 +1371,56 @@ def _has_account_specific_mailbox_evidence(contact: dict[str, Any], *, account: 
     return False
 
 
+def observed_channels_have_account_identity_route(
+    channels: list[Any],
+    *,
+    account_id: str,
+) -> bool:
+    """Stop discovery only for a controlled route bound to the exact account."""
+
+    for channel in channels or []:
+        if isinstance(channel, dict):
+            raw = dict(channel)
+            raw_extra = raw.get("extra")
+            extra: dict[str, Any] = dict(raw_extra) if isinstance(raw_extra, dict) else {}
+            payload: dict[str, Any] = {**extra, **raw}
+            evidence_id = str(payload.get("evidence_id") or "").strip()
+        else:
+            channel_extra = getattr(channel, "extra", None)
+            extra = dict(channel_extra) if isinstance(channel_extra, dict) else {}
+            evidence_id = str(getattr(channel, "evidence_id", None) or "").strip()
+            epistemic = getattr(channel, "epistemic_class", None)
+            ownership = getattr(channel, "ownership", None)
+            payload = {
+                **extra,
+                "email": getattr(channel, "channel_value", None),
+                "name": getattr(channel, "person_name", None),
+                "ownership_status": ownership.value if hasattr(ownership, "value") else ownership,
+                "source_type": getattr(channel, "source_type", None),
+                "source_url": getattr(channel, "source_url", None),
+                "observed_at": getattr(channel, "observed_at", None),
+                "channel_epistemic_class": epistemic.value if hasattr(epistemic, "value") else epistemic,
+            }
+        if evidence_id and not payload.get("evidence_ids"):
+            payload["evidence_ids"] = [evidence_id]
+        payload.setdefault(
+            "source_reference",
+            payload.get("source_url") or evidence_id,
+        )
+        if payload.get("observed_at"):
+            payload.setdefault("route_freshness", FreshnessState.FRESH.value)
+        payload.setdefault("route_suppression", SuppressionState.NONE.value)
+        if not observed_contact_is_controlled_eligible_company_route(
+            payload,
+            account_id=account_id,
+            official_domain=str(payload.get("official_domain") or "") or None,
+        ):
+            continue
+        if _has_account_specific_mailbox_evidence(payload, account=account_id):
+            return True
+    return False
+
+
 def _shared_mailbox_owner(leads: Iterable[dict[str, Any]]) -> dict[str, str]:
     """Resolve a mailbox only when its cross-account identity is defensible.
 

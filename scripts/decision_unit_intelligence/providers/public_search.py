@@ -17,7 +17,6 @@ from scripts.decision_unit_intelligence.query_planner import (
     load_policy,
     plan_queries,
 )
-from scripts.decision_unit_intelligence.reachability import email_domain as _email_domain
 from scripts.decision_unit_intelligence.web_discovery import (
     SearchBackend,
     SearchBudget,
@@ -179,10 +178,8 @@ class PublicSearchProvider:
                 control_eligible_yield = any(
                     channel.channel_value
                     and is_mailbox_controlled_eligible(str(channel.channel_value))
-                    and (
-                        _email_domain(str(channel.channel_value)) == resolution.canonical_domain
-                        or (channel.extra or {}).get("company_associated") is True
-                    )
+                    and str((channel.extra or {}).get("page_cnpj14") or "") == cnpj
+                    and (channel.extra or {}).get("company_associated") is True
                     for channel in extracted.channels
                 )
                 if identity_yield or control_eligible_yield:

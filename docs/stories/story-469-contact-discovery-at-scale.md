@@ -190,6 +190,7 @@ GPT-5 Codex (Dex / @dev)
 - 2026-08-26: auditoria adversarial do feed live encontrou 4/4 `DIRECT_PERSON` atribuídos a domínios de empresas estrangeiras não relacionadas; a publicação seguinte foi bloqueada antes de qualquer import/dispatch.
 - 2026-08-26: replay read-only da policy v4 sobre 8.653 contas resultou em 6.501 READY e 2.152 BLOCKED; 168 contas foram rebaixadas e 18 recuperadas por alternativa cadastral CNPJ-bound.
 - 2026-08-26: 74 testes unitários/focados e 19 testes PostgreSQL real passaram após o delta de identidade; CodeRabbit CLI continua indisponível no host.
+- 2026-08-26: 127 testes de crawl/associação passaram após o provider existente passar a emitir attestation de CNPJ+mailbox somente a partir da mesma página oficial; 17/17 source contracts passaram.
 
 ### Completion Notes List
 
@@ -199,6 +200,7 @@ GPT-5 Codex (Dex / @dev)
 - Evidência live do denominador corrente versionado, reconciliação 8.245/8.245 do baseline, deploy e aceitação continuam abertos; fixture não foi tratada como prova operacional.
 - O ledger terminal agora reaplica a mesma policy de identidade do feed completo: mailbox única não basta, shared ambiguity bloqueia e uma alternativa forte é reranqueada antes de rebaixar a conta.
 - Website/documento só cruza o gate autoritativo quando a página no domínio oficial carrega CNPJ exato, evidence ID e SHA-256; o cadastro continua preso ao tuple imutável da Receita Federal.
+- `public_search` e `company_website` continuam sendo os providers existentes; eles percorrem o budget restante quando domínio/mailbox não carregam prova CNPJ-bound, em vez de encerrar cedo num homônimo.
 
 ### File List
 
@@ -218,10 +220,16 @@ GPT-5 Codex (Dex / @dev)
 - `scripts/decision_unit_intelligence/providers/existing_contacts.py`
 - `scripts/decision_unit_intelligence/providers/official_company_registry.py`
 - `scripts/decision_unit_intelligence/controlled_email.py`
+- `scripts/decision_unit_intelligence/providers/public_search.py`
+- `scripts/decision_unit_intelligence/runner.py`
+- `scripts/decision_unit_intelligence/site_contact_crawl.py`
+- `scripts/decision_unit_intelligence/web_discovery.py`
 - `scripts/warmbly_bridge/export.py`
 - `scripts/warmbly_bridge/mapping.py`
 - `tests/test_contact_discovery_outcomes.py`
 - `tests/test_controlled_email_eligibility.py`
+- `tests/test_decision_unit_site_contact_crawl.py`
+- `tests/test_decision_unit_web_discovery.py`
 - `tests/warmbly_bridge/test_authoritative_target_fit_feed.py`
 - `tests/confenge_outreach_pipeline/test_pipeline.py`
 - `tests/test_contact_discovery_batch.py`

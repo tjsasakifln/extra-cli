@@ -66,6 +66,9 @@ _NAME_THEN_ROLE = re.compile(rf"(?P<name>{_NAME_PATTERN})\s*[:|,\-–]\s*(?P<rol
 _NAME_THEN_ROLE_LOOSE = re.compile(rf"(?P<name>{_NAME_PATTERN})\s+(?P<role>{_ROLE_PATTERN})", re.I)
 _EMAIL_RE = re.compile(r"(?<![\w.+-])([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})(?![\w-])", re.I)
 _PHONE_RE = re.compile(r"(?<!\d)(?:\+?55\s*)?(?:\(?\d{2}\)?[\s.-]*)?\d{4,5}[\s.-]*\d{4}(?!\d)")
+_CNPJ_TEXT_RE = re.compile(
+    r"(?<!\d)(\d{2}[.\s]?\d{3}[.\s]?\d{3}[\/\s]?\d{4}[-\s]?\d{2})(?!\d)"
+)
 
 _EXCLUDED_HOST_SUFFIXES = (
     "bing.com",
@@ -610,6 +613,20 @@ def extract_public_evidence(
 ) -> ExtractedWebEvidence:
     cnpj = normalize_cnpj(context.cnpj)
     extracted = ExtractedWebEvidence()
+    official_host = (canonical_domain or "").lower().removeprefix("www.")
+    document_host = (_host(document.url) or "").lower().removeprefix("www.")
+    cnpj_match = next(
+        (
+            match
+            for match in _CNPJ_TEXT_RE.finditer(document.text or "")
+            if normalize_cnpj(match.group(1)) == cnpj
+        ),
+        None,
+    )
+    page_cnpj_attested = bool(cnpj_match and official_host and document_host == official_host)
+    page_content_sha256 = hashlib.sha256(
+        (document.html or document.text or "").encode("utf-8")
+    ).hexdigest()
     seen_people: set[tuple[str, str]] = set()
     for pattern in (_ROLE_THEN_NAME, _NAME_THEN_ROLE, _NAME_THEN_ROLE_LOOSE):
         for match in pattern.finditer(document.text):
@@ -731,6 +748,35 @@ def extract_public_evidence(
             },
         )
         extracted.evidence.append(evidence)
+        route_evidence_id = evidence.evidence_id
+        page_identity: dict[str, Any] = {}
+        if page_cnpj_attested and cnpj_match is not None:
+            cnpj_snippet = _context_snippet(document.text, cnpj_match.start(), cnpj_match.end())
+            binding = make_evidence(
+                field="account_mailbox_binding",
+                value=f"{cnpj}|{email}",
+                epistemic_class=EpistemicClass.OBSERVED,
+                source_type="company_website",
+                source_url=document.url,
+                evidence_snippet=f"{cnpj_snippet} | {association.snippet}".strip(" |"),
+                observed_at=document.retrieved_at,
+                extraction_method="official_page_exact_cnpj_and_email",
+                extra={
+                    "page_cnpj14": cnpj,
+                    "page_content_sha256": page_content_sha256,
+                    "email_evidence_id": evidence.evidence_id,
+                },
+            )
+            extracted.evidence.append(binding)
+            route_evidence_id = binding.evidence_id
+            page_identity = {
+                "company_associated": True,
+                "mailbox_company_evidence": "OBSERVED",
+                "official_domain": official_host,
+                "page_cnpj14": cnpj,
+                "page_cnpj_evidence_id": binding.evidence_id,
+                "page_cnpj_evidence_sha256": page_content_sha256,
+            }
         extracted.channels.append(
             ChannelObservation(
                 observation_id=stable_id("web-email", cnpj, email, document.url),
@@ -744,7 +790,7 @@ def extract_public_evidence(
                 observed_at=document.retrieved_at,
                 epistemic_class=EpistemicClass.OBSERVED,
                 ownership=OwnershipStatus.COMPANY_OWNED,
-                evidence_id=evidence.evidence_id,
+                evidence_id=route_evidence_id,
                 extra={
                     "identity_explicitly_associated": association.associated,
                     "identity_ambiguous": association.ambiguous,
@@ -753,6 +799,7 @@ def extract_public_evidence(
                     "extraction_method": association.extraction_method,
                     "third_party_echo": association.third_party_echo,
                     "person_may_have_left": association.stale,
+                    **page_identity,
                 },
             )
         )

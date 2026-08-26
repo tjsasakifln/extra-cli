@@ -83,3 +83,10 @@ alternative. Preferred yield becomes 1,810 `GENERIC_COMPANY`, 4,395
 `PUBLIC_COMPANY_FREEMAIL`, 296 `ROLE_OR_DEPARTMENT` and zero unproven
 `DIRECT_PERSON`. This is a pre-deploy simulation, not a publication claim; the
 post-deploy run and hashes remain recorded on issue #469.
+
+The existing `public_search` and `company_website` providers now emit that page
+attestation directly when the target CNPJ and mailbox coexist in the fetched
+official page. The binding evidence references the page URL, observation time,
+exact CNPJ, mailbox and page-content hash; a search result snippet never emits
+it. Discovery continues through its bounded tiers when a site route lacks this
+proof instead of treating domain alignment as a positive early stop.

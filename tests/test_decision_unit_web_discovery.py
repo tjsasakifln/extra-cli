@@ -52,7 +52,7 @@ class FakeCrawler:
         text = (
             "Diretor de Engenharia: João da Silva. "
             "Contato profissional publicado: joao.silva@empresaexemplo.com.br. "
-            "Telefone geral (48) 3333-4444."
+            "Telefone geral (48) 3333-4444. CNPJ 12.345.678/0001-90."
         )
         assert len(text.encode()) < max_bytes
         return CrawlDocument(
@@ -158,7 +158,11 @@ def test_domain_resolution_rejects_aggregator_and_preserves_alternatives():
 
 def test_exact_public_page_keeps_identity_role_and_route_dimensions_separate():
     document = FakeCrawler().fetch("https://empresaexemplo.com.br/diretoria", max_bytes=10_000)
-    extracted = extract_public_evidence(_context(), document)
+    extracted = extract_public_evidence(
+        _context(),
+        document,
+        canonical_domain="empresaexemplo.com.br",
+    )
     person = next(person for person in extracted.people if person.person_name == "João da Silva")
     email = next(
         channel for channel in extracted.channels if channel.channel_value == "joao.silva@empresaexemplo.com.br"
@@ -169,8 +173,32 @@ def test_exact_public_page_keeps_identity_role_and_route_dimensions_separate():
     assert email.epistemic_class == EpistemicClass.OBSERVED
     assert email.person_name == "João da Silva"
     assert email.extra["identity_explicitly_associated"] is True
+    assert email.extra["page_cnpj14"] == "12345678000190"
+    assert email.extra["page_cnpj_evidence_id"] == email.evidence_id
+    assert len(email.extra["page_cnpj_evidence_sha256"]) == 64
+    assert any(item.field == "account_mailbox_binding" for item in extracted.evidence)
     assert phone.extra["person_owns_phone"] is False
     assert all(item.source_url == document.url for item in extracted.evidence)
+
+
+def test_page_without_exact_target_cnpj_does_not_attest_mailbox_identity():
+    document = CrawlDocument(
+        url="https://empresaexemplo.com.br/contato",
+        text="Contato contato@empresaexemplo.com.br. CNPJ 99.888.777/0001-66.",
+        content_type="text/html",
+        retrieved_at="2026-08-14T12:00:00Z",
+        bytes_touched=75,
+    )
+
+    extracted = extract_public_evidence(
+        _context(),
+        document,
+        canonical_domain="empresaexemplo.com.br",
+    )
+
+    email = next(channel for channel in extracted.channels if channel.channel_value)
+    assert "page_cnpj14" not in email.extra
+    assert not any(item.field == "account_mailbox_binding" for item in extracted.evidence)
 
 
 def test_enabled_web_search_runs_before_positive_early_stop_and_persists_evidence():
@@ -197,7 +225,13 @@ def test_enabled_web_search_runs_before_positive_early_stop_and_persists_evidenc
     assert account.extra["domain_resolution"]["canonical_domain"] == "empresaexemplo.com.br"
     assert any(item.field == "canonical_domain" for item in account.evidence)
     assert any(person.person_name == "João da Silva" for person in account.candidates)
-    assert any(route.channel_value == "joao.silva@empresaexemplo.com.br" for route in account.routes)
+    route = next(
+        route
+        for route in account.routes
+        if route.channel_value == "joao.silva@empresaexemplo.com.br"
+    )
+    assert route.extra["page_cnpj14"] == "12345678000190"
+    assert route.extra["page_cnpj_evidence_id"] in route.evidence_ids
 
 
 def test_search_backend_off_is_explicit_policy_skip_not_false_coverage():
