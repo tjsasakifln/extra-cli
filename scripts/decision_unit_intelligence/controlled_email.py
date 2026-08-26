@@ -54,7 +54,7 @@ DEPARTMENTAL_HYPOTHESIS_LOCALS: tuple[str, ...] = (
     "contato",
 )
 
-CONTROLLED_EMAIL_POLICY_VERSION = "controlled-email-policy.v3"
+CONTROLLED_EMAIL_POLICY_VERSION = "controlled-email-policy.v4"
 CONTROLLED_EMAIL_SCHEMA_VERSION = "confenge.outreach.controlled_email.v1"
 
 # Tokens that genuinely mean "not suppressed". Anything else is treated as
@@ -1398,14 +1398,32 @@ def apply_cross_account_preferred_mailbox_gate(
     leads: list[dict[str, Any]],
     *,
     owner: dict[str, str] | None = None,
+    require_account_identity_evidence: bool = False,
 ) -> list[dict[str, Any]]:
-    """Reject ambiguous sharing; preserve only identity-bound shared claims.
+    """Reject shared ambiguity and optionally require target-CNPJ evidence.
 
     ``owner`` carries a whole-feed decision computed elsewhere, so a streaming
     caller can apply the gate one lead at a time without holding the feed.
+    ``require_account_identity_evidence`` is the authoritative feed/delegated
+    policy boundary: a unique mailbox is not automatically an attributed
+    mailbox because website/domain name alignment can resolve the wrong
+    homonymous company. Until the producer carries an equally strong page-level
+    CNPJ attestation, only typed per-CNPJ registry evidence can remain on that
+    route. Human-reviewed cohort tooling keeps its existing domain diagnostics.
     """
     claimed: dict[str, str] = dict(owner if owner is not None else _shared_mailbox_owner(leads))
     out: list[dict[str, Any]] = []
+
+    def _demote(item: dict[str, Any], reason: str) -> None:
+        item["preferred_initial"] = False
+        item["recommended"] = False
+        item["controlled_email_eligible"] = False
+        item["email_send_ready"] = False
+        item["enrollable"] = False
+        item["reason_codes"] = list(
+            dict.fromkeys([*(item.get("reason_codes") or []), reason])
+        )
+
     for lead in leads:
         if not isinstance(lead, dict):
             out.append(lead)
@@ -1419,37 +1437,35 @@ def apply_cross_account_preferred_mailbox_gate(
                 continue
             item = dict(contact)
             mailbox = canonicalize_mailbox(str(item.get("email") or ""))
-            if item.get("preferred_initial") and mailbox:
+            authorization_bearing = any(
+                item.get(field) is True
+                for field in (
+                    "preferred_initial",
+                    "recommended",
+                    "controlled_email_eligible",
+                    "email_send_ready",
+                )
+            )
+            if authorization_bearing and mailbox:
                 chosen_owner = claimed.get(mailbox)
                 independently_attributed = _has_account_specific_mailbox_evidence(item, account=account)
-                if chosen_owner == "":
-                    item["preferred_initial"] = False
-                    item["recommended"] = False
-                    item["controlled_email_eligible"] = False
-                    item["reason_codes"] = list(
-                        dict.fromkeys(
-                            [
-                                *(item.get("reason_codes") or []),
-                                "shared_mailbox_without_account_identity_evidence",
-                            ]
-                        )
-                    )
+                if item.get("preferred_initial") and chosen_owner == "":
+                    _demote(item, "shared_mailbox_without_account_identity_evidence")
                 elif chosen_owner is not None and chosen_owner != account and not independently_attributed:
-                    item["preferred_initial"] = False
-                    item["recommended"] = False
-                    item["controlled_email_eligible"] = False
-                    item["reason_codes"] = list(
-                        dict.fromkeys(
-                            [
-                                *(item.get("reason_codes") or []),
-                                "duplicate_preferred_mailbox_across_accounts",
-                            ]
-                        )
-                    )
-                else:
+                    _demote(item, "duplicate_preferred_mailbox_across_accounts")
+                elif require_account_identity_evidence and not independently_attributed:
+                    _demote(item, "recipient_without_account_identity_evidence")
+                elif item.get("preferred_initial"):
                     claimed[mailbox] = account
             updated_contacts.append(item)
         refreshed = dict(lead)
         refreshed["contacts"] = updated_contacts
+        if "email_send_ready" in refreshed:
+            refreshed["email_send_ready"] = any(
+                contact.get("email_send_ready") is True
+                and contact.get("controlled_email_eligible") is True
+                for contact in updated_contacts
+                if isinstance(contact, dict)
+            )
         out.append(refreshed)
     return out

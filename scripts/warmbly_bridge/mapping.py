@@ -855,4 +855,7 @@ def build_leads(
     )
     from scripts.decision_unit_intelligence.controlled_email import apply_cross_account_preferred_mailbox_gate
 
-    return apply_cross_account_preferred_mailbox_gate(leads)
+    return apply_cross_account_preferred_mailbox_gate(
+        leads,
+        require_account_identity_evidence=True,
+    )

@@ -810,6 +810,7 @@ def _evidenced_shared_registry_contact(account: str) -> dict:
         "preferred_initial": True,
         "recommended": True,
         "controlled_email_eligible": True,
+        "email_send_ready": True,
         "company_associated": True,
         "mailbox_company_evidence": "OBSERVED",
         "channel_epistemic_class": "OBSERVED",
@@ -902,6 +903,55 @@ def test_shared_website_mailbox_without_cnpj_specific_proof_fails_for_every_clai
         for lead in gated
         for c in lead["contacts"]
     )
+
+
+def test_unique_website_mailbox_without_cnpj_specific_proof_fails_closed() -> None:
+    account = "20368709000151"
+    contact = {
+        "email": "escritorio@pimenta.com.br",
+        "preferred_initial": True,
+        "recommended": True,
+        "controlled_email_eligible": True,
+        "company_associated": True,
+        "mailbox_company_evidence": "OBSERVED",
+        "channel_epistemic_class": "OBSERVED",
+        "ownership_status": "COMPANY_OWNED",
+        "route_freshness": "FRESH",
+        "route_suppression": "NONE",
+        "source_type": "contact_page",
+        "source_reference": "https://pimenta.com.br/contato",
+        "source_url": "https://pimenta.com.br/contato",
+        "official_domain": "pimenta.com.br",
+        "evidence_ids": ["website-contact-evidence"],
+    }
+
+    gated = apply_cross_account_preferred_mailbox_gate(
+        [{"company": {"cnpj14": account}, "contacts": [contact], "email_send_ready": True}],
+        require_account_identity_evidence=True,
+    )
+
+    result = gated[0]["contacts"][0]
+    assert result["preferred_initial"] is False
+    assert result["recommended"] is False
+    assert result["controlled_email_eligible"] is False
+    assert result["email_send_ready"] is False
+    assert gated[0]["email_send_ready"] is False
+    assert "recipient_without_account_identity_evidence" in result["reason_codes"]
+
+
+def test_unique_registry_mailbox_with_exact_cnpj_proof_remains_preferred() -> None:
+    account = "20368709000151"
+    contact = _evidenced_shared_registry_contact(account)
+
+    gated = apply_cross_account_preferred_mailbox_gate(
+        [{"company": {"cnpj14": account}, "contacts": [contact]}],
+        require_account_identity_evidence=True,
+    )
+
+    result = gated[0]["contacts"][0]
+    assert result["preferred_initial"] is True
+    assert result["recommended"] is True
+    assert result["controlled_email_eligible"] is True
 
 
 def test_hr_mailbox_not_controlled_eligible() -> None:
