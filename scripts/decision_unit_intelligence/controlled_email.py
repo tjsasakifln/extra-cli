@@ -13,6 +13,7 @@ from __future__ import annotations
 import re
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, replace
+from datetime import timedelta
 from enum import StrEnum
 from typing import Any
 from urllib.parse import urlparse
@@ -43,6 +44,11 @@ from scripts.decision_unit_intelligence.reachability import (
     is_generic_mailbox,
     is_role_mailbox,
     looks_nominal_local,
+)
+from scripts.decision_unit_intelligence.route_class import (
+    FRESH_MAX_DAYS,
+    freshness_from_observed_at,
+    parse_observed_at,
 )
 
 MAX_DEPARTMENTAL_HYPOTHESES = 3
@@ -122,6 +128,7 @@ COMPANY_ASSOCIATION_SOURCES = frozenset(
         "official_documents",
         "official_document",
         "company_registry",
+        "registry",
         "site",
         "institutional_site",
         "contact_page",
@@ -1080,6 +1087,12 @@ def route_from_feed_contact(
         "official_release_id",
         "registry_cnpj14",
         "source_provenance",
+        "page_cnpj14",
+        "page_cnpj_evidence_id",
+        "page_cnpj_evidence_sha256",
+        "account_mailbox_binding_evidence",
+        "mailbox_observation_evidence",
+        "source_published_at",
     ):
         value = contact.get(field)
         if value is not None:
@@ -1302,6 +1315,14 @@ def stamp_and_rank_feed_contacts(
             stamped.append(contact)
             continue
         merged = {**contact, **feed_contact_from_classified(item)}
+        freshness_reference = str(
+            contact.get("source_published_at") or contact.get("observed_at") or ""
+        ).strip()
+        parsed_freshness_reference = parse_observed_at(freshness_reference)
+        if parsed_freshness_reference is not None:
+            merged["route_expires_at"] = (
+                parsed_freshness_reference + timedelta(days=FRESH_MAX_DAYS)
+            ).isoformat().replace("+00:00", "Z")
         if "missing_observed_at" in item.reason_codes:
             merged["publication_block_reason"] = "MISSING_OBSERVED_AT"
         if contact.get("corroborating_sources"):
@@ -1311,15 +1332,13 @@ def stamp_and_rank_feed_contacts(
     return apply_preferred_recommended_alias(stamped)
 
 
-def _has_account_specific_mailbox_evidence(contact: dict[str, Any], *, account: str) -> bool:
-    """True only when a shared mailbox is independently bound to this account.
+def contact_has_account_identity_attestation(contact: dict[str, Any], *, account: str) -> bool:
+    """Return whether one observation atomically binds a mailbox to an account.
 
-    A mailbox appearing on two accounts is not itself evidence that either
-    association is wrong.  The durable waterfall can, for example, observe the
-    same group mailbox in two distinct Receita Federal establishment records.
-    Preserve those independently evidenced claims. A website/domain match is
-    deliberately insufficient here: the same incorrectly resolved website can
-    make its URL, domain and mailbox agree for several unrelated CNPJs.
+    Freshness and suppression are intentionally evaluated by the caller.  This
+    helper validates the immutable registry/page tuple itself so reconciliation
+    can keep a prior attestation without combining it with fields from a newer,
+    unrelated observation of the same mailbox.
     """
 
     evidence_ids = [str(value).strip() for value in (contact.get("evidence_ids") or []) if str(value).strip()]
@@ -1331,15 +1350,14 @@ def _has_account_specific_mailbox_evidence(contact: dict[str, Any], *, account: 
         and str(contact.get("mailbox_company_evidence") or "").upper() == EVIDENCE_OBSERVED
         and str(contact.get("channel_epistemic_class") or "").upper() == EpistemicClass.OBSERVED.value
         and str(contact.get("ownership_status") or "").upper() == OwnershipStatus.COMPANY_OWNED.value
-        and str(contact.get("route_freshness") or "").upper() == FreshnessState.FRESH.value
-        and str(contact.get("route_suppression") or "").upper() == SuppressionState.NONE.value
         and bool(evidence_ids)
         and bool(source_reference)
+        and bool(str(contact.get("observed_at") or "").strip())
     )
     if not common_proof:
         return False
 
-    if source_type == "company_registry":
+    if source_type in {"company_registry", "registry"}:
         release_id = str(contact.get("official_release_id") or "").strip()
         source_provenance = contact.get("source_provenance")
         return (
@@ -1358,6 +1376,15 @@ def _has_account_specific_mailbox_evidence(contact: dict[str, Any], *, account: 
         page_evidence_sha256 = str(contact.get("page_cnpj_evidence_sha256") or "").strip().lower()
         source_url = str(contact.get("source_url") or "").strip()
         official_domain = str(contact.get("official_domain") or "").strip()
+        mailbox = canonicalize_mailbox(str(contact.get("email") or contact.get("mailbox") or ""))
+        observed_at = str(contact.get("observed_at") or "").strip()
+        binding = contact.get("account_mailbox_binding_evidence")
+        binding = binding if isinstance(binding, dict) else {}
+        binding_extra = binding.get("extra")
+        binding_extra = binding_extra if isinstance(binding_extra, dict) else {}
+        mailbox_evidence = contact.get("mailbox_observation_evidence")
+        mailbox_evidence = mailbox_evidence if isinstance(mailbox_evidence, dict) else {}
+        email_evidence_id = str(binding_extra.get("email_evidence_id") or "").strip()
         return (
             page_cnpj == normalize_cnpj(account)
             and bool(page_evidence_id)
@@ -1366,9 +1393,38 @@ def _has_account_specific_mailbox_evidence(contact: dict[str, Any], *, account: 
             and bool(source_url)
             and bool(official_domain)
             and _hosts_equivalent(_url_host(source_url), official_domain)
+            and str(binding.get("evidence_id") or "").strip() == page_evidence_id
+            and str(binding.get("field") or "").strip() == "account_mailbox_binding"
+            and str(binding.get("value") or "").strip().lower()
+            == f"{normalize_cnpj(account)}|{mailbox}"
+            and str(binding.get("epistemic_class") or "").upper() == EpistemicClass.OBSERVED.value
+            and str(binding.get("source_url") or "").strip() == source_url
+            and str(binding.get("observed_at") or "").strip() == observed_at
+            and normalize_cnpj(str(binding_extra.get("page_cnpj14") or ""))
+            == normalize_cnpj(account)
+            and str(binding_extra.get("page_content_sha256") or "").strip().lower()
+            == page_evidence_sha256
+            and bool(email_evidence_id)
+            and str(mailbox_evidence.get("evidence_id") or "").strip() == email_evidence_id
+            and str(mailbox_evidence.get("field") or "").strip() == "email"
+            and canonicalize_mailbox(str(mailbox_evidence.get("value") or "")) == mailbox
+            and str(mailbox_evidence.get("epistemic_class") or "").upper()
+            == EpistemicClass.OBSERVED.value
+            and str(mailbox_evidence.get("source_url") or "").strip() == source_url
+            and str(mailbox_evidence.get("observed_at") or "").strip() == observed_at
         )
 
     return False
+
+
+def _has_account_specific_mailbox_evidence(contact: dict[str, Any], *, account: str) -> bool:
+    """True only when a usable route is independently bound to this account."""
+
+    return bool(
+        contact_has_account_identity_attestation(contact, account=account)
+        and str(contact.get("route_freshness") or "").upper() == FreshnessState.FRESH.value
+        and str(contact.get("route_suppression") or "").upper() == SuppressionState.NONE.value
+    )
 
 
 def observed_channels_have_account_identity_route(
@@ -1407,8 +1463,12 @@ def observed_channels_have_account_identity_route(
             "source_reference",
             payload.get("source_url") or evidence_id,
         )
-        if payload.get("observed_at"):
-            payload.setdefault("route_freshness", FreshnessState.FRESH.value)
+        freshness_reference = payload.get("source_published_at") or payload.get("observed_at")
+        if freshness_reference:
+            payload.setdefault(
+                "route_freshness",
+                freshness_from_observed_at(str(freshness_reference)).value,
+            )
         payload.setdefault("route_suppression", SuppressionState.NONE.value)
         if not observed_contact_is_controlled_eligible_company_route(
             payload,

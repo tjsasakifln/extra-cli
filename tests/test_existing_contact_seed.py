@@ -55,6 +55,57 @@ def _write_seed(path: Path) -> None:
     )
 
 
+def _write_bound_seed(path: Path) -> None:
+    _write_seed(path)
+    rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
+    contact = rows[0]["contacts"][0]
+    account = rows[0]["cnpj14"]
+    mailbox = contact["email"]
+    source_url = contact["source_url"]
+    observed_at = contact["observed_at"]
+    binding_id = "historical-page-binding"
+    email_evidence_id = "historical-page-email"
+    contact.update(
+        {
+            "company_associated": True,
+            "mailbox_company_evidence": "OBSERVED",
+            "channel_epistemic_class": "OBSERVED",
+            "route_freshness": "FRESH",
+            "route_suppression": "NONE",
+            "official_domain": rows[0]["official_domain"],
+            "evidence_ids": [binding_id],
+            "page_cnpj14": account,
+            "page_cnpj_evidence_id": binding_id,
+            "page_cnpj_evidence_sha256": "a" * 64,
+            "account_mailbox_binding_evidence": {
+                "evidence_id": binding_id,
+                "field": "account_mailbox_binding",
+                "value": f"{account}|{mailbox}",
+                "epistemic_class": "OBSERVED",
+                "source_url": source_url,
+                "observed_at": observed_at,
+                "extra": {
+                    "page_cnpj14": account,
+                    "page_content_sha256": "a" * 64,
+                    "email_evidence_id": email_evidence_id,
+                },
+            },
+            "mailbox_observation_evidence": {
+                "evidence_id": email_evidence_id,
+                "field": "email",
+                "value": mailbox,
+                "epistemic_class": "OBSERVED",
+                "source_url": source_url,
+                "observed_at": observed_at,
+            },
+        }
+    )
+    path.write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in rows),
+        encoding="utf-8",
+    )
+
+
 def test_seed_manifest_is_content_bound_and_deduplicated(tmp_path: Path) -> None:
     seed = tmp_path / "contacts.jsonl"
     _write_seed(seed)
@@ -98,7 +149,7 @@ def test_seed_hash_change_is_a_factual_provider_failure(tmp_path: Path) -> None:
         )
 
 
-def test_run_account_uses_seed_before_public_search_without_minting_person(tmp_path: Path) -> None:
+def test_unbound_seed_is_reused_but_does_not_stop_public_search(tmp_path: Path) -> None:
     seed = tmp_path / "contacts.jsonl"
     _write_seed(seed)
     inputs = manifest_contact_seed_inputs([str(seed)])
@@ -116,6 +167,21 @@ def test_run_account_uses_seed_before_public_search_without_minting_person(tmp_p
     assert ranking.preferred_initial_route.route_class == EmailRouteClass.ROLE_OR_DEPARTMENT
     assert ranking.preferred_initial_route.email_validated is False
     assert ranking.preferred_initial_route.person_name is None
+    assert account.ledger.search_queries
+
+
+def test_semantically_bound_seed_stops_later_public_search_spend(tmp_path: Path) -> None:
+    seed = tmp_path / "contacts-bound.jsonl"
+    _write_bound_seed(seed)
+    inputs = manifest_contact_seed_inputs([str(seed)])
+
+    account = run_account(
+        "11222333000181",
+        search_backend="off",
+        contact_seed_inputs=inputs,
+        account_meta={"razao_social": "ACME ENGENHARIA LTDA"},
+    )
+
     assert account.ledger.search_queries == []
 
 

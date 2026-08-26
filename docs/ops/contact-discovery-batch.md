@@ -63,9 +63,16 @@ identity policy. A producer-level `EMAIL_ROUTE_READY` becomes
 an independently bound alternative is reranked first. This whole-population
 step also detects a mailbox claimed by multiple CNPJs, so the terminal ledger,
 route-class yield and feed projection use the same effective result.
+The report separates stored-contact provenance from successful yield through
+`preferred_provenance_source_distribution` and
+`preferred_route_class_by_provenance`; rejected alternatives never inflate
+those preferred-route counters.
 
 `export-contacts` verifies job/account IDs and output hashes before writing a
 derived bridge JSONL. By default it refuses an incomplete denominator.
+Even a terminal `SUCCEEDED` job with a missing or invalid output is materialized
+as `BLOCKED_WITH_REASON` for that account while the integrity failure remains a
+global publication blocker. No terminal account disappears from observability.
 `--allow-partial` is only for observable incremental feed refreshes and never
 counts as full-population evidence.
 
@@ -82,7 +89,12 @@ is a company route, but never evidence of a person or department. Public
 freemail remains eligible only when the complete registry tuple binds the
 mailbox to the same CNPJ. Website/document routes require a page on the resolved
 official domain that exposes the exact CNPJ, with evidence ID and content hash;
-domain/name alignment by itself remains insufficient. If no official release
+the evidence objects must also bind the same mailbox, URL and observation.
+Buyer/contracting-authority context, a foreign corporate domain, or freemail
+without local CNPJ context fails closed. Source publication time is preserved
+separately from crawl observation, determines route freshness and produces an
+explicit `route_expires_at`; cache replay cannot mint a new observation time.
+Domain/name alignment by itself remains insufficient. If no official release
 is active, the attempt records
 `OFFICIAL_REGISTRY_UNAVAILABLE`; a no-route result remains
 `BLOCKED_WITH_REASON` while website/document/public-search tiers still run and

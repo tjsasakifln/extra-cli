@@ -182,7 +182,9 @@ class PublicSearchProvider:
                     and (channel.extra or {}).get("company_associated") is True
                     for channel in extracted.channels
                 )
-                if identity_yield or control_eligible_yield:
+                # A named mailbox is not account identity. Continue the bounded
+                # crawl until an exact CNPJ-bound controlled route is observed.
+                if control_eligible_yield:
                     break
                 for link in discover_internal_targets(
                     links=document.links,

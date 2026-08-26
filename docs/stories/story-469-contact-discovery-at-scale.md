@@ -191,6 +191,9 @@ GPT-5 Codex (Dex / @dev)
 - 2026-08-26: replay read-only da policy v4 sobre 8.653 contas resultou em 6.501 READY e 2.152 BLOCKED; 168 contas foram rebaixadas e 18 recuperadas por alternativa cadastral CNPJ-bound.
 - 2026-08-26: 74 testes unitários/focados e 19 testes PostgreSQL real passaram após o delta de identidade; CodeRabbit CLI continua indisponível no host.
 - 2026-08-26: 127 testes de crawl/associação passaram após o provider existente passar a emitir attestation de CNPJ+mailbox somente a partir da mesma página oficial; 17/17 source contracts passaram.
+- 2026-08-26: QA adversarial independente bloqueou a primeira correção por coocorrência de buyer contact, lavagem de provenance incremental, freshness renovada por crawl e terminal ausente em output corrompido; nenhum desses casos foi aceito como risco residual.
+- 2026-08-26: após o reparo, 144 testes focados passaram, cobrindo cadeia semântica da attestation, buyer/third-party, página stale/cache, crawl de duas páginas, merge atômico, alias cadastral, idempotência e yield preferred por provenance; 20/20 testes PostgreSQL reais passaram.
+- 2026-08-26: golden path local terminou honestamente `partial`: PNCP excedeu 720s e o freshness gate permaneceu FAIL; a execução live PNCP também encerrou exit 1 com janelas parciais. Nenhum target-fit/contact/feed novo foi promovido.
 
 ### Completion Notes List
 
@@ -200,6 +203,8 @@ GPT-5 Codex (Dex / @dev)
 - Evidência live do denominador corrente versionado, reconciliação 8.245/8.245 do baseline, deploy e aceitação continuam abertos; fixture não foi tratada como prova operacional.
 - O ledger terminal agora reaplica a mesma policy de identidade do feed completo: mailbox única não basta, shared ambiguity bloqueia e uma alternativa forte é reranqueada antes de rebaixar a conta.
 - Website/documento só cruza o gate autoritativo quando a página no domínio oficial carrega CNPJ exato, evidence ID e SHA-256; o cadastro continua preso ao tuple imutável da Receita Federal.
+- A prova de página inclui objetos semânticos ligados para mailbox e binding, rejeita contexto de comprador/terceiro e mantém data publicada, observação e expiry separados. Reconciliation nunca combina campos de duas observações para completar uma prova.
+- Job terminal com output ausente/adulterado continua visível como `BLOCKED_WITH_REASON`, mas a falha de integridade global impede publicação.
 - `public_search` e `company_website` continuam sendo os providers existentes; eles percorrem o budget restante quando domínio/mailbox não carregam prova CNPJ-bound, em vez de encerrar cedo num homônimo.
 
 ### File List
@@ -221,15 +226,20 @@ GPT-5 Codex (Dex / @dev)
 - `scripts/decision_unit_intelligence/providers/official_company_registry.py`
 - `scripts/decision_unit_intelligence/controlled_email.py`
 - `scripts/decision_unit_intelligence/providers/public_search.py`
+- `scripts/decision_unit_intelligence/route_class.py`
 - `scripts/decision_unit_intelligence/runner.py`
 - `scripts/decision_unit_intelligence/site_contact_crawl.py`
 - `scripts/decision_unit_intelligence/web_discovery.py`
 - `scripts/warmbly_bridge/export.py`
 - `scripts/warmbly_bridge/mapping.py`
+- `scripts/ops/confenge_frozen_inputs.py`
 - `tests/test_contact_discovery_outcomes.py`
 - `tests/test_controlled_email_eligibility.py`
 - `tests/test_decision_unit_site_contact_crawl.py`
 - `tests/test_decision_unit_web_discovery.py`
+- `tests/test_contact_projection_reconciliation.py`
+- `tests/commercial_leads/test_confenge_frozen_inputs_policy.py`
+- `tests/fixtures/controlled_email_five_class_canary.json`
 - `tests/warmbly_bridge/test_authoritative_target_fit_feed.py`
 - `tests/confenge_outreach_pipeline/test_pipeline.py`
 - `tests/test_contact_discovery_batch.py`

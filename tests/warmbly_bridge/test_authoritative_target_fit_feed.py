@@ -194,6 +194,35 @@ def _export(
         }
         for index, row in enumerate(universe)
     ]
+    for account_contacts in contacts:
+        cnpj = account_contacts["cnpj14"]
+        for contact in account_contacts["contacts"]:
+            source_url = contact["source_url"]
+            binding_id = contact["page_cnpj_evidence_id"]
+            page_sha256 = contact["page_cnpj_evidence_sha256"]
+            email_evidence_id = f"email:{binding_id}"
+            contact["observed_at"] = NOW
+            contact["account_mailbox_binding_evidence"] = {
+                "evidence_id": binding_id,
+                "field": "account_mailbox_binding",
+                "value": f"{cnpj}|{contact['email']}",
+                "epistemic_class": "OBSERVED",
+                "source_url": source_url,
+                "observed_at": NOW,
+                "extra": {
+                    "page_cnpj14": cnpj,
+                    "page_content_sha256": page_sha256,
+                    "email_evidence_id": email_evidence_id,
+                },
+            }
+            contact["mailbox_observation_evidence"] = {
+                "evidence_id": email_evidence_id,
+                "field": "email",
+                "value": contact["email"],
+                "epistemic_class": "OBSERVED",
+                "source_url": source_url,
+                "observed_at": NOW,
+            }
     intel_path = _write_jsonl(source / "intelligence.jsonl", intelligence)
     if authoritative_contact_report:
         confirmed_cnpjs = {

@@ -84,9 +84,19 @@ alternative. Preferred yield becomes 1,810 `GENERIC_COMPANY`, 4,395
 `DIRECT_PERSON`. This is a pre-deploy simulation, not a publication claim; the
 post-deploy run and hashes remain recorded on issue #469.
 
-The existing `public_search` and `company_website` providers now emit that page
-attestation directly when the target CNPJ and mailbox coexist in the fetched
-official page. The binding evidence references the page URL, observation time,
-exact CNPJ, mailbox and page-content hash; a search result snippet never emits
-it. Discovery continues through its bounded tiers when a site route lacks this
-proof instead of treating domain alignment as a positive early stop.
+The existing `public_search` and `company_website` providers emit that page
+attestation only when the mailbox context is attributable to the target. The
+binding carries two linked semantic evidence objects and reconciles page URL,
+observation, exact CNPJ, mailbox and content hash. Buyer/contracting-authority
+context and foreign corporate domains are rejected; a public freemail must be
+locally near the target CNPJ. A search result snippet never emits the binding.
+Discovery continues through its bounded tiers when a named route lacks this
+proof instead of treating identity/domain alignment as a positive early stop.
+
+Page publication time is distinct from crawl observation time and controls
+freshness plus the persisted `route_expires_at`; a cache replay does not renew
+stale material. Reconciliation keeps one complete observation tuple instead of
+mixing an old attestation with a newer URL/evidence list. Terminal jobs with a
+broken output remain visible as nominal blockers while continuing to block
+publication globally. These are local post-review corrections; the 6,501/2,152
+figures above remain a pre-deploy registry-dominated replay, not live proof.

@@ -139,7 +139,8 @@
             "named_person_evidence_present",
             "controlled_email_eligible",
             "preferred_initial_route"
-          ]
+          ],
+          "route_expires_at": "2027-02-20T12:00:00Z"
         },
         {
           "source_contact_id": "c-comercial",
@@ -215,7 +216,8 @@
             "person_unknown",
             "controlled_email_eligible",
             "alternative_route"
-          ]
+          ],
+          "route_expires_at": "2027-02-20T12:00:00Z"
         },
         {
           "source_contact_id": "c-contato",
@@ -291,7 +293,8 @@
             "person_unknown",
             "controlled_email_eligible",
             "alternative_route"
-          ]
+          ],
+          "route_expires_at": "2027-02-20T12:00:00Z"
         },
         {
           "source_contact_id": "c-gmail",
@@ -367,7 +370,8 @@
             "person_unknown",
             "controlled_email_eligible",
             "alternative_route"
-          ]
+          ],
+          "route_expires_at": "2027-02-20T12:00:00Z"
         },
         {
           "source_contact_id": "c-inferred",
@@ -450,7 +454,8 @@
             "missing_provenance",
             "person_unknown",
             "provenance_chain_invalid"
-          ]
+          ],
+          "route_expires_at": "2027-02-20T12:00:00Z"
         }
       ],
       "contracts": [],

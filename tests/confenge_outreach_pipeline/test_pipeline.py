@@ -186,18 +186,24 @@ def test_durable_projection_reaches_feed_accounts_outside_hot_set(tmp_path: Path
     durable_rows = []
     for cnpj in candidate_cnpjs:
         host = f"empresa{cnpj[:8]}.com.br"
+        mailbox = f"contato@{host}"
+        source_url = f"https://{host}/contato"
+        binding_id = f"page-cnpj:{cnpj}"
+        email_evidence_id = f"page-email:{cnpj}"
+        page_sha256 = (cnpj * 5)[:64]
+        observed_at = "2026-08-24T12:00:00Z"
         durable_rows.append(
             {
                 "cnpj14": cnpj,
                 "enrichment_state": "EMAIL_ROUTE_READY",
                 "contacts": [
                     {
-                        "email": f"contato@{host}",
+                        "email": mailbox,
                             "source": "company_website",
-                            "source_url": f"https://{host}/contato",
-                            "source_reference": f"https://{host}/contato",
-                            "evidence_ids": [f"page-cnpj:{cnpj}"],
-                            "observed_at": "2026-08-24T12:00:00Z",
+                            "source_url": source_url,
+                            "source_reference": source_url,
+                            "evidence_ids": [binding_id],
+                            "observed_at": observed_at,
                             "ownership_status": "COMPANY_OWNED",
                             "company_associated": True,
                             "mailbox_company_evidence": "OBSERVED",
@@ -206,8 +212,29 @@ def test_durable_projection_reaches_feed_accounts_outside_hot_set(tmp_path: Path
                             "route_suppression": "NONE",
                             "official_domain": host,
                             "page_cnpj14": cnpj,
-                            "page_cnpj_evidence_id": f"page-cnpj:{cnpj}",
-                            "page_cnpj_evidence_sha256": (cnpj * 5)[:64],
+                            "page_cnpj_evidence_id": binding_id,
+                            "page_cnpj_evidence_sha256": page_sha256,
+                            "account_mailbox_binding_evidence": {
+                                "evidence_id": binding_id,
+                                "field": "account_mailbox_binding",
+                                "value": f"{cnpj}|{mailbox}",
+                                "epistemic_class": "OBSERVED",
+                                "source_url": source_url,
+                                "observed_at": observed_at,
+                                "extra": {
+                                    "page_cnpj14": cnpj,
+                                    "page_content_sha256": page_sha256,
+                                    "email_evidence_id": email_evidence_id,
+                                },
+                            },
+                            "mailbox_observation_evidence": {
+                                "evidence_id": email_evidence_id,
+                                "field": "email",
+                                "value": mailbox,
+                                "epistemic_class": "OBSERVED",
+                                "source_url": source_url,
+                                "observed_at": observed_at,
+                            },
                         }
                 ],
             }

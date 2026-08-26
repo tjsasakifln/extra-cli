@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from scripts.decision_unit_intelligence.controlled_email import (
+    observed_channels_have_account_identity_route,
+)
 from scripts.decision_unit_intelligence.models import (
     ChannelObservation,
     ChannelType,
@@ -55,6 +58,41 @@ class FakeCrawler:
             "Telefone geral (48) 3333-4444. CNPJ 12.345.678/0001-90."
         )
         assert len(text.encode()) < max_bytes
+        return CrawlDocument(
+            url=url,
+            text=text,
+            content_type="text/html",
+            retrieved_at="2026-08-14T12:00:00Z",
+            bytes_touched=len(text.encode()),
+        )
+
+
+class TwoPageSearch:
+    backend_id = "two-page"
+
+    def search(self, query: str, *, limit: int) -> list[SearchHit]:
+        return [
+            SearchHit(
+                url="https://empresaexemplo.com.br/diretoria",
+                title="Diretoria da Empresa Exemplo",
+                snippet="Empresa Exemplo Engenharia - diretoria",
+                engine="fixture",
+            ),
+            SearchHit(
+                url="https://empresaexemplo.com.br/contato",
+                title="Contato da Empresa Exemplo",
+                snippet="Empresa Exemplo Engenharia - contato",
+                engine="fixture",
+            ),
+        ][:limit]
+
+
+class TwoPageCrawler:
+    def fetch(self, url: str, *, max_bytes: int) -> CrawlDocument:
+        if url.endswith("/diretoria"):
+            text = "Diretor de Engenharia: João da Silva. joao@empresaexemplo.com.br"
+        else:
+            text = "CNPJ 12.345.678/0001-90. Contato contato@empresaexemplo.com.br"
         return CrawlDocument(
             url=url,
             text=text,
@@ -199,6 +237,76 @@ def test_page_without_exact_target_cnpj_does_not_attest_mailbox_identity():
     email = next(channel for channel in extracted.channels if channel.channel_value)
     assert "page_cnpj14" not in email.extra
     assert not any(item.field == "account_mailbox_binding" for item in extracted.evidence)
+
+
+def test_exact_cnpj_page_does_not_bind_explicit_buyer_freemail():
+    text = (
+        "CNPJ 12.345.678/0001-90. "
+        "Contratante / comprador: agente.prefeitura@gmail.com."
+    )
+    document = CrawlDocument(
+        url="https://empresaexemplo.com.br/contrato",
+        text=text,
+        html=f"<html><body>{text}</body></html>",
+        content_type="text/html",
+        retrieved_at="2026-08-14T12:00:00Z",
+        bytes_touched=len(text.encode()),
+    )
+
+    extracted = extract_public_evidence(
+        _context(), document, canonical_domain="empresaexemplo.com.br"
+    )
+
+    channel = next(item for item in extracted.channels if item.channel_value)
+    assert channel.ownership == OwnershipStatus.UNKNOWN
+    assert "page_cnpj14" not in channel.extra
+    assert channel.extra["account_binding_context"] == "COUNTERPARTY_MAILBOX_CONTEXT"
+    assert not any(item.field == "account_mailbox_binding" for item in extracted.evidence)
+
+
+def test_named_page_without_cnpj_does_not_stop_before_bound_contact_page():
+    provider = PublicSearchProvider(
+        backend=TwoPageSearch(),
+        crawler=TwoPageCrawler(),
+        budget=SearchBudget(
+            max_queries=1,
+            max_results_per_query=2,
+            max_pages=2,
+            max_bytes=20_000,
+            min_query_interval_seconds=0,
+        ),
+    )
+
+    result = provider.collect(_context())
+
+    assert result.attempts[0].documents_checked == 2
+    assert any(
+        (channel.extra or {}).get("page_cnpj14") == _context().cnpj
+        for channel in result.channels
+    )
+
+
+def test_web_page_declared_staleness_blocks_identity_early_stop():
+    text = "CNPJ 12.345.678/0001-90. Contato contato@empresaexemplo.com.br"
+    document = CrawlDocument(
+        url="https://empresaexemplo.com.br/contato",
+        text=text,
+        html=(
+            '<html><body><time datetime="2018-01-01T00:00:00Z">2018</time>'
+            f"{text}</body></html>"
+        ),
+        content_type="text/html",
+        retrieved_at="2026-08-14T12:00:00Z",
+        bytes_touched=len(text.encode()),
+    )
+    extracted = extract_public_evidence(
+        _context(), document, canonical_domain="empresaexemplo.com.br"
+    )
+
+    assert not observed_channels_have_account_identity_route(
+        extracted.channels,
+        account_id=_context().cnpj,
+    )
 
 
 def test_enabled_web_search_runs_before_positive_early_stop_and_persists_evidence():

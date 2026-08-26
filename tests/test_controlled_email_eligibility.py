@@ -819,6 +819,7 @@ def _evidenced_shared_registry_contact(account: str) -> dict:
         "route_suppression": "NONE",
         "source_type": "company_registry",
         "source_reference": f"registry-contact:{account}",
+        "observed_at": "2026-08-24T12:00:00Z",
         "evidence_ids": [f"registry-evidence:{account}"],
         "registry_cnpj14": account,
         "official_match_status": "MATCHED",
@@ -828,6 +829,57 @@ def _evidenced_shared_registry_contact(account: str) -> dict:
             "authority": "RECEITA_FEDERAL",
             "release_id": "registry-release-1",
             "source_label": "rfb_public_cadastral",
+        },
+    }
+
+
+def _evidenced_shared_page_contact(account: str) -> dict:
+    mailbox = "licitacoes@grupo.example.com"
+    source_url = f"https://grupo.example.com/empresas/{account}/contato"
+    binding_id = f"page-binding:{account}"
+    email_evidence_id = f"page-email:{account}"
+    page_sha256 = (account * 5)[:64]
+    observed_at = "2026-08-24T12:00:00Z"
+    return {
+        "email": mailbox,
+        "preferred_initial": True,
+        "recommended": True,
+        "controlled_email_eligible": True,
+        "company_associated": True,
+        "mailbox_company_evidence": "OBSERVED",
+        "channel_epistemic_class": "OBSERVED",
+        "ownership_status": "COMPANY_OWNED",
+        "route_freshness": "FRESH",
+        "route_suppression": "NONE",
+        "source_type": "contact_page",
+        "source_reference": source_url,
+        "source_url": source_url,
+        "official_domain": "grupo.example.com",
+        "evidence_ids": [binding_id],
+        "observed_at": observed_at,
+        "page_cnpj14": account,
+        "page_cnpj_evidence_id": binding_id,
+        "page_cnpj_evidence_sha256": page_sha256,
+        "account_mailbox_binding_evidence": {
+            "evidence_id": binding_id,
+            "field": "account_mailbox_binding",
+            "value": f"{account}|{mailbox}",
+            "epistemic_class": "OBSERVED",
+            "source_url": source_url,
+            "observed_at": observed_at,
+            "extra": {
+                "page_cnpj14": account,
+                "page_content_sha256": page_sha256,
+                "email_evidence_id": email_evidence_id,
+            },
+        },
+        "mailbox_observation_evidence": {
+            "evidence_id": email_evidence_id,
+            "field": "email",
+            "value": mailbox,
+            "epistemic_class": "OBSERVED",
+            "source_url": source_url,
+            "observed_at": observed_at,
         },
     }
 
@@ -843,6 +895,28 @@ def test_shared_mailbox_keeps_each_independently_evidenced_account_claim() -> No
     ]
 
     gated = apply_cross_account_preferred_mailbox_gate(leads)
+
+    assert [
+        lead["company"]["cnpj14"]
+        for lead in gated
+        if any(contact.get("preferred_initial") for contact in lead["contacts"])
+    ] == list(accounts)
+
+
+def test_shared_page_mailbox_requires_and_keeps_per_cnpj_semantic_evidence() -> None:
+    accounts = ("11111111000191", "22222222000172")
+    leads = [
+        {
+            "company": {"cnpj14": account},
+            "contacts": [_evidenced_shared_page_contact(account)],
+        }
+        for account in accounts
+    ]
+
+    gated = apply_cross_account_preferred_mailbox_gate(
+        leads,
+        require_account_identity_evidence=True,
+    )
 
     assert [
         lead["company"]["cnpj14"]
@@ -968,6 +1042,29 @@ def test_official_page_mailbox_requires_complete_exact_cnpj_attestation() -> Non
         "page_cnpj_evidence_id": evidence_id,
         "page_cnpj_evidence_sha256": "a" * 64,
     }
+    email_evidence_id = "page-email:20368709000151:contact"
+    contact["account_mailbox_binding_evidence"] = {
+        "evidence_id": evidence_id,
+        "field": "account_mailbox_binding",
+        "value": f"{account}|{contact['email']}",
+        "epistemic_class": "OBSERVED",
+        "source_url": contact["source_url"],
+        "observed_at": "2026-08-24T12:00:00Z",
+        "extra": {
+            "page_cnpj14": account,
+            "page_content_sha256": "a" * 64,
+            "email_evidence_id": email_evidence_id,
+        },
+    }
+    contact["mailbox_observation_evidence"] = {
+        "evidence_id": email_evidence_id,
+        "field": "email",
+        "value": contact["email"],
+        "epistemic_class": "OBSERVED",
+        "source_url": contact["source_url"],
+        "observed_at": "2026-08-24T12:00:00Z",
+    }
+    contact["observed_at"] = "2026-08-24T12:00:00Z"
 
     accepted = apply_cross_account_preferred_mailbox_gate(
         [{"company": {"cnpj14": account}, "contacts": [contact]}],
@@ -980,6 +1077,12 @@ def test_official_page_mailbox_requires_complete_exact_cnpj_attestation() -> Non
         {"page_cnpj_evidence_id": "missing-evidence"},
         {"page_cnpj_evidence_sha256": "not-a-sha256"},
         {"source_url": "https://unrelated.example.com/contato"},
+        {
+            "account_mailbox_binding_evidence": {
+                **contact["account_mailbox_binding_evidence"],
+                "value": f"99888777000166|{contact['email']}",
+            }
+        },
     ):
         rejected = apply_cross_account_preferred_mailbox_gate(
             [
@@ -1008,6 +1111,39 @@ def test_unique_registry_mailbox_with_exact_cnpj_proof_remains_preferred() -> No
     assert result["preferred_initial"] is True
     assert result["recommended"] is True
     assert result["controlled_email_eligible"] is True
+
+
+def test_legacy_registry_source_alias_keeps_exact_cnpj_proof() -> None:
+    account = "20368709000151"
+    contact = {**_evidenced_shared_registry_contact(account), "source_type": "registry"}
+
+    gated = apply_cross_account_preferred_mailbox_gate(
+        [{"company": {"cnpj14": account}, "contacts": [contact]}],
+        require_account_identity_evidence=True,
+    )
+
+    assert gated[0]["contacts"][0]["preferred_initial"] is True
+
+
+def test_authoritative_identity_gate_is_idempotent() -> None:
+    account = "20368709000151"
+    leads = [
+        {
+            "company": {"cnpj14": account},
+            "contacts": [_evidenced_shared_registry_contact(account)],
+        }
+    ]
+
+    once = apply_cross_account_preferred_mailbox_gate(
+        leads,
+        require_account_identity_evidence=True,
+    )
+    twice = apply_cross_account_preferred_mailbox_gate(
+        once,
+        require_account_identity_evidence=True,
+    )
+
+    assert twice == once
 
 
 def test_identity_gate_promotes_exact_registry_alternative_after_website_rejection() -> None:

@@ -41,6 +41,7 @@ from scripts.decision_unit_intelligence.models import (
     OwnershipStatus,
     PersonObservation,
     PersonRelation,
+    fold_text,
     normalize_cnpj,
     normalize_email,
     normalize_name,
@@ -49,7 +50,7 @@ from scripts.decision_unit_intelligence.models import (
     stable_id,
 )
 from scripts.decision_unit_intelligence.providers.base import InvestigationContext
-from scripts.decision_unit_intelligence.reachability import classify_observed_email_channel
+from scripts.decision_unit_intelligence.reachability import classify_observed_email_channel, is_freemail
 
 USER_AGENT = "CONFENGE-Public-Discovery/1.0 (+https://github.com/tjsasakifln/extra-cli)"
 
@@ -69,6 +70,90 @@ _PHONE_RE = re.compile(r"(?<!\d)(?:\+?55\s*)?(?:\(?\d{2}\)?[\s.-]*)?\d{4,5}[\s.-
 _CNPJ_TEXT_RE = re.compile(
     r"(?<!\d)(\d{2}[.\s]?\d{3}[.\s]?\d{3}[\/\s]?\d{4}[-\s]?\d{2})(?!\d)"
 )
+
+_COUNTERPARTY_CONTEXT_MARKERS = (
+    "agente publico",
+    "assessoria contabil",
+    "buyer",
+    "cliente",
+    "comprador",
+    "contratante",
+    "contabilidade",
+    "escritorio contabil",
+    "fiscal do contrato",
+    "gestor do contrato",
+    "oab ",
+    "orgao comprador",
+    "orgao publico",
+    "prefeitura",
+    "procurador do cliente",
+    "tomador",
+)
+
+
+def account_mailbox_binding_context(
+    *,
+    email: str,
+    snippet: str,
+    page_text: str,
+    cnpj_span: tuple[int, int],
+    canonical_domain: str,
+) -> tuple[bool, str]:
+    """Require mailbox context that identifies the target, not a counterparty.
+
+    A corporate-domain mailbox is attributable on the exact-CNPJ official page
+    unless its local context explicitly identifies a buyer/third party.  A
+    public freemail additionally has to be near the target CNPJ.  Foreign
+    corporate domains never inherit the page's CNPJ merely by co-occurrence.
+    """
+
+    local = fold_text(snippet)
+    if any(marker in local for marker in _COUNTERPARTY_CONTEXT_MARKERS):
+        return False, "COUNTERPARTY_MAILBOX_CONTEXT"
+    mailbox_domain = email.rsplit("@", 1)[-1].lower().removeprefix("www.")
+    official = canonical_domain.lower().removeprefix("www.")
+    if mailbox_domain == official or mailbox_domain.endswith(f".{official}"):
+        return True, "OFFICIAL_DOMAIN_MAILBOX"
+    if not is_freemail(email):
+        return False, "FOREIGN_DOMAIN_MAILBOX"
+
+    page_lower = page_text.lower()
+    cnpj_start, cnpj_end = cnpj_span
+    for match in re.finditer(re.escape(email.lower()), page_lower):
+        distance = min(abs(match.start() - cnpj_end), abs(cnpj_start - match.end()))
+        if distance > 800:
+            continue
+        window_start = max(0, min(match.start(), cnpj_start) - 240)
+        window_end = min(len(page_text), max(match.end(), cnpj_end) + 240)
+        window = fold_text(page_text[window_start:window_end])
+        if any(marker in window for marker in _COUNTERPARTY_CONTEXT_MARKERS):
+            return False, "COUNTERPARTY_MAILBOX_CONTEXT"
+        return True, "FREEMAIL_NEAR_EXACT_CNPJ"
+    return False, "FREEMAIL_NOT_LOCALLY_BOUND_TO_CNPJ"
+
+
+def source_publication_timestamp(html: str) -> str | None:
+    """Extract a page-declared publication/modification timestamp, if present."""
+
+    if not html:
+        return None
+    soup = BeautifulSoup(html, "lxml")
+    time_node = soup.find("time", datetime=True)
+    if time_node:
+        value = str(time_node.get("datetime") or "").strip()
+        if value:
+            return value
+    for attrs in (
+        {"property": "article:modified_time"},
+        {"property": "article:published_time"},
+        {"name": "dateModified"},
+        {"name": "datePublished"},
+    ):
+        node = soup.find("meta", attrs=attrs)
+        value = str(node.get("content") or "").strip() if node else ""
+        if value:
+            return value
+    return None
 
 _EXCLUDED_HOST_SUFFIXES = (
     "bing.com",
@@ -627,6 +712,7 @@ def extract_public_evidence(
     page_content_sha256 = hashlib.sha256(
         (document.html or document.text or "").encode("utf-8")
     ).hexdigest()
+    source_published_at = source_publication_timestamp(document.html)
     seen_people: set[tuple[str, str]] = set()
     for pattern in (_ROLE_THEN_NAME, _NAME_THEN_ROLE, _NAME_THEN_ROLE_LOOSE):
         for match in pattern.finditer(document.text):
@@ -750,7 +836,17 @@ def extract_public_evidence(
         extracted.evidence.append(evidence)
         route_evidence_id = evidence.evidence_id
         page_identity: dict[str, Any] = {}
+        binding_allowed = False
+        binding_reason = "PAGE_CNPJ_NOT_ATTESTED"
         if page_cnpj_attested and cnpj_match is not None:
+            binding_allowed, binding_reason = account_mailbox_binding_context(
+                email=email,
+                snippet=association.snippet,
+                page_text=document.text,
+                cnpj_span=(cnpj_match.start(), cnpj_match.end()),
+                canonical_domain=official_host,
+            )
+        if binding_allowed and cnpj_match is not None:
             cnpj_snippet = _context_snippet(document.text, cnpj_match.start(), cnpj_match.end())
             binding = make_evidence(
                 field="account_mailbox_binding",
@@ -760,7 +856,7 @@ def extract_public_evidence(
                 source_url=document.url,
                 evidence_snippet=f"{cnpj_snippet} | {association.snippet}".strip(" |"),
                 observed_at=document.retrieved_at,
-                extraction_method="official_page_exact_cnpj_and_email",
+                extraction_method=f"official_page_exact_cnpj_and_email:{binding_reason.lower()}",
                 extra={
                     "page_cnpj14": cnpj,
                     "page_content_sha256": page_content_sha256,
@@ -776,7 +872,14 @@ def extract_public_evidence(
                 "page_cnpj14": cnpj,
                 "page_cnpj_evidence_id": binding.evidence_id,
                 "page_cnpj_evidence_sha256": page_content_sha256,
+                "account_mailbox_binding_evidence": binding.to_dict(),
+                "mailbox_observation_evidence": evidence.to_dict(),
             }
+        mailbox_domain = email.rsplit("@", 1)[-1].lower().removeprefix("www.")
+        official_domain_mailbox = bool(
+            official_host
+            and (mailbox_domain == official_host or mailbox_domain.endswith(f".{official_host}"))
+        )
         extracted.channels.append(
             ChannelObservation(
                 observation_id=stable_id("web-email", cnpj, email, document.url),
@@ -789,7 +892,11 @@ def extract_public_evidence(
                 snippet=association.snippet,
                 observed_at=document.retrieved_at,
                 epistemic_class=EpistemicClass.OBSERVED,
-                ownership=OwnershipStatus.COMPANY_OWNED,
+                ownership=(
+                    OwnershipStatus.COMPANY_OWNED
+                    if official_domain_mailbox or binding_allowed
+                    else OwnershipStatus.UNKNOWN
+                ),
                 evidence_id=route_evidence_id,
                 extra={
                     "identity_explicitly_associated": association.associated,
@@ -799,6 +906,8 @@ def extract_public_evidence(
                     "extraction_method": association.extraction_method,
                     "third_party_echo": association.third_party_echo,
                     "person_may_have_left": association.stale,
+                    "account_binding_context": binding_reason,
+                    **({"source_published_at": source_published_at} if source_published_at else {}),
                     **page_identity,
                 },
             )

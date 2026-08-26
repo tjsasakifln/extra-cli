@@ -30,10 +30,14 @@ primeiro toque de roteamento.
 5. O agente CLI escolhe uma única mailbox observada por CNPJ. Unicidade,
    semelhança de nome e domínio resolvido não provam identidade: cadastro
    empresarial exige o tuple completo da Receita Federal para o mesmo CNPJ;
-   página oficial exige domínio coincidente, CNPJ exato observado na página,
-   evidence ID e SHA-256. Mailbox compartilhada entre CNPJs sem uma dessas
-   provas por conta fica bloqueada. Snippet, MX e email sintetizado não provam
-   associação.
+   página oficial exige domínio coincidente, CNPJ exato observado na página e
+   uma cadeia semântica imutável `email evidence -> account_mailbox_binding`
+   que reconcilie CNPJ, mailbox, URL, `observed_at` e SHA-256 do conteúdo.
+   Coocorrência global não basta: contexto de comprador, contratante ou terceiro
+   bloqueia o vínculo; freemail exige proximidade local com o CNPJ. A data
+   publicada pela fonte governa freshness/expiry e não pode ser renovada por
+   replay de cache. Mailbox compartilhada entre CNPJs sem prova completa por
+   conta fica bloqueada. Snippet, MX e email sintetizado não provam associação.
 6. Somente o primeiro email curto de roteamento pode usar
    `CFG-FIRST-TOUCH-ROUTING-v1`. A decisão é `DELEGATED_POLICY_APPROVE`, com
    `approved_by_type=delegated_agent`, autoridade

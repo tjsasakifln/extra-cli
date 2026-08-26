@@ -300,7 +300,11 @@ def finalize_route_draft(
                 reachability = ReachabilityClass.R5_CORPORATE_ONLY
                 action = ActionMode.MANUAL_WHATSAPP
 
-    freshness = freshness_from_observed_at(obs.observed_at)
+    source_published_at = str(extra.get("source_published_at") or "").strip() or None
+    freshness = freshness_from_observed_at(source_published_at or obs.observed_at)
+    if source_published_at:
+        extra["source_published_at"] = source_published_at
+        extra["freshness_reference"] = "SOURCE_PUBLICATION"
     if ctx.stale_marked:
         freshness = FreshnessState.STALE
         reasons.append("STALE_NUMBER_MARKED")

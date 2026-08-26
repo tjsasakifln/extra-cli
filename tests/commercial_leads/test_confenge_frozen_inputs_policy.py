@@ -24,6 +24,7 @@ from scripts.ops.confenge_frozen_inputs import (
     SCHEMA_VERSION,
     build_frozen_inputs_manifest,
     classify_changed_paths,
+    discover_frozen_input_paths,
     evaluate_post_freeze_diff,
     extract_ci_confenge_section,
     extract_makefile_confenge_section,
@@ -467,6 +468,22 @@ def test_manifest_includes_gates_and_section_keys(tmp_path: Path) -> None:
     assert CI_SECTION_KEY in paths
     # No edital allowlist pollution
     assert not any("edital_relevance" in p for p in paths)
+
+
+def test_contact_discovery_and_feed_execution_surface_is_frozen() -> None:
+    root = Path(__file__).resolve().parents[2]
+    paths = set(discover_frozen_input_paths(root))
+
+    assert {
+        "scripts/ops/confenge_contact_cycle.py",
+        "scripts/ops/confenge_feed_cycle.py",
+        "scripts/decision_unit_intelligence/batch_contact_metadata.py",
+        "scripts/decision_unit_intelligence/batch_projection.py",
+        "scripts/decision_unit_intelligence/providers/public_search.py",
+        "scripts/decision_unit_intelligence/runner.py",
+        "scripts/decision_unit_intelligence/site_contact_crawl.py",
+        "scripts/warmbly_bridge/export.py",
+    } <= paths
 
 
 def test_section_hash_preserves_trailing_newline_via_git_show(tmp_path: Path) -> None:

@@ -5,8 +5,12 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from scripts.decision_unit_intelligence.controlled_email import (
+    observed_channels_have_account_identity_route,
+)
 from scripts.decision_unit_intelligence.providers.base import InvestigationContext
 from scripts.decision_unit_intelligence.providers.company_website import CompanyWebsiteProvider
+from scripts.decision_unit_intelligence.reachability import classify_channel_observation
 from scripts.decision_unit_intelligence.runner import run_account
 from scripts.decision_unit_intelligence.site_contact_crawl import (
     SITE_GENERIC_ONLY,
@@ -151,6 +155,62 @@ def test_same_official_page_cnpj_and_mailbox_emit_account_binding_evidence():
     assert route.extra["page_cnpj_evidence_id"] == route.evidence_id
     assert len(route.extra["page_cnpj_evidence_sha256"]) == 64
     assert any(item.field == "account_mailbox_binding" for item in evidence)
+
+
+def test_buyer_freemail_on_exact_cnpj_page_is_not_bound_to_target_company():
+    html = """
+    <html><body>
+      <footer>CNPJ 12.345.678/0001-90</footer>
+      <section>Contratante / comprador: agente.prefeitura@gmail.com</section>
+    </body></html>
+    """
+    records = extract_site_contacts(
+        _doc(html),
+        canonical_domain="empresaexemplo.com.br",
+        target_cnpj=_context().cnpj,
+    )
+    _people, channels, evidence = contacts_to_observations(
+        _context(), records, canonical_domain="empresaexemplo.com.br"
+    )
+
+    route = next(channel for channel in channels if channel.channel_value)
+    assert route.ownership.value == "UNKNOWN"
+    assert "page_cnpj14" not in route.extra
+    assert route.extra["account_binding_context"] == "COUNTERPARTY_MAILBOX_CONTEXT"
+    assert not any(item.field == "account_mailbox_binding" for item in evidence)
+    assert not observed_channels_have_account_identity_route(
+        channels,
+        account_id=_context().cnpj,
+    )
+
+
+def test_page_publication_date_controls_freshness_and_cache_does_not_restamp():
+    html = """
+    <html><body>
+      <time datetime="2018-01-01T00:00:00Z">Atualizado em 2018</time>
+      <p>CNPJ 12.345.678/0001-90</p>
+      <p>Contato: contato@empresaexemplo.com.br</p>
+    </body></html>
+    """
+    document = _doc(html, "https://empresaexemplo.com.br/contato")
+    records = extract_site_contacts(
+        document,
+        canonical_domain="empresaexemplo.com.br",
+        target_cnpj=_context().cnpj,
+    )
+    _people, channels, _evidence = contacts_to_observations(
+        _context(), records, canonical_domain="empresaexemplo.com.br"
+    )
+    channel = next(item for item in channels if item.channel_value)
+    draft = classify_channel_observation(channel, candidate=None, suitable_person=False)
+
+    assert channel.observed_at == document.retrieved_at
+    assert channel.extra["source_published_at"] == "2018-01-01T00:00:00Z"
+    assert draft.freshness.value == "STALE"
+    assert not observed_channels_have_account_identity_route(
+        channels,
+        account_id=_context().cnpj,
+    )
 
 
 def test_cross_card_mailto_is_not_promoted(stop_the_line=True):
