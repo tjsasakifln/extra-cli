@@ -32,6 +32,10 @@ def _contact(
         "mailbox_company_evidence": "OBSERVED",
         "route_suppression": "NONE",
         "source_url": f"https://{email.split('@', 1)[1]}/contato",
+        # The exported stamp is an observed public route, not an undated
+        # assertion. Policy v6 deliberately treats a missing observation time
+        # as UNKNOWN/stale and rechecks it before cohort admission.
+        "observed_at": "2026-08-22T00:00:00Z",
         "provenance": {"source_type": "contact_page"},
     }
     contact.update(overrides)

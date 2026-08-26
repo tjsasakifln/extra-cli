@@ -78,6 +78,8 @@ def _route(mailbox: str, **kwargs) -> ReachabilityRoute:
         epistemic_class=kwargs.get("epistemic", EpistemicClass.OBSERVED),
         source_type=kwargs.get("source_type", "company_website"),
         source_url=kwargs.get("source_url", "https://empresaexemplo.com.br/contato"),
+        evidence_ids=["ev-public-route"],
+        observed_at=kwargs.get("observed_at", "2026-08-21T12:00:00Z"),
         ownership=kwargs.get("ownership", OwnershipStatus.COMPANY_OWNED),
         suppression=kwargs.get("suppression", SuppressionState.NONE),
         extra=extra,
@@ -463,7 +465,13 @@ def test_stop_early_on_observed_licitacao_skips_person_search(monkeypatch) -> No
         "scripts.confenge_contact_resolution.discovery.cascade.crawl_official_site",
         lambda domain, **kwargs: SiteCrawlResult(
             domain=domain,
-            contacts=[{"email": "licitacao@alphaengenharia.com.br", "source_url": f"https://{domain}/"}],
+            contacts=[
+                {
+                    "email": "licitacao@alphaengenharia.com.br",
+                    "source_url": f"https://{domain}/",
+                    "observed_at": "2026-08-21T12:00:00Z",
+                }
+            ],
             pages=[{"url": f"https://{domain}/", "contacts": [{"email": "licitacao@alphaengenharia.com.br"}]}],
         ),
     )
@@ -519,7 +527,13 @@ def _cascade_with_site_email(monkeypatch, email: str):
         "scripts.confenge_contact_resolution.discovery.cascade.crawl_official_site",
         lambda domain, **kwargs: SiteCrawlResult(
             domain=domain,
-            contacts=[{"email": email, "source_url": f"https://{domain}/"}],
+            contacts=[
+                {
+                    "email": email,
+                    "source_url": f"https://{domain}/",
+                    "observed_at": "2026-08-21T12:00:00Z",
+                }
+            ],
             pages=[{"url": f"https://{domain}/", "contacts": [{"email": email}]}],
         ),
     )
@@ -547,7 +561,11 @@ def test_nominal_mailbox_with_official_company_association_stops_cascade(monkeyp
     assert search_calls["n"] == 0
     assert (
         observed_contact_is_controlled_eligible_company_route(
-            {"email": "joao.silva@alphaengenharia.com.br", "source": "company_website"},
+            {
+                "email": "joao.silva@alphaengenharia.com.br",
+                "source": "company_website",
+                "observed_at": "2026-08-21T12:00:00Z",
+            },
             official_domain="alphaengenharia.com.br",
         )
         is True
