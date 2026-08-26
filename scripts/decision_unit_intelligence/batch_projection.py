@@ -42,8 +42,6 @@ TERMINAL_JOB_STATUSES = frozenset({"SUCCEEDED", "BLOCKED", "DLQ", "CANCELLED"})
 ENRICHMENT_TERMINALS = frozenset({"EMAIL_ROUTE_READY", "NO_PUBLIC_EMAIL_FOUND", "BLOCKED_WITH_REASON"})
 
 _CLEAR_SUPPRESSION = frozenset({"", "NONE", "CLEAR", "NOT_SUPPRESSED"})
-
-
 def _utcnow() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
