@@ -285,6 +285,34 @@ def test_exact_cnpj_page_does_not_bind_explicit_buyer_freemail():
     assert not any(item.field == "account_mailbox_binding" for item in extracted.evidence)
 
 
+def test_exact_cnpj_page_does_not_bind_contracting_agent_freemail():
+    text = (
+        "CNPJ 12.345.678/0001-90. "
+        "E-mail do agente de contratação: agente.publico@gmail.com."
+    )
+    document = CrawlDocument(
+        url="https://empresaexemplo.com.br/contrato",
+        text=text,
+        html=f"<html><body>{text}</body></html>",
+        content_type="text/html",
+        retrieved_at="2026-08-14T12:00:00Z",
+        bytes_touched=len(text.encode()),
+    )
+
+    extracted = extract_public_evidence(
+        _context(), document, canonical_domain="empresaexemplo.com.br"
+    )
+
+    channel = next(item for item in extracted.channels if item.channel_value)
+    assert channel.ownership == OwnershipStatus.UNKNOWN
+    assert "page_cnpj14" not in channel.extra
+    assert channel.extra["account_binding_context"] == "COUNTERPARTY_MAILBOX_CONTEXT"
+    assert not observed_channels_have_account_identity_route(
+        extracted.channels,
+        account_id=_context().cnpj,
+    )
+
+
 def test_exact_cnpj_page_does_not_bind_auctioneer_freemail_by_proximity():
     text = "CNPJ 12.345.678/0001-90. Pregoeiro responsável: agente.publico@gmail.com."
     document = CrawlDocument(
@@ -366,6 +394,29 @@ def test_web_page_declared_staleness_blocks_identity_early_stop():
         text=text,
         html=(
             '<html><body><time datetime="2018-01-01T00:00:00Z">2018</time>'
+            f"{text}</body></html>"
+        ),
+        content_type="text/html",
+        retrieved_at="2026-08-14T12:00:00Z",
+        bytes_touched=len(text.encode()),
+    )
+    extracted = extract_public_evidence(
+        _context(), document, canonical_domain="empresaexemplo.com.br"
+    )
+
+    assert not observed_channels_have_account_identity_route(
+        extracted.channels,
+        account_id=_context().cnpj,
+    )
+
+
+def test_web_page_future_publication_timestamp_blocks_identity_early_stop():
+    text = "CNPJ 12.345.678/0001-90. Contato contato@empresaexemplo.com.br"
+    document = CrawlDocument(
+        url="https://empresaexemplo.com.br/contato",
+        text=text,
+        html=(
+            '<html><body><time datetime="2099-01-01T00:00:00Z">2099</time>'
             f"{text}</body></html>"
         ),
         content_type="text/html",

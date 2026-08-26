@@ -127,7 +127,7 @@ def _auditable_role_account(cnpj: str) -> AccountInvestigation:
         mailbox=mailbox,
         source_url=source_url,
         observed_at=observed_at,
-        page_sha256="a" * 64,
+        page_content=f"CNPJ {cnpj} | Contato: {mailbox}",
     )
     return AccountInvestigation(
         company_entity_id=cnpj,
@@ -523,7 +523,7 @@ def test_complete_cohort_exports_verified_bridge_projection(dsn: str, tmp_path: 
     assert result["target_fit_mode"] == "SHADOW"
     assert result["target_fit_classifier_sha"] == "sha256:target-fit-test"
     assert result["sector_classifier_sha"] == "sha256:sector-test"
-    assert result["controlled_email_policy_version"] == "controlled-email-policy.v5"
+    assert result["controlled_email_policy_version"] == "controlled-email-policy.v6"
     assert result["terminal_equation"] == {
         "population_count": 1,
         "job_denominator": 1,

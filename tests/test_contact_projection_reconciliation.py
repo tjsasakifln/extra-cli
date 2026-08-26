@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 from scripts.decision_unit_intelligence.batch_projection import reconcile_prior_contact_rows
-from scripts.decision_unit_intelligence.evidence import make_evidence
-from scripts.decision_unit_intelligence.models import EpistemicClass
+from tests.recipient_attestation_fixtures import exact_page_attestation
 
 ACCOUNT = "11222333000181"
 MAILBOX = "acmeengenharia@gmail.com"
@@ -166,33 +165,12 @@ def test_unobserved_historical_route_remains_stored_but_cannot_be_preferred() ->
 def test_page_attestation_is_not_laundered_through_new_unbound_observation() -> None:
     old_url = "https://valid-a.example/contato"
     observed_at = "2024-01-01T00:00:00Z"
-    page_sha256 = "a" * 64
-    email_evidence = make_evidence(
-        field="email",
-        value=MAILBOX,
-        epistemic_class=EpistemicClass.OBSERVED,
-        source_type="company_website",
+    attestation = exact_page_attestation(
+        account=ACCOUNT,
+        mailbox=MAILBOX,
         source_url=old_url,
-        document_sha256=page_sha256,
-        evidence_snippet=f"Contato: {MAILBOX}",
         observed_at=observed_at,
-        extraction_method="public_page_exact_text",
-    )
-    binding_evidence = make_evidence(
-        field="account_mailbox_binding",
-        value=f"{ACCOUNT}|{MAILBOX}",
-        epistemic_class=EpistemicClass.OBSERVED,
-        source_type="company_website",
-        source_url=old_url,
-        document_sha256=page_sha256,
-        evidence_snippet=f"CNPJ {ACCOUNT} | Contato: {MAILBOX}",
-        observed_at=observed_at,
-        extraction_method="official_page_exact_cnpj_and_email:official_domain_mailbox",
-        extra={
-            "page_cnpj14": ACCOUNT,
-            "page_content_sha256": page_sha256,
-            "email_evidence_id": email_evidence.evidence_id,
-        },
+        page_content=f"CNPJ {ACCOUNT} | Contato: {MAILBOX}",
     )
     prior_contact = {
         "email": MAILBOX,
@@ -201,7 +179,6 @@ def test_page_attestation_is_not_laundered_through_new_unbound_observation() -> 
         "source_reference": old_url,
         "source_url": old_url,
         "official_domain": "valid-a.example",
-        "evidence_ids": [binding_evidence.evidence_id],
         "observed_at": observed_at,
         "channel_epistemic_class": "OBSERVED",
         "route_freshness": "STALE",
@@ -209,11 +186,7 @@ def test_page_attestation_is_not_laundered_through_new_unbound_observation() -> 
         "ownership_status": "COMPANY_OWNED",
         "company_associated": True,
         "mailbox_company_evidence": "OBSERVED",
-        "page_cnpj14": ACCOUNT,
-        "page_cnpj_evidence_id": binding_evidence.evidence_id,
-        "page_cnpj_evidence_sha256": page_sha256,
-        "account_mailbox_binding_evidence": binding_evidence.to_dict(),
-        "mailbox_observation_evidence": email_evidence.to_dict(),
+        **attestation,
     }
     current_contact = {
         "email": MAILBOX,

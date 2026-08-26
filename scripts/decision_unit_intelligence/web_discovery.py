@@ -32,7 +32,7 @@ from scripts.decision_unit_intelligence.email_discovery import (
     plausible_person_name,
     score_internal_url,
 )
-from scripts.decision_unit_intelligence.evidence import make_evidence
+from scripts.decision_unit_intelligence.evidence import make_evidence, make_page_document_witness
 from scripts.decision_unit_intelligence.models import (
     ChannelObservation,
     ChannelType,
@@ -73,22 +73,27 @@ _CNPJ_TEXT_RE = re.compile(
 
 _COUNTERPARTY_CONTEXT_MARKERS = (
     "agente publico",
+    "agente de contratacao",
     "assessoria contabil",
     "buyer",
-    "cliente",
     "comprador",
+    "comissao de contratacao",
     "contratante",
     "contabilidade",
     "escritorio contabil",
     "fiscal do contrato",
+    "equipe de apoio",
     "gestor do contrato",
     "oab ",
     "orgao comprador",
+    "orgao licitante",
     "orgao publico",
     "prefeitura",
     "pregoeiro",
+    "leiloeiro",
     "procurador do cliente",
     "tomador",
+    "responsavel pela contratacao",
 )
 
 _COMPANY_CONTACT_CONTEXT_MARKERS = (
@@ -732,9 +737,9 @@ def extract_public_evidence(
         None,
     )
     page_cnpj_attested = bool(cnpj_match and official_host and document_host == official_host)
-    page_content_sha256 = hashlib.sha256(
-        (document.html or document.text or "").encode("utf-8")
-    ).hexdigest()
+    page_content = document.html or document.text or ""
+    page_document_witness = make_page_document_witness(page_content)
+    page_content_sha256 = hashlib.sha256(page_content.encode("utf-8")).hexdigest()
     source_published_at = source_publication_timestamp(document.html)
     seen_people: set[tuple[str, str]] = set()
     for pattern in (_ROLE_THEN_NAME, _NAME_THEN_ROLE, _NAME_THEN_ROLE_LOOSE):
@@ -870,7 +875,10 @@ def extract_public_evidence(
                 cnpj_span=(cnpj_match.start(), cnpj_match.end()),
                 canonical_domain=official_host,
             )
-        if binding_allowed and cnpj_match is not None:
+        if binding_allowed and page_document_witness is None:
+            binding_allowed = False
+            binding_reason = "PAGE_DOCUMENT_WITNESS_UNAVAILABLE"
+        if binding_allowed and cnpj_match is not None and page_document_witness is not None:
             cnpj_snippet = _context_snippet(document.text, cnpj_match.start(), cnpj_match.end())
             binding = make_evidence(
                 field="account_mailbox_binding",
@@ -897,6 +905,7 @@ def extract_public_evidence(
                 "page_cnpj14": cnpj,
                 "page_cnpj_evidence_id": binding.evidence_id,
                 "page_cnpj_evidence_sha256": page_content_sha256,
+                "page_document_witness": page_document_witness,
                 "account_mailbox_binding_evidence": binding.to_dict(),
                 "mailbox_observation_evidence": evidence.to_dict(),
             }

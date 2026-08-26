@@ -189,7 +189,6 @@ def test_durable_projection_reaches_feed_accounts_outside_hot_set(tmp_path: Path
         host = f"empresa{cnpj[:8]}.com.br"
         mailbox = f"contato@{host}"
         source_url = f"https://{host}/contato"
-        page_sha256 = (cnpj * 5)[:64]
         observed_at = "2026-08-24T12:00:00Z"
         durable_rows.append(
             {
@@ -214,7 +213,7 @@ def test_durable_projection_reaches_feed_accounts_outside_hot_set(tmp_path: Path
                                 mailbox=mailbox,
                                 source_url=source_url,
                                 observed_at=observed_at,
-                                page_sha256=page_sha256,
+                                page_content=f"CNPJ {cnpj} | Contato: {mailbox}",
                             ),
                         }
                 ],

@@ -66,16 +66,20 @@ to the Warmbly controlled-review lane.
 
 ## Authoritative recipient identity boundary
 
-Policy `controlled-email-policy.v5` makes the terminal projection and the
+Policy `controlled-email-policy.v6` makes the terminal projection and the
 authoritative feed apply the same target-identity gate. A unique website
 mailbox is not account evidence: it is publishable only when the official page
-also carries the exact target CNPJ, a bound evidence ID and SHA-256. The trusted
-registry path still requires the complete Receita Federal tuple for that CNPJ.
+also carries the exact target CNPJ, a bound evidence ID and a bounded document
+witness whose bytes reproduce the SHA-256. The gate rechecks the target CNPJ,
+mailbox and buyer/contracting-agent semantics from those bytes; metadata cannot
+self-certify a page. Materially future-dated observations become `UNKNOWN` and
+cannot carry an expiry. The trusted registry path still requires the complete
+Receita Federal tuple for that CNPJ.
 Shared mailboxes without independent evidence for each claimant fail closed,
 and a surviving identity-bound alternative is reranked instead of losing the
 account unnecessarily.
 
-A final v5 read-only replay over a local copy of production cohort
+A final v6 read-only replay over a local copy of production cohort
 `target-confirmed-auto-20260826T035908Z` (8,653 terminal accounts) projects
 6,501 `EMAIL_ROUTE_READY` and 2,152 `BLOCKED_WITH_REASON`: 168 accounts are
 demoted from the v3 result, while 18 retain READY through a valid registry
@@ -86,7 +90,9 @@ company-registry provenance. This remains a pre-deploy simulation, not a live
 publication claim; post-deploy run and publication hashes remain to be recorded
 on issue #469.
 
-The same replay persisted expiry on all 6,501 preferred routes. A deterministic
+The same replay persisted expiry on all 6,501 preferred routes. Rehashing the
+document witness is fail-closed for legacy page attestations, so every surviving
+preferred route came from the exact-CNPJ registry tuple. A deterministic
 stratified audit of 30 routes in each populated class (90 total) found zero
 failures for exact account attestation, effective freshness, expiry consistency,
 suppression, or guessed/inferred origin. `DIRECT_PERSON` had no population to

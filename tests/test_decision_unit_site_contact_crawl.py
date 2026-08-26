@@ -184,6 +184,29 @@ def test_buyer_freemail_on_exact_cnpj_page_is_not_bound_to_target_company():
     )
 
 
+def test_contracting_agent_freemail_on_exact_cnpj_page_is_not_company_owned():
+    html = """
+    <html><body>
+      <footer>CNPJ 12.345.678/0001-90</footer>
+      <section>E-mail do agente de contratação: agente.publico@gmail.com</section>
+    </body></html>
+    """
+    records = extract_site_contacts(
+        _doc(html),
+        canonical_domain="empresaexemplo.com.br",
+        target_cnpj=_context().cnpj,
+    )
+    _people, channels, evidence = contacts_to_observations(
+        _context(), records, canonical_domain="empresaexemplo.com.br"
+    )
+
+    route = next(channel for channel in channels if channel.channel_value)
+    assert route.ownership.value == "UNKNOWN"
+    assert "page_cnpj14" not in route.extra
+    assert route.extra["account_binding_context"] == "COUNTERPARTY_MAILBOX_CONTEXT"
+    assert not any(item.field == "account_mailbox_binding" for item in evidence)
+
+
 def test_auctioneer_freemail_on_exact_cnpj_page_is_not_bound_to_target_company():
     html = """
     <html><body>

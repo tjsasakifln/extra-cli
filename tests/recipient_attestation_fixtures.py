@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-from scripts.decision_unit_intelligence.evidence import make_evidence
+from scripts.decision_unit_intelligence.evidence import (
+    make_evidence,
+    make_page_document_witness,
+)
 from scripts.decision_unit_intelligence.models import EpistemicClass
 
 
@@ -12,12 +15,16 @@ def exact_page_attestation(
     mailbox: str,
     source_url: str,
     observed_at: str,
-    page_sha256: str,
+    page_content: str | None = None,
     binding_context: str = "official_domain_mailbox",
 ) -> dict:
     """Return the exact fields emitted by an official-site evidence producer."""
 
     email_snippet = f"Contato: {mailbox}"
+    content = page_content or f"CNPJ {account} | {email_snippet}"
+    document_witness = make_page_document_witness(content)
+    assert document_witness is not None
+    page_sha256 = str(document_witness["sha256"])
     email_evidence = make_evidence(
         field="email",
         value=mailbox,
@@ -50,6 +57,7 @@ def exact_page_attestation(
         "page_cnpj14": account,
         "page_cnpj_evidence_id": binding_evidence.evidence_id,
         "page_cnpj_evidence_sha256": page_sha256,
+        "page_document_witness": document_witness,
         "account_mailbox_binding_evidence": binding_evidence.to_dict(),
         "mailbox_observation_evidence": email_evidence.to_dict(),
     }

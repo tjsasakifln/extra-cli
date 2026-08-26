@@ -32,7 +32,7 @@ from scripts.decision_unit_intelligence.email_resolution import (
     is_third_party_professional_domain,
     name_tokens,
 )
-from scripts.decision_unit_intelligence.evidence import make_evidence
+from scripts.decision_unit_intelligence.evidence import make_evidence, make_page_document_witness
 from scripts.decision_unit_intelligence.models import (
     ChannelObservation,
     ChannelType,
@@ -1098,7 +1098,9 @@ def extract_site_contacts(
     )
     document_host = (urlsplit(document.url).hostname or "").lower().removeprefix("www.")
     if normalized_target and page_cnpj_match is not None and document_host == expected:
-        page_sha256 = hashlib.sha256((document.html or document.text or "").encode("utf-8")).hexdigest()
+        page_content = document.html or document.text or ""
+        page_sha256 = hashlib.sha256(page_content.encode("utf-8")).hexdigest()
+        page_document_witness = make_page_document_witness(page_content)
         cnpj_snippet = _snippet(text, page_cnpj_match.group(1))
         attested_records: list[SiteContactRecord] = []
         for record in records:
@@ -1112,6 +1114,9 @@ def extract_site_contacts(
                 cnpj_span=(page_cnpj_match.start(), page_cnpj_match.end()),
                 canonical_domain=expected,
             )
+            if allowed and page_document_witness is None:
+                allowed = False
+                binding_reason = "PAGE_DOCUMENT_WITNESS_UNAVAILABLE"
             if allowed:
                 attested_records.append(
                     replace(
@@ -1121,6 +1126,7 @@ def extract_site_contacts(
                             "page_cnpj14": normalized_target,
                             "page_cnpj_evidence_sha256": page_sha256,
                             "page_cnpj_snippet": cnpj_snippet,
+                            "page_document_witness": page_document_witness,
                             "account_binding_context": binding_reason,
                         },
                     )
@@ -1200,6 +1206,7 @@ def contacts_to_observations(
         foreign = bool(expected and _foreign_or_generic_domain(record.email, expected))
         page_cnpj = normalize_cnpj(record.structured_data.get("page_cnpj14"))
         page_sha256 = str(record.structured_data.get("page_cnpj_evidence_sha256") or "").lower()
+        page_document_witness = record.structured_data.get("page_document_witness")
         email_evidence = make_evidence(
             field="email",
             value=record.email,
@@ -1253,6 +1260,7 @@ def contacts_to_observations(
                 "page_cnpj14": cnpj,
                 "page_cnpj_evidence_id": binding.evidence_id,
                 "page_cnpj_evidence_sha256": page_sha256,
+                "page_document_witness": page_document_witness,
                 "account_mailbox_binding_evidence": binding.to_dict(),
                 "mailbox_observation_evidence": email_evidence.to_dict(),
             }

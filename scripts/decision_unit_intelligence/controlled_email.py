@@ -23,6 +23,7 @@ from scripts.confenge_contact_resolution.mailbox_purpose import (
     classify_mailbox_purpose,
 )
 from scripts.decision_unit_intelligence.email_resolution import is_third_party_professional_domain
+from scripts.decision_unit_intelligence.evidence import verified_page_document_bytes
 from scripts.decision_unit_intelligence.models import (
     AccountInvestigation,
     ActionMode,
@@ -35,6 +36,7 @@ from scripts.decision_unit_intelligence.models import (
     ReachabilityRoute,
     RouteRelation,
     SuppressionState,
+    fold_text,
     normalize_cnpj,
     stable_id,
 )
@@ -61,7 +63,7 @@ DEPARTMENTAL_HYPOTHESIS_LOCALS: tuple[str, ...] = (
     "contato",
 )
 
-CONTROLLED_EMAIL_POLICY_VERSION = "controlled-email-policy.v5"
+CONTROLLED_EMAIL_POLICY_VERSION = "controlled-email-policy.v6"
 CONTROLLED_EMAIL_SCHEMA_VERSION = "confenge.outreach.controlled_email.v1"
 
 # Tokens that genuinely mean "not suppressed". Anything else is treated as
@@ -111,6 +113,47 @@ SUPPRESSION_FLAG_FIELDS = (
     "blocklisted",
 )
 _FALSEY_TOKENS = frozenset({"", "0", "FALSE", "NO", "NONE", "NULL", "N"})
+
+_DOCUMENT_CNPJ_RE = re.compile(
+    r"(?<!\d)(\d{2}[.\s]?\d{3}[.\s]?\d{3}[/\s]?\d{4}[-\s]?\d{2})(?!\d)"
+)
+_DOCUMENT_COUNTERPARTY_MARKERS = (
+    "agente publico",
+    "agente de contratacao",
+    "assessoria contabil",
+    "buyer",
+    "comprador",
+    "comissao de contratacao",
+    "contratante",
+    "contabilidade",
+    "equipe de apoio",
+    "escritorio contabil",
+    "fiscal do contrato",
+    "gestor do contrato",
+    "leiloeiro",
+    "oab ",
+    "orgao comprador",
+    "orgao licitante",
+    "orgao publico",
+    "prefeitura",
+    "pregoeiro",
+    "procurador do cliente",
+    "responsavel pela contratacao",
+    "tomador",
+)
+_DOCUMENT_COMPANY_CONTACT_MARKERS = (
+    "administrativo",
+    "comercial",
+    "contato",
+    "contratos",
+    "engenharia",
+    "fale conosco",
+    "financeiro",
+    "licitacao",
+    "licitacoes",
+    "orcamento",
+    "propostas",
+)
 
 EVIDENCE_OBSERVED = "OBSERVED"
 EVIDENCE_UNKNOWN = "UNKNOWN"
@@ -1094,6 +1137,7 @@ def route_from_feed_contact(
         "page_cnpj14",
         "page_cnpj_evidence_id",
         "page_cnpj_evidence_sha256",
+        "page_document_witness",
         "account_mailbox_binding_evidence",
         "mailbox_observation_evidence",
         "source_published_at",
@@ -1325,7 +1369,8 @@ def stamp_and_rank_feed_contacts(
             contact.get("source_published_at") or contact.get("observed_at") or ""
         ).strip()
         parsed_freshness_reference = parse_observed_at(freshness_reference)
-        if parsed_freshness_reference is not None:
+        merged.pop("route_expires_at", None)
+        if parsed_freshness_reference is not None and item.freshness != FreshnessState.UNKNOWN.value:
             merged["route_expires_at"] = (
                 parsed_freshness_reference + timedelta(days=FRESH_MAX_DAYS)
             ).isoformat().replace("+00:00", "Z")
@@ -1336,6 +1381,61 @@ def stamp_and_rank_feed_contacts(
             merged["corroborated"] = True
         stamped.append(merged)
     return apply_preferred_recommended_alias(stamped)
+
+
+def _document_binds_account_mailbox(
+    document_text: str,
+    *,
+    account: str,
+    mailbox: str,
+    official_domain: str,
+) -> bool:
+    """Re-evaluate page semantics from the witnessed bytes at publication time."""
+
+    normalized_account = normalize_cnpj(account)
+    cnpj_spans = [
+        (match.start(), match.end())
+        for match in _DOCUMENT_CNPJ_RE.finditer(document_text)
+        if normalize_cnpj(match.group(1)) == normalized_account
+    ]
+    mailbox_matches = list(re.finditer(re.escape(mailbox), document_text.lower()))
+    if not cnpj_spans or not mailbox_matches:
+        return False
+
+    mailbox_domain = email_domain(mailbox)
+    if not is_freemail(mailbox):
+        if not _hosts_equivalent(mailbox_domain, official_domain):
+            return False
+        return any(
+            not any(
+                marker in fold_text(document_text[max(0, match.start() - 240) : match.end() + 240])
+                for marker in _DOCUMENT_COUNTERPARTY_MARKERS
+            )
+            for match in mailbox_matches
+        )
+
+    safe_binding_found = False
+    ambiguous_binding_found = False
+    for match in mailbox_matches:
+        for cnpj_start, cnpj_end in cnpj_spans:
+            distance = min(abs(match.start() - cnpj_end), abs(cnpj_start - match.end()))
+            if distance > 800:
+                continue
+            binding_window = fold_text(
+                document_text[
+                    max(0, min(match.start(), cnpj_start) - 240) :
+                    max(match.end(), cnpj_end) + 240
+                ]
+            )
+            if any(marker in binding_window for marker in _DOCUMENT_COUNTERPARTY_MARKERS):
+                ambiguous_binding_found = True
+                continue
+            email_context = fold_text(
+                document_text[max(0, match.start() - 180) : match.end() + 180]
+            )
+            if any(marker in email_context for marker in _DOCUMENT_COMPANY_CONTACT_MARKERS):
+                safe_binding_found = True
+    return safe_binding_found and not ambiguous_binding_found
 
 
 def contact_has_account_identity_attestation(contact: dict[str, Any], *, account: str) -> bool:
@@ -1391,6 +1491,11 @@ def contact_has_account_identity_attestation(contact: dict[str, Any], *, account
         mailbox_evidence = contact.get("mailbox_observation_evidence")
         mailbox_evidence = mailbox_evidence if isinstance(mailbox_evidence, dict) else {}
         email_evidence_id = str(binding_extra.get("email_evidence_id") or "").strip()
+        document_bytes = verified_page_document_bytes(
+            contact.get("page_document_witness"),
+            expected_sha256=page_evidence_sha256,
+        )
+        document_text = document_bytes.decode("utf-8", errors="replace") if document_bytes else ""
 
         def _authentic_evidence(
             item: dict[str, Any],
@@ -1410,15 +1515,22 @@ def contact_has_account_identity_attestation(contact: dict[str, Any], *, account
                 EpistemicClass.OBSERVED.value,
                 item_source_type,
                 item_source_url,
+                str(item.get("source_id") or ""),
                 str(item.get("document_id") or ""),
+                item_document_sha,
                 str(item.get("page") or ""),
+                str(item.get("section") or ""),
                 item_snippet,
+                str(item.get("observed_at") or ""),
+                str(item.get("published_at") or ""),
+                item_method,
             )
             method_folded = item_method.lower()
             return bool(
                 item_source_type == "company_website"
                 and item_source_url == source_url
                 and item_document_sha == page_evidence_sha256
+                and str(item.get("extractor_version") or "") == "dui.extract.v2"
                 and item_snippet
                 and item_method
                 and not any(token in method_folded for token in ("infer", "pattern", "guess"))
@@ -1434,6 +1546,13 @@ def contact_has_account_identity_attestation(contact: dict[str, Any], *, account
             and bool(page_evidence_id)
             and page_evidence_id in evidence_ids
             and bool(re.fullmatch(r"[0-9a-f]{64}", page_evidence_sha256))
+            and document_bytes is not None
+            and _document_binds_account_mailbox(
+                document_text,
+                account=account,
+                mailbox=mailbox,
+                official_domain=official_domain,
+            )
             and bool(source_url)
             and bool(official_domain)
             and _hosts_equivalent(_url_host(source_url), official_domain)

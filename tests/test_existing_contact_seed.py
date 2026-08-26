@@ -12,8 +12,6 @@ from scripts.decision_unit_intelligence.controlled_email import (
     EmailRouteClass,
     classify_account_email_routes,
 )
-from scripts.decision_unit_intelligence.evidence import make_evidence
-from scripts.decision_unit_intelligence.models import EpistemicClass
 from scripts.decision_unit_intelligence.projection import project_warmbly_outreach
 from scripts.decision_unit_intelligence.providers.base import InvestigationContext
 from scripts.decision_unit_intelligence.providers.existing_contacts import (
@@ -25,6 +23,7 @@ from scripts.decision_unit_intelligence.providers.official_company_registry impo
     OfficialCompanyRegistryProvider,
 )
 from scripts.decision_unit_intelligence.runner import run_account
+from tests.recipient_attestation_fixtures import exact_page_attestation
 
 
 def _write_seed(path: Path) -> None:
@@ -65,33 +64,12 @@ def _write_bound_seed(path: Path) -> None:
     mailbox = contact["email"]
     source_url = contact["source_url"]
     observed_at = contact["observed_at"]
-    page_sha256 = "a" * 64
-    email_evidence = make_evidence(
-        field="email",
-        value=mailbox,
-        epistemic_class=EpistemicClass.OBSERVED,
-        source_type="company_website",
+    attestation = exact_page_attestation(
+        account=account,
+        mailbox=mailbox,
         source_url=source_url,
-        document_sha256=page_sha256,
-        evidence_snippet=f"Contato: {mailbox}",
         observed_at=observed_at,
-        extraction_method="public_page_exact_text",
-    )
-    binding_evidence = make_evidence(
-        field="account_mailbox_binding",
-        value=f"{account}|{mailbox}",
-        epistemic_class=EpistemicClass.OBSERVED,
-        source_type="company_website",
-        source_url=source_url,
-        document_sha256=page_sha256,
-        evidence_snippet=f"CNPJ {account} | Contato: {mailbox}",
-        observed_at=observed_at,
-        extraction_method="official_page_exact_cnpj_and_email:official_domain_mailbox",
-        extra={
-            "page_cnpj14": account,
-            "page_content_sha256": page_sha256,
-            "email_evidence_id": email_evidence.evidence_id,
-        },
+        page_content=f"CNPJ {account} | Contato: {mailbox}",
     )
     contact.update(
         {
@@ -101,12 +79,7 @@ def _write_bound_seed(path: Path) -> None:
             "route_freshness": "FRESH",
             "route_suppression": "NONE",
             "official_domain": rows[0]["official_domain"],
-            "evidence_ids": [binding_evidence.evidence_id],
-            "page_cnpj14": account,
-            "page_cnpj_evidence_id": binding_evidence.evidence_id,
-            "page_cnpj_evidence_sha256": page_sha256,
-            "account_mailbox_binding_evidence": binding_evidence.to_dict(),
-            "mailbox_observation_evidence": email_evidence.to_dict(),
+            **attestation,
         }
     )
     path.write_text(

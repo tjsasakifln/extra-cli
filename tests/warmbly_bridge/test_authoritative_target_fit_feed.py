@@ -199,7 +199,6 @@ def _export(
         cnpj = account_contacts["cnpj14"]
         for contact in account_contacts["contacts"]:
             source_url = contact["source_url"]
-            page_sha256 = contact["page_cnpj_evidence_sha256"]
             contact["observed_at"] = NOW
             contact.update(
                 exact_page_attestation(
@@ -207,7 +206,7 @@ def _export(
                     mailbox=contact["email"],
                     source_url=source_url,
                     observed_at=NOW,
-                    page_sha256=page_sha256,
+                    page_content=f"CNPJ {cnpj} | Contato: {contact['email']}",
                 )
             )
     intel_path = _write_jsonl(source / "intelligence.jsonl", intelligence)
@@ -726,7 +725,7 @@ def test_declared_ambiguous_shared_mailbox_is_policy_excluded_and_reconciles(tmp
     )
 
     projection = result["authoritative_contact_projection"]
-    assert projection["projection_policy_version"] == "controlled-email-policy.v5"
+    assert projection["projection_policy_version"] == "controlled-email-policy.v6"
     assert projection["raw_input_preferred_route_count"] == 2
     assert projection["policy_excluded_preferred_route_count"] == 2
     assert projection["input_preferred_route_count"] == 0

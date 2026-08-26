@@ -52,6 +52,7 @@ _CONTACT_EVIDENCE_FIELDS = (
     "page_cnpj14",
     "page_cnpj_evidence_id",
     "page_cnpj_evidence_sha256",
+    "page_document_witness",
     "account_mailbox_binding_evidence",
     "mailbox_observation_evidence",
     "route_expires_at",

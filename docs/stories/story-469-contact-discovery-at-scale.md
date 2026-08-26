@@ -171,6 +171,7 @@ quality_gate_tools: ["pytest", "ruff", "dod_controller", "coderabbit"]
 | 2026-08-24 | 0.3.0 | Implementação local: seleção canônica, terminais, projeção hash-verificada e merge no feed amplo | Dex (@dev) |
 | 2026-08-26 | 0.4.0 | Policy v4: vínculo recipient↔CNPJ no ledger e feed, reranking seguro e auditoria adversarial live | Dex (@dev) |
 | 2026-08-26 | 0.5.0 | Policy v5: freshness efetiva, prova de página determinística e freemail fail-closed para buyer/pregoeiro | Dex (@dev) |
+| 2026-08-26 | 0.6.0 | Policy v6: witness rehashável, semântica de agente contratante no gate final e timestamp futuro fail-closed | Dex (@dev) |
 
 ## Dev Agent Record
 
@@ -198,6 +199,8 @@ GPT-5 Codex (Dex / @dev)
 - 2026-08-26: a segunda auditoria adversarial reproduziu freemail de pregoeiro atribuído por mera proximidade, `FRESH` persistido sobre fonte vencida, early-stop em página stale e evidence IDs arbitrários; policy v5 fechou os quatro casos sem promover dados.
 - 2026-08-26: replay v5 read-only sobre as 8.653 contas preservou 6.501 READY / 2.152 BLOCKED, com expiry em 100% das rotas preferidas; amostra estratificada 30+30+30 não encontrou falha de atribuição, freshness, expiry, suppression ou origem inferida.
 - 2026-08-26: 259 testes amplos de contato/outreach passaram (20 integrações real-DB separadas); a rodada explícita PostgreSQL passou 21/21 e fixou o claim no relógio transacional do banco contra skew processo↔DB.
+- 2026-08-26: QA adversarial independente reprovou v5 por `agente de contratação`, hash de página autoatestável e timestamp 2099; v6 persiste witness UTF-8 comprimido e limitado, recalcula o digest e a semântica no gate final e classifica futuro material como `UNKNOWN`.
+- 2026-08-26: replay v6 read-only nas mesmas 8.653 contas manteve 6.501 READY / 2.152 BLOCKED e yield 1.810 GENERIC / 4.395 FREEMAIL / 296 ROLE; as 6.501 rotas sobreviventes têm attestation, freshness e expiry válidos e origem cadastral CNPJ-bound.
 
 ### Completion Notes List
 
@@ -210,7 +213,7 @@ GPT-5 Codex (Dex / @dev)
 - A prova de página inclui objetos semânticos ligados para mailbox e binding, rejeita contexto de comprador/terceiro e mantém data publicada, observação e expiry separados. Reconciliation nunca combina campos de duas observações para completar uma prova.
 - Job terminal com output ausente/adulterado continua visível como `BLOCKED_WITH_REASON`, mas a falha de integridade global impede publicação.
 - `public_search` e `company_website` continuam sendo os providers existentes; eles percorrem o budget restante quando domínio/mailbox não carregam prova CNPJ-bound, em vez de encerrar cedo num homônimo.
-- Policy v5 nunca confia no texto persistido de freshness: recalcula a classe e o expiry a partir de `source_published_at`/`observed_at` em cada gate. A attestation de página valida IDs determinísticos, SHA-256 comum e witnesses exatos; freemail exige marcador positivo de contato empresarial e rejeita buyer/pregoeiro.
+- Policy v6 nunca confia no texto persistido de freshness: recalcula a classe e o expiry a partir de `source_published_at`/`observed_at` em cada gate e rejeita relógio materialmente futuro. A attestation de página reabre um witness UTF-8 comprimido e limitado, recalcula SHA-256 e evidence IDs e exige CNPJ+mailbox exatos no documento; freemail exige marcador positivo e rejeita buyer, pregoeiro e agente de contratação também no gate final.
 
 ### File List
 

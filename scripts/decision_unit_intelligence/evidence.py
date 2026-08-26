@@ -2,6 +2,14 @@
 
 from __future__ import annotations
 
+import base64
+import binascii
+import gzip
+import hashlib
+import re
+import zlib
+from typing import Any
+
 from scripts.decision_unit_intelligence.models import (
     EpistemicClass,
     FieldAspect,
@@ -9,6 +17,90 @@ from scripts.decision_unit_intelligence.models import (
     now_iso,
     stable_id,
 )
+
+PAGE_DOCUMENT_WITNESS_SCHEMA = "dui.page_document_witness.v1"
+MAX_PAGE_DOCUMENT_WITNESS_BYTES = 2_500_000
+MAX_PAGE_DOCUMENT_WITNESS_COMPRESSED_BYTES = 1_000_000
+
+
+def make_page_document_witness(content: str) -> dict[str, Any] | None:
+    """Return bounded, replay-verifiable source bytes for a page attestation.
+
+    Hash-only metadata is self-certifying.  The compressed witness lets every
+    later publication gate recompute the digest from the exact UTF-8 bytes the
+    extractor hashed. Pages outside the crawler's bounded evidence budget are
+    retained as observations but cannot mint an account/mailbox attestation.
+    """
+
+    raw = str(content or "").encode("utf-8")
+    if not raw or len(raw) > MAX_PAGE_DOCUMENT_WITNESS_BYTES:
+        return None
+    compressed = gzip.compress(raw, compresslevel=9, mtime=0)
+    if len(compressed) > MAX_PAGE_DOCUMENT_WITNESS_COMPRESSED_BYTES:
+        return None
+    return {
+        "schema": PAGE_DOCUMENT_WITNESS_SCHEMA,
+        "encoding": "gzip+base64+utf8",
+        "raw_size_bytes": len(raw),
+        "compressed_size_bytes": len(compressed),
+        "sha256": hashlib.sha256(raw).hexdigest(),
+        "content_gzip_b64": base64.b64encode(compressed).decode("ascii"),
+    }
+
+
+def verified_page_document_bytes(
+    witness: Any,
+    *,
+    expected_sha256: str,
+) -> bytes | None:
+    """Decode a bounded witness and return bytes only when its digest matches."""
+
+    if not isinstance(witness, dict):
+        return None
+    if witness.get("schema") != PAGE_DOCUMENT_WITNESS_SCHEMA:
+        return None
+    if witness.get("encoding") != "gzip+base64+utf8":
+        return None
+    expected = str(expected_sha256 or "").strip().lower()
+    declared = str(witness.get("sha256") or "").strip().lower()
+    if not re.fullmatch(r"[0-9a-f]{64}", expected) or declared != expected:
+        return None
+    try:
+        compressed = base64.b64decode(
+            str(witness.get("content_gzip_b64") or ""),
+            validate=True,
+        )
+    except (binascii.Error, ValueError, TypeError):
+        return None
+    if not compressed or len(compressed) > MAX_PAGE_DOCUMENT_WITNESS_COMPRESSED_BYTES:
+        return None
+    decoder = zlib.decompressobj(wbits=16 + zlib.MAX_WBITS)
+    try:
+        raw = decoder.decompress(compressed, MAX_PAGE_DOCUMENT_WITNESS_BYTES + 1)
+        if decoder.unconsumed_tail or len(raw) > MAX_PAGE_DOCUMENT_WITNESS_BYTES:
+            return None
+        raw += decoder.flush()
+    except zlib.error:
+        return None
+    try:
+        declared_raw_size = int(witness.get("raw_size_bytes"))
+        declared_compressed_size = int(witness.get("compressed_size_bytes"))
+    except (TypeError, ValueError):
+        return None
+    if (
+        not decoder.eof
+        or decoder.unused_data
+        or len(raw) > MAX_PAGE_DOCUMENT_WITNESS_BYTES
+        or declared_raw_size != len(raw)
+        or declared_compressed_size != len(compressed)
+        or hashlib.sha256(raw).hexdigest() != expected
+    ):
+        return None
+    try:
+        raw.decode("utf-8")
+    except UnicodeDecodeError:
+        return None
+    return raw
 
 
 def make_evidence(
@@ -32,15 +124,22 @@ def make_evidence(
     aspects: list[FieldAspect] | None = None,
     extra: dict | None = None,
 ) -> FieldEvidence:
+    resolved_observed_at = observed_at or now_iso()
     eid = stable_id(
         field,
         value or "",
         epistemic_class.value,
         source_type,
         source_url or "",
+        source_id or "",
         document_id or "",
+        document_sha256 or "",
         str(page or ""),
+        section or "",
         evidence_snippet or "",
+        resolved_observed_at,
+        published_at or "",
+        extraction_method or "",
     )
     if epistemic_class == EpistemicClass.OBSERVED and not (source_type and (source_url or document_id or source_id)):
         raise ValueError("OBSERVED evidence requires a source (url, document or source_id)")
@@ -57,10 +156,10 @@ def make_evidence(
         page=page,
         section=section,
         evidence_snippet=evidence_snippet,
-        observed_at=observed_at or now_iso(),
+        observed_at=resolved_observed_at,
         published_at=published_at,
         extraction_method=extraction_method,
-        extractor_version="dui.extract.v1",
+        extractor_version="dui.extract.v2",
         contract_id=contract_id,
         process_id=process_id,
         aspects=aspects or [],
