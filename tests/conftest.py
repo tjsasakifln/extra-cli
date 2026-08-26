@@ -18,6 +18,31 @@ def pytest_configure(config: pytest.Config) -> None:
     )
 
 
+def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
+    """Second canonical real_db run reverses order to expose module coupling."""
+    order = os.getenv("REAL_DB_TEST_ORDER", "normal").strip().lower()
+    if order == "reverse" and "real_db" in (config.option.markexpr or ""):
+        items.reverse()
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
+    """A selected real_db item cannot silently skip after explicit opt-in."""
+    outcome = yield
+    report = outcome.get_result()
+    from scripts.testing.real_db_guard import real_db_skip_is_forbidden
+
+    if report.skipped and real_db_skip_is_forbidden(
+        marked_real_db=item.get_closest_marker("real_db") is not None,
+        require_real=os.getenv("REQUIRE_REAL_DB", "").lower() in {"1", "true", "yes"},
+    ):
+        report.outcome = "failed"
+        report.longrepr = (
+            f"REAL_DB_SKIP_FORBIDDEN: {item.nodeid} skipped during {report.when}; "
+            "REQUIRE_REAL_DB=1 requires execution or a named failure"
+        )
+
+
 @pytest.fixture(autouse=True)
 def _mock_psycopg2_connect(request):
     """Mock psycopg2.connect to prevent real PostgreSQL calls in tests.
@@ -67,9 +92,7 @@ def _mock_psycopg2_connect(request):
         return
 
     # Pre-VPS resilience vertical slice / DB-marked tests with explicit env.
-    if request.node.get_closest_marker("database") is not None and (
-        require_resilience_db or require_real
-    ):
+    if request.node.get_closest_marker("database") is not None and (require_resilience_db or require_real):
         yield
         return
 
@@ -84,9 +107,7 @@ def _mock_psycopg2_connect(request):
     )
 
     filename = path_parts[-1] if path_parts else ""
-    consults_pg = request.node.get_closest_marker("real_db") is not None or (
-        filename in CANONICAL_REAL_SUITES
-    )
+    consults_pg = request.node.get_closest_marker("real_db") is not None or (filename in CANONICAL_REAL_SUITES)
     if consults_pg:
         from scripts.testing.real_db_guard import admit_real_db_or_raise
 

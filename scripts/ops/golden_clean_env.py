@@ -1,19 +1,24 @@
 """Prove golden path on a freshly created empty database (DoD §12.1 clean env)."""
+
 from __future__ import annotations
 
 import argparse
 import json
 import os
-import re
 import subprocess
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import urlparse
+
+from scripts.testing.database_run import (
+    DatabaseRunError,
+    recreate_database,
+    require_psycopg2,
+)
 
 REPO = Path(__file__).resolve().parents[2]
-_PSQL = "psql"  # resolved from PATH in local/CI (not shell-expanded)
 
 
 def _parts(dsn: str) -> dict[str, str]:
@@ -28,72 +33,14 @@ def _parts(dsn: str) -> dict[str, str]:
     }
 
 
-def _dsn(parts: dict[str, str], dbname: str) -> str:
-    auth = parts["user"]
-    if parts["password"]:
-        auth = f"{parts['user']}:{parts['password']}"
-    return urlunparse(
-        (parts["scheme"], f"{auth}@{parts['host']}:{parts['port']}", f"/{dbname}", "", "", "")
-    )
-
-
-def _psql_env(parts: dict[str, str]) -> dict[str, str]:
-    env = os.environ.copy()
-    env["PGPASSWORD"] = parts["password"]
-    return env
-
-
-def _psql(parts: dict[str, str], dbname: str, sql: str) -> subprocess.CompletedProcess[str]:
-    # psql binary comes from PATH in local/CI; argv is fully controlled (shell=False).
-    argv = [
-        _PSQL,
-        "-h",
-        parts["host"],
-        "-p",
-        parts["port"],
-        "-U",
-        parts["user"],
-        "-d",
-        dbname,
-        "-v",
-        "ON_ERROR_STOP=1",
-        "-c",
-        sql,
-    ]
-    return subprocess.run(  # noqa: S603 — fixed argv, shell=False
-        argv,
-        env=_psql_env(parts),
-        text=True,
-        capture_output=True,
-        check=False,
-        timeout=60,
-    )
-
-
 def recreate_db(admin_dsn: str, clean_name: str) -> dict[str, Any]:
-    parts = _parts(admin_dsn)
-    # terminate + drop + create as separate autocommit statements
-    # clean_name / user come from controlled local tooling args, not external SQL input.
-    if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", clean_name):
-        raise ValueError(f"invalid clean db name: {clean_name!r}")
-    user = parts["user"]
-    if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", user):
-        raise ValueError(f"invalid db user: {user!r}")
-    # Identifiers validated via re.fullmatch above (safe literal interpolation for local tooling).
-    term_sql = f"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '{clean_name}' AND pid <> pg_backend_pid();"  # noqa: S608
-    drop_sql = f"DROP DATABASE IF EXISTS {clean_name};"  # noqa: S608
-    create_sql = f"CREATE DATABASE {clean_name} OWNER {user};"  # noqa: S608
-    term = _psql(parts, "postgres", term_sql)
-    drop = _psql(parts, "postgres", drop_sql)
-    create = _psql(parts, "postgres", create_sql)
+    """Recreate a local database using the required Python driver."""
+    dsn = recreate_database(admin_dsn, clean_name)
     return {
-        "term_exit": term.returncode,
-        "drop_exit": drop.returncode,
-        "drop_err": (drop.stderr or "")[-200:],
-        "create_exit": create.returncode,
-        "create_err": (create.stderr or "")[-200:],
-        "ok": create.returncode == 0,
-        "dsn": _dsn(parts, clean_name),
+        "backend": "psycopg2",
+        "psql_required": False,
+        "ok": True,
+        "dsn": dsn,
     }
 
 
@@ -121,17 +68,13 @@ def apply_migrations(dsn: str) -> dict[str, Any]:
     }
 
 
-
-
 def table_count(dsn: str) -> int:
     import psycopg2
 
     conn = psycopg2.connect(dsn, connect_timeout=5)
     try:
         with conn.cursor() as cur:
-            cur.execute(
-                "SELECT count(*) FROM information_schema.tables WHERE table_schema='public'"
-            )
+            cur.execute("SELECT count(*) FROM information_schema.tables WHERE table_schema='public'")
             return int(cur.fetchone()[0])
     finally:
         conn.close()
@@ -221,13 +164,31 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if not args.confirm_drop:
         print(
-            "REFUSING destructive DROP/CREATE without --confirm-drop "
-            f"(db={args.db_name}). Use --dry-run to preview.",
+            f"REFUSING destructive DROP/CREATE without --confirm-drop (db={args.db_name}). Use --dry-run to preview.",
             file=sys.stderr,
         )
         return 3
 
-    rec = recreate_db(args.admin_dsn, args.db_name)
+    try:
+        require_psycopg2()
+        report["steps"]["tooling"] = {
+            "ok": True,
+            "required": ["psycopg2"],
+            "psql_required": False,
+        }
+        rec = recreate_db(args.admin_dsn, args.db_name)
+    except DatabaseRunError as exc:
+        report["steps"]["tooling"] = {
+            "ok": False,
+            "required": ["psycopg2"],
+            "psql_required": False,
+            "error": str(exc),
+        }
+        report["ok"] = False
+        Path(args.report).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.report).write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+        print(json.dumps(report, indent=2))
+        return 2
     report["steps"]["recreate_db"] = rec
     if not rec["ok"]:
         Path(args.report).parent.mkdir(parents=True, exist_ok=True)
@@ -242,19 +203,28 @@ def main(argv: list[str] | None = None) -> int:
     # Prefer direct seed scripts for entities
     seed1 = subprocess.run(  # noqa: S603
         [sys.executable, str(REPO / "db" / "seed" / "001_sc_entities.py"), "--dsn", dsn],
-        cwd=str(REPO), env={**os.environ, "LOCAL_DATALAKE_DSN": dsn},
-        text=True, capture_output=True, check=False, timeout=180,
+        cwd=str(REPO),
+        env={**os.environ, "LOCAL_DATALAKE_DSN": dsn},
+        text=True,
+        capture_output=True,
+        check=False,
+        timeout=180,
     )
     seed2 = subprocess.run(  # noqa: S603
         [sys.executable, str(REPO / "db" / "seed" / "002_entity_aliases.py"), "--dsn", dsn],
-        cwd=str(REPO), env={**os.environ, "LOCAL_DATALAKE_DSN": dsn},
-        text=True, capture_output=True, check=False, timeout=120,
+        cwd=str(REPO),
+        env={**os.environ, "LOCAL_DATALAKE_DSN": dsn},
+        text=True,
+        capture_output=True,
+        check=False,
+        timeout=120,
     )
     report["steps"]["seeds"] = {
         "entities_exit": seed1.returncode,
         "aliases_exit": seed2.returncode,
-        "ok": seed1.returncode == 0,
+        "ok": seed1.returncode == 0 and seed2.returncode == 0,
         "entities_tail": (seed1.stdout or seed1.stderr or "")[-400:],
+        "aliases_tail": (seed2.stdout or seed2.stderr or "")[-400:],
     }
     try:
         n = table_count(dsn)
@@ -269,12 +239,18 @@ def main(argv: list[str] | None = None) -> int:
     report["steps"]["ledger_path"] = str(ledger)
     parts = _parts(dsn)
     report["clean_dsn_hint"] = f"{parts['host']}:{parts['port']}/{args.db_name}"
-    report["ok"] = bool(rec["ok"] and mig.get("ok") and report["steps"].get("seeds",{}).get("ok") and n >= 5 and gp["ok"])
+    report["ok"] = bool(
+        rec["ok"] and mig.get("ok") and report["steps"].get("seeds", {}).get("ok") and n >= 5 and gp["ok"]
+    )
     report["limitations"] = [
         "vector extension optional (014 skipped if unavailable)",
         "clean env proof: empty DB → migrations → golden_path (--skip-freshness --allow-zero); sources may be zero on empty net",
         "Live crawl can be re-run after clean bootstrap with data sources",
     ]
+    report["tooling"] = {
+        "database_admin": "psycopg2",
+        "psql_required": False,
+    }
     report["claims"] = {
         "allowed": [
             "Golden path executed on freshly created empty database",
@@ -284,9 +260,7 @@ def main(argv: list[str] | None = None) -> int:
     }
 
     Path(args.report).parent.mkdir(parents=True, exist_ok=True)
-    Path(args.report).write_text(
-        json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-    )
+    Path(args.report).write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(json.dumps({k: report[k] for k in ("ok", "clean_dsn_hint", "steps")}, indent=2, default=str)[:3500])
     return 0 if report["ok"] else 1
 

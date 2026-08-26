@@ -6,7 +6,6 @@ No handcrafted PresenceLoadResult as the unit under test; no ``or True``.
 
 from __future__ import annotations
 
-import os
 import uuid
 
 import pytest
@@ -24,24 +23,20 @@ from scripts.lib.universe import CanonicalEntity, CanonicalUniverse
 
 pytestmark = pytest.mark.real_db
 
-DSN = os.getenv("LOCAL_DATALAKE_DSN", "postgresql://test:test@127.0.0.1:5433/extra_test")
-
 
 def _conn():
-    import psycopg2
+    from scripts.testing.real_db_guard import admit_ready_connection
 
-    try:
-        return psycopg2.connect(DSN, connect_timeout=5)
-    except Exception as exc:  # noqa: BLE001
-        pytest.skip(f"no postgres: {exc}")
+    conn, _ = admit_ready_connection(
+        required_tables=("pncp_raw_bids",),
+        context="presence_pg_real",
+    )
+    return conn
 
 
 def _require_real() -> None:
-    try:
-        c = _conn()
-        c.close()
-    except Exception:
-        pytest.skip("DB unreachable")
+    c = _conn()
+    c.close()
 
 
 def _entity() -> CanonicalEntity:
@@ -75,8 +70,7 @@ def test_pg_measured_rows_or_no_rows_via_loader() -> None:
             WHERE table_schema='public' AND table_name='pncp_raw_bids'
             """
         )
-        if not cur.fetchone():
-            pytest.skip("pncp_raw_bids absent")
+        assert cur.fetchone(), "REAL_DB_SCHEMA_DRIFT: pncp_raw_bids absent"
         cur.close()
         pres = load_data_presence(conn, CAP_OPEN_TENDERS, {}, set())
         assert pres.status != "table_absent"

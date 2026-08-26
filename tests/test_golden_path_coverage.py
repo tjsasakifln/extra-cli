@@ -13,16 +13,21 @@ from scripts.golden_path import run_coverage_calculation
 
 
 def _require_real_db() -> str:
-    """Opt-in real PostgreSQL (conftest mocks psycopg2 otherwise)."""
-    if os.getenv("REQUIRE_REAL_DB", "").lower() not in {"1", "true", "yes"}:
-        pytest.skip("REQUIRE_REAL_DB=1 required for live dual coverage")
-    dsn = os.getenv("LOCAL_DATALAKE_DSN", "postgresql://test:test@127.0.0.1:5433/extra_test")
-    try:
-        import psycopg2
+    """Prepare the generated per-run database for a clean-lake measurement."""
+    from scripts.testing.database_run import assert_generated_database_connection
+    from scripts.testing.real_db_guard import admit_ready_connection
 
-        psycopg2.connect(dsn, connect_timeout=3).close()
-    except Exception:
-        pytest.skip("no local test-db")
+    conn, dsn = admit_ready_connection(
+        required_tables=("coverage_evidence", "pncp_raw_bids", "pncp_supplier_contracts"),
+        context="golden_path_coverage",
+    )
+    try:
+        assert_generated_database_connection(conn)
+        with conn.cursor() as cur:
+            cur.execute("TRUNCATE coverage_evidence, pncp_raw_bids, pncp_supplier_contracts RESTART IDENTITY CASCADE")
+        conn.commit()
+    finally:
+        conn.close()
     return dsn
 
 

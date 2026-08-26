@@ -25,9 +25,9 @@ from urllib.parse import urlparse
 Strategy = Literal["real", "skip", "config_error", "mock"]
 AdmissionState = Literal["DB_UNAVAILABLE", "DB_REACHABLE_SCHEMA_MISSING", "DB_READY"]
 
-DB_UNAVAILABLE = "DB_UNAVAILABLE"
-DB_REACHABLE_SCHEMA_MISSING = "DB_REACHABLE_SCHEMA_MISSING"
-DB_READY = "DB_READY"
+DB_UNAVAILABLE: Literal["DB_UNAVAILABLE"] = "DB_UNAVAILABLE"
+DB_REACHABLE_SCHEMA_MISSING: Literal["DB_REACHABLE_SCHEMA_MISSING"] = "DB_REACHABLE_SCHEMA_MISSING"
+DB_READY: Literal["DB_READY"] = "DB_READY"
 
 CONNECT_TIMEOUT_SECONDS = 2
 
@@ -58,6 +58,11 @@ def explicit_dsn_provided() -> bool:
 
 def require_real_db() -> bool:
     return env_flag("REQUIRE_REAL_DB")
+
+
+def real_db_skip_is_forbidden(*, marked_real_db: bool, require_real: bool) -> bool:
+    """Opted-in real_db items must execute or fail; skip is never success."""
+    return marked_real_db and require_real
 
 
 def dsn_host_for_logs(dsn: str) -> str:
@@ -168,7 +173,7 @@ class AdmissionResult:
         return self.state == DB_READY
 
 
-def _existing_relations(conn: object, *, kind: str, names: tuple[str, ...]) -> set[str]:
+def _existing_relations(conn: Any, *, kind: str, names: tuple[str, ...]) -> set[str]:
     if not names:
         return set()
     table_type = "BASE TABLE" if kind == "table" else "VIEW"
@@ -177,7 +182,7 @@ def _existing_relations(conn: object, *, kind: str, names: tuple[str, ...]) -> s
         "SELECT table_name FROM information_schema.tables "
         "WHERE table_schema = 'public' AND table_type = %s AND table_name = %s"
     )
-    cursor = conn.cursor()  # type: ignore[union-attr]
+    cursor = conn.cursor()
     try:
         with cursor:
             for name in names:

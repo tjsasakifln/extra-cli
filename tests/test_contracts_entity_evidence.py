@@ -91,12 +91,15 @@ def test_complete_checkpoint_allows_success_zero(tmp_path: Path) -> None:
     path = _valid_multi_window_proof(tmp_path, planned=3, completed=3, pages=40)
     proof = load_checkpoint_window_proof(path)
     assert proof.valid is True
-    assert assert_success_zero_proof(
-        window_complete=True,
-        proof=proof,
-        pages_processed=proof.pages_processed,
-        pages_expected=proof.pages_expected,
-    ) == []
+    assert (
+        assert_success_zero_proof(
+            window_complete=True,
+            proof=proof,
+            pages_processed=proof.pages_processed,
+            pages_expected=proof.pages_expected,
+        )
+        == []
+    )
 
 
 def test_project_refuses_success_zero_without_proof() -> None:
@@ -167,9 +170,7 @@ def test_project_dry_run_without_write(monkeypatch: pytest.MonkeyPatch) -> None:
         seed_path=resolve_default_seed_path(),
     )
     assert report.dry_run is True
-    assert report.applicable_count == len(
-        load_canonical_universe(seed_path=resolve_default_seed_path()).included
-    )
+    assert report.applicable_count == len(load_canonical_universe(seed_path=resolve_default_seed_path()).included)
     assert report.success_zero == 0  # only_with_data + incomplete window
     assert report.written_rows == 0 or report.dry_run
 
@@ -180,24 +181,18 @@ def test_project_success_with_data_and_dual_mapping() -> None:
 
     Requires: REQUIRE_REAL_DB=1 and LOCAL_DATALAKE_DSN (conftest mocks psycopg2 otherwise).
     """
-    import os
+    from scripts.testing.database_run import assert_generated_database_connection
+    from scripts.testing.real_db_guard import admit_ready_connection
 
-    if os.getenv("REQUIRE_REAL_DB", "").lower() not in {"1", "true", "yes"}:
-        pytest.skip("REQUIRE_REAL_DB=1 required for real PostgreSQL evidence projection")
-    pytest.importorskip("psycopg2")
-    import psycopg2
-
-    dsn = os.environ.get("LOCAL_DATALAKE_DSN") or os.environ.get("TEST_DSN")
-    if not dsn:
-        pytest.skip("LOCAL_DATALAKE_DSN not set")
-    try:
-        conn = psycopg2.connect(dsn)
-    except Exception as exc:  # pragma: no cover
-        pytest.skip(f"postgres unavailable: {exc}")
+    conn, _dsn = admit_ready_connection(
+        required_tables=("coverage_evidence", "pncp_supplier_contracts"),
+        context="contracts_entity_evidence",
+    )
 
     try:
+        assert_generated_database_connection(conn)
         cur = conn.cursor()
-        cur.execute("TRUNCATE coverage_evidence RESTART IDENTITY")
+        cur.execute("TRUNCATE coverage_evidence, pncp_supplier_contracts RESTART IDENTITY CASCADE")
         conn.commit()
         start, end = default_backfill_window()
         # Synthetic multi-window proof is allowed only for mapping tests (real_db),
@@ -247,7 +242,7 @@ def test_project_success_with_data_and_dual_mapping() -> None:
         assert hc.covered_numerator == hc.applicable_denominator
         assert hc.coverage_gate_pass is True
         # Cleanup so local ops DB is not left claiming operational PASS without live crawl
-        cur.execute("TRUNCATE coverage_evidence RESTART IDENTITY")
+        cur.execute("TRUNCATE coverage_evidence, pncp_supplier_contracts RESTART IDENTITY CASCADE")
         conn.commit()
     finally:
         conn.close()

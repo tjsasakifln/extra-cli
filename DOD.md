@@ -3213,3 +3213,8 @@ CI (PR #12):
   reason codes, run and snapshot in `contract_role_links`. An adversarial DB
   test prevents supplier-root inversion and four indexed EXPLAIN plans pass.
   Exact-HEAD CI and `main` are required.
+- [ ] The opt-in `real_db` suite is deterministic on a clean database. **#285
+  `VERIFIED` on branch:** the canonical runner creates a fresh database per run,
+  applies the complete migration ledger and required seeds fail-closed, rejects
+  fake connections and skips, and repeats in normal and reverse order. Exact-HEAD
+  CI and `main` are required before acceptance.
