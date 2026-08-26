@@ -180,6 +180,41 @@ def test_unreconciled_contact_projection_is_refused_before_publication(tmp_path:
     assert "PUBLICATION_REFUSED" in alerts.read_text()
 
 
+def test_policy_excluded_preferred_routes_can_reconcile_at_zero(tmp_path: Path) -> None:
+    public, state, alerts = _paths(tmp_path)
+    build = _build(tmp_path / "build")
+    manifest = json.loads((build / "manifest.json").read_text())
+    projection = manifest["authoritative_contact_projection"]
+    projection.update(
+        {
+            "raw_input_preferred_route_count": 1,
+            "policy_excluded_preferred_route_count": 1,
+            "input_preferred_route_count": 0,
+            "output_preferred_route_count": 0,
+            "input_preferred_routes_hash": "empty-route-hash",
+            "output_preferred_routes_hash": "empty-route-hash",
+        }
+    )
+    chunk_path = build / "chunk_0000.json"
+    chunk = json.loads(chunk_path.read_text())
+    chunk["leads"][0]["contacts"][0]["preferred_initial"] = False
+    raw = json.dumps(chunk, separators=(",", ":"), sort_keys=True).encode()
+    chunk_path.write_bytes(raw)
+    manifest["chunks"][0]["content_hash"] = hashlib.sha256(raw).hexdigest()
+    (build / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+
+    result = atomic_publish_directory(
+        build,
+        public,
+        state_path=state,
+        alert_ledger=alerts,
+        now=NOW,
+    )
+
+    assert result["ok"] is True
+    assert result["accounts_with_preferred_route"] == 0
+
+
 def test_same_snapshot_is_not_freshness_and_alerts(tmp_path: Path) -> None:
     public, state, alerts = _paths(tmp_path)
     atomic_publish_directory(

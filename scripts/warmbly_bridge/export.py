@@ -13,7 +13,11 @@ from typing import Any
 from scripts.confenge_outreach_pipeline.party_role import project_contractor_role
 from scripts.confenge_target_fit.published import build_published_index_from_rows
 from scripts.crawl.run_evidence import runtime_release_sha
-from scripts.decision_unit_intelligence.controlled_email import canonicalize_mailbox
+from scripts.decision_unit_intelligence.controlled_email import (
+    CONTROLLED_EMAIL_POLICY_VERSION,
+    apply_cross_account_preferred_mailbox_gate,
+    canonicalize_mailbox,
+)
 from scripts.warmbly_bridge import (
     DEFAULT_MAX_BYTES_PER_CHUNK,
     DEFAULT_MAX_LEADS_PER_CHUNK,
@@ -209,18 +213,31 @@ def _reconcile_preferred_route_projection(
     *,
     full_snapshot: bool,
 ) -> dict[str, Any]:
-    """Fail closed when a declared canonical preferred route disappears."""
+    """Reconcile output against the same identity policy used by the mapper."""
 
-    expected = _preferred_route_claims(contact_rows, feed_leads=False)
+    raw_expected = _preferred_route_claims(contact_rows, feed_leads=False)
+    policy_input = [
+        {
+            "source_lead_id": normalize_cnpj14(str(row.get("cnpj14") or row.get("cnpj") or "")),
+            "company": {"cnpj14": normalize_cnpj14(str(row.get("cnpj14") or row.get("cnpj") or ""))},
+            "contacts": row.get("contacts") or [],
+        }
+        for row in contact_rows
+        if normalize_cnpj14(str(row.get("cnpj14") or row.get("cnpj") or ""))
+    ]
+    normalized_rows = apply_cross_account_preferred_mailbox_gate(policy_input)
+    expected = _preferred_route_claims(normalized_rows, feed_leads=True)
     observed = _preferred_route_claims(leads, feed_leads=True)
     if not full_snapshot:
         output_accounts = {
             normalize_cnpj14(str((lead.get("company") or {}).get("cnpj14") or "")) for lead in leads
         }
+        raw_expected = {claim for claim in raw_expected if claim[0] in output_accounts}
         expected = {claim for claim in expected if claim[0] in output_accounts}
+    raw_expected_hash = content_hash_obj(sorted(raw_expected))
     expected_hash = content_hash_obj(sorted(expected))
     observed_hash = content_hash_obj(sorted(observed))
-    if expected and expected != observed:
+    if raw_expected and expected != observed:
         raise InputError(
             "preferred route projection does not reconcile with generated feed: "
             f"input={len(expected)} output={len(observed)} "
@@ -228,11 +245,15 @@ def _reconcile_preferred_route_projection(
             f"input_hash={expected_hash} output_hash={observed_hash}"
         )
     return {
-        "input_declared": bool(expected),
+        "input_declared": bool(raw_expected),
         "scope": "FULL_INPUT" if full_snapshot else "OUTPUT_SLICE",
+        "projection_policy_version": CONTROLLED_EMAIL_POLICY_VERSION,
+        "raw_input_preferred_route_count": len(raw_expected),
+        "raw_input_preferred_routes_hash": raw_expected_hash,
+        "policy_excluded_preferred_route_count": len(raw_expected - expected),
         "input_preferred_route_count": len(expected),
         "output_preferred_route_count": len(observed),
-        "preferred_routes_reconciled": expected == observed if expected else None,
+        "preferred_routes_reconciled": expected == observed if raw_expected else None,
         "input_preferred_routes_hash": expected_hash,
         "output_preferred_routes_hash": observed_hash,
     }

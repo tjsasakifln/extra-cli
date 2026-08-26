@@ -233,6 +233,31 @@ def test_full_pipeline_e2e_starts_from_discovery_not_frozen_list() -> None:
     assert "frozen" in (down.__doc__ or "").lower() or "frozen" in (down.run_full_universe_e2e.__doc__ or "").lower()
 
 
+def test_execution_provenance_uses_explicit_real_command(monkeypatch) -> None:
+    from scripts.ops.confenge_code_freeze import execution_claim_from_env
+
+    monkeypatch.setenv("CONFENGE_EXECUTION_COMMAND", "python -m pytest tests/commercial_leads -q")
+    monkeypatch.setenv("CONFENGE_EXECUTION_EXIT_CODE", "0")
+    claim = execution_claim_from_env()
+    assert claim == {
+        "command": "python -m pytest tests/commercial_leads -q",
+        "started_at": None,
+        "exit_code": 0,
+        "claim_explicit": True,
+        "claim_valid": True,
+    }
+
+
+def test_execution_provenance_rejects_invalid_exit_code(monkeypatch) -> None:
+    from scripts.ops.confenge_code_freeze import execution_claim_from_env
+
+    monkeypatch.setenv("CONFENGE_EXECUTION_EXIT_CODE", "PASS")
+    claim = execution_claim_from_env()
+    assert claim["exit_code"] is None
+    assert claim["claim_explicit"] is True
+    assert claim["claim_valid"] is False
+
+
 def test_cross_artifact_aggregator_agreement(tmp_path, monkeypatch) -> None:
     """build_final_campaign_status drives derived files to the same terminal reason."""
     from scripts.ops import confenge_final_status as fs

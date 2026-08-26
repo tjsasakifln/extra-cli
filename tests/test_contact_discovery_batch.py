@@ -488,7 +488,7 @@ def test_complete_cohort_exports_verified_bridge_projection(dsn: str, tmp_path: 
     assert result["target_fit_mode"] == "SHADOW"
     assert result["target_fit_classifier_sha"] == "sha256:target-fit-test"
     assert result["sector_classifier_sha"] == "sha256:sector-test"
-    assert result["controlled_email_policy_version"] == "controlled-email-policy.v2"
+    assert result["controlled_email_policy_version"] == "controlled-email-policy.v3"
     assert result["terminal_equation"] == {
         "population_count": 1,
         "job_denominator": 1,

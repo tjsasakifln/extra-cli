@@ -169,14 +169,14 @@ def test_exactly_one_preferred_route_per_account():
     assert stats["funnel"]["double_preferred"] == 1
 
 
-def test_the_same_mailbox_cannot_be_claimed_by_two_accounts():
+def test_the_same_ambiguous_mailbox_blocks_both_accounts():
     shared = "contato@grupocompartilhado.com.br"
     leads = [
         _lead("11111111000191", [_contact(shared)]),
         _lead("22222222000172", [_contact(shared)]),
     ]
     members, _ = select_cohort(leads, limit=50)
-    assert len(members) == 1
+    assert members == []
 
 
 def test_cohort_is_capped_without_padding():
@@ -441,7 +441,7 @@ def test_a_precomputed_owner_map_matches_the_whole_feed_gate():
         limit=50,
         shared_mailbox_owner=shared_preferred_mailbox_owner(leads),
     )
-    assert [m["company"]["cnpj14"] for m in whole] == [m["company"]["cnpj14"] for m in streamed] == ["11111111000191"]
+    assert [m["company"]["cnpj14"] for m in whole] == [m["company"]["cnpj14"] for m in streamed] == []
 
 
 def test_a_wrongly_resolved_domain_is_blocked_by_the_company_name():

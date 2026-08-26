@@ -36,6 +36,32 @@ def utc_now() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
+def execution_claim_from_env() -> dict[str, Any]:
+    """Return the command that was actually run, without inventing success.
+
+    Historical callers did not provide explicit execution metadata, so the
+    original campaign command remains the compatibility default.  A re-freeze
+    after a narrower, real validation must name that command and its exit code
+    through the environment instead of inheriting a false ``0``.
+    """
+
+    raw_exit = os.environ.get("CONFENGE_EXECUTION_EXIT_CODE")
+    try:
+        exit_code = 0 if raw_exit is None else int(raw_exit)
+    except ValueError:
+        exit_code = None
+    return {
+        "command": os.environ.get(
+            "CONFENGE_EXECUTION_COMMAND",
+            "make campaign-gate-confenge-commercial-ready",
+        ),
+        "started_at": os.environ.get("CONFENGE_EXECUTION_STARTED_AT") or None,
+        "exit_code": exit_code,
+        "claim_explicit": raw_exit is not None or "CONFENGE_EXECUTION_COMMAND" in os.environ,
+        "claim_valid": exit_code is not None,
+    }
+
+
 def _git(*args: str) -> str:
     git = shutil.which("git") or "git"
     return subprocess.check_output(  # noqa: S603
@@ -190,6 +216,7 @@ def verify_evidence_provenance() -> dict[str, Any]:
     pr_head = os.environ.get("CONFENGE_PR_HEAD_SHA") or checked_out
     merge = os.environ.get("CONFENGE_WORKFLOW_MERGE_SHA") or os.environ.get("GITHUB_SHA") or None
     freeze = verify_code_freeze()
+    execution_claim = execution_claim_from_env()
     env = {
         "execution_environment": os.environ.get("CONFENGE_EXECUTION_ENV", "local"),
         "machine_id_hash": hashlib.sha256(
@@ -200,10 +227,12 @@ def verify_evidence_provenance() -> dict[str, Any]:
         "postgres_version": None,
         "workflow_run_id": os.environ.get("GITHUB_RUN_ID"),
         "job_ids": os.environ.get("GITHUB_JOB"),
-        "command": "make campaign-gate-confenge-commercial-ready",
-        "started_at": None,
+        "command": execution_claim["command"],
+        "started_at": execution_claim["started_at"],
         "finished_at": utc_now(),
-        "exit_code": 0,
+        "exit_code": execution_claim["exit_code"],
+        "claim_explicit": execution_claim["claim_explicit"],
+        "claim_valid": execution_claim["claim_valid"],
     }
     dsn = os.environ.get("CONFENGE_COMMERCIAL_STATE_DSN", "")
     if dsn:
@@ -230,6 +259,7 @@ def verify_evidence_provenance() -> dict[str, Any]:
         executed == freeze.get("final_code_freeze_sha")
         and freeze.get("ok")
         and (match_run or artifact_only or executed == pr_head)
+        and execution_claim["claim_valid"]
     )
     # workflow_head_sha == merge ref on pull_request; never the PR head alone
     workflow_head = merge or checked_out
