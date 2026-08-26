@@ -17,6 +17,11 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+from scripts.decision_unit_intelligence.evidence import (
+    make_evidence,
+    make_page_document_witness,
+)
+from scripts.decision_unit_intelligence.models import EpistemicClass
 from scripts.warmbly_bridge.export import ExportConfig, export_outreach
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -64,12 +69,47 @@ def _contact(
     named: bool = False,
 ) -> dict[str, Any]:
     host = f"account-{cnpj}.rehearsal.confenge.com.br"
+    source_url = f"https://{host}/contact"
+    email_snippet = f"Contato: {email}"
+    page_content = f"CNPJ {cnpj} | {email_snippet}"
+    document_witness = make_page_document_witness(page_content)
+    if document_witness is None:
+        raise RuntimeError("synthetic page witness unexpectedly empty")
+    page_sha256 = str(document_witness["sha256"])
+    email_evidence = make_evidence(
+        field="email",
+        value=email,
+        epistemic_class=EpistemicClass.OBSERVED,
+        source_type="company_website",
+        source_url=source_url,
+        document_sha256=page_sha256,
+        evidence_snippet=email_snippet,
+        observed_at=observed_at,
+        extraction_method="public_page_exact_text",
+    )
+    binding_evidence = make_evidence(
+        field="account_mailbox_binding",
+        value=f"{cnpj}|{email}",
+        epistemic_class=EpistemicClass.OBSERVED,
+        source_type="company_website",
+        source_url=source_url,
+        document_sha256=page_sha256,
+        evidence_snippet=page_content,
+        observed_at=observed_at,
+        extraction_method="official_page_exact_cnpj_and_email:synthetic_rehearsal",
+        extra={
+            "page_cnpj14": cnpj,
+            "page_content_sha256": page_sha256,
+            "email_evidence_id": email_evidence.evidence_id,
+        },
+    )
     return {
         "source_contact_id": f"contact-{cnpj}",
         "name": f"Synthetic Person {cnpj[-4:]}" if named else "",
         "role": "Contract Manager" if named else "Public contracts routing",
         "email": email,
-        "source_url": f"https://{host}/contact",
+        "source_url": source_url,
+        "source_reference": source_url,
         # The corpus envelope carries the synthetic marker. The route itself
         # uses the production provenance vocabulary so the normal classifier,
         # rather than a rehearsal-only bypass, decides its eligibility.
@@ -79,7 +119,7 @@ def _contact(
         "verified_at": observed_at,
         "evidence_sha256": hashlib.sha256(f"{scenario}:{cnpj}:{email}".encode()).hexdigest(),
         "verification_status": "OFFICIAL_SOURCE",
-        "ownership_status": "HUMAN_CONFIRMED" if named else "COMPANY_OWNED",
+        "ownership_status": "COMPANY_OWNED",
         "confidence": "HIGH",
         "enrollable": True,
         "recommended": True,
@@ -95,6 +135,13 @@ def _contact(
         "mailbox_company_evidence": "OBSERVED",
         "company_associated": True,
         "official_domain": host,
+        "evidence_ids": [binding_evidence.evidence_id],
+        "page_cnpj14": cnpj,
+        "page_cnpj_evidence_id": binding_evidence.evidence_id,
+        "page_cnpj_evidence_sha256": page_sha256,
+        "page_document_witness": document_witness,
+        "account_mailbox_binding_evidence": binding_evidence.to_dict(),
+        "mailbox_observation_evidence": email_evidence.to_dict(),
     }
 
 
