@@ -13,6 +13,7 @@ import pytest
 
 from deploy.confenge.pin_release import (
     CANONICAL_PREFIX,
+    CHAIN_DISABLED_TIMERS,
     CHAIN_ENABLED_SERVICES,
     CHAIN_TIMERS,
     CHAIN_UNITS,
@@ -20,6 +21,7 @@ from deploy.confenge.pin_release import (
     PinError,
     plan,
     render_dropin,
+    verify,
 )
 
 SHA = "a" * 40
@@ -31,7 +33,7 @@ def test_every_chain_unit_has_a_versioned_source_file():
 
 
 def test_every_chain_timer_has_a_versioned_source_file():
-    for timer in CHAIN_TIMERS:
+    for timer in (*CHAIN_TIMERS, *CHAIN_DISABLED_TIMERS):
         assert (UNIT_SOURCE / timer).is_file(), f"{timer} must be versioned in deploy/systemd"
 
 
@@ -51,6 +53,7 @@ def test_rendered_dropin_repoints_code_at_the_release():
     body = render_dropin(unit, SHA)
     assert f"/opt/extra-consultoria-releases/{SHA}/.venv/bin/python" in body
     assert f"Environment=EXTRA_DEPLOYED_SHA={SHA}" in body
+    assert "Environment=PYTHONDONTWRITEBYTECODE=1" in body
     assert "ExecStart=\n" in body, "inherited ExecStart must be cleared before appending"
     for line in body.splitlines():
         if line.startswith(("Environment=PYTHONPATH=", "ExecStart=/")):
@@ -79,6 +82,29 @@ def test_pinned_interpreter_is_isolated_from_the_working_directory():
     body = render_dropin(unit, SHA)
     exec_line = next(line for line in body.splitlines() if line.startswith("ExecStart=/"))
     assert f"/opt/extra-consultoria-releases/{SHA}/.venv/bin/python -P " in exec_line
+
+
+def test_release_cut_uses_the_exact_git_tree_and_an_isolated_import_guard():
+    source = (Path(__file__).resolve().parents[1] / "deploy" / "confenge" / "cut_release.sh").read_text(
+        encoding="utf-8"
+    )
+    assert 'git -C "$APP" archive "$SHA"' in source
+    assert 'PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$STAGING" "$STAGING/.venv/bin/python" -P -c' in source
+    assert "git checkout" not in source
+    assert "git reset" not in source
+
+
+def test_existing_release_is_reverified_before_pin():
+    source = (Path(__file__).resolve().parents[1] / "deploy" / "confenge" / "cut_release.sh").read_text(
+        encoding="utf-8"
+    )
+    assert 'find "$TARGET" -xdev \\( -type f -o -type d \\) -perm /222' in source
+    assert 'find "$TARGET" -xdev \\( ! -user root -o ! -group root \\)' in source
+    assert 'git -C "$APP" show "$SHA:$CRITICAL_PATH" | cmp -s - "$TARGET/$CRITICAL_PATH"' in source
+    assert source.index('echo "CUT_RELEASE_SKIP:') < source.index('if find "$TARGET"')
+    pin = 'PYTHONDONTWRITEBYTECODE=1 python3 -P "$TARGET/deploy/confenge/pin_release.py"'
+    assert pin in source
+    assert source.index('if find "$TARGET"') < source.index(pin)
 
 
 def test_isolation_flag_is_not_duplicated():
@@ -123,17 +149,20 @@ def test_long_running_worker_is_marked_for_reboot_persistence():
     assert "extra-confenge-target-fit-worker.service" in CHAIN_ENABLED_SERVICES
 
 
-def test_timers_are_started_not_only_enabled():
-    """`systemctl enable` alone leaves a timer unloaded until the next boot.
-
-    That is exactly how the contact-cycle and feed-cycle safety nets came to
-    report `enabled` while `systemctl list-timers` showed neither of them.
-    """
+def test_only_source_and_monitor_timers_are_scheduled():
     source = (Path(__file__).resolve().parents[1] / "deploy" / "confenge" / "pin_release.py").read_text(
         encoding="utf-8"
     )
     assert '"enable", "--now", *CHAIN_TIMERS' in source
+    assert '"disable", "--now", *CHAIN_DISABLED_TIMERS' in source
     assert '"timers_not_active"' in source, "verification must read back whether the timer is loaded"
+    assert set(CHAIN_TIMERS) == {"pncp-contracts.timer", "extra-confenge-feed-monitor.timer"}
+    assert set(CHAIN_DISABLED_TIMERS) == {
+        "extra-confenge-target-fit-reconcile.timer",
+        "extra-confenge-target-fit-refresh.timer",
+        "extra-confenge-contact-cycle.timer",
+        "extra-confenge-feed-cycle.timer",
+    }
 
 
 def test_pncp_checkpoint_dir_is_versioned_and_outside_the_release():
@@ -176,3 +205,112 @@ def test_our_own_dropin_is_not_reported_as_foreign(tmp_path, monkeypatch):
     monkeypatch.setattr(pin, "SYSTEMD_ROOT", root)
 
     assert pin.foreign_execstart_dropins() == {}
+
+
+def test_verify_reads_back_isolation_release_and_writable_working_directory(tmp_path, monkeypatch):
+    import subprocess
+
+    import deploy.confenge.pin_release as pin
+
+    release_root = tmp_path / "releases"
+    release = release_root / SHA
+    workdir = tmp_path / "writable"
+    workdir.mkdir()
+    monkeypatch.setattr(pin, "RELEASE_ROOT", release_root)
+
+    def fake_run(argv: list[str], *, check: bool = True) -> subprocess.CompletedProcess[str]:
+        del check
+        if argv[:2] == ["systemctl", "show"]:
+            prop = argv[argv.index("-p") + 1]
+            values = {
+                "ExecStart": f"{release}/.venv/bin/python -P -m scripts.example",
+                "Environment": f"PYTHONPATH={release} EXTRA_DEPLOYED_SHA={SHA} PYTHONDONTWRITEBYTECODE=1",
+                "WorkingDirectory": str(workdir),
+                "User": "extra-consultoria",
+            }
+            return subprocess.CompletedProcess(argv, 0, stdout=values[prop], stderr="")
+        if argv[:2] == ["systemctl", "is-enabled"] or argv[:2] == ["systemctl", "is-active"]:
+            is_downstream = argv[2] in CHAIN_DISABLED_TIMERS
+            if argv[1] == "is-enabled":
+                value = "disabled" if is_downstream else "enabled"
+            else:
+                value = "inactive" if is_downstream else "active"
+            return subprocess.CompletedProcess(argv, 0, stdout=value)
+        if argv[:4] == ["runuser", "-u", "extra-consultoria", "--"]:
+            return subprocess.CompletedProcess(argv, 0, stdout="", stderr="")
+        raise AssertionError(argv)
+
+    monkeypatch.setattr(pin, "_run", fake_run)
+
+    report = verify(SHA)
+    assert report["ok"] is True
+    assert report["release_drift"] == []
+    assert report["unsafe_python_path"] == []
+    assert report["bytecode_writes_enabled"] == []
+    assert report["working_directory_drift"] == []
+    assert report["working_directory_not_writable"] == []
+    assert report["downstream_timers_scheduled"] == []
+
+
+@pytest.mark.parametrize(
+    "failure",
+    ["unsafe-python", "bytecode-enabled", "readonly-workdir", "release-workdir", "downstream-timer"],
+)
+def test_verify_fails_closed_on_runtime_isolation_drift(tmp_path, monkeypatch, failure):
+    import subprocess
+
+    import deploy.confenge.pin_release as pin
+
+    release_root = tmp_path / "releases"
+    release = release_root / SHA
+    workdir = release if failure == "release-workdir" else tmp_path / "work"
+    monkeypatch.setattr(pin, "RELEASE_ROOT", release_root)
+
+    def fake_run(argv: list[str], *, check: bool = True) -> subprocess.CompletedProcess[str]:
+        del check
+        if argv[:2] == ["systemctl", "show"]:
+            prop = argv[argv.index("-p") + 1]
+            values = {
+                "ExecStart": (
+                    f"{release}/.venv/bin/python -m scripts.example"
+                    if failure == "unsafe-python"
+                    else f"{release}/.venv/bin/python -P -m scripts.example"
+                ),
+                "Environment": (
+                    f"PYTHONPATH={release}"
+                    if failure == "bytecode-enabled"
+                    else f"PYTHONPATH={release} PYTHONDONTWRITEBYTECODE=1"
+                ),
+                "WorkingDirectory": str(workdir),
+                "User": "extra-consultoria",
+            }
+            return subprocess.CompletedProcess(argv, 0, stdout=values[prop], stderr="")
+        if argv[:2] == ["systemctl", "is-enabled"] or argv[:2] == ["systemctl", "is-active"]:
+            is_downstream = argv[2] in CHAIN_DISABLED_TIMERS
+            if failure == "downstream-timer" and is_downstream:
+                value = "enabled" if argv[1] == "is-enabled" else "active"
+                return subprocess.CompletedProcess(argv, 0, stdout=value)
+            if argv[1] == "is-enabled":
+                value = "disabled" if is_downstream else "enabled"
+            else:
+                value = "inactive" if is_downstream else "active"
+            return subprocess.CompletedProcess(argv, 0, stdout=value)
+        if argv[:4] == ["runuser", "-u", "extra-consultoria", "--"]:
+            code = 1 if failure == "readonly-workdir" else 0
+            return subprocess.CompletedProcess(argv, code, stdout="", stderr="")
+        raise AssertionError(argv)
+
+    monkeypatch.setattr(pin, "_run", fake_run)
+
+    report = verify(SHA)
+    assert report["ok"] is False
+    if failure == "unsafe-python":
+        assert len(report["unsafe_python_path"]) == len(CHAIN_UNITS)
+    elif failure == "bytecode-enabled":
+        assert len(report["bytecode_writes_enabled"]) == len(CHAIN_UNITS)
+    elif failure == "readonly-workdir":
+        assert len(report["working_directory_not_writable"]) == len(CHAIN_UNITS)
+    elif failure == "release-workdir":
+        assert len(report["working_directory_drift"]) == len(CHAIN_UNITS)
+    else:
+        assert len(report["downstream_timers_scheduled"]) == len(CHAIN_DISABLED_TIMERS)

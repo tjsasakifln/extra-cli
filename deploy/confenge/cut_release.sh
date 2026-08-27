@@ -34,7 +34,12 @@ else
 
   # The previous release supplies the interpreter. Refuse the copy if the
   # dependency set moved: a stale venv is a silently wrong deploy.
-  PREV="$(ls -1dt "$RELEASES"/*/ 2>/dev/null | head -1 | sed 's:/*$::')"
+  [ -d "$RELEASES" ] || { echo "CUT_RELEASE_ERROR: release root is missing: $RELEASES" >&2; exit 1; }
+  PREV="$(
+    find "$RELEASES" -regextype posix-extended -mindepth 1 -maxdepth 1 -type d \
+      -regex "$RELEASES/[0-9a-f]{40}" -printf '%T@ %p\n' \
+      | sort -nr | sed -n '1{s/^[^ ]* //;p;}'
+  )"
   [ -x "$PREV/.venv/bin/python" ] || { echo "CUT_RELEASE_ERROR: no usable previous venv" >&2; exit 1; }
   PREV_SHA="$(basename "$PREV")"
   if ! git -C "$APP" diff --quiet "$PREV_SHA" "$SHA" -- requirements.txt 2>/dev/null; then
@@ -47,9 +52,9 @@ else
   git -C "$APP" archive "$SHA" | tar -x -C "$STAGING"
   cp -a "$PREV/.venv" "$STAGING/.venv"
   # The venv records an absolute path; keep it pointing at a real interpreter.
-  "$STAGING/.venv/bin/python" -c "import sys; sys.exit(0)" || {
+  PYTHONDONTWRITEBYTECODE=1 "$STAGING/.venv/bin/python" -P -c "import sys; sys.exit(0)" || {
     echo "CUT_RELEASE_ERROR: copied interpreter does not run" >&2; exit 1; }
-  PYTHONPATH="$STAGING" "$STAGING/.venv/bin/python" -c "
+  PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$STAGING" "$STAGING/.venv/bin/python" -P -c "
 import scripts.ops.confenge_feed_cycle as m
 import scripts.confenge_activation.publish as p
 import scripts.decision_unit_intelligence.batch_population as b
@@ -65,4 +70,29 @@ print('CUT_RELEASE_IMPORT_OK')
   echo "CUT_RELEASE_PUBLISHED: $TARGET"
 fi
 
-python3 "$TARGET/deploy/confenge/pin_release.py" "$SHA"
+# Existing targets are never trusted merely because their directory name is a
+# SHA. Refuse writable or non-root-owned material and re-bind the critical
+# release/publisher files to the exact Git objects before pinning systemd.
+if find "$TARGET" -xdev \( -type f -o -type d \) -perm /222 -print -quit | grep -q .; then
+  echo "CUT_RELEASE_ERROR: release is writable: $TARGET" >&2
+  exit 1
+fi
+if find "$TARGET" -xdev \( ! -user root -o ! -group root \) -print -quit | grep -q .; then
+  echo "CUT_RELEASE_ERROR: release is not root-owned: $TARGET" >&2
+  exit 1
+fi
+for CRITICAL_PATH in \
+  deploy/confenge/cut_release.sh \
+  deploy/confenge/pin_release.py \
+  scripts/confenge_activation/publish.py \
+  scripts/decision_unit_intelligence/batch_population.py \
+  scripts/ops/confenge_feed_cycle.py \
+  scripts/warmbly_bridge/export.py
+do
+  [ -f "$TARGET/$CRITICAL_PATH" ] || {
+    echo "CUT_RELEASE_ERROR: release is missing $CRITICAL_PATH" >&2; exit 1; }
+  git -C "$APP" show "$SHA:$CRITICAL_PATH" | cmp -s - "$TARGET/$CRITICAL_PATH" || {
+    echo "CUT_RELEASE_ERROR: release file does not match $SHA: $CRITICAL_PATH" >&2; exit 1; }
+done
+
+PYTHONDONTWRITEBYTECODE=1 python3 -P "$TARGET/deploy/confenge/pin_release.py" "$SHA"

@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import shutil
 import tempfile
@@ -26,7 +27,10 @@ FEED_SCOPE = "TARGET_CONFIRMED_MEMBERSHIP"
 # fail-closed publication refusal, never a truncation.
 CONSUMER_MAX_LEADS = 100_000
 CONSUMER_MAX_CHUNKS = 1_000
+CONSUMER_MAX_BYTES_PER_CHUNK = 512_000
+CONSUMER_MAX_STAGED_BYTES = 1_073_741_824
 DEACTIVATION_STATES = frozenset({"RESEARCH_REQUIRED", "SUPPRESSED", "WATCH"})
+MEMBERSHIP_DROP_REASON = "TARGET_CONFIRMED_MEMBERSHIP_DROPPED"
 DEFAULT_MAX_AGE_HOURS = 24.0
 DEFAULT_STATE_PATH = Path("/var/lib/extra-consultoria/confenge-feed/publication-state.json")
 DEFAULT_ALERT_LEDGER = Path("/var/lib/extra-consultoria/alerts/confenge-feed.jsonl")
@@ -76,23 +80,30 @@ def _assert_publication_ready_population(contact_projection: dict) -> None:
 
     The reconciler accepts coverage >= 0.995 as usable operational state; the
     outreach feed does not. A PARTIAL population never becomes a commercial feed
-    merely because it exceeds the reconcile threshold. Projections that predate
-    this provenance field are accepted only when they also carry no coverage
-    ratio to contradict, and a ratio below 1.0 is always refused.
+    merely because it exceeds the reconcile threshold. Both the explicit
+    attestation and its measured ratio are mandatory: silently accepting a
+    legacy projection with neither field recreates the exact false-green this
+    gate exists to prevent.
     """
     ready = contact_projection.get("population_publication_ready")
     ratio = contact_projection.get("population_coverage_ratio")
-    if ratio is not None:
-        try:
-            ratio_value = float(ratio)
-        except (TypeError, ValueError) as exc:
-            raise ValueError("authoritative contact projection coverage ratio is invalid") from exc
-        if ratio_value + 1e-12 < 1.0:
-            raise ValueError(
-                "authoritative target-fit population is not publication ready: "
-                f"coverage_ratio={ratio_value} < 1.0 (RECONCILE_ACCEPTABLE is not PUBLICATION_READY)"
-            )
     if ready is False:
+        raise ValueError(
+            "authoritative target-fit population is not publication ready: "
+            "the national reconcile did not attest complete coverage"
+        )
+    if isinstance(ratio, bool) or not isinstance(ratio, (int, float)):
+        raise ValueError("authoritative contact projection coverage ratio is missing or invalid")
+    try:
+        ratio_value = float(ratio)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("authoritative contact projection coverage ratio is missing or invalid") from exc
+    if not math.isfinite(ratio_value) or abs(ratio_value - 1.0) > 1e-12:
+        raise ValueError(
+            "authoritative target-fit population is not publication ready: "
+            f"coverage_ratio={ratio_value} != 1.0 (RECONCILE_ACCEPTABLE is not PUBLICATION_READY)"
+        )
+    if ready is not True:
         raise ValueError(
             "authoritative target-fit population is not publication ready: "
             "the national reconcile did not attest complete coverage"
@@ -140,6 +151,53 @@ def _read_state(path: Path) -> dict[str, Any]:
         return _read_json(path)
     except (OSError, ValueError, json.JSONDecodeError):
         return {}
+
+
+def _published_target_roots(directory: Path, manifest: dict[str, Any]) -> set[str]:
+    """Read the TARGET_CONFIRMED root membership actually carried by chunks."""
+    roots: set[str] = set()
+    chunks = manifest.get("chunks") if isinstance(manifest.get("chunks"), list) else []
+    for chunk in chunks:
+        if not isinstance(chunk, dict):
+            raise ValueError("publication membership chunk is not an object")
+        name = str(chunk.get("file") or "").strip()
+        if not name or Path(name).name != name:
+            raise ValueError("publication membership chunk name is unsafe")
+        payload = _read_json(directory / name)
+        for lead in payload.get("leads") or []:
+            if not isinstance(lead, dict) or str(lead.get("target_fit_class") or "") != "TARGET_CONFIRMED":
+                continue
+            cnpj = "".join(char for char in str((lead.get("company") or {}).get("cnpj14") or "") if char.isdigit())
+            if len(cnpj) != 14:
+                raise ValueError("publication membership contains an invalid CNPJ14")
+            root = cnpj[:8]
+            roots.add(root)
+    return roots
+
+
+def _assert_membership_deactivation_delta(
+    prior_dir: Path,
+    prior_manifest: dict[str, Any],
+    build_dir: Path,
+    manifest: dict[str, Any],
+) -> None:
+    """Every root that leaves current must travel as one explicit revocation."""
+    prior_roots = _published_target_roots(prior_dir, prior_manifest)
+    next_roots = _published_target_roots(build_dir, manifest)
+    expected = prior_roots - next_roots
+    declared: set[str] = set()
+    for entry in manifest.get("deactivations") or []:
+        if not isinstance(entry, dict) or MEMBERSHIP_DROP_REASON not in (entry.get("reason_codes") or []):
+            continue
+        cnpj = "".join(char for char in str(entry.get("cnpj14") or "") if char.isdigit())
+        if len(cnpj) != 14:
+            raise ValueError("membership-drop deactivation has an invalid CNPJ14")
+        declared.add(cnpj[:8])
+    if declared != expected:
+        raise ValueError(
+            "membership-drop deactivations do not close the current-to-next delta: "
+            f"expected={len(expected)} declared={len(declared)}"
+        )
 
 
 def _append_alert(path: Path, *, reason: str, detail: dict[str, Any]) -> None:
@@ -247,6 +305,44 @@ def producer_identity(manifest: dict[str, Any]) -> str:
     return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 
+def publication_semantic_hash(manifest: dict[str, Any]) -> str:
+    """Clock-free identity of the consumer-visible publication semantics.
+
+    The source snapshot deliberately excludes an externally supplied
+    deactivation delta. Producer identity captures code/policy meaning, but it
+    also cannot see that wire delta. Replaying solely on those two identities
+    therefore discarded a newly required revocation. Normalize the output
+    semantics that can change independently of the input files; operational
+    timestamps remain excluded so a true replay stays a replay.
+    """
+    membership = manifest.get("authoritative_target_membership")
+    membership = membership if isinstance(membership, dict) else {}
+    scope = manifest.get("authoritative_feed_scope")
+    scope = scope if isinstance(scope, dict) else {}
+    normalized_deactivations: list[dict[str, Any]] = []
+    for entry in manifest.get("deactivations") or []:
+        if not isinstance(entry, dict):
+            continue
+        normalized_deactivations.append(
+            {key: value for key, value in entry.items() if key not in {"evaluated_at"}}
+        )
+    normalized_deactivations.sort(
+        key=lambda row: (str(row.get("cnpj14") or "")[:8], json.dumps(row, sort_keys=True, default=str))
+    )
+    source = manifest.get("source") if isinstance(manifest.get("source"), dict) else {}
+    semantics = {
+        "producer_identity": producer_identity(manifest),
+        "snapshot_hash": source.get("snapshot_hash"),
+        "feed_scope": scope.get("scope") or manifest.get("feed_scope") or FEED_SCOPE,
+        "identity_key": scope.get("identity_key"),
+        "membership_hash": membership.get("membership_hash"),
+        "lead_count": manifest.get("lead_count"),
+        "deactivations": normalized_deactivations,
+    }
+    encoded = json.dumps(semantics, ensure_ascii=False, sort_keys=True, separators=(",", ":"), default=str)
+    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
+
 def _validate_authoritative_manifest(
     build_dir: Path,
     manifest: dict[str, Any],
@@ -310,8 +406,8 @@ def _validate_authoritative_manifest(
     if int(manifest.get("chunk_count") or -1) != len(chunks):
         raise ValueError("manifest chunk_count does not match chunks")
     declared_lead_count = int(manifest.get("lead_count", -1))
-    if declared_lead_count < 1:
-        raise ValueError("authoritative feed must ship at least one TARGET_CONFIRMED lead")
+    if declared_lead_count < 0:
+        raise ValueError("authoritative feed lead_count cannot be negative")
     if declared_lead_count > CONSUMER_MAX_LEADS:
         raise ValueError(
             "authoritative feed exceeds the consumer lead ceiling; refusing to publish a feed that "
@@ -322,7 +418,11 @@ def _validate_authoritative_manifest(
             "authoritative feed exceeds the consumer chunk ceiling; refusing to publish a feed that "
             f"cannot be imported: chunk_count={len(chunks)} max={CONSUMER_MAX_CHUNKS}"
         )
+    declared_chunk_byte_ceiling = int(manifest.get("max_bytes_per_chunk", -1))
+    if not 1024 <= declared_chunk_byte_ceiling <= CONSUMER_MAX_BYTES_PER_CHUNK:
+        raise ValueError("manifest max_bytes_per_chunk is missing or exceeds the consumer ceiling")
     total_leads = 0
+    total_chunk_bytes = 0
     accounts_with_contacts = 0
     accounts_with_preferred_route = 0
     target_accounts_with_preferred_route = 0
@@ -348,6 +448,15 @@ def _validate_authoritative_manifest(
         expected_hash = str(chunk.get("content_hash") or "").strip()
         if not expected_hash or actual_hash != expected_hash:
             raise ValueError(f"chunk hash mismatch for {filename}: {actual_hash} != {expected_hash or 'MISSING'}")
+        actual_bytes = chunk_path.stat().st_size
+        if actual_bytes > declared_chunk_byte_ceiling:
+            raise ValueError(
+                f"chunk {filename} exceeds the declared byte ceiling: "
+                f"bytes={actual_bytes} max={declared_chunk_byte_ceiling}"
+            )
+        if int(chunk.get("byte_count", -1)) != actual_bytes:
+            raise ValueError(f"manifest chunk byte_count mismatch for {filename}")
+        total_chunk_bytes += actual_bytes
         payload = _read_json(chunk_path)
         payload_source = payload.get("source") if isinstance(payload.get("source"), dict) else {}
         if payload.get("schema_version") != FEED_SCHEMA:
@@ -410,6 +519,13 @@ def _validate_authoritative_manifest(
                 provenance_sources[source_name] = provenance_sources.get(source_name, 0) + 1
     if total_leads != declared_lead_count:
         raise ValueError("manifest lead_count does not match chunk payloads")
+    if total_chunk_bytes > CONSUMER_MAX_STAGED_BYTES:
+        raise ValueError(
+            "authoritative feed exceeds the consumer staged-byte ceiling; "
+            f"bytes={total_chunk_bytes} max={CONSUMER_MAX_STAGED_BYTES}"
+        )
+    if int(manifest.get("total_chunk_bytes", -1)) != total_chunk_bytes:
+        raise ValueError("manifest total_chunk_bytes does not match chunk files")
     if len(target_member_cnpjs) != total_leads:
         raise ValueError("published feed contains a lead that is not TARGET_CONFIRMED")
 
@@ -429,6 +545,8 @@ def _validate_authoritative_manifest(
     declared_universe_count = int(authority.get("declared_universe_count", -1))
     if full_decision_count < total_leads:
         raise ValueError("authoritative decision universe cannot be smaller than the published feed")
+    if full_decision_count < 1:
+        raise ValueError("authoritative decision universe cannot be empty")
     if int(feed_scope.get("decision_universe_count", -1)) != full_decision_count:
         raise ValueError("authoritative feed scope decision_universe_count does not match the decision universe")
     if full_decision_count != universe_count or full_decision_count != declared_universe_count:
@@ -466,7 +584,7 @@ def _validate_authoritative_manifest(
         raise ValueError("authoritative TARGET_CONFIRMED source_member_count mismatch")
     if target_membership.get("target_fit_class") != "TARGET_CONFIRMED":
         raise ValueError("authoritative target membership class must be TARGET_CONFIRMED")
-    if not target_membership.get("target_fit_policy_versions"):
+    if total_leads and not target_membership.get("target_fit_policy_versions"):
         raise ValueError("authoritative target membership policy versions are required")
     if target_membership.get("target_party_role_distribution") != dict(sorted(target_role_distribution.items())):
         raise ValueError("authoritative TARGET_CONFIRMED party role distribution mismatch")
@@ -493,6 +611,8 @@ def _validate_authoritative_manifest(
         "generated_at",
         "population_hash",
         "population_as_of",
+        "population_as_of_source",
+        "population_verified_at",
         "projection_hash",
         "controlled_email_policy_version",
         "discovery_policy_version",
@@ -509,6 +629,14 @@ def _validate_authoritative_manifest(
     contact_population_as_of = _parse_timestamp(
         contact_projection.get("population_as_of"), field="authoritative_contact_projection.population_as_of"
     )
+    contact_population_verified_at = _parse_timestamp(
+        contact_projection.get("population_verified_at"),
+        field="authoritative_contact_projection.population_verified_at",
+    )
+    if contact_projection.get("population_as_of_source") != "target_fit_full_reconcile":
+        raise ValueError("authoritative contact population freshness must come from a full reconcile")
+    if contact_population_as_of != contact_population_verified_at:
+        raise ValueError("authoritative contact population_as_of must equal its full reconcile attestation")
     if contact_generated > now + timedelta(minutes=5) or contact_population_as_of > now + timedelta(minutes=5):
         raise ValueError("authoritative contact projection timestamp is in the future")
     if max(0.0, (now - contact_generated).total_seconds() / 3600) > max_age_hours:
@@ -581,19 +709,20 @@ def _validate_authoritative_manifest(
     deactivations = deactivations if isinstance(deactivations, list) else []
     if int(manifest.get("deactivation_count", -1)) != len(deactivations):
         raise ValueError("manifest deactivation_count does not match deactivations")
-    published_cnpjs = set(target_member_cnpjs)
-    seen_deactivations: set[str] = set()
+    published_roots = {cnpj[:8] for cnpj in target_member_cnpjs}
+    seen_deactivation_roots: set[str] = set()
     for entry in deactivations:
         if not isinstance(entry, dict):
             raise ValueError("manifest deactivation is not an object")
         cnpj = "".join(char for char in str(entry.get("cnpj14") or "") if char.isdigit())
         if len(cnpj) != 14:
             raise ValueError("manifest deactivation has an invalid cnpj14")
-        if cnpj in seen_deactivations:
-            raise ValueError(f"manifest deactivates {cnpj} more than once")
-        seen_deactivations.add(cnpj)
-        if cnpj in published_cnpjs:
-            raise ValueError(f"manifest both publishes and deactivates {cnpj}")
+        root = cnpj[:8]
+        if root in seen_deactivation_roots:
+            raise ValueError(f"manifest deactivates cnpj_root8 {root} more than once")
+        seen_deactivation_roots.add(root)
+        if root in published_roots:
+            raise ValueError(f"manifest both publishes and deactivates cnpj_root8 {root}")
         state = str(entry.get("to_state") or "").strip().upper()
         if state not in DEACTIVATION_STATES:
             raise ValueError(f"manifest deactivation has an unsupported to_state: {state or 'MISSING'}")
@@ -602,12 +731,14 @@ def _validate_authoritative_manifest(
         "run_id": run_id,
         "snapshot_hash": snapshot_hash,
         "producer_identity": producer_identity(manifest),
+        "publication_semantic_hash": publication_semantic_hash(manifest),
         "generated_at": generated_at.isoformat().replace("+00:00", "Z"),
         "datalake_watermark": watermark.isoformat().replace("+00:00", "Z"),
         "generated_age_hours": round(generated_age, 6),
         "watermark_age_hours": round(watermark_age, 6),
         "lead_count": total_leads,
         "chunk_count": len(chunks),
+        "total_chunk_bytes": total_chunk_bytes,
         "decision_universe_count": full_decision_count,
         "withheld_decision_count": full_decision_count - total_leads,
         "feed_scope": FEED_SCOPE,
@@ -689,15 +820,33 @@ def atomic_publish_directory(
             prior = _read_json(current / "manifest.json")
         except (OSError, ValueError, json.JSONDecodeError):
             prior = {}
+        try:
+            _assert_membership_deactivation_delta(current, prior, build_dir, manifest)
+        except Exception as exc:
+            detail = {"build_dir": str(build_dir), "error": str(exc)}
+            _append_alert(alert_ledger, reason="PUBLICATION_REFUSED", detail=detail)
+            state = _read_state(state_path)
+            _atomic_json(
+                state_path,
+                {
+                    **state,
+                    "schema_id": "confenge.feed_publication_state.v1",
+                    "last_attempt_at": clock.isoformat().replace("+00:00", "Z"),
+                    "last_status": "REFUSED",
+                    **detail,
+                },
+            )
+            raise
         prior_source = prior.get("source") if isinstance(prior.get("source"), dict) else {}
         same_inputs = str(prior_source.get("snapshot_hash") or "") == metrics["snapshot_hash"]
-        same_semantics = producer_identity(prior) == metrics["producer_identity"]
+        same_semantics = publication_semantic_hash(prior) == metrics["publication_semantic_hash"]
         if same_inputs and same_semantics:
             result = {
                 "ok": False,
                 "skipped_same": True,
                 "reason": "SAME_SNAPSHOT_NOT_FRESHNESS",
                 "prior_producer_identity": producer_identity(prior),
+                "prior_publication_semantic_hash": publication_semantic_hash(prior),
                 "publish_dir": str(publish_dir.resolve()),
                 "current": str(current.resolve()),
                 **metrics,
@@ -717,11 +866,10 @@ def atomic_publish_directory(
             )
             return result
 
-    # The immutable release name carries the full build identity: inputs and the
-    # producer semantics that interpreted them. Naming it by inputs alone made a
-    # semantics-only rebuild collide with the release it was meant to supersede.
+    # The immutable release name carries the full consumer-visible identity.
+    # Producer identity alone misses wire deltas such as deactivations.
     release_dir = releases / (
-        f"{run_id}-{str(metrics['snapshot_hash'])[:12]}-{str(metrics['producer_identity'])[:8]}"
+        f"{run_id}-{str(metrics['snapshot_hash'])[:12]}-{str(metrics['publication_semantic_hash'])[:12]}"
     )
     if release_dir.exists():
         raise FileExistsError(f"immutable feed release already exists: {release_dir}")
@@ -752,7 +900,14 @@ def atomic_publish_directory(
     # Relative symlink for portability
     rel_target = Path("releases") / release_dir.name
     link_tmp.symlink_to(rel_target, target_is_directory=True)
-    os.replace(str(link_tmp), str(current))
+    try:
+        os.replace(str(link_tmp), str(current))
+    except Exception:
+        link_tmp.unlink(missing_ok=True)
+        # A release that was never made current is safe to discard. Leaving it
+        # behind would make an identical retry collide with FileExistsError.
+        shutil.rmtree(release_dir, ignore_errors=True)
+        raise
     _fsync_dir(publish_dir)
 
     state = _read_state(state_path)

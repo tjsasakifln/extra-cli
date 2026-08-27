@@ -6,6 +6,7 @@ import hashlib
 import json
 from collections import Counter
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from typing import Any
 
 from scripts.confenge_contact_resolution.continuous_from_target_fit import (
@@ -87,7 +88,16 @@ def _population_freshness(
     attestation is PUBLICATION_READY; anything weaker falls back to
     max(computed_at), which keeps the downstream staleness gate fail-closed.
     """
-    computed_max = computed[-1] if computed else None
+    def parsed(value: str) -> datetime:
+        try:
+            stamp = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        except ValueError as exc:
+            raise ValueError(f"invalid target-fit population timestamp: {value!r}") from exc
+        if stamp.tzinfo is None:
+            raise ValueError(f"target-fit population timestamp must include a timezone: {value!r}")
+        return stamp.astimezone(UTC)
+
+    computed_max = max(computed, key=parsed) if computed else None
     attestation = coverage_attestation or {}
     verified_at = str(
         attestation.get("last_full_reconcile_completed_at")
@@ -102,13 +112,12 @@ def _population_freshness(
             "population_coverage_ratio": attestation.get("coverage_ratio"),
             "population_publication_ready": bool(attestation) and publication_ready(attestation),
         }
-    # Never let the attestation move freshness backwards past observed evidence.
-    resolved = verified_at if not computed_max or verified_at >= computed_max else computed_max
+    parsed(verified_at)
     return {
-        "population_as_of": resolved,
-        "population_as_of_source": (
-            "target_fit_full_reconcile" if resolved == verified_at else "target_fit_computed_at_max"
-        ),
+        # A single recently changed row cannot refresh the whole population.
+        # Only the complete reconcile attests that denominator.
+        "population_as_of": verified_at,
+        "population_as_of_source": "target_fit_full_reconcile",
         "population_verified_at": verified_at,
         "population_coverage_ratio": attestation.get("coverage_ratio"),
         "population_publication_ready": True,

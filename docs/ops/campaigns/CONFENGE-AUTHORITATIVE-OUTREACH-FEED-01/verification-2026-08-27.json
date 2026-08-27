@@ -1,0 +1,137 @@
+{
+  "schema": "confenge.authoritative-outreach-feed-verification.v3",
+  "issue": 468,
+  "observed_at": "2026-08-27T16:08:40Z",
+  "campaign_branch": "campaign/producer-feed-release-20260827",
+  "status": {
+    "producer_candidate": "GO:PRODUCER_FEED",
+    "live": "DEGRADED:SOURCE_STALE",
+    "blocker": "PNCP_CONTRACT_FRESHNESS/1.0:STALE:UNCLOSED_CURRENT_WINDOW,WINDOW_INCOMPLETE,LAG_ABOVE_HARD_GUARDRAIL"
+  },
+  "git": {
+    "origin_main_sha_at_start_and_revalidation": "c02aad71259f13d2f019939442a1bca469344760",
+    "candidate_implementation_sha": "db44233d2b2fb0b03efc0ae4b7f4629b7e053692"
+  },
+  "live_release": {
+    "effective_sha": "c02aad71259f13d2f019939442a1bca469344760",
+    "chain_unit_count": 8,
+    "all_effective_execstart_paths_match_sha": true,
+    "all_effective_pythonpaths_match_sha": true,
+    "all_effective_python_commands_use_safe_path": true,
+    "working_directory": "/opt/extra-consultoria",
+    "working_directory_writable_by_service_user": true,
+    "operational_checkout_head": "14c8b2473c4e52566a7fed96c45057bd3214a2fe",
+    "operational_checkout_is_executed": false,
+    "release_integrity_after_live_cache_cleanup": {
+      "owner": "root:root",
+      "root_mode": "0555",
+      "tracked_regular_files_compared_to_git_archive": 9141,
+      "missing": 0,
+      "content_mismatch": 0,
+      "executable_bit_mismatch": 0,
+      "symlink_mismatch": 0,
+      "extras_outside_venv": 0,
+      "writable_paths": 0,
+      "non_root_owned_paths": 0
+    },
+    "live_repair": {
+      "removed_untracked_bytecode_cache_paths": true,
+      "recoverability": "Python bytecode cache only; source and venv were unchanged",
+      "future_prevention_in_candidate": "PYTHONDONTWRITEBYTECODE=1 is injected and verified by the release pin"
+    },
+    "timer_drift_at_observation": {
+      "source_and_monitor_expected_active": true,
+      "independent_downstream_timers_still_active_on_live_sha": true,
+      "candidate_pin_disables_and_verifies_downstream_timers": true
+    }
+  },
+  "source_freshness": {
+    "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
+    "status": "STALE",
+    "reason_codes": [
+      "UNCLOSED_CURRENT_WINDOW",
+      "WINDOW_INCOMPLETE",
+      "LAG_ABOVE_HARD_GUARDRAIL"
+    ],
+    "as_of": "2026-08-27T16:01:22.329537Z",
+    "latest_successful_closed_window": "20260820_20260820",
+    "current_lag_hours": 184.02286931583333,
+    "last_source_attempt_at": "2026-08-27T15:00:21Z",
+    "last_source_attempt_result": "exit-code",
+    "nominal_last_error": "PNCP page read timed out",
+    "gate_exec_status": 2,
+    "downstream_started_by_gate": false
+  },
+  "current_publication": {
+    "status": "LAST_CURRENT_PRESERVED_BUT_UNHEALTHY",
+    "producer_repo_sha": "e25272e83026b3569799aed8b57490054242d4ec",
+    "run_id": "run-25d918a5801fa976",
+    "snapshot_hash": "1c507558ec0e803bd2344d565f5adcb541375778b1b247b47e152470f024402a",
+    "generated_at": "2026-08-27T02:02:34Z",
+    "derived_lead_count": 406076,
+    "derived_chunk_count": 8125,
+    "derived_total_chunk_bytes": 1462954986,
+    "derived_unique_all_roots": 405894,
+    "derived_target_confirmed_unique_roots": 8653,
+    "derived_target_membership_hash": "7a08b8969b6e4ca9b68f9dd845abfcf9b73609058d91aad332e1aa11220d5880",
+    "declared_target_membership_hash_matches": true,
+    "chunk_hash_mismatches": 0,
+    "deactivation_count": 0,
+    "feed_scope_attestation": null,
+    "population_as_of": "2026-08-26T05:37:53.901406+02:00",
+    "population_as_of_source": null,
+    "population_publication_ready": null,
+    "monitor_status": "UNHEALTHY",
+    "monitor_error": "authoritative PNCP freshness expired before publication",
+    "consumer_readback": "current manifest rejected because it exceeds the safe chunk ceiling; prior applied authority remains unchanged"
+  },
+  "staged_membership_candidate": {
+    "status": "STAGED_NOT_PROMOTED",
+    "producer_repo_sha": "652bb78f2b811a202795afd16f01d5b088920602",
+    "module_version": "1.2.0",
+    "run_id": "run-f0e0e7aba9fcae1f",
+    "snapshot_hash": "ef25065736e83833c4afeb208a8913433bdad7918b744bb87385d370b05ac22d",
+    "generated_at": "2026-08-27T10:01:25Z",
+    "feed_scope": "TARGET_CONFIRMED_MEMBERSHIP",
+    "derived_lead_count": 8653,
+    "derived_unique_root_count": 8653,
+    "derived_chunk_count": 298,
+    "derived_total_chunk_bytes": 149599394,
+    "decision_universe_count": 406583,
+    "withheld_decision_count": 397930,
+    "derived_membership_hash": "7a08b8969b6e4ca9b68f9dd845abfcf9b73609058d91aad332e1aa11220d5880",
+    "declared_membership_hash_matches": true,
+    "chunk_hash_mismatches": 0,
+    "deactivation_count": 0
+  },
+  "candidate_contract": {
+    "publication_ready_requires_exact_numeric_coverage_ratio": 1.0,
+    "population_as_of_requires_full_reconcile_attestation": true,
+    "wire_scope": "TARGET_CONFIRMED_MEMBERSHIP",
+    "unique_identity_key": "cnpj_root8",
+    "membership_hash_reproduced_from_shipped_roots": true,
+    "membership_drops_require_explicit_deactivation": true,
+    "representative_branch_flip_is_not_a_deactivation": true,
+    "same_snapshot_new_output_semantics_promote": true,
+    "same_snapshot_same_semantics_replay_without_freshness": true,
+    "partial_stale_error_preserve_last_current": true,
+    "atomic_current_swap_failure_preserves_last_current": true,
+    "lead_chunk_and_byte_counts_are_derived": true,
+    "consumer_limits_fail_closed_without_truncation": true
+  },
+  "verification": {
+    "impacted_tests": "179 passed",
+    "release_pin_tests": "25 passed",
+    "ruff": "pass",
+    "shellcheck": "pass",
+    "systemd_validation": "pass",
+    "generated_artifacts_policy": "pass",
+    "pr_reviewability_policy": "pass",
+    "coderabbit_local": "unavailable_signed_out",
+    "smtp_or_provider_mutation": false
+  },
+  "governance_handoff": {
+    "owner_required": "DOD/ADR owner",
+    "conflict": "DOD.md:490 and proposed ADR-035 still describe the full decision universe as the Warmbly wire artifact; the current producer contract ships only TARGET_CONFIRMED membership while retaining full-universe accounting"
+  }
+}

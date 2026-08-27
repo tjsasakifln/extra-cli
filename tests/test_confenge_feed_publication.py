@@ -87,10 +87,13 @@ def _build(
                 "file": "chunk_0000.json",
                 "chunk_index": 0,
                 "content_hash": hashlib.sha256(raw).hexdigest(),
+                "byte_count": len(raw),
                 "lead_count": 1,
                 "has_more": False,
             }
         ],
+        "max_bytes_per_chunk": 512_000,
+        "total_chunk_bytes": len(raw),
         "authoritative_target_fit": {
             "coverage_complete": True,
             "omission_preserves_authorization": False,
@@ -141,6 +144,10 @@ def _build(
             "generated_at": generated,
             "population_hash": "b" * 64,
             "population_as_of": generated,
+            "population_as_of_source": "target_fit_full_reconcile",
+            "population_verified_at": generated,
+            "population_coverage_ratio": 1.0,
+            "population_publication_ready": True,
             "projection_hash": "c" * 64,
             "controlled_email_policy_version": "controlled-email-policy.v3",
             "discovery_policy_version": "dui.policy.v1",
@@ -186,6 +193,82 @@ def _build(
 
 def _paths(tmp_path: Path) -> tuple[Path, Path, Path]:
     return tmp_path / "public", tmp_path / "state.json", tmp_path / "alerts.jsonl"
+
+
+def _zero_membership_build(root: Path, *, include_drop: bool = True) -> Path:
+    build = _build(root, snapshot="snapshot-zero")
+    chunk_path = build / "chunk_0000.json"
+    chunk = json.loads(chunk_path.read_text(encoding="utf-8"))
+    chunk["leads"] = []
+    raw = (json.dumps(chunk, ensure_ascii=False, sort_keys=True) + "\n").encode()
+    chunk_path.write_bytes(raw)
+
+    manifest_path = build / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    empty = canonical_target_membership([])
+    manifest.update({"lead_count": 0, "total_chunk_bytes": len(raw)})
+    manifest["chunks"][0].update(
+        {"content_hash": hashlib.sha256(raw).hexdigest(), "lead_count": 0, "byte_count": len(raw)}
+    )
+    manifest["authoritative_target_fit"].update(
+        {"shipped_lead_count": 0, "decision_class_distribution": {"TARGET_OUT_OF_SCOPE": 1}}
+    )
+    manifest["authoritative_feed_scope"].update(
+        {
+            "shipped_lead_count": 0,
+            "withheld_decision_count": 1,
+            "membership_hash_reproduced_from_feed": True,
+        }
+    )
+    manifest["authoritative_target_membership"] = {
+        **empty,
+        "target_fit_class": "TARGET_CONFIRMED",
+        "target_confirmed_count": 0,
+        "supplier_confirmed_count": 0,
+        "source_member_count": 0,
+        "membership_complete": True,
+        "target_fit_policy_versions": [],
+        "target_party_role_distribution": {},
+        "contractor_role_status_distribution": {},
+    }
+    manifest["authoritative_party_roles"].update(
+        {"target_party_role_distribution": {}, "status_distribution": {}, "supplier_confirmed_count": 0}
+    )
+    projection = manifest["authoritative_contact_projection"]
+    projection.update(
+        {
+            "population_count": 0,
+            "membership_count": 0,
+            "membership_hash": empty["membership_hash"],
+            "membership_schema_version": empty["schema_version"],
+            "membership_identity_key": empty["identity_key"],
+            "membership_hash_algorithm": empty["hash_algorithm"],
+            "enrichment_states": {},
+            "recipient_states": {
+                "RECIPIENT_ATTRIBUTED": 0,
+                "READY": 0,
+                "NO_PUBLIC_EMAIL_FOUND": 0,
+                "BLOCKED_WITH_REASON": 0,
+            },
+            "output_preferred_route_class_distribution": {},
+            "input_preferred_route_count": 0,
+            "output_preferred_route_count": 0,
+        }
+    )
+    manifest["deactivations"] = (
+        [
+            {
+                "cnpj14": "12345678000195",
+                "to_state": "SUPPRESSED",
+                "reason_codes": ["TARGET_CONFIRMED_MEMBERSHIP_DROPPED"],
+            }
+        ]
+        if include_drop
+        else []
+    )
+    manifest["deactivation_count"] = len(manifest["deactivations"])
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    return build
 
 
 def test_publish_records_live_contact_metrics_and_immutable_release(tmp_path: Path) -> None:
@@ -271,6 +354,8 @@ def test_buyer_supplier_conflict_with_authorized_route_is_refused(tmp_path: Path
     chunk_path.write_bytes(raw)
     manifest = json.loads((bad / "manifest.json").read_text())
     manifest["chunks"][0]["content_hash"] = hashlib.sha256(raw).hexdigest()
+    manifest["chunks"][0]["byte_count"] = len(raw)
+    manifest["total_chunk_bytes"] = len(raw)
     manifest["authoritative_target_membership"]["target_party_role_distribution"] = {"BUYER_CONFLICT": 1}
     manifest["authoritative_target_membership"]["contractor_role_status_distribution"] = {"PARTY_ROLE_CONFLICT": 1}
     manifest["authoritative_party_roles"]["target_party_role_distribution"] = {"BUYER_CONFLICT": 1}
@@ -326,6 +411,8 @@ def test_policy_excluded_preferred_routes_can_reconcile_at_zero(tmp_path: Path) 
     raw = json.dumps(chunk, separators=(",", ":"), sort_keys=True).encode()
     chunk_path.write_bytes(raw)
     manifest["chunks"][0]["content_hash"] = hashlib.sha256(raw).hexdigest()
+    manifest["chunks"][0]["byte_count"] = len(raw)
+    manifest["total_chunk_bytes"] = len(raw)
     (build / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
 
     result = atomic_publish_directory(
@@ -508,16 +595,40 @@ def test_feed_above_consumer_chunk_ceiling_is_refused_without_replacing_current(
     assert (public / "current").resolve() == prior
 
 
-def test_empty_feed_is_refused_without_replacing_current(tmp_path: Path) -> None:
+def test_complete_zero_membership_deactivates_all_and_promotes(tmp_path: Path) -> None:
     public, state, alerts = _paths(tmp_path)
     first = atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
     prior = Path(first["current"]).resolve()
-    empty = _build(tmp_path / "empty", snapshot="snapshot-b", declared_lead_count=0)
+    result = atomic_publish_directory(
+        _zero_membership_build(tmp_path / "empty"),
+        public,
+        state_path=state,
+        alert_ledger=alerts,
+        now=NOW,
+    )
 
-    with pytest.raises(ValueError, match="at least one TARGET_CONFIRMED lead"):
-        atomic_publish_directory(empty, public, state_path=state, alert_ledger=alerts, now=NOW)
+    assert result["ok"] is True
+    assert result["lead_count"] == 0
+    assert result["deactivation_count"] == 1
+    assert (public / "current").resolve() != prior
+
+
+def test_zero_membership_missing_a_drop_preserves_current(tmp_path: Path) -> None:
+    public, state, alerts = _paths(tmp_path)
+    first = atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
+    prior = Path(first["current"]).resolve()
+
+    with pytest.raises(ValueError, match="do not close"):
+        atomic_publish_directory(
+            _zero_membership_build(tmp_path / "empty", include_drop=False),
+            public,
+            state_path=state,
+            alert_ledger=alerts,
+            now=NOW,
+        )
 
     assert (public / "current").resolve() == prior
+    assert "PUBLICATION_REFUSED" in alerts.read_text(encoding="utf-8")
 
 
 def test_decision_universe_may_not_be_redefined_to_the_feed_size(tmp_path: Path) -> None:
@@ -525,17 +636,26 @@ def test_decision_universe_may_not_be_redefined_to_the_feed_size(tmp_path: Path)
     public, state, alerts = _paths(tmp_path)
     build = _build(tmp_path / "wide")
     manifest = json.loads((build / "manifest.json").read_text())
+    decision_count = 10_000
     authority = manifest["authoritative_target_fit"]
-    authority.update({"full_decision_count": 406_076, "universe_count": 406_076, "declared_universe_count": 406_076})
-    manifest["authoritative_feed_scope"].update({"decision_universe_count": 406_076, "withheld_decision_count": 406_075})
+    authority.update(
+        {
+            "full_decision_count": decision_count,
+            "universe_count": decision_count,
+            "declared_universe_count": decision_count,
+        }
+    )
+    manifest["authoritative_feed_scope"].update(
+        {"decision_universe_count": decision_count, "withheld_decision_count": decision_count - 1}
+    )
     (build / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
 
     result = atomic_publish_directory(build, public, state_path=state, alert_ledger=alerts, now=NOW)
 
     assert result["ok"] is True
     assert result["lead_count"] == 1
-    assert result["decision_universe_count"] == 406_076
-    assert result["withheld_decision_count"] == 406_075
+    assert result["decision_universe_count"] == decision_count
+    assert result["withheld_decision_count"] == decision_count - 1
     assert result["feed_scope"] == "TARGET_CONFIRMED_MEMBERSHIP"
 
 
@@ -548,6 +668,20 @@ def test_manifest_cannot_publish_and_deactivate_the_same_account(tmp_path: Path)
     (build / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
 
     with pytest.raises(ValueError, match="both publishes and deactivates"):
+        atomic_publish_directory(build, public, state_path=state, alert_ledger=alerts, now=NOW)
+
+    assert not (public / "current").exists()
+
+
+def test_manifest_cannot_publish_and_deactivate_another_branch_of_the_same_root(tmp_path: Path) -> None:
+    public, state, alerts = _paths(tmp_path)
+    build = _build(tmp_path / "root-contradiction")
+    manifest = json.loads((build / "manifest.json").read_text())
+    manifest["deactivations"] = [{"cnpj14": "12345678000276", "to_state": "WATCH"}]
+    manifest["deactivation_count"] = 1
+    (build / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="both publishes and deactivates cnpj_root8"):
         atomic_publish_directory(build, public, state_path=state, alert_ledger=alerts, now=NOW)
 
     assert not (public / "current").exists()
@@ -591,6 +725,50 @@ def test_new_producer_semantics_defeat_the_same_snapshot_skip(tmp_path: Path) ->
     assert second["snapshot_hash"] == first["snapshot_hash"]
     assert second["producer_identity"] != first["producer_identity"]
     assert (public / "current").resolve() != Path(first["current"]).resolve()
+
+
+def test_same_snapshot_with_new_deactivation_delta_promotes(tmp_path: Path) -> None:
+    public, state, alerts = _paths(tmp_path)
+    first = atomic_publish_directory(
+        _build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW
+    )
+    changed = _build(tmp_path / "changed")
+    manifest_path = changed / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["deactivations"] = [{"cnpj14": "11222333000181", "to_state": "WATCH"}]
+    manifest["deactivation_count"] = 1
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    second = atomic_publish_directory(changed, public, state_path=state, alert_ledger=alerts, now=NOW)
+    assert second["ok"] is True
+    assert second["snapshot_hash"] == first["snapshot_hash"]
+    assert second["producer_identity"] == first["producer_identity"]
+    assert second["publication_semantic_hash"] != first["publication_semantic_hash"]
+    assert (public / "current").resolve() != Path(first["current"]).resolve()
+
+
+def test_failed_current_swap_preserves_last_known_good(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    public, state, alerts = _paths(tmp_path)
+    first = atomic_publish_directory(
+        _build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW
+    )
+    prior = Path(first["current"]).resolve()
+    changed = _build(tmp_path / "changed", snapshot="snapshot-b")
+    real_replace = os.replace
+
+    def fail_current_swap(source: str, destination: str) -> None:
+        if Path(destination) == public / "current":
+            raise OSError("injected current swap failure")
+        real_replace(source, destination)
+
+    monkeypatch.setattr(os, "replace", fail_current_swap)
+    with pytest.raises(OSError, match="injected current swap failure"):
+        atomic_publish_directory(changed, public, state_path=state, alert_ledger=alerts, now=NOW)
+
+    assert (public / "current").resolve() == prior
+    assert json.loads(state.read_text(encoding="utf-8"))["last_success_at"] == first["generated_at"]
+    assert not list(public.glob(".current.tmp-*"))
+    assert len(list((public / "releases").iterdir())) == 1
 
 
 def test_identical_inputs_and_semantics_still_replay(tmp_path: Path) -> None:

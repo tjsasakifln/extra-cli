@@ -346,8 +346,11 @@ def test_atomic_publish(tmp_path: Path):
                 "content_hash": chash,
                 "chunk_index": 0,
                 "lead_count": 1,
+                "byte_count": len(raw),
             }
         ],
+        "max_bytes_per_chunk": 512_000,
+        "total_chunk_bytes": len(raw),
         "deactivations": [],
         "deactivation_count": 0,
         "authoritative_target_fit": {
@@ -391,6 +394,10 @@ def test_atomic_publish(tmp_path: Path):
             "generated_at": payload["generated_at"],
             "population_hash": "b" * 64,
             "population_as_of": payload["generated_at"],
+            "population_as_of_source": "target_fit_full_reconcile",
+            "population_verified_at": payload["generated_at"],
+            "population_coverage_ratio": 1.0,
+            "population_publication_ready": True,
             "projection_hash": "c" * 64,
             "controlled_email_policy_version": "controlled-email-policy.v3",
             "discovery_policy_version": "dui.policy.v1",

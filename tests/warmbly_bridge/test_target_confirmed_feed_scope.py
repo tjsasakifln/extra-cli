@@ -85,6 +85,7 @@ def _export(
     previous_feed_dir: Path | None = None,
     deactivations: list[dict[str, Any]] | None = None,
     max_leads_per_chunk: int = 50,
+    max_bytes_per_chunk: int = 512_000,
     watermarks: dict[str, str] | None = None,
 ) -> tuple[Path, dict[str, Any]]:
     """Export one feed from an explicit (cnpj, target_fit_class) decision list."""
@@ -120,6 +121,7 @@ def _export(
             datalake_watermark=NOW,
             repo_sha="feed-scope-test",
             max_leads_per_chunk=max_leads_per_chunk,
+            max_bytes_per_chunk=max_bytes_per_chunk,
             previous_feed_dir=previous_feed_dir,
             deactivations=deactivations,
         )
@@ -366,6 +368,23 @@ def test_member_leaving_target_confirmed_becomes_a_deactivation(tmp_path: Path) 
     assert manifest["authoritative_feed_scope"]["previous_membership_count"] == 3
 
 
+def test_representative_flip_within_the_same_root_is_not_a_deactivation(tmp_path: Path) -> None:
+    matrix = "11222333000181"
+    branch = "11222333000262"
+    first_out, _ = _export(tmp_path, [(matrix, "TARGET_CONFIRMED")], suffix="representative-before")
+    second_out, _ = _export(
+        tmp_path,
+        [(branch, "TARGET_CONFIRMED")],
+        suffix="representative-after",
+        previous_feed_dir=first_out,
+    )
+
+    manifest = _manifest(second_out)
+    assert _shipped(second_out) == [branch]
+    assert manifest["deactivations"] == []
+    assert manifest["authoritative_feed_scope"]["previous_membership_count"] == 1
+
+
 def test_still_published_account_is_never_also_deactivated(tmp_path: Path) -> None:
     cnpj = "11222333000181"
     out, _result = _export(
@@ -403,6 +422,66 @@ def test_previous_release_without_a_roster_is_recovered_from_its_chunks(tmp_path
     assert [row["cnpj14"] for row in manifest["deactivations"]] == [leaves]
 
 
+def test_legacy_chunks_collapse_branch_duplicates_deterministically(tmp_path: Path) -> None:
+    matrix = "11222333000181"
+    branch = "11222333000262"
+    first_out, _first = _export(
+        tmp_path,
+        [(matrix, "TARGET_CONFIRMED")],
+        suffix="legacy-branches-before",
+    )
+    (first_out / "membership.json").unlink()
+    chunk_path = first_out / "chunk_0000.json"
+    chunk = json.loads(chunk_path.read_text(encoding="utf-8"))
+    duplicate = json.loads(json.dumps(chunk["leads"][0]))
+    duplicate["company"]["cnpj14"] = branch
+    duplicate["company"]["cnpj_root"] = branch[:8]
+    chunk["leads"].append(duplicate)
+    raw = (json.dumps(chunk, ensure_ascii=False, indent=2, sort_keys=True, default=str) + "\n").encode("utf-8")
+    chunk_path.write_bytes(raw)
+    manifest_path = first_out / "manifest.json"
+    legacy_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    legacy_manifest["chunks"][0]["content_hash"] = hashlib.sha256(raw).hexdigest()
+    manifest_path.write_text(json.dumps(legacy_manifest), encoding="utf-8")
+
+    next_out, _next = _export(
+        tmp_path,
+        [("22333444000172", "TARGET_CONFIRMED")],
+        suffix="legacy-branches-after",
+        previous_feed_dir=first_out,
+    )
+
+    manifest = _manifest(next_out)
+    assert manifest["authoritative_feed_scope"]["previous_membership_count"] == 1
+    drop = next(row for row in manifest["deactivations"] if "TARGET_CONFIRMED_MEMBERSHIP_DROPPED" in row["reason_codes"])
+    assert drop["cnpj14"] == min(matrix, branch)
+
+
+@pytest.mark.parametrize("tamper", ["hash", "duplicate-root"])
+def test_previous_roster_must_reproduce_hash_and_unique_roots(tmp_path: Path, tamper: str) -> None:
+    first_out, _ = _export(
+        tmp_path,
+        [("11222333000181", "TARGET_CONFIRMED")],
+        suffix=f"roster-{tamper}-before",
+    )
+    roster_path = first_out / "membership.json"
+    roster = json.loads(roster_path.read_text(encoding="utf-8"))
+    if tamper == "hash":
+        roster["membership_hash"] = "0" * 64
+    else:
+        roster["members"].append({"cnpj14": "11222333000262", "cnpj_root": "11222333"})
+        roster["population_count"] = 2
+    roster_path.write_text(json.dumps(roster), encoding="utf-8")
+
+    with pytest.raises(InputError, match="reproducible|repeats cnpj_root8"):
+        _export(
+            tmp_path,
+            [("11222333000181", "TARGET_CONFIRMED")],
+            suffix=f"roster-{tamper}-after",
+            previous_feed_dir=first_out,
+        )
+
+
 def test_declared_previous_feed_without_a_feed_fails_closed(tmp_path: Path) -> None:
     empty = tmp_path / "empty-release"
     empty.mkdir()
@@ -428,6 +507,30 @@ def test_consumer_ceilings_never_truncate() -> None:
         _assert_consumer_ceilings(lead_count=CONSUMER_MAX_LEADS + 1, chunk_count=1)
     with pytest.raises(InputError, match="exceeds the consumer chunk ceiling"):
         _assert_consumer_ceilings(lead_count=1, chunk_count=CONSUMER_MAX_CHUNKS + 1)
+
+
+def test_single_oversized_lead_is_refused_instead_of_exceeding_chunk_bytes(tmp_path: Path) -> None:
+    with pytest.raises(InputError, match="single TARGET_CONFIRMED lead exceeds|encoded outreach chunk exceeds"):
+        _export(
+            tmp_path,
+            [("11222333000181", "TARGET_CONFIRMED")],
+            suffix="oversized-single",
+            max_bytes_per_chunk=1024,
+        )
+
+
+def test_reported_chunk_bytes_equal_the_files(tmp_path: Path) -> None:
+    out, result = _export(
+        tmp_path,
+        [("11222333000181", "TARGET_CONFIRMED"), ("22333444000172", "TARGET_CONFIRMED")],
+        suffix="derived-bytes",
+        max_leads_per_chunk=1,
+    )
+    manifest = _manifest(out)
+    actual = {path.name: path.stat().st_size for path in sorted(out.glob("chunk_*.json"))}
+    assert manifest["total_chunk_bytes"] == result["total_chunk_bytes"] == sum(actual.values())
+    assert {chunk["file"]: chunk["byte_count"] for chunk in manifest["chunks"]} == actual
+    assert all(size <= manifest["max_bytes_per_chunk"] for size in actual.values())
 
 
 def test_membership_hash_must_be_reproducible_from_the_shipped_leads(monkeypatch, tmp_path: Path) -> None:
