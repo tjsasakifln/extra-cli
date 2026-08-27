@@ -85,6 +85,10 @@ def run_cycle(
         "--no-resume",
         "--quiet",
     ]
+    published_current = publish_dir / "current"
+    if published_current.is_dir():
+        # Membership deactivations are derived against what is publicly served now.
+        command += ["--published-feed-dir", str(published_current)]
     completed = subprocess.run(  # noqa: S603
         command,
         check=False,

@@ -30,7 +30,14 @@ def test_recurring_feed_cycle_runs_after_pncp_source_window() -> None:
     assert "OnCalendar=*-*-* 00,12:20:00" not in timer
 
 
-def _build(root: Path, *, snapshot: str = "snapshot-a", generated_at: datetime = NOW) -> Path:
+def _build(
+    root: Path,
+    *,
+    snapshot: str = "snapshot-a",
+    generated_at: datetime = NOW,
+    declared_lead_count: int | None = None,
+    declared_chunk_count: int | None = None,
+) -> Path:
     root.mkdir()
     generated = generated_at.isoformat().replace("+00:00", "Z")
     source = {
@@ -87,7 +94,21 @@ def _build(root: Path, *, snapshot: str = "snapshot-a", generated_at: datetime =
             "coverage_complete": True,
             "omission_preserves_authorization": False,
             "full_decision_count": 1,
+            "universe_count": 1,
+            "declared_universe_count": 1,
+            "shipped_lead_count": 1,
+            "feed_scope": "TARGET_CONFIRMED_MEMBERSHIP",
+            "decision_class_distribution": {"TARGET_CONFIRMED": 1},
             "ordering": {"watermarks_monotonic": True},
+        },
+        "authoritative_feed_scope": {
+            "scope": "TARGET_CONFIRMED_MEMBERSHIP",
+            "identity_key": "cnpj_root8",
+            "decision_universe_count": 1,
+            "shipped_lead_count": 1,
+            "withheld_decision_count": 0,
+            "branch_duplicates_collapsed": 0,
+            "membership_hash_reproduced_from_feed": True,
         },
         "authoritative_target_membership": {
             **canonical_target_membership(["12345678000195"]),
@@ -151,6 +172,13 @@ def _build(root: Path, *, snapshot: str = "snapshot-a", generated_at: datetime =
         "deactivations": [],
         "deactivation_count": 0,
     }
+    if declared_lead_count is not None:
+        manifest["lead_count"] = declared_lead_count
+    if declared_chunk_count is not None:
+        manifest["chunk_count"] = declared_chunk_count
+        manifest["chunks"] = [
+            {**manifest["chunks"][0], "chunk_index": index} for index in range(declared_chunk_count)
+        ]
     (root / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
     return root
 
@@ -225,7 +253,7 @@ def test_membership_hash_mismatch_is_refused_without_replacing_current(tmp_path:
     manifest["authoritative_target_membership"]["membership_hash"] = "0" * 64
     (bad / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
 
-    with pytest.raises(ValueError, match="membership membership_hash mismatch"):
+    with pytest.raises(ValueError, match="membership_hash is not reproducible from the feed"):
         atomic_publish_directory(bad, public, state_path=state, alert_ledger=alerts, now=NOW)
 
     assert (public / "current").resolve() == prior
@@ -324,6 +352,7 @@ def test_same_snapshot_is_not_freshness_and_alerts(tmp_path: Path) -> None:
     assert second["skipped_same"] is True
     assert second["reason"] == "SAME_SNAPSHOT_NOT_FRESHNESS"
     assert json.loads((public / "current" / "manifest.json").read_text())["generated_at"] == first_generated_at
+    assert (public / "current").resolve() == Path(first["current"]).resolve()
     assert json.loads(state.read_text())["last_status"] == "SKIPPED_SAME_SNAPSHOT"
     assert "SAME_SNAPSHOT_NOT_FRESHNESS" in alerts.read_text()
 
@@ -449,3 +478,87 @@ def test_fresh_publication_and_monitor_clear_prior_unhealthy_state(tmp_path: Pat
     assert healthy["status"] == "HEALTHY"
     assert healthy["last_monitor_status"] == "HEALTHY"
     assert healthy["error"] is None
+
+
+def test_feed_above_consumer_lead_ceiling_is_refused_without_replacing_current(tmp_path: Path) -> None:
+    """A population the consumer cannot import is refused, never truncated."""
+    public, state, alerts = _paths(tmp_path)
+    first = atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
+    prior = Path(first["current"]).resolve()
+    oversized = _build(tmp_path / "oversized", snapshot="snapshot-b", declared_lead_count=100_001)
+
+    with pytest.raises(ValueError, match="exceeds the consumer lead ceiling"):
+        atomic_publish_directory(oversized, public, state_path=state, alert_ledger=alerts, now=NOW)
+
+    assert (public / "current").resolve() == prior
+    assert json.loads((prior / "manifest.json").read_text())["lead_count"] == 1
+    assert "PUBLICATION_REFUSED" in alerts.read_text()
+
+
+def test_feed_above_consumer_chunk_ceiling_is_refused_without_replacing_current(tmp_path: Path) -> None:
+    public, state, alerts = _paths(tmp_path)
+    first = atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
+    prior = Path(first["current"]).resolve()
+    oversized = _build(tmp_path / "oversized", snapshot="snapshot-b", declared_chunk_count=1_001)
+
+    with pytest.raises(ValueError, match="exceeds the consumer chunk ceiling"):
+        atomic_publish_directory(oversized, public, state_path=state, alert_ledger=alerts, now=NOW)
+
+    assert (public / "current").resolve() == prior
+
+
+def test_empty_feed_is_refused_without_replacing_current(tmp_path: Path) -> None:
+    public, state, alerts = _paths(tmp_path)
+    first = atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
+    prior = Path(first["current"]).resolve()
+    empty = _build(tmp_path / "empty", snapshot="snapshot-b", declared_lead_count=0)
+
+    with pytest.raises(ValueError, match="at least one TARGET_CONFIRMED lead"):
+        atomic_publish_directory(empty, public, state_path=state, alert_ledger=alerts, now=NOW)
+
+    assert (public / "current").resolve() == prior
+
+
+def test_decision_universe_may_not_be_redefined_to_the_feed_size(tmp_path: Path) -> None:
+    """``full_decision_count`` keeps meaning the whole decision universe."""
+    public, state, alerts = _paths(tmp_path)
+    build = _build(tmp_path / "wide")
+    manifest = json.loads((build / "manifest.json").read_text())
+    authority = manifest["authoritative_target_fit"]
+    authority.update({"full_decision_count": 406_076, "universe_count": 406_076, "declared_universe_count": 406_076})
+    manifest["authoritative_feed_scope"].update({"decision_universe_count": 406_076, "withheld_decision_count": 406_075})
+    (build / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+
+    result = atomic_publish_directory(build, public, state_path=state, alert_ledger=alerts, now=NOW)
+
+    assert result["ok"] is True
+    assert result["lead_count"] == 1
+    assert result["decision_universe_count"] == 406_076
+    assert result["withheld_decision_count"] == 406_075
+    assert result["feed_scope"] == "TARGET_CONFIRMED_MEMBERSHIP"
+
+
+def test_manifest_cannot_publish_and_deactivate_the_same_account(tmp_path: Path) -> None:
+    public, state, alerts = _paths(tmp_path)
+    build = _build(tmp_path / "contradiction")
+    manifest = json.loads((build / "manifest.json").read_text())
+    manifest["deactivations"] = [{"cnpj14": "12345678000195", "to_state": "WATCH"}]
+    manifest["deactivation_count"] = 1
+    (build / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="both publishes and deactivates"):
+        atomic_publish_directory(build, public, state_path=state, alert_ledger=alerts, now=NOW)
+
+    assert not (public / "current").exists()
+
+
+def test_deactivation_to_actionable_now_is_refused(tmp_path: Path) -> None:
+    public, state, alerts = _paths(tmp_path)
+    build = _build(tmp_path / "actionable")
+    manifest = json.loads((build / "manifest.json").read_text())
+    manifest["deactivations"] = [{"cnpj14": "11222333000181", "to_state": "ACTIONABLE_NOW"}]
+    manifest["deactivation_count"] = 1
+    (build / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="unsupported to_state"):
+        atomic_publish_directory(build, public, state_path=state, alert_ledger=alerts, now=NOW)

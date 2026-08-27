@@ -131,6 +131,12 @@ when --max-rows is omitted. Round N+1 advances the durable activation cursor.
         help="Verified JSONL projection from decision-unit-intelligence batch export-contacts",
     )
     run.add_argument(
+        "--published-feed-dir",
+        type=Path,
+        default=None,
+        help="Previously published feed release (<publish-dir>/current) used to derive membership deactivations",
+    )
+    run.add_argument(
         "--feed-limit",
         type=int,
         default=None,
@@ -256,6 +262,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         enable_web_search=args.enable_web_search,
         contact_fixtures_dir=args.contact_fixtures_dir,
         durable_contacts_path=args.durable_contacts,
+        published_feed_dir=args.published_feed_dir,
         include_dnc_in_sample=not args.no_dnc_in_sample,
         feed_limit=args.feed_limit,
         use_activation_planner=bool(args.use_activation_planner),

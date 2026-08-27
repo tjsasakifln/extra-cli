@@ -580,6 +580,9 @@ class PipelineConfig:
     fixtures_dir: Path | None = None
     contact_fixtures_dir: Path | None = None
     durable_contacts_path: Path | None = None
+    # Previously published feed release (``<publish_dir>/current``). Used to
+    # derive deactivations for accounts that left the TARGET_CONFIRMED feed.
+    published_feed_dir: Path | None = None
     include_dnc_in_sample: bool = True
     feed_limit: int | None = None
     # Activation planner (production default when True)
@@ -1053,6 +1056,13 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
         # ── 5. Bridge universe inputs + export ───────────────────────────
         ckpt.mark_running("feed")
         save_checkpoint(out, ckpt)
+        # The feed ships the current TARGET_CONFIRMED population. Accounts that
+        # were shipped in the previously published release and are no longer
+        # members must leave as explicit deactivations, never by vanishing.
+        published_feed_dir = Path(cfg.published_feed_dir) if cfg.published_feed_dir else None
+        if published_feed_dir is not None and not published_feed_dir.is_dir():
+            published_feed_dir = None
+        stages["published_feed_dir"] = str(published_feed_dir) if published_feed_dir else None
         bridge_universe = [universe_row_for_bridge(r, rank=i + 1) for i, r in enumerate(decision_rows)]
         # Attach activation projection onto bridge universe rows when available
         if activation_by_cnpj:
@@ -1128,6 +1138,7 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
                 authoritative_source_freshness=cfg.authoritative_source_freshness,
                 require_authoritative_source_freshness=bool(cfg.dsn),
                 deactivations=deactivations,
+                previous_feed_dir=published_feed_dir,
             )
             export_result = export_outreach(export_cfg)
         stages["feed"] = export_result
