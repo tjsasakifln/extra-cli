@@ -160,7 +160,12 @@ def apply(sha: str, *, dry_run: bool = False) -> dict[str, object]:
             tmp.replace(target)
             written.append(str(target))
         _run(["systemctl", "daemon-reload"])
-        _run(["systemctl", "enable", *CHAIN_TIMERS, *CHAIN_ENABLED_SERVICES])
+        # --now, not just enable: enabling alone writes the wants/ symlink and
+        # leaves the timer unloaded until the next boot, which is precisely how
+        # the two safety-net timers came to be "enabled" and still absent from
+        # `systemctl list-timers`.
+        _run(["systemctl", "enable", "--now", *CHAIN_TIMERS])
+        _run(["systemctl", "enable", *CHAIN_ENABLED_SERVICES])
     return {
         "schema": "confenge.release_pin.v1",
         "release_sha": sha,
@@ -185,12 +190,19 @@ def verify(sha: str) -> dict[str, object]:
         state = _run(["systemctl", "is-enabled", unit], check=False).stdout.strip()
         if state != "enabled":
             disabled.append(f"{unit}={state or 'unknown'}")
+    # A timer that is enabled but not loaded fires nothing until the next boot.
+    inactive_timers: list[str] = []
+    for unit in CHAIN_TIMERS:
+        state = _run(["systemctl", "is-active", unit], check=False).stdout.strip()
+        if state != "active":
+            inactive_timers.append(f"{unit}={state or 'unknown'}")
     return {
         "schema": "confenge.release_pin_verification.v1",
         "release_sha": sha,
-        "ok": not drift and not disabled,
+        "ok": not drift and not disabled and not inactive_timers,
         "release_drift": drift,
         "not_enabled": disabled,
+        "timers_not_active": inactive_timers,
     }
 
 

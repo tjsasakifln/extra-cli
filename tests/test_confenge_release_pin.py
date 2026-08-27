@@ -7,6 +7,8 @@ generated drop-ins stay derived from the versioned unit files.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from deploy.confenge.pin_release import (
@@ -89,3 +91,16 @@ def test_unknown_release_is_refused_before_touching_the_host():
 
 def test_long_running_worker_is_marked_for_reboot_persistence():
     assert "extra-confenge-target-fit-worker.service" in CHAIN_ENABLED_SERVICES
+
+
+def test_timers_are_started_not_only_enabled():
+    """`systemctl enable` alone leaves a timer unloaded until the next boot.
+
+    That is exactly how the contact-cycle and feed-cycle safety nets came to
+    report `enabled` while `systemctl list-timers` showed neither of them.
+    """
+    source = (Path(__file__).resolve().parents[1] / "deploy" / "confenge" / "pin_release.py").read_text(
+        encoding="utf-8"
+    )
+    assert '"enable", "--now", *CHAIN_TIMERS' in source
+    assert '"timers_not_active"' in source, "verification must read back whether the timer is loaded"
