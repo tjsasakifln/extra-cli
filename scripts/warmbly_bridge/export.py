@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import subprocess
 from collections import Counter
 from dataclasses import dataclass
@@ -54,6 +55,8 @@ FEED_MEMBERSHIP_FILENAME = "membership.json"
 # the run so a human reconciles the population.
 CONSUMER_MAX_LEADS = 100_000
 CONSUMER_MAX_CHUNKS = 1_000
+CONSUMER_MAX_BYTES_PER_CHUNK = 512_000
+CONSUMER_MAX_STAGED_BYTES = 1_073_741_824
 
 # Warmbly rejects a deactivation targeting ACTIONABLE_NOW.
 DEACTIVATION_STATES = ("RESEARCH_REQUIRED", "SUPPRESSED", "WATCH")
@@ -193,6 +196,11 @@ def validate_inputs(cfg: ExportConfig) -> None:
         raise InputError("--max-leads-per-chunk must be >= 1")
     if cfg.max_bytes_per_chunk < 1024:
         raise InputError("--max-bytes-per-chunk must be >= 1024")
+    if cfg.max_bytes_per_chunk > CONSUMER_MAX_BYTES_PER_CHUNK:
+        raise InputError(
+            "--max-bytes-per-chunk exceeds the consumer ceiling: "
+            f"configured={cfg.max_bytes_per_chunk} max={CONSUMER_MAX_BYTES_PER_CHUNK}"
+        )
     if cfg.expected_universe_count is not None and cfg.expected_universe_count < 1:
         raise InputError("--expected-universe-count must be >= 1")
     freshness = cfg.authoritative_source_freshness or {}
@@ -432,6 +440,38 @@ def _authoritative_contact_projection(
         raise InputError("contact projection terminal coverage is incomplete")
     if report.get("membership_contract_matches_population") is not True:
         raise InputError("contact projection membership does not match its population contract")
+    raw_population_coverage_ratio = report.get("population_coverage_ratio")
+    if isinstance(raw_population_coverage_ratio, bool) or not isinstance(
+        raw_population_coverage_ratio, (int, float)
+    ):
+        raise InputError("contact projection population_coverage_ratio is missing or invalid")
+    try:
+        population_coverage_ratio = float(raw_population_coverage_ratio)
+    except (TypeError, ValueError) as exc:
+        raise InputError("contact projection population_coverage_ratio is missing or invalid") from exc
+    if (
+        report.get("population_publication_ready") is not True
+        or not math.isfinite(population_coverage_ratio)
+        or abs(population_coverage_ratio - 1.0) > 1e-12
+    ):
+        raise InputError(
+            "contact projection population is not PUBLICATION_READY: "
+            f"coverage_ratio={population_coverage_ratio}"
+        )
+    if report.get("population_as_of_source") != "target_fit_full_reconcile":
+        raise InputError("contact projection population freshness is not bound to a full reconcile")
+    verified_at = _parse_timestamp(
+        report.get("population_verified_at"),
+        field="contact_projection.population_verified_at",
+        cnpj="authoritative-projection",
+    )
+    population_as_of = _parse_timestamp(
+        report.get("population_as_of"),
+        field="contact_projection.population_as_of",
+        cnpj="authoritative-projection",
+    )
+    if verified_at != population_as_of:
+        raise InputError("contact projection population_as_of does not equal its full reconcile attestation")
     if int(report.get("population_count") or -1) != int(target_membership["population_count"]):
         raise InputError("contact projection population_count does not match TARGET_CONFIRMED membership")
     if int(report.get("membership_count") or -1) != int(target_membership["population_count"]):
@@ -502,6 +542,10 @@ def _authoritative_contact_projection(
         "population_count": int(report["population_count"]),
         "population_hash": report.get("population_hash"),
         "population_as_of": report.get("population_as_of"),
+        "population_as_of_source": report.get("population_as_of_source"),
+        "population_verified_at": report.get("population_verified_at"),
+        "population_coverage_ratio": population_coverage_ratio,
+        "population_publication_ready": True,
         "membership_schema_version": report.get("membership_schema_version"),
         "membership_identity_key": report.get("membership_identity_key"),
         "membership_count": int(report["membership_count"]),
@@ -888,7 +932,7 @@ def _assert_feed_membership(
     }
 
 
-def _assert_consumer_ceilings(*, lead_count: int, chunk_count: int) -> None:
+def _assert_consumer_ceilings(*, lead_count: int, chunk_count: int, staged_bytes: int | None = None) -> None:
     """Refuse to publish a feed the consumer contract cannot import.
 
     Truncating would silently drop authorized companies, so the run aborts and a
@@ -904,12 +948,45 @@ def _assert_consumer_ceilings(*, lead_count: int, chunk_count: int) -> None:
             "TARGET_CONFIRMED feed exceeds the consumer chunk ceiling; refusing to truncate: "
             f"chunk_count={chunk_count} max={CONSUMER_MAX_CHUNKS}"
         )
+    if staged_bytes is not None and staged_bytes > CONSUMER_MAX_STAGED_BYTES:
+        raise InputError(
+            "TARGET_CONFIRMED feed exceeds the consumer staged-byte ceiling; refusing to truncate: "
+            f"staged_bytes={staged_bytes} max={CONSUMER_MAX_STAGED_BYTES}"
+        )
 
 
-def _load_previous_feed_membership(previous_feed_dir: Path | None) -> tuple[set[str], str]:
-    """Return the CNPJ14s the previous published release actually shipped."""
+def _members_by_root(
+    cnpjs: list[str],
+    *,
+    source: str,
+    allow_legacy_branch_duplicates: bool = False,
+) -> dict[str, str]:
+    """Index one representative CNPJ14 per canonical membership root."""
+    by_root: dict[str, str] = {}
+    for raw in cnpjs:
+        cnpj = normalize_cnpj14(str(raw or ""))
+        if not cnpj:
+            raise InputError(f"{source} contains a non-canonical CNPJ14")
+        root = cnpj[:8]
+        prior = by_root.get(root)
+        if prior is not None and prior != cnpj:
+            if not allow_legacy_branch_duplicates:
+                raise InputError(f"{source} repeats cnpj_root8 {root} with multiple representatives")
+            # The pre-roster wire format shipped the whole decision universe,
+            # so two establishments from one company can both appear as
+            # TARGET_CONFIRMED. This compatibility path is used only while
+            # migrating that legacy current. Elect the same stable
+            # representative regardless of chunk/input ordering.
+            by_root[root] = min(prior, cnpj)
+            continue
+        by_root[root] = cnpj
+    return by_root
+
+
+def _load_previous_feed_membership(previous_feed_dir: Path | None) -> tuple[dict[str, str], str]:
+    """Return the previous release membership keyed by canonical CNPJ root."""
     if previous_feed_dir is None:
-        return set(), "UNKNOWN"
+        return {}, "UNKNOWN"
     directory = Path(previous_feed_dir)
     if not directory.is_dir():
         raise InputError(f"--previous-feed-dir is not a readable directory: {directory}")
@@ -924,15 +1001,27 @@ def _load_previous_feed_membership(previous_feed_dir: Path | None) -> tuple[set[
         members = payload.get("members")
         if not isinstance(members, list):
             raise InputError("previous feed membership roster has no members array")
-        previous: set[str] = set()
+        cnpjs: list[str] = []
         for member in members:
-            raw = member.get("cnpj14") if isinstance(member, dict) else member
-            cnpj = normalize_cnpj14(str(raw or ""))
-            if not cnpj:
-                raise InputError("previous feed membership roster contains a non-canonical CNPJ14")
-            previous.add(cnpj)
-        if len(previous) != int(payload.get("population_count", -1)):
-            raise InputError("previous feed membership roster population_count does not match its members")
+            if not isinstance(member, dict):
+                raise InputError("previous feed membership roster member must bind cnpj14 to cnpj_root")
+            cnpj = normalize_cnpj14(str(member.get("cnpj14") or ""))
+            if not cnpj or str(member.get("cnpj_root") or "") != cnpj[:8]:
+                raise InputError("previous feed membership roster contains an invalid root binding")
+            cnpjs.append(cnpj)
+        previous = _members_by_root(cnpjs, source="previous feed membership roster")
+        expected = canonical_target_membership(list(previous.values()))
+        roster_contract = {
+            "scope": FEED_SCOPE,
+            "schema_version": expected["schema_version"],
+            "identity_key": expected["identity_key"],
+            "hash_algorithm": expected["hash_algorithm"],
+            "population_count": expected["population_count"],
+            "membership_hash": expected["membership_hash"],
+        }
+        for field, value in roster_contract.items():
+            if payload.get(field) != value:
+                raise InputError(f"previous feed membership roster {field} is not reproducible from its members")
         return previous, "MEMBERSHIP_ROSTER"
     manifest_path = directory / "manifest.json"
     if not manifest_path.is_file():
@@ -946,7 +1035,7 @@ def _load_previous_feed_membership(previous_feed_dir: Path | None) -> tuple[set[
         raise InputError(f"invalid previous feed manifest: {manifest_path}") from exc
     if not isinstance(manifest, dict) or not isinstance(manifest.get("chunks"), list):
         raise InputError(f"previous feed manifest has no chunks: {manifest_path}")
-    previous = set()
+    previous_cnpjs: list[str] = []
     for chunk in manifest["chunks"]:
         if not isinstance(chunk, dict):
             raise InputError("previous feed manifest chunk is not an object")
@@ -956,6 +1045,9 @@ def _load_previous_feed_membership(previous_feed_dir: Path | None) -> tuple[set[
         chunk_path = directory / name
         if not chunk_path.is_file():
             raise InputError(f"previous feed manifest references a missing chunk: {name}")
+        expected_hash = str(chunk.get("content_hash") or "")
+        if not expected_hash or hashlib.sha256(chunk_path.read_bytes()).hexdigest() != expected_hash:
+            raise InputError(f"previous feed manifest chunk hash mismatch: {name}")
         try:
             payload = json.loads(chunk_path.read_bytes())
         except (OSError, json.JSONDecodeError) as exc:
@@ -965,28 +1057,52 @@ def _load_previous_feed_membership(previous_feed_dir: Path | None) -> tuple[set[
                 continue
             cnpj = normalize_cnpj14(str((lead.get("company") or {}).get("cnpj14") or ""))
             if cnpj:
-                previous.add(cnpj)
+                previous_cnpjs.append(cnpj)
+    previous = _members_by_root(
+        previous_cnpjs,
+        source="previous feed chunks",
+        allow_legacy_branch_duplicates=True,
+    )
+    declared_membership = manifest.get("authoritative_target_membership")
+    declared_membership = declared_membership if isinstance(declared_membership, dict) else {}
+    expected = canonical_target_membership(list(previous.values()))
+    if str(declared_membership.get("membership_hash") or "") != expected["membership_hash"]:
+        raise InputError("previous feed manifest membership_hash is not reproducible from its chunks")
+    if int(declared_membership.get("population_count", -1)) != len(previous):
+        raise InputError("previous feed manifest population_count does not match its unique roots")
     return previous, "PRIOR_RELEASE_CHUNKS"
 
 
 def _membership_drop_deactivations(
-    previous_members: set[str],
+    previous_members: dict[str, str],
     feed_leads: list[dict[str, Any]],
     decision_leads: list[dict[str, Any]],
     *,
     observed_at: str,
 ) -> list[dict[str, Any]]:
     """Emit one deactivation per account that left the shipped population."""
-    shipped = {normalize_cnpj14(str((lead.get("company") or {}).get("cnpj14") or "")) for lead in feed_leads}
-    decision_class = {
-        cnpj: str(lead.get("target_fit_class") or "")
-        for lead in decision_leads
+    shipped_roots = {
+        cnpj[:8]
+        for lead in feed_leads
         for cnpj in (normalize_cnpj14(str((lead.get("company") or {}).get("cnpj14") or "")),)
         if cnpj
     }
+    decision_classes: dict[str, set[str]] = {}
+    for lead in decision_leads:
+        cnpj = normalize_cnpj14(str((lead.get("company") or {}).get("cnpj14") or ""))
+        if cnpj:
+            decision_classes.setdefault(cnpj[:8], set()).add(str(lead.get("target_fit_class") or ""))
     deactivations: list[dict[str, Any]] = []
-    for cnpj in sorted(previous_members - shipped):
-        target_fit_class = decision_class.get(cnpj) or "TARGET_FIT_ABSENT"
+    for root in sorted(set(previous_members) - shipped_roots):
+        cnpj = previous_members[root]
+        classes = decision_classes.get(root) or set()
+        target_fit_class = (
+            "TARGET_OUT_OF_SCOPE"
+            if "TARGET_OUT_OF_SCOPE" in classes
+            else "TARGET_INSUFFICIENT_EVIDENCE"
+            if "TARGET_INSUFFICIENT_EVIDENCE" in classes
+            else "TARGET_FIT_ABSENT"
+        )
         to_state = "SUPPRESSED" if target_fit_class == "TARGET_OUT_OF_SCOPE" else "RESEARCH_REQUIRED"
         deactivations.append(
             {
@@ -1015,9 +1131,14 @@ def _merge_deactivations(
     state already travels inside the lead payload, so the contradiction is
     dropped here and counted, never applied.
     """
-    shipped = {normalize_cnpj14(str((lead.get("company") or {}).get("cnpj14") or "")) for lead in feed_leads}
+    shipped_roots = {
+        cnpj[:8]
+        for lead in feed_leads
+        for cnpj in (normalize_cnpj14(str((lead.get("company") or {}).get("cnpj14") or "")),)
+        if cnpj
+    }
     merged: list[dict[str, Any]] = []
-    seen: set[str] = set()
+    seen_roots: set[str] = set()
     suppressed = 0
     for entry in declared:
         if not isinstance(entry, dict):
@@ -1025,18 +1146,20 @@ def _merge_deactivations(
         cnpj = normalize_cnpj14(str(entry.get("cnpj14") or ""))
         if not cnpj:
             raise InputError("declared deactivation has a non-canonical cnpj14")
-        if cnpj in shipped:
+        root = cnpj[:8]
+        if root in shipped_roots:
             suppressed += 1
             continue
-        if cnpj in seen:
+        if root in seen_roots:
             continue
-        seen.add(cnpj)
+        seen_roots.add(root)
         merged.append({**entry, "cnpj14": cnpj})
     for entry in membership_drops:
         cnpj = str(entry["cnpj14"])
-        if cnpj in seen:
+        root = cnpj[:8]
+        if root in seen_roots:
             continue
-        seen.add(cnpj)
+        seen_roots.add(root)
         merged.append(entry)
     for entry in merged:
         to_state = str(entry.get("to_state") or "").strip().upper()
@@ -1113,6 +1236,11 @@ def _chunk_leads(
         )
         over_count = trial_count > max_leads
         over_bytes = size > max_bytes and len(current) >= 1
+        if size > max_bytes and not current:
+            raise InputError(
+                "single TARGET_CONFIRMED lead exceeds the encoded chunk byte ceiling; "
+                f"bytes={size} max={max_bytes}"
+            )
         if (over_count or over_bytes) and current:
             chunks.append(current)
             current = [lead]
@@ -1315,6 +1443,7 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
     _assert_consumer_ceilings(lead_count=len(feed_leads), chunk_count=len(chunk_specs))
 
     chunk_meta: list[dict[str, Any]] = []
+    total_chunk_bytes = 0
     for slice_leads, pagination in chunk_specs:
         # First pass: compute content hash of leads+source (stable) for hashes block.
         leads_hash = content_hash_obj({"leads": slice_leads, "source": source})
@@ -1334,6 +1463,12 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
             "leads": slice_leads,
         }
         raw = _encode_chunk(feed)
+        if len(raw) > cfg.max_bytes_per_chunk:
+            raise InputError(
+                "encoded outreach chunk exceeds --max-bytes-per-chunk; "
+                f"chunk_index={pagination['chunk_index']} bytes={len(raw)} max={cfg.max_bytes_per_chunk}"
+            )
+        total_chunk_bytes += len(raw)
         file_hash = hashlib.sha256(raw).hexdigest()
         idx = int(pagination["chunk_index"])
         filename = f"chunk_{idx:04d}.json"
@@ -1349,6 +1484,7 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
                         "content_hash": file_hash,
                         "leads_hash": leads_hash,
                         "lead_count": len(slice_leads),
+                        "byte_count": len(raw),
                         "cursor": pagination.get("cursor"),
                         "next_cursor": pagination.get("next_cursor"),
                         "has_more": pagination.get("has_more"),
@@ -1364,12 +1500,19 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
                 "content_hash": file_hash,
                 "leads_hash": leads_hash,
                 "lead_count": len(slice_leads),
+                "byte_count": len(raw),
                 "cursor": pagination.get("cursor"),
                 "next_cursor": pagination.get("next_cursor"),
                 "has_more": pagination.get("has_more"),
                 "status": "written",
             }
         )
+
+    _assert_consumer_ceilings(
+        lead_count=len(feed_leads),
+        chunk_count=len(chunk_meta),
+        staged_bytes=total_chunk_bytes,
+    )
 
     # Remove stale chunks from previous larger runs with different snapshot (same out dir).
     # Only delete chunk_*.json not in this run when snapshot changes — safer: delete extras.
@@ -1418,6 +1561,7 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
         "chunk_count": len(chunk_meta),
         "max_leads_per_chunk": cfg.max_leads_per_chunk,
         "max_bytes_per_chunk": cfg.max_bytes_per_chunk,
+        "total_chunk_bytes": total_chunk_bytes,
         "limit": cfg.limit,
         "authoritative_target_fit": {
             "source": "target_fit_snapshot" if cfg.target_fit_snapshot is not None else "universe_embedded_snapshot",
@@ -1488,6 +1632,7 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
         "lead_count": len(feed_leads),
         "decision_count": decision_count,
         "chunk_count": len(chunk_meta),
+        "total_chunk_bytes": total_chunk_bytes,
         "deactivation_count": len(deacts),
         "authoritative_feed_scope": {**feed_scope, **membership_proof},
         "authoritative_target_membership": target_membership,

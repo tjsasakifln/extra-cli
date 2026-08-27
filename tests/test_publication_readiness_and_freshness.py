@@ -111,6 +111,27 @@ def test_publisher_accepts_complete_population():
     )
 
 
+def test_publisher_refuses_a_legacy_projection_without_publication_attestation():
+    with pytest.raises(ValueError, match="missing or invalid"):
+        _assert_publication_ready_population({})
+
+
+@pytest.mark.parametrize("ratio", [True, "1.0"])
+def test_publisher_refuses_non_numeric_coverage_attestations(ratio: object):
+    with pytest.raises(ValueError, match="missing or invalid"):
+        _assert_publication_ready_population(
+            {"population_coverage_ratio": ratio, "population_publication_ready": True}
+        )
+
+
+@pytest.mark.parametrize("ratio", [float("nan"), float("inf"), 1.001])
+def test_publisher_refuses_non_finite_or_overcomplete_coverage(ratio: float):
+    with pytest.raises(ValueError, match="not publication ready"):
+        _assert_publication_ready_population(
+            {"population_coverage_ratio": ratio, "population_publication_ready": True}
+        )
+
+
 # --- 2. freshness follows the verified reconcile, not row churn ------------
 
 
@@ -139,11 +160,17 @@ def test_missing_attestation_preserves_the_previous_fail_closed_behaviour():
     assert out["population_as_of_source"] == "target_fit_computed_at_max"
 
 
-def test_freshness_never_moves_backwards_past_observed_evidence():
+def test_fresh_row_does_not_refresh_an_older_full_population_attestation():
     newer_rows = ["2026-08-27T20:00:00+00:00"]
     out = _population_freshness(newer_rows, _snapshot(canonical=1000, materialized=1000))
-    assert out["population_as_of"] == newer_rows[-1]
-    assert out["population_as_of_source"] == "target_fit_computed_at_max"
+    assert out["population_as_of"] == VERIFIED_AT
+    assert out["population_as_of_source"] == "target_fit_full_reconcile"
+
+
+def test_timestamp_comparison_uses_instants_not_rfc3339_string_order():
+    rows = ["2026-08-27T09:30:00-03:00", "2026-08-27T12:00:00+00:00"]
+    out = _population_freshness(rows, None)
+    assert out["population_as_of"] == rows[0], "12:30Z is newer than 12:00Z"
 
 
 # --- 3. the operator always gets the factual cause -------------------------

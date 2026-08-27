@@ -16,8 +16,10 @@ exactly the unversioned manual configuration this repository must not depend on.
 
 This tool derives each drop-in mechanically from the versioned unit files in
 ``deploy/systemd`` by rewriting the ``/opt/extra-consultoria`` prefix to the
-requested immutable release, applies the whole set atomically-or-not-at-all, and
-enables the safety-net timers so a failed chain still retries on its own.
+requested immutable release, applies the whole set atomically-or-not-at-all,
+and keeps only the source timer plus the independent feed monitor scheduled.
+The downstream data stages advance through ``OnSuccess`` and do not own a
+second cadence.
 """
 
 from __future__ import annotations
@@ -53,15 +55,21 @@ CHAIN_UNITS = (
 )
 
 # Timers that must survive a reboot for the chain to run without an operator.
-# The OnSuccess chain is the primary path; these are the recovery net for a
-# failed or missed link. Concurrency is already guarded by flock in the units.
+# Only the source starts a data cycle; the monitor observes publication health
+# without advancing the pipeline.
 CHAIN_TIMERS = (
     "pncp-contracts.timer",
+    "extra-confenge-feed-monitor.timer",
+)
+
+# These legacy independent cadences bypass the source-triggered cascade. Merely
+# omitting ``enable`` is insufficient because an older pin may have left them
+# enabled and active on the host.
+CHAIN_DISABLED_TIMERS = (
     "extra-confenge-target-fit-reconcile.timer",
     "extra-confenge-target-fit-refresh.timer",
     "extra-confenge-contact-cycle.timer",
     "extra-confenge-feed-cycle.timer",
-    "extra-confenge-feed-monitor.timer",
 )
 
 # Long-running workers that must come back after a reboot.
@@ -142,6 +150,10 @@ def render_dropin(unit_text: str, sha: str) -> str:
         *directives,
         f"Environment=EXTRA_DEPLOYED_SHA={sha}",
         f"Environment=EXTRA_CODE_SHA={sha}",
+        # A root-run diagnostic can bypass 0555 and recreate __pycache__ in an
+        # otherwise immutable release. Suppress bytecode for every pinned
+        # process; the venv remains the only mutable interpreter input.
+        "Environment=PYTHONDONTWRITEBYTECODE=1",
         # Clear the inherited ExecStart before appending the pinned one.
         "ExecStart=",
         exec_start,
@@ -217,17 +229,17 @@ def apply(sha: str, *, dry_run: bool = False) -> dict[str, object]:
             tmp.replace(target)
             written.append(str(target))
         _run(["systemctl", "daemon-reload"])
-        # --now, not just enable: enabling alone writes the wants/ symlink and
-        # leaves the timer unloaded until the next boot, which is precisely how
-        # the two safety-net timers came to be "enabled" and still absent from
-        # `systemctl list-timers`.
+        # --now is required for both the source trigger and independent monitor;
+        # enabling alone would defer them until the next boot.
         _run(["systemctl", "enable", "--now", *CHAIN_TIMERS])
+        _run(["systemctl", "disable", "--now", *CHAIN_DISABLED_TIMERS])
         _run(["systemctl", "enable", *CHAIN_ENABLED_SERVICES])
     return {
         "schema": "confenge.release_pin.v1",
         "release_sha": sha,
         "units_pinned": list(rendered),
         "timers_enabled": list(CHAIN_TIMERS),
+        "timers_disabled": list(CHAIN_DISABLED_TIMERS),
         "services_enabled": list(CHAIN_ENABLED_SERVICES),
         "dropins_written": written,
         "dry_run": dry_run,
@@ -237,11 +249,44 @@ def apply(sha: str, *, dry_run: bool = False) -> dict[str, object]:
 def verify(sha: str) -> dict[str, object]:
     """Read back what systemd actually resolved, not what we intended to write."""
     drift: list[dict[str, str]] = []
+    unsafe_python_path: list[dict[str, str]] = []
+    bytecode_writes_enabled: list[dict[str, str]] = []
+    working_directory_drift: list[dict[str, str]] = []
+    working_directory_not_writable: list[dict[str, str]] = []
+    release = f"{RELEASE_ROOT}/{sha}"
     for unit in CHAIN_UNITS:
         result = _run(["systemctl", "show", unit, "-p", "ExecStart", "--value"], check=False)
         resolved = (result.stdout or "").strip()
-        if f"{RELEASE_ROOT}/{sha}" not in resolved:
+        if release not in resolved:
             drift.append({"unit": unit, "resolved": resolved[:400]})
+        interpreter = f"{release}/.venv/bin/python"
+        if interpreter not in resolved or re.search(r"(?:^|\s)-P(?:\s|$)", resolved) is None:
+            unsafe_python_path.append({"unit": unit, "resolved": resolved[:400]})
+
+        environment = (
+            _run(["systemctl", "show", unit, "-p", "Environment", "--value"], check=False).stdout or ""
+        ).strip()
+        if f"PYTHONPATH={release}" not in environment:
+            drift.append({"unit": unit, "resolved": environment[:400]})
+        if "PYTHONDONTWRITEBYTECODE=1" not in environment:
+            bytecode_writes_enabled.append({"unit": unit, "resolved": environment[:400]})
+
+        working_directory = (
+            _run(["systemctl", "show", unit, "-p", "WorkingDirectory", "--value"], check=False).stdout or ""
+        ).strip()
+        user = (_run(["systemctl", "show", unit, "-p", "User", "--value"], check=False).stdout or "").strip()
+        if not working_directory or working_directory == release or working_directory.startswith(f"{release}/"):
+            working_directory_drift.append({"unit": unit, "working_directory": working_directory or "MISSING"})
+        else:
+            writable_probe = (
+                ["test", "-w", working_directory]
+                if user in {"", "root"}
+                else ["runuser", "-u", user, "--", "test", "-w", working_directory]
+            )
+            if _run(writable_probe, check=False).returncode != 0:
+                working_directory_not_writable.append(
+                    {"unit": unit, "user": user or "root", "working_directory": working_directory}
+                )
     disabled: list[str] = []
     for unit in (*CHAIN_TIMERS, *CHAIN_ENABLED_SERVICES):
         state = _run(["systemctl", "is-enabled", unit], check=False).stdout.strip()
@@ -253,13 +298,37 @@ def verify(sha: str) -> dict[str, object]:
         state = _run(["systemctl", "is-active", unit], check=False).stdout.strip()
         if state != "active":
             inactive_timers.append(f"{unit}={state or 'unknown'}")
+    independently_scheduled: list[str] = []
+    for unit in CHAIN_DISABLED_TIMERS:
+        enabled = _run(["systemctl", "is-enabled", unit], check=False).stdout.strip()
+        active = _run(["systemctl", "is-active", unit], check=False).stdout.strip()
+        if enabled not in {"disabled", "masked"} or active != "inactive":
+            independently_scheduled.append(
+                f"{unit}=enabled:{enabled or 'unknown'},active:{active or 'unknown'}"
+            )
     return {
         "schema": "confenge.release_pin_verification.v1",
         "release_sha": sha,
-        "ok": not drift and not disabled and not inactive_timers,
+        "ok": not any(
+            (
+                drift,
+                unsafe_python_path,
+                bytecode_writes_enabled,
+                working_directory_drift,
+                working_directory_not_writable,
+                disabled,
+                inactive_timers,
+                independently_scheduled,
+            )
+        ),
         "release_drift": drift,
+        "unsafe_python_path": unsafe_python_path,
+        "bytecode_writes_enabled": bytecode_writes_enabled,
+        "working_directory_drift": working_directory_drift,
+        "working_directory_not_writable": working_directory_not_writable,
         "not_enabled": disabled,
         "timers_not_active": inactive_timers,
+        "downstream_timers_scheduled": independently_scheduled,
     }
 
 

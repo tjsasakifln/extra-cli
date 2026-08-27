@@ -247,6 +247,10 @@ def _export(
                     "population_count": membership["population_count"],
                     "population_hash": "f" * 64,
                     "population_as_of": NOW,
+                    "population_as_of_source": "target_fit_full_reconcile",
+                    "population_verified_at": NOW,
+                    "population_coverage_ratio": 1.0,
+                    "population_publication_ready": True,
                     "membership_schema_version": membership["schema_version"],
                     "membership_identity_key": membership["identity_key"],
                     "membership_count": membership["population_count"],
@@ -298,6 +302,42 @@ def _export(
     # The decision universe stays complete; only the TARGET_CONFIRMED membership ships.
     assert result["decision_count"] == len(universe)
     return out, _read_leads(out)
+
+
+def test_authoritative_export_rejects_partial_publication_attestation(tmp_path: Path) -> None:
+    universe = [{"cnpj14": "11222333000181", "razao_social": "ALFA ENGENHARIA", "commercial_state": "NEW"}]
+    source = tmp_path / "partial-attestation"
+    # Build the otherwise-valid fixture once, then alter only the explicit
+    # publication attestation consumed by the exporter.
+    out, _ = _export(
+        tmp_path,
+        universe=universe,
+        target_fit=[_decision("11222333000181", "TARGET_CONFIRMED", evidence_ids=["e1"])],
+        suffix="partial-attestation-seed",
+        authoritative_contact_report=True,
+    )
+    report = out.parent / "contact-projection-report.json"
+    payload = json.loads(report.read_text(encoding="utf-8"))
+    payload.update({"population_coverage_ratio": 0.997, "population_publication_ready": False})
+    report.write_text(json.dumps(payload), encoding="utf-8")
+    source.mkdir()
+
+    with pytest.raises(InputError, match="not PUBLICATION_READY"):
+        export_outreach(
+            ExportConfig(
+                universe=out.parent / "universe.jsonl",
+                account_intelligence=out.parent / "intelligence.jsonl",
+                contacts=out.parent / "contacts.jsonl",
+                contact_projection_report=report,
+                target_fit_snapshot=out.parent / "target-fit.jsonl",
+                expected_universe_count=1,
+                out_dir=source / "feed",
+                generated_at=NOW,
+                datalake_watermark=NOW,
+                repo_sha="authoritative-test",
+                require_authoritative_contact_projection_metadata=True,
+            )
+        )
 
 
 def test_full_snapshot_decides_all_and_ships_only_confirmed_membership(tmp_path: Path) -> None:
