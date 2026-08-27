@@ -30,7 +30,6 @@ from scripts.confenge_target_fit.coverage import (
 from scripts.decision_unit_intelligence.batch_population import _population_freshness
 from scripts.ops.confenge_feed_cycle import _pipeline_failure_message
 
-
 VERIFIED_AT = "2026-08-27T11:10:28+00:00"
 
 
