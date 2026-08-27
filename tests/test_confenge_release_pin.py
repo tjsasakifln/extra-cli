@@ -46,16 +46,46 @@ def test_the_canonical_chain_order_is_covered():
         assert unit in CHAIN_UNITS
 
 
-def test_rendered_dropin_repoints_every_path_at_the_release():
+def test_rendered_dropin_repoints_code_at_the_release():
     unit = (UNIT_SOURCE / "extra-confenge-feed-cycle.service").read_text(encoding="utf-8")
     body = render_dropin(unit, SHA)
     assert f"/opt/extra-consultoria-releases/{SHA}/.venv/bin/python" in body
     assert f"Environment=EXTRA_DEPLOYED_SHA={SHA}" in body
     assert "ExecStart=\n" in body, "inherited ExecStart must be cleared before appending"
     for line in body.splitlines():
-        if line.startswith(("WorkingDirectory=", "Environment=PYTHONPATH=", "ExecStart=/")):
+        if line.startswith(("Environment=PYTHONPATH=", "ExecStart=/")):
             assert f"{CANONICAL_PREFIX}-releases/{SHA}" in line
-            assert not line.replace(f"{CANONICAL_PREFIX}-releases/{SHA}", "").count(CANONICAL_PREFIX)
+
+
+def test_working_directory_stays_outside_the_read_only_release():
+    """Releases are read-only; several jobs write evidence via relative paths.
+
+    Pinning the cwd into the release killed the PNCP crawler with
+    PermissionError: 'output/contracts/incremental-latest.json' *after* it had
+    already crawled a window successfully.
+    """
+    for unit_name in ("pncp-contracts.service", "extra-confenge-feed-cycle.service"):
+        unit = (UNIT_SOURCE / unit_name).read_text(encoding="utf-8")
+        body = render_dropin(unit, SHA)
+        workdirs = [line for line in body.splitlines() if line.startswith("WorkingDirectory=")]
+        assert workdirs == [f"WorkingDirectory={CANONICAL_PREFIX}"], f"{unit_name}: {workdirs}"
+
+
+def test_pinned_interpreter_is_isolated_from_the_working_directory():
+    """Without -P, cwd is prepended to sys.path and the checkout at
+    /opt/extra-consultoria shadows the release's own `scripts` package — so the
+    pin would bind a release it never actually ran."""
+    unit = (UNIT_SOURCE / "extra-confenge-feed-cycle.service").read_text(encoding="utf-8")
+    body = render_dropin(unit, SHA)
+    exec_line = next(line for line in body.splitlines() if line.startswith("ExecStart=/"))
+    assert f"/opt/extra-consultoria-releases/{SHA}/.venv/bin/python -P " in exec_line
+
+
+def test_isolation_flag_is_not_duplicated():
+    unit = (UNIT_SOURCE / "extra-confenge-feed-cycle.service").read_text(encoding="utf-8")
+    once = render_dropin(unit, SHA)
+    exec_line = next(line for line in once.splitlines() if line.startswith("ExecStart=/"))
+    assert exec_line.count(" -P ") == 1
 
 
 def test_multi_line_execstart_is_joined_not_truncated():

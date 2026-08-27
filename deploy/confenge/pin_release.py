@@ -67,7 +67,20 @@ CHAIN_TIMERS = (
 # Long-running workers that must come back after a reboot.
 CHAIN_ENABLED_SERVICES = ("extra-confenge-target-fit-worker.service",)
 
-PINNED_DIRECTIVES = ("WorkingDirectory=", "Environment=PYTHONPATH=", "ExecStart=")
+# Only code locations move to the immutable release. WorkingDirectory stays
+# where the unit authored it, because releases are read-only and several jobs
+# write evidence through paths relative to their working directory: pinning the
+# cwd into the release made the PNCP crawler die on
+# PermissionError: 'output/contracts/incremental-latest.json' after a window it
+# had already crawled successfully.
+PINNED_DIRECTIVES = ("Environment=PYTHONPATH=", "ExecStart=")
+PRESERVED_DIRECTIVES = ("WorkingDirectory=",)
+
+# With the working directory outside the release, Python would otherwise prepend
+# that directory to sys.path and let the checkout at /opt/extra-consultoria
+# shadow the release's own `scripts` package. -P is what makes the pin actually
+# bind the code it claims to bind.
+ISOLATED_INTERPRETER_FLAG = "-P"
 
 
 class PinError(RuntimeError):
@@ -90,17 +103,31 @@ def _logical_lines(text: str) -> list[str]:
     return lines
 
 
+def _isolate_interpreter(exec_start: str, release: str) -> str:
+    """Insert -P after the release interpreter so cwd cannot shadow the release."""
+    interpreter = f"{release}/.venv/bin/python"
+    if interpreter not in exec_start:
+        raise PinError(f"pinned ExecStart does not invoke the release interpreter: {exec_start}")
+    head, _, tail = exec_start.partition(interpreter)
+    if tail.lstrip().startswith(ISOLATED_INTERPRETER_FLAG + " "):
+        return exec_start
+    return f"{head}{interpreter} {ISOLATED_INTERPRETER_FLAG}{tail}"
+
+
 def render_dropin(unit_text: str, sha: str) -> str:
     """Build the drop-in that re-points one unit at an immutable release."""
     release = f"{RELEASE_ROOT}/{sha}"
     directives: list[str] = []
     exec_start: str | None = None
     for line in _logical_lines(unit_text):
-        if not any(line.startswith(prefix) for prefix in PINNED_DIRECTIVES):
+        if line.startswith(PRESERVED_DIRECTIVES):
+            directives.append(line)
+            continue
+        if not line.startswith(PINNED_DIRECTIVES):
             continue
         rewritten = line.replace(CANONICAL_PREFIX, release)
         if line.startswith("ExecStart="):
-            exec_start = rewritten
+            exec_start = _isolate_interpreter(rewritten, release)
         else:
             directives.append(rewritten)
     if exec_start is None:
