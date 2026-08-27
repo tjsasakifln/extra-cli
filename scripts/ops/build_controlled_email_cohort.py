@@ -35,6 +35,13 @@ from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
+from scripts.confenge_activation.commercial_authority import (
+    CommercialAuthorityBinding,
+    classify_commercial_authority,
+    historical_source_was_proven_fresh,
+    parse_timestamp,
+)
+
 _ROOT = Path(__file__).resolve().parents[2]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
@@ -380,27 +387,39 @@ def write_private_feed(
 def assert_authoritative_source_freshness(
     source_manifest: dict[str, Any], *, now: datetime | None = None
 ) -> dict[str, Any]:
-    """Reject an unproven or expired authoritative source attestation."""
+    """Reject a feed that was never proven FRESH. Clock expiry is commercial authority."""
     freshness = source_manifest.get("authoritative_source_freshness")
     if not isinstance(freshness, dict):
         freshness = (source_manifest.get("source") or {}).get("authoritative_freshness")
-    if not isinstance(freshness, dict):
-        raise ValueError("source feed is missing authoritative PNCP freshness")
-    if freshness.get("contract_version") != "PNCP_CONTRACT_FRESHNESS/1.0":
-        raise ValueError("source feed has an unsupported PNCP freshness contract")
-    if freshness.get("status") != "FRESH":
-        raise ValueError(f"source feed freshness is {freshness.get('status') or 'UNKNOWN'}, not FRESH")
-    expires_raw = str(freshness.get("expires_at") or "")
+    historical_source_was_proven_fresh(freshness if isinstance(freshness, dict) else None)
+    clock = (now or datetime.now(UTC)).astimezone(UTC)
+    generated_raw = source_manifest.get("generated_at") or (freshness or {}).get("as_of")
     try:
-        expires_at = datetime.fromisoformat(expires_raw.replace("Z", "+00:00"))
+        validated_at = parse_timestamp(generated_raw, field="last-good generated_at")
     except ValueError as exc:
-        raise ValueError("source feed freshness has no valid expires_at") from exc
-    observed_now = now or datetime.now(UTC)
-    if expires_at <= observed_now:
+        raise ValueError("source feed is missing generated_at for commercial authority") from exc
+    membership = source_manifest.get("authoritative_target_membership")
+    membership = membership if isinstance(membership, dict) else {}
+    source = source_manifest.get("source") if isinstance(source_manifest.get("source"), dict) else {}
+    snapshot_hash = str(source.get("snapshot_hash") or "").strip() or "unknown"
+    membership_hash = str(membership.get("membership_hash") or "").strip() or "unknown"
+    authority = classify_commercial_authority(
+        validated_at=validated_at,
+        now=clock,
+        binding=CommercialAuthorityBinding(
+            basis_source_run_id=str(source.get("run_id") or "").strip() or "unknown",
+            basis_snapshot_hash=snapshot_hash,
+            basis_membership_hash=membership_hash,
+            basis_publication_semantic_hash=snapshot_hash,
+            producer_identity=str(source.get("repo_sha") or ""),
+        ),
+    )
+    if not authority.get("new_admission_allowed"):
         raise ValueError(
-            f"source feed freshness attestation expired at {expires_at.isoformat().replace('+00:00', 'Z')}"
+            "commercial authority does not allow new admissions: "
+            f"state={authority.get('state')} reasons={authority.get('reason_codes')}"
         )
-    return freshness
+    return {**freshness, "commercial_authority": authority}
 
 
 def build(
@@ -410,9 +429,11 @@ def build(
     limit: int,
     as_of: str,
     run_stamp: str,
+    now: datetime | None = None,
 ) -> dict[str, Any]:
+    clock = (now or datetime.now(UTC)).astimezone(UTC)
     source_manifest = read_feed_manifest(feed_dir)
-    source_freshness = assert_authoritative_source_freshness(source_manifest)
+    source_freshness = assert_authoritative_source_freshness(source_manifest, now=clock)
     # Two streaming passes: one to decide who keeps each shared mailbox across
     # the whole feed, one to select. Never the whole feed in memory at once.
     owner = shared_preferred_mailbox_owner(iter_feed_leads(feed_dir))
@@ -436,7 +457,7 @@ def build(
     funnel["as_of"] = as_of
     manifest = {
         "schema": MANIFEST_SCHEMA,
-        "generated_at": datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+        "generated_at": clock.replace(microsecond=0).isoformat().replace("+00:00", "Z"),
         "fresh_run_id": run_id,
         "as_of": as_of,
         "auto_send": False,

@@ -5,11 +5,13 @@ import json
 import os
 import stat
 import subprocess
+import sys
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
 
+from scripts.confenge_activation.commercial_authority import root_transport_allowed
 from scripts.confenge_activation.publish import (
     atomic_publish_directory,
     check_current_publication,
@@ -184,9 +186,7 @@ def _build(
         manifest["lead_count"] = declared_lead_count
     if declared_chunk_count is not None:
         manifest["chunk_count"] = declared_chunk_count
-        manifest["chunks"] = [
-            {**manifest["chunks"][0], "chunk_index": index} for index in range(declared_chunk_count)
-        ]
+        manifest["chunks"] = [{**manifest["chunks"][0], "chunk_index": index} for index in range(declared_chunk_count)]
     (root / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
     return root
 
@@ -445,23 +445,38 @@ def test_same_snapshot_is_not_freshness_and_alerts(tmp_path: Path) -> None:
     assert "SAME_SNAPSHOT_NOT_FRESHNESS" in alerts.read_text()
 
 
-def test_monitor_fails_after_24_hours_without_touching_publication(tmp_path: Path) -> None:
+def test_monitor_keeps_last_good_after_24_hours_and_splits_commercial_authority(
+    tmp_path: Path,
+) -> None:
     public, state, alerts = _paths(tmp_path)
-    atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
+    first = atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
+    current_bytes = (public / "current" / "manifest.json").read_bytes()
     result = check_current_publication(
         public,
         state_path=state,
         alert_ledger=alerts,
         now=NOW + timedelta(hours=25),
+        source_operational_health={
+            "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
+            "status": "STALE",
+            "reason_codes": ["LAG_ABOVE_HARD_GUARDRAIL"],
+        },
     )
-    assert result["ok"] is False
-    assert result["status"] == "UNHEALTHY"
-    assert "stale" in result["error"]
-    assert (public / "current" / "manifest.json").is_file()
-    assert "PUBLIC_FEED_UNHEALTHY" in alerts.read_text()
+    assert result["ok"] is True
+    assert result["status"] == "HEALTHY"
+    assert result["integrity_status"] == "HEALTHY"
+    assert result["source_operational_health"]["status"] == "STALE"
+    assert result["source_operational_health"]["status"] != "FRESH"
+    assert result["commercial_authority"]["state"] == "DEGRADED"
+    assert result["commercial_authority"]["new_admission_allowed"] is True
+    assert result["commercial_authority"]["existing_bound_touch_transport_allowed"] is True
+    assert (public / "current" / "manifest.json").read_bytes() == current_bytes
+    assert Path(first["current"]).resolve() == (public / "current").resolve()
+    assert "PUBLIC_FEED_UNHEALTHY" not in alerts.read_text()
+    assert "COMMERCIAL_AUTHORITY_DEGRADED" in alerts.read_text()
     saved = json.loads(state.read_text())
     assert saved["last_success_at"] == NOW.isoformat().replace("+00:00", "Z")
-    assert saved["last_monitor_status"] == "UNHEALTHY"
+    assert saved["last_monitor_status"] == "HEALTHY"
 
 
 def test_cycle_failure_preserves_last_publication_and_records_alert(tmp_path: Path) -> None:
@@ -707,9 +722,7 @@ def test_new_producer_semantics_defeat_the_same_snapshot_skip(tmp_path: Path) ->
     SAME_SNAPSHOT_NOT_FRESHNESS and never reached the feed.
     """
     public, state, alerts = _paths(tmp_path)
-    first = atomic_publish_directory(
-        _build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW
-    )
+    first = atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
     assert first["ok"] is True
 
     changed = _build(tmp_path / "changed")
@@ -729,9 +742,7 @@ def test_new_producer_semantics_defeat_the_same_snapshot_skip(tmp_path: Path) ->
 
 def test_same_snapshot_with_new_deactivation_delta_promotes(tmp_path: Path) -> None:
     public, state, alerts = _paths(tmp_path)
-    first = atomic_publish_directory(
-        _build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW
-    )
+    first = atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
     changed = _build(tmp_path / "changed")
     manifest_path = changed / "manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -749,9 +760,7 @@ def test_same_snapshot_with_new_deactivation_delta_promotes(tmp_path: Path) -> N
 
 def test_failed_current_swap_preserves_last_known_good(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     public, state, alerts = _paths(tmp_path)
-    first = atomic_publish_directory(
-        _build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW
-    )
+    first = atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
     prior = Path(first["current"]).resolve()
     changed = _build(tmp_path / "changed", snapshot="snapshot-b")
     real_replace = os.replace
@@ -773,15 +782,313 @@ def test_failed_current_swap_preserves_last_known_good(monkeypatch: pytest.Monke
 
 def test_identical_inputs_and_semantics_still_replay(tmp_path: Path) -> None:
     public, state, alerts = _paths(tmp_path)
-    first = atomic_publish_directory(
-        _build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW
-    )
+    first = atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
     second = atomic_publish_directory(
         _build(tmp_path / "second"), public, state_path=state, alert_ledger=alerts, now=NOW
     )
     assert second["reason"] == "SAME_SNAPSHOT_NOT_FRESHNESS"
     assert second["producer_identity"] == first["producer_identity"]
     assert second["prior_producer_identity"] == first["producer_identity"]
+
+
+def _rewrite_manifest(build: Path, mutator) -> Path:
+    path = build / "manifest.json"
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+    mutator(manifest)
+    path.write_text(json.dumps(manifest), encoding="utf-8")
+    return build
+
+
+def _stale_source_health() -> dict:
+    return {
+        "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
+        "status": "STALE",
+        "reason_codes": ["WINDOW_INCOMPLETE", "UNCLOSED_CURRENT_WINDOW"],
+    }
+
+
+@pytest.mark.parametrize(
+    ("age", "state", "new_admission", "bound"),
+    (
+        (timedelta(hours=23, minutes=59), "CURRENT", True, True),
+        (timedelta(hours=24), "CURRENT", True, True),
+        (timedelta(hours=24, minutes=1), "DEGRADED", True, True),
+        (timedelta(hours=71, minutes=59), "DEGRADED", True, True),
+        (timedelta(hours=72), "DEGRADED", True, True),
+        (timedelta(hours=72, minutes=1), "FROZEN_FOR_NEW_ADMISSION", False, True),
+        (timedelta(days=6, hours=23, minutes=59), "FROZEN_FOR_NEW_ADMISSION", False, True),
+        (timedelta(days=7), "FROZEN_FOR_NEW_ADMISSION", False, True),
+        (timedelta(days=7, minutes=1), "EXPIRED", False, False),
+    ),
+)
+def test_readback_classifies_last_good_commercial_authority(
+    tmp_path: Path, age: timedelta, state: str, new_admission: bool, bound: bool
+) -> None:
+    public, state_path, alerts = _paths(tmp_path)
+    atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state_path, alert_ledger=alerts, now=NOW)
+    before = (public / "current" / "manifest.json").read_bytes()
+    result = check_current_publication(
+        public,
+        state_path=state_path,
+        alert_ledger=alerts,
+        now=NOW + age,
+        source_operational_health=_stale_source_health(),
+    )
+    assert result["ok"] is True
+    assert result["integrity_status"] == "HEALTHY"
+    assert result["source_operational_health"]["status"] == "STALE"
+    assert result["commercial_authority"]["state"] == state
+    assert result["commercial_authority"]["new_admission_allowed"] is new_admission
+    assert result["commercial_authority"]["existing_bound_touch_transport_allowed"] is bound
+    assert result["last_good_publication"]["membership_hash"]
+    assert (public / "current" / "manifest.json").read_bytes() == before
+
+
+def test_new_promotion_still_requires_live_pncp_fresh(tmp_path: Path) -> None:
+    public, state, alerts = _paths(tmp_path)
+    first = atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
+    before = (public / "current" / "manifest.json").read_bytes()
+    later = NOW + timedelta(hours=1)
+    candidate = _rewrite_manifest(
+        _build(tmp_path / "next", snapshot="snapshot-b", generated_at=later),
+        lambda manifest: manifest["authoritative_source_freshness"].__setitem__("status", "STALE"),
+    )
+    with pytest.raises(ValueError, match="not FRESH"):
+        atomic_publish_directory(candidate, public, state_path=state, alert_ledger=alerts, now=later)
+    assert (public / "current" / "manifest.json").read_bytes() == before
+    readback = check_current_publication(
+        public,
+        state_path=state,
+        alert_ledger=alerts,
+        now=later,
+        source_operational_health=_stale_source_health(),
+    )
+    assert readback["commercial_authority"]["state"] == "CURRENT"
+    assert readback["commercial_authority"]["basis_snapshot_hash"] == first["snapshot_hash"]
+    assert Path(first["current"]).resolve() == (public / "current").resolve()
+
+
+def test_failed_next_run_preserves_authority_across_current_degraded_frozen(
+    tmp_path: Path,
+) -> None:
+    public, state, alerts = _paths(tmp_path)
+    atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
+    before = (public / "current" / "manifest.json").read_bytes()
+    for age, expected in (
+        (timedelta(hours=1), "CURRENT"),
+        (timedelta(hours=25), "DEGRADED"),
+        (timedelta(hours=73), "FROZEN_FOR_NEW_ADMISSION"),
+    ):
+        clock = NOW + age
+        candidate = _rewrite_manifest(
+            _build(tmp_path / f"next-{expected}", snapshot=f"snap-{expected}", generated_at=clock),
+            lambda manifest: manifest["authoritative_source_freshness"].__setitem__("status", "UNKNOWN"),
+        )
+        with pytest.raises(ValueError, match="not FRESH"):
+            atomic_publish_directory(candidate, public, state_path=state, alert_ledger=alerts, now=clock)
+        assert (public / "current" / "manifest.json").read_bytes() == before
+        readback = check_current_publication(
+            public,
+            state_path=state,
+            alert_ledger=alerts,
+            now=clock,
+            source_operational_health={
+                "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
+                "status": "UNKNOWN",
+                "reason_codes": ["LOCK_BUSY_NO_CLOSE"],
+            },
+        )
+        assert readback["commercial_authority"]["state"] == expected
+        assert readback["source_operational_health"]["status"] == "UNKNOWN"
+
+
+def test_expired_prior_authority_does_not_revive_on_failed_refresh(tmp_path: Path) -> None:
+    public, state, alerts = _paths(tmp_path)
+    atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
+    clock = NOW + timedelta(days=7, minutes=1)
+    candidate = _rewrite_manifest(
+        _build(tmp_path / "next", snapshot="snapshot-b", generated_at=clock),
+        lambda manifest: manifest["authoritative_source_freshness"].__setitem__("status", "DEGRADED"),
+    )
+    with pytest.raises(ValueError, match="not FRESH"):
+        atomic_publish_directory(candidate, public, state_path=state, alert_ledger=alerts, now=clock)
+    readback = check_current_publication(
+        public,
+        state_path=state,
+        alert_ledger=alerts,
+        now=clock,
+        source_operational_health={
+            "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
+            "status": "DEGRADED",
+            "reason_codes": ["LAG_ABOVE_OPERATIONAL_TARGET"],
+        },
+    )
+    assert readback["commercial_authority"]["state"] == "EXPIRED"
+    assert readback["commercial_authority"]["new_admission_allowed"] is False
+    assert readback["commercial_authority"]["existing_bound_touch_transport_allowed"] is False
+    assert "ALL_NEW_TRANSPORT_EXPIRED" in readback["commercial_authority"]["reason_codes"]
+
+
+def test_membership_mismatch_on_candidate_preserves_last_good(tmp_path: Path) -> None:
+    public, state, alerts = _paths(tmp_path)
+    first = atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
+    before = (public / "current" / "manifest.json").read_bytes()
+    later = NOW + timedelta(hours=2)
+    candidate = _rewrite_manifest(
+        _build(tmp_path / "next", snapshot="snapshot-b", generated_at=later),
+        lambda manifest: manifest["authoritative_target_membership"].__setitem__("membership_hash", "deadbeef"),
+    )
+    with pytest.raises(ValueError, match="membership_hash"):
+        atomic_publish_directory(candidate, public, state_path=state, alert_ledger=alerts, now=later)
+    assert (public / "current" / "manifest.json").read_bytes() == before
+    readback = check_current_publication(public, state_path=state, alert_ledger=alerts, now=later)
+    assert readback["commercial_authority"]["basis_membership_hash"] == first["membership_hash"]
+
+
+def test_source_run_mismatch_on_binding_is_unknown() -> None:
+    from scripts.confenge_activation.commercial_authority import (
+        CommercialAuthorityBinding,
+        classify_commercial_authority,
+    )
+
+    observed = CommercialAuthorityBinding(
+        basis_source_run_id="run-a",
+        basis_snapshot_hash="snap-a",
+        basis_membership_hash="mem-a",
+        basis_publication_semantic_hash="sem-a",
+    )
+    expected = CommercialAuthorityBinding(
+        basis_source_run_id="run-b",
+        basis_snapshot_hash="snap-a",
+        basis_membership_hash="mem-a",
+        basis_publication_semantic_hash="sem-a",
+    )
+    payload = classify_commercial_authority(validated_at=NOW, now=NOW, binding=observed, expected_binding=expected)
+    assert payload["state"] == "UNKNOWN"
+    assert "SOURCE_RUN_MISMATCH" in payload["reason_codes"]
+    assert payload["new_admission_allowed"] is False
+
+
+def test_partial_reconcile_candidate_does_not_replace_current(tmp_path: Path) -> None:
+    public, state, alerts = _paths(tmp_path)
+    atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
+    before = (public / "current" / "manifest.json").read_bytes()
+    later = NOW + timedelta(hours=3)
+    candidate = _rewrite_manifest(
+        _build(tmp_path / "next", snapshot="snapshot-b", generated_at=later),
+        lambda manifest: (
+            manifest["authoritative_contact_projection"].__setitem__("population_publication_ready", False),
+            manifest["authoritative_contact_projection"].__setitem__("population_coverage_ratio", 0.996),
+        ),
+    )
+    with pytest.raises(ValueError, match="not publication ready"):
+        atomic_publish_directory(candidate, public, state_path=state, alert_ledger=alerts, now=later)
+    assert (public / "current" / "manifest.json").read_bytes() == before
+
+
+def test_same_snapshot_replay_preserves_last_good_authority(tmp_path: Path) -> None:
+    public, state, alerts = _paths(tmp_path)
+    first = atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
+    later = NOW + timedelta(hours=2)
+    second = atomic_publish_directory(
+        _build(tmp_path / "second", generated_at=later), public, state_path=state, alert_ledger=alerts, now=later
+    )
+    assert second["skipped_same"] is True
+    assert second["reason"] == "SAME_SNAPSHOT_NOT_FRESHNESS"
+    assert Path(first["current"]).resolve() == (public / "current").resolve()
+    assert second["commercial_authority"]["state"] == "CURRENT"
+    assert second["commercial_authority"]["basis_snapshot_hash"] == first["snapshot_hash"]
+
+
+def test_cli_check_publication_emits_both_planes_twice(tmp_path: Path) -> None:
+    public, state, alerts = _paths(tmp_path)
+    atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
+    command = [
+        sys.executable,
+        "-m",
+        "scripts.confenge_activation",
+        "check-publication",
+        "--publish-dir",
+        str(public),
+        "--state",
+        str(state),
+        "--alert-ledger",
+        str(alerts),
+        "--max-age-hours",
+        "24",
+    ]
+    payloads = []
+    for _ in range(2):
+        completed = subprocess.run(command, check=False, capture_output=True, text=True)
+        assert completed.returncode == 0, completed.stderr
+        payload = json.loads(completed.stdout)
+        payloads.append(payload)
+        assert payload["ok"] is True
+        assert "commercial_authority" in payload
+        assert "source_operational_health" in payload
+        assert payload["commercial_authority"]["state"] in {
+            "CURRENT",
+            "DEGRADED",
+            "FROZEN_FOR_NEW_ADMISSION",
+            "EXPIRED",
+        }
+        assert payload["last_good_publication"]["membership_hash"]
+        assert "new_admission_allowed" in payload["commercial_authority"]
+        assert "existing_bound_touch_transport_allowed" in payload["commercial_authority"]
+    assert (
+        payloads[0]["last_good_publication"]["membership_hash"]
+        == payloads[1]["last_good_publication"]["membership_hash"]
+    )
+    assert (
+        payloads[0]["commercial_authority"]["basis_snapshot_hash"]
+        == payloads[1]["commercial_authority"]["basis_snapshot_hash"]
+    )
+
+
+def test_process_restart_readback_is_stable(tmp_path: Path) -> None:
+    public, state, alerts = _paths(tmp_path)
+    atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
+    clock = NOW + timedelta(hours=5)
+    first = check_current_publication(public, state_path=state, alert_ledger=alerts, now=clock)
+    second = check_current_publication(public, state_path=state, alert_ledger=alerts, now=clock)
+    assert first["commercial_authority"] == second["commercial_authority"]
+    assert first["last_good_publication"]["membership_hash"] == second["last_good_publication"]["membership_hash"]
+    assert first["ok"] is True and second["ok"] is True
+
+
+def test_published_deactivation_beats_commercial_grace(tmp_path: Path) -> None:
+    public, state, alerts = _paths(tmp_path)
+    atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
+    later = NOW + timedelta(hours=2)
+    second = atomic_publish_directory(
+        _zero_membership_build(tmp_path / "zero"), public, state_path=state, alert_ledger=alerts, now=later
+    )
+    assert second["ok"] is True
+    readback = check_current_publication(public, state_path=state, alert_ledger=alerts, now=later)
+    allowed, reasons = root_transport_allowed(
+        readback["commercial_authority"],
+        cnpj_root8="12345678",
+        deactivated_roots=["12345678000195"],
+        new_admission=False,
+    )
+    assert allowed is False
+    assert "ROOT_EXPLICITLY_DEACTIVATED" in reasons
+
+
+def test_new_promotion_refuses_25h_old_candidate_without_touching_current(tmp_path: Path) -> None:
+    public, state, alerts = _paths(tmp_path)
+    atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
+    before = (public / "current" / "manifest.json").read_bytes()
+    clock = NOW + timedelta(hours=25)
+    with pytest.raises(ValueError, match="stale"):
+        atomic_publish_directory(
+            _build(tmp_path / "next", snapshot="snapshot-b", generated_at=NOW),
+            public,
+            state_path=state,
+            alert_ledger=alerts,
+            now=clock,
+        )
+    assert (public / "current" / "manifest.json").read_bytes() == before
 
 
 def test_producer_identity_is_deterministic_and_clock_free() -> None:

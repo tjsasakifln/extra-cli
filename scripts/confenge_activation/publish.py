@@ -17,6 +17,13 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+from scripts.confenge_activation.commercial_authority import (
+    CONTRACT_VERSION as COMMERCIAL_AUTHORITY_CONTRACT,
+)
+from scripts.confenge_activation.commercial_authority import (
+    authority_from_manifest,
+    classify_commercial_authority,
+)
 from scripts.confenge_outreach_pipeline.party_role import PARTY_ROLE_POLICY_V1
 from scripts.confenge_target_fit.company_key import canonical_target_membership
 
@@ -200,10 +207,11 @@ def _assert_membership_deactivation_delta(
         )
 
 
-def _append_alert(path: Path, *, reason: str, detail: dict[str, Any]) -> None:
+def _append_alert(path: Path, *, reason: str, detail: dict[str, Any], at: datetime | None = None) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
+    clock = (at or datetime.now(UTC)).astimezone(UTC)
     event = {
-        "at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+        "at": clock.isoformat().replace("+00:00", "Z"),
         "event": "confenge_feed_publication_alert",
         "reason": reason,
         "project": "extra-cli",
@@ -323,9 +331,7 @@ def publication_semantic_hash(manifest: dict[str, Any]) -> str:
     for entry in manifest.get("deactivations") or []:
         if not isinstance(entry, dict):
             continue
-        normalized_deactivations.append(
-            {key: value for key, value in entry.items() if key not in {"evaluated_at"}}
-        )
+        normalized_deactivations.append({key: value for key, value in entry.items() if key not in {"evaluated_at"}})
     normalized_deactivations.sort(
         key=lambda row: (str(row.get("cnpj14") or "")[:8], json.dumps(row, sort_keys=True, default=str))
     )
@@ -343,12 +349,43 @@ def publication_semantic_hash(manifest: dict[str, Any]) -> str:
     return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 
+def _source_operational_health_plane(snapshot: dict[str, Any] | None) -> dict[str, Any]:
+    """Live crawler health. Absence is UNKNOWN — never a fabricated FRESH."""
+    if isinstance(snapshot, dict) and snapshot.get("contract_version") == "PNCP_CONTRACT_FRESHNESS/1.0":
+        status = str(snapshot.get("status") or "UNKNOWN")
+        if status not in {"FRESH", "DEGRADED", "STALE", "UNKNOWN"}:
+            status = "UNKNOWN"
+        return {
+            "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
+            "status": status,
+            "reason_codes": list(snapshot.get("reason_codes") or []),
+            "as_of": snapshot.get("as_of") or snapshot.get("classified_at"),
+        }
+    return {
+        "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
+        "status": "UNKNOWN",
+        "reason_codes": ["SOURCE_OPERATIONAL_HEALTH_NOT_PROVIDED"],
+    }
+
+
+def _publication_candidate_health(state: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "last_status": state.get("last_status"),
+        "last_attempt_at": state.get("last_attempt_at"),
+        "last_cycle_status": state.get("last_cycle_status"),
+        "last_cycle_at": state.get("last_cycle_at"),
+        "skipped_same": bool(state.get("skipped_same")),
+        "error": state.get("error") or (state.get("cycle") or {}).get("error"),
+    }
+
+
 def _validate_authoritative_manifest(
     build_dir: Path,
     manifest: dict[str, Any],
     *,
     max_age_hours: float,
     now: datetime,
+    require_live_source_freshness: bool = True,
 ) -> dict[str, Any]:
     if manifest.get("schema_version") != MANIFEST_SCHEMA:
         raise ValueError("unsupported or missing manifest schema_version")
@@ -386,19 +423,19 @@ def _validate_authoritative_manifest(
         raise ValueError("manifest.generated_at is in the future")
     generated_age = max(0.0, (now - generated_at).total_seconds() / 3600)
     watermark_age = max(0.0, (now - watermark).total_seconds() / 3600)
-    if generated_age > max_age_hours:
-        raise ValueError(f"manifest stale: generated_at age {generated_age:.3f}h > {max_age_hours:.3f}h")
-    if watermark_age > max_age_hours:
-        raise ValueError(f"datalake watermark stale: age {watermark_age:.3f}h > {max_age_hours:.3f}h")
-
     freshness = manifest.get("authoritative_source_freshness")
     freshness = freshness if isinstance(freshness, dict) else {}
     if freshness.get("contract_version") != "PNCP_CONTRACT_FRESHNESS/1.0":
         raise ValueError("authoritative PNCP freshness contract is required")
     if freshness.get("status") != "FRESH":
         raise ValueError(f"authoritative PNCP freshness is not FRESH: {freshness.get('status') or 'MISSING'}")
-    if _parse_timestamp(freshness.get("expires_at"), field="authoritative_source_freshness.expires_at") <= now:
-        raise ValueError("authoritative PNCP freshness expired before publication")
+    if require_live_source_freshness:
+        if generated_age > max_age_hours:
+            raise ValueError(f"manifest stale: generated_at age {generated_age:.3f}h > {max_age_hours:.3f}h")
+        if watermark_age > max_age_hours:
+            raise ValueError(f"datalake watermark stale: age {watermark_age:.3f}h > {max_age_hours:.3f}h")
+        if _parse_timestamp(freshness.get("expires_at"), field="authoritative_source_freshness.expires_at") <= now:
+            raise ValueError("authoritative PNCP freshness expired before publication")
 
     chunks = manifest.get("chunks")
     if not isinstance(chunks, list) or not chunks:
@@ -639,10 +676,11 @@ def _validate_authoritative_manifest(
         raise ValueError("authoritative contact population_as_of must equal its full reconcile attestation")
     if contact_generated > now + timedelta(minutes=5) or contact_population_as_of > now + timedelta(minutes=5):
         raise ValueError("authoritative contact projection timestamp is in the future")
-    if max(0.0, (now - contact_generated).total_seconds() / 3600) > max_age_hours:
-        raise ValueError("authoritative contact projection is stale")
-    if max(0.0, (now - contact_population_as_of).total_seconds() / 3600) > max_age_hours:
-        raise ValueError("authoritative contact population is stale")
+    if require_live_source_freshness:
+        if max(0.0, (now - contact_generated).total_seconds() / 3600) > max_age_hours:
+            raise ValueError("authoritative contact projection is stale")
+        if max(0.0, (now - contact_population_as_of).total_seconds() / 3600) > max_age_hours:
+            raise ValueError("authoritative contact population is stale")
     if contact_projection.get("coverage_complete") is not True:
         raise ValueError("authoritative contact projection coverage_complete=true is required")
     _assert_publication_ready_population(contact_projection)
@@ -799,8 +837,21 @@ def atomic_publish_directory(
         )
     except Exception as exc:
         detail = {"build_dir": str(build_dir), "error": str(exc)}
-        _append_alert(alert_ledger, reason="PUBLICATION_REFUSED", detail=detail)
+        _append_alert(alert_ledger, reason="PUBLICATION_REFUSED", detail=detail, at=clock)
         state = _read_state(state_path)
+        last_good_authority = None
+        current_dir = publish_dir / current_name
+        if current_dir.is_dir():
+            try:
+                prior_manifest = _read_json(current_dir / "manifest.json")
+                last_good_authority = authority_from_manifest(
+                    prior_manifest,
+                    now=clock,
+                    producer_identity=producer_identity(prior_manifest),
+                    publication_semantic_hash=publication_semantic_hash(prior_manifest),
+                )
+            except (OSError, ValueError, json.JSONDecodeError):
+                last_good_authority = classify_commercial_authority(validated_at=None, now=clock)
         _atomic_json(
             state_path,
             {
@@ -808,6 +859,7 @@ def atomic_publish_directory(
                 "schema_id": "confenge.feed_publication_state.v1",
                 "last_attempt_at": clock.isoformat().replace("+00:00", "Z"),
                 "last_status": "REFUSED",
+                "commercial_authority": last_good_authority,
                 **detail,
             },
         )
@@ -824,8 +876,16 @@ def atomic_publish_directory(
             _assert_membership_deactivation_delta(current, prior, build_dir, manifest)
         except Exception as exc:
             detail = {"build_dir": str(build_dir), "error": str(exc)}
-            _append_alert(alert_ledger, reason="PUBLICATION_REFUSED", detail=detail)
+            _append_alert(alert_ledger, reason="PUBLICATION_REFUSED", detail=detail, at=clock)
             state = _read_state(state_path)
+            last_good_authority = None
+            if prior:
+                last_good_authority = authority_from_manifest(
+                    prior,
+                    now=clock,
+                    producer_identity=producer_identity(prior),
+                    publication_semantic_hash=publication_semantic_hash(prior),
+                )
             _atomic_json(
                 state_path,
                 {
@@ -833,6 +893,7 @@ def atomic_publish_directory(
                     "schema_id": "confenge.feed_publication_state.v1",
                     "last_attempt_at": clock.isoformat().replace("+00:00", "Z"),
                     "last_status": "REFUSED",
+                    "commercial_authority": last_good_authority,
                     **detail,
                 },
             )
@@ -850,9 +911,15 @@ def atomic_publish_directory(
                 "publish_dir": str(publish_dir.resolve()),
                 "current": str(current.resolve()),
                 **metrics,
+                "commercial_authority": authority_from_manifest(
+                    prior,
+                    now=clock,
+                    producer_identity=producer_identity(prior),
+                    publication_semantic_hash=publication_semantic_hash(prior),
+                ),
                 "duration_seconds": round(time.monotonic() - started, 6),
             }
-            _append_alert(alert_ledger, reason="SAME_SNAPSHOT_NOT_FRESHNESS", detail=result)
+            _append_alert(alert_ledger, reason="SAME_SNAPSHOT_NOT_FRESHNESS", detail=result, at=clock)
             state = _read_state(state_path)
             _atomic_json(
                 state_path,
@@ -920,6 +987,12 @@ def atomic_publish_directory(
         "current": str(current.resolve()),
         "release_dir": str(release_dir.resolve()),
         **metrics,
+        "commercial_authority": authority_from_manifest(
+            manifest,
+            now=clock,
+            producer_identity=str(metrics["producer_identity"]),
+            publication_semantic_hash=str(metrics["publication_semantic_hash"]),
+        ),
         "snapshot_changed": str(state.get("snapshot_hash") or "") != str(metrics["snapshot_hash"]),
         "contact_count_delta": (
             int(metrics["contacts_total"]) - int(previous_contacts) if previous_contacts is not None else None
@@ -953,22 +1026,43 @@ def check_current_publication(
     state_path: Path = DEFAULT_STATE_PATH,
     alert_ledger: Path = DEFAULT_ALERT_LEDGER,
     now: datetime | None = None,
+    source_operational_health: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Fail closed when the publicly served current release is stale or corrupt."""
+    """Read back last-good integrity, live source health, and commercial authority.
+
+    ``max_age_hours`` remains the new-promotion source-health budget. Last-good
+    commercial expiry is ``COMMERCIAL_AUTHORITY/1.0``, not this parameter.
+    ``ok`` is last-good artifact integrity, never a fabricated PNCP FRESH.
+    """
+    del max_age_hours  # new-promotion budget; last-good uses commercial policy
     clock = (now or datetime.now(UTC)).astimezone(UTC)
     current = Path(publish_dir) / current_name
+    source_plane = _source_operational_health_plane(source_operational_health)
+    state = _read_state(state_path)
+    candidate = _publication_candidate_health(state)
     try:
         manifest = _read_json(current / "manifest.json")
         metrics = _validate_authoritative_manifest(
             current,
             manifest,
-            max_age_hours=max_age_hours,
+            max_age_hours=DEFAULT_MAX_AGE_HOURS,
             now=clock,
+            require_live_source_freshness=False,
         )
     except Exception as exc:
-        result = {"ok": False, "status": "UNHEALTHY", "current": str(current), "error": str(exc)}
-        _append_alert(alert_ledger, reason="PUBLIC_FEED_UNHEALTHY", detail=result)
-        state = _read_state(state_path)
+        result = {
+            "ok": False,
+            "status": "UNHEALTHY",
+            "integrity_status": "UNHEALTHY",
+            "current": str(current),
+            "error": str(exc),
+            "source_operational_health": source_plane,
+            "publication_candidate_health": candidate,
+            "last_good_publication": None,
+            "commercial_authority": classify_commercial_authority(validated_at=None, now=clock),
+            "commercial_authority_contract": COMMERCIAL_AUTHORITY_CONTRACT,
+        }
+        _append_alert(alert_ledger, reason="PUBLIC_FEED_UNHEALTHY", detail=result, at=clock)
         _atomic_json(
             state_path,
             {
@@ -981,8 +1075,52 @@ def check_current_publication(
             },
         )
         return result
-    result = {"ok": True, "status": "HEALTHY", "current": str(current.resolve()), **metrics}
-    state = _read_state(state_path)
+    authority = authority_from_manifest(
+        manifest,
+        now=clock,
+        producer_identity=str(metrics["producer_identity"]),
+        publication_semantic_hash=str(metrics["publication_semantic_hash"]),
+        source_operational_health=source_plane,
+    )
+    last_good = {
+        "run_id": metrics["run_id"],
+        "snapshot_hash": metrics["snapshot_hash"],
+        "membership_hash": metrics["membership_hash"],
+        "publication_semantic_hash": metrics["publication_semantic_hash"],
+        "lead_count": metrics["lead_count"],
+        "generated_at": metrics["generated_at"],
+        "release_dir": str(current.resolve()),
+    }
+    last_good_attestation = manifest.get("authoritative_source_freshness")
+    last_good_attestation = last_good_attestation if isinstance(last_good_attestation, dict) else {}
+    result = {
+        "ok": True,
+        "status": "HEALTHY",
+        "integrity_status": "HEALTHY",
+        "current": str(current.resolve()),
+        "source_operational_health": source_plane,
+        "last_good_source_attestation": last_good_attestation,
+        "publication_candidate_health": candidate,
+        "last_good_publication": last_good,
+        "commercial_authority": authority,
+        "commercial_authority_contract": COMMERCIAL_AUTHORITY_CONTRACT,
+        **metrics,
+    }
+    commercial_state = str(authority.get("state") or "UNKNOWN")
+    if commercial_state in {"DEGRADED", "FROZEN_FOR_NEW_ADMISSION", "EXPIRED"}:
+        _append_alert(
+            alert_ledger,
+            reason=f"COMMERCIAL_AUTHORITY_{commercial_state}",
+            detail={
+                "state": commercial_state,
+                "new_admission_allowed": authority.get("new_admission_allowed"),
+                "existing_bound_touch_transport_allowed": authority.get("existing_bound_touch_transport_allowed"),
+                "reason_codes": authority.get("reason_codes"),
+                "age_hours": authority.get("age_hours"),
+                "valid_until": authority.get("valid_until"),
+            },
+            at=clock,
+        )
     _atomic_json(
         state_path,
         {

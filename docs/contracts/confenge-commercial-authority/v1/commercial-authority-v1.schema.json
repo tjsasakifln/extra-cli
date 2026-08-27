@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://extra.consultoria/contracts/confenge-commercial-authority/v1",
+  "title": "COMMERCIAL_AUTHORITY/1.0",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "contract_version",
+    "policy_version",
+    "state",
+    "new_admission_allowed",
+    "existing_bound_touch_transport_allowed",
+    "reason_codes",
+    "validated_at",
+    "valid_until",
+    "age_hours",
+    "basis_source_run_id",
+    "basis_snapshot_hash",
+    "basis_membership_hash",
+    "basis_publication_semantic_hash"
+  ],
+  "properties": {
+    "schema": { "type": "string", "const": "COMMERCIAL_AUTHORITY/1.0" },
+    "contract_version": { "type": "string", "const": "COMMERCIAL_AUTHORITY/1.0" },
+    "policy_version": { "type": "string", "const": "COMMERCIAL_AUTHORITY_POLICY/1.0" },
+    "state": {
+      "type": "string",
+      "enum": ["CURRENT", "DEGRADED", "FROZEN_FOR_NEW_ADMISSION", "EXPIRED", "UNKNOWN"]
+    },
+    "new_admission_allowed": { "type": "boolean" },
+    "existing_bound_touch_transport_allowed": { "type": "boolean" },
+    "reason_codes": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "validated_at": { "type": ["string", "null"], "format": "date-time" },
+    "valid_until": { "type": ["string", "null"], "format": "date-time" },
+    "age_hours": { "type": ["number", "null"], "minimum": 0 },
+    "classified_at": { "type": "string", "format": "date-time" },
+    "basis_source_run_id": { "type": "string" },
+    "basis_snapshot_hash": { "type": "string" },
+    "basis_membership_hash": { "type": "string" },
+    "basis_publication_semantic_hash": { "type": "string" },
+    "producer_identity": { "type": "string" },
+    "source_operational_health_hash": { "type": ["string", "null"] },
+    "windows_hours": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "current_max_hours": { "type": "number" },
+        "degraded_max_hours": { "type": "number" },
+        "frozen_max_hours": { "type": "number" }
+      }
+    }
+  }
+}
