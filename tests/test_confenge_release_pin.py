@@ -104,3 +104,45 @@ def test_timers_are_started_not_only_enabled():
     )
     assert '"enable", "--now", *CHAIN_TIMERS' in source
     assert '"timers_not_active"' in source, "verification must read back whether the timer is loaded"
+
+
+def test_pncp_checkpoint_dir_is_versioned_and_outside_the_release():
+    """A read-only release cannot hold a crawl checkpoint.
+
+    This lived in a hand-written host drop-in, so the release pin discarded it and
+    the crawler died with PermissionError writing inside the immutable tree.
+    """
+    unit = (UNIT_SOURCE / "pncp-contracts.service").read_text(encoding="utf-8")
+    assert "--checkpoint-dir /var/lib/extra-consultoria/checkpoints/contracts" in unit
+    body = render_dropin(unit, SHA)
+    exec_line = next(line for line in body.splitlines() if line.startswith("ExecStart=/"))
+    assert "--checkpoint-dir /var/lib/extra-consultoria/checkpoints/contracts" in exec_line
+    assert f"/opt/extra-consultoria-releases/{SHA}/data" not in exec_line
+    assert "--days 7" in exec_line
+
+
+def test_a_foreign_execstart_dropin_blocks_the_pin(tmp_path, monkeypatch):
+    import deploy.confenge.pin_release as pin
+
+    root = tmp_path / "systemd"
+    unit_dir = root / f"{CHAIN_UNITS[0]}.d"
+    unit_dir.mkdir(parents=True)
+    (unit_dir / "50-host-tweak.conf").write_text("[Service]\nExecStart=\nExecStart=/bin/true\n", encoding="utf-8")
+    (unit_dir / "90-immutable-release.conf").write_text("[Service]\nExecStart=/bin/true\n", encoding="utf-8")
+    monkeypatch.setattr(pin, "SYSTEMD_ROOT", root)
+
+    found = pin.foreign_execstart_dropins()
+    assert found == {CHAIN_UNITS[0]: ["50-host-tweak.conf"]}
+
+
+def test_our_own_dropin_is_not_reported_as_foreign(tmp_path, monkeypatch):
+    import deploy.confenge.pin_release as pin
+
+    root = tmp_path / "systemd"
+    for unit in CHAIN_UNITS:
+        unit_dir = root / f"{unit}.d"
+        unit_dir.mkdir(parents=True)
+        (unit_dir / "90-immutable-release.conf").write_text("[Service]\nExecStart=/bin/true\n", encoding="utf-8")
+    monkeypatch.setattr(pin, "SYSTEMD_ROOT", root)
+
+    assert pin.foreign_execstart_dropins() == {}

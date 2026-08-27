@@ -41,7 +41,13 @@ Environment=CONTRACTS_WINDOW_RETRY_DELAY_SECONDS=60
 # late arrivals/retificações, split by the runner into seven daily completion
 # units so mutable upstream pagination cannot invalidate the whole lookback.
 SuccessExitStatus=75
-ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.crawl.run_contracts_incremental --days 7
+# The checkpoint has to live outside the release tree: releases are immutable and
+# read-only, and a crawl that cannot write its checkpoint restarts from zero and
+# fails closed. This was a hand-written drop-in on the host, which is how a
+# release pin silently dropped it and the crawler died on PermissionError.
+ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.crawl.run_contracts_incremental \
+    --days 7 \
+    --checkpoint-dir /var/lib/extra-consultoria/checkpoints/contracts
 User=extra-consultoria
 Group=extra-consultoria
 TimeoutStartSec=150min
