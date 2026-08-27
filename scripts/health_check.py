@@ -135,10 +135,16 @@ def check_system() -> tuple[bool, str]:
 
 CRITICAL_TIMERS = (
     "pncp-contracts.timer",
+    "extra-confenge-target-fit-refresh.timer",
+    "extra-confenge-target-fit-reconcile.timer",
     "extra-crawl-pncp.timer",
     "extra-crawl-ciga-ckan.timer",
     "extra-health-check.timer",
     "extra-contracts-soak.timer",
+)
+
+CRITICAL_SERVICES = (
+    "extra-confenge-target-fit-worker.service",
 )
 
 CRITICAL_UNIT_TOKENS = (
@@ -195,6 +201,34 @@ def check_critical_timers() -> tuple[bool, str]:
     if bad:
         return False, "; ".join(bad[:5])
     return True, f"critical timers OK ({len(CRITICAL_TIMERS)})"
+
+
+def check_critical_services() -> tuple[bool, str]:
+    """Require long-running maintenance workers enabled + active."""
+    bad: list[str] = []
+    for unit in CRITICAL_SERVICES:
+        try:
+            en = subprocess.run(  # noqa: S603
+                ["systemctl", "is-enabled", unit],  # noqa: S607
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            ac = subprocess.run(  # noqa: S603
+                ["systemctl", "is-active", unit],  # noqa: S607
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            en_s = (en.stdout or "").strip()
+            ac_s = (ac.stdout or "").strip()
+            if en_s != "enabled" or ac_s != "active":
+                bad.append(f"{unit}:enabled={en_s}:active={ac_s}")
+        except Exception as exc:  # noqa: BLE001 - health reports every unit
+            bad.append(f"{unit}:err={type(exc).__name__}:{exc}")
+    if bad:
+        return False, "; ".join(bad)
+    return True, f"critical services OK ({len(CRITICAL_SERVICES)})"
 
 
 def validate_dual_coverage_summary(data: dict) -> tuple[bool, str]:
@@ -307,6 +341,14 @@ def main() -> int:
     tm_ok, tm_msg = check_critical_timers()
     results["critical_timers"] = {"status": "pass" if tm_ok else "fail", "message": tm_msg}
     if not tm_ok:
+        exit_code = 2
+
+    svc_ok, svc_msg = check_critical_services()
+    results["critical_services"] = {
+        "status": "pass" if svc_ok else "fail",
+        "message": svc_msg,
+    }
+    if not svc_ok:
         exit_code = 2
 
     dual_ok, dual_msg = check_dual_coverage_artifact()

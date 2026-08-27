@@ -858,9 +858,11 @@ def _is_iso_watermark(value: str) -> bool:
 
 
 def max_current_watermark(conn: Any) -> str:
-    """Best parseable watermark from materialization tables + control plane.
+    """Best parseable watermark proven by target-fit materialization/progress.
 
-    Ignores synthetic test watermarks (e.g. ``wm-b``) so status lag stays meaningful.
+    The CDC watermark is intentionally excluded. CDC proves refresh/enqueue
+    progress, not worker/materialization progress; treating it as target-fit's
+    watermark can report zero lag while the worker is stopped.
     """
     candidates: list[tuple[datetime, str]] = []
     with conn.cursor() as cur:
@@ -889,27 +891,6 @@ def max_current_watermark(conn: Any) -> str:
                     candidates.append((ts, wm))
             except Exception:  # noqa: BLE001, S110 — table may not exist mid-migration
                 pass
-        # Control plane CDC watermark
-        cur.execute(
-            "SELECT value FROM confenge_target_fit_control WHERE key = 'cdc_watermark'"
-        )
-        row = cur.fetchone()
-        if row:
-            val = row["value"]
-            if isinstance(val, str):
-                import json as _json
-
-                try:
-                    val = _json.loads(val)
-                except Exception:  # noqa: BLE001
-                    val = {}
-            wm = str((val or {}).get("watermark") or "")
-            if _is_iso_watermark(wm):
-                try:
-                    ts = datetime.fromisoformat(wm.replace("Z", "+00:00"))
-                    candidates.append((ts, wm))
-                except ValueError:
-                    pass
         # Explicit target-fit progress watermark (written by worker)
         cur.execute(
             "SELECT value FROM confenge_target_fit_control WHERE key = 'target_fit_watermark'"

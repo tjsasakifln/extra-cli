@@ -1,6 +1,9 @@
 [Unit]
 Description=Timer — CONFENGE target-fit CDC refresh (safety net)
-Documentation=file:/opt/extra-cli/docs/confenge/TARGET-FIT-CONTINUOUS-REFRESH.md
+Documentation=file:/opt/extra-consultoria/docs/confenge/TARGET-FIT-CONTINUOUS-REFRESH.md
+# extra-cli source/target maintenance timer.
+# Never couple this timer lifecycle to its oneshot. A failed refresh must leave
+# the next safety-net trigger scheduled.
 
 [Timer]
 # Safety net every 30 minutes; prefer datalake completion trigger when wired.

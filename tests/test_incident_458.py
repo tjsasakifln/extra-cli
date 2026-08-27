@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import io
 import json
 import os
 import sys
@@ -19,6 +20,7 @@ from scripts.crawl.run_contracts_90d_pilot import (
     _fetch_page_with_retry,
     classify_incident_error_text,
     closed_crawl_range,
+    error_indicates_timeout,
     should_replay_mutable_window,
 )
 
@@ -121,6 +123,83 @@ def test_retry_is_bounded_with_backoff_jitter_and_telemetry(monkeypatch) -> None
     assert telemetry[0]["classification"]["class"] == "transient"
 
 
+def test_real_timeout_502_503_use_one_bounded_retry_budget(monkeypatch) -> None:
+    from scripts.crawl import contracts_crawler
+
+    class Response:
+        status = 200
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def read(self) -> bytes:
+            return b'{"data": [{"numeroControlePNCP": "stable"}], "totalRegistros": 1, "totalPaginas": 1}'
+
+    outcomes = iter(
+        (
+            TimeoutError("timed out"),
+            urllib.error.HTTPError(
+                "https://example.invalid",
+                502,
+                "bad gateway",
+                None,
+                io.BytesIO(b"bad gateway"),
+            ),
+            urllib.error.HTTPError(
+                "https://example.invalid",
+                503,
+                "unavailable",
+                None,
+                io.BytesIO(b"unavailable"),
+            ),
+            Response(),
+        )
+    )
+
+    def fake_open(_request, **_kwargs):
+        outcome = next(outcomes)
+        if isinstance(outcome, BaseException):
+            raise outcome
+        return outcome
+
+    monkeypatch.setattr(urllib.request, "urlopen", fake_open)
+    monkeypatch.setattr(contracts_crawler, "CONTRACTS_READ_TIMEOUT", 60)
+    sleeps: list[float] = []
+    telemetry: list[dict] = []
+    result = _fetch_page_with_retry(
+        "20260815",
+        "20260821",
+        1,
+        max_retries=3,
+        telemetry=telemetry,
+        sleeper=sleeps.append,
+        jitter=lambda _a, _b: 0,
+    )
+
+    assert result.status == FetchStatus.SUCCESS_DATA
+    assert sleeps == [1.0, 2.0, 4.0]
+    assert [row["status"] for row in telemetry] == [
+        "connection_failed",
+        "http_server_error",
+        "http_server_error",
+        "success_data",
+    ]
+    assert all(
+        row["classification"]["class"] == "transient"
+        for row in telemetry[:3]
+    )
+    assert error_indicates_timeout("[connection_failed] Network error: timed out")
+    assert (
+        classify_incident_error_text(
+            "[connection_failed] Network error: timed out"
+        )["class"]
+        == "transient"
+    )
+
+
 def test_production_retry_window_is_finite_and_capped(monkeypatch) -> None:
     from scripts.crawl import run_contracts_90d_pilot as pilot
 
@@ -221,6 +300,42 @@ def test_mutable_window_replay_closes_only_after_stable_full_pass(monkeypatch, t
     assert calls == [1, 2, 1, 2]
     assert len(report["window_retry_events"]) == 1
     assert report["windows"][0]["status"] == "completed"
+
+
+def test_persistent_population_drift_exhausts_replay_without_close(monkeypatch, tmp_path) -> None:
+    from scripts.crawl import run_contracts_90d_pilot as pilot
+
+    monkeypatch.setattr(pilot, "CONTRACTS_REQUEST_DELAY", 0)
+    monkeypatch.setattr(pilot, "CONTRACTS_JANELA_DELAY", 0)
+    monkeypatch.setattr(pilot, "UPSERT_BATCH", 1)
+    monkeypatch.setattr(pilot, "_WINDOW_RETRY_MAX", 1)
+    monkeypatch.setattr(pilot, "_WINDOW_RETRY_DELAY_SECONDS", 0)
+    monkeypatch.setattr(pilot, "transform", lambda rows: rows)
+    totals = iter((2, 1, 2, 1))
+
+    def fetch(_start, _end, page, **_kwargs):
+        return FetchResult(
+            status=FetchStatus.SUCCESS_DATA,
+            items=[{"numeroControlePNCP": f"page-{page}"}],
+            total_records=next(totals),
+            total_pages=2,
+            current_page=page,
+        )
+
+    monkeypatch.setattr(pilot, "_fetch_page", fetch)
+    report = pilot.run_pilot(
+        "",
+        days=1,
+        dry_run=True,
+        checkpoint_dir=str(tmp_path),
+        run_id="incident-458-persistent-drift",
+    )
+
+    assert report["status"] != "success"
+    assert report["totals"]["window_retries"] == 1
+    assert report["totals"]["windows_ok"] == 0
+    assert report["windows"][0]["status"] == "partial"
+    assert report["checkpoint"]["completed_windows"] == []
 
 
 def test_permanent_page_failure_is_not_retried(monkeypatch) -> None:
@@ -541,7 +656,7 @@ def test_tail_reconciliation_failure_is_not_suppressed(monkeypatch, tmp_path) ->
 
 
 def test_health_bundle_runs_freshness_after_infrastructure_failure(monkeypatch, tmp_path) -> None:
-    from scripts.ops import health_bundle, pncp_contract_freshness
+    from scripts.ops import health_bundle, pncp_contract_freshness, source_maintenance_health
 
     calls: list[str] = []
     monkeypatch.setattr(
@@ -554,8 +669,16 @@ def test_health_bundle_runs_freshness_after_infrastructure_failure(monkeypatch, 
         "main",
         lambda _argv: calls.append("freshness") or 1,
     )
-    report = health_bundle.run_bundle(freshness_output=tmp_path / "freshness.json")
-    assert calls == ["infrastructure", "freshness"]
+    monkeypatch.setattr(
+        source_maintenance_health,
+        "main",
+        lambda _argv: calls.append("maintenance") or 2,
+    )
+    report = health_bundle.run_bundle(
+        freshness_output=tmp_path / "freshness.json",
+        maintenance_output=tmp_path / "maintenance.json",
+    )
+    assert calls == ["infrastructure", "freshness", "maintenance"]
     assert report["status"] == "UNHEALTHY"
     assert report["exit_code"] == 2
 

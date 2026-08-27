@@ -140,7 +140,7 @@ def classify_incident_error_text(message: str) -> dict[str, Any]:
             "transience": "transient",
             "owner": "pncp",
         }
-    if "timeout" in text or "rate_limit" in text or "http_server_error" in text:
+    if error_indicates_timeout(text) or "rate_limit" in text or "http_server_error" in text:
         return {"class": "transient", "transience": "transient", "owner": "transport_or_pncp"}
     if (
         "upsert failed" in text
@@ -152,6 +152,12 @@ def classify_incident_error_text(message: str) -> dict[str, Any]:
     if "http_client_error" in text:
         return {"class": "permanent", "transience": "permanent", "owner": "request_contract"}
     return {"class": "permanent", "transience": "unknown", "owner": "unknown"}
+
+
+def error_indicates_timeout(message: str) -> bool:
+    """Recognize the typed status and real urllib timeout spellings."""
+    text = str(message or "").lower()
+    return any(token in text for token in ("timeout", "timed out", "connection_failed"))
 
 
 def should_replay_mutable_window(
@@ -1267,7 +1273,7 @@ def run_pilot(
 
             pagination.mark_first_pass_complete()
             persist_failed = any("upsert failed" in err for err in window_errors)
-            timed_out = any("timeout" in err.lower() or "CONNECTION_FAILED" in err for err in window_errors)
+            timed_out = any(error_indicates_timeout(err) for err in window_errors)
             first_pass = pagination.finish(
                 pass_count=1,
                 timeout=timed_out,
