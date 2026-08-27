@@ -49,6 +49,57 @@ def _pipeline_runtime() -> tuple[Path, dict[str, str]]:
     return entrypoint, env
 
 
+def _pipeline_failure_message(completed: subprocess.CompletedProcess, run_dir: Path) -> str:
+    """Always surface the factual cause of a pipeline failure.
+
+    The child pipeline runs with ``--quiet`` and reports structured failures on
+    stdout, so reading stderr alone produced the useless
+    ``pipeline failed with exit 1:`` message whenever a real, named cause
+    existed. Prefer a structured reason, then stdout, then stderr, and always
+    name the run directory that holds the full transcript.
+    """
+    parts = [f"canonical outreach pipeline failed with exit {completed.returncode}"]
+    reason = _structured_failure_reason(completed.stdout) or _structured_failure_reason(completed.stderr)
+    if reason:
+        parts.append(f"reason: {reason}")
+    stderr_tail = (completed.stderr or "").strip()
+    stdout_tail = (completed.stdout or "").strip()
+    if stderr_tail:
+        parts.append(f"stderr: {stderr_tail[-2000:]}")
+    if stdout_tail and not reason:
+        parts.append(f"stdout: {stdout_tail[-2000:]}")
+    if not reason and not stderr_tail and not stdout_tail:
+        parts.append("no diagnostic output was produced by the pipeline")
+    parts.append(f"transcript: {run_dir / 'cycle-command.json'}")
+    return "; ".join(parts)
+
+
+def _structured_failure_reason(stream: str | None) -> str | None:
+    """Extract a named cause from structured pipeline output, newest first."""
+    if not stream:
+        return None
+    for line in reversed(stream.strip().splitlines()):
+        line = line.strip()
+        if not line.startswith("{") or not line.endswith("}"):
+            continue
+        try:
+            payload = json.loads(line)
+        except (TypeError, ValueError):
+            continue
+        if not isinstance(payload, dict):
+            continue
+        for field in ("error", "reason", "reason_code", "message", "detail"):
+            value = payload.get(field)
+            if isinstance(value, str) and value.strip():
+                return value.strip()
+        errors = payload.get("errors")
+        if isinstance(errors, list) and errors:
+            rendered = [str(item) for item in errors if str(item).strip()]
+            if rendered:
+                return "; ".join(rendered[:5])
+    return None
+
+
 def run_cycle(
     *,
     output_root: Path,
@@ -111,9 +162,7 @@ def run_cycle(
         encoding="utf-8",
     )
     if completed.returncode != 0:
-        raise RuntimeError(
-            f"canonical outreach pipeline failed with exit {completed.returncode}: {completed.stderr[-2000:].strip()}"
-        )
+        raise RuntimeError(_pipeline_failure_message(completed, run_dir))
 
     publication = atomic_publish_directory(
         run_dir / "06_warmbly_feed",

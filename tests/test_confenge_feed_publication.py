@@ -13,6 +13,7 @@ import pytest
 from scripts.confenge_activation.publish import (
     atomic_publish_directory,
     check_current_publication,
+    producer_identity,
     record_feed_cycle_state,
 )
 from scripts.confenge_outreach_pipeline.party_role import PARTY_ROLE_POLICY_V1
@@ -562,3 +563,58 @@ def test_deactivation_to_actionable_now_is_refused(tmp_path: Path) -> None:
 
     with pytest.raises(ValueError, match="unsupported to_state"):
         atomic_publish_directory(build, public, state_path=state, alert_ledger=alerts, now=NOW)
+
+
+def test_new_producer_semantics_defeat_the_same_snapshot_skip(tmp_path: Path) -> None:
+    """Same inputs + new semantics must build; only same+same may replay.
+
+    ``snapshot_hash`` covers inputs only, so a producer whose meaning changed
+    (new module version, policy, classifier or repo SHA) used to be discarded as
+    SAME_SNAPSHOT_NOT_FRESHNESS and never reached the feed.
+    """
+    public, state, alerts = _paths(tmp_path)
+    first = atomic_publish_directory(
+        _build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW
+    )
+    assert first["ok"] is True
+
+    changed = _build(tmp_path / "changed")
+    manifest_path = changed / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert manifest["source"]["snapshot_hash"] == "snapshot-a", "inputs deliberately unchanged"
+    manifest["module_version"] = "9.9.9-new-semantics"
+    manifest_path.write_text(json.dumps(manifest, ensure_ascii=False) + "\n", encoding="utf-8")
+
+    second = atomic_publish_directory(changed, public, state_path=state, alert_ledger=alerts, now=NOW)
+    assert second["ok"] is True, "new producer semantics must publish"
+    assert second.get("skipped_same") is not True
+    assert second["snapshot_hash"] == first["snapshot_hash"]
+    assert second["producer_identity"] != first["producer_identity"]
+    assert (public / "current").resolve() != Path(first["current"]).resolve()
+
+
+def test_identical_inputs_and_semantics_still_replay(tmp_path: Path) -> None:
+    public, state, alerts = _paths(tmp_path)
+    first = atomic_publish_directory(
+        _build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW
+    )
+    second = atomic_publish_directory(
+        _build(tmp_path / "second"), public, state_path=state, alert_ledger=alerts, now=NOW
+    )
+    assert second["reason"] == "SAME_SNAPSHOT_NOT_FRESHNESS"
+    assert second["producer_identity"] == first["producer_identity"]
+    assert second["prior_producer_identity"] == first["producer_identity"]
+
+
+def test_producer_identity_is_deterministic_and_clock_free() -> None:
+    manifest = {
+        "schema_version": "confenge.outreach.manifest.v1",
+        "module_version": "1.1.1",
+        "source": {"snapshot_hash": "snapshot-a", "repo_sha": "abc123", "system": "extra-cli"},
+        "authoritative_contact_projection": {"code_sha": "deadbeef"},
+    }
+    first = producer_identity(manifest)
+    assert first == producer_identity(dict(manifest)), "no clock or counter participates"
+    drifted = json.loads(json.dumps(manifest))
+    drifted["source"]["repo_sha"] = "cafe1234"
+    assert producer_identity(drifted) != first

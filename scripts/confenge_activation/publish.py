@@ -71,6 +71,34 @@ def _make_public_feed_tree_readable(root: Path) -> None:
                 path.chmod(0o644)
 
 
+def _assert_publication_ready_population(contact_projection: dict) -> None:
+    """Only a complete national population may back a commercial outreach feed.
+
+    The reconciler accepts coverage >= 0.995 as usable operational state; the
+    outreach feed does not. A PARTIAL population never becomes a commercial feed
+    merely because it exceeds the reconcile threshold. Projections that predate
+    this provenance field are accepted only when they also carry no coverage
+    ratio to contradict, and a ratio below 1.0 is always refused.
+    """
+    ready = contact_projection.get("population_publication_ready")
+    ratio = contact_projection.get("population_coverage_ratio")
+    if ratio is not None:
+        try:
+            ratio_value = float(ratio)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("authoritative contact projection coverage ratio is invalid") from exc
+        if ratio_value + 1e-12 < 1.0:
+            raise ValueError(
+                "authoritative target-fit population is not publication ready: "
+                f"coverage_ratio={ratio_value} < 1.0 (RECONCILE_ACCEPTABLE is not PUBLICATION_READY)"
+            )
+    if ready is False:
+        raise ValueError(
+            "authoritative target-fit population is not publication ready: "
+            "the national reconcile did not attest complete coverage"
+        )
+
+
 def _parse_timestamp(value: Any, *, field: str) -> datetime:
     text = str(value or "").strip()
     try:
@@ -168,6 +196,55 @@ def _provenance_source(contact: dict[str, Any]) -> str:
     if isinstance(provenance, dict):
         return str(provenance.get("source") or provenance.get("source_type") or provenance.get("provider") or "UNKNOWN")
     return "UNKNOWN"
+
+
+def producer_identity(manifest: dict[str, Any]) -> str:
+    """Digest of the *semantics* that produced a feed build.
+
+    ``source.snapshot_hash`` covers the inputs only. When the producer's meaning
+    changes — a new module version, schema, policy, classifier or repo SHA —
+    identical inputs still yield a materially different feed, and comparing
+    snapshot hashes alone silently skipped that publication as
+    SAME_SNAPSHOT_NOT_FRESHNESS. Build identity is therefore
+    ``(snapshot_hash, producer_identity)``:
+
+      same inputs + same semantics -> replay (skip, no new release)
+      same inputs + new semantics  -> new build
+
+    No clock or counter participates, so replay stays deterministic.
+    """
+    source = manifest.get("source") if isinstance(manifest.get("source"), dict) else {}
+    projection = manifest.get("authoritative_contact_projection")
+    projection = projection if isinstance(projection, dict) else {}
+    party_roles = manifest.get("authoritative_party_roles")
+    party_roles = party_roles if isinstance(party_roles, dict) else {}
+    membership = manifest.get("authoritative_target_membership")
+    membership = membership if isinstance(membership, dict) else {}
+    semantics = {
+        "manifest_schema_version": manifest.get("schema_version"),
+        "module_version": manifest.get("module_version"),
+        "profile_id": source.get("profile_id"),
+        "profile_version": source.get("profile_version"),
+        "repo_sha": source.get("repo_sha"),
+        "system": source.get("system"),
+        "feed_scope": manifest.get("feed_scope") or FEED_SCOPE,
+        "party_role_policy_version": party_roles.get("policy_version"),
+        "membership_schema_version": (
+            membership.get("membership_schema_version") or projection.get("membership_schema_version")
+        ),
+        "membership_hash_algorithm": projection.get("membership_hash_algorithm"),
+        "contact_projection_schema_id": projection.get("schema_id"),
+        "controlled_email_policy_version": projection.get("controlled_email_policy_version"),
+        "discovery_policy_version": projection.get("discovery_policy_version"),
+        "input_evidence_version": projection.get("input_evidence_version"),
+        "code_sha": projection.get("code_sha"),
+        "target_fit_classifier_sha": projection.get("target_fit_classifier_sha"),
+        "sector_classifier_sha": projection.get("sector_classifier_sha"),
+        "policy_version": projection.get("policy_version"),
+        "budget_version": projection.get("budget_version"),
+    }
+    encoded = json.dumps(semantics, ensure_ascii=False, sort_keys=True, separators=(",", ":"), default=str)
+    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 
 def _validate_authoritative_manifest(
@@ -440,6 +517,7 @@ def _validate_authoritative_manifest(
         raise ValueError("authoritative contact population is stale")
     if contact_projection.get("coverage_complete") is not True:
         raise ValueError("authoritative contact projection coverage_complete=true is required")
+    _assert_publication_ready_population(contact_projection)
     terminal_equation = contact_projection.get("terminal_equation")
     terminal_equation = terminal_equation if isinstance(terminal_equation, dict) else {}
     if contact_projection.get("terminal_coverage_complete") is not True or terminal_equation.get("holds") is not True:
@@ -523,6 +601,7 @@ def _validate_authoritative_manifest(
     return {
         "run_id": run_id,
         "snapshot_hash": snapshot_hash,
+        "producer_identity": producer_identity(manifest),
         "generated_at": generated_at.isoformat().replace("+00:00", "Z"),
         "datalake_watermark": watermark.isoformat().replace("+00:00", "Z"),
         "generated_age_hours": round(generated_age, 6),
@@ -611,11 +690,14 @@ def atomic_publish_directory(
         except (OSError, ValueError, json.JSONDecodeError):
             prior = {}
         prior_source = prior.get("source") if isinstance(prior.get("source"), dict) else {}
-        if str(prior_source.get("snapshot_hash") or "") == metrics["snapshot_hash"]:
+        same_inputs = str(prior_source.get("snapshot_hash") or "") == metrics["snapshot_hash"]
+        same_semantics = producer_identity(prior) == metrics["producer_identity"]
+        if same_inputs and same_semantics:
             result = {
                 "ok": False,
                 "skipped_same": True,
                 "reason": "SAME_SNAPSHOT_NOT_FRESHNESS",
+                "prior_producer_identity": producer_identity(prior),
                 "publish_dir": str(publish_dir.resolve()),
                 "current": str(current.resolve()),
                 **metrics,
@@ -635,7 +717,12 @@ def atomic_publish_directory(
             )
             return result
 
-    release_dir = releases / f"{run_id}-{str(metrics['snapshot_hash'])[:12]}"
+    # The immutable release name carries the full build identity: inputs and the
+    # producer semantics that interpreted them. Naming it by inputs alone made a
+    # semantics-only rebuild collide with the release it was meant to supersede.
+    release_dir = releases / (
+        f"{run_id}-{str(metrics['snapshot_hash'])[:12]}-{str(metrics['producer_identity'])[:8]}"
+    )
     if release_dir.exists():
         raise FileExistsError(f"immutable feed release already exists: {release_dir}")
     # Copy into temp under releases then rename

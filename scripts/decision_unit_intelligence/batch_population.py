@@ -14,6 +14,7 @@ from scripts.confenge_contact_resolution.continuous_from_target_fit import (
 from scripts.confenge_contact_resolution.enrichment_batch import CompanyJob
 from scripts.confenge_target_fit import TARGET_CONFIRMED
 from scripts.confenge_target_fit.company_key import canonical_target_membership
+from scripts.confenge_target_fit.coverage import publication_ready
 
 TARGET_CONFIRMED_POPULATION = "target-confirmed"
 
@@ -68,10 +69,57 @@ def priority_for_job(job: CompanyJob) -> int:
     return base - min(max(int(job.priority_rank), 0), 999_999)
 
 
+def _population_freshness(
+    computed: list[str],
+    coverage_attestation: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Resolve how recently this population was *proven* current.
+
+    ``target_fit_computed_at`` only moves when a row's classification actually
+    changes. Target-fit is content-addressed, so an unchanged national
+    population keeps an ageing max(computed_at) even while a full reconcile
+    proves, today, that every canonical root is materialized. Using that maximum
+    as the freshness signal makes a correct population expire on the clock and
+    deadlocks publication until some row happens to be reclassified.
+
+    The honest freshness signal is the completion time of the full reconcile
+    that proved the population complete. It is only trusted when that
+    attestation is PUBLICATION_READY; anything weaker falls back to
+    max(computed_at), which keeps the downstream staleness gate fail-closed.
+    """
+    computed_max = computed[-1] if computed else None
+    attestation = coverage_attestation or {}
+    verified_at = str(
+        attestation.get("last_full_reconcile_completed_at")
+        or attestation.get("as_of")
+        or ""
+    ).strip()
+    if not verified_at or not publication_ready(attestation):
+        return {
+            "population_as_of": computed_max,
+            "population_as_of_source": "target_fit_computed_at_max",
+            "population_verified_at": None,
+            "population_coverage_ratio": attestation.get("coverage_ratio"),
+            "population_publication_ready": bool(attestation) and publication_ready(attestation),
+        }
+    # Never let the attestation move freshness backwards past observed evidence.
+    resolved = verified_at if not computed_max or verified_at >= computed_max else computed_max
+    return {
+        "population_as_of": resolved,
+        "population_as_of_source": (
+            "target_fit_full_reconcile" if resolved == verified_at else "target_fit_computed_at_max"
+        ),
+        "population_verified_at": verified_at,
+        "population_coverage_ratio": attestation.get("coverage_ratio"),
+        "population_publication_ready": True,
+    }
+
+
 def build_discovery_population(
     jobs: list[CompanyJob],
     *,
     population: str,
+    coverage_attestation: dict[str, Any] | None = None,
 ) -> DiscoveryPopulation:
     if population != TARGET_CONFIRMED_POPULATION:
         raise ValueError(f"unsupported contact-discovery population: {population}")
@@ -196,7 +244,7 @@ def build_discovery_population(
         "membership_count": membership["population_count"],
         "membership_hash": membership["membership_hash"],
         "duplicate_member_count": membership["duplicate_member_count"],
-        "population_as_of": computed[-1] if computed else None,
+        **_population_freshness(computed, coverage_attestation),
         "runnable_total": len(selected),
         "selection_hash": digest,
         "selection_complete": True,
@@ -225,8 +273,21 @@ def build_discovery_population(
     )
 
 
+def load_coverage_attestation(dsn: str) -> dict[str, Any] | None:
+    """Read the national target-fit coverage attestation from the datalake."""
+    from scripts.confenge_target_fit.coverage import load_coverage_control
+    from scripts.confenge_target_fit.db import connect
+
+    conn = connect(dsn, readonly=True)
+    try:
+        return load_coverage_control(conn) or None
+    finally:
+        conn.close()
+
+
 def load_discovery_population(dsn: str, *, population: str) -> DiscoveryPopulation:
     return build_discovery_population(
         load_construction_jobs_from_dsn(dsn, target_confirmed_only=True),
         population=population,
+        coverage_attestation=load_coverage_attestation(dsn),
     )
