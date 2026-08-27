@@ -21,6 +21,12 @@ from scripts.confenge_target_fit.company_key import canonical_target_membership
 
 MANIFEST_SCHEMA = "confenge.outreach.manifest.v1"
 FEED_SCHEMA = "confenge.outreach.v1"
+FEED_SCOPE = "TARGET_CONFIRMED_MEMBERSHIP"
+# Consumer import ceilings mirrored from Warmbly feed_sync. Exceeding either is a
+# fail-closed publication refusal, never a truncation.
+CONSUMER_MAX_LEADS = 100_000
+CONSUMER_MAX_CHUNKS = 1_000
+DEACTIVATION_STATES = frozenset({"RESEARCH_REQUIRED", "SUPPRESSED", "WATCH"})
 DEFAULT_MAX_AGE_HOURS = 24.0
 DEFAULT_STATE_PATH = Path("/var/lib/extra-consultoria/confenge-feed/publication-state.json")
 DEFAULT_ALERT_LEDGER = Path("/var/lib/extra-consultoria/alerts/confenge-feed.jsonl")
@@ -226,6 +232,19 @@ def _validate_authoritative_manifest(
         raise ValueError("manifest must list at least one chunk")
     if int(manifest.get("chunk_count") or -1) != len(chunks):
         raise ValueError("manifest chunk_count does not match chunks")
+    declared_lead_count = int(manifest.get("lead_count", -1))
+    if declared_lead_count < 1:
+        raise ValueError("authoritative feed must ship at least one TARGET_CONFIRMED lead")
+    if declared_lead_count > CONSUMER_MAX_LEADS:
+        raise ValueError(
+            "authoritative feed exceeds the consumer lead ceiling; refusing to publish a feed that "
+            f"cannot be imported: lead_count={declared_lead_count} max={CONSUMER_MAX_LEADS}"
+        )
+    if len(chunks) > CONSUMER_MAX_CHUNKS:
+        raise ValueError(
+            "authoritative feed exceeds the consumer chunk ceiling; refusing to publish a feed that "
+            f"cannot be imported: chunk_count={len(chunks)} max={CONSUMER_MAX_CHUNKS}"
+        )
     total_leads = 0
     accounts_with_contacts = 0
     accounts_with_preferred_route = 0
@@ -312,14 +331,50 @@ def _validate_authoritative_manifest(
                 source_name = _provenance_source(contact)
                 route_classes[route] = route_classes.get(route, 0) + 1
                 provenance_sources[source_name] = provenance_sources.get(source_name, 0) + 1
-    if total_leads != int(manifest.get("lead_count", -1)):
+    if total_leads != declared_lead_count:
         raise ValueError("manifest lead_count does not match chunk payloads")
-    if int(authority.get("full_decision_count", -1)) != total_leads:
-        raise ValueError("authoritative target-fit decision count does not match feed")
+    if len(target_member_cnpjs) != total_leads:
+        raise ValueError("published feed contains a lead that is not TARGET_CONFIRMED")
+
+    # The feed ships the TARGET_CONFIRMED outreach population; the decision
+    # universe stays a separate, larger accounting that must not be redefined to
+    # the feed size.
+    feed_scope = manifest.get("authoritative_feed_scope")
+    feed_scope = feed_scope if isinstance(feed_scope, dict) else {}
+    if feed_scope.get("scope") != FEED_SCOPE or authority.get("feed_scope") != FEED_SCOPE:
+        raise ValueError("authoritative feed scope must be the TARGET_CONFIRMED membership")
+    if int(authority.get("shipped_lead_count", -1)) != total_leads:
+        raise ValueError("authoritative target-fit shipped_lead_count does not match feed")
+    if int(feed_scope.get("shipped_lead_count", -1)) != total_leads:
+        raise ValueError("authoritative feed scope shipped_lead_count does not match feed")
+    full_decision_count = int(authority.get("full_decision_count", -1))
+    universe_count = int(authority.get("universe_count", -1))
+    declared_universe_count = int(authority.get("declared_universe_count", -1))
+    if full_decision_count < total_leads:
+        raise ValueError("authoritative decision universe cannot be smaller than the published feed")
+    if int(feed_scope.get("decision_universe_count", -1)) != full_decision_count:
+        raise ValueError("authoritative feed scope decision_universe_count does not match the decision universe")
+    if full_decision_count != universe_count or full_decision_count != declared_universe_count:
+        raise ValueError("authoritative decision universe does not close against the declared universe")
+    if full_decision_count - total_leads != int(feed_scope.get("withheld_decision_count", -1)):
+        raise ValueError("authoritative feed scope withheld_decision_count does not close")
+
     try:
         observed_membership = canonical_target_membership(target_member_cnpjs)
     except ValueError as exc:
         raise ValueError(str(exc)) from exc
+    # Reproduce the digest exactly the way the consumer does, from the leads the
+    # release actually carries, rather than trusting the producer's own value.
+    observed_roots = sorted({str(cnpj)[:8] for cnpj in target_member_cnpjs})
+    staged_hash = hashlib.sha256("".join(f"{root}\n" for root in observed_roots).encode("utf-8")).hexdigest()
+    if len(observed_roots) != total_leads:
+        raise ValueError("published feed does not carry exactly one lead per cnpj_root8")
+    if staged_hash != observed_membership["membership_hash"]:
+        raise ValueError("staged TARGET_CONFIRMED membership hash is not reproducible")
+    if str(target_membership.get("membership_hash") or "") != staged_hash:
+        raise ValueError("authoritative TARGET_CONFIRMED membership_hash is not reproducible from the feed")
+    if int(target_membership.get("population_count", -1)) != total_leads:
+        raise ValueError("authoritative TARGET_CONFIRMED population_count does not match lead_count")
     for field in (
         "schema_version",
         "identity_key",
@@ -444,6 +499,27 @@ def _validate_authoritative_manifest(
         != observed_membership["population_count"]
     ):
         raise ValueError("authoritative recipient states do not close TARGET_CONFIRMED membership")
+    deactivations = manifest.get("deactivations")
+    deactivations = deactivations if isinstance(deactivations, list) else []
+    if int(manifest.get("deactivation_count", -1)) != len(deactivations):
+        raise ValueError("manifest deactivation_count does not match deactivations")
+    published_cnpjs = set(target_member_cnpjs)
+    seen_deactivations: set[str] = set()
+    for entry in deactivations:
+        if not isinstance(entry, dict):
+            raise ValueError("manifest deactivation is not an object")
+        cnpj = "".join(char for char in str(entry.get("cnpj14") or "") if char.isdigit())
+        if len(cnpj) != 14:
+            raise ValueError("manifest deactivation has an invalid cnpj14")
+        if cnpj in seen_deactivations:
+            raise ValueError(f"manifest deactivates {cnpj} more than once")
+        seen_deactivations.add(cnpj)
+        if cnpj in published_cnpjs:
+            raise ValueError(f"manifest both publishes and deactivates {cnpj}")
+        state = str(entry.get("to_state") or "").strip().upper()
+        if state not in DEACTIVATION_STATES:
+            raise ValueError(f"manifest deactivation has an unsupported to_state: {state or 'MISSING'}")
+
     return {
         "run_id": run_id,
         "snapshot_hash": snapshot_hash,
@@ -453,6 +529,11 @@ def _validate_authoritative_manifest(
         "watermark_age_hours": round(watermark_age, 6),
         "lead_count": total_leads,
         "chunk_count": len(chunks),
+        "decision_universe_count": full_decision_count,
+        "withheld_decision_count": full_decision_count - total_leads,
+        "feed_scope": FEED_SCOPE,
+        "membership_hash": staged_hash,
+        "deactivation_count": len(deactivations),
         "accounts_with_contacts": accounts_with_contacts,
         "accounts_with_preferred_route": accounts_with_preferred_route,
         "target_accounts_with_preferred_route": target_accounts_with_preferred_route,
@@ -461,6 +542,7 @@ def _validate_authoritative_manifest(
         "preferred_route_class_distribution": dict(sorted(preferred_route_classes.items())),
         "provenance_source_distribution": dict(sorted(provenance_sources.items())),
         "authoritative_target_membership": target_membership,
+        "authoritative_feed_scope": feed_scope,
         "authoritative_party_roles": party_roles,
         "authoritative_contact_projection": contact_projection,
     }

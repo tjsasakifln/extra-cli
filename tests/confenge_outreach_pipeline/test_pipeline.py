@@ -157,16 +157,20 @@ def test_limit_downstream_does_not_shrink_universe(tmp_path: Path) -> None:
     assert result.stages["manifest_summary"]["limit_downstream_is_batch_only"] is True
     # Intelligence only for sample
     assert result.stages["account_intelligence"]["count"] == 1
-    # Feed is the complete decision universe; only expensive stages use the sample.
+    # Every universe row is decided; the feed ships the TARGET_CONFIRMED membership.
     feed = result.stages["feed"]
     assert feed.get("ok") is True
-    assert feed.get("lead_count") == result.stages["target_fit_decision_universe_count"]
+    assert feed.get("decision_count") == result.stages["target_fit_decision_universe_count"]
     assert feed.get("lead_count") > result.stages["sample"]["count"]
     feed_manifest = json.loads((out / "06_warmbly_feed" / "manifest.json").read_text(encoding="utf-8"))
     authority = feed_manifest["authoritative_target_fit"]
+    membership = feed_manifest["authoritative_target_membership"]
     assert authority["coverage_complete"] is True
     assert authority["omission_preserves_authorization"] is False
     assert authority["ordering"]["watermarks_monotonic"] is True
+    assert authority["full_decision_count"] == result.stages["target_fit_decision_universe_count"]
+    assert authority["shipped_lead_count"] == feed["lead_count"]
+    assert feed_manifest["lead_count"] == membership["population_count"] == feed["lead_count"]
     # Manifest records sampling flags honestly
     assert result.stages.get("sampling") is False  # no max_rows on universe
     assert result.stages.get("full_scale_universe") is False  # csv path

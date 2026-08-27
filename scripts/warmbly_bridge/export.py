@@ -16,7 +16,10 @@ from scripts.confenge_outreach_pipeline.party_role import (
     PARTY_ROLE_POLICY_V1,
     project_contractor_role,
 )
-from scripts.confenge_target_fit.company_key import canonical_target_membership
+from scripts.confenge_target_fit.company_key import (
+    TARGET_MEMBERSHIP_IDENTITY_KEY,
+    canonical_target_membership,
+)
 from scripts.confenge_target_fit.published import build_published_index_from_rows
 from scripts.crawl.run_evidence import runtime_release_sha
 from scripts.decision_unit_intelligence.controlled_email import (
@@ -35,6 +38,26 @@ from scripts.warmbly_bridge import (
 )
 from scripts.warmbly_bridge.io_jsonl import InputError, content_hash_obj, read_jsonl, require_readable_file
 from scripts.warmbly_bridge.mapping import build_leads, normalize_cnpj14
+
+TARGET_CONFIRMED = "TARGET_CONFIRMED"
+
+# The published feed carries the current TARGET_CONFIRMED outreach population,
+# one lead per canonical ``cnpj_root8``. The full decision universe stays the
+# authoritative extra-cli record and is accounted for in the manifest, but it is
+# not shipped: Warmbly imports the feed as the actionable population itself.
+FEED_SCOPE = "TARGET_CONFIRMED_MEMBERSHIP"
+FEED_MEMBERSHIP_SCHEMA = "confenge.outreach.feed_membership.v1"
+FEED_MEMBERSHIP_FILENAME = "membership.json"
+
+# Consumer import ceilings, mirrored from Warmbly's feed_sync validation. They
+# are fail-closed guards, never truncation limits: a feed above them must abort
+# the run so a human reconciles the population.
+CONSUMER_MAX_LEADS = 100_000
+CONSUMER_MAX_CHUNKS = 1_000
+
+# Warmbly rejects a deactivation targeting ACTIONABLE_NOW.
+DEACTIVATION_STATES = ("RESEARCH_REQUIRED", "SUPPRESSED", "WATCH")
+MEMBERSHIP_DROP_REASON = "TARGET_CONFIRMED_MEMBERSHIP_DROPPED"
 
 
 def _utcnow() -> str:
@@ -149,6 +172,10 @@ class ExportConfig:
     require_authoritative_source_freshness: bool = False
     # Delta deactivations for accounts leaving ACTIONABLE_NOW (manifest section)
     deactivations: list[dict[str, Any]] | None = None
+    # Previously published feed release (``<publish_dir>/current``). Accounts that
+    # were shipped there and are no longer TARGET_CONFIRMED members become
+    # explicit deactivations instead of silently vanishing from the feed.
+    previous_feed_dir: Path | None = None
 
 
 def validate_inputs(cfg: ExportConfig) -> None:
@@ -540,11 +567,15 @@ def _attach_contractor_roles(leads: list[dict[str, Any]], *, run_id: str, observ
         )
 
 
-def _apply_contractor_role_gate(leads: list[dict[str, Any]]) -> dict[str, Any]:
-    """Make a buyer/supplier conflict non-authorizing at the producer boundary."""
+def _apply_contractor_role_gate(leads: list[dict[str, Any]]) -> int:
+    """Make a buyer/supplier conflict non-authorizing at the producer boundary.
 
-    role_distribution: Counter[str] = Counter()
-    status_distribution: Counter[str] = Counter()
+    The gate runs over the whole decision universe: a conflicted account must be
+    unauthorized whether or not its decision is shipped in this feed. The
+    published distributions are projected separately over the shipped leads by
+    :func:`_contractor_role_projection`.
+    """
+
     conflict_authorizations_removed = 0
     for lead in leads:
         role = lead.get("contractor_role")
@@ -554,9 +585,6 @@ def _apply_contractor_role_gate(leads: list[dict[str, Any]]) -> dict[str, Any]:
             raise InputError("unsupported or missing contractor role policy version")
         target_role = str(role.get("target_party_role") or "UNKNOWN")
         status = str(role.get("status") or "UNKNOWN")
-        if str(lead.get("target_fit_class") or "") == "TARGET_CONFIRMED":
-            role_distribution[target_role] += 1
-            status_distribution[status] += 1
         if status != PARTY_ROLE_CONFLICT and target_role != "BUYER_CONFLICT":
             continue
 
@@ -585,6 +613,28 @@ def _apply_contractor_role_gate(leads: list[dict[str, Any]]) -> dict[str, Any]:
             contact["recommended"] = False
             contact["outreach_block_reason"] = "PARTY_ROLE_CONFLICT"
 
+    return conflict_authorizations_removed
+
+
+def _contractor_role_projection(
+    feed_leads: list[dict[str, Any]],
+    *,
+    conflict_authorizations_removed: int,
+    decision_universe_count: int,
+) -> dict[str, Any]:
+    """Project the published party-role distribution over the shipped leads."""
+
+    role_distribution: Counter[str] = Counter()
+    status_distribution: Counter[str] = Counter()
+    for lead in feed_leads:
+        role = lead.get("contractor_role")
+        if not isinstance(role, dict):
+            raise InputError("every lead requires a typed contractor_role")
+        if str(lead.get("target_fit_class") or "") != TARGET_CONFIRMED:
+            raise InputError("published feed lead is not TARGET_CONFIRMED")
+        role_distribution[str(role.get("target_party_role") or "UNKNOWN")] += 1
+        status_distribution[str(role.get("status") or "UNKNOWN")] += 1
+
     return {
         "policy_version": PARTY_ROLE_POLICY_V1,
         "target_party_role_distribution": dict(sorted(role_distribution.items())),
@@ -593,6 +643,9 @@ def _apply_contractor_role_gate(leads: list[dict[str, Any]]) -> dict[str, Any]:
         "unknown_role_count": int(role_distribution.get("UNKNOWN") or 0),
         "buyer_conflict_count": int(role_distribution.get("BUYER_CONFLICT") or 0),
         "conflict_authorizations_removed": conflict_authorizations_removed,
+        "conflict_authorizations_removed_scope": "FULL_DECISION_UNIVERSE",
+        "decision_universe_count": decision_universe_count,
+        "distribution_scope": FEED_SCOPE,
         "buyer_supplier_conflict_fails_closed": True,
     }
 
@@ -699,6 +752,336 @@ def _assert_authoritative_leads(leads: list[dict[str, Any]]) -> dict[str, Any]:
         "watermarks_monotonic": True,
         "first_cursor": cursors[0] if cursors else None,
         "last_cursor": cursors[-1] if cursors else None,
+    }
+
+
+def _membership_representative_key(lead: dict[str, Any]) -> tuple[Any, ...]:
+    """Total order used to elect one lead per canonical root.
+
+    Independent of input ordering: it reads only lead content. The routed
+    establishment wins first (that is the one carrying the discovered outreach
+    route), then contact depth, then the deterministic decision order.
+    """
+    contacts = [contact for contact in (lead.get("contacts") or []) if isinstance(contact, dict)]
+    routed = 1 if (lead.get("email_send_ready") is True or lead.get("preferred_email_route")) else 0
+    watermark, computed_at, cnpj, source_lead_id = _decision_order_key(lead)
+    return (-routed, -len(contacts), watermark, computed_at, cnpj, source_lead_id)
+
+
+def _select_feed_leads(leads: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Scope the published feed to TARGET_CONFIRMED, one lead per cnpj_root8.
+
+    The full decision universe stays intact in ``leads``; this only decides what
+    is shipped. Two establishments of the same commercial company collapse into
+    the deterministically elected representative — never two Warmbly accounts
+    for one company, and never a silently dropped root.
+    """
+    by_root: dict[str, dict[str, Any]] = {}
+    collapsed: list[str] = []
+    confirmed_count = 0
+    for lead in leads:
+        if str(lead.get("target_fit_class") or "") != TARGET_CONFIRMED:
+            continue
+        confirmed_count += 1
+        company = lead.get("company") if isinstance(lead.get("company"), dict) else {}
+        cnpj = normalize_cnpj14(str(company.get("cnpj14") or ""))
+        if not cnpj:
+            raise InputError("TARGET_CONFIRMED decision is missing a canonical CNPJ14")
+        root = cnpj[:8]
+        incumbent = by_root.get(root)
+        if incumbent is None:
+            by_root[root] = lead
+            continue
+        challenger_key = _membership_representative_key(lead)
+        incumbent_key = _membership_representative_key(incumbent)
+        if challenger_key == incumbent_key:
+            raise InputError(f"cnpj_root8 {root} has two indistinguishable TARGET_CONFIRMED representatives")
+        keep, drop = (lead, incumbent) if challenger_key < incumbent_key else (incumbent, lead)
+        by_root[root] = keep
+        collapsed.append(str((drop.get("company") or {}).get("cnpj14") or ""))
+
+    feed_leads = sorted(by_root.values(), key=_decision_order_key)
+    class_distribution = Counter(str(lead.get("target_fit_class") or "UNKNOWN") for lead in leads)
+    return feed_leads, {
+        "scope": FEED_SCOPE,
+        "identity_key": TARGET_MEMBERSHIP_IDENTITY_KEY,
+        "decision_universe_count": len(leads),
+        "target_confirmed_decision_count": confirmed_count,
+        "shipped_lead_count": len(feed_leads),
+        "withheld_decision_count": len(leads) - len(feed_leads),
+        "branch_duplicates_collapsed": len(collapsed),
+        "collapsed_branch_cnpj14s": sorted(collapsed),
+        "decision_class_distribution": dict(sorted(class_distribution.items())),
+        "consumer_max_leads": CONSUMER_MAX_LEADS,
+        "consumer_max_chunks": CONSUMER_MAX_CHUNKS,
+    }
+
+
+def _reproduce_membership_hash(cnpj14s: list[str]) -> tuple[str, list[str]]:
+    """Recompute the membership digest straight from the shipped identities."""
+    roots = sorted({cnpj[:8] for cnpj in cnpj14s})
+    encoded = "".join(f"{root}\n" for root in roots).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest(), roots
+
+
+def _assert_feed_membership(
+    feed_leads: list[dict[str, Any]],
+    membership: dict[str, Any],
+    *,
+    party_roles: dict[str, Any],
+) -> dict[str, Any]:
+    """Fail closed unless the declared membership is reproducible from the feed.
+
+    This is the producer-side mirror of Warmbly's import check: it re-derives the
+    digest from what is actually shipped instead of trusting the value computed
+    upstream in this same run.
+    """
+    cnpjs: list[str] = []
+    for lead in feed_leads:
+        company = lead.get("company") if isinstance(lead.get("company"), dict) else {}
+        cnpj = normalize_cnpj14(str(company.get("cnpj14") or ""))
+        if not cnpj:
+            raise InputError("published feed lead is missing a canonical CNPJ14")
+        if str(lead.get("target_fit_class") or "") != TARGET_CONFIRMED:
+            raise InputError(f"published feed lead {cnpj} is not TARGET_CONFIRMED")
+        cnpjs.append(cnpj)
+    if len(set(cnpjs)) != len(cnpjs):
+        duplicates = sorted(cnpj for cnpj, count in Counter(cnpjs).items() if count > 1)
+        raise InputError(f"published feed repeats CNPJ14: sample={duplicates[:10]}")
+    observed_hash, roots = _reproduce_membership_hash(cnpjs)
+    if len(roots) != len(cnpjs):
+        repeated = sorted(root for root, count in Counter(cnpj[:8] for cnpj in cnpjs).items() if count > 1)
+        raise InputError(f"published feed repeats cnpj_root8: sample={repeated[:10]}")
+    declared_hash = str(membership.get("membership_hash") or "")
+    if observed_hash != declared_hash:
+        raise InputError(
+            "declared TARGET_CONFIRMED membership_hash is not reproducible from the published leads: "
+            f"declared={declared_hash or 'MISSING'} observed={observed_hash}"
+        )
+    population = int(membership.get("population_count", -1))
+    if population != len(feed_leads) or population != len(roots):
+        raise InputError(
+            "published lead_count does not close the TARGET_CONFIRMED population: "
+            f"population_count={population} leads={len(feed_leads)} unique_roots={len(roots)}"
+        )
+    if int(membership.get("source_member_count", -1)) != len(feed_leads):
+        raise InputError("published TARGET_CONFIRMED source_member_count does not match the shipped leads")
+    if int(membership.get("target_confirmed_count", -1)) != len(feed_leads):
+        raise InputError("published TARGET_CONFIRMED target_confirmed_count does not match the shipped leads")
+    if int(membership.get("duplicate_member_count", -1)) != 0:
+        raise InputError("published TARGET_CONFIRMED membership declares duplicate members")
+    supplier = sum(
+        1
+        for lead in feed_leads
+        if str((lead.get("contractor_role") or {}).get("target_party_role") or "") == "SUPPLIER"
+    )
+    if supplier != int(membership.get("supplier_confirmed_count", -1)):
+        raise InputError("published SUPPLIER_CONFIRMED count does not match the shipped leads")
+    if supplier != int(party_roles.get("supplier_confirmed_count", -1)):
+        raise InputError("party role projection SUPPLIER count does not match the shipped leads")
+    return {
+        "membership_hash": observed_hash,
+        "membership_hash_reproduced_from_feed": True,
+        "unique_root_count": len(roots),
+        "shipped_lead_count": len(feed_leads),
+        "supplier_confirmed_count": supplier,
+    }
+
+
+def _assert_consumer_ceilings(*, lead_count: int, chunk_count: int) -> None:
+    """Refuse to publish a feed the consumer contract cannot import.
+
+    Truncating would silently drop authorized companies, so the run aborts and a
+    human reconciles the population instead.
+    """
+    if lead_count > CONSUMER_MAX_LEADS:
+        raise InputError(
+            "TARGET_CONFIRMED feed exceeds the consumer lead ceiling; refusing to truncate: "
+            f"lead_count={lead_count} max={CONSUMER_MAX_LEADS}"
+        )
+    if chunk_count > CONSUMER_MAX_CHUNKS:
+        raise InputError(
+            "TARGET_CONFIRMED feed exceeds the consumer chunk ceiling; refusing to truncate: "
+            f"chunk_count={chunk_count} max={CONSUMER_MAX_CHUNKS}"
+        )
+
+
+def _load_previous_feed_membership(previous_feed_dir: Path | None) -> tuple[set[str], str]:
+    """Return the CNPJ14s the previous published release actually shipped."""
+    if previous_feed_dir is None:
+        return set(), "UNKNOWN"
+    directory = Path(previous_feed_dir)
+    if not directory.is_dir():
+        raise InputError(f"--previous-feed-dir is not a readable directory: {directory}")
+    roster_path = directory / FEED_MEMBERSHIP_FILENAME
+    if roster_path.is_file():
+        try:
+            payload = json.loads(roster_path.read_bytes())
+        except (OSError, json.JSONDecodeError) as exc:
+            raise InputError(f"invalid previous feed membership roster: {roster_path}") from exc
+        if not isinstance(payload, dict) or payload.get("schema_id") != FEED_MEMBERSHIP_SCHEMA:
+            raise InputError(f"unsupported previous feed membership roster: {roster_path}")
+        members = payload.get("members")
+        if not isinstance(members, list):
+            raise InputError("previous feed membership roster has no members array")
+        previous: set[str] = set()
+        for member in members:
+            raw = member.get("cnpj14") if isinstance(member, dict) else member
+            cnpj = normalize_cnpj14(str(raw or ""))
+            if not cnpj:
+                raise InputError("previous feed membership roster contains a non-canonical CNPJ14")
+            previous.add(cnpj)
+        if len(previous) != int(payload.get("population_count", -1)):
+            raise InputError("previous feed membership roster population_count does not match its members")
+        return previous, "MEMBERSHIP_ROSTER"
+    manifest_path = directory / "manifest.json"
+    if not manifest_path.is_file():
+        raise InputError(f"previous feed directory holds neither {FEED_MEMBERSHIP_FILENAME} nor manifest.json")
+    # Transitional path: a release published before the roster existed. Recover
+    # the shipped TARGET_CONFIRMED population from its own chunks so a former
+    # member can never vanish without a deactivation.
+    try:
+        manifest = json.loads(manifest_path.read_bytes())
+    except (OSError, json.JSONDecodeError) as exc:
+        raise InputError(f"invalid previous feed manifest: {manifest_path}") from exc
+    if not isinstance(manifest, dict) or not isinstance(manifest.get("chunks"), list):
+        raise InputError(f"previous feed manifest has no chunks: {manifest_path}")
+    previous = set()
+    for chunk in manifest["chunks"]:
+        if not isinstance(chunk, dict):
+            raise InputError("previous feed manifest chunk is not an object")
+        name = str(chunk.get("file") or "").strip()
+        if not name or Path(name).name != name:
+            raise InputError(f"unsafe previous feed chunk name: {name!r}")
+        chunk_path = directory / name
+        if not chunk_path.is_file():
+            raise InputError(f"previous feed manifest references a missing chunk: {name}")
+        try:
+            payload = json.loads(chunk_path.read_bytes())
+        except (OSError, json.JSONDecodeError) as exc:
+            raise InputError(f"invalid previous feed chunk: {chunk_path}") from exc
+        for lead in (payload or {}).get("leads") or []:
+            if not isinstance(lead, dict) or str(lead.get("target_fit_class") or "") != TARGET_CONFIRMED:
+                continue
+            cnpj = normalize_cnpj14(str((lead.get("company") or {}).get("cnpj14") or ""))
+            if cnpj:
+                previous.add(cnpj)
+    return previous, "PRIOR_RELEASE_CHUNKS"
+
+
+def _membership_drop_deactivations(
+    previous_members: set[str],
+    feed_leads: list[dict[str, Any]],
+    decision_leads: list[dict[str, Any]],
+    *,
+    observed_at: str,
+) -> list[dict[str, Any]]:
+    """Emit one deactivation per account that left the shipped population."""
+    shipped = {normalize_cnpj14(str((lead.get("company") or {}).get("cnpj14") or "")) for lead in feed_leads}
+    decision_class = {
+        cnpj: str(lead.get("target_fit_class") or "")
+        for lead in decision_leads
+        for cnpj in (normalize_cnpj14(str((lead.get("company") or {}).get("cnpj14") or "")),)
+        if cnpj
+    }
+    deactivations: list[dict[str, Any]] = []
+    for cnpj in sorted(previous_members - shipped):
+        target_fit_class = decision_class.get(cnpj) or "TARGET_FIT_ABSENT"
+        to_state = "SUPPRESSED" if target_fit_class == "TARGET_OUT_OF_SCOPE" else "RESEARCH_REQUIRED"
+        deactivations.append(
+            {
+                "cnpj14": cnpj,
+                "from_state": TARGET_CONFIRMED,
+                "to_state": to_state,
+                "reason_codes": [MEMBERSHIP_DROP_REASON, f"target_fit_class:{target_fit_class}"],
+                "delta_source": FEED_SCOPE,
+                "target_fit_class": target_fit_class,
+                "evaluated_at": observed_at,
+            }
+        )
+    return deactivations
+
+
+def _merge_deactivations(
+    declared: list[dict[str, Any]],
+    membership_drops: list[dict[str, Any]],
+    *,
+    feed_leads: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Fold activation deltas and membership drops into one applicable delta.
+
+    A still-shipped account must not also be deactivated: the manifest would then
+    both authorize and revoke the same company in one import. Its activation
+    state already travels inside the lead payload, so the contradiction is
+    dropped here and counted, never applied.
+    """
+    shipped = {normalize_cnpj14(str((lead.get("company") or {}).get("cnpj14") or "")) for lead in feed_leads}
+    merged: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    suppressed = 0
+    for entry in declared:
+        if not isinstance(entry, dict):
+            raise InputError("declared deactivation must be an object")
+        cnpj = normalize_cnpj14(str(entry.get("cnpj14") or ""))
+        if not cnpj:
+            raise InputError("declared deactivation has a non-canonical cnpj14")
+        if cnpj in shipped:
+            suppressed += 1
+            continue
+        if cnpj in seen:
+            continue
+        seen.add(cnpj)
+        merged.append({**entry, "cnpj14": cnpj})
+    for entry in membership_drops:
+        cnpj = str(entry["cnpj14"])
+        if cnpj in seen:
+            continue
+        seen.add(cnpj)
+        merged.append(entry)
+    for entry in merged:
+        to_state = str(entry.get("to_state") or "").strip().upper()
+        if to_state not in DEACTIVATION_STATES:
+            raise InputError(f"deactivation to_state is not accepted by the consumer: {to_state or 'MISSING'}")
+        entry["to_state"] = to_state
+    return merged, {
+        "declared_count": len(declared),
+        "membership_drop_count": len(membership_drops),
+        "suppressed_because_still_published": suppressed,
+        "applied_count": len(merged),
+    }
+
+
+def _feed_membership_roster(
+    feed_leads: list[dict[str, Any]],
+    *,
+    membership: dict[str, Any],
+    generated_at: str,
+    run_id: str,
+    snapshot_hash: str,
+) -> dict[str, Any]:
+    """Durable roster of what this release shipped, for the next run's delta."""
+    members = sorted(
+        (
+            {
+                "cnpj14": normalize_cnpj14(str((lead.get("company") or {}).get("cnpj14") or "")),
+                "cnpj_root": normalize_cnpj14(str((lead.get("company") or {}).get("cnpj14") or ""))[:8],
+            }
+            for lead in feed_leads
+        ),
+        key=lambda member: member["cnpj14"],
+    )
+    return {
+        "schema_id": FEED_MEMBERSHIP_SCHEMA,
+        "scope": FEED_SCOPE,
+        "generated_at": generated_at,
+        "run_id": run_id,
+        "snapshot_hash": snapshot_hash,
+        "schema_version": membership["schema_version"],
+        "identity_key": membership["identity_key"],
+        "hash_algorithm": membership["hash_algorithm"],
+        "population_count": len(members),
+        "membership_hash": membership["membership_hash"],
+        "members": members,
     }
 
 
@@ -861,22 +1244,45 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
     leads.sort(key=_decision_order_key)
     if cfg.limit is not None:
         leads = leads[: cfg.limit]
-    party_role_projection = _apply_contractor_role_gate(leads)
+    conflict_authorizations_removed = _apply_contractor_role_gate(leads)
     coverage_complete = bool(
         cfg.expected_universe_count is not None
         and cfg.limit is None
         and len(leads) == len(universe_rows) == cfg.expected_universe_count
     )
-    ordering = _assert_authoritative_leads(leads)
+    # The whole decision universe is validated, then only the TARGET_CONFIRMED
+    # membership is shipped. ``leads`` stays the authoritative decision record;
+    # ``feed_leads`` is the published outreach population.
+    decision_ordering = _assert_authoritative_leads(leads)
+    decision_count = len(leads)
+    feed_leads, feed_scope = _select_feed_leads(leads)
+    feed_ordering = _assert_authoritative_leads(feed_leads)
+    party_role_projection = _contractor_role_projection(
+        feed_leads,
+        conflict_authorizations_removed=conflict_authorizations_removed,
+        decision_universe_count=decision_count,
+    )
     preferred_route_projection = _reconcile_preferred_route_projection(
         contact_rows,
-        leads,
+        feed_leads,
         full_snapshot=cfg.limit is None,
     )
     target_membership = _target_membership_contract(
-        leads,
+        feed_leads,
         party_roles=party_role_projection,
         coverage_complete=coverage_complete,
+    )
+    membership_proof = _assert_feed_membership(
+        feed_leads,
+        target_membership,
+        party_roles=party_role_projection,
+    )
+    previous_members, previous_membership_source = _load_previous_feed_membership(cfg.previous_feed_dir)
+    membership_drops = _membership_drop_deactivations(
+        previous_members,
+        feed_leads,
+        leads,
+        observed_at=datalake_watermark,
     )
     contact_projection = _authoritative_contact_projection(
         preferred_route_projection,
@@ -900,12 +1306,13 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
     }
 
     chunk_specs = _chunk_leads(
-        leads,
+        feed_leads,
         max_leads=cfg.max_leads_per_chunk,
         max_bytes=cfg.max_bytes_per_chunk,
         source=source,
         generated_at=generated_at,
     )
+    _assert_consumer_ceilings(lead_count=len(feed_leads), chunk_count=len(chunk_specs))
 
     chunk_meta: list[dict[str, Any]] = []
     for slice_leads, pagination in chunk_specs:
@@ -972,7 +1379,23 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
             # Only remove if manifest will supersede; keep if same snapshot resume partial
             stale.unlink(missing_ok=True)
 
-    deacts = list(cfg.deactivations or [])
+    deacts, deactivation_projection = _merge_deactivations(
+        list(cfg.deactivations or []),
+        membership_drops,
+        feed_leads=feed_leads,
+    )
+    membership_roster = _feed_membership_roster(
+        feed_leads,
+        membership=target_membership,
+        generated_at=generated_at,
+        run_id=run_id,
+        snapshot_hash=snapshot_hash,
+    )
+    (out / FEED_MEMBERSHIP_FILENAME).write_bytes(
+        (json.dumps(membership_roster, ensure_ascii=False, indent=2, sort_keys=True, default=str) + "\n").encode(
+            "utf-8"
+        )
+    )
     manifest = {
         "schema_version": "confenge.outreach.manifest.v1",
         "module_version": MODULE_VERSION,
@@ -991,19 +1414,32 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
                 else str(cfg.universe.resolve())
             ),
         },
-        "lead_count": len(leads),
+        "lead_count": len(feed_leads),
         "chunk_count": len(chunk_meta),
         "max_leads_per_chunk": cfg.max_leads_per_chunk,
         "max_bytes_per_chunk": cfg.max_bytes_per_chunk,
         "limit": cfg.limit,
         "authoritative_target_fit": {
             "source": "target_fit_snapshot" if cfg.target_fit_snapshot is not None else "universe_embedded_snapshot",
-            "full_decision_count": len(leads),
+            # The decision-universe accounting below describes every company
+            # extra-cli decided on, not what this feed ships. ``shipped_lead_count``
+            # is the published TARGET_CONFIRMED population.
+            "full_decision_count": decision_count,
             "universe_count": len(universe_rows),
             "declared_universe_count": cfg.expected_universe_count,
             "coverage_complete": coverage_complete,
             "omission_preserves_authorization": not coverage_complete,
-            "ordering": ordering,
+            "shipped_lead_count": len(feed_leads),
+            "feed_scope": FEED_SCOPE,
+            "decision_class_distribution": feed_scope["decision_class_distribution"],
+            "ordering": decision_ordering,
+        },
+        "authoritative_feed_scope": {
+            **feed_scope,
+            **membership_proof,
+            "ordering": feed_ordering,
+            "previous_membership_source": previous_membership_source,
+            "previous_membership_count": len(previous_members),
         },
         "authoritative_source_freshness": freshness or None,
         "authoritative_target_membership": target_membership,
@@ -1013,6 +1449,13 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
         # Approach B: explicit deactivation delta (idempotent; Warmbly applies without DB coupling)
         "deactivations": deacts,
         "deactivation_count": len(deacts),
+        "deactivation_projection": deactivation_projection,
+        "feed_membership": {
+            "file": FEED_MEMBERSHIP_FILENAME,
+            "schema_id": FEED_MEMBERSHIP_SCHEMA,
+            "population_count": membership_roster["population_count"],
+            "membership_hash": membership_roster["membership_hash"],
+        },
         "hashes": {
             "snapshot": snapshot_hash,
             "manifest_inputs": content_hash_obj(
@@ -1042,8 +1485,11 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
         "out_dir": str(out.resolve()),
         "run_id": run_id,
         "snapshot_hash": snapshot_hash,
-        "lead_count": len(leads),
+        "lead_count": len(feed_leads),
+        "decision_count": decision_count,
         "chunk_count": len(chunk_meta),
+        "deactivation_count": len(deacts),
+        "authoritative_feed_scope": {**feed_scope, **membership_proof},
         "authoritative_target_membership": target_membership,
         "authoritative_contact_projection": contact_projection,
         "manifest": str(manifest_path.resolve()),

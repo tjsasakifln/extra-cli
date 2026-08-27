@@ -8,7 +8,7 @@ from __future__ import annotations
 
 SCHEMA_OUTREACH = "confenge.outreach.v1"
 SCHEMA_OUTCOME = "confenge.outcome.v1"
-MODULE_VERSION = "1.1.1"
+MODULE_VERSION = "1.2.0"
 DEFAULT_SYSTEM = "extra-cli"
 DEFAULT_PROFILE_ID = "confenge"
 DEFAULT_PROFILE_VERSION = "2.0.0"

@@ -295,11 +295,12 @@ def _export(
             max_leads_per_chunk=3,
         )
     )
-    assert result["lead_count"] == len(universe)
+    # The decision universe stays complete; only the TARGET_CONFIRMED membership ships.
+    assert result["decision_count"] == len(universe)
     return out, _read_leads(out)
 
 
-def test_full_snapshot_publishes_negative_decisions_and_temporal_order(tmp_path: Path) -> None:
+def test_full_snapshot_decides_all_and_ships_only_confirmed_membership(tmp_path: Path) -> None:
     universe = [
         {"cnpj14": "01489370000105", "razao_social": "PREVENCAO LABORATORIO", "commercial_state": "NEW"},
         {"cnpj14": "01607033000167", "razao_social": "BEBA MAIS", "commercial_state": "NEW"},
@@ -321,16 +322,14 @@ def test_full_snapshot_publishes_negative_decisions_and_temporal_order(tmp_path:
             evidence_ids=["stale-contract"],
             operational_status="stale",
         ),
-        # Deliberately omit 44555666: exporter must emit a revocation tombstone.
+        # Deliberately omit 44555666: the decision universe must tombstone it.
     ]
     out, leads = _export(tmp_path, universe=universe, target_fit=snapshot, suffix="full")
     by_cnpj = {lead["company"]["cnpj14"]: lead for lead in leads}
 
-    assert "14893700000105" in by_cnpj
-    assert "01489370000105" not in by_cnpj
-    for cnpj in ("14893700000105", "01607033000167", "01942594000112"):
-        assert by_cnpj[cnpj]["email_send_ready"] is False
-    assert by_cnpj["11222333000181"]["target_fit_class"] == "TARGET_CONFIRMED"
+    # Only the TARGET_CONFIRMED membership is published.
+    assert set(by_cnpj) == {"11222333000181", "22333444000155", "33444555000166"}
+    assert all(lead["target_fit_class"] == "TARGET_CONFIRMED" for lead in leads)
     assert by_cnpj["11222333000181"]["construction_universe_member"] is True
     assert by_cnpj["11222333000181"]["target_fit_fresh"] is True
     assert by_cnpj["11222333000181"]["email_send_ready"] is True
@@ -340,20 +339,15 @@ def test_full_snapshot_publishes_negative_decisions_and_temporal_order(tmp_path:
     preferred_contacts = [c for c in all_contacts if c.get("preferred_initial")]
     recommended_contacts = [c for c in all_contacts if c.get("recommended")]
     assert len(preferred_contacts) == 1
-    assert sum(1 for c in all_contacts if c.get("preferred_initial")) == 1
     assert recommended_contacts == preferred_contacts
-    assert sum(bool(c.get("recommended")) for c in ready_contacts) == 1
     assert preferred_contacts[0].get("email_send_ready") is True
     assert all(c["source_date"] == "2026-08-12" for c in ready_contacts)
     assert all(c["source_date_semantics"] == "observed_at" for c in ready_contacts)
     assert all(not c.get("source_published_at") for c in ready_contacts)
+    # A DNC or stale member stays a member but carries no send authorization.
     assert by_cnpj["22333444000155"]["email_send_ready"] is False
     assert by_cnpj["33444555000166"]["target_fit_fresh"] is False
     assert by_cnpj["33444555000166"]["email_send_ready"] is False
-    missing = by_cnpj["44555666000177"]
-    assert missing["target_fit_class"] == "TARGET_FIT_MISSING"
-    assert missing["target_fit_tombstone"] is True
-    assert missing["email_send_ready"] is False
 
     required = {
         "construction_universe_member",
@@ -369,12 +363,28 @@ def test_full_snapshot_publishes_negative_decisions_and_temporal_order(tmp_path:
     assert all(required <= set(lead) for lead in leads)
     watermarks = [lead["target_fit_source_watermark"] for lead in leads]
     assert watermarks == sorted(watermarks)
+
     manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
     authority = manifest["authoritative_target_fit"]
+    scope = manifest["authoritative_feed_scope"]
+    # The 7-row decision universe is still reported in full, unredefined.
     assert authority["coverage_complete"] is True
     assert authority["full_decision_count"] == len(universe)
+    assert authority["universe_count"] == len(universe)
+    assert authority["declared_universe_count"] == len(universe)
     assert authority["ordering"]["watermarks_monotonic"] is True
     assert authority["omission_preserves_authorization"] is False
+    assert authority["shipped_lead_count"] == 3
+    assert authority["decision_class_distribution"] == {
+        "TARGET_CONFIRMED": 3,
+        "TARGET_FIT_MISSING": 1,
+        "TARGET_INSUFFICIENT_EVIDENCE": 1,
+        "TARGET_OUT_OF_SCOPE": 2,
+    }
+    assert manifest["lead_count"] == 3
+    assert scope["scope"] == "TARGET_CONFIRMED_MEMBERSHIP"
+    assert scope["withheld_decision_count"] == 4
+    assert scope["membership_hash_reproduced_from_feed"] is True
 
 
 def test_authoritative_contact_membership_is_bound_into_manifest(tmp_path: Path) -> None:
@@ -524,15 +534,26 @@ def test_authoritative_contact_report_must_match_closed_membership(
         )
 
 
-def test_duplicate_target_roots_fail_before_export(tmp_path: Path) -> None:
+def test_duplicate_target_roots_collapse_to_one_published_lead(tmp_path: Path) -> None:
+    """Two establishments of one company become exactly one Warmbly account."""
     universe = [
         {"cnpj14": "11222333000181", "razao_social": "ALFA MATRIZ", "commercial_state": "NEW"},
         {"cnpj14": "11222333000262", "razao_social": "ALFA FILIAL", "commercial_state": "NEW"},
     ]
     target_fit = [_decision(row["cnpj14"], "TARGET_CONFIRMED", evidence_ids=[row["cnpj14"]]) for row in universe]
 
-    with pytest.raises(InputError, match="duplicate CNPJ roots"):
-        _export(tmp_path, universe=universe, target_fit=target_fit, suffix="duplicate-roots")
+    out, leads = _export(tmp_path, universe=universe, target_fit=target_fit, suffix="duplicate-roots")
+
+    assert len(leads) == 1
+    assert leads[0]["company"]["cnpj14"][:8] == "11222333"
+    manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+    scope = manifest["authoritative_feed_scope"]
+    assert manifest["lead_count"] == 1
+    assert manifest["authoritative_target_membership"]["population_count"] == 1
+    assert manifest["authoritative_target_fit"]["full_decision_count"] == 2
+    assert scope["branch_duplicates_collapsed"] == 1
+    assert len(scope["collapsed_branch_cnpj14s"]) == 1
+    assert scope["collapsed_branch_cnpj14s"][0] != leads[0]["company"]["cnpj14"]
 
 
 def test_buyer_supplier_conflict_removes_all_route_authorization(tmp_path: Path) -> None:
@@ -846,24 +867,33 @@ def test_downgrade_and_missing_snapshot_cannot_resurrect_prior_authorization(
     )
     assert initial[0]["email_send_ready"] is True
 
-    _, downgraded = _export(
+    downgraded_out, downgraded = _export(
         tmp_path,
         universe=universe,
         target_fit=[_decision("11222333000181", "TARGET_OUT_OF_SCOPE")],
         suffix="downgraded",
     )
-    assert downgraded[0]["target_fit_class"] == "TARGET_OUT_OF_SCOPE"
-    assert downgraded[0]["email_send_ready"] is False
+    # A downgrade removes the account from the published population entirely.
+    assert downgraded == []
+    downgraded_manifest = json.loads((downgraded_out / "manifest.json").read_text(encoding="utf-8"))
+    assert downgraded_manifest["lead_count"] == 0
+    assert downgraded_manifest["authoritative_target_fit"]["full_decision_count"] == 1
+    assert downgraded_manifest["authoritative_target_fit"]["decision_class_distribution"] == {
+        "TARGET_OUT_OF_SCOPE": 1
+    }
 
-    _, tombstoned = _export(
+    tombstoned_out, tombstoned = _export(
         tmp_path,
         universe=universe,
         target_fit=[],
         suffix="tombstoned",
     )
-    assert tombstoned[0]["target_fit_class"] == "TARGET_FIT_MISSING"
-    assert tombstoned[0]["target_fit_tombstone"] is True
-    assert tombstoned[0]["email_send_ready"] is False
+    assert tombstoned == []
+    tombstoned_manifest = json.loads((tombstoned_out / "manifest.json").read_text(encoding="utf-8"))
+    assert tombstoned_manifest["lead_count"] == 0
+    assert tombstoned_manifest["authoritative_target_fit"]["decision_class_distribution"] == {
+        "TARGET_FIT_MISSING": 1
+    }
 
 
 def test_explicit_decision_without_source_watermark_fails_closed(tmp_path: Path) -> None:

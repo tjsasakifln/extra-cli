@@ -394,6 +394,11 @@ def test_feed_chunk_reimport_idempotent(tmp_path: Path) -> None:
         "priority_score": 50,
         "commercial_state": "NEW",
         "portfolio": {"contract_count_total": 1, "value_total_brl": 100000, "ufs_atuacao": ["SP"]},
+        "target_fit_class": "TARGET_CONFIRMED",
+        "target_fit_version": "confenge-target-fit-v2",
+        "target_fit_computed_at": "2026-08-08T10:00:00Z",
+        "target_fit_source_watermark": "2026-08-08T10:00:00Z",
+        "target_fit_operational_status": "ok",
     }
     intel_row = {
         "cnpj14": "11222333000181",
@@ -453,6 +458,11 @@ def test_no_lead_disappears_between_chunks(tmp_path: Path) -> None:
                         "value_total_brl": 10000,
                         "ufs_atuacao": ["SP"],
                     },
+                    "target_fit_class": "TARGET_CONFIRMED",
+                    "target_fit_version": "confenge-target-fit-v2",
+                    "target_fit_computed_at": "2026-08-08T10:00:00Z",
+                    "target_fit_source_watermark": "2026-08-08T10:00:00Z",
+                    "target_fit_operational_status": "ok",
                 }
             )
         )
