@@ -37,6 +37,23 @@ from scripts.confenge_target_fit.store import (
 )
 
 
+def dirty_progress_stale(oldest_age_seconds: float | None, *, slo_minutes: int) -> bool:
+    """A dirty queue crossing its configured SLO is already degraded."""
+    return bool(
+        oldest_age_seconds is not None
+        and oldest_age_seconds > max(0, int(slo_minutes)) * 60
+    )
+
+
+def target_fit_progress_watermark(
+    *,
+    control_watermark: object,
+    materialized_watermark: object,
+) -> str:
+    """Resolve only watermarks proven by target-fit, never the CDC cursor."""
+    return str(control_watermark or materialized_watermark or "")
+
+
 def build_health(
     dsn: str,
     *,
@@ -57,10 +74,9 @@ def build_health(
         dl_ts = datalake_max_ingested_at(conn)
         dl_wm = watermark_str(dl_ts) or str(cdc.get("watermark") or "")
         tf_ctrl = get_control(conn, "target_fit_watermark")
-        tf_wm = (
-            str(tf_ctrl.get("watermark") or "")
-            or max_current_watermark(conn)
-            or str(cdc.get("watermark") or "")
+        tf_wm = target_fit_progress_watermark(
+            control_watermark=tf_ctrl.get("watermark"),
+            materialized_watermark=max_current_watermark(conn),
         )
 
         lag: float | None = None
@@ -103,7 +119,7 @@ def build_health(
             status = HEALTH_FAILED
         elif lag is not None and lag > cfg.max_watermark_lag_seconds:
             status = HEALTH_STALE
-        elif oldest is not None and oldest > cfg.reclass_slo_minutes * 60 * 2:
+        elif dirty_progress_stale(oldest, slo_minutes=cfg.reclass_slo_minutes):
             status = HEALTH_DEGRADED
         elif dirty > cfg.cdc_max_companies_per_cycle:
             status = HEALTH_DEGRADED

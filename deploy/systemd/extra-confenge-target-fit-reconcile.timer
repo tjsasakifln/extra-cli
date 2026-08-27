@@ -1,6 +1,9 @@
 [Unit]
 Description=Timer — CONFENGE target-fit daily reconciliation
-Documentation=file:/opt/extra-cli/docs/confenge/TARGET-FIT-CONTINUOUS-REFRESH.md
+Documentation=file:/opt/extra-consultoria/docs/confenge/TARGET-FIT-CONTINUOUS-REFRESH.md
+# extra-cli source/target maintenance timer.
+# Never couple this timer lifecycle to its oneshot. A failed reconcile must
+# leave the next daily safety-net trigger scheduled.
 
 [Timer]
 OnCalendar=*-*-* 05:15:00

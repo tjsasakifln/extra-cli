@@ -17,7 +17,9 @@ Environment=PYTHONPATH=/opt/extra-consultoria
 EnvironmentFile=/opt/extra-consultoria/.env
 # One wrapper always runs both independent checks. Never chain ExecStart lines:
 # a failed infrastructure check must not suppress the freshness artifact.
-ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.ops.health_bundle --freshness-output /var/lib/extra-consultoria/output/pncp-contract-freshness.json
+ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.ops.health_bundle \
+  --freshness-output /var/lib/extra-consultoria/output/pncp-contract-freshness.json \
+  --maintenance-output /var/lib/extra-consultoria/output/source-maintenance-health.json
 User=extra-consultoria
 Group=extra-consultoria
 TimeoutStartSec=5min

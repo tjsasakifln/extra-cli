@@ -22,9 +22,9 @@ def _run_check(name: str, fn: Callable[[], int]) -> dict[str, object]:
         return {"name": name, "exit_code": 2, "status": "error", "error": f"{type(exc).__name__}: {exc}"}
 
 
-def run_bundle(*, freshness_output: Path) -> dict[str, object]:
+def run_bundle(*, freshness_output: Path, maintenance_output: Path) -> dict[str, object]:
     from scripts import health_check
-    from scripts.ops import pncp_contract_freshness
+    from scripts.ops import pncp_contract_freshness, source_maintenance_health
 
     checks = [
         _run_check("infrastructure", health_check.main),
@@ -32,6 +32,12 @@ def run_bundle(*, freshness_output: Path) -> dict[str, object]:
             "pncp_contract_freshness",
             lambda: pncp_contract_freshness.main(
                 ["--live", "--health", "--output", str(freshness_output)]
+            ),
+        ),
+        _run_check(
+            "source_maintenance",
+            lambda: source_maintenance_health.main(
+                ["--health", "--output", str(maintenance_output)]
             ),
         ),
     ]
@@ -52,8 +58,16 @@ def main(argv: list[str] | None = None) -> int:
         type=Path,
         default=Path("output/ops/pncp-contract-freshness.json"),
     )
+    parser.add_argument(
+        "--maintenance-output",
+        type=Path,
+        default=Path("output/ops/source-maintenance-health.json"),
+    )
     args = parser.parse_args(argv)
-    report = run_bundle(freshness_output=args.freshness_output)
+    report = run_bundle(
+        freshness_output=args.freshness_output,
+        maintenance_output=args.maintenance_output,
+    )
     print(json.dumps(report, ensure_ascii=False, default=str))
     return int(report["exit_code"])
 
