@@ -1121,16 +1121,18 @@ def check_current_publication(
             },
             at=clock,
         )
-    _atomic_json(
-        state_path,
-        {
-            **state,
-            "schema_id": "confenge.feed_publication_state.v1",
-            "last_monitor_at": clock.isoformat().replace("+00:00", "Z"),
-            "last_monitor_status": "HEALTHY",
-            **result,
-            "error": None,
-            "monitor": result,
-        },
-    )
+    persisted = {
+        **state,
+        "schema_id": "confenge.feed_publication_state.v1",
+        "last_monitor_at": clock.isoformat().replace("+00:00", "Z"),
+        "last_monitor_status": "HEALTHY",
+        "monitor": result,
+        "commercial_authority": authority,
+        "last_good_publication": last_good,
+    }
+    if "error" in state:
+        persisted["error"] = state.get("error")
+    if "last_status" in state:
+        persisted["last_status"] = state.get("last_status")
+    _atomic_json(state_path, persisted)
     return result

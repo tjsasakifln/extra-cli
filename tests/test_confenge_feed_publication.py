@@ -578,8 +578,8 @@ def test_fresh_publication_and_monitor_clear_prior_unhealthy_state(tmp_path: Pat
     )
     assert result["status"] == "HEALTHY"
     healthy = json.loads(state.read_text())
-    assert healthy["status"] == "HEALTHY"
     assert healthy["last_monitor_status"] == "HEALTHY"
+    assert healthy["last_status"] == "PUBLISHED"
     assert healthy["error"] is None
 
 
@@ -842,6 +842,31 @@ def test_readback_classifies_last_good_commercial_authority(
     assert result["commercial_authority"]["existing_bound_touch_transport_allowed"] is bound
     assert result["last_good_publication"]["membership_hash"]
     assert (public / "current" / "manifest.json").read_bytes() == before
+
+
+def test_failed_next_run_readback_preserves_candidate_error_twice(tmp_path: Path) -> None:
+    public, state, alerts = _paths(tmp_path)
+    atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
+    later = NOW + timedelta(hours=1)
+    candidate = _rewrite_manifest(
+        _build(tmp_path / "next", snapshot="snapshot-b", generated_at=later),
+        lambda manifest: manifest["authoritative_source_freshness"].__setitem__("status", "STALE"),
+    )
+    with pytest.raises(ValueError, match="not FRESH"):
+        atomic_publish_directory(candidate, public, state_path=state, alert_ledger=alerts, now=later)
+    first = check_current_publication(public, state_path=state, alert_ledger=alerts, now=later)
+    second = check_current_publication(public, state_path=state, alert_ledger=alerts, now=later)
+    assert first["ok"] is True
+    assert second["ok"] is True
+    assert first["publication_candidate_health"]["last_status"] == "REFUSED"
+    assert second["publication_candidate_health"]["last_status"] == "REFUSED"
+    assert first["publication_candidate_health"]["error"]
+    assert first["publication_candidate_health"] == second["publication_candidate_health"]
+    saved = json.loads(state.read_text(encoding="utf-8"))
+    assert saved["last_status"] == "REFUSED"
+    assert saved["error"]
+    assert saved["last_monitor_status"] == "HEALTHY"
+    assert first["commercial_authority"]["state"] == "CURRENT"
 
 
 def test_new_promotion_still_requires_live_pncp_fresh(tmp_path: Path) -> None:

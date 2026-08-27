@@ -99,6 +99,8 @@ def test_explicit_revocation_beats_grace() -> None:
     assert payload["new_admission_allowed"] is False
     assert payload["existing_bound_touch_transport_allowed"] is False
     assert payload["reason_codes"][0] == "EXPLICIT_REVOCATION"
+    assert payload["valid_until"] == "2026-01-15T12:00:00Z"
+    assert payload["valid_until"] == payload["classified_at"]
 
 
 def test_deactivated_root_cannot_ride_grace() -> None:
@@ -131,6 +133,23 @@ def test_binding_mismatch_is_unknown_and_closed(field: str) -> None:
         now=NOW,
         binding=BINDING,
         expected_binding=expected,
+    )
+    assert payload["state"] == "UNKNOWN"
+    assert payload["new_admission_allowed"] is False
+    assert payload["existing_bound_touch_transport_allowed"] is False
+    assert "BINDING_MISMATCH" in payload["reason_codes"]
+
+
+def test_empty_binding_hashes_are_unknown_and_closed() -> None:
+    payload = classify_commercial_authority(
+        validated_at=NOW,
+        now=NOW,
+        binding=CommercialAuthorityBinding(
+            basis_source_run_id="",
+            basis_snapshot_hash="",
+            basis_membership_hash="",
+            basis_publication_semantic_hash="",
+        ),
     )
     assert payload["state"] == "UNKNOWN"
     assert payload["new_admission_allowed"] is False

@@ -212,10 +212,10 @@ def classify_commercial_authority(
     clock = _as_utc(now, field="now")
     health_hash = source_operational_health_hash(source_operational_health)
 
-    if binding is None:
+    if binding is None or not _binding_is_complete(binding):
         return _unknown(
             policy=resolved_policy,
-            binding=None,
+            binding=binding,
             now=clock,
             reasons=[REASON_UNKNOWN, REASON_BINDING_MISMATCH],
             source_health_hash=health_hash,
@@ -252,11 +252,13 @@ def classify_commercial_authority(
     age_hours = _age_hours(proven_at, clock)
     state = _state_for_age(age_hours, resolved_policy)
     new_admission, existing_bound, reasons = _flags_and_reasons(state)
+    valid_until = _valid_until(proven_at, state, resolved_policy)
     if explicit_revoked:
         new_admission = False
         existing_bound = False
         reasons = [REASON_EXPLICIT_REVOCATION, *reasons]
         state = "EXPIRED"
+        valid_until = clock
 
     return {
         "schema": CONTRACT_VERSION,
@@ -267,7 +269,7 @@ def classify_commercial_authority(
         "existing_bound_touch_transport_allowed": existing_bound,
         "reason_codes": reasons,
         "validated_at": _rfc3339(proven_at),
-        "valid_until": _rfc3339(_valid_until(proven_at, state if state != "EXPIRED" else "EXPIRED", resolved_policy)),
+        "valid_until": _rfc3339(valid_until),
         "age_hours": round(age_hours, 6),
         "classified_at": _rfc3339(clock),
         "source_operational_health_hash": health_hash,
@@ -278,6 +280,15 @@ def classify_commercial_authority(
             "frozen_max_hours": resolved_policy.frozen_max_hours,
         },
     }
+
+
+def _binding_is_complete(binding: CommercialAuthorityBinding) -> bool:
+    return bool(
+        binding.basis_source_run_id.strip()
+        and binding.basis_snapshot_hash.strip()
+        and binding.basis_membership_hash.strip()
+        and binding.basis_publication_semantic_hash.strip()
+    )
 
 
 def _binding_mismatch_reasons(

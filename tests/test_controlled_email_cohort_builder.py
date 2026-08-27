@@ -12,7 +12,8 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from scripts.ops.build_controlled_email_cohort import build, select_cohort
+from scripts.confenge_target_fit.company_key import canonical_target_membership
+from scripts.ops.build_controlled_email_cohort import assert_authoritative_source_freshness, build, select_cohort
 from scripts.warmbly_bridge import SCHEMA_OUTREACH
 
 COHORT_NOW = datetime(2026, 8, 22, tzinfo=UTC)
@@ -68,6 +69,8 @@ def _lead(cnpj14: str, contacts: list[dict[str, Any]], *, website: str | None = 
 def _write_export(tmp_path: Path, leads: list[dict[str, Any]]) -> Path:
     feed_dir = tmp_path / "06_warmbly_feed"
     feed_dir.mkdir(parents=True)
+    cnpjs = [str((lead.get("company") or {}).get("cnpj14") or "") for lead in leads]
+    membership = canonical_target_membership(cnpjs)
     (feed_dir / "chunk_0000.json").write_text(
         json.dumps(
             {
@@ -86,6 +89,10 @@ def _write_export(tmp_path: Path, leads: list[dict[str, Any]]) -> Path:
                 "lead_count": len(leads),
                 "generated_at": "2026-08-22T00:00:00Z",
                 "source": {"repo_sha": "0" * 40, "run_id": "run-test", "snapshot_hash": "snapshot-test"},
+                "authoritative_target_membership": {
+                    "membership_hash": membership["membership_hash"],
+                    "population_count": membership["population_count"],
+                },
                 "authoritative_source_freshness": {
                     "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
                     "status": "FRESH",
@@ -166,6 +173,31 @@ def test_expired_pncp_attestation_does_not_kill_current_last_good_cohort(tmp_pat
     )
     assert result["member_count"] == 1
     assert result["source_feed"]["authoritative_freshness"]["commercial_authority"]["state"] == "CURRENT"
+
+
+def test_incomplete_binding_hashes_refuse_new_admission(tmp_path: Path) -> None:
+    feed_dir = _write_export(
+        tmp_path,
+        [_lead("11111111000191", [_contact("contato@alphaengenharia.com.br")])],
+    )
+    manifest_path = feed_dir / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["authoritative_target_membership"] = {}
+    manifest["source"]["snapshot_hash"] = ""
+    manifest["source"]["run_id"] = ""
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    with __import__("pytest").raises(ValueError, match="does not allow new admissions"):
+        assert_authoritative_source_freshness(manifest, now=COHORT_NOW)
+    with __import__("pytest").raises(ValueError, match="does not allow new admissions"):
+        build(
+            feed_dir=feed_dir,
+            private_root=tmp_path / "private",
+            limit=10,
+            as_of="2026-08-22",
+            run_stamp="unbound",
+            now=COHORT_NOW,
+        )
+    assert not (tmp_path / "private" / "unbound").exists()
 
 
 def test_risky_and_suppressed_never_enter_the_cohort():
@@ -441,6 +473,8 @@ def test_the_producer_never_holds_the_whole_feed(tmp_path):
             {
                 "lead_count": 12,
                 "generated_at": "2026-08-22T00:00:00Z",
+                "source": {"run_id": "run-stream", "snapshot_hash": "snapshot-stream"},
+                "authoritative_target_membership": {"membership_hash": "a" * 64, "population_count": 12},
                 "authoritative_source_freshness": {
                     "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
                     "status": "FRESH",

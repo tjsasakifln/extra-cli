@@ -35,17 +35,16 @@ from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
-from scripts.confenge_activation.commercial_authority import (
-    CommercialAuthorityBinding,
-    classify_commercial_authority,
-    historical_source_was_proven_fresh,
-    parse_timestamp,
-)
-
 _ROOT = Path(__file__).resolve().parents[2]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
+from scripts.confenge_activation.commercial_authority import (  # noqa: E402
+    authority_from_manifest,
+    historical_source_was_proven_fresh,
+    parse_timestamp,
+)
+from scripts.confenge_activation.publish import producer_identity, publication_semantic_hash  # noqa: E402
 from scripts.confenge_contact_resolution.discovery.official_domain import (  # noqa: E402
     is_credible_company_domain,
 )
@@ -395,24 +394,21 @@ def assert_authoritative_source_freshness(
     clock = (now or datetime.now(UTC)).astimezone(UTC)
     generated_raw = source_manifest.get("generated_at") or (freshness or {}).get("as_of")
     try:
-        validated_at = parse_timestamp(generated_raw, field="last-good generated_at")
+        parse_timestamp(generated_raw, field="last-good generated_at")
     except ValueError as exc:
         raise ValueError("source feed is missing generated_at for commercial authority") from exc
+    source = source_manifest.get("source") if isinstance(source_manifest.get("source"), dict) else {}
     membership = source_manifest.get("authoritative_target_membership")
     membership = membership if isinstance(membership, dict) else {}
-    source = source_manifest.get("source") if isinstance(source_manifest.get("source"), dict) else {}
-    snapshot_hash = str(source.get("snapshot_hash") or "").strip() or "unknown"
-    membership_hash = str(membership.get("membership_hash") or "").strip() or "unknown"
-    authority = classify_commercial_authority(
-        validated_at=validated_at,
+    run_id = str(source.get("run_id") or "").strip()
+    snapshot_hash = str(source.get("snapshot_hash") or "").strip()
+    membership_hash = str(membership.get("membership_hash") or "").strip()
+    semantic_hash = publication_semantic_hash(source_manifest) if run_id and snapshot_hash and membership_hash else ""
+    authority = authority_from_manifest(
+        source_manifest,
         now=clock,
-        binding=CommercialAuthorityBinding(
-            basis_source_run_id=str(source.get("run_id") or "").strip() or "unknown",
-            basis_snapshot_hash=snapshot_hash,
-            basis_membership_hash=membership_hash,
-            basis_publication_semantic_hash=snapshot_hash,
-            producer_identity=str(source.get("repo_sha") or ""),
-        ),
+        producer_identity=producer_identity(source_manifest),
+        publication_semantic_hash=semantic_hash,
     )
     if not authority.get("new_admission_allowed"):
         raise ValueError(
