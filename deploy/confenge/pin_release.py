@@ -147,8 +147,38 @@ def plan(sha: str) -> dict[str, str]:
     return rendered
 
 
+def foreign_execstart_dropins() -> dict[str, list[str]]:
+    """Find drop-ins other than ours that also override ExecStart.
+
+    The pinned drop-in sorts last and clears ExecStart before setting its own, so
+    any earlier drop-in that added an argument would be silently discarded. That
+    is not hypothetical: a hand-written 50-durable-checkpoint.conf carried
+    --checkpoint-dir, the pin dropped it, and the crawler died writing into the
+    read-only release. Whatever such a drop-in configures belongs in the
+    versioned unit file; until it moves there, refuse to pin.
+    """
+    found: dict[str, list[str]] = {}
+    for unit in CHAIN_UNITS:
+        directory = SYSTEMD_ROOT / f"{unit}.d"
+        if not directory.is_dir():
+            continue
+        offenders = [
+            path.name
+            for path in sorted(directory.glob("*.conf"))
+            if path.name != DROPIN_NAME and "ExecStart=" in path.read_text(encoding="utf-8")
+        ]
+        if offenders:
+            found[unit] = offenders
+    return found
+
+
 def apply(sha: str, *, dry_run: bool = False) -> dict[str, object]:
     rendered = plan(sha)
+    if foreign := foreign_execstart_dropins():
+        raise PinError(
+            "drop-ins outside this tool also set ExecStart and would be discarded by the pin; "
+            f"move their configuration into deploy/systemd and remove them: {foreign}"
+        )
     written: list[str] = []
     if not dry_run:
         for unit, body in rendered.items():
@@ -160,7 +190,12 @@ def apply(sha: str, *, dry_run: bool = False) -> dict[str, object]:
             tmp.replace(target)
             written.append(str(target))
         _run(["systemctl", "daemon-reload"])
-        _run(["systemctl", "enable", *CHAIN_TIMERS, *CHAIN_ENABLED_SERVICES])
+        # --now, not just enable: enabling alone writes the wants/ symlink and
+        # leaves the timer unloaded until the next boot, which is precisely how
+        # the two safety-net timers came to be "enabled" and still absent from
+        # `systemctl list-timers`.
+        _run(["systemctl", "enable", "--now", *CHAIN_TIMERS])
+        _run(["systemctl", "enable", *CHAIN_ENABLED_SERVICES])
     return {
         "schema": "confenge.release_pin.v1",
         "release_sha": sha,
@@ -185,12 +220,19 @@ def verify(sha: str) -> dict[str, object]:
         state = _run(["systemctl", "is-enabled", unit], check=False).stdout.strip()
         if state != "enabled":
             disabled.append(f"{unit}={state or 'unknown'}")
+    # A timer that is enabled but not loaded fires nothing until the next boot.
+    inactive_timers: list[str] = []
+    for unit in CHAIN_TIMERS:
+        state = _run(["systemctl", "is-active", unit], check=False).stdout.strip()
+        if state != "active":
+            inactive_timers.append(f"{unit}={state or 'unknown'}")
     return {
         "schema": "confenge.release_pin_verification.v1",
         "release_sha": sha,
-        "ok": not drift and not disabled,
+        "ok": not drift and not disabled and not inactive_timers,
         "release_drift": drift,
         "not_enabled": disabled,
+        "timers_not_active": inactive_timers,
     }
 
 
