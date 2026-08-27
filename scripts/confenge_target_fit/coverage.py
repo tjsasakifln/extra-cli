@@ -12,6 +12,17 @@ Honest modes (do not claim FULL_NATIONAL_READY without a proven full reconcile):
   DEGRADED       — errors / dead queue / auto-pause signals
 
 Coverage never hard-codes national universe size; live counts only.
+
+Two acceptance levels are deliberately distinct and must never be conflated:
+
+  RECONCILE_ACCEPTABLE — the reconciler may treat the snapshot as usable
+    operational state (coverage >= TARGET_FIT_COVERAGE_THRESHOLD, i.e. 99.5%).
+  PUBLICATION_READY    — the snapshot may back a commercial outreach feed
+    (coverage == PUBLICATION_COVERAGE_THRESHOLD, i.e. complete, with zero
+    unexplained missing roots and zero accounting defects).
+
+A PARTIAL population that merely exceeds 0.995 is RECONCILE_ACCEPTABLE and is
+never PUBLICATION_READY. Outreach publication reads PUBLICATION_READY only.
 """
 
 from __future__ import annotations
@@ -42,6 +53,11 @@ COVERAGE_MODE_DEGRADED = "DEGRADED"
 # After a completed full reconcile, coverage must meet this ratio
 # (or every missing root must be labeled with KNOWN_GAP_STATES).
 TARGET_FIT_COVERAGE_THRESHOLD = 0.995
+
+# Commercial outreach publication is stricter than reconciliation: the feed may
+# only be built from a complete population. This is intentionally not the same
+# number as TARGET_FIT_COVERAGE_THRESHOLD and must never be relaxed to it.
+PUBLICATION_COVERAGE_THRESHOLD = 1.0
 
 CONTROL_KEY_COVERAGE = "target_fit_coverage"
 CONTROL_KEY_FULL_RECONCILE = "full_reconcile"
@@ -288,9 +304,61 @@ def build_coverage_snapshot(
         "coverage_mode": mode,
         "FULL_NATIONAL_READY": full_national_ready,
         "FULLY_RECONCILED": bool(accounting["FULLY_RECONCILED"] and full_national_ready),
+        "RECONCILE_ACCEPTABLE": bool(
+            mode == COVERAGE_MODE_FULLY_RECONCILED
+            and ratio is not None
+            and ratio + 1e-12 >= TARGET_FIT_COVERAGE_THRESHOLD
+        ),
+        "PUBLICATION_READY": bool(
+            accounting["FULLY_RECONCILED"]
+            and full_national_ready
+            and unexplained == 0
+            and ratio is not None
+            and ratio + 1e-12 >= PUBLICATION_COVERAGE_THRESHOLD
+        ),
+        "publication_coverage_threshold": PUBLICATION_COVERAGE_THRESHOLD,
         "accounting": accounting,
         "as_of": _utcnow_iso(),
     }
+
+
+def reconcile_acceptable(snapshot: dict[str, Any] | None) -> bool:
+    """Operational acceptance: the reconciler may keep using this snapshot."""
+    snapshot = snapshot or {}
+    if "RECONCILE_ACCEPTABLE" in snapshot:
+        return bool(snapshot["RECONCILE_ACCEPTABLE"])
+    ratio = snapshot.get("coverage_ratio")
+    return bool(
+        snapshot.get("coverage_mode") == COVERAGE_MODE_FULLY_RECONCILED
+        and ratio is not None
+        and float(ratio) + 1e-12 >= TARGET_FIT_COVERAGE_THRESHOLD
+    )
+
+
+def publication_ready(snapshot: dict[str, Any] | None) -> bool:
+    """Commercial acceptance: this snapshot may back an outreach feed.
+
+    Deliberately stricter than :func:`reconcile_acceptable`. A snapshot that is
+    merely above TARGET_FIT_COVERAGE_THRESHOLD is not publishable, and older
+    snapshots that predate the PUBLICATION_READY field are recomputed here from
+    their own recorded counts rather than assumed acceptable.
+    """
+    snapshot = snapshot or {}
+    if "PUBLICATION_READY" in snapshot:
+        return bool(snapshot["PUBLICATION_READY"])
+    ratio = snapshot.get("coverage_ratio")
+    if ratio is None:
+        return False
+    return bool(
+        snapshot.get("FULLY_RECONCILED")
+        and snapshot.get("FULL_NATIONAL_READY")
+        and int(snapshot.get("unexplained_missing") or 0) == 0
+        and int(snapshot.get("orphan_materialized_roots") or 0) == 0
+        and int(snapshot.get("duplicate_cnpj_root") or 0) == 0
+        and int(snapshot.get("invalid_cnpj_root") or 0) == 0
+        and bool(snapshot.get("pagination_exhausted_normally"))
+        and float(ratio) + 1e-12 >= PUBLICATION_COVERAGE_THRESHOLD
+    )
 
 
 def load_coverage_control(conn: Any) -> dict[str, Any]:

@@ -776,6 +776,13 @@ def build_contact_projection(
         "duplicate_member_count": membership["duplicate_member_count"],
         "membership_contract_matches_population": membership_contract_matches,
         "population_as_of": population_contract.get("population_as_of"),
+        # Provenance for the freshness claim above: which fact proved it, when the
+        # national reconcile verified it, and whether that reconcile was complete
+        # enough to back a commercial feed (coverage == 1.0, not merely >= 0.995).
+        "population_as_of_source": population_contract.get("population_as_of_source"),
+        "population_verified_at": population_contract.get("population_verified_at"),
+        "population_coverage_ratio": population_contract.get("population_coverage_ratio"),
+        "population_publication_ready": population_contract.get("population_publication_ready"),
         "target_fit_mode": population_contract.get("target_fit_mode"),
         "target_fit_classifier_sha": population_contract.get("target_fit_classifier_sha"),
         "target_fit_classifier_shas": population_contract.get("target_fit_classifier_shas") or [],
