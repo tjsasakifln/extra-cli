@@ -54,6 +54,7 @@ def test_rendered_dropin_repoints_code_at_the_release():
     assert f"/opt/extra-consultoria-releases/{SHA}/.venv/bin/python" in body
     assert f"Environment=EXTRA_DEPLOYED_SHA={SHA}" in body
     assert "Environment=PYTHONDONTWRITEBYTECODE=1" in body
+    assert "Environment=PYTHONSAFEPATH=1" in body
     assert "ExecStart=\n" in body, "inherited ExecStart must be cleared before appending"
     for line in body.splitlines():
         if line.startswith(("Environment=PYTHONPATH=", "ExecStart=/")):
@@ -224,7 +225,7 @@ def test_verify_reads_back_isolation_release_and_writable_working_directory(tmp_
             prop = argv[argv.index("-p") + 1]
             values = {
                 "ExecStart": f"{release}/.venv/bin/python -P -m scripts.example",
-                "Environment": f"PYTHONPATH={release} EXTRA_DEPLOYED_SHA={SHA} PYTHONDONTWRITEBYTECODE=1",
+                "Environment": f"PYTHONPATH={release} EXTRA_DEPLOYED_SHA={SHA} PYTHONDONTWRITEBYTECODE=1 PYTHONSAFEPATH=1",
                 "WorkingDirectory": str(workdir),
                 "User": "extra-consultoria",
             }
@@ -279,7 +280,7 @@ def test_verify_fails_closed_on_runtime_isolation_drift(tmp_path, monkeypatch, f
                 "Environment": (
                     f"PYTHONPATH={release}"
                     if failure == "bytecode-enabled"
-                    else f"PYTHONPATH={release} PYTHONDONTWRITEBYTECODE=1"
+                    else f"PYTHONPATH={release} PYTHONDONTWRITEBYTECODE=1 PYTHONSAFEPATH=1"
                 ),
                 "WorkingDirectory": str(workdir),
                 "User": "extra-consultoria",

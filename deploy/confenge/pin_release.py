@@ -154,6 +154,10 @@ def render_dropin(unit_text: str, sha: str) -> str:
         # otherwise immutable release. Suppress bytecode for every pinned
         # process; the venv remains the only mutable interpreter input.
         "Environment=PYTHONDONTWRITEBYTECODE=1",
+        # Parent ExecStart uses -P, but children (contact-cycle DUI export)
+        # inherit Environment only. PYTHONSAFEPATH stops cwd from shadowing
+        # the release scripts package the same way -P does for the parent.
+        "Environment=PYTHONSAFEPATH=1",
         # Clear the inherited ExecStart before appending the pinned one.
         "ExecStart=",
         exec_start,
@@ -270,6 +274,8 @@ def verify(sha: str) -> dict[str, object]:
             drift.append({"unit": unit, "resolved": environment[:400]})
         if "PYTHONDONTWRITEBYTECODE=1" not in environment:
             bytecode_writes_enabled.append({"unit": unit, "resolved": environment[:400]})
+        if "PYTHONSAFEPATH=1" not in environment:
+            unsafe_python_path.append({"unit": unit, "resolved": environment[:400]})
 
         working_directory = (
             _run(["systemctl", "show", unit, "-p", "WorkingDirectory", "--value"], check=False).stdout or ""
