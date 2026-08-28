@@ -234,6 +234,9 @@ def _encoded_lead_item_size(lead: dict[str, Any]) -> int:
     return len(raw) + 4 * (raw.count(b"\n") + 1)
 
 
+_CHUNK_HASH_PLACEHOLDER = "0" * 64
+
+
 def _provisional_chunk_size(
     *,
     lead_item_bytes: int,
@@ -242,17 +245,31 @@ def _provisional_chunk_size(
     generated_at: str,
     cursor: str,
     chunk_index: int,
+    next_cursor: str | None = None,
+    snapshot_hash: str | None = None,
 ) -> int:
-    """Measure a provisional chunk in O(1) after each lead is encoded once."""
+    """Measure a provisional chunk in O(1) after each lead is encoded once.
+
+    The estimate must be at least as large as the bytes later written by
+    ``_encode_chunk``. Production pagination adds 64-char content hashes after
+    packing; omitting them under-counted a live chunk by 51 bytes (512051 >
+    512000) and aborted publication.
+    """
+    digest = (snapshot_hash or _CHUNK_HASH_PLACEHOLDER).ljust(64, "0")[:64]
     envelope = {
         "schema_version": SCHEMA_OUTREACH,
         "generated_at": generated_at,
         "source": source,
         "pagination": {
-            "cursor": cursor,
-            "next_cursor": None,
-            "has_more": False,
             "chunk_index": chunk_index,
+            "content_hash": _CHUNK_HASH_PLACEHOLDER,
+            "cursor": cursor,
+            "has_more": next_cursor is not None,
+            "hashes": {
+                "leads": _CHUNK_HASH_PLACEHOLDER,
+                "snapshot": digest,
+            },
+            "next_cursor": next_cursor,
         },
         "leads": [],
     }
@@ -1233,6 +1250,9 @@ def _chunk_leads(
             generated_at=generated_at,
             cursor=_decision_cursor(current[0] if current else lead),
             chunk_index=len(chunks),
+            # Assume a following chunk so the estimate covers next_cursor + hashes.
+            next_cursor=_decision_cursor(lead),
+            snapshot_hash=str(source.get("snapshot_hash") or ""),
         )
         over_count = trial_count > max_leads
         over_bytes = size > max_bytes and len(current) >= 1
