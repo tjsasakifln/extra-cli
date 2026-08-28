@@ -1,0 +1,46 @@
+{
+  "comment": "Warmbly-consumable example. Old fields keep their PNCP meaning. commercial_authority is additive. An older consumer that only understands authoritative_source_freshness stays fail-closed on FRESH.",
+  "schema_version": "confenge.outreach.manifest.v1",
+  "generated_at": "2026-01-15T06:00:00Z",
+  "source": {
+    "system": "extra-cli",
+    "run_id": "run-snapshot-a",
+    "snapshot_hash": "snapshot-a"
+  },
+  "feed_scope": "TARGET_CONFIRMED_MEMBERSHIP",
+  "lead_count": 2,
+  "authoritative_source_freshness": {
+    "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
+    "status": "FRESH",
+    "expires_at": "2026-01-16T06:00:00Z"
+  },
+  "authoritative_target_membership": {
+    "target_fit_class": "TARGET_CONFIRMED",
+    "membership_hash": "membership-a",
+    "population_count": 2
+  },
+  "source_operational_health": {
+    "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
+    "status": "STALE",
+    "reason_codes": ["UNCLOSED_CURRENT_WINDOW"],
+    "comment": "Live crawler health. Independent of last-good commercial authority. Never fabricate FRESH."
+  },
+  "commercial_authority": {
+    "schema": "COMMERCIAL_AUTHORITY/1.0",
+    "contract_version": "COMMERCIAL_AUTHORITY/1.0",
+    "policy_version": "COMMERCIAL_AUTHORITY_POLICY/1.0",
+    "state": "CURRENT",
+    "new_admission_allowed": true,
+    "existing_bound_touch_transport_allowed": true,
+    "reason_codes": ["COMMERCIAL_AUTHORITY_CURRENT"],
+    "validated_at": "2026-01-15T06:00:00Z",
+    "valid_until": "2026-01-16T06:00:00Z",
+    "age_hours": 6.0,
+    "classified_at": "2026-01-15T12:00:00Z",
+    "basis_source_run_id": "run-snapshot-a",
+    "basis_snapshot_hash": "snapshot-a",
+    "basis_membership_hash": "membership-a",
+    "basis_publication_semantic_hash": "semantic-a",
+    "producer_identity": "producer-a"
+  }
+}

@@ -1,5 +1,5 @@
 [Unit]
-Description=Extra Consultoria — fail-closed CONFENGE public feed freshness monitor
+Description=Extra Consultoria — fail-closed CONFENGE public feed integrity and commercial-authority monitor
 After=network-online.target
 OnFailure=extra-onfailure@%n.service
 
@@ -9,6 +9,8 @@ User=extra-consultoria
 Group=extra-consultoria
 WorkingDirectory=/opt/extra-consultoria
 Environment=PYTHONPATH=/opt/extra-consultoria
+# 24h remains the new-promotion / PNCP source-health budget, not a commercial
+# hard-stop on last-good. Live crawler SLO is PNCP_CONTRACT_FRESHNESS/1.0.
 Environment=CONFENGE_FEED_MAX_AGE_HOURS=24
 EnvironmentFile=-/opt/extra-consultoria/.env
 EnvironmentFile=-/etc/extra-consultoria/confenge-feed.env

@@ -8,11 +8,15 @@ from __future__ import annotations
 import json
 import os
 import stat
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from scripts.ops.build_controlled_email_cohort import build, select_cohort
+from scripts.confenge_target_fit.company_key import canonical_target_membership
+from scripts.ops.build_controlled_email_cohort import assert_authoritative_source_freshness, build, select_cohort
 from scripts.warmbly_bridge import SCHEMA_OUTREACH
+
+COHORT_NOW = datetime(2026, 8, 22, tzinfo=UTC)
 
 
 def _contact(
@@ -65,6 +69,8 @@ def _lead(cnpj14: str, contacts: list[dict[str, Any]], *, website: str | None = 
 def _write_export(tmp_path: Path, leads: list[dict[str, Any]]) -> Path:
     feed_dir = tmp_path / "06_warmbly_feed"
     feed_dir.mkdir(parents=True)
+    cnpjs = [str((lead.get("company") or {}).get("cnpj14") or "") for lead in leads]
+    membership = canonical_target_membership(cnpjs)
     (feed_dir / "chunk_0000.json").write_text(
         json.dumps(
             {
@@ -81,7 +87,12 @@ def _write_export(tmp_path: Path, leads: list[dict[str, Any]]) -> Path:
         json.dumps(
             {
                 "lead_count": len(leads),
-                "source": {"repo_sha": "0" * 40, "run_id": "run-test"},
+                "generated_at": "2026-08-22T00:00:00Z",
+                "source": {"repo_sha": "0" * 40, "run_id": "run-test", "snapshot_hash": "snapshot-test"},
+                "authoritative_target_membership": {
+                    "membership_hash": membership["membership_hash"],
+                    "population_count": membership["population_count"],
+                },
                 "authoritative_source_freshness": {
                     "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
                     "status": "FRESH",
@@ -107,13 +118,14 @@ def test_stale_source_feed_is_refused_before_private_cohort_write(tmp_path: Path
     manifest["authoritative_source_freshness"]["status"] = "STALE"
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
 
-    with __import__("pytest").raises(ValueError, match="STALE, not FRESH"):
+    with __import__("pytest").raises(ValueError, match="never proven FRESH"):
         build(
             feed_dir=feed_dir,
             private_root=tmp_path / "private",
             limit=10,
             as_of="2026-08-22",
             run_stamp="stale",
+            now=COHORT_NOW,
         )
     assert not (tmp_path / "private" / "stale").exists()
 
@@ -125,18 +137,67 @@ def test_expired_freshness_attestation_is_refused(tmp_path: Path):
     )
     manifest_path = feed_dir / "manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    manifest["authoritative_source_freshness"]["expires_at"] = "2000-01-01T00:00:00Z"
+    manifest["generated_at"] = "2026-08-14T23:59:00Z"
+    manifest["authoritative_source_freshness"]["as_of"] = "2026-08-14T23:59:00Z"
+    manifest["authoritative_source_freshness"]["expires_at"] = "2026-08-15T23:59:00Z"
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
 
-    with __import__("pytest").raises(ValueError, match="expired"):
+    with __import__("pytest").raises(ValueError, match="does not allow new admissions"):
         build(
             feed_dir=feed_dir,
             private_root=tmp_path / "private",
             limit=10,
             as_of="2026-08-22",
             run_stamp="expired",
+            now=COHORT_NOW,
         )
     assert not (tmp_path / "private" / "expired").exists()
+
+
+def test_expired_pncp_attestation_does_not_kill_current_last_good_cohort(tmp_path: Path):
+    feed_dir = _write_export(
+        tmp_path,
+        [_lead("11111111000191", [_contact("contato@alphaengenharia.com.br")])],
+    )
+    manifest_path = feed_dir / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["authoritative_source_freshness"]["expires_at"] = "2026-08-22T01:00:00Z"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    result = build(
+        feed_dir=feed_dir,
+        private_root=tmp_path / "private",
+        limit=10,
+        as_of="2026-08-22",
+        run_stamp="pncp-expired-commercial-current",
+        now=COHORT_NOW + timedelta(hours=2),
+    )
+    assert result["member_count"] == 1
+    assert result["source_feed"]["authoritative_freshness"]["commercial_authority"]["state"] == "CURRENT"
+
+
+def test_incomplete_binding_hashes_refuse_new_admission(tmp_path: Path) -> None:
+    feed_dir = _write_export(
+        tmp_path,
+        [_lead("11111111000191", [_contact("contato@alphaengenharia.com.br")])],
+    )
+    manifest_path = feed_dir / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["authoritative_target_membership"] = {}
+    manifest["source"]["snapshot_hash"] = ""
+    manifest["source"]["run_id"] = ""
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    with __import__("pytest").raises(ValueError, match="does not allow new admissions"):
+        assert_authoritative_source_freshness(manifest, now=COHORT_NOW)
+    with __import__("pytest").raises(ValueError, match="does not allow new admissions"):
+        build(
+            feed_dir=feed_dir,
+            private_root=tmp_path / "private",
+            limit=10,
+            as_of="2026-08-22",
+            run_stamp="unbound",
+            now=COHORT_NOW,
+        )
+    assert not (tmp_path / "private" / "unbound").exists()
 
 
 def test_risky_and_suppressed_never_enter_the_cohort():
@@ -211,6 +272,7 @@ def test_private_feed_is_0600_and_the_manifest_carries_no_pii(tmp_path):
         limit=50,
         as_of="2026-08-22",
         run_stamp="20260822T000000Z",
+        now=COHORT_NOW,
     )
 
     assert manifest["member_count"] == 2
@@ -251,6 +313,7 @@ def test_feed_hash_matches_the_bytes_on_disk(tmp_path):
         limit=50,
         as_of="2026-08-22",
         run_stamp="20260822T000000Z",
+        now=COHORT_NOW,
     )
     body = Path(manifest["private_feed_path"]).read_bytes()
     assert hashlib.sha256(body).hexdigest() == manifest["feed_sha256"]
@@ -352,6 +415,7 @@ def test_the_sample_publishes_the_name_credibility_verdict(tmp_path):
         limit=50,
         as_of="2026-08-22",
         run_stamp="20260822T000000Z",
+        now=COHORT_NOW,
     )
     sample = manifest["sample_qa"][0]
     assert sample["mailbox_domain_matches_official"] is True
@@ -374,6 +438,7 @@ def test_the_sample_never_carries_the_company_name(tmp_path):
         limit=50,
         as_of="2026-08-22",
         run_stamp="20260822T000000Z",
+        now=COHORT_NOW,
     )
     assert manifest["member_count"] == 1
     redacted = Path(manifest["manifest_path"]).read_text(encoding="utf-8")
@@ -407,9 +472,13 @@ def test_the_producer_never_holds_the_whole_feed(tmp_path):
         json.dumps(
             {
                 "lead_count": 12,
+                "generated_at": "2026-08-22T00:00:00Z",
+                "source": {"run_id": "run-stream", "snapshot_hash": "snapshot-stream"},
+                "authoritative_target_membership": {"membership_hash": "a" * 64, "population_count": 12},
                 "authoritative_source_freshness": {
                     "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
                     "status": "FRESH",
+                    "as_of": "2026-08-22T00:00:00Z",
                     "expires_at": "2999-01-01T00:00:00Z",
                 },
             }
@@ -427,6 +496,7 @@ def test_the_producer_never_holds_the_whole_feed(tmp_path):
         limit=50,
         as_of="2026-08-22",
         run_stamp="20260822T000000Z",
+        now=COHORT_NOW,
     )
     assert manifest["member_count"] == 12
     assert manifest["funnel"]["accounts_considered"] == 12

@@ -1,0 +1,19 @@
+{
+  "fixture_id": "commercial-authority-current",
+  "now": "2026-01-15T12:00:00Z",
+  "validated_at": "2026-01-14T12:00:00Z",
+  "binding": {
+    "basis_source_run_id": "run-snapshot-a",
+    "basis_snapshot_hash": "snapshot-a",
+    "basis_membership_hash": "membership-a",
+    "basis_publication_semantic_hash": "semantic-a",
+    "producer_identity": "producer-a"
+  },
+  "expected": {
+    "state": "CURRENT",
+    "new_admission_allowed": true,
+    "existing_bound_touch_transport_allowed": true,
+    "valid_until": "2026-01-15T12:00:00Z",
+    "reason_codes": ["COMMERCIAL_AUTHORITY_CURRENT"]
+  }
+}

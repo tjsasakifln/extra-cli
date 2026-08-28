@@ -1,0 +1,35 @@
+{
+  "fixture_id": "failed-next-run-preserves-last-good",
+  "description": "A failed next crawl degrades source health and refuses a new promotion. Last-good current stays byte-identical. Commercial authority is recomputed from last-good validated_at, not from the failed attempt.",
+  "now": "2026-01-15T12:00:00Z",
+  "last_good": {
+    "validated_at": "2026-01-15T06:00:00Z",
+    "binding": {
+      "basis_source_run_id": "run-snapshot-a",
+      "basis_snapshot_hash": "snapshot-a",
+      "basis_membership_hash": "membership-a",
+      "basis_publication_semantic_hash": "semantic-a",
+      "producer_identity": "producer-a"
+    }
+  },
+  "failed_attempt": {
+    "reason": "WINDOW_INCOMPLETE",
+    "promoted": false,
+    "source_operational_health": {
+      "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
+      "status": "STALE",
+      "reason_codes": ["WINDOW_INCOMPLETE", "UNCLOSED_CURRENT_WINDOW"]
+    }
+  },
+  "expected": {
+    "current_byte_identical": true,
+    "new_feed_promoted": false,
+    "source_operational_health_status": "STALE",
+    "commercial_authority": {
+      "state": "CURRENT",
+      "new_admission_allowed": true,
+      "existing_bound_touch_transport_allowed": true,
+      "basis_snapshot_hash": "snapshot-a"
+    }
+  }
+}
