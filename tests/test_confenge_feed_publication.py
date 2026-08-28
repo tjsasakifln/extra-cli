@@ -13,9 +13,11 @@ import pytest
 
 from scripts.confenge_activation.commercial_authority import root_transport_allowed
 from scripts.confenge_activation.publish import (
+    SERVED_COMMERCIAL_BINDING_FIELDS,
     atomic_publish_directory,
     check_current_publication,
     producer_identity,
+    publication_semantic_hash,
     record_feed_cycle_state,
 )
 from scripts.confenge_outreach_pipeline.party_role import PARTY_ROLE_POLICY_V1
@@ -981,12 +983,14 @@ def test_source_run_mismatch_on_binding_is_unknown() -> None:
         basis_snapshot_hash="snap-a",
         basis_membership_hash="mem-a",
         basis_publication_semantic_hash="sem-a",
+        producer_identity="producer-a",
     )
     expected = CommercialAuthorityBinding(
         basis_source_run_id="run-b",
         basis_snapshot_hash="snap-a",
         basis_membership_hash="mem-a",
         basis_publication_semantic_hash="sem-a",
+        producer_identity="producer-a",
     )
     payload = classify_commercial_authority(validated_at=NOW, now=NOW, binding=observed, expected_binding=expected)
     assert payload["state"] == "UNKNOWN"
@@ -1114,6 +1118,35 @@ def test_new_promotion_refuses_25h_old_candidate_without_touching_current(tmp_pa
             now=clock,
         )
     assert (public / "current" / "manifest.json").read_bytes() == before
+
+
+def test_served_manifest_bytes_carry_full_commercial_binding(tmp_path: Path) -> None:
+    public, state, alerts = _paths(tmp_path)
+    build = _build(tmp_path / "first")
+    result = atomic_publish_directory(build, public, state_path=state, alert_ledger=alerts, now=NOW)
+    served_bytes = (public / "current" / "manifest.json").read_bytes()
+    served = json.loads(served_bytes)
+    authority = served["commercial_authority"]
+    build_manifest = json.loads((build / "manifest.json").read_text(encoding="utf-8"))
+    assert served["producer_identity"] == producer_identity(build_manifest)
+    assert served["publication_semantic_hash"] == publication_semantic_hash(build_manifest)
+    for field in SERVED_COMMERCIAL_BINDING_FIELDS:
+        assert str(authority[field]).strip(), field
+    assert authority["basis_source_run_id"] == served["source"]["run_id"]
+    assert authority["basis_snapshot_hash"] == served["source"]["snapshot_hash"]
+    assert authority["basis_membership_hash"] == served["authoritative_target_membership"]["membership_hash"]
+    assert authority["basis_publication_semantic_hash"] == served["publication_semantic_hash"]
+    assert authority["producer_identity"] == served["producer_identity"]
+    assert authority["schema"] == "COMMERCIAL_AUTHORITY/1.0"
+    assert result["commercial_authority"]["basis_publication_semantic_hash"] == authority["basis_publication_semantic_hash"]
+    replay = json.loads((public / "current" / "manifest.json").read_bytes())
+    assert replay["commercial_authority"] == authority
+    drifted = json.loads(served_bytes)
+    original_semantic = drifted["commercial_authority"]["basis_publication_semantic_hash"]
+    drifted["commercial_authority"]["basis_publication_semantic_hash"] = original_semantic[:-1] + (
+        "0" if original_semantic[-1] != "0" else "1"
+    )
+    assert drifted["commercial_authority"]["basis_publication_semantic_hash"] != served["publication_semantic_hash"]
 
 
 def test_producer_identity_is_deterministic_and_clock_free() -> None:

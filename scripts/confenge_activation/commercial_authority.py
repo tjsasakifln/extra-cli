@@ -54,6 +54,7 @@ REASON_MEMBERSHIP_HASH_MISMATCH = "MEMBERSHIP_HASH_MISMATCH"
 REASON_SOURCE_RUN_MISMATCH = "SOURCE_RUN_MISMATCH"
 REASON_SNAPSHOT_HASH_MISMATCH = "SNAPSHOT_HASH_MISMATCH"
 REASON_SEMANTIC_HASH_MISMATCH = "PUBLICATION_SEMANTIC_HASH_MISMATCH"
+REASON_PRODUCER_IDENTITY_MISMATCH = "PRODUCER_IDENTITY_MISMATCH"
 REASON_MISSING_VALIDATED_AT = "MISSING_VALIDATED_AT"
 REASON_ROOT_DEACTIVATED = "ROOT_EXPLICITLY_DEACTIVATED"
 
@@ -288,6 +289,7 @@ def _binding_is_complete(binding: CommercialAuthorityBinding) -> bool:
         and binding.basis_snapshot_hash.strip()
         and binding.basis_membership_hash.strip()
         and binding.basis_publication_semantic_hash.strip()
+        and binding.producer_identity.strip()
     )
 
 
@@ -304,6 +306,8 @@ def _binding_mismatch_reasons(
         reasons.append(REASON_MEMBERSHIP_HASH_MISMATCH)
     if observed.basis_publication_semantic_hash != expected.basis_publication_semantic_hash:
         reasons.append(REASON_SEMANTIC_HASH_MISMATCH)
+    if observed.producer_identity != expected.producer_identity:
+        reasons.append(REASON_PRODUCER_IDENTITY_MISMATCH)
     if reasons:
         reasons.insert(0, REASON_BINDING_MISMATCH)
     return reasons
@@ -350,6 +354,7 @@ def authority_from_manifest(
             binding.basis_snapshot_hash,
             binding.basis_membership_hash,
             binding.basis_publication_semantic_hash,
+            binding.producer_identity,
         )
     ):
         return classify_commercial_authority(

@@ -128,6 +128,58 @@ def _parse_timestamp(value: Any, *, field: str) -> datetime:
     return parsed.astimezone(UTC)
 
 
+SERVED_COMMERCIAL_BINDING_FIELDS = (
+    "basis_source_run_id",
+    "basis_snapshot_hash",
+    "basis_membership_hash",
+    "basis_publication_semantic_hash",
+    "producer_identity",
+)
+
+
+def _embed_commercial_authority_into_served_manifest(
+    served_dir: Path,
+    *,
+    now: datetime,
+    producer_identity_value: str,
+    publication_semantic_hash_value: str,
+    source_operational_health: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Write the full producer binding into the bytes Warmbly actually imports.
+
+    ``publication_semantic_hash`` / ``producer_identity`` are clock-free identity
+    of the build. ``commercial_authority`` is additive envelope: its live
+    ``state``/``age_hours``/``classified_at`` are a snapshot at promote time and
+    do not participate in those hashes. Consumers recompute state from
+    ``validated_at`` + injected now. Incomplete binding refuses the serve.
+    """
+    manifest_path = Path(served_dir) / "manifest.json"
+    manifest = _read_json(manifest_path)
+    identity = str(producer_identity_value or "").strip()
+    semantic = str(publication_semantic_hash_value or "").strip()
+    if not identity or not semantic:
+        raise ValueError("producer identity and publication semantic hash are required on the served manifest")
+    authority = authority_from_manifest(
+        manifest,
+        now=now,
+        producer_identity=identity,
+        publication_semantic_hash=semantic,
+        source_operational_health=source_operational_health,
+    )
+    missing = [field for field in SERVED_COMMERCIAL_BINDING_FIELDS if not str(authority.get(field) or "").strip()]
+    if missing:
+        raise ValueError(
+            "commercial authority binding incomplete; refusing to serve an unbound manifest: "
+            + ",".join(missing)
+        )
+    served = dict(manifest)
+    served["producer_identity"] = identity
+    served["publication_semantic_hash"] = semantic
+    served["commercial_authority"] = authority
+    _atomic_json(manifest_path, served)
+    return authority
+
+
 def _atomic_json(path: Path, payload: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     fd, raw_tmp = tempfile.mkstemp(prefix=f".{path.name}.", dir=str(path.parent))
@@ -952,6 +1004,12 @@ def atomic_publish_directory(
                 # fsync file
                 with dest.open("rb") as f:
                     os.fsync(f.fileno())
+        _embed_commercial_authority_into_served_manifest(
+            tmp,
+            now=clock,
+            producer_identity_value=str(metrics["producer_identity"]),
+            publication_semantic_hash_value=str(metrics["publication_semantic_hash"]),
+        )
         _make_public_feed_tree_readable(tmp)
         _fsync_dir(tmp)
         os.replace(str(tmp), str(release_dir))

@@ -17,7 +17,8 @@
     "basis_source_run_id",
     "basis_snapshot_hash",
     "basis_membership_hash",
-    "basis_publication_semantic_hash"
+    "basis_publication_semantic_hash",
+    "producer_identity"
   ],
   "properties": {
     "schema": { "type": "string", "const": "COMMERCIAL_AUTHORITY/1.0" },

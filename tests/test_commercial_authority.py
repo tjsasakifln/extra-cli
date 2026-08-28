@@ -124,7 +124,13 @@ def test_deactivated_root_cannot_ride_grace() -> None:
 
 @pytest.mark.parametrize(
     "field",
-    ("basis_source_run_id", "basis_snapshot_hash", "basis_membership_hash", "basis_publication_semantic_hash"),
+    (
+        "basis_source_run_id",
+        "basis_snapshot_hash",
+        "basis_membership_hash",
+        "basis_publication_semantic_hash",
+        "producer_identity",
+    ),
 )
 def test_binding_mismatch_is_unknown_and_closed(field: str) -> None:
     expected = CommercialAuthorityBinding(**{**BINDING.as_dict(), field: "other"})
@@ -149,6 +155,7 @@ def test_empty_binding_hashes_are_unknown_and_closed() -> None:
             basis_snapshot_hash="",
             basis_membership_hash="",
             basis_publication_semantic_hash="",
+            producer_identity="",
         ),
     )
     assert payload["state"] == "UNKNOWN"
@@ -229,3 +236,21 @@ def test_warmbly_example_keeps_pncp_field_meaning() -> None:
     )
     assert replay["state"] == "CURRENT"
     assert replay["new_admission_allowed"] is True
+    assert authority["producer_identity"] == "producer-a"
+    assert authority["basis_publication_semantic_hash"] == "semantic-a"
+
+
+def test_one_byte_producer_or_semantic_drift_fails_closed() -> None:
+    payload = classify_commercial_authority(validated_at=NOW, now=NOW, binding=BINDING)
+    for field in ("basis_publication_semantic_hash", "producer_identity", "basis_membership_hash"):
+        drifted = CommercialAuthorityBinding(**{**BINDING.as_dict(), field: payload[field][:-1] + "b"})
+        closed = classify_commercial_authority(
+            validated_at=NOW,
+            now=NOW,
+            binding=BINDING,
+            expected_binding=drifted,
+        )
+        assert closed["state"] == "UNKNOWN"
+        assert closed["new_admission_allowed"] is False
+        assert closed["existing_bound_touch_transport_allowed"] is False
+        assert "BINDING_MISMATCH" in closed["reason_codes"]
