@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from scripts.ops.confenge_contact_cycle import run_cycle
+from scripts.ops.confenge_contact_cycle import _batch_command, _child_env, run_cycle
 
 NOW = datetime(2026, 8, 24, 20, 0, tzinfo=UTC)
 ROOT = Path(__file__).resolve().parents[1]
@@ -20,7 +20,7 @@ class FakeRunner:
 
     def __call__(self, command: list[str]) -> dict:
         self.commands.append(command)
-        action = command[4]
+        action = command[command.index("batch") + 1]
         if action == "enqueue":
             return {
                 "progress": {
@@ -95,14 +95,14 @@ def test_full_cycle_promotes_only_after_terminal_projection(tmp_path: Path) -> N
     state = json.loads((tmp_path / "state.json").read_text(encoding="utf-8"))
     assert state["last_status"] == "COMPLETED"
     assert state["active_cohort"] is None
-    enqueue = next(command for command in runner.commands if command[4] == "enqueue")
+    enqueue = next(command for command in runner.commands if command[command.index("batch") + 1] == "enqueue")
     assert "target-confirmed" in enqueue
     assert str((previous / "contacts.jsonl").resolve()) in enqueue
     assert "--verify-email-dns" in enqueue
     assert str(output / "search-cache") in enqueue
-    assert sum(command[4] == "publish" for command in runner.commands) == 1
-    assert sum(command[4] == "export-contacts" for command in runner.commands) == 1
-    export = next(command for command in runner.commands if command[4] == "export-contacts")
+    assert sum(command[command.index("batch") + 1] == "publish" for command in runner.commands) == 1
+    assert sum(command[command.index("batch") + 1] == "export-contacts" for command in runner.commands) == 1
+    export = next(command for command in runner.commands if command[command.index("batch") + 1] == "export-contacts")
     assert export[export.index("--prior-contacts") + 1] == str((previous / "contacts.jsonl").resolve())
 
 
@@ -137,7 +137,7 @@ def test_failed_partial_cycle_keeps_previous_projection_and_is_resumable(tmp_pat
     assert state["last_status"] == "FAILED"
     assert state["active_cohort"].startswith("target-confirmed-auto-")
     assert "CONTACT_CYCLE_FAILED" in (tmp_path / "alerts.jsonl").read_text(encoding="utf-8")
-    assert all(command[4] not in {"publish", "export-contacts"} for command in runner.commands)
+    assert all(command[command.index("batch") + 1] not in {"publish", "export-contacts"} for command in runner.commands)
 
 
 def test_resume_terminal_cohort_does_not_enqueue_again(tmp_path: Path) -> None:
@@ -171,7 +171,7 @@ def test_resume_terminal_cohort_does_not_enqueue_again(tmp_path: Path) -> None:
     )
 
     assert result["resumed"] is True
-    assert all(command[4] != "enqueue" for command in runner.commands)
+    assert all(command[command.index("batch") + 1] != "enqueue" for command in runner.commands)
 
 
 def test_public_backend_and_positive_concurrency_are_required(tmp_path: Path) -> None:
@@ -203,3 +203,19 @@ def test_systemd_cycle_and_workers_share_private_search_endpoint_contract() -> N
     for unit in (cycle, worker):
         assert "EnvironmentFile=-/etc/extra-consultoria/contact-discovery.env" in unit
     assert "--out /var/lib/extra-consultoria/output/contact-discovery" in worker
+
+
+def test_batch_children_use_isolated_interpreter() -> None:
+    command = _batch_command("export-contacts", "--cohort", "c1")
+    assert command[1] == "-P"
+    assert command[2:5] == ["-m", "scripts.decision_unit_intelligence", "batch"]
+    assert command[5] == "export-contacts"
+
+
+def test_child_env_keeps_release_ahead_of_cwd(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("PYTHONPATH", "/opt/extra-consultoria")
+    env = _child_env()
+    assert env["PYTHONSAFEPATH"] == "1"
+    pythonpath = env["PYTHONPATH"].split(":")
+    assert pythonpath[0] == str(ROOT)
+    assert "/opt/extra-consultoria" in pythonpath

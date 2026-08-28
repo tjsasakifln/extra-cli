@@ -93,8 +93,30 @@ def _fsync_dir(path: Path) -> None:
         os.close(fd)
 
 
+def _runtime_root() -> Path:
+    return Path(__file__).resolve().parents[2]
+
+
+def _child_env() -> dict[str, str]:
+    """Bind DUI children to this release even when cwd is the live checkout.
+
+    systemd pin_release keeps WorkingDirectory=/opt/extra-consultoria (writable)
+    and isolates only the parent interpreter with python -P. A child spawned as
+    ``python -m scripts.decision_unit_intelligence`` without -P prepends cwd to
+    sys.path, so an older checkout shadows export-contacts and the OnSuccess
+    chain dies after a FRESH source close.
+    """
+    env = os.environ.copy()
+    env["PYTHONSAFEPATH"] = "1"
+    inherited = env.get("PYTHONPATH")
+    env["PYTHONPATH"] = os.pathsep.join(part for part in (str(_runtime_root()), inherited) if part)
+    return env
+
+
 def _run_json(command: list[str]) -> dict[str, Any]:
-    completed = subprocess.run(command, check=False, capture_output=True, text=True)  # noqa: S603
+    completed = subprocess.run(  # noqa: S603
+        command, check=False, capture_output=True, text=True, env=_child_env()
+    )
     if completed.returncode != 0:
         detail = (completed.stderr or completed.stdout)[-4_000:].strip()
         raise CommandError(f"command exited {completed.returncode}: {detail}")
@@ -108,7 +130,7 @@ def _run_json(command: list[str]) -> dict[str, Any]:
 
 
 def _batch_command(*args: str) -> list[str]:
-    return [sys.executable, "-m", "scripts.decision_unit_intelligence", "batch", *args]
+    return [sys.executable, "-P", "-m", "scripts.decision_unit_intelligence", "batch", *args]
 
 
 def _counts(progress: dict[str, Any]) -> dict[str, int]:
