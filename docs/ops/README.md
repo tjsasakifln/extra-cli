@@ -1,6 +1,6 @@
 # Documentação operacional — Extra Consultoria
 
-> **Atualizado:** 2026-07-25  
+> **Atualizado:** 2026-08-29
 > **Propósito:** índice da documentação operacional **viva**.  
 > **Estado de produto / onboarding:** [`README.md`](../../README.md) · **Dev canônico:** [`DEVELOPMENT.md`](../DEVELOPMENT.md) · **DoD:** [`DOD.md`](../../DOD.md)
 
@@ -30,6 +30,7 @@ Existência do host **não** autoriza claims `VPS_OPERATIONAL` / `LOCAL_READY` /
 | [`METRIC-DEFINITION-POLICY.md`](METRIC-DEFINITION-POLICY.md) | Política de definição de métricas |
 | [`extra-technical-acervo.md`](extra-technical-acervo.md) | Acervo CAT/CAO Extra (store + CLI) |
 | [`searxng-private-backend.md`](searxng-private-backend.md) | SearXNG privado CONFENGE (HTTP only, AGPL, canário) |
+| [`national-census-operation.md`](national-census-operation.md) | Census nacional por catálogo oficial + checkpoints source-wide (#302) |
 
 ## Host / Netcup / recovery
 

@@ -28,13 +28,7 @@ def assign_partition_statuses(
     consulted: ConsultedPartitions,
     request: CoverageRequest,
 ) -> tuple[PartitionState, ...]:
-    queried = (
-        set(consulted.queried)
-        | set(consulted.found)
-        | set(consulted.zero_confirmed)
-        | set(consulted.failed)
-        | set(consulted.blocked)
-    )
+    queried = set(consulted.queried) | set(consulted.found) | set(consulted.zero_confirmed) | set(consulted.failed)
     states: list[PartitionState] = []
     for org in universe.expected_orgs:
         if not _applicable(org, request):

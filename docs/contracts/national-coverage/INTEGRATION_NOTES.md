@@ -13,14 +13,17 @@ facts = public_read_claim_facts(payload["consumer"])
 ```
 
 `facts["indexation_authorized"]` is always `false`.
-`facts["national_claim_allowed"]` tracks `national_claim_authorized`.
+`facts["national_claim_allowed"]` and `facts["nacional_completo"]` track
+`national_claim_authorized`. The handoff also includes source, cutoff, `as_of`,
+method version, catalog hash, and reconciliation hash.
 
 ## What this is not
 
 - Not `scripts.national_claims.decide` (six-state arbiter stays).
 - Not `scripts.contract_comparables` (PR #435).
 - Not `scripts.coverage.promote_or_defer` (PR #413).
-- Not a live 98k PNCP census. extra-cli#302 remains open.
+- Not a second crawler. The live census reuses the PNCP catalog, source-wide
+  contracts crawler checkpoints, and existing national-coverage identity.
 
 ## Consumer SELECT
 
@@ -37,5 +40,7 @@ WHERE universe_id = :universe_id;
 
 ## Residual on #302
 
-`PARTIAL_RESIDUAL` — official enumerator contract and observed-corpus
-companion exist; live publishing-org census is not closed.
+`PARTIAL_RESIDUAL` — the official catalog is inventoried and the local queue is
+resumable, but the 2026-08-29 observation still has four uncovered source days
+and no official publishing-unit enumerator. See
+`docs/ops/session-2026-08-29-national-census/evidence.json`.

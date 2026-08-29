@@ -98,10 +98,26 @@ def reconcile(
         request=request,
         measured=measured,
     )
+    identity_issues = mapping.unmapped + mapping.duplicate + mapping.conflict
+    if authorized and identity_issues > 0:
+        authorized = False
+        verdict = "PARTIAL"
+        reasons = tuple([*reasons, "unresolved_publisher_identities", f"unresolved_identity_count:{identity_issues}"])
     if authorized and freshness.stale_found > 0:
         authorized = False
         verdict = "PARTIAL"
         reasons = tuple([*reasons, "stale_universe"])
+    source_cutoff = _parse_as_of(universe.cutoff)
+    freshness_cutoff = _parse_as_of(freshness.as_of)
+    if (
+        authorized
+        and source_cutoff is not None
+        and freshness_cutoff is not None
+        and freshness_cutoff - source_cutoff > timedelta(hours=freshness.window_hours)
+    ):
+        authorized = False
+        verdict = "PARTIAL"
+        reasons = tuple([*reasons, "source_cutoff_stale"])
     seed = {
         "schema_version": SCHEMA_VERSION,
         "national_universe_id": universe.national_universe_id,

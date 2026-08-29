@@ -48,6 +48,8 @@ def _limitations(record: CoverageRecord) -> tuple[str, ...]:
         items.append("national_claim_not_authorized")
     if record.verdict == "PARTIAL":
         items.append("partial_coverage_is_not_national")
+    if record.universe.grain == "publishing_org" and record.universe.expected_units is None:
+        items.append("publishing_unit_denominator_not_enumerated")
     return tuple(items)
 
 
@@ -82,7 +84,10 @@ def consumer_answer(record: CoverageRecord) -> dict[str, Any]:
             "stock_unobserved": record.stock.unobserved,
         },
         "missingness": _missingness(record),
+        "nacional_completo": record.national_claim_authorized,
+        "national_claim_allowed": record.national_claim_authorized,
         "national_claim_authorized": record.national_claim_authorized,
+        "reconciliation_hash": record.content_hash,
         "verdict": record.verdict,
         "reason_codes": list(record.reason_codes),
         "limitations": list(_limitations(record)),
@@ -97,6 +102,7 @@ def consumer_answer(record: CoverageRecord) -> dict[str, Any]:
             "as_of": record.universe.as_of,
             "raw_hash": record.universe.raw_hash,
             "catalog_hash": record.universe.catalog_hash,
+            "reconciliation_hash": record.content_hash,
             "core_universe_id": record.universe.core_universe_id,
             "universe_kind": record.universe.universe_kind,
             "official_status": record.universe.official_status,
@@ -123,6 +129,7 @@ def coverage_payload(record: CoverageRecord, consumer: dict[str, Any]) -> dict[s
         "national_universe_id": record.universe.national_universe_id,
         "catalog_hash": record.universe.catalog_hash,
         "raw_hash": record.universe.raw_hash,
+        "reconciliation_hash": record.content_hash,
         "verdict": record.verdict,
         "national_claim_authorized": record.national_claim_authorized,
         "reason_codes": list(record.reason_codes),

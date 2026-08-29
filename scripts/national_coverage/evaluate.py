@@ -143,6 +143,7 @@ def evaluate_from_dict(payload: dict[str, Any]) -> dict[str, Any]:
             raw_hash=raw_hash,
             orgs=orgs,
             method_version=str(official.get("method_version") or CORE_METHOD_VERSION),
+            units_enumerated=bool(official.get("units_enumerated", True)),
         )
         mapping = (
             map_publishers(corpus, universe)

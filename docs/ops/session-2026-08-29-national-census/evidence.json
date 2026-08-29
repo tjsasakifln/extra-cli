@@ -1,0 +1,131 @@
+{
+  "schema_version": "national-census-live-evidence/1.0",
+  "observed_at": "2026-08-29T21:27:37Z",
+  "base_sha": "4ba991bc525f44b0852209c0223c6699d41374d4",
+  "host_deployed_sha": "14c8b2473c4e52566a7fed96c45057bd3214a2fe",
+  "source": {
+    "id": "pncp",
+    "catalog_url": "https://pncp.gov.br/api/pncp/v1/orgaos",
+    "catalog_http_status": 200,
+    "catalog_http_date": "Sat, 29 Aug 2026 21:12:05 GMT",
+    "catalog_request_count": 1,
+    "partition_http_request_count": 0
+  },
+  "catalog": {
+    "schema_version": "national-census-catalog/1.1",
+    "retrieved_at": "2026-08-29T21:12:05Z",
+    "raw_bytes": 45873293,
+    "raw_sha256": "448998d5d31fb4c3c5c2dbafedbd17367c3a3e47899e2962ababcd4c30a6aa73",
+    "catalog_hash": "2864a7f403930d0c0d0d7bdf649716573f0f69c279a141334e89f1a2e79f2c3b",
+    "inventory_hash": "fd3ad549903c9b611a5c9853895e7c9360111a94d53da234194faecfbf9e7dd9",
+    "manifest_sha256": "4aa242dacf50b1cde7083d65ddc7b290d6b2d6f31727aede5cea6b6e9ba778cb",
+    "records": 98456,
+    "unique_cnpj": 98456,
+    "active": 98455,
+    "inactive": 1,
+    "grain": "publishing_org",
+    "unit_count": null
+  },
+  "corpus": {
+    "schema_version": "national-census-corpus/1.0",
+    "period_start": "2023-07-20",
+    "period_end_exclusive": "2026-08-29",
+    "publisher_count": 14350,
+    "contract_count": 4660050,
+    "snapshot_hash": "374f6c3fe27732891c31918240e53decdcb7db43fbab219d2ac2243770e2be9d"
+  },
+  "window_evidence": {
+    "expected_days": 1136,
+    "covered_days": 1132,
+    "complete": false,
+    "blocked_dates": [
+      "2026-08-16"
+    ],
+    "not_consulted_dates": [
+      "2026-08-17",
+      "2026-08-20",
+      "2026-08-21"
+    ],
+    "failed_dates": [],
+    "window_evidence_hash": "ffe2ff77c919997445f22a1793b5bd239312af2e9b72e89e974c794d6916c614",
+    "checkpoint_sha256": [
+      "17ff50a4d47dc6d5e17541940f95325efbd76c80a0c1bd07c481d240e9312bf8",
+      "5645d7dee558821149653d44068f35a3f02a9d06425b55137981fc9e5c797961",
+      "a21a19e51fdc6e9679b9b639881ce1c635442d7badbb51e76910d78be2e3c9c6"
+    ]
+  },
+  "reconciliation": {
+    "national_universe_id": "ncv-pncp-contracts-2023-07-20_2026-08-28-c4c92d59f6687451",
+    "reconciliation_hash": "d2a9ebeef41ba0a232fcc430641c9f97ea50d72276daccf7ed5dbaf6a8ab4e24",
+    "expected": 98456,
+    "reconciled": 98456,
+    "found": 14350,
+    "zero_confirmed": 0,
+    "blocked": 84106,
+    "failed": 0,
+    "nacional_completo": false,
+    "national_claim_allowed": false,
+    "reason_codes": [
+      "partitions_not_closed",
+      "unclosed_count:84106",
+      "unconsulted_partitions_remain"
+    ],
+    "mapping": {
+      "mapped": 14350,
+      "unmapped": 0,
+      "duplicate": 0,
+      "conflict": 0
+    }
+  },
+  "operation": {
+    "schema_version": "national-census-operation/1.0",
+    "checkpoint_schema_version": "national-census-checkpoint/1.1",
+    "coverage_schema_version": "national-coverage/1.0",
+    "method_version": "national-coverage-v1",
+    "core_method_version": "pncp-orgaos-publicantes-v1",
+    "fresh_full_run_seconds": 5.83,
+    "fresh_full_run_partitions_per_second": 16888,
+    "resume_slice_terminal": 10000,
+    "resume_slice_remaining": 88456,
+    "resume_seconds": 6.57,
+    "resume_partitions_per_second": 13464,
+    "replay_hash_match": true,
+    "checkpoint_bytes": 2363419,
+    "checkpoint_sha256": "e44b9b8c05bcb1a9de3102871b929a1a1490eebb0e827d00d5adc2df195f2b01",
+    "report_bytes": 2199526,
+    "report_sha256": "8ba912e096a510157ffda4978d152010c1bd27a618e66f8c3b56259d7236fd3a",
+    "replay_report_sha256": "0f22d6d5260e1747c384a5d3ba3c014cea5687c27c34f1e96d9b80d6f45add72",
+    "max_rss_kb": 306512,
+    "http_concurrency": 1,
+    "partition_concurrency": 1,
+    "checkpoint_claim": "exclusive_flock"
+  },
+  "golden_path": {
+    "run_id": "gp-20260829-191122",
+    "status": "failed_fail_closed",
+    "pncp_attempts": 2,
+    "pncp_first_attempt_timeout_seconds": 720,
+    "pncp_second_attempt_fetched": 887,
+    "pncp_second_attempt_seconds": 418.638,
+    "pcp_fetched": 143,
+    "compras_gov_status": "success_zero",
+    "failing_gate": "MISSING_EVIDENCE:source_wide_aggregate_without_identity:open_tenders",
+    "national_claim_promoted": false
+  },
+  "quality": {
+    "ruff": "pass",
+    "focused_national_coverage": "51 passed, 1 skipped",
+    "final_census_consumer_smoke": "16 passed",
+    "canonical_full_suite": "6264 passed, 140 skipped, 1 deselected, 3 failed",
+    "canonical_full_suite_note": "three order/load failures passed immediately in isolation; one baseline integrity test was deselected only after reproducing the same SHA mismatch on clean origin/main",
+    "coderabbit": "cli_signed_out_manual_adversarial_review_used"
+  },
+  "limitations": [
+    "official_response_does_not_declare_total",
+    "publishing_unit_denominator_not_enumerated",
+    "source_window_coverage_incomplete",
+    "host_deployed_sha_differs_from_base_sha",
+    "indexation_not_authorized"
+  ],
+  "raw_artifacts_committed": false
+}

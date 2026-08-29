@@ -155,3 +155,70 @@ def test_stale_last_seen_is_measured_but_does_not_authorize_national() -> None:
     )
     assert payload["freshness"]["stale_found"] >= 1
     assert payload["national_claim_authorized"] is False
+
+
+def test_complete_partitions_with_stale_source_cutoff_do_not_authorize() -> None:
+    payload = evaluate_from_dict(
+        {
+            "official": {
+                "status": "AVAILABLE",
+                "source": "pncp",
+                "competence": "contratos-2026",
+                "cutoff": "2026-08-01",
+                "as_of": "2026-08-16T00:00:00Z",
+                "raw_hash": "raw-stale-cutoff",
+                "orgs": [{"org_id": "11111111000191", "name": "A", "unit_count": 1}],
+            },
+            "consulted": {"zero_confirmed": {"11111111000191": "complete-source-window:evidence"}},
+            "freshness": {"window_hours": 48, "as_of": "2026-08-16T00:00:00Z"},
+            "request": {
+                "geography": "BR",
+                "period": "2026",
+                "source": "pncp",
+                "grain": "publishing_org",
+            },
+        }
+    )
+    assert payload["partitions"]["by_status"]["ZERO_CONFIRMED"] == 1
+    assert payload["national_claim_authorized"] is False
+    assert payload["verdict"] == "PARTIAL"
+    assert "source_cutoff_stale" in payload["reason_codes"]
+
+
+def test_complete_partitions_with_unmapped_publisher_do_not_authorize() -> None:
+    payload = evaluate_from_dict(
+        {
+            "official": {
+                "status": "AVAILABLE",
+                "source": "pncp",
+                "competence": "contratos-2026",
+                "cutoff": "2026-08-28",
+                "as_of": "2026-08-29T00:00:00Z",
+                "raw_hash": "raw-unmapped",
+                "orgs": [{"org_id": "11111111000191", "name": "A", "unit_count": 1}],
+            },
+            "corpus": {
+                "as_of": "2026-08-29T00:00:00Z",
+                "source": "pncp_supplier_contracts",
+                "publishers": [
+                    {
+                        "raw_org_id": "99999999000191",
+                        "contract_count": 1,
+                        "last_seen": "2026-08-29T00:00:00Z",
+                    }
+                ],
+            },
+            "consulted": {"zero_confirmed": {"11111111000191": "complete-source-window:evidence"}},
+            "freshness": {"window_hours": 48, "as_of": "2026-08-29T00:00:00Z"},
+            "request": {
+                "geography": "BR",
+                "period": "2026",
+                "source": "pncp",
+                "grain": "publishing_org",
+            },
+        }
+    )
+    assert payload["partitions"]["by_status"]["ZERO_CONFIRMED"] == 1
+    assert payload["mapping"]["unmapped"] == 1
+    assert payload["national_claim_authorized"] is False
+    assert "unresolved_publisher_identities" in payload["reason_codes"]
