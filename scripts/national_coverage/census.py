@@ -1,10 +1,9 @@
 """Resumable national publishing-org census built on the existing PNCP spine.
 
-The PNCP catalog is fetched once. Contract absence is reconciled from the
-existing source-wide date-window checkpoints; this module never fans out one
-HTTP request per catalog organization. A missing organization becomes
-``ZERO_CONFIRMED`` only when every day in the requested competence is covered
-by a crawler window that was atomically marked complete.
+The PNCP catalog is fetched once. Existing source-wide date-window checkpoints
+describe the aggregate corpus window; this module never fans out one HTTP
+request per catalog organization. Aggregate completion is not entity-scoped
+negative evidence, so a missing organization remains ``BLOCKED``.
 
 Raw catalogs, corpus snapshots, and reconciliation checkpoints are operational
 artifacts and must remain outside git. Compact hashes/summaries may be checked
@@ -79,6 +78,11 @@ def _atomic_write(path: Path, raw: bytes) -> None:
             handle.flush()
             os.fsync(handle.fileno())
         os.replace(temporary_path, path)
+        directory_fd = os.open(path.parent, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+        try:
+            os.fsync(directory_fd)
+        finally:
+            os.close(directory_fd)
     finally:
         temporary_path.unlink(missing_ok=True)
 
@@ -89,13 +93,19 @@ def _atomic_json(path: Path, payload: dict[str, Any]) -> None:
 
 
 def _load_object(path: Path) -> dict[str, Any]:
+    payload, _ = _load_object_with_raw(path)
+    return payload
+
+
+def _load_object_with_raw(path: Path) -> tuple[dict[str, Any], bytes]:
     try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
+        raw = path.read_bytes()
+        payload = json.loads(raw.decode("utf-8"))
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise CensusOperationError(f"invalid_json:{path.name}:{type(exc).__name__}") from exc
     if not isinstance(payload, dict):
         raise CensusOperationError(f"json_object_required:{path.name}")
-    return payload
+    return payload, raw
 
 
 def _parse_day(value: str) -> date:
@@ -156,10 +166,21 @@ def build_window_evidence(
     blocked_days: set[date] = set()
     artifacts: list[dict[str, Any]] = []
     for path in checkpoint_paths:
-        payload = _load_object(path)
+        payload, raw = _load_object_with_raw(path)
         source = str(payload.get("source") or "")
         if source != "pncp_contracts":
             raise CensusOperationError(f"unexpected_checkpoint_source:{path.name}:{source or 'missing'}")
+        meta = payload.get("meta") or {}
+        if not isinstance(meta, dict):
+            raise CensusOperationError(f"checkpoint_meta_invalid:{path.name}")
+        capability = str(meta.get("capability") or "historical_contracts")
+        if capability != "historical_contracts":
+            raise CensusOperationError(f"checkpoint_capability_mismatch:{path.name}:{capability}")
+        query_kind = str(meta.get("query_kind") or "")
+        logical_job_id = str(meta.get("logical_job_id") or "")
+        mode = str(payload.get("mode") or "")
+        if query_kind != "publication":
+            raise CensusOperationError(f"checkpoint_query_kind_mismatch:{path.name}:{query_kind or 'missing'}")
         completed = sorted({str(item) for item in payload.get("completed_windows") or []})
         failed = sorted(_current_failed_windows(payload))
         blocked = sorted(_current_blocked_windows(payload))
@@ -183,9 +204,12 @@ def build_window_evidence(
                 blocked_in_scope.append(key)
         artifacts.append(
             {
-                "sha256": sha256_file(path),
+                "sha256": sha256_bytes(raw),
                 "source": source,
-                "mode": payload.get("mode"),
+                "mode": mode,
+                "capability": capability,
+                "query_kind": query_kind,
+                "logical_job_id": logical_job_id or None,
                 "updated_at": payload.get("updated_at"),
                 "completed_windows_in_scope": completed_in_scope,
                 "failed_windows_in_scope": failed_in_scope,
@@ -241,6 +265,8 @@ def _validate_window_evidence(payload: dict[str, Any]) -> None:
     if any(
         not isinstance(item, dict)
         or item.get("source") != "pncp_contracts"
+        or item.get("capability") != "historical_contracts"
+        or item.get("query_kind") != "publication"
         or not re.fullmatch(r"[0-9a-f]{64}", str(item.get("sha256") or ""))
         for item in artifacts
     ):
@@ -274,7 +300,7 @@ def build_catalog_inventory(
     response_metadata: dict[str, Any] | None = None,
     raw_artifact: str | None = None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
-    """Validate and canonically order a complete transport response."""
+    """Validate and canonically order one bounded catalog response body."""
     if len(raw) > MAX_CATALOG_BYTES:
         raise CensusOperationError("catalog_response_too_large")
     try:
@@ -341,7 +367,8 @@ def build_catalog_inventory(
         "unique_org_count": len(seen),
         "grain": "publishing_org",
         "unit_count": None,
-        "transport_complete": True,
+        "transport_body_complete": True,
+        "catalog_completeness_proven": False,
         "declared_total": None,
         "limitations": [
             "official_response_does_not_declare_total",
@@ -392,6 +419,8 @@ def publish_catalog_bundle(
     inventory: dict[str, Any],
 ) -> Path:
     """Publish raw first under its hash, then atomically advance the LKG manifest."""
+    if out_raw.parent.resolve() != out_manifest.parent.resolve():
+        raise CensusOperationError("catalog_bundle_paths_must_share_directory")
     raw_hash = sha256_bytes(raw)
     versioned = out_raw.with_name(f"{out_raw.stem}.{raw_hash[:16]}{out_raw.suffix}")
     manifest = {**inventory, "raw_artifact": versioned.name}
@@ -527,14 +556,13 @@ def snapshot_corpus_from_dsn(
             cursor.execute(
                 """
                 SELECT
-                    regexp_replace(orgao_cnpj, '[^0-9]', '', 'g') AS org_id,
+                    regexp_replace(coalesce(orgao_cnpj, ''), '[^0-9]', '', 'g') AS org_id,
                     count(*)::bigint AS contract_count,
                     min(coalesce(first_seen_at, ingested_at)) AS first_seen,
                     max(coalesce(last_seen_at, ingested_at)) AS last_seen
                 FROM public.pncp_supplier_contracts
                 WHERE data_publicacao >= %s
                   AND data_publicacao < %s
-                  AND length(regexp_replace(coalesce(orgao_cnpj, ''), '[^0-9]', '', 'g')) = 14
                 GROUP BY 1
                 ORDER BY 1
                 """,
@@ -544,21 +572,39 @@ def snapshot_corpus_from_dsn(
         conn.rollback()
     finally:
         conn.close()
-    publishers = [
-        {
-            "org_id": row[0],
-            "contract_count": int(row[1]),
-            "first_seen": row[2].isoformat() if row[2] else None,
-            "last_seen": row[3].isoformat() if row[3] else None,
-        }
-        for row in rows
-    ]
+    publishers = _corpus_publishers_from_rows(rows)
     return build_corpus_snapshot(
         publishers,
         period_start=start.isoformat(),
         period_end_exclusive=end.isoformat(),
         retrieved_at=retrieved_at,
     )
+
+
+def _corpus_publishers_from_rows(rows: Iterable[Any]) -> list[dict[str, Any]]:
+    publishers: list[dict[str, Any]] = []
+    rejected_groups = 0
+    rejected_contracts = 0
+    for row in rows:
+        org_id = normalize_org_id(str(row[0] or ""))
+        count = int(row[1] or 0)
+        if len(org_id) != 14:
+            rejected_groups += 1
+            rejected_contracts += count
+            continue
+        publishers.append(
+            {
+                "org_id": org_id,
+                "contract_count": count,
+                "first_seen": row[2].isoformat() if row[2] else None,
+                "last_seen": row[3].isoformat() if row[3] else None,
+            }
+        )
+    if rejected_groups:
+        raise CensusOperationError(
+            f"corpus_unmappable_identity_rows:groups={rejected_groups}:contracts={rejected_contracts}"
+        )
+    return publishers
 
 
 def _read_response_limited(response: BinaryIO, *, maximum: int = MAX_CATALOG_BYTES) -> bytes:
@@ -716,6 +762,7 @@ def _load_or_create_checkpoint(
     *,
     input_hash: str,
     ordered_org_ids: list[str],
+    expected_status_by_org: dict[str, str],
 ) -> dict[str, Any]:
     total = len(ordered_org_ids)
     if not path.exists():
@@ -727,19 +774,34 @@ def _load_or_create_checkpoint(
         raise CensusOperationError("checkpoint_input_hash_mismatch")
     if int(payload.get("expected_partitions") or -1) != total:
         raise CensusOperationError("checkpoint_expected_partitions_mismatch")
+    if payload.get("queue_order") != "normalized_cnpj_ascending":
+        raise CensusOperationError("checkpoint_queue_order_mismatch")
+    if payload.get("http_concurrency") != 1 or payload.get("partition_concurrency") != 1:
+        raise CensusOperationError("checkpoint_concurrency_mismatch")
     terminal = payload.get("terminal_by_status")
     if not isinstance(terminal, dict) or set(terminal) != set(TERMINAL_STATUSES):
         raise CensusOperationError("checkpoint_terminal_states_corrupt")
     cursor = int(payload.get("next_index") or 0)
     if cursor < 0 or cursor > total:
         raise CensusOperationError("checkpoint_cursor_corrupt")
+    complete = payload.get("complete")
+    if not isinstance(complete, bool) or complete != (cursor == total):
+        raise CensusOperationError("checkpoint_complete_mismatch")
     if any(not isinstance(terminal.get(status), list) for status in TERMINAL_STATUSES):
         raise CensusOperationError("checkpoint_terminal_states_corrupt")
-    terminal_ids = [str(org_id) for status in TERMINAL_STATUSES for org_id in terminal[status]]
+    if any(not isinstance(org_id, str) for status in TERMINAL_STATUSES for org_id in terminal[status]):
+        raise CensusOperationError("checkpoint_terminal_states_corrupt")
+    terminal_ids = [org_id for status in TERMINAL_STATUSES for org_id in terminal[status]]
     if len(terminal_ids) != len(set(terminal_ids)):
         raise CensusOperationError("checkpoint_duplicate_terminal_partition")
     if set(terminal_ids) != set(ordered_org_ids[:cursor]):
         raise CensusOperationError("checkpoint_queue_prefix_corrupt")
+    if any(
+        expected_status_by_org.get(org_id) != status
+        for status in TERMINAL_STATUSES
+        for org_id in terminal[status]
+    ):
+        raise CensusOperationError("checkpoint_partition_status_mismatch")
     return payload
 
 
@@ -776,10 +838,14 @@ def run_census(
     processed_this_run = 0
     with _CheckpointLock(checkpoint_path):
         ordered_org_ids = [str(item["org_id"]) for item in orgs]
+        expected_status_by_org = {
+            org_id: "FOUND" if org_id in observed else "BLOCKED" for org_id in ordered_org_ids
+        }
         checkpoint = _load_or_create_checkpoint(
             checkpoint_path,
             input_hash=fingerprint,
             ordered_org_ids=ordered_org_ids,
+            expected_status_by_org=expected_status_by_org,
         )
         terminal_by_status: dict[str, list[str]] = checkpoint["terminal_by_status"]
         states = {str(org_id): status for status in TERMINAL_STATUSES for org_id in terminal_by_status[status]}
@@ -793,14 +859,10 @@ def run_census(
                 org_id = item["org_id"]
                 if org_id in states:
                     continue
-                if org_id in observed:
-                    status = "FOUND"
-                elif bool(window_evidence["complete"]):
-                    status = "ZERO_CONFIRMED"
-                elif window_evidence.get("failed_dates"):
-                    status = "FAILED"
-                else:
-                    status = "BLOCKED"
+                # Source-wide completion is not entity-scoped negative evidence.
+                # It may support the corpus snapshot, but cannot turn absence into
+                # ZERO_CONFIRMED or make an organization look queried.
+                status = expected_status_by_org[org_id]
                 states[org_id] = status
                 terminal_by_status[status].append(org_id)
                 processed_this_run += 1
@@ -862,6 +924,11 @@ def run_census(
                 "blocked": blocked,
                 "queried": [*found, *zero, *failed],
             },
+            "authorization_blockers": [
+                "source_wide_aggregate_without_identity",
+                "official_catalog_total_not_declared",
+                *list(window_evidence.get("reason_codes") or []),
+            ],
             "freshness": {"as_of": corpus["retrieved_at"]},
             "request": {
                 "geography": "BR",

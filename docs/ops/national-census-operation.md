@@ -14,12 +14,14 @@ contracts crawler.
   `unit_count=null` and `publishing_unit_denominator_not_enumerated` remain in
   limitations.
 - `FOUND`: the catalog CNPJ occurs in the bounded corpus snapshot.
-- `ZERO_CONFIRMED`: the CNPJ is absent and every day of the competence is
-  covered by a source-wide window atomically marked complete by the existing
-  crawler, whose pagination/persistence reconciliation succeeded.
-- `FAILED`: an uncovered day has a current typed source failure.
-- `BLOCKED`: source days are blocked/not consulted, or the queue slice has not
-  reached the partition. `BLOCKED` is never promoted by absence.
+- `ZERO_CONFIRMED`: reserved for future evidence from an entity-scoped request
+  whose pagination and persistence reconcile. This source-wide operation never
+  emits it.
+- `FAILED`: reserved for a typed entity-scoped query failure. A source-wide
+  failure remains a global reason code and does not pretend an entity was queried.
+- `BLOCKED`: the CNPJ is absent from the aggregate corpus, source days are
+  incomplete, or the queue slice has not reached the partition. `BLOCKED` is
+  never promoted by aggregate absence.
 
 The 1,093 Extra commercial entities are rejected by the existing policy and
 never enter these inputs.
@@ -29,9 +31,14 @@ never enter these inputs.
 `fetch-catalog` performs one bounded GET. It uses the shared HTTP resilience
 policy for 429/5xx/timeout classification, finite exponential backoff, the
 persistent circuit breaker, and a 128 MiB response ceiling. Raw and manifest
-are published as a content-addressed bundle: the new raw version is durable
-before the manifest atomically advances. Failed refreshes leave the prior
+are published in the same directory as a content-addressed bundle: the new raw
+version and directory entry are durable before the manifest atomically advances. Failed refreshes leave the prior
 last-known-good manifest/raw pair and its retrieval timestamp unchanged.
+
+The endpoint returns an unwrapped array without a declared total. A well-formed
+HTTP body proves transport integrity, not catalog completeness; the report
+therefore carries `official_catalog_total_not_declared` and cannot authorize a
+national claim from this catalog alone.
 
 No HTTP request is made per partition. Local partition processing is
 single-worker by design. The checkpoint has an exclusive non-blocking file
@@ -74,6 +81,11 @@ The acquisition commands stamp `retrieved_at` themselves. The replay command
 does not accept a timestamp override: catalog and corpus timestamps are bound
 to their manifests/hashes, so replay cannot renew freshness.
 
+Every `--window-checkpoint` must explicitly bind
+`meta.query_kind=publication` and `meta.capability=historical_contracts`.
+Legacy checkpoints without query semantics and update-date checkpoints are
+rejected; they cannot prove a publication-date window.
+
 ## Consumer handoff
 
 The report contains the existing `national-coverage/1.0` consumer plus:
@@ -85,12 +97,15 @@ The report contains the existing `national-coverage/1.0` consumer plus:
 - `nacional_completo`, `national_claim_allowed`, and
   `national_claim_authorized` aliases.
 
-All three booleans remain false unless the existing gate proves every expected
-partition `FOUND|ZERO_CONFIRMED` and freshness is valid. This operation never
-authorizes indexation.
+All three booleans remain false for this source-wide operation. A later producer
+would need a complete official denominator, publishing-unit enumeration and
+entity-scoped `FOUND|ZERO_CONFIRMED` evidence before the existing gate could
+authorize a national claim. This operation never authorizes indexation.
 
 ## Rollback
 
 Stop the command and preserve its checkpoint for diagnosis. Removing the new
-operational files disables this producer; no source data or public-read-v1
-schema is mutated. Consumer behavior reverts by reverting the code commit.
+operational files disables this producer; source contract rows and the
+public-read-v1 view are not mutated. Migration 102 only allows `expected_units`
+to remain SQL `NULL` when the official endpoint does not enumerate units; its
+rollback fails closed while such rows exist rather than inventing a count.

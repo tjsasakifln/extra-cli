@@ -19,7 +19,8 @@ Exactly one of:
 
 `national_claim_authorized` is true only when every expected partition of a
 **valid official** denominator closed `FOUND` or `ZERO_CONFIRMED` with
-evidence, the request geography is national, and Extra 1.093 was not used.
+entity-scoped evidence, the publishing-unit denominator is enumerated, the
+request geography is national, and Extra 1.093 was not used.
 
 `PARTIAL`, `NOT_MEASURED` and `BLOCKED` never set the boolean true.
 Absence of consultation is `BLOCKED` / `not_consulted_this_run`, never
@@ -103,15 +104,21 @@ python3 -m scripts.national_coverage census \
   --out /var/lib/extra-consultoria/national-census/census.report.json
 ```
 
-Additional `--window-checkpoint` arguments union historical/canary campaigns by
-day. Completed windows take precedence over stale cumulative failure counters.
+Additional `--window-checkpoint` arguments union publication-date
+historical/canary campaigns by day. Checkpoints without explicit
+`meta.query_kind=publication` or with update-date semantics are rejected.
+Completed windows take precedence over stale cumulative failure counters.
 The checkpoint is atomic, exclusively claimed, ordered by normalized CNPJ, and
 resumable. Parallel HTTP partition crawling is deliberately absent: the single
-catalog GET plus source-wide crawler evidence is the bounded-load path.
+catalog GET plus source-wide crawler evidence is the bounded-load path. This
+path leaves absent organizations `BLOCKED`; aggregate completion never becomes
+`ZERO_CONFIRMED` or entity-scoped `FAILED`.
 
 ## Honesty
 
-Fixtures and in-memory catalogs do not prove a live PNCP census. extra-cli#302
-stays open while any official publishing-org partition is `BLOCKED`/`FAILED`
-or the requested unit grain is not enumerated. Extra's 1.093 monitored entes
-remain a commercial universe.
+Fixtures and in-memory catalogs do not prove a live PNCP census. An unwrapped
+catalog response with no declared total proves a complete response body, not a
+complete official denominator. extra-cli#302 stays open while any official
+publishing-org partition is `BLOCKED`/`FAILED`, source-wide evidence lacks
+entity identity, or the requested unit grain is not enumerated. Extra's 1.093
+monitored entes remain a commercial universe.

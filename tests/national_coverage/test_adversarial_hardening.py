@@ -222,3 +222,33 @@ def test_complete_partitions_with_unmapped_publisher_do_not_authorize() -> None:
     assert payload["mapping"]["unmapped"] == 1
     assert payload["national_claim_authorized"] is False
     assert "unresolved_publisher_identities" in payload["reason_codes"]
+
+
+def test_complete_org_partitions_without_unit_denominator_do_not_authorize() -> None:
+    payload = evaluate_from_dict(
+        {
+            "official": {
+                "status": "AVAILABLE",
+                "source": "pncp",
+                "competence": "contracts-2026",
+                "cutoff": "2026-08-28",
+                "as_of": "2026-08-28T00:00:00Z",
+                "raw_hash": "raw-units-unknown",
+                "units_enumerated": False,
+                "orgs": [{"org_id": "11111111000191", "name": "A", "unit_count": 1}],
+            },
+            "consulted": {"zero_confirmed": {"11111111000191": "entity-query:evidence"}},
+            "freshness": {"window_hours": 48, "as_of": "2026-08-28T00:00:00Z"},
+            "request": {
+                "geography": "BR",
+                "period": "2026",
+                "source": "pncp",
+                "grain": "publishing_org",
+            },
+        }
+    )
+    assert payload["partitions"]["closed"] == 1
+    assert payload["universe"]["expected_units"] is None
+    assert payload["national_claim_authorized"] is False
+    assert payload["verdict"] == "PARTIAL"
+    assert "publishing_unit_denominator_not_enumerated" in payload["reason_codes"]

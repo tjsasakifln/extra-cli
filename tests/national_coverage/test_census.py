@@ -15,6 +15,7 @@ from scripts.national_coverage.census import (
     CATALOG_SCHEMA,
     CensusOperationError,
     _CheckpointLock,
+    _corpus_publishers_from_rows,
     build_catalog_inventory,
     build_corpus_snapshot,
     build_window_evidence,
@@ -37,6 +38,8 @@ def _raw_catalog() -> bytes:
 
 
 def _checkpoint(path: Path, completed: list[str], **extra: object) -> Path:
+    supplied_meta = extra.pop("meta", {})
+    assert isinstance(supplied_meta, dict)
     path.write_text(
         json.dumps(
             {
@@ -44,6 +47,11 @@ def _checkpoint(path: Path, completed: list[str], **extra: object) -> Path:
                 "mode": "full",
                 "completed_windows": completed,
                 "updated_at": "2026-08-29T00:00:00Z",
+                "meta": {
+                    "capability": "historical_contracts",
+                    "query_kind": "publication",
+                    **supplied_meta,
+                },
                 **extra,
             }
         ),
@@ -80,6 +88,8 @@ def test_catalog_inventory_is_canonical_and_refuses_partial_json() -> None:
     assert inventory["unique_org_count"] == 3
     assert inventory["active_org_count"] == 2
     assert inventory["unit_count"] is None
+    assert inventory["transport_body_complete"] is True
+    assert inventory["catalog_completeness_proven"] is False
     assert [item["org_id"] for item in orgs] == sorted(item["org_id"] for item in orgs)
     with pytest.raises(CensusOperationError, match="catalog_invalid_or_truncated"):
         build_catalog_inventory(
@@ -169,6 +179,14 @@ def test_catalog_bundle_is_content_addressed_and_manifest_bound(tmp_path: Path) 
     with pytest.raises(CensusOperationError, match="catalog_manifest_reconciliation_mismatch"):
         load_catalog_bundle(manifest)
 
+    with pytest.raises(CensusOperationError, match="catalog_bundle_paths_must_share_directory"):
+        publish_catalog_bundle(
+            out_raw=tmp_path / "raw" / "catalog.json",
+            out_manifest=tmp_path / "manifest" / "catalog.manifest.json",
+            raw=raw,
+            inventory=inventory,
+        )
+
 
 def test_corpus_snapshot_hash_binds_retrieval_time() -> None:
     first = _corpus()
@@ -179,6 +197,11 @@ def test_corpus_snapshot_hash_binds_retrieval_time() -> None:
         retrieved_at="2026-01-04T00:00:00Z",
     )
     assert first["snapshot_hash"] != later["snapshot_hash"]
+
+
+def test_corpus_snapshot_refuses_unmappable_identity_rows() -> None:
+    with pytest.raises(CensusOperationError, match="corpus_unmappable_identity_rows:groups=1:contracts=7"):
+        _corpus_publishers_from_rows([("", 7, None, None)])
 
 
 def test_window_union_is_day_exact_and_completed_overrides_old_failure(tmp_path: Path) -> None:
@@ -217,7 +240,7 @@ def test_window_evidence_reports_failed_blocked_and_never_ran(tmp_path: Path) ->
     assert evidence["not_consulted_dates"] == ["2026-01-04"]
 
 
-def test_resume_is_idempotent_and_zero_requires_complete_source_windows(tmp_path: Path) -> None:
+def test_resume_is_idempotent_and_source_wide_windows_never_prove_entity_zero(tmp_path: Path) -> None:
     source_checkpoint = _checkpoint(tmp_path / "source.json", ["20260101_20260102"])
     windows = build_window_evidence(
         [source_checkpoint],
@@ -237,8 +260,8 @@ def test_resume_is_idempotent_and_zero_requires_complete_source_windows(tmp_path
     )
     assert first["partitions"]["by_status"] == {
         "FOUND": 1,
-        "ZERO_CONFIRMED": 1,
-        "BLOCKED": 1,
+        "ZERO_CONFIRMED": 0,
+        "BLOCKED": 2,
         "FAILED": 0,
         "NOT_APPLICABLE": 0,
     }
@@ -257,10 +280,11 @@ def test_resume_is_idempotent_and_zero_requires_complete_source_windows(tmp_path
         batch_size=2,
     )
     assert resumed["partitions"]["by_status"]["FOUND"] == 1
-    assert resumed["partitions"]["by_status"]["ZERO_CONFIRMED"] == 2
-    assert resumed["partitions"]["by_status"]["BLOCKED"] == 0
-    assert resumed["national_claim_authorized"] is True
-    assert resumed["consumer"]["national_claim_allowed"] is True
+    assert resumed["partitions"]["by_status"]["ZERO_CONFIRMED"] == 0
+    assert resumed["partitions"]["by_status"]["BLOCKED"] == 2
+    assert resumed["national_claim_authorized"] is False
+    assert resumed["consumer"]["national_claim_allowed"] is False
+    assert "source_wide_aggregate_without_identity" in resumed["reason_codes"]
     assert resumed["reconciliation_hash"] == resumed["consumer"]["provenance"]["reconciliation_hash"]
 
     replay = run_census(
@@ -276,7 +300,7 @@ def test_resume_is_idempotent_and_zero_requires_complete_source_windows(tmp_path
     assert replay["consumer"]["content_hash"] == resumed["consumer"]["content_hash"]
 
 
-def test_incomplete_source_never_infers_zero_and_failed_source_is_failed(tmp_path: Path) -> None:
+def test_incomplete_source_never_infers_zero_or_entity_query_failure(tmp_path: Path) -> None:
     incomplete = _checkpoint(tmp_path / "incomplete.json", ["20260101_20260101"])
     incomplete_windows = build_window_evidence(
         [incomplete],
@@ -315,8 +339,9 @@ def test_incomplete_source_never_infers_zero_and_failed_source_is_failed(tmp_pat
         checkpoint_path=tmp_path / "failed-census.json",
     )
     assert failed_report["partitions"]["by_status"]["ZERO_CONFIRMED"] == 0
-    assert failed_report["partitions"]["by_status"]["FAILED"] == 2
-    assert "failed_partitions" in failed_report["reason_codes"]
+    assert failed_report["partitions"]["by_status"]["FAILED"] == 0
+    assert failed_report["partitions"]["by_status"]["BLOCKED"] == 2
+    assert "source_windows_failed" in failed_report["reason_codes"]
 
 
 def test_direct_forged_window_or_corpus_input_cannot_authorize(tmp_path: Path) -> None:
@@ -391,6 +416,74 @@ def test_checkpoint_input_change_and_corruption_fail_closed(tmp_path: Path) -> N
             window_evidence=windows,
             competence="contracts-2026-01",
             checkpoint_path=checkpoint,
+        )
+
+
+def test_checkpoint_terminal_status_is_rederived_from_bound_inputs(tmp_path: Path) -> None:
+    source = _checkpoint(tmp_path / "source.json", ["20260101_20260102"])
+    windows = build_window_evidence([source], period_start="2026-01-01", period_end_exclusive="2026-01-03")
+    checkpoint = tmp_path / "operation.json"
+    run_census(
+        catalog_raw=_raw_catalog(),
+        catalog_retrieved_at="2026-01-03T00:00:00Z",
+        corpus=_corpus(),
+        window_evidence=windows,
+        competence="contracts-2026-01",
+        checkpoint_path=checkpoint,
+        max_partitions=1,
+    )
+    forged = json.loads(checkpoint.read_text(encoding="utf-8"))
+    forged["terminal_by_status"]["FOUND"] = []
+    forged["terminal_by_status"]["ZERO_CONFIRMED"] = ["11111111000191"]
+    checkpoint.write_text(json.dumps(forged), encoding="utf-8")
+
+    with pytest.raises(CensusOperationError, match="checkpoint_partition_status_mismatch"):
+        run_census(
+            catalog_raw=_raw_catalog(),
+            catalog_retrieved_at="2026-01-03T00:00:00Z",
+            corpus=_corpus(),
+            window_evidence=windows,
+            competence="contracts-2026-01",
+            checkpoint_path=checkpoint,
+        )
+
+
+def test_update_date_checkpoint_cannot_prove_publication_date_window(tmp_path: Path) -> None:
+    checkpoint = _checkpoint(
+        tmp_path / "update.json",
+        ["20260101_20260102"],
+        meta={
+            "logical_job_id": "pncp-contracts-incremental",
+            "capability": "historical_contracts",
+            "query_kind": "update",
+        },
+    )
+    with pytest.raises(CensusOperationError, match="checkpoint_query_kind_mismatch"):
+        build_window_evidence(
+            [checkpoint],
+            period_start="2026-01-01",
+            period_end_exclusive="2026-01-03",
+        )
+
+
+def test_checkpoint_without_explicit_query_semantics_is_rejected(tmp_path: Path) -> None:
+    checkpoint = tmp_path / "legacy.json"
+    checkpoint.write_text(
+        json.dumps(
+            {
+                "source": "pncp_contracts",
+                "mode": "full",
+                "completed_windows": ["20260101_20260102"],
+                "meta": {"capability": "historical_contracts"},
+            }
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(CensusOperationError, match="checkpoint_query_kind_mismatch"):
+        build_window_evidence(
+            [checkpoint],
+            period_start="2026-01-01",
+            period_end_exclusive="2026-01-03",
         )
 
 

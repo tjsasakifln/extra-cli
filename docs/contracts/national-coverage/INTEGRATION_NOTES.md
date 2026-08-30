@@ -22,8 +22,10 @@ method version, catalog hash, and reconciliation hash.
 - Not `scripts.national_claims.decide` (six-state arbiter stays).
 - Not `scripts.contract_comparables` (PR #435).
 - Not `scripts.coverage.promote_or_defer` (PR #413).
-- Not a second crawler. The live census reuses the PNCP catalog, source-wide
-  contracts crawler checkpoints, and existing national-coverage identity.
+- Not a second crawler. The live census reuses the PNCP catalog, publication-date
+  source-wide contracts checkpoints, and existing national-coverage identity.
+- Not entity evidence. Aggregate windows never prove an entity-level zero or
+  authorize a national claim.
 
 ## Consumer SELECT
 
@@ -40,7 +42,8 @@ WHERE universe_id = :universe_id;
 
 ## Residual on #302
 
-`PARTIAL_RESIDUAL` — the official catalog is inventoried and the local queue is
-resumable, but the 2026-08-29 observation still has four uncovered source days
-and no official publishing-unit enumerator. See
-`docs/ops/session-2026-08-29-national-census/evidence.json`.
+`PARTIAL_RESIDUAL` — the official catalog can be inventoried and the local queue
+is resumable, but source-wide absence is not entity evidence, the catalog
+response declares no total, and no official publishing-unit enumerator is
+available. There is no committed live observation or exact-HEAD completion
+proof; #302 remains open.

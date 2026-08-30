@@ -199,6 +199,12 @@ def evaluate_from_dict(payload: dict[str, Any]) -> dict[str, Any]:
         partitions = assign_partition_statuses(universe, consulted, request)
 
     freshness = payload.get("freshness") or {}
+    blockers_raw = payload.get("authorization_blockers") or []
+    if not isinstance(blockers_raw, list):
+        raise NationalCoverageError("authorization_blockers_must_be_a_list")
+    authorization_blockers = tuple(
+        dict.fromkeys(str(item).strip() for item in blockers_raw if str(item).strip())
+    )
     record = reconcile(
         universe=universe,
         partitions=partitions,
@@ -208,6 +214,7 @@ def evaluate_from_dict(payload: dict[str, Any]) -> dict[str, Any]:
         freshness_window_hours=float(freshness.get("window_hours") or DEFAULT_FRESHNESS_WINDOW_HOURS),
         freshness_as_of=str(freshness.get("as_of") or (corpus.as_of if corpus else universe.as_of)),
         measured=measured,
+        authorization_blockers=authorization_blockers,
     )
     consumer = consumer_answer(record)
     return coverage_payload(record, consumer)

@@ -3218,3 +3218,9 @@ CI (PR #12):
   applies the complete migration ledger and required seeds fail-closed, rejects
   fake connections and skips, and repeats in normal and reverse order. Exact-HEAD
   CI and `main` are required before acceptance.
+- [ ] National publishing-org census evidence is entity-scoped and the
+  publishing-unit denominator is official. **#302 remains open:** PR #525 adds a
+  resumable source-wide inventory, but aggregate absence stays `BLOCKED`, the
+  undeclared catalog total and `expected_units=NULL` block authorization, and
+  no committed live artifact proves exact-HEAD completion. ADR-038, exact-HEAD
+  CI and `main` acceptance are required before this item can be checked.
