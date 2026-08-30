@@ -11,6 +11,37 @@ from scripts.national_coverage.evaluate import evaluate_from_dict
 from scripts.national_coverage.models import MAX_INMEMORY_CONTRACT_ROWS, CorpusPublisher
 
 
+def test_mapping_builds_alias_index_once(monkeypatch) -> None:
+    """14k publishers x 98k orgs must not devolve into a nested alias scan."""
+    calls = 0
+    original = corpus_mod.normalize_org_id
+
+    def counted(value: str) -> str:
+        nonlocal calls
+        calls += 1
+        return original(value)
+
+    monkeypatch.setattr(corpus_mod, "normalize_org_id", counted)
+    payload = {
+        "official": {
+            "status": "AVAILABLE",
+            "source": "pncp",
+            "competence": "scale-toy",
+            "cutoff": "2026-08-28",
+            "as_of": "2026-08-29T00:00:00Z",
+            "raw_hash": "scale-toy",
+            "orgs": [{"org_id": f"{index:014d}", "name": str(index), "unit_count": 1} for index in range(2_000)],
+        },
+        "corpus": {
+            "as_of": "2026-08-29T00:00:00Z",
+            "publishers": [{"raw_org_id": f"{index:014d}", "contract_count": 1} for index in range(1_000)],
+        },
+        "request": {"geography": "BR", "source": "pncp", "grain": "publishing_org"},
+    }
+    evaluate_from_dict(payload)
+    assert calls < 20_000
+
+
 def test_select_path_is_group_by_aggregate() -> None:
     source = inspect.getsource(corpus_mod)
     assert "GROUP BY" in corpus_mod.CORPUS_SELECT_SQL

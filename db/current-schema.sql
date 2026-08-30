@@ -2131,7 +2131,7 @@ CREATE TABLE IF NOT EXISTS public.national_coverage_universe (
     schema_version         TEXT NOT NULL,
     grain                  TEXT NOT NULL,
     expected_partitions    INTEGER NOT NULL CHECK (expected_partitions >= 0),
-    expected_units         INTEGER NOT NULL CHECK (expected_units >= 0),
+    expected_units         INTEGER CHECK (expected_units >= 0),
     official_status        TEXT NOT NULL CHECK (official_status IN ('AVAILABLE', 'BLOCKED')),
     official_block_cause   TEXT,
     inclusion_rules        JSONB NOT NULL,
@@ -2153,6 +2153,9 @@ CREATE TABLE IF NOT EXISTS public.national_coverage_universe (
 
 CREATE UNIQUE INDEX IF NOT EXISTS national_coverage_universe_kind_hash_uidx
     ON public.national_coverage_universe (universe_kind, official_source, competence, catalog_hash);
+
+COMMENT ON COLUMN public.national_coverage_universe.expected_units IS
+    'Official publishing-unit denominator. NULL means the source did not enumerate units and blocks national authorization.';
 
 CREATE TABLE IF NOT EXISTS public.national_coverage_partition (
     id                 BIGSERIAL PRIMARY KEY,

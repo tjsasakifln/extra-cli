@@ -78,6 +78,7 @@ def reconcile(
     freshness_window_hours: float = DEFAULT_FRESHNESS_WINDOW_HOURS,
     freshness_as_of: str | None = None,
     measured: bool = True,
+    authorization_blockers: tuple[str, ...] = (),
 ) -> CoverageRecord:
     expected, queried, closed = expected_queried_closed(partitions)
     by_status = count_by_status(partitions)
@@ -98,10 +99,39 @@ def reconcile(
         request=request,
         measured=measured,
     )
-    if authorized and freshness.stale_found > 0:
-        authorized = False
-        verdict = "PARTIAL"
+    identity_issues = mapping.unmapped + mapping.duplicate + mapping.conflict
+    if identity_issues > 0:
+        if authorized:
+            authorized = False
+            verdict = "PARTIAL"
+        reasons = tuple([*reasons, "unresolved_publisher_identities", f"unresolved_identity_count:{identity_issues}"])
+    if universe.expected_units is None:
+        if authorized:
+            authorized = False
+            verdict = "PARTIAL"
+        reasons = tuple([*reasons, "publishing_unit_denominator_not_enumerated"])
+    if authorization_blockers:
+        if authorized:
+            authorized = False
+            verdict = "PARTIAL"
+        reasons = tuple(dict.fromkeys([*reasons, *authorization_blockers]))
+    if freshness.stale_found > 0:
+        if authorized:
+            authorized = False
+            verdict = "PARTIAL"
         reasons = tuple([*reasons, "stale_universe"])
+    source_cutoff = _parse_as_of(universe.cutoff)
+    freshness_cutoff = _parse_as_of(freshness.as_of)
+    if (
+        source_cutoff is not None
+        and freshness_cutoff is not None
+        and freshness_cutoff - source_cutoff > timedelta(hours=freshness.window_hours)
+    ):
+        if authorized:
+            authorized = False
+            verdict = "PARTIAL"
+        reasons = tuple([*reasons, "source_cutoff_stale"])
+    reasons = tuple(dict.fromkeys(reasons))
     seed = {
         "schema_version": SCHEMA_VERSION,
         "national_universe_id": universe.national_universe_id,

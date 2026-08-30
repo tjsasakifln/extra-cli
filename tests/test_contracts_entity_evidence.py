@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -57,8 +58,6 @@ def test_default_backfill_window_meets_three_year_math() -> None:
         queried_start=start.isoformat(),
         queried_end=end.isoformat(),
     )
-    from datetime import UTC, datetime
-
     assert contracts_backfill_ok(obs, as_of=datetime.now(UTC)) is True
 
 
@@ -208,6 +207,7 @@ def test_project_success_with_data_and_dual_mapping() -> None:
             valid=True,
             errors=(),
         )
+        as_of = datetime.now(UTC)
         report = project_historical_contracts_evidence(
             conn,
             run_id="pytest-hc-evidence-1",
@@ -220,6 +220,7 @@ def test_project_success_with_data_and_dual_mapping() -> None:
             dry_run=False,
             seed_path=resolve_default_seed_path(),
             checkpoint_proof=proof,
+            as_of=as_of,
         )
         assert report.applicable_count >= 1000
         assert report.written_rows == report.applicable_count * 2
@@ -234,6 +235,7 @@ def test_project_success_with_data_and_dual_mapping() -> None:
             seed_path=resolve_default_seed_path(),
             project_root=Path(__file__).resolve().parents[1],
             capabilities=("historical_contracts",),
+            as_of=as_of,
         )
         assert "historical_contracts" in dual.capabilities
         hc = dual.capabilities["historical_contracts"]

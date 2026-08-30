@@ -107,7 +107,7 @@ class VersionedUniverse:
     grain: str
     expected_orgs: tuple[PublishingOrg, ...]
     expected_partitions: int
-    expected_units: int
+    expected_units: int | None
     owner: str
     next_refresh: str
     official_status: OfficialStatus

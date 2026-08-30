@@ -247,7 +247,7 @@ class InProcessCircuitBreaker:
                 return True
 
             if self._state == CBStateEnum.OPEN:
-                if self._opened_at and (time.time() - self._opened_at) >= self.config.cooldown:
+                if self._opened_at and (time.monotonic() - self._opened_at) >= self.config.cooldown:
                     # Transition to HALF_OPEN — this probe counts toward the limit
                     self._state = CBStateEnum.HALF_OPEN
                     self._half_open_requests = 1
@@ -286,7 +286,7 @@ class InProcessCircuitBreaker:
             if self._consecutive_failures >= self.config.threshold:
                 if self._state != CBStateEnum.OPEN:
                     self._state = CBStateEnum.OPEN
-                    self._opened_at = time.time()
+                    self._opened_at = time.monotonic()
                     CB_STATE_GAUGE.labels(source=self.name).set(int(CBStateEnum.OPEN))
                     CB_OPEN_DURATION.labels(source=self.name).observe(0.0)
                     logger.warning(

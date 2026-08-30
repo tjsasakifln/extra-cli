@@ -314,7 +314,7 @@ async def test_circuit_breaker_rejects_after_threshold(client):
     # Trip the breaker with recent _opened_at so cooldown hasn't elapsed
     client._circuit_breaker._consecutive_failures = 2
     client._circuit_breaker._state = CBStateEnum.OPEN
-    client._circuit_breaker._opened_at = time.time()  # opened JUST now — cooldown hasn't elapsed
+    client._circuit_breaker._opened_at = time.monotonic()  # opened JUST now — cooldown hasn't elapsed
 
     with pytest.raises(CircuitBreakerOpen):
         await client.get("/any")

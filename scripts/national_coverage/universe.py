@@ -101,6 +101,7 @@ def build_official_universe(
     exclusion_rules: tuple[str, ...] = NATIONAL_EXCLUSION,
     owner: str = DEFAULT_OWNER,
     next_refresh: str = DEFAULT_NEXT_REFRESH,
+    units_enumerated: bool = True,
 ) -> VersionedUniverse:
     if not source or not competence or not cutoff or not raw_hash or not method_version:
         raise NationalCoverageError("source, competence, cutoff, raw_hash and method_version are required")
@@ -146,7 +147,7 @@ def build_official_universe(
         grain=grain,
         expected_orgs=orgs,
         expected_partitions=core.org_count,
-        expected_units=core.unit_count,
+        expected_units=core.unit_count if units_enumerated else None,
         owner=owner,
         next_refresh=next_refresh,
         official_status="AVAILABLE",
