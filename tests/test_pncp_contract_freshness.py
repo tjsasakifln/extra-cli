@@ -952,7 +952,7 @@ def test_shipped_timer_survives_triggered_oneshot_failure() -> None:
 
 def test_lock_busy_exit_75_is_not_fresh_or_closed_window() -> None:
     service = load_shipped_service_text()
-    assert LOCK_BUSY_EXIT in parse_success_exit_statuses(service)
+    assert LOCK_BUSY_EXIT not in parse_success_exit_statuses(service)
     status, reasons = classify_status(
         has_evidence=True,
         current_lag_hours=2.0,

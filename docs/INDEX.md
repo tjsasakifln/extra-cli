@@ -1,6 +1,6 @@
 # Índice da documentação — Extra Consultoria
 
-**Atualizado:** 2026-08-29
+**Atualizado:** 2026-08-31
 **Regra:** docs **vivas** descrevem o estado atual; sessões e audits datados são **evidência/snapshot**, não onboarding.
 
 Precedência: `DOD.md` → ADR vigente → código testado → evidência reproduzível.
@@ -35,6 +35,7 @@ Precedência: `DOD.md` → ADR vigente → código testado → evidência reprod
 | [`docs/ops/searxng-private-backend.md`](ops/searxng-private-backend.md) | SearXNG privado CONFENGE (HTTP boundary, runbook) |
 | [`docs/ops/confenge-activation-planner.md`](ops/confenge-activation-planner.md) | Ciclo canônico, publicação atômica e freshness do feed Warmbly |
 | [`docs/ops/national-census-operation.md`](ops/national-census-operation.md) | Census nacional retomável e gate factual #302 |
+| [`docs/ops/handoff-2026-08-31-confenge-source-retry.md`](ops/handoff-2026-08-31-confenge-source-retry.md) | Retry limitado da fonte e pin das unidades-base CONFENGE |
 | `artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/` | Campanha HC (STATUS/HANDOFF) |
 | `specs/001-*`, `specs/002-*` | Spec Kit dual / historical contracts |
 | `deploy/systemd/` | Units de produção |

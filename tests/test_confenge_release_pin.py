@@ -13,6 +13,7 @@ import pytest
 
 from deploy.confenge.pin_release import (
     CANONICAL_PREFIX,
+    CHAIN_BASE_UNITS,
     CHAIN_DISABLED_TIMERS,
     CHAIN_ENABLED_SERVICES,
     CHAIN_TIMERS,
@@ -35,6 +36,24 @@ def test_every_chain_unit_has_a_versioned_source_file():
 def test_every_chain_timer_has_a_versioned_source_file():
     for timer in (*CHAIN_TIMERS, *CHAIN_DISABLED_TIMERS):
         assert (UNIT_SOURCE / timer).is_file(), f"{timer} must be versioned in deploy/systemd"
+
+
+def test_pin_installs_the_versioned_base_units_that_define_retry_and_cascade(tmp_path, monkeypatch):
+    import deploy.confenge.pin_release as pin
+
+    monkeypatch.setattr(pin, "SYSTEMD_ROOT", tmp_path / "systemd")
+    pin.SYSTEMD_ROOT.mkdir()
+    sources = pin.canonical_base_units()
+    written = pin.install_base_units(sources)
+
+    assert set(Path(path).name for path in written) == set(CHAIN_BASE_UNITS)
+    service = (pin.SYSTEMD_ROOT / "pncp-contracts.service")
+    assert service.read_text(encoding="utf-8") == (UNIT_SOURCE / "pncp-contracts.service").read_text(
+        encoding="utf-8"
+    )
+    assert "RestartPreventExitStatus=1 2 75" in service.read_text(encoding="utf-8")
+    assert "SuccessExitStatus=75" not in service.read_text(encoding="utf-8")
+    assert (service.stat().st_mode & 0o777) == 0o644
 
 
 def test_the_canonical_chain_order_is_covered():

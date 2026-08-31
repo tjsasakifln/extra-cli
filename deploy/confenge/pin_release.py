@@ -72,6 +72,11 @@ CHAIN_DISABLED_TIMERS = (
     "extra-confenge-feed-cycle.timer",
 )
 
+# These are the only base units managed by the immutable CONFENGE release pin.
+# Their drop-ins select the release interpreter, but directives such as retry,
+# OnSuccess and StartLimit live in the base unit and must be installed too.
+CHAIN_BASE_UNITS = tuple(dict.fromkeys((*CHAIN_UNITS, *CHAIN_TIMERS, *CHAIN_DISABLED_TIMERS)))
+
 # Long-running workers that must come back after a reboot.
 CHAIN_ENABLED_SERVICES = ("extra-confenge-target-fit-worker.service",)
 
@@ -190,6 +195,30 @@ def plan(sha: str) -> dict[str, str]:
     return rendered
 
 
+def canonical_base_units() -> dict[str, str]:
+    """Load the small, versioned systemd base-unit set before touching the host."""
+    base: dict[str, str] = {}
+    for unit in CHAIN_BASE_UNITS:
+        source = UNIT_SOURCE / unit
+        if not source.is_file():
+            raise PinError(f"versioned base unit file is missing: {source}")
+        base[unit] = source.read_text(encoding="utf-8")
+    return base
+
+
+def install_base_units(units: dict[str, str]) -> list[str]:
+    """Atomically replace only the managed base units, with safe permissions."""
+    written: list[str] = []
+    for unit, body in units.items():
+        target = SYSTEMD_ROOT / unit
+        tmp = target.with_name(f".{unit}.tmp")
+        tmp.write_text(body, encoding="utf-8")
+        tmp.chmod(0o644)
+        tmp.replace(target)
+        written.append(str(target))
+    return written
+
+
 def foreign_execstart_dropins() -> dict[str, list[str]]:
     """Find drop-ins other than ours that also override ExecStart.
 
@@ -217,13 +246,18 @@ def foreign_execstart_dropins() -> dict[str, list[str]]:
 
 def apply(sha: str, *, dry_run: bool = False) -> dict[str, object]:
     rendered = plan(sha)
+    base_units = canonical_base_units()
     if foreign := foreign_execstart_dropins():
         raise PinError(
             "drop-ins outside this tool also set ExecStart and would be discarded by the pin; "
             f"move their configuration into deploy/systemd and remove them: {foreign}"
         )
     written: list[str] = []
+    base_written: list[str] = []
     if not dry_run:
+        # Install base units before drop-ins and daemon-reload. This deliberately
+        # does not provision unrelated systemd configuration or EnvironmentFiles.
+        base_written = install_base_units(base_units)
         for unit, body in rendered.items():
             target_dir = SYSTEMD_ROOT / f"{unit}.d"
             target_dir.mkdir(parents=True, exist_ok=True)
@@ -242,6 +276,7 @@ def apply(sha: str, *, dry_run: bool = False) -> dict[str, object]:
         "schema": "confenge.release_pin.v1",
         "release_sha": sha,
         "units_pinned": list(rendered),
+        "base_units_installed": base_written,
         "timers_enabled": list(CHAIN_TIMERS),
         "timers_disabled": list(CHAIN_DISABLED_TIMERS),
         "services_enabled": list(CHAIN_ENABLED_SERVICES),

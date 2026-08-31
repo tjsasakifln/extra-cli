@@ -5,10 +5,12 @@ from datetime import date, datetime, timedelta, timezone
 from scripts.crawl.contracts_crawler import CrawlCheckpoint
 from scripts.crawl.run_contracts_90d_pilot import utc_today
 from scripts.crawl.run_contracts_incremental import (
+    EXIT_RETRYABLE_SOURCE,
     current_incremental_window_key,
     current_incremental_window_keys,
     reopen_current_window,
     reopen_incremental_windows,
+    retry_exit_for_report,
 )
 
 
@@ -58,3 +60,20 @@ def test_all_daily_overlap_windows_are_reopened_for_every_timer_slot() -> None:
 
     assert reopen_incremental_windows(checkpoint, window_keys=keys) == keys
     assert checkpoint.completed_windows == ["20260701_20260730"]
+
+
+def test_only_known_transient_source_failures_request_a_bounded_service_retry() -> None:
+    drift = {
+        "windows": [{"errors": ["source_population_drift:totalRegistros 8667 -> 8772"]}]
+    }
+    timeout = {"windows": [{"errors": ["connection_failed while reading PNCP"]}]}
+    mixed = {
+        "windows": [
+            {"errors": ["source_population_drift: totalRegistros 8 -> 9", "upsert failed"]}
+        ]
+    }
+
+    assert retry_exit_for_report(drift) == EXIT_RETRYABLE_SOURCE
+    assert retry_exit_for_report(timeout) == EXIT_RETRYABLE_SOURCE
+    assert retry_exit_for_report(mixed) == 1
+    assert retry_exit_for_report({"windows": []}) == 1

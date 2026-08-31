@@ -6,10 +6,12 @@ Description=PNCP Contracts Crawler — Extra Consultoria
 After=network-online.target
 Wants=network-online.target
 OnFailure=extra-onfailure@%n.service
-# SuccessExitStatus=75 below is intentionally considered successful by
-# systemd. Never point this unit directly at target-fit: the dedicated gate
-# re-evaluates the semantic source contract and blocks 75/partial/stale/error.
+# Never point this unit directly at target-fit: the dedicated gate re-evaluates
+# the semantic source contract before any downstream stage may advance.
 OnSuccess=extra-confenge-source-freshness-gate.service
+# One initial start plus one forced retry inside this source timer interval.
+StartLimitIntervalSec=4h
+StartLimitBurst=2
 
 [Service]
 Type=oneshot
@@ -31,16 +33,15 @@ Environment=CONTRACTS_PAGE_RETRY_CAP_SECONDS=30
 # pass may close the window. The whole oneshot remains bounded to 150 minutes.
 Environment=CONTRACTS_WINDOW_RETRY_MAX=2
 Environment=CONTRACTS_WINDOW_RETRY_DELAY_SECONDS=60
-# ONE_PRODUCTION_LOCK_DOMAIN — lock acquired inside run_contracts_incremental
-# (/run/lock/extra-contracts-writer.lock). Do NOT wrap with outer flock on the
-# same path (would always exit 75). Exit 75 = lock busy (not a source failure).
-# SuccessExitStatus=75 keeps systemd from treating expected writer contention as
-# a unit failure (avoids OnFailure storms). It is NOT a closed window and NOT
-# freshness success: PNCP_CONTRACT_FRESHNESS classifies LOCK_BUSY_NO_CLOSE and
-# the next 4h OnCalendar is the catch-up/retry. --days 7 remains the overlap for
-# late arrivals/retificações, split by the runner into seven daily completion
-# units so mutable upstream pagination cannot invalidate the whole lookback.
-SuccessExitStatus=75
+# ONE_PRODUCTION_LOCK_DOMAIN — lock acquired inside run_contracts_incremental.
+# Exit 75 means another writer owns the fence: it is neither a source success
+# nor retryable, so it must not trigger OnSuccess. Exit 77 is emitted only for
+# a fully classified transient PNCP failure/source-population drift. The runner
+# only emits 0, 1, 2, 75 or 77: prevent the structural/lock codes and restart
+# 77 once after a delay. (RestartForceExitStatus is invalid for Type=oneshot.)
+Restart=on-failure
+RestartPreventExitStatus=1 2 75
+RestartSec=5min
 # The checkpoint has to live outside the release tree: releases are immutable and
 # read-only, and a crawl that cannot write its checkpoint restarts from zero and
 # fails closed. This was a hand-written drop-in on the host, which is how a
