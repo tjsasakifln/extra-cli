@@ -86,7 +86,7 @@ def test_dropins_preserve_versioned_timeout_intent_for_every_bounded_unit():
         ("1msec", "0.001"),
         ("+1h", "3600"),
         (".5h", "1800"),
-        ("1h 20min", "4800"),
+        ("1h\t20min", "4800"),
         ("1month", "2629800"),
         ("1M", "2629800"),
         ("1y", "31557600"),
@@ -105,11 +105,22 @@ def test_calendar_timeout_aliases_match_systemd_timespan_semantics():
     assert _duration_seconds("1y") == _duration_seconds("31557600s")
 
 
+def test_source_zero_timeout_has_systemd_infinity_semantics(tmp_path, monkeypatch):
+    import deploy.confenge.pin_release as pin
+
+    source_root = tmp_path / "units"
+    source_root.mkdir()
+    (source_root / "pncp-contracts.service").write_text("[Service]\nTimeoutStartSec=0\n", encoding="utf-8")
+    monkeypatch.setattr(pin, "UNIT_SOURCE", source_root)
+
+    assert pin._source_timeout_start_seconds("pncp-contracts.service") == (True, None)
+
+
 @pytest.mark.parametrize(
     "raw",
     [
         "1usecs", "1msecx", "1secs", "1mins", "1hrs", "1millisecond",
-        "1H", "1MS", "1SEC", "1Hour", "INFINITY",
+        "1H", "1MS", "1SEC", "1Hour", "INFINITY", "+.5h", "1h+.5min",
     ],
 )
 def test_duration_parser_rejects_non_systemd_timeout_aliases(raw):

@@ -96,7 +96,9 @@ PRESERVED_DIRECTIVES = ("WorkingDirectory=", "TimeoutStartSec=")
 ISOLATED_INTERPRETER_FLAG = "-P"
 
 _DURATION_PART = re.compile(
-    r"(?P<value>[+]?(?:\d+(?:\.\d+)?|\.\d+))(?P<unit>"
+    # systemd accepts a leading `+` only before an integral component; `.5h`
+    # is valid, while `+.5h` is not.
+    r"(?P<value>(?:\+\d+(?:\.\d+)?|\d+(?:\.\d+)?|\.\d+))(?P<unit>"
     # Long aliases must precede their short prefixes: `month` would otherwise
     # be consumed as `m` plus an invalid `onth` suffix.
     r"seconds?|minutes?|hours?|months?|years?|days?|weeks?|usec|µs|msec|min|sec|hr|"
@@ -122,10 +124,10 @@ class PinError(RuntimeError):
 
 def _duration_seconds(value: str) -> Decimal | None:
     """Parse systemd time spans, returning ``None`` for an infinite timeout."""
-    normalized = value.strip().replace(" ", "")
+    normalized = re.sub(r"\s+", "", value.strip())
     if normalized == "infinity":
         return None
-    if re.fullmatch(r"[+]?(?:\d+(?:\.\d+)?|\.\d+)", normalized):
+    if re.fullmatch(r"(?:\+\d+(?:\.\d+)?|\d+(?:\.\d+)?|\.\d+)", normalized):
         return Decimal(normalized)
     parts = list(_DURATION_PART.finditer(normalized))
     if not parts or "".join(part.group(0) for part in parts) != normalized:
@@ -143,7 +145,11 @@ def _source_timeout_start_seconds(unit: str) -> tuple[bool, Decimal | None]:
     for line in _logical_lines(source.read_text(encoding="utf-8")):
         if line.startswith("TimeoutStartSec="):
             timeout = line.removeprefix("TimeoutStartSec=")
-    return timeout is not None, _duration_seconds(timeout) if timeout is not None else None
+    parsed = _duration_seconds(timeout) if timeout is not None else None
+    # systemd treats TimeoutStartSec=0 as no start timeout and resolves it as
+    # `infinity` in TimeoutStartUSec. Compare that semantic intent, not the
+    # spelling in the source unit.
+    return timeout is not None, None if parsed == Decimal(0) else parsed
 
 
 def _logical_lines(text: str) -> list[str]:
