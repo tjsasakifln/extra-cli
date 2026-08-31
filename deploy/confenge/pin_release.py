@@ -29,6 +29,7 @@ import json
 import re
 import subprocess
 import sys
+from decimal import Decimal
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -94,17 +95,25 @@ PRESERVED_DIRECTIVES = ("WorkingDirectory=", "TimeoutStartSec=")
 # bind the code it claims to bind.
 ISOLATED_INTERPRETER_FLAG = "-P"
 
-_DURATION_PART = re.compile(r"(?P<value>\d+(?:\.\d+)?)(?P<unit>us|µs|ms|s|min|m|h|d|w)")
+_DURATION_PART = re.compile(
+    r"(?P<value>\d+(?:\.\d+)?)(?P<unit>"
+    r"useconds?|usecs?|us|µs|milliseconds?|msecs?|ms|seconds?|secs?|s|"
+    r"minutes?|mins?|min|m|hours?|hrs?|hr|h|days?|d|weeks?|w|months?|years?)"
+)
 _DURATION_SECONDS = {
-    "us": 0.000001,
-    "µs": 0.000001,
-    "ms": 0.001,
-    "s": 1,
-    "min": 60,
-    "m": 60,
-    "h": 60 * 60,
-    "d": 24 * 60 * 60,
-    "w": 7 * 24 * 60 * 60,
+    "usecond": Decimal("0.000001"), "useconds": Decimal("0.000001"),
+    "usec": Decimal("0.000001"), "usecs": Decimal("0.000001"), "us": Decimal("0.000001"),
+    "µs": Decimal("0.000001"), "millisecond": Decimal("0.001"),
+    "milliseconds": Decimal("0.001"), "msec": Decimal("0.001"), "msecs": Decimal("0.001"),
+    "ms": Decimal("0.001"), "second": Decimal(1), "seconds": Decimal(1), "sec": Decimal(1),
+    "secs": Decimal(1), "s": Decimal(1), "minute": Decimal(60), "minutes": Decimal(60),
+    "min": Decimal(60), "mins": Decimal(60), "m": Decimal(60), "hour": Decimal(60 * 60),
+    "hours": Decimal(60 * 60), "hr": Decimal(60 * 60), "hrs": Decimal(60 * 60), "h": Decimal(60 * 60),
+    "day": Decimal(24 * 60 * 60), "days": Decimal(24 * 60 * 60), "d": Decimal(24 * 60 * 60),
+    "week": Decimal(7 * 24 * 60 * 60), "weeks": Decimal(7 * 24 * 60 * 60), "w": Decimal(7 * 24 * 60 * 60),
+    # systemd defines these calendar-independent units as fixed 30.44/365.25-day spans.
+    "month": Decimal("2629800"), "months": Decimal("2629800"),
+    "year": Decimal("31557600"), "years": Decimal("31557600"),
 }
 
 
@@ -112,25 +121,30 @@ class PinError(RuntimeError):
     """A pin was refused before anything on the host changed."""
 
 
-def _duration_seconds(value: str) -> float:
-    """Parse the compact systemd duration formats used by unit/show output."""
-    normalized = value.strip().replace(" ", "")
-    if normalized.isdecimal():
-        return float(normalized)
+def _duration_seconds(value: str) -> Decimal | None:
+    """Parse systemd time spans, returning ``None`` for an infinite timeout."""
+    normalized = value.strip().replace(" ", "").lower()
+    if normalized == "infinity":
+        return None
+    if re.fullmatch(r"\d+(?:\.\d+)?", normalized):
+        return Decimal(normalized)
     parts = list(_DURATION_PART.finditer(normalized))
     if not parts or "".join(part.group(0) for part in parts) != normalized:
         raise PinError(f"unsupported systemd duration: {value!r}")
-    return sum(float(part["value"]) * _DURATION_SECONDS[part["unit"]] for part in parts)
+    return sum(
+        (Decimal(part["value"]) * _DURATION_SECONDS[part["unit"]] for part in parts),
+        Decimal(0),
+    )
 
 
-def _source_timeout_start_seconds(unit: str) -> float | None:
-    """Return the effective timeout intent from the versioned source unit."""
+def _source_timeout_start_seconds(unit: str) -> tuple[bool, Decimal | None]:
+    """Return whether a unit sets the timeout plus its versioned intent."""
     source = UNIT_SOURCE / unit
     timeout: str | None = None
     for line in _logical_lines(source.read_text(encoding="utf-8")):
         if line.startswith("TimeoutStartSec="):
             timeout = line.removeprefix("TimeoutStartSec=")
-    return _duration_seconds(timeout) if timeout is not None else None
+    return timeout is not None, _duration_seconds(timeout) if timeout is not None else None
 
 
 def _logical_lines(text: str) -> list[str]:
@@ -227,6 +241,9 @@ def plan(sha: str) -> dict[str, str]:
         if not source.is_file():
             raise PinError(f"versioned unit file is missing: {source}")
         try:
+            # Validate every preserved timeout before the first host write, so
+            # an unsupported source directive cannot leave a half-pinned chain.
+            _source_timeout_start_seconds(unit)
             rendered[unit] = render_dropin(source.read_text(encoding="utf-8"), sha)
         except PinError as exc:
             raise PinError(f"{unit}: {exc}") from exc
@@ -337,8 +354,8 @@ def verify(sha: str) -> dict[str, object]:
                 working_directory_not_writable.append(
                     {"unit": unit, "user": user or "root", "working_directory": working_directory}
                 )
-        expected_timeout = _source_timeout_start_seconds(unit)
-        if expected_timeout is not None:
+        has_timeout, expected_timeout = _source_timeout_start_seconds(unit)
+        if has_timeout:
             observed_timeout = (
                 _run(["systemctl", "show", unit, "-p", "TimeoutStartUSec", "--value"], check=False).stdout
                 or ""
@@ -347,11 +364,14 @@ def verify(sha: str) -> dict[str, object]:
                 actual_timeout = _duration_seconds(observed_timeout)
             except PinError:
                 actual_timeout = None
-            if actual_timeout != expected_timeout:
+                timeout_was_parsed = False
+            else:
+                timeout_was_parsed = True
+            if not timeout_was_parsed or actual_timeout != expected_timeout:
                 timeout_start_drift.append(
                     {
                         "unit": unit,
-                        "expected": f"{expected_timeout:g}s",
+                        "expected": "infinity" if expected_timeout is None else f"{expected_timeout:f}s",
                         "observed": observed_timeout or "MISSING",
                     }
                 )

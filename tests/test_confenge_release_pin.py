@@ -19,6 +19,7 @@ from deploy.confenge.pin_release import (
     CHAIN_UNITS,
     UNIT_SOURCE,
     PinError,
+    _duration_seconds,
     plan,
     render_dropin,
     verify,
@@ -76,6 +77,45 @@ def test_dropins_preserve_versioned_timeout_intent_for_every_bounded_unit():
         body = render_dropin(unit, SHA)
         rendered_timeout = next((line for line in body.splitlines() if line.startswith("TimeoutStartSec=")), None)
         assert rendered_timeout == source_timeout, unit_name
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("1hour", "3600"),
+        ("1msec", "0.001"),
+        ("1h 20min", "4800"),
+        ("infinity", None),
+    ],
+)
+def test_duration_parser_accepts_systemd_timeout_spellings(raw, expected):
+    parsed = _duration_seconds(raw)
+    assert (None if parsed is None else f"{parsed:f}") == expected
+
+
+def test_plan_rejects_an_unsupported_timeout_before_any_host_write(tmp_path, monkeypatch):
+    import deploy.confenge.pin_release as pin
+
+    source_root = tmp_path / "units"
+    source_root.mkdir()
+    release_root = tmp_path / "releases"
+    (release_root / SHA / ".venv" / "bin").mkdir(parents=True)
+    (release_root / SHA / ".venv" / "bin" / "python").touch()
+    for unit_name in CHAIN_UNITS:
+        timeout = "TimeoutStartSec=1fortnight\n" if unit_name == CHAIN_UNITS[-1] else ""
+        (source_root / unit_name).write_text(
+            "[Service]\n"
+            "ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.example\n"
+            f"{timeout}",
+            encoding="utf-8",
+        )
+    monkeypatch.setattr(pin, "UNIT_SOURCE", source_root)
+    monkeypatch.setattr(pin, "RELEASE_ROOT", release_root)
+    monkeypatch.setattr(pin, "SYSTEMD_ROOT", tmp_path / "systemd")
+
+    with pytest.raises(PinError, match="extra-confenge-feed-monitor.service: unsupported systemd duration"):
+        pin.apply(SHA)
+    assert not pin.SYSTEMD_ROOT.exists()
 
 
 def test_working_directory_stays_outside_the_read_only_release():
@@ -240,13 +280,13 @@ def test_verify_reads_back_isolation_release_and_writable_working_directory(tmp_
         del check
         if argv[:2] == ["systemctl", "show"]:
             prop = argv[argv.index("-p") + 1]
-            timeout = pin._source_timeout_start_seconds(argv[2])
+            has_timeout, timeout = pin._source_timeout_start_seconds(argv[2])
             values = {
                 "ExecStart": f"{release}/.venv/bin/python -P -m scripts.example",
                 "Environment": f"PYTHONPATH={release} EXTRA_DEPLOYED_SHA={SHA} PYTHONDONTWRITEBYTECODE=1 PYTHONSAFEPATH=1",
                 "WorkingDirectory": str(workdir),
                 "User": "extra-consultoria",
-                "TimeoutStartUSec": f"{timeout:g}s" if timeout is not None else "infinity",
+                "TimeoutStartUSec": f"{timeout:f}s" if has_timeout and timeout is not None else "infinity",
                 "SuccessExitStatus": "",
                 "Restart": "no",
             }
@@ -304,7 +344,7 @@ def test_verify_fails_closed_on_runtime_isolation_drift(tmp_path, monkeypatch, f
         del check
         if argv[:2] == ["systemctl", "show"]:
             prop = argv[argv.index("-p") + 1]
-            timeout = pin._source_timeout_start_seconds(argv[2])
+            has_timeout, timeout = pin._source_timeout_start_seconds(argv[2])
             values = {
                 "ExecStart": (
                     f"{release}/.venv/bin/python -m scripts.example"
@@ -321,7 +361,7 @@ def test_verify_fails_closed_on_runtime_isolation_drift(tmp_path, monkeypatch, f
                 "TimeoutStartUSec": (
                     "150min"
                     if failure == "pncp-timeout" and argv[2] == "pncp-contracts.service"
-                    else f"{timeout:g}s" if timeout is not None else "infinity"
+                    else f"{timeout:f}s" if has_timeout and timeout is not None else "infinity"
                 ),
                 "SuccessExitStatus": (
                     "75" if failure == "pncp-success75" else "77" if failure == "pncp-success77" else ""
