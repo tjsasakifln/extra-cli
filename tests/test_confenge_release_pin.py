@@ -66,6 +66,16 @@ def test_pncp_dropin_clears_legacy_lock_success_and_disables_systemd_restart():
     body = render_dropin(unit, SHA)
     assert "SuccessExitStatus=\n" in body
     assert "Restart=no\n" in body
+    assert "TimeoutStartSec=320min\n" in body
+
+
+def test_dropins_preserve_versioned_timeout_intent_for_every_bounded_unit():
+    for unit_name in CHAIN_UNITS:
+        unit = (UNIT_SOURCE / unit_name).read_text(encoding="utf-8")
+        source_timeout = next((line for line in unit.splitlines() if line.startswith("TimeoutStartSec=")), None)
+        body = render_dropin(unit, SHA)
+        rendered_timeout = next((line for line in body.splitlines() if line.startswith("TimeoutStartSec=")), None)
+        assert rendered_timeout == source_timeout, unit_name
 
 
 def test_working_directory_stays_outside_the_read_only_release():
@@ -230,11 +240,13 @@ def test_verify_reads_back_isolation_release_and_writable_working_directory(tmp_
         del check
         if argv[:2] == ["systemctl", "show"]:
             prop = argv[argv.index("-p") + 1]
+            timeout = pin._source_timeout_start_seconds(argv[2])
             values = {
                 "ExecStart": f"{release}/.venv/bin/python -P -m scripts.example",
                 "Environment": f"PYTHONPATH={release} EXTRA_DEPLOYED_SHA={SHA} PYTHONDONTWRITEBYTECODE=1 PYTHONSAFEPATH=1",
                 "WorkingDirectory": str(workdir),
                 "User": "extra-consultoria",
+                "TimeoutStartUSec": f"{timeout:g}s" if timeout is not None else "infinity",
                 "SuccessExitStatus": "",
                 "Restart": "no",
             }
@@ -259,6 +271,7 @@ def test_verify_reads_back_isolation_release_and_writable_working_directory(tmp_
     assert report["bytecode_writes_enabled"] == []
     assert report["working_directory_drift"] == []
     assert report["working_directory_not_writable"] == []
+    assert report["timeout_start_drift"] == []
     assert report["downstream_timers_scheduled"] == []
     assert report["pncp_service_semantic_drift"] == []
 
@@ -274,6 +287,7 @@ def test_verify_reads_back_isolation_release_and_writable_working_directory(tmp_
         "pncp-restart",
         "pncp-success75",
         "pncp-success77",
+        "pncp-timeout",
     ],
 )
 def test_verify_fails_closed_on_runtime_isolation_drift(tmp_path, monkeypatch, failure):
@@ -290,6 +304,7 @@ def test_verify_fails_closed_on_runtime_isolation_drift(tmp_path, monkeypatch, f
         del check
         if argv[:2] == ["systemctl", "show"]:
             prop = argv[argv.index("-p") + 1]
+            timeout = pin._source_timeout_start_seconds(argv[2])
             values = {
                 "ExecStart": (
                     f"{release}/.venv/bin/python -m scripts.example"
@@ -303,6 +318,11 @@ def test_verify_fails_closed_on_runtime_isolation_drift(tmp_path, monkeypatch, f
                 ),
                 "WorkingDirectory": str(workdir),
                 "User": "extra-consultoria",
+                "TimeoutStartUSec": (
+                    "150min"
+                    if failure == "pncp-timeout" and argv[2] == "pncp-contracts.service"
+                    else f"{timeout:g}s" if timeout is not None else "infinity"
+                ),
                 "SuccessExitStatus": (
                     "75" if failure == "pncp-success75" else "77" if failure == "pncp-success77" else ""
                 ),
@@ -338,5 +358,9 @@ def test_verify_fails_closed_on_runtime_isolation_drift(tmp_path, monkeypatch, f
         assert len(report["working_directory_drift"]) == len(CHAIN_UNITS)
     elif failure == "downstream-timer":
         assert len(report["downstream_timers_scheduled"]) == len(CHAIN_DISABLED_TIMERS)
+    elif failure == "pncp-timeout":
+        assert report["timeout_start_drift"] == [
+            {"unit": "pncp-contracts.service", "expected": "19200s", "observed": "150min"}
+        ]
     else:
         assert report["pncp_service_semantic_drift"]

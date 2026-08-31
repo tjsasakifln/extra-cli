@@ -82,7 +82,11 @@ CHAIN_ENABLED_SERVICES = ("extra-confenge-target-fit-worker.service",)
 # PermissionError: 'output/contracts/incremental-latest.json' after a window it
 # had already crawled successfully.
 PINNED_DIRECTIVES = ("Environment=PYTHONPATH=", "ExecStart=")
-PRESERVED_DIRECTIVES = ("WorkingDirectory=",)
+# Keep operational limits authored with the versioned unit. In particular, a
+# host-local base unit may still have the old 150-minute PNCP limit; omitting
+# this from the immutable pin would silently discard the 320-minute bounded
+# two-pass recovery budget in the release being pinned.
+PRESERVED_DIRECTIVES = ("WorkingDirectory=", "TimeoutStartSec=")
 
 # With the working directory outside the release, Python would otherwise prepend
 # that directory to sys.path and let the checkout at /opt/extra-consultoria
@@ -90,9 +94,43 @@ PRESERVED_DIRECTIVES = ("WorkingDirectory=",)
 # bind the code it claims to bind.
 ISOLATED_INTERPRETER_FLAG = "-P"
 
+_DURATION_PART = re.compile(r"(?P<value>\d+(?:\.\d+)?)(?P<unit>us|µs|ms|s|min|m|h|d|w)")
+_DURATION_SECONDS = {
+    "us": 0.000001,
+    "µs": 0.000001,
+    "ms": 0.001,
+    "s": 1,
+    "min": 60,
+    "m": 60,
+    "h": 60 * 60,
+    "d": 24 * 60 * 60,
+    "w": 7 * 24 * 60 * 60,
+}
+
 
 class PinError(RuntimeError):
     """A pin was refused before anything on the host changed."""
+
+
+def _duration_seconds(value: str) -> float:
+    """Parse the compact systemd duration formats used by unit/show output."""
+    normalized = value.strip().replace(" ", "")
+    if normalized.isdecimal():
+        return float(normalized)
+    parts = list(_DURATION_PART.finditer(normalized))
+    if not parts or "".join(part.group(0) for part in parts) != normalized:
+        raise PinError(f"unsupported systemd duration: {value!r}")
+    return sum(float(part["value"]) * _DURATION_SECONDS[part["unit"]] for part in parts)
+
+
+def _source_timeout_start_seconds(unit: str) -> float | None:
+    """Return the effective timeout intent from the versioned source unit."""
+    source = UNIT_SOURCE / unit
+    timeout: str | None = None
+    for line in _logical_lines(source.read_text(encoding="utf-8")):
+        if line.startswith("TimeoutStartSec="):
+            timeout = line.removeprefix("TimeoutStartSec=")
+    return _duration_seconds(timeout) if timeout is not None else None
 
 
 def _logical_lines(text: str) -> list[str]:
@@ -262,6 +300,7 @@ def verify(sha: str) -> dict[str, object]:
     bytecode_writes_enabled: list[dict[str, str]] = []
     working_directory_drift: list[dict[str, str]] = []
     working_directory_not_writable: list[dict[str, str]] = []
+    timeout_start_drift: list[dict[str, str]] = []
     release = f"{RELEASE_ROOT}/{sha}"
     for unit in CHAIN_UNITS:
         result = _run(["systemctl", "show", unit, "-p", "ExecStart", "--value"], check=False)
@@ -297,6 +336,24 @@ def verify(sha: str) -> dict[str, object]:
             if _run(writable_probe, check=False).returncode != 0:
                 working_directory_not_writable.append(
                     {"unit": unit, "user": user or "root", "working_directory": working_directory}
+                )
+        expected_timeout = _source_timeout_start_seconds(unit)
+        if expected_timeout is not None:
+            observed_timeout = (
+                _run(["systemctl", "show", unit, "-p", "TimeoutStartUSec", "--value"], check=False).stdout
+                or ""
+            ).strip()
+            try:
+                actual_timeout = _duration_seconds(observed_timeout)
+            except PinError:
+                actual_timeout = None
+            if actual_timeout != expected_timeout:
+                timeout_start_drift.append(
+                    {
+                        "unit": unit,
+                        "expected": f"{expected_timeout:g}s",
+                        "observed": observed_timeout or "MISSING",
+                    }
                 )
     disabled: list[str] = []
     for unit in (*CHAIN_TIMERS, *CHAIN_ENABLED_SERVICES):
@@ -338,6 +395,7 @@ def verify(sha: str) -> dict[str, object]:
                 bytecode_writes_enabled,
                 working_directory_drift,
                 working_directory_not_writable,
+                timeout_start_drift,
                 disabled,
                 inactive_timers,
                 independently_scheduled,
@@ -349,6 +407,7 @@ def verify(sha: str) -> dict[str, object]:
         "bytecode_writes_enabled": bytecode_writes_enabled,
         "working_directory_drift": working_directory_drift,
         "working_directory_not_writable": working_directory_not_writable,
+        "timeout_start_drift": timeout_start_drift,
         "not_enabled": disabled,
         "timers_not_active": inactive_timers,
         "downstream_timers_scheduled": independently_scheduled,
