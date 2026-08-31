@@ -6,9 +6,8 @@ Description=PNCP Contracts Crawler — Extra Consultoria
 After=network-online.target
 Wants=network-online.target
 OnFailure=extra-onfailure@%n.service
-# SuccessExitStatus=75 below is intentionally considered successful by
-# systemd. Never point this unit directly at target-fit: the dedicated gate
-# re-evaluates the semantic source contract and blocks 75/partial/stale/error.
+# Never point this unit directly at target-fit: the dedicated gate re-evaluates
+# the semantic source contract before any downstream stage may advance.
 OnSuccess=extra-confenge-source-freshness-gate.service
 
 [Service]
@@ -28,19 +27,15 @@ Environment=CONTRACTS_PAGE_RETRY_BASE_SECONDS=5
 Environment=CONTRACTS_PAGE_RETRY_CAP_SECONDS=30
 # The update-date population is legitimately mutable while PNCP retifications
 # move contracts between days. Replay from page 1; only a later stable full
-# pass may close the window. The whole oneshot remains bounded to 150 minutes.
+# pass may close the window. The Python runner may perform one complete second
+# attempt after a five-minute delay, so the whole oneshot is bounded to 320
+# minutes while the single writer fence remains held.
 Environment=CONTRACTS_WINDOW_RETRY_MAX=2
 Environment=CONTRACTS_WINDOW_RETRY_DELAY_SECONDS=60
-# ONE_PRODUCTION_LOCK_DOMAIN — lock acquired inside run_contracts_incremental
-# (/run/lock/extra-contracts-writer.lock). Do NOT wrap with outer flock on the
-# same path (would always exit 75). Exit 75 = lock busy (not a source failure).
-# SuccessExitStatus=75 keeps systemd from treating expected writer contention as
-# a unit failure (avoids OnFailure storms). It is NOT a closed window and NOT
-# freshness success: PNCP_CONTRACT_FRESHNESS classifies LOCK_BUSY_NO_CLOSE and
-# the next 4h OnCalendar is the catch-up/retry. --days 7 remains the overlap for
-# late arrivals/retificações, split by the runner into seven daily completion
-# units so mutable upstream pagination cannot invalidate the whole lookback.
-SuccessExitStatus=75
+# ONE_PRODUCTION_LOCK_DOMAIN — lock acquired inside run_contracts_incremental.
+# Exit 75 means another writer owns the fence: it is neither a source success
+# nor retryable, so it must not trigger OnSuccess. The Python runner owns its
+# single bounded replay for typed upstream failures; systemd never restarts it.
 # The checkpoint has to live outside the release tree: releases are immutable and
 # read-only, and a crawl that cannot write its checkpoint restarts from zero and
 # fails closed. This was a hand-written drop-in on the host, which is how a
@@ -50,7 +45,7 @@ ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.crawl.run_contracts
     --checkpoint-dir /var/lib/extra-consultoria/checkpoints/contracts
 User=extra-consultoria
 Group=extra-consultoria
-TimeoutStartSec=150min
+TimeoutStartSec=320min
 Restart=no
 StandardOutput=journal
 StandardError=journal

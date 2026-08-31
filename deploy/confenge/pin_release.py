@@ -162,6 +162,11 @@ def render_dropin(unit_text: str, sha: str) -> str:
         "ExecStart=",
         exec_start,
     ]
+    # A legacy base unit on the VPS may still consider lock-busy exit 75 a
+    # success. The immutable PNCP drop-in must override that semantic even
+    # before a fresh-install base unit is deployed.
+    if "scripts.crawl.run_contracts_incremental" in unit_text:
+        body.extend(["SuccessExitStatus=", "Restart=no"])
     return "\n".join(body) + "\n"
 
 
@@ -312,6 +317,17 @@ def verify(sha: str) -> dict[str, object]:
             independently_scheduled.append(
                 f"{unit}=enabled:{enabled or 'unknown'},active:{active or 'unknown'}"
             )
+    pncp_service_semantic_drift: list[dict[str, str]] = []
+    for prop in ("SuccessExitStatus", "Restart"):
+        observed = (
+            _run(["systemctl", "show", "pncp-contracts.service", "-p", prop, "--value"], check=False).stdout
+            or ""
+        ).strip()
+        if prop == "SuccessExitStatus":
+            if observed:
+                pncp_service_semantic_drift.append({"property": prop, "observed": observed})
+        elif observed != "no":
+            pncp_service_semantic_drift.append({"property": prop, "observed": observed})
     return {
         "schema": "confenge.release_pin_verification.v1",
         "release_sha": sha,
@@ -325,6 +341,7 @@ def verify(sha: str) -> dict[str, object]:
                 disabled,
                 inactive_timers,
                 independently_scheduled,
+                pncp_service_semantic_drift,
             )
         ),
         "release_drift": drift,
@@ -335,6 +352,7 @@ def verify(sha: str) -> dict[str, object]:
         "not_enabled": disabled,
         "timers_not_active": inactive_timers,
         "downstream_timers_scheduled": independently_scheduled,
+        "pncp_service_semantic_drift": pncp_service_semantic_drift,
     }
 
 
