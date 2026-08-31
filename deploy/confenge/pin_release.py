@@ -96,11 +96,11 @@ PRESERVED_DIRECTIVES = ("WorkingDirectory=", "TimeoutStartSec=")
 ISOLATED_INTERPRETER_FLAG = "-P"
 
 _DURATION_PART = re.compile(
-    r"(?P<value>\d+(?:\.\d+)?)(?P<unit>"
+    r"(?P<value>[+]?(?:\d+(?:\.\d+)?|\.\d+))(?P<unit>"
     # Long aliases must precede their short prefixes: `month` would otherwise
     # be consumed as `m` plus an invalid `onth` suffix.
     r"seconds?|minutes?|hours?|months?|years?|days?|weeks?|usec|µs|msec|min|sec|hr|"
-    r"ms|us|s|m|h|d|w|y)"
+    r"ms|us|s|M|m|h|d|w|y)"
 )
 _DURATION_SECONDS = {
     "usec": Decimal("0.000001"), "µs": Decimal("0.000001"), "us": Decimal("0.000001"),
@@ -111,7 +111,7 @@ _DURATION_SECONDS = {
     "day": Decimal(24 * 60 * 60), "days": Decimal(24 * 60 * 60), "d": Decimal(24 * 60 * 60),
     "week": Decimal(7 * 24 * 60 * 60), "weeks": Decimal(7 * 24 * 60 * 60), "w": Decimal(7 * 24 * 60 * 60),
     # systemd defines these calendar-independent units as fixed 30.44/365.25-day spans.
-    "month": Decimal("2629800"), "months": Decimal("2629800"),
+    "month": Decimal("2629800"), "months": Decimal("2629800"), "M": Decimal("2629800"),
     "year": Decimal("31557600"), "years": Decimal("31557600"), "y": Decimal("31557600"),
 }
 
@@ -122,10 +122,10 @@ class PinError(RuntimeError):
 
 def _duration_seconds(value: str) -> Decimal | None:
     """Parse systemd time spans, returning ``None`` for an infinite timeout."""
-    normalized = value.strip().replace(" ", "").lower()
+    normalized = value.strip().replace(" ", "")
     if normalized == "infinity":
         return None
-    if re.fullmatch(r"\d+(?:\.\d+)?", normalized):
+    if re.fullmatch(r"[+]?(?:\d+(?:\.\d+)?|\.\d+)", normalized):
         return Decimal(normalized)
     parts = list(_DURATION_PART.finditer(normalized))
     if not parts or "".join(part.group(0) for part in parts) != normalized:
