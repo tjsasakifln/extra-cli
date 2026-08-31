@@ -83,6 +83,10 @@ def test_only_known_transient_source_failures_request_a_bounded_service_retry() 
     assert retry_exit_for_report(
         {"windows": [{"errors": ["Page 10: [connection_failed] Network read timed out"]}]}
     ) == EXIT_RETRYABLE_SOURCE
+    assert retry_exit_for_report(
+        {"windows": [{"errors": ["Page 5: [HTTP_RATE_LIMIT] 429"]}]}
+    ) == EXIT_RETRYABLE_SOURCE
+    assert retry_exit_for_report({"windows": [{"errors": ["http_rate_limit: 429"]}]}) == EXIT_RETRYABLE_SOURCE
 
 
 def test_runner_retries_exactly_once_and_never_retries_structural_or_final_77() -> None:

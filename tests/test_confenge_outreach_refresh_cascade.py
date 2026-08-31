@@ -62,6 +62,7 @@ def test_source_never_bypasses_the_semantic_freshness_gate() -> None:
     assert "RestartSec=" not in source
     assert "StartLimitIntervalSec=" not in source
     assert "StartLimitBurst=" not in source
+    assert "TimeoutStartSec=320min" in source
     assert f"OnSuccess={GATE}" in _unit_section(source)
     assert f"OnSuccess={TARGET}" not in _unit_section(source)
     assert (

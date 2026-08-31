@@ -324,7 +324,7 @@ def verify(sha: str) -> dict[str, object]:
             or ""
         ).strip()
         if prop == "SuccessExitStatus":
-            if "75" in observed.split():
+            if observed:
                 pncp_service_semantic_drift.append({"property": prop, "observed": observed})
         elif observed != "no":
             pncp_service_semantic_drift.append({"property": prop, "observed": observed})

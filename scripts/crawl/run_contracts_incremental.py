@@ -133,11 +133,11 @@ def _is_retryable_source_error(error: str) -> bool:
     text = str(error or "").strip().lower()
     return bool(
         re.match(
-            r"^(source_population_drift|connection_failed|rate_limit|http_server_error)(:|\b)",
+            r"^(source_population_drift|connection_failed|http_rate_limit|rate_limit|http_server_error)(:|\b)",
             text,
         )
         or re.match(
-            r"^page\s+\d+:\s*\[(source_population_drift|connection_failed|rate_limit|http_server_error)\]",
+            r"^page\s+\d+:\s*\[(source_population_drift|connection_failed|http_rate_limit|rate_limit|http_server_error)\]",
             text,
         )
     )

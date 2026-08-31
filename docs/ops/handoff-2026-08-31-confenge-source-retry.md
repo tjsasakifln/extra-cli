@@ -1,6 +1,6 @@
 # Handoff: retry limitado da fonte CONFENGE
 
-**Data:** 2026-08-31  
+**Data:** 2026-08-31
 **Estado:** `VERIFIED` no branch; requer CI, merge e validação live para `ACCEPTED`
 
 ## Incidente
@@ -17,8 +17,8 @@ curta de recuperação.
 - `75` significa writer lock ocupado e não é sucesso nem condição de retry.
 - `77` é emitido somente quando todos os erros observados são transitórios:
   source-population drift, timeout, conexão, rate limit ou HTTP 5xx.
-- O systemd executa no máximo uma nova tentativa após cinco minutos dentro da
-  janela de quatro horas. Códigos estruturais `1` e `2` não reiniciam.
+- O runner Python executa no máximo uma nova tentativa após cinco minutos,
+  ainda sob a mesma trava de writer. Códigos estruturais `1` e `2` não repetem.
 - A cadeia permanece serial e só avança para o freshness gate depois de um
   resultado `0`.
 - O drop-in do release imutável limpa o legado `SuccessExitStatus=75` e fixa
@@ -32,7 +32,7 @@ autoridade comercial continuam sinais separados.
 ## Verificação do branch
 
 ```text
-pytest focado: 136 passed
+pytest focado: 137 passed
 ruff check: PASS
 git diff --check: PASS
 ```

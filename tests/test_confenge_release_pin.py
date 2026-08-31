@@ -273,6 +273,7 @@ def test_verify_reads_back_isolation_release_and_writable_working_directory(tmp_
         "downstream-timer",
         "pncp-restart",
         "pncp-success75",
+        "pncp-success77",
     ],
 )
 def test_verify_fails_closed_on_runtime_isolation_drift(tmp_path, monkeypatch, failure):
@@ -302,7 +303,9 @@ def test_verify_fails_closed_on_runtime_isolation_drift(tmp_path, monkeypatch, f
                 ),
                 "WorkingDirectory": str(workdir),
                 "User": "extra-consultoria",
-                "SuccessExitStatus": "75" if failure == "pncp-success75" else "",
+                "SuccessExitStatus": (
+                    "75" if failure == "pncp-success75" else "77" if failure == "pncp-success77" else ""
+                ),
                 "Restart": "on-failure" if failure == "pncp-restart" else "no",
             }
             return subprocess.CompletedProcess(argv, 0, stdout=values[prop], stderr="")
