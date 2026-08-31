@@ -49,6 +49,7 @@ READBACK_UNITS = tuple(
     )
 )
 
+
 # The limits include each timer's RandomizedDelaySec and the service runtime
 # budget.  They are liveness contracts, not business/freshness thresholds.
 def progress_max_age_seconds() -> dict[str, int]:
@@ -62,10 +63,8 @@ def progress_max_age_seconds() -> dict[str, int]:
         "reconcile": 31 * 60 * 60,
     }
 
-EXPECTED_ON_SUCCESS = {
-    PNCP_SERVICE: SOURCE_FRESHNESS_SERVICE,
-    SOURCE_FRESHNESS_SERVICE: TARGET_FIT_RECONCILE_SERVICE,
-}
+
+EXPECTED_ON_SUCCESS = {SOURCE_FRESHNESS_SERVICE: TARGET_FIT_RECONCILE_SERVICE}
 
 SYSTEMD_PROPERTIES = (
     "LoadState",
@@ -90,9 +89,7 @@ SYSTEMD_PROPERTIES = (
     "FragmentPath",
 )
 
-_SECRET_ASSIGNMENT = re.compile(
-    r"(?i)\b(password|passwd|token|secret|api[_-]?key)\s*[:=]\s*[^\s,;]+"
-)
+_SECRET_ASSIGNMENT = re.compile(r"(?i)\b(password|passwd|token|secret|api[_-]?key)\s*[:=]\s*[^\s,;]+")
 _DSN_USERINFO = re.compile(r"(?i)\b(postgres(?:ql)?://)[^@\s]+@")
 
 
@@ -318,9 +315,7 @@ def build_contract(snapshot: Mapping[str, Any]) -> dict[str, Any]:
         TARGET_FIT_WORKER,
     }:
         if units.get(service, {}).get("LoadState") != "loaded":
-            reasons.append(
-                f"{service.upper().replace('-', '_').replace('.', '_')}_NOT_LOADED"
-            )
+            reasons.append(f"{service.upper().replace('-', '_').replace('.', '_')}_NOT_LOADED")
 
     for timer, triggered_service in TIMER_TO_SERVICE.items():
         state = units.get(timer, {})
@@ -332,10 +327,10 @@ def build_contract(snapshot: Mapping[str, Any]) -> dict[str, Any]:
         if state.get("ActiveState") != "active":
             reasons.append(f"{prefix}_NOT_ACTIVE")
         triggered = units.get(triggered_service, {})
-        timer_is_running_job = (
-            state.get("SubState") == "running"
-            and triggered.get("ActiveState") in {"active", "activating"}
-        )
+        timer_is_running_job = state.get("SubState") == "running" and triggered.get("ActiveState") in {
+            "active",
+            "activating",
+        }
         if not state.get("NextElapseUSecRealtime") and not timer_is_running_job:
             reasons.append(f"{prefix}_NO_NEXT_TRIGGER")
         if str(state.get("Persistent") or "").lower() not in {"yes", "true", "1"}:
@@ -363,9 +358,7 @@ def build_contract(snapshot: Mapping[str, Any]) -> dict[str, Any]:
 
     for source, expected in EXPECTED_ON_SUCCESS.items():
         if _words(units.get(source, {}).get("OnSuccess")) != {expected}:
-            reasons.append(
-                f"{source.upper().replace('-', '_').replace('.', '_')}_ONSUCCESS_NOT_EXACT"
-            )
+            reasons.append(f"{source.upper().replace('-', '_').replace('.', '_')}_ONSUCCESS_NOT_EXACT")
 
     progress_error = progress.get("_error")
     if progress_error:
@@ -373,9 +366,7 @@ def build_contract(snapshot: Mapping[str, Any]) -> dict[str, Any]:
     progress_readback: dict[str, Any] = {}
     resolved_limits = {
         str(key): int(value)
-        for key, value in dict(
-            snapshot.get("progress_max_age_seconds") or progress_max_age_seconds()
-        ).items()
+        for key, value in dict(snapshot.get("progress_max_age_seconds") or progress_max_age_seconds()).items()
     }
     for cycle_kind, max_age in resolved_limits.items():
         item = progress.get(cycle_kind, {})
@@ -393,14 +384,10 @@ def build_contract(snapshot: Mapping[str, Any]) -> dict[str, Any]:
             reasons.append(f"TARGET_FIT_{cycle_kind.upper()}_PROGRESS_STALE")
         latest_status = str(latest_attempt.get("status") or "").lower()
         if latest_status and latest_status not in {"success", "running"}:
-            reasons.append(
-                f"TARGET_FIT_{cycle_kind.upper()}_LAST_CYCLE_{latest_status.upper()}"
-            )
+            reasons.append(f"TARGET_FIT_{cycle_kind.upper()}_LAST_CYCLE_{latest_status.upper()}")
 
     release_identity = dict(snapshot.get("release_identity") or {})
-    release_sha = str(
-        release_identity.get("effective_sha") or snapshot.get("release_sha") or ""
-    ).strip()
+    release_sha = str(release_identity.get("effective_sha") or snapshot.get("release_sha") or "").strip()
     if not re.fullmatch(r"[0-9a-fA-F]{40}", release_sha):
         reasons.append("RELEASE_SHA_UNPROVEN")
     observed_shas = {

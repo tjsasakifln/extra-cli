@@ -17,7 +17,6 @@ from scripts.ops.source_maintenance_health import (
     PNCP_SERVICE,
     PNCP_TIMER,
     READBACK_UNITS,
-    SOURCE_FRESHNESS_SERVICE,
     TARGET_FIT_RECONCILE_SERVICE,
     TARGET_FIT_RECONCILE_TIMER,
     TARGET_FIT_REFRESH_TIMER,
@@ -54,9 +53,7 @@ def _snapshot() -> dict:
     units = {unit: {"LoadState": "loaded"} for unit in READBACK_UNITS}
     for timer in TIMER_TO_SERVICE:
         units[timer] = _timer_state()
-    units[TARGET_FIT_WORKER].update(
-        {"UnitFileState": "enabled", "ActiveState": "active", "SubState": "running"}
-    )
+    units[TARGET_FIT_WORKER].update({"UnitFileState": "enabled", "ActiveState": "active", "SubState": "running"})
     for source, target in EXPECTED_ON_SUCCESS.items():
         units[source]["OnSuccess"] = target
     return {
@@ -126,19 +123,14 @@ def test_failed_oneshot_does_not_demote_a_live_timer() -> None:
     snapshot["units"][PNCP_SERVICE].update({"Result": "exit-code", "ExecMainStatus": "1"})
     contract = build_contract(snapshot)
 
-    assert not any(
-        reason.startswith("PNCP_CONTRACTS_TIMER_LIFECYCLE")
-        for reason in contract["reason_codes"]
-    )
+    assert not any(reason.startswith("PNCP_CONTRACTS_TIMER_LIFECYCLE") for reason in contract["reason_codes"])
     assert contract["units"][PNCP_TIMER]["ActiveState"] == "active"
     assert contract["units"][PNCP_TIMER]["NextElapseUSecRealtime"]
 
 
 def test_running_timer_has_no_next_elapse_until_oneshot_finishes() -> None:
     snapshot = _snapshot()
-    snapshot["units"][PNCP_TIMER].update(
-        {"SubState": "running", "NextElapseUSecRealtime": ""}
-    )
+    snapshot["units"][PNCP_TIMER].update({"SubState": "running", "NextElapseUSecRealtime": ""})
     snapshot["units"][PNCP_SERVICE]["ActiveState"] = "activating"
     contract = build_contract(snapshot)
 
@@ -173,9 +165,7 @@ def test_shipped_timers_survive_oneshot_failure_and_catch_up_after_reboot() -> N
     for timer_name, service_name in TIMER_TO_SERVICE.items():
         text = (ROOT / "deploy" / "systemd" / timer_name).read_text(encoding="utf-8")
         active_lines = [
-            line.strip()
-            for line in text.splitlines()
-            if line.strip() and not line.lstrip().startswith("#")
+            line.strip() for line in text.splitlines() if line.strip() and not line.lstrip().startswith("#")
         ]
         assert "Persistent=true" in active_lines
         for relationship in (
@@ -189,25 +179,17 @@ def test_shipped_timers_survive_oneshot_failure_and_catch_up_after_reboot() -> N
             assert f"{relationship}={service_name}" not in active_lines
 
 
-def test_shipped_on_success_chain_is_exact_and_lock_errors_are_verbose() -> None:
+def test_pncp_is_decoupled_while_manual_target_fit_chain_stays_exact() -> None:
     pncp = (ROOT / "deploy/systemd/pncp-contracts.service").read_text(encoding="utf-8")
-    gate = (ROOT / "deploy/systemd/extra-confenge-source-freshness-gate.service").read_text(
-        encoding="utf-8"
-    )
-    refresh = (ROOT / "deploy/systemd/extra-confenge-target-fit-refresh.service").read_text(
-        encoding="utf-8"
-    )
-    reconcile = (ROOT / "deploy/systemd/extra-confenge-target-fit-reconcile.service").read_text(
-        encoding="utf-8"
-    )
-    assert f"OnSuccess={SOURCE_FRESHNESS_SERVICE}" in pncp
+    gate = (ROOT / "deploy/systemd/extra-confenge-source-freshness-gate.service").read_text(encoding="utf-8")
+    refresh = (ROOT / "deploy/systemd/extra-confenge-target-fit-refresh.service").read_text(encoding="utf-8")
+    reconcile = (ROOT / "deploy/systemd/extra-confenge-target-fit-reconcile.service").read_text(encoding="utf-8")
+    assert "OnSuccess=" not in pncp.split("[Service]", 1)[0]
     assert f"OnSuccess={TARGET_FIT_RECONCILE_SERVICE}" in gate
     assert "/usr/bin/flock --verbose --nonblock" in refresh
     assert "/usr/bin/flock --verbose --nonblock" in reconcile
     assert "OnFailure=extra-onfailure@%n.service" in refresh
-    worker = (ROOT / "deploy/systemd/extra-confenge-target-fit-worker.service").read_text(
-        encoding="utf-8"
-    )
+    worker = (ROOT / "deploy/systemd/extra-confenge-target-fit-worker.service").read_text(encoding="utf-8")
     assert "OnFailure=extra-onfailure@%n.service" in worker
 
 
@@ -257,16 +239,17 @@ def test_cdc_watermark_cannot_impersonate_worker_progress() -> None:
         )
         == ""
     )
-    assert target_fit_progress_watermark(
-        control_watermark="2026-08-27T12:00:00Z",
-        materialized_watermark="2026-08-27T11:00:00Z",
-    ) == "2026-08-27T12:00:00Z"
+    assert (
+        target_fit_progress_watermark(
+            control_watermark="2026-08-27T12:00:00Z",
+            materialized_watermark="2026-08-27T11:00:00Z",
+        )
+        == "2026-08-27T12:00:00Z"
+    )
 
 
 def test_error_sanitization_keeps_cause_without_credentials() -> None:
-    message = sanitize_error(
-        "OperationalError: postgresql://alice:secret@db/internal password=hunter2 timeout"
-    )
+    message = sanitize_error("OperationalError: postgresql://alice:secret@db/internal password=hunter2 timeout")
     assert "timeout" in message
     assert "alice:secret" not in message
     assert "hunter2" not in message

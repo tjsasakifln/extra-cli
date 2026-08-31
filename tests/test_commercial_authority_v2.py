@@ -9,6 +9,7 @@ never revoke that fact.
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from datetime import UTC, date, datetime
 from pathlib import Path
 
@@ -29,12 +30,11 @@ from scripts.confenge_activation.commercial_authority_v2 import (
     evidence_hash,
     qualified_until,
     qualify_root,
+    validate_root_qualification,
     window_floor,
 )
 
-GOLDEN = json.loads(
-    (Path(__file__).parent / "fixtures" / "commercial_authority_v2" / "golden.json").read_text()
-)
+GOLDEN = json.loads((Path(__file__).parent / "fixtures" / "commercial_authority_v2" / "golden.json").read_text())
 
 NOW = datetime(2026, 8, 28, 12, 0, 0, tzinfo=UTC)
 
@@ -135,7 +135,7 @@ def test_company_stays_qualified_while_any_contract_is_in_window():
     assert q.qualifying_contract_count == 2
 
 
-def test_boundary_is_the_window_floor_not_a_grace_period():
+def test_boundary_expires_at_the_start_of_qualified_until_day():
     floor = window_floor(NOW)
     assert floor == date(2023, 8, 28)
     on_floor, _ = qualify_root(
@@ -145,7 +145,7 @@ def test_boundary_is_the_window_floor_not_a_grace_period():
         target_fit_class="TARGET_CONFIRMED",
         party_role="SUPPLIER",
     )
-    assert on_floor is not None
+    assert on_floor is None
     day_before, reasons = qualify_root(
         lead_cnpj14="11222333000144",
         contracts=[_contract("c", data_assinatura=date(2023, 8, 27).isoformat())],
@@ -176,6 +176,32 @@ def test_future_dated_contract_is_refused():
         party_role="SUPPLIER",
     )
     assert q is None
+
+
+def test_invalid_revoked_and_expired_v2_qualifications_fail_closed():
+    valid, _ = qualify_root(
+        lead_cnpj14="11222333000144",
+        contracts=[_contract("c", data_assinatura="2025-05-10")],
+        now=NOW,
+        target_fit_class="TARGET_CONFIRMED",
+        party_role="SUPPLIER",
+    )
+    assert valid is not None
+    assert validate_root_qualification(valid, as_of=NOW.date()) == []
+    assert "commercial_qualification_evidence_drift" in validate_root_qualification(
+        replace(valid, qualification_evidence_hash="0" * 64), as_of=NOW.date()
+    )
+    assert "commercial_qualification_revoked" in validate_root_qualification(
+        replace(valid, deactivated=True, deactivation_reason="manual_revocation"), as_of=NOW.date()
+    )
+    expired = replace(
+        valid,
+        qualifying_contract_date="2023-08-28",
+        qualified_until="2026-08-28",
+        qualification_evidence_hash="",
+    )
+    expired = replace(expired, qualification_evidence_hash=evidence_hash(expired))
+    assert "commercial_qualification_expired" in validate_root_qualification(expired, as_of=NOW.date())
 
 
 def test_population_authority_carries_evidence_not_a_ttl():
@@ -222,32 +248,41 @@ def test_corpus_hash_is_order_independent_and_change_sensitive():
     a, _ = qualify_root(
         lead_cnpj14="11222333000144",
         contracts=[_contract("a", data_assinatura="2025-05-10")],
-        now=NOW, target_fit_class="TARGET_CONFIRMED", party_role="SUPPLIER",
+        now=NOW,
+        target_fit_class="TARGET_CONFIRMED",
+        party_role="SUPPLIER",
     )
     b, _ = qualify_root(
         lead_cnpj14="99888777000166",
         contracts=[_contract("b", data_assinatura="2024-05-10")],
-        now=NOW, target_fit_class="TARGET_CONFIRMED", party_role="SUPPLIER",
+        now=NOW,
+        target_fit_class="TARGET_CONFIRMED",
+        party_role="SUPPLIER",
     )
     assert corpus_hash([a, b]) == corpus_hash([b, a])
     assert corpus_hash([a, b]) != corpus_hash([a])
 
 
-@pytest.mark.parametrize("mutation", [
-    {"qualifying_contract_id": "forged"},
-    {"qualifying_contract_date": "2024-01-01"},
-    {"qualifying_date_field": "data_inicio"},
-    {"cnpj_root8": "00000000"},
-    {"qualification_evidence_reference": "forged"},
-    {"qualified_until": "2099-01-01"},
-])
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        {"qualifying_contract_id": "forged"},
+        {"qualifying_contract_date": "2024-01-01"},
+        {"qualifying_date_field": "data_inicio"},
+        {"cnpj_root8": "00000000"},
+        {"qualification_evidence_reference": "forged"},
+        {"qualified_until": "2099-01-01"},
+    ],
+)
 def test_any_material_mutation_changes_the_evidence_hash(mutation):
     from scripts.confenge_activation.commercial_authority_v2 import RootQualification
 
     q, _ = qualify_root(
         lead_cnpj14="11222333000144",
         contracts=[_contract("c", data_assinatura="2025-05-10")],
-        now=NOW, target_fit_class="TARGET_CONFIRMED", party_role="SUPPLIER",
+        now=NOW,
+        target_fit_class="TARGET_CONFIRMED",
+        party_role="SUPPLIER",
     )
     tampered = RootQualification(**{**q.__dict__, **mutation})
     assert evidence_hash(tampered) != q.qualification_evidence_hash

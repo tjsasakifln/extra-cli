@@ -24,6 +24,19 @@ from scripts.confenge_activation.commercial_authority import (
     authority_from_manifest,
     classify_commercial_authority,
 )
+from scripts.confenge_activation.commercial_authority_v2 import (
+    CONTRACT_VERSION as COMMERCIAL_AUTHORITY_CONTRACT_V2,
+)
+from scripts.confenge_activation.commercial_authority_v2 import (
+    POLICY_VERSION as COMMERCIAL_AUTHORITY_POLICY_V2,
+)
+from scripts.confenge_activation.commercial_authority_v2 import (
+    corpus_hash as qualification_corpus_hash,
+)
+from scripts.confenge_activation.commercial_authority_v2 import (
+    qualification_from_mapping,
+    validate_root_qualification,
+)
 from scripts.confenge_outreach_pipeline.party_role import PARTY_ROLE_POLICY_V1
 from scripts.confenge_target_fit.company_key import canonical_target_membership
 
@@ -159,23 +172,33 @@ def _embed_commercial_authority_into_served_manifest(
     semantic = str(publication_semantic_hash_value or "").strip()
     if not identity or not semantic:
         raise ValueError("producer identity and publication semantic hash are required on the served manifest")
-    authority = authority_from_manifest(
-        manifest,
-        now=now,
-        producer_identity=identity,
-        publication_semantic_hash=semantic,
-        source_operational_health=source_operational_health,
-    )
+    v2_present = isinstance(manifest.get("commercial_authority_v2"), dict)
+    if v2_present:
+        authority = dict(manifest["commercial_authority_v2"])
+    else:
+        authority = authority_from_manifest(
+            manifest,
+            now=now,
+            producer_identity=identity,
+            publication_semantic_hash=semantic,
+            source_operational_health=source_operational_health,
+        )
     missing = [field for field in SERVED_COMMERCIAL_BINDING_FIELDS if not str(authority.get(field) or "").strip()]
     if missing:
         raise ValueError(
-            "commercial authority binding incomplete; refusing to serve an unbound manifest: "
-            + ",".join(missing)
+            "commercial authority v2 binding incomplete; refusing to serve an unbound manifest: " + ",".join(missing)
         )
     served = dict(manifest)
     served["producer_identity"] = identity
     served["publication_semantic_hash"] = semantic
-    served["commercial_authority"] = authority
+    if v2_present:
+        served.pop("commercial_authority", None)
+        source = dict(served.get("source") or {})
+        source.pop("commercial_authority", None)
+        served["source"] = source
+        served["commercial_authority_v2"] = authority
+    else:
+        served["commercial_authority"] = authority
     _atomic_json(manifest_path, served)
     return authority
 
@@ -360,6 +383,12 @@ def producer_identity(manifest: dict[str, Any]) -> str:
         "sector_classifier_sha": projection.get("sector_classifier_sha"),
         "policy_version": projection.get("policy_version"),
         "budget_version": projection.get("budget_version"),
+        "commercial_authority_policy_version": (manifest.get("commercial_qualification_summary") or {}).get(
+            "policy_version"
+        ),
+        "qualification_evidence_hash": (manifest.get("commercial_qualification_summary") or {}).get(
+            "qualification_evidence_hash"
+        ),
     }
     encoded = json.dumps(semantics, ensure_ascii=False, sort_keys=True, separators=(",", ":"), default=str)
     return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
@@ -442,6 +471,7 @@ def _validate_authoritative_manifest(
     if manifest.get("schema_version") != MANIFEST_SCHEMA:
         raise ValueError("unsupported or missing manifest schema_version")
     source = manifest.get("source") if isinstance(manifest.get("source"), dict) else {}
+    v2_present = isinstance(manifest.get("commercial_authority_v2"), dict)
     run_id = str(source.get("run_id") or "").strip()
     snapshot_hash = str(source.get("snapshot_hash") or "").strip()
     if not run_id or not snapshot_hash:
@@ -475,19 +505,22 @@ def _validate_authoritative_manifest(
         raise ValueError("manifest.generated_at is in the future")
     generated_age = max(0.0, (now - generated_at).total_seconds() / 3600)
     watermark_age = max(0.0, (now - watermark).total_seconds() / 3600)
-    freshness = manifest.get("authoritative_source_freshness")
-    freshness = freshness if isinstance(freshness, dict) else {}
-    if freshness.get("contract_version") != "PNCP_CONTRACT_FRESHNESS/1.0":
-        raise ValueError("authoritative PNCP freshness contract is required")
-    if freshness.get("status") != "FRESH":
-        raise ValueError(f"authoritative PNCP freshness is not FRESH: {freshness.get('status') or 'MISSING'}")
-    if require_live_source_freshness:
-        if generated_age > max_age_hours:
-            raise ValueError(f"manifest stale: generated_at age {generated_age:.3f}h > {max_age_hours:.3f}h")
-        if watermark_age > max_age_hours:
-            raise ValueError(f"datalake watermark stale: age {watermark_age:.3f}h > {max_age_hours:.3f}h")
-        if _parse_timestamp(freshness.get("expires_at"), field="authoritative_source_freshness.expires_at") <= now:
-            raise ValueError("authoritative PNCP freshness expired before publication")
+    # Legacy V1 builds retain their historical gate. Every production V2 build
+    # bypasses it: PNCP freshness is acquisition telemetry only.
+    if not v2_present:
+        freshness = manifest.get("authoritative_source_freshness")
+        freshness = freshness if isinstance(freshness, dict) else {}
+        if freshness.get("contract_version") != "PNCP_CONTRACT_FRESHNESS/1.0":
+            raise ValueError("authoritative PNCP freshness contract is required")
+        if freshness.get("status") != "FRESH":
+            raise ValueError(f"authoritative PNCP freshness is not FRESH: {freshness.get('status') or 'MISSING'}")
+        if require_live_source_freshness:
+            if generated_age > max_age_hours:
+                raise ValueError(f"manifest stale: generated_at age {generated_age:.3f}h > {max_age_hours:.3f}h")
+            if watermark_age > max_age_hours:
+                raise ValueError(f"datalake watermark stale: age {watermark_age:.3f}h > {max_age_hours:.3f}h")
+            if _parse_timestamp(freshness.get("expires_at"), field="authoritative_source_freshness.expires_at") <= now:
+                raise ValueError("authoritative PNCP freshness expired before publication")
 
     chunks = manifest.get("chunks")
     if not isinstance(chunks, list) or not chunks:
@@ -522,6 +555,7 @@ def _validate_authoritative_manifest(
     target_member_cnpjs: list[str] = []
     target_role_distribution: Counter[str] = Counter()
     target_role_status_distribution: Counter[str] = Counter()
+    commercial_qualifications = []
     for expected_index, chunk in enumerate(chunks):
         if not isinstance(chunk, dict):
             raise ValueError(f"manifest chunk {expected_index} is not an object")
@@ -574,6 +608,22 @@ def _validate_authoritative_manifest(
                 target_status = str(contractor_role.get("status") or "UNKNOWN")
                 target_role_distribution[target_role] += 1
                 target_role_status_distribution[target_status] += 1
+                if v2_present:
+                    raw_qualification = lead.get("commercial_qualification")
+                    if not isinstance(raw_qualification, dict):
+                        raise ValueError("TARGET_CONFIRMED lead is missing COMMERCIAL_AUTHORITY/2.0 qualification")
+                    try:
+                        qualification = qualification_from_mapping(raw_qualification)
+                    except (TypeError, ValueError) as exc:
+                        raise ValueError(str(exc)) from exc
+                    reasons = validate_root_qualification(qualification, as_of=now.date())
+                    if reasons:
+                        raise ValueError(
+                            f"commercial qualification invalid for {qualification.cnpj_root8}: {','.join(reasons)}"
+                        )
+                    if qualification.cnpj_root8 != str(company.get("cnpj14") or "")[:8]:
+                        raise ValueError("commercial qualification root does not match feed lead")
+                    commercial_qualifications.append(qualification)
                 if target_role == "BUYER_CONFLICT" or target_status == "PARTY_ROLE_CONFLICT":
                     if lead.get("email_send_ready") is True or lead.get("preferred_email_route"):
                         raise ValueError("buyer/supplier conflict authorizes outreach at lead level")
@@ -617,6 +667,8 @@ def _validate_authoritative_manifest(
         raise ValueError("manifest total_chunk_bytes does not match chunk files")
     if len(target_member_cnpjs) != total_leads:
         raise ValueError("published feed contains a lead that is not TARGET_CONFIRMED")
+    if v2_present and len({q.cnpj_root8 for q in commercial_qualifications}) != total_leads:
+        raise ValueError("commercial qualification corpus does not close against feed membership")
 
     # The feed ships the TARGET_CONFIRMED outreach population; the decision
     # universe stays a separate, larger accounting that must not be redefined to
@@ -689,6 +741,36 @@ def _validate_authoritative_manifest(
         raise ValueError("authoritative party role projection does not match feed")
     if int(party_roles.get("supplier_confirmed_count", -1)) != int(target_role_distribution.get("SUPPLIER") or 0):
         raise ValueError("authoritative party role supplier count does not match feed")
+    commercial_authority_v2 = manifest.get("commercial_authority_v2")
+    commercial_authority_v2 = commercial_authority_v2 if isinstance(commercial_authority_v2, dict) else {}
+    if v2_present:
+        expected_identity = producer_identity(manifest)
+        expected_semantic_hash = publication_semantic_hash(manifest)
+        expected_qualification_hash = qualification_corpus_hash(commercial_qualifications)
+        required_v2 = {
+            "schema": COMMERCIAL_AUTHORITY_CONTRACT_V2,
+            "contract_version": COMMERCIAL_AUTHORITY_CONTRACT_V2,
+            "policy_version": COMMERCIAL_AUTHORITY_POLICY_V2,
+            "basis_source_run_id": run_id,
+            "basis_snapshot_hash": snapshot_hash,
+            "basis_membership_hash": staged_hash,
+            "basis_publication_semantic_hash": expected_semantic_hash,
+            "producer_identity": expected_identity,
+            "qualification_evidence_hash": expected_qualification_hash,
+            "qualified_root_count": total_leads,
+            "state": "QUALIFIED",
+        }
+        mismatched = [
+            field for field, expected in required_v2.items() if commercial_authority_v2.get(field) != expected
+        ]
+        if int(commercial_authority_v2.get("qualification_window_years") or 0) != 3:
+            mismatched.append("qualification_window_years")
+        if mismatched:
+            raise ValueError("COMMERCIAL_AUTHORITY/2.0 binding is invalid: " + ",".join(mismatched))
+        if str(manifest.get("producer_identity") or "") != expected_identity:
+            raise ValueError("manifest producer_identity does not match commercial authority v2")
+        if str(manifest.get("publication_semantic_hash") or "") != expected_semantic_hash:
+            raise ValueError("manifest publication_semantic_hash does not match commercial authority v2")
     contact_projection = manifest.get("authoritative_contact_projection")
     if not isinstance(contact_projection, dict):
         raise ValueError("authoritative contact projection is required")
@@ -728,7 +810,7 @@ def _validate_authoritative_manifest(
         raise ValueError("authoritative contact population_as_of must equal its full reconcile attestation")
     if contact_generated > now + timedelta(minutes=5) or contact_population_as_of > now + timedelta(minutes=5):
         raise ValueError("authoritative contact projection timestamp is in the future")
-    if require_live_source_freshness:
+    if require_live_source_freshness and not v2_present:
         if max(0.0, (now - contact_generated).total_seconds() / 3600) > max_age_hours:
             raise ValueError("authoritative contact projection is stale")
         if max(0.0, (now - contact_population_as_of).total_seconds() / 3600) > max_age_hours:
@@ -845,6 +927,7 @@ def _validate_authoritative_manifest(
         "authoritative_feed_scope": feed_scope,
         "authoritative_party_roles": party_roles,
         "authoritative_contact_projection": contact_projection,
+        "commercial_authority_v2": commercial_authority_v2,
     }
 
 

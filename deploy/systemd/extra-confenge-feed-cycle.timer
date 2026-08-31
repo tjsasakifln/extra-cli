@@ -1,11 +1,10 @@
 [Unit]
-Description=Timer — regenerate CONFENGE outreach feed within 24h SLO
+Description=Timer — rebuild durable CONFENGE commercial authority from the datalake
 
 [Timer]
-# PNCP runs at 00/04/08/12/16/20 and a full window can take about 40 minutes.
-# Publish after the 00/12 source windows close so an in-flight window cannot turn
-# a healthy source into UNCLOSED_CURRENT_WINDOW at the publication boundary.
-OnCalendar=*-*-* 01,13:20:00
+# Independent commercial cadence. PNCP ingestion health never controls this
+# timer; the service reads the persisted canonical V2 view under its own flock.
+OnCalendar=*-*-* 02,08,14,20:15:00
 Persistent=true
 RandomizedDelaySec=10m
 Unit=extra-confenge-feed-cycle.service

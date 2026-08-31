@@ -3,12 +3,8 @@
 
 The chain is autonomous by design:
 
-    pncp-contracts.timer
-      -> pncp-contracts.service
-        OnSuccess -> extra-confenge-source-freshness-gate.service
-          OnSuccess -> extra-confenge-target-fit-reconcile.service
-            OnSuccess -> extra-confenge-contact-cycle.service
-              OnSuccess -> extra-confenge-feed-cycle.service
+    pncp-contracts.timer -> pncp-contracts.service       (ingestion only)
+    extra-confenge-feed-cycle.timer -> feed-cycle        (commercial authority)
 
 Every link must run the *same* code. Hand-written ``90-immutable-release.conf``
 drop-ins drifted apart (three different SHAs across the chain at once), which is
@@ -17,9 +13,8 @@ exactly the unversioned manual configuration this repository must not depend on.
 This tool derives each drop-in mechanically from the versioned unit files in
 ``deploy/systemd`` by rewriting the ``/opt/extra-consultoria`` prefix to the
 requested immutable release, applies the whole set atomically-or-not-at-all,
-and keeps only the source timer plus the independent feed monitor scheduled.
-The downstream data stages advance through ``OnSuccess`` and do not own a
-second cadence.
+and keeps ingestion, commercial publication and the independent monitor on
+separate schedules. A PNCP failure cannot suppress a datalake-backed V2 run.
 """
 
 from __future__ import annotations
@@ -60,6 +55,7 @@ CHAIN_UNITS = (
 # without advancing the pipeline.
 CHAIN_TIMERS = (
     "pncp-contracts.timer",
+    "extra-confenge-feed-cycle.timer",
     "extra-confenge-feed-monitor.timer",
 )
 
@@ -70,7 +66,6 @@ CHAIN_DISABLED_TIMERS = (
     "extra-confenge-target-fit-reconcile.timer",
     "extra-confenge-target-fit-refresh.timer",
     "extra-confenge-contact-cycle.timer",
-    "extra-confenge-feed-cycle.timer",
 )
 
 # Long-running workers that must come back after a reboot.
@@ -407,14 +402,11 @@ def verify(sha: str) -> dict[str, object]:
         enabled = _run(["systemctl", "is-enabled", unit], check=False).stdout.strip()
         active = _run(["systemctl", "is-active", unit], check=False).stdout.strip()
         if enabled not in {"disabled", "masked"} or active != "inactive":
-            independently_scheduled.append(
-                f"{unit}=enabled:{enabled or 'unknown'},active:{active or 'unknown'}"
-            )
+            independently_scheduled.append(f"{unit}=enabled:{enabled or 'unknown'},active:{active or 'unknown'}")
     pncp_service_semantic_drift: list[dict[str, str]] = []
     for prop in ("SuccessExitStatus", "Restart"):
         observed = (
-            _run(["systemctl", "show", "pncp-contracts.service", "-p", prop, "--value"], check=False).stdout
-            or ""
+            _run(["systemctl", "show", "pncp-contracts.service", "-p", prop, "--value"], check=False).stdout or ""
         ).strip()
         if prop == "SuccessExitStatus":
             if observed:

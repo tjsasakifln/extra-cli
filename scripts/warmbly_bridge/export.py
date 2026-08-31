@@ -8,10 +8,20 @@ import math
 import subprocess
 from collections import Counter
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
+from scripts.confenge_activation.commercial_authority_v2 import (
+    POLICY_VERSION as COMMERCIAL_AUTHORITY_POLICY_V2,
+)
+from scripts.confenge_activation.commercial_authority_v2 import (
+    RootQualification,
+    build_population_authority,
+    corpus_hash,
+    qualification_from_mapping,
+    validate_root_qualification,
+)
 from scripts.confenge_outreach_pipeline.party_role import (
     PARTY_ROLE_CONFLICT,
     PARTY_ROLE_POLICY_V1,
@@ -93,6 +103,7 @@ def _snapshot_hash(
     contacts: Path,
     target_fit: Path | None,
     contact_projection_report: Path | None,
+    commercial_qualification_corpus: Path | None,
 ) -> str:
     h = hashlib.sha256()
     for p in (universe, intel, contacts, target_fit):
@@ -135,6 +146,11 @@ def _snapshot_hash(
             ).encode("utf-8")
         )
         h.update(b"\0")
+    if commercial_qualification_corpus is not None:
+        h.update(commercial_qualification_corpus.name.encode())
+        h.update(b"\0")
+        h.update(commercial_qualification_corpus.read_bytes())
+        h.update(b"\0")
     return h.hexdigest()
 
 
@@ -142,11 +158,11 @@ def _run_id(
     snapshot_hash: str,
     profile_id: str,
     profile_version: str,
-    authoritative_freshness_hash: str | None = None,
+    commercial_authority_hash: str | None = None,
 ) -> str:
     raw = (
         f"{snapshot_hash}|{profile_id}|{profile_version}|{MODULE_VERSION}|"
-        f"{authoritative_freshness_hash or 'no-source-freshness'}"
+        f"{commercial_authority_hash or 'no-commercial-authority-v2'}"
     )
     return "run-" + hashlib.sha256(raw.encode()).hexdigest()[:16]
 
@@ -173,6 +189,8 @@ class ExportConfig:
     repo_sha: str | None = None
     authoritative_source_freshness: dict[str, Any] | None = None
     require_authoritative_source_freshness: bool = False
+    commercial_qualification_corpus: Path | None = None
+    require_commercial_authority_v2: bool = False
     # Delta deactivations for accounts leaving ACTIONABLE_NOW (manifest section)
     deactivations: list[dict[str, Any]] | None = None
     # Previously published feed release (``<publish_dir>/current``). Accounts that
@@ -192,6 +210,10 @@ def validate_inputs(cfg: ExportConfig) -> None:
         require_readable_file(cfg.contact_projection_report, label="--contact-projection-report")
     elif cfg.require_authoritative_contact_projection_metadata:
         raise InputError("--contact-projection-report is required for authoritative publication")
+    if cfg.commercial_qualification_corpus is not None:
+        require_readable_file(cfg.commercial_qualification_corpus, label="--commercial-qualification-corpus")
+    elif cfg.require_commercial_authority_v2:
+        raise InputError("--commercial-qualification-corpus is required for authoritative publication")
     if cfg.max_leads_per_chunk < 1:
         raise InputError("--max-leads-per-chunk must be >= 1")
     if cfg.max_bytes_per_chunk < 1024:
@@ -203,21 +225,31 @@ def validate_inputs(cfg: ExportConfig) -> None:
         )
     if cfg.expected_universe_count is not None and cfg.expected_universe_count < 1:
         raise InputError("--expected-universe-count must be >= 1")
-    freshness = cfg.authoritative_source_freshness or {}
-    if cfg.require_authoritative_source_freshness:
-        if freshness.get("contract_version") != "PNCP_CONTRACT_FRESHNESS/1.0":
-            raise InputError("authoritative PNCP freshness contract missing or unsupported")
-        if freshness.get("status") != "FRESH":
-            raise InputError(
-                "authoritative PNCP freshness must be FRESH before export; "
-                f"observed={freshness.get('status') or 'MISSING'}"
-            )
+    # PNCP health is telemetry. The V2 corpus below is the only commercial
+    # authority and is validated at the same boundary as the feed.
+
+
+def _read_commercial_qualifications(path: Path | None, *, as_of: date) -> list[RootQualification]:
+    if path is None:
+        return []
+    roots: list[RootQualification] = []
+    seen: set[str] = set()
+    for raw in read_jsonl(path, label="--commercial-qualification-corpus"):
         try:
-            expires_at = datetime.fromisoformat(str(freshness.get("expires_at") or "").replace("Z", "+00:00"))
-        except ValueError as exc:
-            raise InputError("authoritative PNCP freshness expires_at missing or invalid") from exc
-        if expires_at <= datetime.now(UTC):
-            raise InputError("authoritative PNCP freshness expired before export")
+            q = qualification_from_mapping(raw)
+        except (TypeError, ValueError) as exc:
+            raise InputError(str(exc)) from exc
+        reasons = validate_root_qualification(q, as_of=as_of)
+        if reasons:
+            raise InputError(f"commercial qualification invalid for {q.cnpj_root8}: {','.join(reasons)}")
+        if q.cnpj_root8 in seen:
+            raise InputError(f"commercial qualification repeats cnpj_root8 {q.cnpj_root8}")
+        seen.add(q.cnpj_root8)
+        roots.append(q)
+    roots.sort(key=lambda q: q.cnpj_root8)
+    if path is not None and not roots:
+        raise InputError("commercial qualification corpus is empty")
+    return roots
 
 
 def _encode_chunk(feed: dict[str, Any]) -> bytes:
@@ -458,9 +490,7 @@ def _authoritative_contact_projection(
     if report.get("membership_contract_matches_population") is not True:
         raise InputError("contact projection membership does not match its population contract")
     raw_population_coverage_ratio = report.get("population_coverage_ratio")
-    if isinstance(raw_population_coverage_ratio, bool) or not isinstance(
-        raw_population_coverage_ratio, (int, float)
-    ):
+    if isinstance(raw_population_coverage_ratio, bool) or not isinstance(raw_population_coverage_ratio, (int, float)):
         raise InputError("contact projection population_coverage_ratio is missing or invalid")
     try:
         population_coverage_ratio = float(raw_population_coverage_ratio)
@@ -472,8 +502,7 @@ def _authoritative_contact_projection(
         or abs(population_coverage_ratio - 1.0) > 1e-12
     ):
         raise InputError(
-            "contact projection population is not PUBLICATION_READY: "
-            f"coverage_ratio={population_coverage_ratio}"
+            f"contact projection population is not PUBLICATION_READY: coverage_ratio={population_coverage_ratio}"
         )
     if report.get("population_as_of_source") != "target_fit_full_reconcile":
         raise InputError("contact projection population freshness is not bound to a full reconcile")
@@ -1258,8 +1287,7 @@ def _chunk_leads(
         over_bytes = size > max_bytes and len(current) >= 1
         if size > max_bytes and not current:
             raise InputError(
-                "single TARGET_CONFIRMED lead exceeds the encoded chunk byte ceiling; "
-                f"bytes={size} max={max_bytes}"
+                f"single TARGET_CONFIRMED lead exceeds the encoded chunk byte ceiling; bytes={size} max={max_bytes}"
             )
         if (over_count or over_bytes) and current:
             chunks.append(current)
@@ -1298,6 +1326,17 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
     contact_projection_report, contact_projection_report_hash = _read_contact_projection_report(
         cfg.contact_projection_report
     )
+    qualification_as_of = (
+        datetime.fromisoformat(cfg.generated_at.replace("Z", "+00:00")).date()
+        if cfg.generated_at
+        else datetime.now(UTC).date()
+    )
+    commercial_qualifications = _read_commercial_qualifications(
+        cfg.commercial_qualification_corpus,
+        as_of=qualification_as_of,
+    )
+    commercial_by_root = {q.cnpj_root8: q for q in commercial_qualifications}
+    commercial_evidence_hash = corpus_hash(commercial_qualifications) if commercial_qualifications else None
 
     if not universe_rows:
         raise InputError("--universe has no records; refusing empty shallow export")
@@ -1311,10 +1350,11 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
         cfg.contacts,
         cfg.target_fit_snapshot,
         cfg.contact_projection_report,
+        cfg.commercial_qualification_corpus,
     )
     freshness = dict(cfg.authoritative_source_freshness or {})
     freshness_hash = content_hash_obj(freshness) if freshness else None
-    run_id = _run_id(snapshot_hash, cfg.profile_id, cfg.profile_version, freshness_hash)
+    run_id = _run_id(snapshot_hash, cfg.profile_id, cfg.profile_version, commercial_evidence_hash)
     # Deterministic resume: reuse generated_at/repo_sha from prior manifest when
     # snapshot_hash matches so re-export yields identical chunk hashes.
     prior_manifest_path = out / "manifest.json"
@@ -1327,7 +1367,7 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
     prior_source = prior.get("source") if isinstance(prior.get("source"), dict) else {}
     same_snapshot = (
         str(prior_source.get("snapshot_hash") or "") == snapshot_hash
-        and prior_source.get("authoritative_freshness_hash") == freshness_hash
+        and prior_source.get("commercial_authority_hash") == commercial_evidence_hash
     )
     if cfg.generated_at:
         generated_at = cfg.generated_at
@@ -1387,6 +1427,12 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
         published_index=published_index,
         datalake_watermark=datalake_watermark,
     )
+    for lead in leads:
+        company = lead.get("company") if isinstance(lead.get("company"), dict) else {}
+        cnpj = normalize_cnpj14(str(company.get("cnpj14") or ""))
+        qualification = commercial_by_root.get(cnpj[:8]) if cnpj else None
+        if qualification is not None:
+            lead["commercial_qualification"] = qualification.as_dict()
     _attach_contractor_roles(leads, run_id=run_id, observed_at=datalake_watermark)
     _normalize_authoritative_timestamps(leads)
     leads.sort(key=_decision_order_key)
@@ -1404,6 +1450,20 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
     decision_ordering = _assert_authoritative_leads(leads)
     decision_count = len(leads)
     feed_leads, feed_scope = _select_feed_leads(leads)
+    if cfg.require_commercial_authority_v2:
+        shipped_roots = {str((lead.get("company") or {}).get("cnpj14") or "")[:8] for lead in feed_leads}
+        if shipped_roots != set(commercial_by_root):
+            raise InputError(
+                "COMMERCIAL_AUTHORITY/2.0 corpus does not close against shipped roots: "
+                f"qualified={len(commercial_by_root)} shipped={len(shipped_roots)}"
+            )
+        missing = [
+            str((lead.get("company") or {}).get("cnpj14") or "")[:8]
+            for lead in feed_leads
+            if not isinstance(lead.get("commercial_qualification"), dict)
+        ]
+        if missing:
+            raise InputError(f"published leads missing commercial qualification: {missing[:10]}")
     feed_ordering = _assert_authoritative_leads(feed_leads)
     party_role_projection = _contractor_role_projection(
         feed_leads,
@@ -1451,6 +1511,8 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
         "datalake_watermark": datalake_watermark,
         "authoritative_freshness": freshness or None,
         "authoritative_freshness_hash": freshness_hash,
+        "source_operational_health": freshness or None,
+        "commercial_authority_hash": commercial_evidence_hash,
     }
 
     chunk_specs = _chunk_leads(
@@ -1576,6 +1638,11 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
                 if cfg.target_fit_snapshot is not None
                 else str(cfg.universe.resolve())
             ),
+            "commercial_qualification_corpus": (
+                str(cfg.commercial_qualification_corpus.resolve())
+                if cfg.commercial_qualification_corpus is not None
+                else None
+            ),
         },
         "lead_count": len(feed_leads),
         "chunk_count": len(chunk_meta),
@@ -1606,6 +1673,15 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
             "previous_membership_count": len(previous_members),
         },
         "authoritative_source_freshness": freshness or None,
+        "source_operational_health": freshness or None,
+        "commercial_qualification_summary": {
+            "policy_version": COMMERCIAL_AUTHORITY_POLICY_V2,
+            "qualified_root_count": len(commercial_qualifications),
+            "qualification_evidence_hash": commercial_evidence_hash,
+            "source": "public.v_contracts_canonical_v2",
+        }
+        if commercial_qualifications
+        else None,
         "authoritative_target_membership": target_membership,
         "authoritative_party_roles": party_role_projection,
         "authoritative_contact_projection": contact_projection,
@@ -1632,6 +1708,24 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
             ),
         },
     }
+    if commercial_qualifications:
+        # Import lazily to avoid coupling module import order; these functions
+        # intentionally ignore the authority envelope to avoid circular hashes.
+        from scripts.confenge_activation.publish import producer_identity, publication_semantic_hash
+
+        identity = producer_identity(manifest)
+        semantic_hash = publication_semantic_hash(manifest)
+        manifest["producer_identity"] = identity
+        manifest["publication_semantic_hash"] = semantic_hash
+        manifest["commercial_authority_v2"] = build_population_authority(
+            roots=commercial_qualifications,
+            basis_source_run_id=run_id,
+            basis_snapshot_hash=snapshot_hash,
+            basis_membership_hash=target_membership["membership_hash"],
+            basis_publication_semantic_hash=semantic_hash,
+            producer_identity=identity,
+            now=datetime.fromisoformat(generated_at.replace("Z", "+00:00")),
+        )
     manifest_path = out / "manifest.json"
     manifest_bytes = (json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True, default=str) + "\n").encode(
         "utf-8"
@@ -1657,6 +1751,7 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
         "authoritative_feed_scope": {**feed_scope, **membership_proof},
         "authoritative_target_membership": target_membership,
         "authoritative_contact_projection": contact_projection,
+        "commercial_authority_v2": manifest.get("commercial_authority_v2"),
         "manifest": str(manifest_path.resolve()),
         "chunks": chunk_meta,
     }

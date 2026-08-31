@@ -250,19 +250,22 @@ def test_long_running_worker_is_marked_for_reboot_persistence():
     assert "extra-confenge-target-fit-worker.service" in CHAIN_ENABLED_SERVICES
 
 
-def test_only_source_and_monitor_timers_are_scheduled():
+def test_ingestion_commercial_and_monitor_timers_are_scheduled_independently():
     source = (Path(__file__).resolve().parents[1] / "deploy" / "confenge" / "pin_release.py").read_text(
         encoding="utf-8"
     )
     assert '"enable", "--now", *CHAIN_TIMERS' in source
     assert '"disable", "--now", *CHAIN_DISABLED_TIMERS' in source
     assert '"timers_not_active"' in source, "verification must read back whether the timer is loaded"
-    assert set(CHAIN_TIMERS) == {"pncp-contracts.timer", "extra-confenge-feed-monitor.timer"}
+    assert set(CHAIN_TIMERS) == {
+        "pncp-contracts.timer",
+        "extra-confenge-feed-cycle.timer",
+        "extra-confenge-feed-monitor.timer",
+    }
     assert set(CHAIN_DISABLED_TIMERS) == {
         "extra-confenge-target-fit-reconcile.timer",
         "extra-confenge-target-fit-refresh.timer",
         "extra-confenge-contact-cycle.timer",
-        "extra-confenge-feed-cycle.timer",
     }
 
 

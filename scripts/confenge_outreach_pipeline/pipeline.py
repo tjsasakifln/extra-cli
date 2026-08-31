@@ -9,6 +9,7 @@ import time
 import traceback
 from dataclasses import dataclass, field
 from datetime import UTC, date, datetime
+from datetime import time as datetime_time
 from pathlib import Path
 from typing import Any
 
@@ -18,6 +19,8 @@ from scripts.confenge_activation.checkpoint import (
     new_checkpoint,
     save_checkpoint,
 )
+from scripts.confenge_activation.commercial_authority_v2 import POLICY_VERSION as COMMERCIAL_POLICY_V2
+from scripts.confenge_activation.commercial_authority_v2 import RootQualification
 from scripts.confenge_activation.funnel import (
     DOWNSTREAM_EXPORTED,
     DOWNSTREAM_NO_CONTACT,
@@ -30,6 +33,7 @@ from scripts.confenge_activation.metrics import (
 )
 from scripts.confenge_activation.planner import run_activation_cycle
 from scripts.confenge_activation.policy import load_policy
+from scripts.confenge_activation.rebuild_commercial_qualification import iter_qualifications, write_corpus
 from scripts.confenge_activation.store import (
     load_projections_jsonl,
     write_hot_set_jsonl,
@@ -248,6 +252,82 @@ def _load_target_confirmed_identity_rows(dsn: str) -> list[dict[str, Any]]:
     return rows
 
 
+def _rebuild_durable_commercial_authority(
+    dsn: str,
+    *,
+    as_of: date,
+    out_dir: Path,
+) -> tuple[list[RootQualification], dict[str, Any], Path]:
+    """Rebuild authority from the canonical datalake view, never target-fit."""
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+
+    now = datetime.combine(as_of, datetime_time.min, tzinfo=UTC)
+    authority_dir = out_dir / "00_commercial_authority"
+    authority_dir.mkdir(parents=True, exist_ok=True)
+    corpus_path = authority_dir / "commercial-qualification.jsonl"
+    summary_path = authority_dir / "commercial-qualification-summary.json"
+    conn = psycopg2.connect(dsn, cursor_factory=RealDictCursor)
+    conn.set_session(readonly=True, autocommit=True)
+    try:
+        roots = list(iter_qualifications(conn, now=now))
+        with corpus_path.open("w", encoding="utf-8") as handle:
+            summary = write_corpus(conn, handle, now=now, qualifications=roots)
+    finally:
+        conn.close()
+    if not roots:
+        raise ValueError("COMMERCIAL_AUTHORITY/2.0 produced no qualified roots; refusing publication")
+    if [root.as_dict() for root in roots] != _read_jsonl(corpus_path):
+        raise ValueError("commercial qualification corpus is not deterministic across identical datalake reads")
+    summary_path.write_text(json.dumps(summary, ensure_ascii=False, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+    return roots, summary, corpus_path
+
+
+def _commercial_authority_snapshot(
+    decision_rows: list[dict[str, Any]],
+    qualifications: list[RootQualification],
+    *,
+    observed_at: str,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, int]]:
+    """Project durable qualifications onto the legacy target-fit wire shape."""
+    identities: list[dict[str, Any]] = []
+    by_root: dict[str, RootQualification] = {}
+    for q in qualifications:
+        if q.cnpj_root8 in by_root:
+            raise ValueError(f"commercial authority repeats root {q.cnpj_root8}")
+        if len(q.supplier_cnpj14) != 14 or q.supplier_cnpj14[:8] != q.cnpj_root8:
+            raise ValueError(f"commercial authority lacks an exact supplier CNPJ14 for root {q.cnpj_root8}")
+        by_root[q.cnpj_root8] = q
+        identities.append(
+            {
+                "cnpj14": q.supplier_cnpj14,
+                "cnpj_root": q.cnpj_root8,
+                "cnpj_raiz": q.cnpj_root8,
+                "company_key": f"cnpj_root:{q.cnpj_root8}",
+                "target_fit_class": "TARGET_CONFIRMED",
+                "target_fit_version": COMMERCIAL_POLICY_V2,
+                "target_fit_computed_at": observed_at,
+                "target_fit_source_watermark": observed_at,
+                "source_lead_id": f"commercial-authority:{q.cnpj_root8}:{q.supplier_cnpj14}",
+                "commercial_qualification": q.as_dict(),
+            }
+        )
+    reconciled, metrics = _reconcile_target_confirmed_decision_rows(decision_rows, identities)
+    snapshots = [
+        {
+            **identity,
+            "target_fit_confidence": 1.0,
+            "target_fit_evidence": [{"id": by_root[identity["cnpj_root"]].qualifying_contract_id}],
+            "target_fit_reason_codes": ["COMMERCIAL_QUALIFIED", "DATALAKE_DURABLE_AUTHORITY"],
+            "computed_at": observed_at,
+            "source_watermark": observed_at,
+            "operational_status": "ok",
+        }
+        for identity in identities
+    ]
+    return reconciled, snapshots, metrics
+
+
 def _reconcile_target_confirmed_decision_rows(
     decision_rows: list[dict[str, Any]],
     target_identity_rows: list[dict[str, Any]],
@@ -314,7 +394,7 @@ def _reconcile_target_confirmed_decision_rows(
         merged["cnpj14"] = representative
         merged["cnpj_root"] = root
         merged["cnpj_raiz"] = root
-        merged["source_lead_id"] = f"target-fit:{root}:{representative}"
+        merged["source_lead_id"] = identity.get("source_lead_id") or f"target-fit:{root}:{representative}"
         merged["target_fit_class"] = "TARGET_CONFIRMED"
         reconciled_targets.append(merged)
 
@@ -618,9 +698,6 @@ def _progress(enabled: bool, msg: str) -> None:
 def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
     """Execute UNIVERSE → ACTIVATION|SAMPLE → INTEL → CONTACTS → FEED."""
     started = time.monotonic()
-    if cfg.dsn and (cfg.authoritative_source_freshness or {}).get("status") != "FRESH":
-        observed = (cfg.authoritative_source_freshness or {}).get("status") or "MISSING"
-        raise ValueError(f"authoritative PNCP freshness must be FRESH for a live feed; observed={observed}")
     as_of = cfg.as_of or date.today()
     out = Path(cfg.out_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -660,7 +737,22 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
         "sampling": bool(cfg.max_rows is not None),
         "use_activation_planner": use_activation,
         "force_sample_mode": bool(cfg.force_sample_mode),
+        "source_operational_health": cfg.authoritative_source_freshness,
     }
+
+    commercial_qualifications: list[RootQualification] = []
+    commercial_qualification_corpus: Path | None = None
+    commercial_qualification_summary: dict[str, Any] | None = None
+    if cfg.dsn:
+        (
+            commercial_qualifications,
+            commercial_qualification_summary,
+            commercial_qualification_corpus,
+        ) = _rebuild_durable_commercial_authority(cfg.dsn, as_of=as_of, out_dir=out)
+        stages["commercial_authority_v2"] = {
+            **commercial_qualification_summary,
+            "corpus": str(commercial_qualification_corpus),
+        }
 
     # Durable checkpoint for resume != restart from zero
     ckpt = None
@@ -741,11 +833,20 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
         exclusion_rows = _read_jsonl(exclusions_jsonl)
         base_decision_rows, duplicate_decision_rows = _dedupe_decision_rows([*universe_rows, *exclusion_rows])
         if cfg.dsn:
-            target_identity_rows = _load_target_confirmed_identity_rows(cfg.dsn)
-            decision_rows, target_identity_reconciliation = _reconcile_target_confirmed_decision_rows(
-                base_decision_rows,
-                target_identity_rows,
+            qualification_observed_at = (
+                datetime.combine(as_of, datetime_time.min, tzinfo=UTC).isoformat().replace("+00:00", "Z")
             )
+            (
+                decision_rows,
+                target_fit_snapshot_rows,
+                target_identity_reconciliation,
+            ) = _commercial_authority_snapshot(
+                base_decision_rows,
+                commercial_qualifications,
+                observed_at=qualification_observed_at,
+            )
+            target_fit_authority = "commercial_authority_v2_datalake"
+            target_fit_datalake_watermark = qualification_observed_at
         else:
             decision_rows = base_decision_rows
             target_identity_reconciliation = {
@@ -759,15 +860,11 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
                 "target_rows_missing_legal_name": 0,
                 "output_decision_rows": len(decision_rows),
             }
-        (
-            target_fit_snapshot_rows,
-            target_fit_authority,
-            target_fit_datalake_watermark,
-        ) = _published_target_fit_snapshot(
-            decision_rows,
-            dsn=cfg.dsn,
-            authoritative_source_freshness=cfg.authoritative_source_freshness,
-        )
+            (
+                target_fit_snapshot_rows,
+                target_fit_authority,
+                target_fit_datalake_watermark,
+            ) = _published_target_fit_snapshot(decision_rows, dsn=None)
         stages["universe_row_count"] = len(universe_rows)
         stages["reservoir_count"] = len(universe_rows)
         stages["target_fit_base_decision_universe_count"] = len(base_decision_rows)
@@ -1136,7 +1233,9 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
                 ),
                 repo_sha=repo_sha,
                 authoritative_source_freshness=cfg.authoritative_source_freshness,
-                require_authoritative_source_freshness=bool(cfg.dsn),
+                require_authoritative_source_freshness=False,
+                commercial_qualification_corpus=commercial_qualification_corpus,
+                require_commercial_authority_v2=bool(cfg.dsn),
                 deactivations=deactivations,
                 previous_feed_dir=published_feed_dir,
             )

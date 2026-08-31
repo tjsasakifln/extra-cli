@@ -49,6 +49,9 @@ REASON_REVOKED = "commercial_qualification_revoked"
 REASON_MISSING = "commercial_authority_missing"
 REASON_ROLE_INVALID = "commercial_qualification_party_role_invalid"
 REASON_NO_QUALIFYING_CONTRACT = "commercial_qualification_no_contract_in_window"
+REASON_EVIDENCE_DRIFT = "commercial_qualification_evidence_drift"
+REASON_WINDOW_INVALID = "commercial_qualification_window_invalid"
+REASON_POLICY_UNSUPPORTED = "commercial_authority_policy_unsupported"
 
 EVIDENCE_SOURCE = "extra-cli:v_contracts_canonical_v2"
 
@@ -150,6 +153,11 @@ class RootQualification:
     deactivated: bool = False
     deactivation_reason: str = ""
     qualification_evidence_hash: str = field(default="")
+    # Producer-only identity used to elect the exact supplier establishment.
+    # It is deliberately not serialized or hashed: the wire authority is root
+    # scoped, while contractor_role carries the branch-specific evidence.
+    supplier_cnpj14: str = field(default="", repr=False, compare=False)
+    buyer_cnpj14: str = field(default="", repr=False, compare=False)
 
     def as_dict(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -222,7 +230,7 @@ def qualify_root(
         if not isinstance(contract, Mapping):
             continue
         resolved, field_name = contracting_date(contract)
-        if resolved is None or resolved < floor or resolved > today:
+        if resolved is None or resolved < floor or resolved > today or qualified_until(resolved) <= today:
             continue
         contract_id = str(contract.get("id") or contract.get("contrato_id") or "").strip()
         if not contract_id:
@@ -252,6 +260,67 @@ def qualify_root(
     return (
         RootQualification(**{**q.__dict__, "qualification_evidence_hash": evidence_hash(q)}),
         [REASON_REVOKED] if deactivated else [REASON_QUALIFIED],
+    )
+
+
+def validate_root_qualification(q: RootQualification, *, as_of: date) -> list[str]:
+    """Validate a qualification as a self-proving, currently usable fact."""
+    reasons: list[str] = []
+    if len(q.cnpj_root8) != 8 or not q.cnpj_root8.isdigit():
+        reasons.append(REASON_EVIDENCE_DRIFT)
+    if q.target_fit_class != "TARGET_CONFIRMED":
+        reasons.append(REASON_POLICY_UNSUPPORTED)
+    if q.party_role.strip().upper() != PARTY_ROLE_SUPPLIER:
+        reasons.append(REASON_ROLE_INVALID)
+    contract_date = _as_date(q.qualifying_contract_date)
+    declared_until = _as_date(q.qualified_until)
+    if contract_date is None or declared_until is None or declared_until != qualified_until(contract_date):
+        reasons.append(REASON_WINDOW_INVALID)
+    elif declared_until <= as_of:
+        reasons.append(REASON_EXPIRED)
+    if q.deactivated:
+        reasons.append(REASON_REVOKED)
+    if not q.qualifying_contract_id.strip() or not q.qualification_evidence_reference.strip():
+        reasons.append(REASON_EVIDENCE_DRIFT)
+    if q.qualification_evidence_hash.lower() != evidence_hash(q):
+        reasons.append(REASON_EVIDENCE_DRIFT)
+    return list(dict.fromkeys(reasons))
+
+
+def qualification_from_mapping(value: Mapping[str, Any]) -> RootQualification:
+    """Parse the exact JSON contract, rejecting implicit/default authority."""
+    required = (
+        "cnpj_root8",
+        "target_fit_class",
+        "party_role",
+        "qualifying_contract_id",
+        "qualifying_contract_date",
+        "qualifying_date_field",
+        "qualifying_contract_count",
+        "qualified_until",
+        "qualification_evidence_hash",
+        "qualification_evidence_reference",
+        "provenance",
+    )
+    missing = [name for name in required if value.get(name) in (None, "")]
+    if missing:
+        raise ValueError("commercial qualification missing fields: " + ",".join(missing))
+    if str(value["qualifying_date_field"]) not in QUALIFYING_DATE_PRECEDENCE:
+        raise ValueError("commercial qualification has a non-canonical date field")
+    return RootQualification(
+        cnpj_root8=str(value["cnpj_root8"]).strip(),
+        target_fit_class=str(value["target_fit_class"]).strip(),
+        party_role=str(value["party_role"]).strip(),
+        qualifying_contract_id=str(value["qualifying_contract_id"]).strip(),
+        qualifying_contract_date=str(value["qualifying_contract_date"]).strip(),
+        qualifying_date_field=str(value["qualifying_date_field"]).strip(),
+        qualifying_contract_count=int(value["qualifying_contract_count"]),
+        qualified_until=str(value["qualified_until"]).strip(),
+        qualification_evidence_hash=str(value["qualification_evidence_hash"]).strip().lower(),
+        qualification_evidence_reference=str(value["qualification_evidence_reference"]).strip(),
+        provenance=str(value["provenance"]).strip(),
+        deactivated=bool(value.get("deactivated")),
+        deactivation_reason=str(value.get("deactivation_reason") or "").strip(),
     )
 
 

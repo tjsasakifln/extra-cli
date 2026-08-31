@@ -6,7 +6,7 @@ import argparse
 import json
 import os
 import sys
-from datetime import date, datetime, timedelta
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 from scripts.confenge_outreach_pipeline import MODULE_VERSION, PIPELINE_ID
@@ -204,40 +204,40 @@ def cmd_run(args: argparse.Namespace) -> int:
         sys.stderr.write("error: --limit-downstream must be >= 1\n")
         return EXIT_USAGE
 
+    # PNCP live status is acquisition telemetry only. Commercial authority is
+    # rebuilt from persisted V2 contracts inside run_pipeline.
     authoritative_source_freshness = None
     if dsn:
-        from scripts.ops.pncp_contract_freshness import build_contract, collect_snapshot
+        try:
+            from scripts.ops.pncp_contract_freshness import build_contract, collect_snapshot
 
-        contract = build_contract(collect_snapshot(live=True, dsn=dsn))
-        if contract.get("status") != "FRESH":
-            reasons = ",".join(contract.get("reason_codes") or []) or "none"
-            sys.stderr.write(
-                f"error: authoritative PNCP source is not FRESH; status={contract.get('status')} reasons={reasons}\n"
-            )
-            return EXIT_FAIL
-        as_of = datetime.fromisoformat(str(contract["as_of"]).replace("Z", "+00:00"))
-        target_hours = float((contract.get("slo") or {}).get("desired_operational_target_hours") or 6.0)
-        lag_hours = float(contract.get("current_lag_hours") or 0.0)
-        expires_at = as_of + timedelta(hours=max(0.0, target_hours - lag_hours))
-        authoritative_source_freshness = {
-            key: contract.get(key)
-            for key in (
-                "contract_version",
-                "status",
-                "reason_codes",
-                "as_of",
-                "deployed_sha",
-                "policy_version",
-                "run_id",
-                "source_window",
-                "latest_successful_closed_window",
-                "current_lag_hours",
-                "source_observed_at",
-                "pages_expected",
-                "pages_fetched",
-            )
-        }
-        authoritative_source_freshness["expires_at"] = expires_at.isoformat().replace("+00:00", "Z")
+            contract = build_contract(collect_snapshot(live=True, dsn=dsn))
+            authoritative_source_freshness = {
+                key: contract.get(key)
+                for key in (
+                    "contract_version",
+                    "status",
+                    "reason_codes",
+                    "as_of",
+                    "deployed_sha",
+                    "policy_version",
+                    "run_id",
+                    "source_window",
+                    "latest_successful_closed_window",
+                    "current_lag_hours",
+                    "source_observed_at",
+                    "pages_expected",
+                    "pages_fetched",
+                )
+            }
+        except Exception as exc:  # noqa: BLE001 - telemetry cannot block durable authority
+            authoritative_source_freshness = {
+                "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
+                "status": "UNKNOWN",
+                "reason_codes": ["PNCP_TELEMETRY_UNAVAILABLE"],
+                "as_of": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+                "error_type": type(exc).__name__,
+            }
 
     as_of: date | None = None
     if args.as_of:

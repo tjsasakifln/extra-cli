@@ -27,12 +27,13 @@ from scripts.ops import confenge_feed_cycle
 NOW = datetime(2026, 8, 24, 18, tzinfo=UTC)
 
 
-def test_recurring_feed_cycle_runs_after_pncp_source_window() -> None:
+def test_recurring_feed_cycle_has_independent_commercial_cadence() -> None:
     timer = Path("deploy/systemd/extra-confenge-feed-cycle.timer").read_text(encoding="utf-8").splitlines()
 
-    assert "OnCalendar=*-*-* 01,13:20:00" in timer
+    assert "OnCalendar=*-*-* 02,08,14,20:15:00" in timer
+    assert "Persistent=true" in timer
     assert "RandomizedDelaySec=10m" in timer
-    assert "OnCalendar=*-*-* 00,12:20:00" not in timer
+    assert any("PNCP" in line for line in timer)
 
 
 def _build(
@@ -1138,7 +1139,10 @@ def test_served_manifest_bytes_carry_full_commercial_binding(tmp_path: Path) -> 
     assert authority["basis_publication_semantic_hash"] == served["publication_semantic_hash"]
     assert authority["producer_identity"] == served["producer_identity"]
     assert authority["schema"] == "COMMERCIAL_AUTHORITY/1.0"
-    assert result["commercial_authority"]["basis_publication_semantic_hash"] == authority["basis_publication_semantic_hash"]
+    assert (
+        result["commercial_authority"]["basis_publication_semantic_hash"]
+        == authority["basis_publication_semantic_hash"]
+    )
     replay = json.loads((public / "current" / "manifest.json").read_bytes())
     assert replay["commercial_authority"] == authority
     drifted = json.loads(served_bytes)

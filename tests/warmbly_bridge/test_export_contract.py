@@ -57,7 +57,7 @@ def _validate_against_schema_required(feed: dict[str, Any], schema: dict[str, An
         _assert_required(lead, lead_required, ctx=f"leads[{i}]")
         company_req = ((lead_def.get("properties") or {}).get("company") or {}).get("required") or []
         _assert_required(lead.get("company") or {}, company_req, ctx=f"leads[{i}].company")
-        role_schema = ((lead_def.get("properties") or {}).get("contractor_role") or {})
+        role_schema = (lead_def.get("properties") or {}).get("contractor_role") or {}
         _assert_required(
             lead.get("contractor_role") or {},
             role_schema.get("required") or [],
@@ -198,7 +198,7 @@ def test_empty_contacts_allowed(exported: Path) -> None:
     assert found
 
 
-def test_freshness_attestation_is_bound_into_source_run(
+def test_pncp_telemetry_does_not_change_commercial_source_run(
     tmp_path: Path, universe_path: Path, intel_path: Path, contacts_path: Path
 ) -> None:
     def export(status: str, run_id: str) -> tuple[str, dict[str, Any]]:
@@ -226,47 +226,49 @@ def test_freshness_attestation_is_bound_into_source_run(
     first_run, first = export("first", "contracts-a")
     second_run, second = export("second", "contracts-b")
 
-    assert first_run != second_run
+    assert first_run == second_run
     assert first["source"]["authoritative_freshness_hash"]
     assert first["authoritative_source_freshness"]["run_id"] == "contracts-a"
     assert second["authoritative_source_freshness"]["run_id"] == "contracts-b"
 
 
-def test_export_refuses_degraded_authoritative_source(
+def test_export_records_degraded_pncp_as_telemetry(
     tmp_path: Path, universe_path: Path, intel_path: Path, contacts_path: Path
 ) -> None:
-    with pytest.raises(Exception, match="must be FRESH"):
-        export_outreach(
-            ExportConfig(
-                universe=universe_path,
-                account_intelligence=intel_path,
-                contacts=contacts_path,
-                out_dir=tmp_path / "degraded",
-                authoritative_source_freshness={
-                    "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
-                    "status": "DEGRADED",
-                    "expires_at": "2099-08-22T18:00:00Z",
-                },
-                require_authoritative_source_freshness=True,
-            )
+    result = export_outreach(
+        ExportConfig(
+            universe=universe_path,
+            account_intelligence=intel_path,
+            contacts=contacts_path,
+            out_dir=tmp_path / "degraded",
+            authoritative_source_freshness={
+                "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
+                "status": "DEGRADED",
+                "expires_at": "2099-08-22T18:00:00Z",
+            },
+            require_authoritative_source_freshness=True,
         )
+    )
+    manifest = json.loads(Path(result["manifest"]).read_text(encoding="utf-8"))
+    assert manifest["source_operational_health"]["status"] == "DEGRADED"
 
 
-def test_export_refuses_expired_authoritative_source(
+def test_export_records_expired_pncp_attestation_as_telemetry(
     tmp_path: Path, universe_path: Path, intel_path: Path, contacts_path: Path
 ) -> None:
-    with pytest.raises(Exception, match="expired before export"):
-        export_outreach(
-            ExportConfig(
-                universe=universe_path,
-                account_intelligence=intel_path,
-                contacts=contacts_path,
-                out_dir=tmp_path / "expired",
-                authoritative_source_freshness={
-                    "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
-                    "status": "FRESH",
-                    "expires_at": "2020-01-01T00:00:00Z",
-                },
-                require_authoritative_source_freshness=True,
-            )
+    result = export_outreach(
+        ExportConfig(
+            universe=universe_path,
+            account_intelligence=intel_path,
+            contacts=contacts_path,
+            out_dir=tmp_path / "expired",
+            authoritative_source_freshness={
+                "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
+                "status": "FRESH",
+                "expires_at": "2020-01-01T00:00:00Z",
+            },
+            require_authoritative_source_freshness=True,
         )
+    )
+    manifest = json.loads(Path(result["manifest"]).read_text(encoding="utf-8"))
+    assert manifest["source_operational_health"]["expires_at"] == "2020-01-01T00:00:00Z"

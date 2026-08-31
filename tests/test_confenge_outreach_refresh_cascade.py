@@ -31,7 +31,7 @@ def _on_success(name: str) -> list[str]:
     return values
 
 
-def test_refresh_graph_is_exact_linear_and_acyclic() -> None:
+def test_pncp_ingestion_is_not_a_commercial_trigger() -> None:
     graph = {
         SOURCE: _on_success(SOURCE),
         GATE: _on_success(GATE),
@@ -41,7 +41,7 @@ def test_refresh_graph_is_exact_linear_and_acyclic() -> None:
     }
 
     assert graph == {
-        SOURCE: [GATE],
+        SOURCE: [],
         GATE: [TARGET],
         TARGET: [CONTACT],
         CONTACT: [FEED],
@@ -50,7 +50,7 @@ def test_refresh_graph_is_exact_linear_and_acyclic() -> None:
     assert all((UNIT_DIR / successor).is_file() for values in graph.values() for successor in values)
 
 
-def test_source_never_bypasses_the_semantic_freshness_gate() -> None:
+def test_source_is_ingestion_only_and_keeps_failure_semantics() -> None:
     source = _unit(SOURCE)
     gate = _unit(GATE)
 
@@ -63,11 +63,10 @@ def test_source_never_bypasses_the_semantic_freshness_gate() -> None:
     assert "StartLimitIntervalSec=" not in source
     assert "StartLimitBurst=" not in source
     assert "TimeoutStartSec=320min" in source
-    assert f"OnSuccess={GATE}" in _unit_section(source)
+    assert "OnSuccess=" not in _unit_section(source)
     assert f"OnSuccess={TARGET}" not in _unit_section(source)
     assert (
-        "ExecStart=/opt/extra-consultoria/.venv/bin/python "
-        "-m scripts.ops.pncp_contract_freshness --live --health"
+        "ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.ops.pncp_contract_freshness --live --health"
     ) in gate
     assert "SuccessExitStatus=" not in gate
 
@@ -81,8 +80,15 @@ def test_each_promoting_stage_alerts_and_only_success_can_advance() -> None:
     assert "OnSuccess=" not in _unit_section(_unit(FEED))
 
 
-def test_refresh_cascade_does_not_create_or_enable_a_commercial_timer() -> None:
+def test_commercial_feed_has_an_independent_persistent_timer() -> None:
     timer_names = {path.name for path in UNIT_DIR.glob("*.timer")}
 
     assert "extra-confenge-source-freshness-gate.timer" not in timer_names
-    assert all("commercial" not in name for name in timer_names if "confenge" in name)
+    assert "extra-confenge-feed-cycle.timer" in timer_names
+    timer = _unit("extra-confenge-feed-cycle.timer")
+    assert "Persistent=true" in timer
+    assert "Unit=extra-confenge-feed-cycle.service" in timer
+    assert "PNCP" in timer
+    feed = _unit(FEED)
+    assert "flock --nonblock /run/extra-confenge-feed/feed-cycle.lock" in feed
+    assert "extra-confenge-source-freshness-gate.service" not in feed
