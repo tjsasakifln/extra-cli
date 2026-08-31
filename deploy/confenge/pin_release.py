@@ -116,6 +116,7 @@ _DURATION_SECONDS = {
     "month": Decimal("2629800"), "months": Decimal("2629800"), "M": Decimal("2629800"),
     "year": Decimal("31557600"), "years": Decimal("31557600"), "y": Decimal("31557600"),
 }
+_MICROSECOND = Decimal("0.000001")
 
 
 class PinError(RuntimeError):
@@ -138,6 +139,14 @@ def _duration_seconds(value: str) -> Decimal | None:
     )
 
 
+def _systemd_timeout_seconds(value: str) -> Decimal | None:
+    """Mirror systemd's integer-microsecond timeout resolution."""
+    parsed = _duration_seconds(value)
+    if parsed is None:
+        return None
+    return Decimal(int(parsed / _MICROSECOND)) * _MICROSECOND
+
+
 def _source_timeout_start_seconds(unit: str) -> tuple[bool, Decimal | None]:
     """Return whether a unit sets the timeout plus its versioned intent."""
     source = UNIT_SOURCE / unit
@@ -145,7 +154,7 @@ def _source_timeout_start_seconds(unit: str) -> tuple[bool, Decimal | None]:
     for line in _logical_lines(source.read_text(encoding="utf-8")):
         if line.startswith("TimeoutStartSec="):
             timeout = line.removeprefix("TimeoutStartSec=")
-    parsed = _duration_seconds(timeout) if timeout is not None else None
+    parsed = _systemd_timeout_seconds(timeout) if timeout is not None else None
     # systemd treats TimeoutStartSec=0 as no start timeout and resolves it as
     # `infinity` in TimeoutStartUSec. Compare that semantic intent, not the
     # spelling in the source unit.
@@ -366,7 +375,7 @@ def verify(sha: str) -> dict[str, object]:
                 or ""
             ).strip()
             try:
-                actual_timeout = _duration_seconds(observed_timeout)
+                actual_timeout = _systemd_timeout_seconds(observed_timeout)
             except PinError:
                 actual_timeout = None
                 timeout_was_parsed = False
@@ -376,7 +385,9 @@ def verify(sha: str) -> dict[str, object]:
                 timeout_start_drift.append(
                     {
                         "unit": unit,
-                        "expected": "infinity" if expected_timeout is None else f"{expected_timeout:f}s",
+                        "expected": (
+                            "infinity" if expected_timeout is None else f"{expected_timeout.normalize():f}s"
+                        ),
                         "observed": observed_timeout or "MISSING",
                     }
                 )

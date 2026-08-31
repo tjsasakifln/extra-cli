@@ -105,15 +105,23 @@ def test_calendar_timeout_aliases_match_systemd_timespan_semantics():
     assert _duration_seconds("1y") == _duration_seconds("31557600s")
 
 
-def test_source_zero_timeout_has_systemd_infinity_semantics(tmp_path, monkeypatch):
+@pytest.mark.parametrize(
+    ("source_timeout", "expected"),
+    [("0", None), ("0.1us", None), ("1.1us", "0.000001")],
+)
+def test_source_timeout_is_quantized_to_systemd_microseconds(tmp_path, monkeypatch, source_timeout, expected):
     import deploy.confenge.pin_release as pin
 
     source_root = tmp_path / "units"
     source_root.mkdir()
-    (source_root / "pncp-contracts.service").write_text("[Service]\nTimeoutStartSec=0\n", encoding="utf-8")
+    (source_root / "pncp-contracts.service").write_text(
+        f"[Service]\nTimeoutStartSec={source_timeout}\n", encoding="utf-8"
+    )
     monkeypatch.setattr(pin, "UNIT_SOURCE", source_root)
 
-    assert pin._source_timeout_start_seconds("pncp-contracts.service") == (True, None)
+    has_timeout, parsed = pin._source_timeout_start_seconds("pncp-contracts.service")
+    assert has_timeout is True
+    assert (None if parsed is None else f"{parsed:f}") == expected
 
 
 @pytest.mark.parametrize(
