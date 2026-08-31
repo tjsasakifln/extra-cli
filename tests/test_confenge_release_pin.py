@@ -19,6 +19,7 @@ from deploy.confenge.pin_release import (
     CHAIN_UNITS,
     UNIT_SOURCE,
     PinError,
+    _duration_seconds,
     plan,
     render_dropin,
     verify,
@@ -66,6 +67,98 @@ def test_pncp_dropin_clears_legacy_lock_success_and_disables_systemd_restart():
     body = render_dropin(unit, SHA)
     assert "SuccessExitStatus=\n" in body
     assert "Restart=no\n" in body
+    assert "TimeoutStartSec=320min\n" in body
+
+
+def test_dropins_preserve_versioned_timeout_intent_for_every_bounded_unit():
+    for unit_name in CHAIN_UNITS:
+        unit = (UNIT_SOURCE / unit_name).read_text(encoding="utf-8")
+        source_timeout = next((line for line in unit.splitlines() if line.startswith("TimeoutStartSec=")), None)
+        body = render_dropin(unit, SHA)
+        rendered_timeout = next((line for line in body.splitlines() if line.startswith("TimeoutStartSec=")), None)
+        assert rendered_timeout == source_timeout, unit_name
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("1hour", "3600"),
+        ("1msec", "0.001"),
+        ("+1h", "3600"),
+        (".5h", "1800"),
+        ("1h\t20min", "4800"),
+        ("1month", "2629800"),
+        ("1M", "2629800"),
+        ("1y", "31557600"),
+        ("infinity", None),
+    ],
+)
+def test_duration_parser_accepts_systemd_timeout_spellings(raw, expected):
+    parsed = _duration_seconds(raw)
+    assert (None if parsed is None else f"{parsed.normalize():f}") == expected
+
+
+def test_calendar_timeout_aliases_match_systemd_timespan_semantics():
+    assert _duration_seconds("1month") == _duration_seconds("1months") == _duration_seconds("1M")
+    assert _duration_seconds("1month") == _duration_seconds("2629800s")
+    assert _duration_seconds("1y") == _duration_seconds("1year") == _duration_seconds("1years")
+    assert _duration_seconds("1y") == _duration_seconds("31557600s")
+
+
+@pytest.mark.parametrize(
+    ("source_timeout", "expected"),
+    [("0", None), ("0.1us", None), ("1.1us", "0.000001")],
+)
+def test_source_timeout_is_quantized_to_systemd_microseconds(tmp_path, monkeypatch, source_timeout, expected):
+    import deploy.confenge.pin_release as pin
+
+    source_root = tmp_path / "units"
+    source_root.mkdir()
+    (source_root / "pncp-contracts.service").write_text(
+        f"[Service]\nTimeoutStartSec={source_timeout}\n", encoding="utf-8"
+    )
+    monkeypatch.setattr(pin, "UNIT_SOURCE", source_root)
+
+    has_timeout, parsed = pin._source_timeout_start_seconds("pncp-contracts.service")
+    assert has_timeout is True
+    assert (None if parsed is None else f"{parsed:f}") == expected
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "1usecs", "1msecx", "1secs", "1mins", "1hrs", "1millisecond",
+        "1H", "1MS", "1SEC", "1Hour", "INFINITY", "+.5h", "1h+.5min",
+    ],
+)
+def test_duration_parser_rejects_non_systemd_timeout_aliases(raw):
+    with pytest.raises(PinError, match="unsupported systemd duration"):
+        _duration_seconds(raw)
+
+
+def test_plan_rejects_an_unsupported_timeout_before_any_host_write(tmp_path, monkeypatch):
+    import deploy.confenge.pin_release as pin
+
+    source_root = tmp_path / "units"
+    source_root.mkdir()
+    release_root = tmp_path / "releases"
+    (release_root / SHA / ".venv" / "bin").mkdir(parents=True)
+    (release_root / SHA / ".venv" / "bin" / "python").touch()
+    for unit_name in CHAIN_UNITS:
+        timeout = "TimeoutStartSec=1fortnight\n" if unit_name == CHAIN_UNITS[-1] else ""
+        (source_root / unit_name).write_text(
+            "[Service]\n"
+            "ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.example\n"
+            f"{timeout}",
+            encoding="utf-8",
+        )
+    monkeypatch.setattr(pin, "UNIT_SOURCE", source_root)
+    monkeypatch.setattr(pin, "RELEASE_ROOT", release_root)
+    monkeypatch.setattr(pin, "SYSTEMD_ROOT", tmp_path / "systemd")
+
+    with pytest.raises(PinError, match="extra-confenge-feed-monitor.service: unsupported systemd duration"):
+        pin.apply(SHA)
+    assert not pin.SYSTEMD_ROOT.exists()
 
 
 def test_working_directory_stays_outside_the_read_only_release():
@@ -230,11 +323,13 @@ def test_verify_reads_back_isolation_release_and_writable_working_directory(tmp_
         del check
         if argv[:2] == ["systemctl", "show"]:
             prop = argv[argv.index("-p") + 1]
+            has_timeout, timeout = pin._source_timeout_start_seconds(argv[2])
             values = {
                 "ExecStart": f"{release}/.venv/bin/python -P -m scripts.example",
                 "Environment": f"PYTHONPATH={release} EXTRA_DEPLOYED_SHA={SHA} PYTHONDONTWRITEBYTECODE=1 PYTHONSAFEPATH=1",
                 "WorkingDirectory": str(workdir),
                 "User": "extra-consultoria",
+                "TimeoutStartUSec": f"{timeout:f}s" if has_timeout and timeout is not None else "infinity",
                 "SuccessExitStatus": "",
                 "Restart": "no",
             }
@@ -259,6 +354,7 @@ def test_verify_reads_back_isolation_release_and_writable_working_directory(tmp_
     assert report["bytecode_writes_enabled"] == []
     assert report["working_directory_drift"] == []
     assert report["working_directory_not_writable"] == []
+    assert report["timeout_start_drift"] == []
     assert report["downstream_timers_scheduled"] == []
     assert report["pncp_service_semantic_drift"] == []
 
@@ -274,6 +370,7 @@ def test_verify_reads_back_isolation_release_and_writable_working_directory(tmp_
         "pncp-restart",
         "pncp-success75",
         "pncp-success77",
+        "pncp-timeout",
     ],
 )
 def test_verify_fails_closed_on_runtime_isolation_drift(tmp_path, monkeypatch, failure):
@@ -290,6 +387,7 @@ def test_verify_fails_closed_on_runtime_isolation_drift(tmp_path, monkeypatch, f
         del check
         if argv[:2] == ["systemctl", "show"]:
             prop = argv[argv.index("-p") + 1]
+            has_timeout, timeout = pin._source_timeout_start_seconds(argv[2])
             values = {
                 "ExecStart": (
                     f"{release}/.venv/bin/python -m scripts.example"
@@ -303,6 +401,11 @@ def test_verify_fails_closed_on_runtime_isolation_drift(tmp_path, monkeypatch, f
                 ),
                 "WorkingDirectory": str(workdir),
                 "User": "extra-consultoria",
+                "TimeoutStartUSec": (
+                    "150min"
+                    if failure == "pncp-timeout" and argv[2] == "pncp-contracts.service"
+                    else f"{timeout:f}s" if has_timeout and timeout is not None else "infinity"
+                ),
                 "SuccessExitStatus": (
                     "75" if failure == "pncp-success75" else "77" if failure == "pncp-success77" else ""
                 ),
@@ -338,5 +441,9 @@ def test_verify_fails_closed_on_runtime_isolation_drift(tmp_path, monkeypatch, f
         assert len(report["working_directory_drift"]) == len(CHAIN_UNITS)
     elif failure == "downstream-timer":
         assert len(report["downstream_timers_scheduled"]) == len(CHAIN_DISABLED_TIMERS)
+    elif failure == "pncp-timeout":
+        assert report["timeout_start_drift"] == [
+            {"unit": "pncp-contracts.service", "expected": "19200s", "observed": "150min"}
+        ]
     else:
         assert report["pncp_service_semantic_drift"]
