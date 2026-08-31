@@ -55,16 +55,13 @@ def test_source_never_bypasses_the_semantic_freshness_gate() -> None:
     gate = _unit(GATE)
 
     assert "SuccessExitStatus=" not in source
-    assert "Restart=on-failure" in source
-    assert "RestartPreventExitStatus=1 2 75" in source
+    restart_lines = [line for line in source.splitlines() if line.startswith("Restart=")]
+    assert restart_lines == ["Restart=no"]
+    assert "RestartPreventExitStatus=" not in source
     assert "RestartForceExitStatus=" not in source
-    assert "RestartSec=5min" in source
-    unit_section = _unit_section(source)
-    service_section = source.split("[Service]", 1)[1]
-    assert "StartLimitIntervalSec=4h" in unit_section
-    assert "StartLimitBurst=2" in unit_section
-    assert "StartLimitIntervalSec=" not in service_section
-    assert "StartLimitBurst=" not in service_section
+    assert "RestartSec=" not in source
+    assert "StartLimitIntervalSec=" not in source
+    assert "StartLimitBurst=" not in source
     assert f"OnSuccess={GATE}" in _unit_section(source)
     assert f"OnSuccess={TARGET}" not in _unit_section(source)
     assert (

@@ -13,7 +13,6 @@ import pytest
 
 from deploy.confenge.pin_release import (
     CANONICAL_PREFIX,
-    CHAIN_BASE_UNITS,
     CHAIN_DISABLED_TIMERS,
     CHAIN_ENABLED_SERVICES,
     CHAIN_TIMERS,
@@ -38,24 +37,6 @@ def test_every_chain_timer_has_a_versioned_source_file():
         assert (UNIT_SOURCE / timer).is_file(), f"{timer} must be versioned in deploy/systemd"
 
 
-def test_pin_installs_the_versioned_base_units_that_define_retry_and_cascade(tmp_path, monkeypatch):
-    import deploy.confenge.pin_release as pin
-
-    monkeypatch.setattr(pin, "SYSTEMD_ROOT", tmp_path / "systemd")
-    pin.SYSTEMD_ROOT.mkdir()
-    sources = pin.canonical_base_units()
-    written = pin.install_base_units(sources)
-
-    assert set(Path(path).name for path in written) == set(CHAIN_BASE_UNITS)
-    service = (pin.SYSTEMD_ROOT / "pncp-contracts.service")
-    assert service.read_text(encoding="utf-8") == (UNIT_SOURCE / "pncp-contracts.service").read_text(
-        encoding="utf-8"
-    )
-    assert "RestartPreventExitStatus=1 2 75" in service.read_text(encoding="utf-8")
-    assert "SuccessExitStatus=75" not in service.read_text(encoding="utf-8")
-    assert (service.stat().st_mode & 0o777) == 0o644
-
-
 def test_the_canonical_chain_order_is_covered():
     for unit in (
         "pncp-contracts.service",
@@ -78,6 +59,13 @@ def test_rendered_dropin_repoints_code_at_the_release():
     for line in body.splitlines():
         if line.startswith(("Environment=PYTHONPATH=", "ExecStart=/")):
             assert f"{CANONICAL_PREFIX}-releases/{SHA}" in line
+
+
+def test_pncp_dropin_clears_legacy_lock_success_and_disables_systemd_restart():
+    unit = (UNIT_SOURCE / "pncp-contracts.service").read_text(encoding="utf-8")
+    body = render_dropin(unit, SHA)
+    assert "SuccessExitStatus=\n" in body
+    assert "Restart=no\n" in body
 
 
 def test_working_directory_stays_outside_the_read_only_release():
@@ -247,6 +235,8 @@ def test_verify_reads_back_isolation_release_and_writable_working_directory(tmp_
                 "Environment": f"PYTHONPATH={release} EXTRA_DEPLOYED_SHA={SHA} PYTHONDONTWRITEBYTECODE=1 PYTHONSAFEPATH=1",
                 "WorkingDirectory": str(workdir),
                 "User": "extra-consultoria",
+                "SuccessExitStatus": "",
+                "Restart": "no",
             }
             return subprocess.CompletedProcess(argv, 0, stdout=values[prop], stderr="")
         if argv[:2] == ["systemctl", "is-enabled"] or argv[:2] == ["systemctl", "is-active"]:
@@ -270,11 +260,20 @@ def test_verify_reads_back_isolation_release_and_writable_working_directory(tmp_
     assert report["working_directory_drift"] == []
     assert report["working_directory_not_writable"] == []
     assert report["downstream_timers_scheduled"] == []
+    assert report["pncp_service_semantic_drift"] == []
 
 
 @pytest.mark.parametrize(
     "failure",
-    ["unsafe-python", "bytecode-enabled", "readonly-workdir", "release-workdir", "downstream-timer"],
+    [
+        "unsafe-python",
+        "bytecode-enabled",
+        "readonly-workdir",
+        "release-workdir",
+        "downstream-timer",
+        "pncp-restart",
+        "pncp-success75",
+    ],
 )
 def test_verify_fails_closed_on_runtime_isolation_drift(tmp_path, monkeypatch, failure):
     import subprocess
@@ -303,6 +302,8 @@ def test_verify_fails_closed_on_runtime_isolation_drift(tmp_path, monkeypatch, f
                 ),
                 "WorkingDirectory": str(workdir),
                 "User": "extra-consultoria",
+                "SuccessExitStatus": "75" if failure == "pncp-success75" else "",
+                "Restart": "on-failure" if failure == "pncp-restart" else "no",
             }
             return subprocess.CompletedProcess(argv, 0, stdout=values[prop], stderr="")
         if argv[:2] == ["systemctl", "is-enabled"] or argv[:2] == ["systemctl", "is-active"]:
@@ -332,5 +333,7 @@ def test_verify_fails_closed_on_runtime_isolation_drift(tmp_path, monkeypatch, f
         assert len(report["working_directory_not_writable"]) == len(CHAIN_UNITS)
     elif failure == "release-workdir":
         assert len(report["working_directory_drift"]) == len(CHAIN_UNITS)
-    else:
+    elif failure == "downstream-timer":
         assert len(report["downstream_timers_scheduled"]) == len(CHAIN_DISABLED_TIMERS)
+    else:
+        assert report["pncp_service_semantic_drift"]

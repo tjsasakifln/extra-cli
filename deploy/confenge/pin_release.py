@@ -72,11 +72,6 @@ CHAIN_DISABLED_TIMERS = (
     "extra-confenge-feed-cycle.timer",
 )
 
-# These are the only base units managed by the immutable CONFENGE release pin.
-# Their drop-ins select the release interpreter, but directives such as retry,
-# OnSuccess and StartLimit live in the base unit and must be installed too.
-CHAIN_BASE_UNITS = tuple(dict.fromkeys((*CHAIN_UNITS, *CHAIN_TIMERS, *CHAIN_DISABLED_TIMERS)))
-
 # Long-running workers that must come back after a reboot.
 CHAIN_ENABLED_SERVICES = ("extra-confenge-target-fit-worker.service",)
 
@@ -167,6 +162,11 @@ def render_dropin(unit_text: str, sha: str) -> str:
         "ExecStart=",
         exec_start,
     ]
+    # A legacy base unit on the VPS may still consider lock-busy exit 75 a
+    # success. The immutable PNCP drop-in must override that semantic even
+    # before a fresh-install base unit is deployed.
+    if "scripts.crawl.run_contracts_incremental" in unit_text:
+        body.extend(["SuccessExitStatus=", "Restart=no"])
     return "\n".join(body) + "\n"
 
 
@@ -193,30 +193,6 @@ def plan(sha: str) -> dict[str, str]:
         except PinError as exc:
             raise PinError(f"{unit}: {exc}") from exc
     return rendered
-
-
-def canonical_base_units() -> dict[str, str]:
-    """Load the small, versioned systemd base-unit set before touching the host."""
-    base: dict[str, str] = {}
-    for unit in CHAIN_BASE_UNITS:
-        source = UNIT_SOURCE / unit
-        if not source.is_file():
-            raise PinError(f"versioned base unit file is missing: {source}")
-        base[unit] = source.read_text(encoding="utf-8")
-    return base
-
-
-def install_base_units(units: dict[str, str]) -> list[str]:
-    """Atomically replace only the managed base units, with safe permissions."""
-    written: list[str] = []
-    for unit, body in units.items():
-        target = SYSTEMD_ROOT / unit
-        tmp = target.with_name(f".{unit}.tmp")
-        tmp.write_text(body, encoding="utf-8")
-        tmp.chmod(0o644)
-        tmp.replace(target)
-        written.append(str(target))
-    return written
 
 
 def foreign_execstart_dropins() -> dict[str, list[str]]:
@@ -246,18 +222,13 @@ def foreign_execstart_dropins() -> dict[str, list[str]]:
 
 def apply(sha: str, *, dry_run: bool = False) -> dict[str, object]:
     rendered = plan(sha)
-    base_units = canonical_base_units()
     if foreign := foreign_execstart_dropins():
         raise PinError(
             "drop-ins outside this tool also set ExecStart and would be discarded by the pin; "
             f"move their configuration into deploy/systemd and remove them: {foreign}"
         )
     written: list[str] = []
-    base_written: list[str] = []
     if not dry_run:
-        # Install base units before drop-ins and daemon-reload. This deliberately
-        # does not provision unrelated systemd configuration or EnvironmentFiles.
-        base_written = install_base_units(base_units)
         for unit, body in rendered.items():
             target_dir = SYSTEMD_ROOT / f"{unit}.d"
             target_dir.mkdir(parents=True, exist_ok=True)
@@ -276,7 +247,6 @@ def apply(sha: str, *, dry_run: bool = False) -> dict[str, object]:
         "schema": "confenge.release_pin.v1",
         "release_sha": sha,
         "units_pinned": list(rendered),
-        "base_units_installed": base_written,
         "timers_enabled": list(CHAIN_TIMERS),
         "timers_disabled": list(CHAIN_DISABLED_TIMERS),
         "services_enabled": list(CHAIN_ENABLED_SERVICES),
@@ -347,6 +317,17 @@ def verify(sha: str) -> dict[str, object]:
             independently_scheduled.append(
                 f"{unit}=enabled:{enabled or 'unknown'},active:{active or 'unknown'}"
             )
+    pncp_service_semantic_drift: list[dict[str, str]] = []
+    for prop in ("SuccessExitStatus", "Restart"):
+        observed = (
+            _run(["systemctl", "show", "pncp-contracts.service", "-p", prop, "--value"], check=False).stdout
+            or ""
+        ).strip()
+        if prop == "SuccessExitStatus":
+            if "75" in observed.split():
+                pncp_service_semantic_drift.append({"property": prop, "observed": observed})
+        elif observed != "no":
+            pncp_service_semantic_drift.append({"property": prop, "observed": observed})
     return {
         "schema": "confenge.release_pin_verification.v1",
         "release_sha": sha,
@@ -360,6 +341,7 @@ def verify(sha: str) -> dict[str, object]:
                 disabled,
                 inactive_timers,
                 independently_scheduled,
+                pncp_service_semantic_drift,
             )
         ),
         "release_drift": drift,
@@ -370,6 +352,7 @@ def verify(sha: str) -> dict[str, object]:
         "not_enabled": disabled,
         "timers_not_active": inactive_timers,
         "downstream_timers_scheduled": independently_scheduled,
+        "pncp_service_semantic_drift": pncp_service_semantic_drift,
     }
 
 

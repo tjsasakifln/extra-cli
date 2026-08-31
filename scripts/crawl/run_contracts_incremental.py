@@ -28,7 +28,9 @@ import argparse
 import json
 import logging
 import os
+import re
 import sys
+import time
 from datetime import UTC, date, datetime
 from pathlib import Path
 
@@ -60,6 +62,7 @@ DEFAULT_CAMPAIGN = "historical_contracts_incremental"
 INCREMENTAL_QUERY_KIND = "update"
 INCREMENTAL_WINDOW_DAYS = 1
 EXIT_RETRYABLE_SOURCE = 77
+RETRY_DELAY_SECONDS = 300
 
 
 def current_incremental_window_keys(
@@ -127,15 +130,17 @@ def _is_retryable_source_error(error: str) -> bool:
     error even when optional database modules are unavailable after a failed
     attempt.  Everything not named here is structural and therefore terminal.
     """
-    text = error.lower()
-    retry_markers = (
-        "timeout",
-        "timed out",
-        "connection_failed",
-        "rate_limit",
-        "http_server_error",
+    text = str(error or "").strip().lower()
+    return bool(
+        re.match(
+            r"^(source_population_drift|connection_failed|rate_limit|http_server_error)(:|\b)",
+            text,
+        )
+        or re.match(
+            r"^page\s+\d+:\s*\[(source_population_drift|connection_failed|rate_limit|http_server_error)\]",
+            text,
+        )
     )
-    return "source_population_drift" in text or any(token in text for token in retry_markers)
 
 
 def retry_exit_for_report(report: dict[str, object]) -> int:
@@ -159,6 +164,16 @@ def retry_exit_for_report(report: dict[str, object]) -> int:
     if all(_is_retryable_source_error(error) for error in errors):
         return EXIT_RETRYABLE_SOURCE
     return 1
+
+
+def run_with_one_retry(run, *, sleep=time.sleep) -> int:
+    """Run at most twice; only typed upstream exit 77 earns the second call."""
+    result = run()
+    if result != EXIT_RETRYABLE_SOURCE:
+        return result
+    logger.warning("Typed PNCP source failure; retrying once in %ss", RETRY_DELAY_SECONDS)
+    sleep(RETRY_DELAY_SECONDS)
+    return run()
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -235,7 +250,7 @@ def main(argv: list[str] | None = None) -> int:
             )
             return EXIT_LOCK_BUSY
     try:
-        return _run_incremental(args)
+        return run_with_one_retry(lambda: _run_incremental(args))
     finally:
         if fence is not None:
             fence.release()

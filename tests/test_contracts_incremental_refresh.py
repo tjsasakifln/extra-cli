@@ -11,6 +11,7 @@ from scripts.crawl.run_contracts_incremental import (
     reopen_current_window,
     reopen_incremental_windows,
     retry_exit_for_report,
+    run_with_one_retry,
 )
 
 
@@ -77,3 +78,27 @@ def test_only_known_transient_source_failures_request_a_bounded_service_retry() 
     assert retry_exit_for_report(timeout) == EXIT_RETRYABLE_SOURCE
     assert retry_exit_for_report(mixed) == 1
     assert retry_exit_for_report({"windows": []}) == 1
+    assert retry_exit_for_report({"windows": [{"errors": ["upsert failed: statement timeout"]}]}) == 1
+    assert retry_exit_for_report({"windows": [{"errors": ["local checkpoint timeout"]}]}) == 1
+    assert retry_exit_for_report(
+        {"windows": [{"errors": ["Page 10: [connection_failed] Network read timed out"]}]}
+    ) == EXIT_RETRYABLE_SOURCE
+
+
+def test_runner_retries_exactly_once_and_never_retries_structural_or_final_77() -> None:
+    calls: list[int] = []
+    sleeps: list[int] = []
+
+    def sequence(*results: int):
+        values = iter(results)
+        return lambda: calls.append(1) or next(values)
+
+    assert run_with_one_retry(sequence(EXIT_RETRYABLE_SOURCE, 0), sleep=sleeps.append) == 0
+    assert len(calls) == 2 and sleeps == [300]
+    calls.clear()
+    sleeps.clear()
+    assert run_with_one_retry(sequence(1), sleep=sleeps.append) == 1
+    assert len(calls) == 1 and sleeps == []
+    calls.clear()
+    assert run_with_one_retry(sequence(EXIT_RETRYABLE_SOURCE, EXIT_RETRYABLE_SOURCE), sleep=sleeps.append) == EXIT_RETRYABLE_SOURCE
+    assert len(calls) == 2 and sleeps == [300]
