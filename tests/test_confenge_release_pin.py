@@ -85,12 +85,26 @@ def test_dropins_preserve_versioned_timeout_intent_for_every_bounded_unit():
         ("1hour", "3600"),
         ("1msec", "0.001"),
         ("1h 20min", "4800"),
+        ("1month", "2629800"),
+        ("1y", "31557600"),
         ("infinity", None),
     ],
 )
 def test_duration_parser_accepts_systemd_timeout_spellings(raw, expected):
     parsed = _duration_seconds(raw)
     assert (None if parsed is None else f"{parsed:f}") == expected
+
+
+def test_calendar_timeout_aliases_match_systemd_timespan_semantics():
+    assert _duration_seconds("1month") == _duration_seconds("1months") == _duration_seconds("2629800s")
+    assert _duration_seconds("1y") == _duration_seconds("1year") == _duration_seconds("1years")
+    assert _duration_seconds("1y") == _duration_seconds("31557600s")
+
+
+@pytest.mark.parametrize("raw", ["1usecs", "1msecx", "1secs", "1mins", "1hrs", "1millisecond"])
+def test_duration_parser_rejects_non_systemd_timeout_aliases(raw):
+    with pytest.raises(PinError, match="unsupported systemd duration"):
+        _duration_seconds(raw)
 
 
 def test_plan_rejects_an_unsupported_timeout_before_any_host_write(tmp_path, monkeypatch):

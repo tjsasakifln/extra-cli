@@ -97,23 +97,22 @@ ISOLATED_INTERPRETER_FLAG = "-P"
 
 _DURATION_PART = re.compile(
     r"(?P<value>\d+(?:\.\d+)?)(?P<unit>"
-    r"useconds?|usecs?|us|µs|milliseconds?|msecs?|ms|seconds?|secs?|s|"
-    r"minutes?|mins?|min|m|hours?|hrs?|hr|h|days?|d|weeks?|w|months?|years?)"
+    # Long aliases must precede their short prefixes: `month` would otherwise
+    # be consumed as `m` plus an invalid `onth` suffix.
+    r"seconds?|minutes?|hours?|months?|years?|days?|weeks?|usec|µs|msec|min|sec|hr|"
+    r"ms|us|s|m|h|d|w|y)"
 )
 _DURATION_SECONDS = {
-    "usecond": Decimal("0.000001"), "useconds": Decimal("0.000001"),
-    "usec": Decimal("0.000001"), "usecs": Decimal("0.000001"), "us": Decimal("0.000001"),
-    "µs": Decimal("0.000001"), "millisecond": Decimal("0.001"),
-    "milliseconds": Decimal("0.001"), "msec": Decimal("0.001"), "msecs": Decimal("0.001"),
-    "ms": Decimal("0.001"), "second": Decimal(1), "seconds": Decimal(1), "sec": Decimal(1),
-    "secs": Decimal(1), "s": Decimal(1), "minute": Decimal(60), "minutes": Decimal(60),
-    "min": Decimal(60), "mins": Decimal(60), "m": Decimal(60), "hour": Decimal(60 * 60),
-    "hours": Decimal(60 * 60), "hr": Decimal(60 * 60), "hrs": Decimal(60 * 60), "h": Decimal(60 * 60),
+    "usec": Decimal("0.000001"), "µs": Decimal("0.000001"), "us": Decimal("0.000001"),
+    "msec": Decimal("0.001"), "ms": Decimal("0.001"), "second": Decimal(1),
+    "seconds": Decimal(1), "sec": Decimal(1), "s": Decimal(1), "minute": Decimal(60),
+    "minutes": Decimal(60), "min": Decimal(60), "m": Decimal(60), "hour": Decimal(60 * 60),
+    "hours": Decimal(60 * 60), "hr": Decimal(60 * 60), "h": Decimal(60 * 60),
     "day": Decimal(24 * 60 * 60), "days": Decimal(24 * 60 * 60), "d": Decimal(24 * 60 * 60),
     "week": Decimal(7 * 24 * 60 * 60), "weeks": Decimal(7 * 24 * 60 * 60), "w": Decimal(7 * 24 * 60 * 60),
     # systemd defines these calendar-independent units as fixed 30.44/365.25-day spans.
     "month": Decimal("2629800"), "months": Decimal("2629800"),
-    "year": Decimal("31557600"), "years": Decimal("31557600"),
+    "year": Decimal("31557600"), "years": Decimal("31557600"), "y": Decimal("31557600"),
 }
 
 
