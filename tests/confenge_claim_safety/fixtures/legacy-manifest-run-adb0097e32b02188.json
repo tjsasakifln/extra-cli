@@ -1,0 +1,32 @@
+{
+  "authoritative_contact_projection": {
+    "code_sha": "d0c706c5e46d8491ec510598173d5acf63eb71d8",
+    "controlled_email_policy_version": "controlled-email-policy.v6",
+    "discovery_policy_version": "dui.policy.v1",
+    "input_evidence_version": "target-fit.fc7159e4feed7bf8.contacts-d30743d48ca2b7d1",
+    "membership_hash_algorithm": "sha256(sorted_unique_cnpj_root8_newline_utf8)",
+    "membership_schema_version": "confenge.target_membership.v1",
+    "schema_id": "confenge.contact_discovery.projection_report.v1"
+  },
+  "authoritative_feed_scope": {
+    "identity_key": "cnpj_root8",
+    "scope": "TARGET_CONFIRMED_MEMBERSHIP"
+  },
+  "authoritative_party_roles": {
+    "policy_version": "contract-party-role.v1"
+  },
+  "authoritative_target_membership": {
+    "membership_hash": "9c7c85e06d339e22dff71f39b99bc6e5e98df4312dd09e9dfcd5c1f45de1dcf4"
+  },
+  "deactivations": [],
+  "lead_count": 8667,
+  "module_version": "1.2.1",
+  "schema_version": "confenge.outreach.manifest.v1",
+  "source": {
+    "profile_id": "confenge",
+    "profile_version": "2.0.0",
+    "repo_sha": "d0c706c5e46d8491ec510598173d5acf63eb71d8",
+    "snapshot_hash": "feee0d2d91fb94a4f64bec3683bee115f4629046b35dee094eec4c43cbcb3cc4",
+    "system": "extra-cli"
+  }
+}

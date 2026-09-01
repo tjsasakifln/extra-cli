@@ -38,6 +38,9 @@ CONSUMER_MAX_BYTES_PER_CHUNK = 512_000
 CONSUMER_MAX_STAGED_BYTES = 1_073_741_824
 DEACTIVATION_STATES = frozenset({"RESEARCH_REQUIRED", "SUPPRESSED", "WATCH"})
 MEMBERSHIP_DROP_REASON = "TARGET_CONFIRMED_MEMBERSHIP_DROPPED"
+# Rollback anchor for the claim-safety apply: names the release that ``current``
+# pointed at immediately before the swap.
+CLAIM_SAFETY_ROLLBACK_ANCHOR_KEY = "claim_safety_rollback_anchor"
 DEFAULT_MAX_AGE_HOURS = 24.0
 DEFAULT_STATE_PATH = Path("/var/lib/extra-consultoria/confenge-feed/publication-state.json")
 DEFAULT_ALERT_LEDGER = Path("/var/lib/extra-consultoria/alerts/confenge-feed.jsonl")
@@ -397,6 +400,18 @@ def publication_semantic_hash(manifest: dict[str, Any]) -> str:
         "lead_count": manifest.get("lead_count"),
         "deactivations": normalized_deactivations,
     }
+    # A claim-safety rewrite changes the consumer-visible copy without touching
+    # inputs, lead_count or membership, so its corpus digest has to participate
+    # or the corrected build replays as SAME_SNAPSHOT_NOT_FRESHNESS and the
+    # correction never reaches a release. The key is inserted *only* when the
+    # manifest actually carries the block: a legacy manifest without it keeps a
+    # byte-identical semantics dict, so publication semantic hashes already bound
+    # in commercial_authority.basis_publication_semantic_hash stay valid.
+    claim_safety = manifest.get("claim_safety")
+    claim_safety = claim_safety if isinstance(claim_safety, dict) else {}
+    claim_safety_hash = claim_safety.get("corpus_hash")
+    if claim_safety_hash:
+        semantics["claim_safety_hash"] = str(claim_safety_hash)
     encoded = json.dumps(semantics, ensure_ascii=False, sort_keys=True, separators=(",", ":"), default=str)
     return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
@@ -1017,6 +1032,34 @@ def atomic_publish_directory(
     except Exception:
         shutil.rmtree(tmp, ignore_errors=True)
         raise
+
+    # Explicit rollback anchor, written BEFORE the swap. ``last_good_publication``
+    # is overwritten by this very publication, so it cannot name the release this
+    # publication superseded; the anchor can.
+    #
+    # Written only for a claim-safety publication — same condition that gates the
+    # semantics key above. An unconditional anchor would be overwritten by the
+    # next routine feed-cycle publish, and a later rollback would then restore the
+    # claim-safety release itself: a silent no-op reporting success.
+    claim_safety_block = manifest.get("claim_safety")
+    claim_safety_block = claim_safety_block if isinstance(claim_safety_block, dict) else {}
+    prior_release_name: str | None = None
+    if claim_safety_block.get("corpus_hash"):
+        if current.is_symlink():
+            prior_release_name = Path(os.readlink(str(current))).name
+        elif current.is_dir():
+            prior_release_name = current.resolve().name
+    if prior_release_name:
+        anchor_state = _read_state(state_path)
+        _atomic_json(
+            state_path,
+            {
+                **anchor_state,
+                "schema_id": "confenge.feed_publication_state.v1",
+                CLAIM_SAFETY_ROLLBACK_ANCHOR_KEY: prior_release_name,
+                f"{CLAIM_SAFETY_ROLLBACK_ANCHOR_KEY}_at": clock.isoformat().replace("+00:00", "Z"),
+            },
+        )
 
     # Atomic symlink swap: current -> releases/<run_id>
     link_tmp = publish_dir / f".{current_name}.tmp-{run_id}"

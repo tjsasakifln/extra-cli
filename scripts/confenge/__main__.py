@@ -12,6 +12,8 @@ def main(argv: list[str] | None = None) -> int:
             "Usage:\n"
             "  python -m scripts.confenge human_review [--sample PATH]\n"
             "  python -m scripts.confenge.human_review\n"
+            "  python -m scripts.confenge claim_safety_audit [--dry-run | --apply] [--feed-dir PATH]\n"
+            "  python -m scripts.confenge claim_safety_audit rollback\n"
         )
         return 0
     cmd = argv[0]
@@ -20,6 +22,10 @@ def main(argv: list[str] | None = None) -> int:
         from scripts.confenge.human_review.cli import main as hr_main
 
         return hr_main(rest)
+    if cmd in {"claim_safety_audit", "claim-safety-audit"}:
+        from scripts.confenge.claim_safety_audit.cli import main as cs_main
+
+        return cs_main(rest)
     print(f"Unknown command: {cmd}", file=sys.stderr)
     return 2
 

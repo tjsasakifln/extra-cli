@@ -157,6 +157,10 @@ data/*.db
 private/
 secrets/
 
+# Claim-safety apply staging: a full copy of a ~145MB feed release.
+# Only the staging tree is ignored; the audit reports stay tracked.
+artifacts/confenge/claim-safety/build/
+
 # CONFENGE large local evidence (not in git; use GH Actions artifacts / local data/)
 artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/**/*.xlsx
 artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/**/*.html

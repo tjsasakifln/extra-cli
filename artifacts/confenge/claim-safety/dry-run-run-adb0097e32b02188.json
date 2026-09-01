@@ -1,0 +1,495 @@
+{
+  "class_by_why_now_code": {
+    "ADDENDUM": {
+      "UNSAFE_PRESENT_CLAIM": 98
+    },
+    "GLOSA_MEDICAO": {
+      "SAFE_NO_CURRENT_CLAIM": 78
+    },
+    "INSUFFICIENT_FACTS": {
+      "SAFE_NO_CURRENT_CLAIM": 1357
+    },
+    "PORTFOLIO_REVIEW": {
+      "SAFE_NO_CURRENT_CLAIM": 7131
+    },
+    "REEQUILIBRIO": {
+      "SAFE_NO_CURRENT_CLAIM": 3
+    }
+  },
+  "class_distribution": {
+    "NEEDS_RESEARCH": 0,
+    "SAFE_CURRENT_PROVEN": 0,
+    "SAFE_HISTORICAL": 0,
+    "SAFE_NO_CURRENT_CLAIM": 8569,
+    "UNSAFE_PRESENT_CLAIM": 98
+  },
+  "corpus_hash": "6875b51b29f27d92f147418476c410bb576a069c54a7e2bb2e887ef5fca55a07",
+  "corpus_hash_algorithm": "sha256",
+  "feed_dir": "/tmp/claude-1000/-home-tjsasakifln-code-confenge-extra-cli/11b05c80-d6d1-4401-b494-5dff46973961/scratchpad/prod-release",
+  "generated_at": "2026-09-01T23:38:09Z",
+  "lead_count": 8667,
+  "manifest_lead_count": 8667,
+  "mode": "dry-run",
+  "non_publishable_count": 98,
+  "non_publishable_sample": [
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "27532498000190-2-000011/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:00440605:00440605000101",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "13715891000104-2-000411/2024",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:03975131:03975131000182",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "60509015000101-2-002413/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:05625875:05625875000100",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "13891130000103-2-000093/2024",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:05794246:05794246000104",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "13692736000110-2-000002/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:05931313:05931313000187",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "47842836000105-2-001656/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:06089066:06089066000186",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "00470127000174-2-000140/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:07487277:07487277000130",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "06198949000124-2-000004/2024",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:07564580:07564580000199",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "01067479000146-2-000101/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:07628572:07628572000169",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "18338236000106-2-000042/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:07836938:07836938000195",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "00394544000185-2-002801/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:08871507:08871507000122",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "10377679000196-2-000219/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:08978001:08978001000117",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "05138730000177-2-000228/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:09319572:09319572000102",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "13647185000172-2-000178/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:10584369:10584369000142",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "10706597000148-2-000003/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:11971854:11971854000131",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "11554474000100-2-000006/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:12754237:12754237000147",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "14042667000161-2-000081/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:13103698:13103698000112",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "10652179000115-2-000087/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:13670012:13670012000175",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "11722278000199-2-000053/2025",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:13922078:13922078000105",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "83027045000187-2-000009/2024",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:14458850:14458850000142",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "13715891000104-2-000040/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:14602189:14602189000105",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "16971376000183-2-000029/2025",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:15667412:15667412000157",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "45176005000108-2-000086/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:18716524:18716524000149",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "13626205000129-2-000007/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:20950946:20950946000126",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "18025924000108-2-000001/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:21379951:21379951000193",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "83102681000126-2-001739/2025",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:21477416:21477416000175",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "00394544000185-2-013550/2025",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:21629277:21629277000158",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "46190305000104-2-000986/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:22570295:22570295000174",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "01005917000141-2-005855/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:22726139:22726139000150",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "25769548000121-2-000160/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:23138373:23138373000129",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "01615423000189-2-000048/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:23514336:23514336000178",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "60984473000100-2-000117/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:24034661:24034661000104",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "13743760000130-2-000256/2025",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:25213632:25213632000164",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "18241372000175-2-000091/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:25674417:25674417000160",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "47842836000105-2-000544/2024",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:27314494:27314494000135",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "46190305000104-2-000987/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:27454811:27454811000119",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "36350312000172-2-000063/2025",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:27486182:27486182000109",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "21512443000131-2-000012/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:27500978:27500978000179",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "46523056000121-2-000032/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:27568646:27568646000126",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "88771001000180-2-000115/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:27635652:27635652000159",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "02367597000132-2-000796/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:27818713:27818713000113",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "04477568000159-2-000001/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:28871419:28871419000138",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "17884412000134-2-000810/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:29473533:29473533000172",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "52359692000162-2-001208/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:30491562:30491562000146",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "30051023000196-2-000129/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:30815660:30815660000191",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "76995455000156-2-000003/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:30972275:30972275000158",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "08865628000161-2-000013/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:31094999:31094999000109",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "13715891000104-2-000484/2024",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:31263330:31263330000101",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "13891130000103-2-000087/2026",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:31497575:31497575000195",
+      "why_now_code": "ADDENDUM"
+    },
+    {
+      "activity_state": "UNKNOWN",
+      "contract_id": "05138730000177-2-000398/2025",
+      "reason_codes": [
+        "present_claim_over_unproven_activity"
+      ],
+      "source_lead_id": "target-fit:31500254:31500254000100",
+      "why_now_code": "ADDENDUM"
+    }
+  ],
+  "policy_version": "confenge-claim-safety-v1",
+  "publication_semantic_hash": "a77fd763126cd730e8e6ebd515d6fec7820ab8fb7ebff12a0966506e21302ec7",
+  "reason_codes": [
+    "active_proven_unreachable_from_published_payload"
+  ],
+  "run_id": "run-adb0097e32b02188",
+  "schema_id": "confenge.claim_safety_audit_report.v1",
+  "status": "unsafe_found",
+  "unsafe_present_claim_count": 98
+}

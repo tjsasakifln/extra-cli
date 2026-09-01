@@ -1,0 +1,92 @@
+{
+  "story_id": "claim-safety-audit-01",
+  "risk_level": "HIGH-RISK",
+  "status": "InReview",
+  "po_validated": true,
+  "po_validated_at": "2026-09-01",
+  "po_verdict": "GO",
+  "po_score": "8/10",
+  "qa_verdict": "PENDING",
+  "po_closed": false,
+  "publication_authorized": false,
+  "acceptance_criteria_count": 21,
+  "scope_files": [
+    "scripts/confenge_claim_safety/__init__.py",
+    "scripts/confenge_claim_safety/claim_surface.py",
+    "scripts/confenge_claim_safety/classify.py",
+    "scripts/confenge_claim_safety/rewrite.py",
+    "scripts/confenge_claim_safety/policy.py",
+    "scripts/confenge/claim_safety_audit/__init__.py",
+    "scripts/confenge/claim_safety_audit/cli.py",
+    "scripts/confenge/__main__.py",
+    "scripts/confenge_activation/publish.py",
+    "scripts/confenge_account_intelligence/facts.py",
+    "tests/confenge_claim_safety/test_classify.py",
+    "tests/confenge_claim_safety/test_false_positive_objeto.py",
+    "tests/confenge_claim_safety/test_idempotency.py",
+    "tests/confenge_claim_safety/test_hash_backcompat.py",
+    "tests/confenge_claim_safety/test_rollback.py",
+    "tests/confenge_claim_safety/test_dry_run_no_writes.py",
+    "tests/confenge_claim_safety/test_template_set_drift.py",
+    "tests/confenge_claim_safety/test_rewrite.py",
+    "docs/stories/story-claim-safety-audit-01.md"
+  ],
+  "gates": {
+    "lint": "PASS",
+    "typecheck": "NA",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "rollback_plan": "claim_safety_rollback_anchor gravado em publication-state.json ANTES do swap atomico do symlink current durante o --apply. Rollback via 'python3 -m scripts.confenge claim_safety_audit rollback', que restaura o symlink current para o release ancorado (distinto de last_good_publication, sobrescrito pelo proprio apply) e revalida _assert_membership_deactivation_delta no estado pos-rollback. Exercitado em teste automatizado (AC 17) antes de qualquer execucao em producao. facts.py:306 nao precisa de rollback (correcao textual isolada). Reverter tambem o PR artifact-only de re-freeze da campanha se ja aplicado.",
+  "po_decisions": [
+    "Decisao 1: conjunto de why_now_code e 6, nao 5. mature_no_reajuste existe em facts.py::why_now e nao era coberto. ACs 20 (fail-closed default NEEDS_RESEARCH, incluindo MATURE_NO_REAJUSTE explicito) e 21 (teste de drift contra facts.py) acrescentados pelo @po.",
+    "Decisao 2: scripts/confenge_activation/publish.py e input protegido do freeze CONFENGE-COMMERCIAL-READY-01. Gate ja BLOCKED_PROTECTED_INPUT_CHANGED no HEAD por causa dos commits #468, nao desta story. Exige PR de codigo seguido de PR artifact-only de re-freeze. Bloqueia @devops, nao bloqueia @dev.",
+    "Decisao 3: serializacao decidida (o @sm deixou aberta). Overlap de scope_files com outbound-sector-classifier-false-positive-01 = zero, verificado. Implementacao/testes/dry-run em PARALELO; somente o --apply em producao e serializado atras do release da sector-classifier. Nao serializar o ciclo inteiro porque a sector-classifier esta em qa_verdict FAIL, iteracao 2, REQ-003 aberto.",
+    "Decisao 4: a estimativa de ~179 UNSAFE_PRESENT_CLAIM e baseline a confirmar via --dry-run real e NAO trava a validacao. Nenhum AC fixa 179; o AC 10 exige UNSAFE_PRESENT_CLAIM == 0 pos-apply, invariante de estado-alvo."
+  ],
+  "po_open_closure_gates": [
+    "Antes de qualquer --apply em producao: release da sector-classifier publicado, ou registro explicito no relatorio de apply de que nao foi (Decisao 3).",
+    "Antes da publicacao: plano de re-freeze da campanha declarado para publish.py — PR de codigo seguido de PR artifact-only de re-freeze (Decisao 2)."
+  ],
+  "serialization_dependency": {
+    "story_id": "outbound-sector-classifier-false-positive-01",
+    "file_overlap": "none",
+    "implementation": "parallel",
+    "production_apply": "serialized_after_sector_classifier_release"
+  },
+  "campaign_freeze": {
+    "campaign": "CONFENGE-COMMERCIAL-READY-01",
+    "policy": "frozen_confenge_inputs_v1",
+    "protected_scope_files": [
+      "scripts/confenge_activation/publish.py"
+    ],
+    "gate_status_at_validation": "BLOCKED_PROTECTED_INPUT_CHANGED",
+    "gate_blocked_by": "commits #468, pre-existing, not caused by this story",
+    "requires_artifact_only_refreeze_pr": true
+  },
+  "dev_started_at": "2026-09-01",
+  "dev_completed_at": "2026-09-01",
+  "gates_detail": {
+    "lint": "ruff check + ruff format --check limpos nos arquivos novos e modificados",
+    "typecheck": "mypy nao instalado neste ambiente (No module named mypy) - nao executado",
+    "tests": "tests/confenge_claim_safety 70 passed; regressao de publicacao 240 passed; suite ampla sem regressao de escopo"
+  },
+  "measurement": {
+    "release": "run-adb0097e32b02188-feee0d2d91fb-a77fd763126c",
+    "lead_count": 8667,
+    "unsafe_present_claim": 98,
+    "estimate_was": 179,
+    "note": "GLOSA_MEDICAO (78) e REEQUILIBRIO (3) classificam SAFE_NO_CURRENT_CLAIM - ressalva do @po confirmada. Universo inseguro real = ADDENDUM (98).",
+    "report": "artifacts/confenge/claim-safety/dry-run-run-adb0097e32b02188.json"
+  },
+  "dev_deviations": [
+    "facts.py NAO editado: AC 9 ja satisfeito por story-outreach-claim-policy-01 (Ready, HIGH-RISK), que declara facts.py em seus scope_files. Colisao de escopo NAO declarada - a Decisao 3 do @po comparou apenas com outbound-sector-classifier-false-positive-01. Requer reconciliacao do @po.",
+    "--apply e rollback em producao NAO executados. ACs 10-14 e 17 provados por teste sobre feed isolado; execucao em producao diferida aos gates de fechamento do @po (re-freeze de campanha + serializacao).",
+    "Falso positivo de 5 leads PORTFOLIO_REVIEW encontrado no primeiro dry-run real e corrigido (selecao de spans de evidencia nao sobrepostos por maior comprimento). Fixado por teste nomeado.",
+    "moment.summary incluido na superficie de assercao alem de messaging_context.why_now (campo espelho no payload real).",
+    "claim_safety_rollback_anchor gravado CONDICIONALMENTE (so quando o manifest carrega claim_safety.corpus_hash), mesmo gatilho da insercao na hash. Versao incondicional deixaria a proxima publicacao de rotina deslocar a ancora para o proprio release corrigido, tornando o rollback um no-op silencioso.",
+    ".gitignore recebeu artifacts/confenge/claim-safety/build/ (fora do escopo IN declarado): o --apply copia ~145MB de release para o build dir. Relatorio JSON da auditoria continua rastreado.",
+    "AC 9 provado tambem por teste COMPORTAMENTAL que chama _addendum_temporal_fact com politica que proibe presente. Isso acopla o teste a scripts/confenge_claim_policy, modulo da story concorrente - quebra ali e sinal de drift, nao regressao desta story."
+  ],
+  "production_apply_executed": false
+}
