@@ -1,3 +1,15 @@
+# ruff: noqa
+# ARQUIVO DE EVIDENCIA ARQUIVADO — NAO E CODIGO MANTIDO.
+#
+# Script de baseline do @architect, persistido pelo @po (AC 16 da story
+# docs/stories/story-outbound-sector-classifier-false-positive-01.md) exatamente
+# como foi executado, para que a medicao continue reproduzivel e auditavel.
+# Reformatar o script alteraria o artefato de evidencia, por isso ele e isento
+# do lint em vez de reescrito.
+#
+# A versao MANTIDA e portavel deste baseline — com caminhos relativos ao
+# repositorio e executavel em CI — e o teste formal de nao-regressao em
+# tests/commercial_leads/test_real_corpus_no_regression.py.
 """FINAL design: narrow physical-presence gate + fundacao disambiguation + SQL seed preservation."""
 import json, glob, re, sys
 sys.path.insert(0, "/home/tjsasakifln/code/confenge/extra-cli")
