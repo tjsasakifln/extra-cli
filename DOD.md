@@ -22,6 +22,16 @@ A single `[x]` must not hide these differences.
   contraditória e foi recusada. Produção e soak permanecem abertos.
   Runbook: `docs/ops/incidents/PNCP-458.md`.
 
+### Identidade contratual CONFENGE / incidente #468 (2026-09-02)
+
+- [ ] Aceitar a correção de identidade somente após merge no `main`, CI do SHA
+  exato, re-freeze gerado contra esse tip e prova live pós-deploy. Estado atual:
+  `IMPLEMENTED`; o código local preserva `numero_controle_pncp`/`contrato_id`
+  como identidade pública, recusa IDs oficiais vazios e mantém `id` apenas como
+  cursor ou compatibilidade legada explícita. Não autoriza feed, coorte, SMTP
+  nem a saída da contenção #468. Handoff:
+  `docs/ops/handoff-2026-09-02-confenge-contract-identity.md`.
+
 
 > Checklist viva para acompanhar a evolução do desenvolvimento do projeto.
 >

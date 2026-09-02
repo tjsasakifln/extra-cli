@@ -10,6 +10,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
+from scripts.confenge_contract_identity import public_contract_id
 from scripts.confenge_target_fit.company_key import (
     company_key_from_raiz,
     digits_only,
@@ -108,6 +109,7 @@ def _load_contracts(
         select_cols = [cnpj_col]
         for c in (
             "contrato_id",
+            "numero_controle_pncp",
             "id",
             "orgao_cnpj",
             "orgao_nome",
@@ -172,10 +174,13 @@ def _load_contracts(
         if is_consortium_contract(r):
             consortium = True
             r = {**r, "is_consortium": True, "consortium_evidence": True}
+        contract_id = public_contract_id(r)
+        if not contract_id:
+            raise RuntimeError("pncp_supplier_contracts row missing official contract identity")
         # Normalize logical fields
         contracts.append(
             {
-                "contrato_id": r.get("contrato_id") or r.get("id"),
+                "contrato_id": contract_id,
                 "orgao_cnpj": r.get("orgao_cnpj"),
                 "orgao_nome": r.get("orgao_nome"),
                 "fornecedor_cnpj": c14 or r.get(cnpj_col),

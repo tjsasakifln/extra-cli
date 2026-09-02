@@ -11,6 +11,7 @@ from typing import Any
 
 from scripts.confenge_account_intelligence.message_spine import is_hollow_fact
 from scripts.confenge_account_intelligence.pipeline import build_dossier
+from scripts.confenge_contract_identity import public_contract_id
 from scripts.confenge_outreach_pipeline.near_duplicate import (
     audit_near_duplicates,
     subject_is_generic_contrato,
@@ -28,7 +29,7 @@ def bag_from_feed_lead(lead: dict[str, Any]) -> dict[str, Any]:
             continue
         contracts.append(
             {
-                "id": c.get("id") or c.get("contrato_id"),
+                "id": public_contract_id(c),
                 "object": c.get("object") or c.get("objeto"),
                 "objeto": c.get("object") or c.get("objeto"),
                 "value_brl": c.get("value_brl") or c.get("valor_total"),

@@ -373,6 +373,7 @@ def run_universe_build(
     registry: dict[str, dict[str, Any]] | None = None,
     load_human_dnc: bool = True,
     load_registry: bool = True,
+    allow_legacy_surrogate_contract_id: bool = False,
     source_meta_extra: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Build national construction universe from streamable contract source.
@@ -403,7 +404,7 @@ def run_universe_build(
             "note": "in-memory/fixture iterator",
         }
     else:
-        cfg = resolve_source(dsn, csv_path=csv_path)
+        cfg = resolve_source(dsn, csv_path=csv_path, allow_legacy_surrogate_contract_id=allow_legacy_surrogate_contract_id)
         resolved_csv = cfg.csv_path if cfg.mode == "csv" else csv_path
         batches = iter_contracts_keyset(
             cfg,

@@ -12,6 +12,7 @@ import json
 import re
 from typing import Any
 
+from scripts.confenge_contract_identity import public_contract_id
 from scripts.confenge_target_fit.models import CompanyInput
 
 
@@ -29,12 +30,7 @@ def _norm_text(value: Any) -> str:
 
 def _contract_semantic_view(contract: dict[str, Any]) -> dict[str, Any]:
     """Fields that can change target-fit classification."""
-    cid = (
-        contract.get("contrato_id")
-        or contract.get("id")
-        or contract.get("numero_controle_pncp")
-        or ""
-    )
+    cid = public_contract_id(contract)
     obj = (
         contract.get("objeto_contrato")
         or contract.get("objeto")

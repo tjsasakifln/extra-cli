@@ -38,6 +38,7 @@ from scripts.commercial_leads.sector_fit import (
     CLASS_STRONG,
     NAME_OUT_OF_SCOPE,
 )
+from scripts.confenge_contract_identity import public_contract_id
 from scripts.confenge_universe.parafiscal import (
     PARAFISCAL_HARD_OUT_REASON,
     match_parafiscal_in_names,
@@ -295,7 +296,7 @@ def classify_target_fit(
             exec_contracts.append(c)
             evidence.append(
                 {
-                    "id": str(c.get("contrato_id") or c.get("id") or f"ct-{i}"),
+                    "id": public_contract_id(c) or f"ct-{i}",
                     "type": "CONTRACT_EXECUTION",
                     "excerpt": obj[:240],
                     "agency": c.get("orgao_nome") or c.get("orgao") or c.get("agency"),

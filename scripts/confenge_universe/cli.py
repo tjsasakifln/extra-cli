@@ -122,6 +122,7 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Disable independent decision-brand split; always collapse by CNPJ root",
     )
+    b.add_argument("--allow-legacy-surrogate-contract-id", action="store_true", help="Compatibility only: permit id only where no official contract ID exists.")
     b.add_argument(
         "--result-json",
         default=None,
@@ -149,6 +150,7 @@ def cmd_build(args: argparse.Namespace) -> int:
             enable_independent_brand=not args.no_independent_brand,
             load_human_dnc=not args.no_auto_dnc,
             load_registry=not args.no_auto_registry,
+            allow_legacy_surrogate_contract_id=args.allow_legacy_surrogate_contract_id,
         )
     except Exception as exc:  # noqa: BLE001
         print(f"ERROR: {exc}", file=sys.stderr)

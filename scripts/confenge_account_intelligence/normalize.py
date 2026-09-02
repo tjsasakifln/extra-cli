@@ -6,6 +6,7 @@ from datetime import date, datetime
 from typing import Any
 
 from scripts.confenge_account_intelligence.models import cnpj14, cnpj_root, digits_only
+from scripts.confenge_contract_identity import public_contract_id
 
 
 def _parse_date(value: Any) -> date | None:
@@ -187,7 +188,7 @@ def normalize_record(raw: dict[str, Any], *, as_of: str | None = None) -> dict[s
         )
         contracts.append(
             {
-                "id": str(c.get("id") or c.get("contract_id") or c.get("contrato_id") or f"contract-{i + 1}"),
+                "id": public_contract_id(c) or f"contract-{i + 1}",
                 "object": obj_text or c.get("object") or c.get("objeto") or c.get("description"),
                 "value_brl": _as_float(c.get("value_brl") or c.get("valor") or c.get("value") or c.get("valor_total")),
                 "start_date": start.isoformat() if start else None,

@@ -18,6 +18,8 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
+from scripts.confenge_contract_identity import public_contract_id
+
 # Logical (internal) column names used by identity/aggregate/construction.
 CONTRACT_COLUMNS = (
     "contrato_id",
@@ -37,14 +39,12 @@ CONTRACT_COLUMNS = (
     "source",
 )
 
-# Physical datalake column → logical name. Real national tables (smartlic /
-# pncp_supplier_contracts) use ni_fornecedor / valor_global / id, not the
-# older logical names. Multiple physical names may map to one logical field;
-# first available wins.
+# Physical datalake column → logical name. ``id`` is a surrogate cursor, not
+# a public contract identity; real tables can also carry the PNCP control ID.
 PHYSICAL_TO_LOGICAL: dict[str, str] = {
     "contrato_id": "contrato_id",
-    "id": "contrato_id",
     "numero_controle_pncp": "contrato_id",
+    "id": "surrogate_id",
     "orgao_cnpj": "orgao_cnpj",
     "orgao_nome": "orgao_nome",
     "fornecedor_cnpj": "fornecedor_cnpj",
@@ -67,7 +67,7 @@ PHYSICAL_TO_LOGICAL: dict[str, str] = {
 
 # Preferred physical candidates per logical field (order = priority).
 LOGICAL_CANDIDATES: dict[str, tuple[str, ...]] = {
-    "contrato_id": ("contrato_id", "id", "numero_controle_pncp"),
+    "contrato_id": ("contrato_id", "numero_controle_pncp"),
     "orgao_cnpj": ("orgao_cnpj",),
     "orgao_nome": ("orgao_nome",),
     "fornecedor_cnpj": ("fornecedor_cnpj", "ni_fornecedor"),
@@ -99,15 +99,17 @@ class SourceConfig:
     dsn: str | None = None
     csv_path: str | None = None
     read_only: bool = True
+    allow_legacy_surrogate_contract_id: bool = False
 
 
 def resolve_source(
     dsn: str | None = None,
     *,
     csv_path: str | None = None,
+    allow_legacy_surrogate_contract_id: bool = False,
 ) -> SourceConfig:
     if csv_path:
-        return SourceConfig(mode="csv", csv_path=csv_path, read_only=True)
+        return SourceConfig(mode="csv", csv_path=csv_path, read_only=True, allow_legacy_surrogate_contract_id=allow_legacy_surrogate_contract_id)
     env_dsn = (
         dsn
         or os.environ.get("CONFENGE_UNIVERSE_DSN")
@@ -117,7 +119,7 @@ def resolve_source(
         or os.environ.get("DATABASE_URL")
     )
     if env_dsn:
-        return SourceConfig(mode="dsn", dsn=env_dsn, read_only=True)
+        return SourceConfig(mode="dsn", dsn=env_dsn, read_only=True, allow_legacy_surrogate_contract_id=allow_legacy_surrogate_contract_id)
     raise RuntimeError(
         "No datalake source configured. Set LOCAL_DATALAKE_DSN / "
         "CONFENGE_UNIVERSE_DSN or pass --csv / --dsn."
@@ -152,8 +154,8 @@ def discover_columns(cfg: SourceConfig) -> list[str]:
         conn.close()
 
 
-def resolve_physical_map(available: list[str]) -> dict[str, str]:
-    """Map logical field → physical column present in the table."""
+def resolve_physical_map(available: list[str], *, allow_legacy_surrogate_contract_id: bool = False) -> dict[str, str]:
+    """Map logical fields without silently replacing official identity."""
     avail = set(available)
     out: dict[str, str] = {}
     for logical, candidates in LOGICAL_CANDIDATES.items():
@@ -161,10 +163,12 @@ def resolve_physical_map(available: list[str]) -> dict[str, str]:
             if phys in avail:
                 out[logical] = phys
                 break
+    if "contrato_id" not in out and allow_legacy_surrogate_contract_id and "id" in avail:
+        out["contrato_id"] = "id"
     return out
 
 
-def _select_list(available: list[str]) -> list[str]:
+def _select_list(available: list[str], *, cursor_column: str | None = None) -> list[str]:
     """Return physical column names to SELECT (unique, validated)."""
     physical_map = resolve_physical_map(available)
     if not physical_map:
@@ -178,6 +182,8 @@ def _select_list(available: list[str]) -> list[str]:
         if phys and phys not in seen:
             seen.add(phys)
             cols.append(phys)
+    if cursor_column and cursor_column in set(available) and cursor_column not in seen:
+        cols.append(cursor_column)
     return cols or list(CONTRACT_COLUMNS)
 
 
@@ -206,8 +212,7 @@ def normalize_contract_row(
         else:
             out[logical] = None
     # contrato_id must be string for keyset + identity
-    if out.get("contrato_id") is not None:
-        out["contrato_id"] = str(out["contrato_id"])
+    out["contrato_id"] = public_contract_id(out)
     return out
 
 
@@ -228,6 +233,7 @@ def build_keyset_query(
     batch_size: int = 2000,
     keyset_contrato_id: str | None = None,
     physical_map: dict[str, str] | None = None,
+    cursor_column: str | None = None,
 ) -> tuple[str, list[Any]]:
     """Keyset by contrato id ASC — stable full-table walk, no OFFSET bias.
 
@@ -240,7 +246,7 @@ def build_keyset_query(
     supplier_col = pmap.get("fornecedor_cnpj", "fornecedor_cnpj")
     valor_col = pmap.get("valor_total", "valor_total")
     uf_col = pmap.get("uf", "uf")
-    id_col = pmap.get("contrato_id", "contrato_id")
+    id_col = cursor_column or pmap.get("contrato_id", "contrato_id")
     for ident in (supplier_col, valor_col, uf_col, id_col):
         if not re.fullmatch(r"[a-zA-Z_][a-zA-Z0-9_]*", ident or ""):
             raise ValueError(f"Invalid column identifier: {ident!r}")
@@ -262,7 +268,7 @@ def build_keyset_query(
         # Prefer numeric keyset when the id looks integer (real table uses bigserial id).
         # Text keyset for string contrato_id / numero_controle_pncp schemas.
         key = str(keyset_contrato_id)
-        if re.fullmatch(r"-?\d+", key) and id_col in {"id", "contrato_id"}:
+        if re.fullmatch(r"-?\d+", key) and id_col == "id":
             where.append(f"{id_col} > %s")
             params.append(int(key))
         else:
@@ -319,7 +325,7 @@ def source_fingerprint(cfg: SourceConfig, *, as_of: date) -> dict[str, Any]:
                     "WHERE table_schema='public' AND table_name='pncp_supplier_contracts'"
                 )
                 available = [r["column_name"] for r in cur.fetchall()]
-                pmap = resolve_physical_map(available)
+                pmap = resolve_physical_map(available, allow_legacy_surrogate_contract_id=cfg.allow_legacy_surrogate_contract_id)
                 id_col = pmap.get("contrato_id", "id")
                 if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", id_col):
                     raise ValueError(f"invalid id column: {id_col!r}")
@@ -366,8 +372,11 @@ def iter_contracts_keyset(
         raise RuntimeError(f"Unsupported source mode for keyset: {cfg.mode}")
 
     available = discover_columns(cfg)
-    physical_map = resolve_physical_map(available)
-    cols = _select_list(available)
+    physical_map = resolve_physical_map(available, allow_legacy_surrogate_contract_id=cfg.allow_legacy_surrogate_contract_id)
+    if "contrato_id" not in physical_map:
+        raise RuntimeError("pncp_supplier_contracts has no official contract identity (expected contrato_id or numero_controle_pncp); refusing to publish surrogate id")
+    cursor_column = "id" if "id" in available else physical_map["contrato_id"]
+    cols = _select_list(available, cursor_column=cursor_column)
     if "fornecedor_cnpj" not in physical_map and "ni_fornecedor" not in available:
         # Legacy logical-only schema (tests / old DBs)
         if "fornecedor_cnpj" not in available:
@@ -377,7 +386,7 @@ def iter_contracts_keyset(
             )
     yielded = 0
     key_cid: str | None = None
-    id_phys = physical_map.get("contrato_id", "contrato_id")
+    id_phys = cursor_column
 
     while True:
         limit = batch_size
@@ -394,6 +403,7 @@ def iter_contracts_keyset(
             batch_size=limit,
             keyset_contrato_id=key_cid,
             physical_map=physical_map or None,
+            cursor_column=cursor_column,
         )
         conn = _connect_dsn(cfg.dsn)
         try:
@@ -407,6 +417,10 @@ def iter_contracts_keyset(
         if not raw_batch:
             break
         batch = [normalize_contract_row(r, physical_map=physical_map) for r in raw_batch]
+        if any(not row["contrato_id"] for row in batch):
+            raise RuntimeError(
+                "pncp_supplier_contracts row missing official contract identity; refusing to publish"
+            )
         yield batch
         yielded += len(batch)
         # Keyset advances on physical id of last raw row (stable).
