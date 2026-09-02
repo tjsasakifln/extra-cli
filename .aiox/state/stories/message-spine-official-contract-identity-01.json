@@ -1,0 +1,18 @@
+{
+  "story_id": "message-spine-official-contract-identity-01",
+  "risk_level": "STANDARD",
+  "status": "InProgress",
+  "po_validated": true,
+  "qa_verdict": "PENDING",
+  "po_closed": false,
+  "publication_authorized": false,
+  "reviewed_commit": null,
+  "rollback_plan": "git revert do commit; a linha volta a `public_contract_id(c) or f\"contract-{i}\"` em scripts/confenge_account_intelligence/message_spine.py. Sem migration, sem mudanca de schema, sem impacto em deploy pinado.",
+  "snapshot_evidence": null,
+  "scope_files": [
+    "scripts/confenge_account_intelligence/message_spine.py",
+    "tests/confenge_account_intelligence/test_message_spine_contract_identity.py",
+    "docs/stories/story-message-spine-official-contract-identity-01.md"
+  ],
+  "gates": { "lint": "PENDING", "typecheck": "NA", "tests": "PENDING", "build": "NA" }
+}

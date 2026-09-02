@@ -95,7 +95,12 @@ def extract_contract_hook(bag: dict[str, Any]) -> tuple[str, list[str]]:
         org = str(c.get("orgao") or c.get("agency") or c.get("orgao_nome") or "").strip()
         uf = str(c.get("uf") or "").strip()
         val = c.get("value_brl") or c.get("valor_total")
-        cid = public_contract_id(c) or f"contract-{i}"
+        # The bag is already normalized: ``normalize_record`` resolved the
+        # official identity into ``id``. Re-deriving from the official field
+        # names here always misses on a normalized contract, silently
+        # degrading every evidence id to a positional surrogate and losing
+        # exactly the official identity this projection must carry.
+        cid = public_contract_id(c, allow_legacy_surrogate=True) or f"contract-{i}"
         bits = [f"objeto: {obj[:180]}"]
         if org:
             bits.append(f"órgão: {org}")
