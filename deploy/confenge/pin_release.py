@@ -1,14 +1,21 @@
 #!/usr/bin/env python3
 """Pin the whole CONFENGE outbound chain to one immutable release.
 
-The chain is autonomous by design:
+The plane is autonomous by design, and split in two:
 
-    pncp-contracts.timer
-      -> pncp-contracts.service
-        OnSuccess -> extra-confenge-source-freshness-gate.service
-          OnSuccess -> extra-confenge-target-fit-reconcile.service
-            OnSuccess -> extra-confenge-contact-cycle.service
-              OnSuccess -> extra-confenge-feed-cycle.service
+    pncp-contracts.timer        -> pncp-contracts.service         (ingestion)
+    extra-confenge-target-fit-refresh.timer   -> refresh          (datalake)
+    extra-confenge-target-fit-reconcile.timer -> reconcile        (datalake)
+    extra-confenge-contact-cycle.timer        -> contact cycle    (datalake)
+    extra-confenge-feed-cycle.timer           -> feed publication (commercial)
+
+Ingestion no longer advances the commercial stages through ``OnSuccess``.  The
+freshness gate exits non-zero for any non-FRESH contract, so an ``OnSuccess``
+chain rooted at ``pncp-contracts.service`` made a source incident suppress
+qualification, publication and transport over data already persisted in the
+datalake.  Every downstream stage now owns an independent timer; PNCP freshness
+stays visible as telemetry through ``extra-health-check`` and the on-demand
+``extra-confenge-source-freshness-gate.service`` diagnostic.
 
 Every link must run the *same* code. Hand-written ``90-immutable-release.conf``
 drop-ins drifted apart (three different SHAs across the chain at once), which is
@@ -17,9 +24,8 @@ exactly the unversioned manual configuration this repository must not depend on.
 This tool derives each drop-in mechanically from the versioned unit files in
 ``deploy/systemd`` by rewriting the ``/opt/extra-consultoria`` prefix to the
 requested immutable release, applies the whole set atomically-or-not-at-all,
-and keeps only the source timer plus the independent feed monitor scheduled.
-The downstream data stages advance through ``OnSuccess`` and do not own a
-second cadence.
+and keeps every stage on its own schedule.  A PNCP failure cannot suppress a
+datalake-backed commercial run.
 """
 
 from __future__ import annotations
@@ -55,23 +61,24 @@ CHAIN_UNITS = (
     "extra-confenge-feed-monitor.service",
 )
 
-# Timers that must survive a reboot for the chain to run without an operator.
-# Only the source starts a data cycle; the monitor observes publication health
-# without advancing the pipeline.
+# Timers that must survive a reboot for the plane to run without an operator.
+# Ingestion, datalake maintenance and commercial publication each own one; the
+# monitor observes publication health without advancing anything.  Omitting a
+# stage here would orphan it: with the ``OnSuccess`` cascade gone there is no
+# other trigger.
 CHAIN_TIMERS = (
     "pncp-contracts.timer",
+    "extra-confenge-target-fit-refresh.timer",
+    "extra-confenge-target-fit-reconcile.timer",
+    "extra-confenge-contact-cycle.timer",
+    "extra-confenge-feed-cycle.timer",
     "extra-confenge-feed-monitor.timer",
 )
 
-# These legacy independent cadences bypass the source-triggered cascade. Merely
-# omitting ``enable`` is insufficient because an older pin may have left them
-# enabled and active on the host.
-CHAIN_DISABLED_TIMERS = (
-    "extra-confenge-target-fit-reconcile.timer",
-    "extra-confenge-target-fit-refresh.timer",
-    "extra-confenge-contact-cycle.timer",
-    "extra-confenge-feed-cycle.timer",
-)
+# No stage may be driven by a source-triggered cascade any more, so there is no
+# cadence left to suppress.  Kept as an explicit, readable empty contract: a
+# future stage that must not self-schedule belongs here, not in a comment.
+CHAIN_DISABLED_TIMERS: tuple[str, ...] = ()
 
 # Long-running workers that must come back after a reboot.
 CHAIN_ENABLED_SERVICES = ("extra-confenge-target-fit-worker.service",)
@@ -310,7 +317,10 @@ def apply(sha: str, *, dry_run: bool = False) -> dict[str, object]:
         # --now is required for both the source trigger and independent monitor;
         # enabling alone would defer them until the next boot.
         _run(["systemctl", "enable", "--now", *CHAIN_TIMERS])
-        _run(["systemctl", "disable", "--now", *CHAIN_DISABLED_TIMERS])
+        if CHAIN_DISABLED_TIMERS:
+            # `systemctl disable --now` with no unit argument is a usage error,
+            # so an empty suppression contract must be a no-op, not a failure.
+            _run(["systemctl", "disable", "--now", *CHAIN_DISABLED_TIMERS])
         _run(["systemctl", "enable", *CHAIN_ENABLED_SERVICES])
     return {
         "schema": "confenge.release_pin.v1",

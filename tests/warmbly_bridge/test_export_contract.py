@@ -232,41 +232,67 @@ def test_freshness_attestation_is_bound_into_source_run(
     assert second["authoritative_source_freshness"]["run_id"] == "contracts-b"
 
 
-def test_export_refuses_degraded_authoritative_source(
-    tmp_path: Path, universe_path: Path, intel_path: Path, contacts_path: Path
+@pytest.mark.parametrize("status", ["DEGRADED", "STALE", "UNKNOWN"])
+def test_export_proceeds_while_the_live_source_is_degraded(
+    status: str, tmp_path: Path, universe_path: Path, intel_path: Path, contacts_path: Path
 ) -> None:
-    with pytest.raises(Exception, match="must be FRESH"):
-        export_outreach(
-            ExportConfig(
-                universe=universe_path,
-                account_intelligence=intel_path,
-                contacts=contacts_path,
-                out_dir=tmp_path / "degraded",
-                authoritative_source_freshness={
-                    "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
-                    "status": "DEGRADED",
-                    "expires_at": "2099-08-22T18:00:00Z",
-                },
-                require_authoritative_source_freshness=True,
-            )
+    """PNCP health is acquisition telemetry; the datalake authorises the export."""
+    result = export_outreach(
+        ExportConfig(
+            universe=universe_path,
+            account_intelligence=intel_path,
+            contacts=contacts_path,
+            out_dir=tmp_path / f"degraded-{status.lower()}",
+            authoritative_source_freshness={
+                "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
+                "status": status,
+                "reason_codes": ["SOURCE_WINDOW_NOT_CLOSED"],
+            },
+            require_authoritative_source_freshness=True,
         )
+    )
+
+    manifest = json.loads(Path(result["manifest"]).read_text(encoding="utf-8"))
+    assert manifest["lead_count"] >= 1
+    # Reported verbatim, never upgraded to a fabricated FRESH.
+    assert manifest["source_operational_health"]["status"] == status
+    assert manifest["authoritative_source_freshness"]["status"] == status
 
 
-def test_export_refuses_expired_authoritative_source(
+def test_export_proceeds_after_the_live_freshness_window_expired(
     tmp_path: Path, universe_path: Path, intel_path: Path, contacts_path: Path
 ) -> None:
-    with pytest.raises(Exception, match="expired before export"):
+    """A clock that ran out on the crawler cannot unmake persisted membership."""
+    result = export_outreach(
+        ExportConfig(
+            universe=universe_path,
+            account_intelligence=intel_path,
+            contacts=contacts_path,
+            out_dir=tmp_path / "expired",
+            authoritative_source_freshness={
+                "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
+                "status": "FRESH",
+                "expires_at": "2020-01-01T00:00:00Z",
+            },
+            require_authoritative_source_freshness=True,
+        )
+    )
+
+    assert json.loads(Path(result["manifest"]).read_text(encoding="utf-8"))["lead_count"] >= 1
+
+
+def test_export_still_requires_an_accountable_source_health_envelope(
+    tmp_path: Path, universe_path: Path, intel_path: Path, contacts_path: Path
+) -> None:
+    """A build that cannot say what the source was doing stays unaccountable."""
+    with pytest.raises(Exception, match="source operational health envelope"):
         export_outreach(
             ExportConfig(
                 universe=universe_path,
                 account_intelligence=intel_path,
                 contacts=contacts_path,
-                out_dir=tmp_path / "expired",
-                authoritative_source_freshness={
-                    "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
-                    "status": "FRESH",
-                    "expires_at": "2020-01-01T00:00:00Z",
-                },
+                out_dir=tmp_path / "unbound",
+                authoritative_source_freshness={"status": "FRESH"},
                 require_authoritative_source_freshness=True,
             )
         )

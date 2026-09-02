@@ -27,12 +27,14 @@ from scripts.ops import confenge_feed_cycle
 NOW = datetime(2026, 8, 24, 18, tzinfo=UTC)
 
 
-def test_recurring_feed_cycle_runs_after_pncp_source_window() -> None:
+def test_recurring_feed_cycle_has_an_independent_commercial_cadence() -> None:
+    """Publication is scheduled by the clock, not by a PNCP source window."""
     timer = Path("deploy/systemd/extra-confenge-feed-cycle.timer").read_text(encoding="utf-8").splitlines()
 
-    assert "OnCalendar=*-*-* 01,13:20:00" in timer
+    assert "OnCalendar=*-*-* 02,08,14,20:15:00" in timer
     assert "RandomizedDelaySec=10m" in timer
-    assert "OnCalendar=*-*-* 00,12:20:00" not in timer
+    assert "Persistent=true" in timer
+    assert "OnCalendar=*-*-* 01,13:20:00" not in timer
 
 
 def _build(
@@ -852,9 +854,9 @@ def test_failed_next_run_readback_preserves_candidate_error_twice(tmp_path: Path
     later = NOW + timedelta(hours=1)
     candidate = _rewrite_manifest(
         _build(tmp_path / "next", snapshot="snapshot-b", generated_at=later),
-        lambda manifest: manifest["authoritative_source_freshness"].__setitem__("status", "STALE"),
+        lambda manifest: manifest["authoritative_source_freshness"].__setitem__("contract_version", "BOGUS/9"),
     )
-    with pytest.raises(ValueError, match="not FRESH"):
+    with pytest.raises(ValueError, match="source operational health envelope is required"):
         atomic_publish_directory(candidate, public, state_path=state, alert_ledger=alerts, now=later)
     first = check_current_publication(public, state_path=state, alert_ledger=alerts, now=later)
     second = check_current_publication(public, state_path=state, alert_ledger=alerts, now=later)
@@ -871,18 +873,21 @@ def test_failed_next_run_readback_preserves_candidate_error_twice(tmp_path: Path
     assert first["commercial_authority"]["state"] == "CURRENT"
 
 
-def test_new_promotion_still_requires_live_pncp_fresh(tmp_path: Path) -> None:
+def test_new_promotion_no_longer_requires_live_pncp_fresh(tmp_path: Path) -> None:
+    """A STALE crawler is an acquisition incident, not a publication veto.
+
+    The candidate is built from the persisted datalake and every other gate is
+    unchanged, so it must promote and rebind commercial authority to itself.
+    """
     public, state, alerts = _paths(tmp_path)
-    first = atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
-    before = (public / "current" / "manifest.json").read_bytes()
+    atomic_publish_directory(_build(tmp_path / "first"), public, state_path=state, alert_ledger=alerts, now=NOW)
     later = NOW + timedelta(hours=1)
     candidate = _rewrite_manifest(
         _build(tmp_path / "next", snapshot="snapshot-b", generated_at=later),
         lambda manifest: manifest["authoritative_source_freshness"].__setitem__("status", "STALE"),
     )
-    with pytest.raises(ValueError, match="not FRESH"):
-        atomic_publish_directory(candidate, public, state_path=state, alert_ledger=alerts, now=later)
-    assert (public / "current" / "manifest.json").read_bytes() == before
+    promoted = atomic_publish_directory(candidate, public, state_path=state, alert_ledger=alerts, now=later)
+
     readback = check_current_publication(
         public,
         state_path=state,
@@ -891,8 +896,11 @@ def test_new_promotion_still_requires_live_pncp_fresh(tmp_path: Path) -> None:
         source_operational_health=_stale_source_health(),
     )
     assert readback["commercial_authority"]["state"] == "CURRENT"
-    assert readback["commercial_authority"]["basis_snapshot_hash"] == first["snapshot_hash"]
-    assert Path(first["current"]).resolve() == (public / "current").resolve()
+    assert readback["commercial_authority"]["basis_snapshot_hash"] == promoted["snapshot_hash"]
+    # Reported, never fabricated.
+    assert readback["source_operational_health"]["status"] == "STALE"
+    assert readback["last_good_source_attestation"]["status"] == "STALE"
+    assert Path(promoted["current"]).resolve() == (public / "current").resolve()
 
 
 def test_failed_next_run_preserves_authority_across_current_degraded_frozen(
@@ -909,9 +917,9 @@ def test_failed_next_run_preserves_authority_across_current_degraded_frozen(
         clock = NOW + age
         candidate = _rewrite_manifest(
             _build(tmp_path / f"next-{expected}", snapshot=f"snap-{expected}", generated_at=clock),
-            lambda manifest: manifest["authoritative_source_freshness"].__setitem__("status", "UNKNOWN"),
+            lambda manifest: manifest["authoritative_source_freshness"].__setitem__("contract_version", "BOGUS/9"),
         )
-        with pytest.raises(ValueError, match="not FRESH"):
+        with pytest.raises(ValueError, match="source operational health envelope is required"):
             atomic_publish_directory(candidate, public, state_path=state, alert_ledger=alerts, now=clock)
         assert (public / "current" / "manifest.json").read_bytes() == before
         readback = check_current_publication(
@@ -935,9 +943,9 @@ def test_expired_prior_authority_does_not_revive_on_failed_refresh(tmp_path: Pat
     clock = NOW + timedelta(days=7, minutes=1)
     candidate = _rewrite_manifest(
         _build(tmp_path / "next", snapshot="snapshot-b", generated_at=clock),
-        lambda manifest: manifest["authoritative_source_freshness"].__setitem__("status", "DEGRADED"),
+        lambda manifest: manifest["authoritative_source_freshness"].__setitem__("contract_version", "BOGUS/9"),
     )
-    with pytest.raises(ValueError, match="not FRESH"):
+    with pytest.raises(ValueError, match="source operational health envelope is required"):
         atomic_publish_directory(candidate, public, state_path=state, alert_ledger=alerts, now=clock)
     readback = check_current_publication(
         public,

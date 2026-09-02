@@ -396,11 +396,19 @@ def test_production_snapshot_uses_published_store_and_canonicalizes_prevencao(
             }
         },
     )
-    monkeypatch.setattr(
-        pipeline,
-        "get_control",
-        lambda connection, key: {"watermark": "2026-08-12T08:00:00Z"},
-    )
+    def _healthy_control(connection, key):
+        if key == "cdc_watermark":
+            return {"watermark": "2026-08-12T08:00:00Z"}
+        assert key == "target_fit_coverage"
+        return {
+            "coverage_ratio": 1.0,
+            "pagination_exhausted_normally": True,
+            "last_full_reconcile_unexplained_missing": 0,
+            "last_full_reconcile_completed_at": "2026-08-12T07:30:00Z",
+        }
+
+    monkeypatch.setattr(pipeline, "get_control", _healthy_control)
+    monkeypatch.setattr(pipeline, "queue_counts", lambda connection: {"done": 12})
 
     snapshot, authority, watermark = _published_target_fit_snapshot(
         [{"cnpj14": "01489370000105"}],
@@ -449,7 +457,19 @@ def test_published_decision_without_a_watermark_is_tombstoned_not_exported(monke
             },
         },
     )
-    monkeypatch.setattr(pipeline, "get_control", lambda connection, key: {"watermark": "2026-08-12T08:00:00Z"})
+    def _healthy_control(connection, key):
+        if key == "cdc_watermark":
+            return {"watermark": "2026-08-12T08:00:00Z"}
+        assert key == "target_fit_coverage"
+        return {
+            "coverage_ratio": 1.0,
+            "pagination_exhausted_normally": True,
+            "last_full_reconcile_unexplained_missing": 0,
+            "last_full_reconcile_completed_at": "2026-08-12T07:30:00Z",
+        }
+
+    monkeypatch.setattr(pipeline, "get_control", _healthy_control)
+    monkeypatch.setattr(pipeline, "queue_counts", lambda connection: {"done": 12})
 
     snapshot, _, _ = _published_target_fit_snapshot(
         [{"cnpj14": "14893700000105"}, {"cnpj14": "11222333000181"}],
@@ -546,7 +566,7 @@ def test_target_fit_reobservation_fails_closed_until_full_reconcile_and_queue_dr
     )
     monkeypatch.setattr(pipeline, "queue_counts", lambda connection: {"pending": 1})
 
-    with __import__("pytest").raises(ValueError, match="full reconcile must complete after"):
+    with __import__("pytest").raises(ValueError, match="1 unresolved queue items"):
         _published_target_fit_snapshot(
             [{"cnpj14": "11222333000181"}],
             dsn="postgresql://unused",
@@ -571,13 +591,14 @@ def test_target_fit_reobservation_fails_closed_until_full_reconcile_and_queue_dr
             }
         ),
     )
-    with __import__("pytest").raises(ValueError, match="1 unresolved queue items"):
+    monkeypatch.setattr(pipeline, "queue_counts", lambda connection: {"done": 407_513})
+    with __import__("pytest").raises(ValueError, match="full reconcile must complete after"):
         _published_target_fit_snapshot(
             [{"cnpj14": "11222333000181"}],
             dsn="postgresql://unused",
             authoritative_source_freshness={
                 "status": "FRESH",
-                "source_observed_at": "2026-08-25T02:42:00Z",
+                "source_observed_at": "2026-08-25T02:50:00Z",
                 "run_id": "contracts-live-1",
             },
         )

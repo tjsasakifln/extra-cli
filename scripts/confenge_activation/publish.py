@@ -475,19 +475,20 @@ def _validate_authoritative_manifest(
         raise ValueError("manifest.generated_at is in the future")
     generated_age = max(0.0, (now - generated_at).total_seconds() / 3600)
     watermark_age = max(0.0, (now - watermark).total_seconds() / 3600)
+    # The source health envelope must be present and well-formed so publication
+    # is always accountable for what PNCP was doing, but its *status* no longer
+    # authorises anything: acquisition telemetry cannot revoke a population that
+    # is already persisted and proven in the datalake. Publication recency below
+    # stays fail-closed because it measures this build, not the source.
     freshness = manifest.get("authoritative_source_freshness")
     freshness = freshness if isinstance(freshness, dict) else {}
     if freshness.get("contract_version") != "PNCP_CONTRACT_FRESHNESS/1.0":
-        raise ValueError("authoritative PNCP freshness contract is required")
-    if freshness.get("status") != "FRESH":
-        raise ValueError(f"authoritative PNCP freshness is not FRESH: {freshness.get('status') or 'MISSING'}")
+        raise ValueError("source operational health envelope is required")
     if require_live_source_freshness:
         if generated_age > max_age_hours:
             raise ValueError(f"manifest stale: generated_at age {generated_age:.3f}h > {max_age_hours:.3f}h")
         if watermark_age > max_age_hours:
             raise ValueError(f"datalake watermark stale: age {watermark_age:.3f}h > {max_age_hours:.3f}h")
-        if _parse_timestamp(freshness.get("expires_at"), field="authoritative_source_freshness.expires_at") <= now:
-            raise ValueError("authoritative PNCP freshness expired before publication")
 
     chunks = manifest.get("chunks")
     if not isinstance(chunks, list) or not chunks:

@@ -21,6 +21,7 @@
 | ADR-036 | Universo integral e GO do piloto CONFENGE | **Proposed** (2026-08-10) |
 | ADR-037 | Papel da contratada e primeiro toque delegado da CONFENGE | **Accepted by founder decision** (2026-08-25) |
 | ADR-038 | National census entity-authority boundary | **Proposed** (2026-08-29) |
+| ADR-039 | Desacoplamento da ingestão PNCP do plano comercial outbound | **Proposed** (2026-09-02) |
 
 ## ADRs revogadas / supersedidas
 

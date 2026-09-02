@@ -12,7 +12,7 @@ from scripts.confenge_target_fit.status import (
 )
 from scripts.confenge_target_fit.store import max_current_watermark
 from scripts.ops.source_maintenance_health import (
-    EXPECTED_ON_SUCCESS,
+    DECOUPLED_ON_SUCCESS,
     HEALTH_TIMER,
     PNCP_SERVICE,
     PNCP_TIMER,
@@ -57,8 +57,8 @@ def _snapshot() -> dict:
     units[TARGET_FIT_WORKER].update(
         {"UnitFileState": "enabled", "ActiveState": "active", "SubState": "running"}
     )
-    for source, target in EXPECTED_ON_SUCCESS.items():
-        units[source]["OnSuccess"] = target
+    for source in DECOUPLED_ON_SUCCESS:
+        units[source]["OnSuccess"] = ""
     return {
         "as_of": NOW.isoformat(),
         "release_sha": SHA,
@@ -189,7 +189,29 @@ def test_shipped_timers_survive_oneshot_failure_and_catch_up_after_reboot() -> N
             assert f"{relationship}={service_name}" not in active_lines
 
 
-def test_shipped_on_success_chain_is_exact_and_lock_errors_are_verbose() -> None:
+def test_a_recoupled_source_is_reported_as_unhealthy() -> None:
+    """A drifted host that re-adds the OnSuccess must fail the readback.
+
+    The gate exits non-zero for any non-FRESH contract, so re-coupling turns a
+    source incident back into a silent commercial outage.
+    """
+    for coupled in (PNCP_SERVICE, SOURCE_FRESHNESS_SERVICE):
+        snapshot = _snapshot()
+        snapshot["units"][coupled]["OnSuccess"] = TARGET_FIT_RECONCILE_SERVICE
+        contract = build_contract(snapshot)
+
+        expected = f"{coupled.upper().replace('-', '_').replace('.', '_')}_ONSUCCESS_COUPLED"
+        assert expected in contract["reason_codes"]
+        assert contract["status"] != "HEALTHY"
+
+
+def test_the_shipped_decoupled_units_pass_the_readback() -> None:
+    contract = build_contract(_snapshot())
+
+    assert not any(reason.endswith("_ONSUCCESS_COUPLED") for reason in contract["reason_codes"])
+
+
+def test_ingestion_and_source_health_carry_no_on_success_and_locks_are_verbose() -> None:
     pncp = (ROOT / "deploy/systemd/pncp-contracts.service").read_text(encoding="utf-8")
     gate = (ROOT / "deploy/systemd/extra-confenge-source-freshness-gate.service").read_text(
         encoding="utf-8"
@@ -200,8 +222,9 @@ def test_shipped_on_success_chain_is_exact_and_lock_errors_are_verbose() -> None
     reconcile = (ROOT / "deploy/systemd/extra-confenge-target-fit-reconcile.service").read_text(
         encoding="utf-8"
     )
-    assert f"OnSuccess={SOURCE_FRESHNESS_SERVICE}" in pncp
-    assert f"OnSuccess={TARGET_FIT_RECONCILE_SERVICE}" in gate
+    assert "OnSuccess=" not in pncp.split("[Service]", 1)[0]
+    assert "OnSuccess=" not in gate.split("[Service]", 1)[0]
+    assert f"OnSuccess={TARGET_FIT_RECONCILE_SERVICE}" not in pncp
     assert "/usr/bin/flock --verbose --nonblock" in refresh
     assert "/usr/bin/flock --verbose --nonblock" in reconcile
     assert "OnFailure=extra-onfailure@%n.service" in refresh

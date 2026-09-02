@@ -1,4 +1,4 @@
-"""Fail-closed systemd graph for the contemporary CONFENGE data refresh."""
+"""Systemd contract: PNCP ingestion must not govern the commercial plane."""
 
 from __future__ import annotations
 
@@ -31,7 +31,12 @@ def _on_success(name: str) -> list[str]:
     return values
 
 
-def test_refresh_graph_is_exact_linear_and_acyclic() -> None:
+def test_ingestion_and_source_health_advance_nothing() -> None:
+    """`--health` exits non-zero on any non-FRESH contract.
+
+    So an OnSuccess rooted at either unit makes a source incident a silent kill
+    switch over the whole commercial plane. Neither may carry one.
+    """
     graph = {
         SOURCE: _on_success(SOURCE),
         GATE: _on_success(GATE),
@@ -41,16 +46,16 @@ def test_refresh_graph_is_exact_linear_and_acyclic() -> None:
     }
 
     assert graph == {
-        SOURCE: [GATE],
-        GATE: [TARGET],
+        SOURCE: [],
+        GATE: [],
         TARGET: [CONTACT],
-        CONTACT: [FEED],
+        CONTACT: [],
         FEED: [],
     }
     assert all((UNIT_DIR / successor).is_file() for values in graph.values() for successor in values)
 
 
-def test_source_never_bypasses_the_semantic_freshness_gate() -> None:
+def test_source_is_ingestion_only_and_keeps_its_failure_semantics() -> None:
     source = _unit(SOURCE)
     gate = _unit(GATE)
 
@@ -63,8 +68,7 @@ def test_source_never_bypasses_the_semantic_freshness_gate() -> None:
     assert "StartLimitIntervalSec=" not in source
     assert "StartLimitBurst=" not in source
     assert "TimeoutStartSec=320min" in source
-    assert f"OnSuccess={GATE}" in _unit_section(source)
-    assert f"OnSuccess={TARGET}" not in _unit_section(source)
+    assert "OnSuccess=" not in _unit_section(source)
     assert (
         "ExecStart=/opt/extra-consultoria/.venv/bin/python "
         "-m scripts.ops.pncp_contract_freshness --live --health"
@@ -72,7 +76,7 @@ def test_source_never_bypasses_the_semantic_freshness_gate() -> None:
     assert "SuccessExitStatus=" not in gate
 
 
-def test_each_promoting_stage_alerts_and_only_success_can_advance() -> None:
+def test_every_stage_still_alerts_on_failure() -> None:
     for name in (SOURCE, GATE, TARGET, CONTACT, FEED):
         text = _unit(name)
         assert "Type=oneshot" in text
@@ -81,8 +85,32 @@ def test_each_promoting_stage_alerts_and_only_success_can_advance() -> None:
     assert "OnSuccess=" not in _unit_section(_unit(FEED))
 
 
-def test_refresh_cascade_does_not_create_or_enable_a_commercial_timer() -> None:
+def test_the_freshness_gate_never_owns_a_cadence() -> None:
+    """Telemetry already ships through extra-health-check/health_bundle."""
     timer_names = {path.name for path in UNIT_DIR.glob("*.timer")}
 
     assert "extra-confenge-source-freshness-gate.timer" not in timer_names
     assert all("commercial" not in name for name in timer_names if "confenge" in name)
+
+
+def test_every_decoupled_stage_owns_an_independent_persistent_timer() -> None:
+    """Cutting OnSuccess without a timer would orphan the stage, not free it."""
+    for service in (
+        "extra-confenge-target-fit-refresh.service",
+        "extra-confenge-target-fit-reconcile.service",
+        CONTACT,
+        FEED,
+    ):
+        timer = _unit(service.replace(".service", ".timer"))
+        assert "Persistent=true" in timer
+        assert f"Unit={service}" in timer
+
+
+def test_feed_publication_runs_on_an_independent_four_times_daily_cadence() -> None:
+    timer = _unit(FEED.replace(".service", ".timer"))
+
+    assert "OnCalendar=*-*-* 02,08,14,20:15:00" in timer
+    assert "OnCalendar=*-*-* 01,13:20:00" not in timer
+    assert "Persistent=true" in timer
+    assert "RandomizedDelaySec=10m" in timer
+    assert "PNCP ingestion health never controls this" in timer

@@ -1,10 +1,12 @@
 [Unit]
-Description=Extra Consultoria — gate contemporary PNCP source before CONFENGE refresh
+Description=Extra Consultoria — observe PNCP source freshness (telemetry only)
 Documentation=file:/opt/extra-consultoria/docs/ops/confenge-outreach-pipeline.md
 After=pncp-contracts.service postgresql.service
 Requires=postgresql.service
 OnFailure=extra-onfailure@%n.service
-OnSuccess=extra-confenge-target-fit-reconcile.service
+# Telemetry/diagnostic only.  `--health` returns a non-zero exit for any
+# non-FRESH contract, so an OnSuccess here turns source health into a
+# downstream kill switch.  Target-fit reconciliation owns its own timer.
 
 [Service]
 Type=oneshot

@@ -1,7 +1,7 @@
 [Unit]
 Description=Extra Consultoria — CONFENGE target-fit national reconciliation
 Documentation=file:/opt/extra-consultoria/docs/confenge/TARGET-FIT-CONTINUOUS-REFRESH.md
-After=network-online.target postgresql.service extra-confenge-source-freshness-gate.service
+After=network-online.target postgresql.service
 Wants=network-online.target
 OnFailure=extra-onfailure@%n.service
 OnSuccess=extra-confenge-contact-cycle.service

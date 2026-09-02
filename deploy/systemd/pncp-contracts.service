@@ -6,9 +6,11 @@ Description=PNCP Contracts Crawler — Extra Consultoria
 After=network-online.target
 Wants=network-online.target
 OnFailure=extra-onfailure@%n.service
-# Never point this unit directly at target-fit: the dedicated gate re-evaluates
-# the semantic source contract before any downstream stage may advance.
-OnSuccess=extra-confenge-source-freshness-gate.service
+# Ingestion only.  This unit acquires PNCP contracts into the datalake and must
+# never carry an OnSuccess: the freshness gate exits non-zero whenever the
+# source contract is not FRESH, so any OnSuccess here silently suppresses the
+# whole commercial plane on a source incident.  Commercial qualification,
+# publication and transport read the persisted datalake on their own timers.
 
 [Service]
 Type=oneshot
