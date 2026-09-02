@@ -1,7 +1,7 @@
 {
   "schema_version": "confenge-frozen-inputs/1.0",
   "campaign": "CONFENGE-COMMERCIAL-READY-01",
-  "freeze_sha": "345968bf0fac29105f3a064e44db4dbe69d5768d",
+  "freeze_sha": "49a86d5f15684a37562f1e4143bf5988eed7b750",
   "policy": "frozen_confenge_inputs_v1",
   "inputs": [
     {
@@ -87,8 +87,8 @@
     {
       "path": "scripts/commercial_leads/contract_relevance.py",
       "kind": "file",
-      "blob_sha": "cfb40c2211c5f27ca19b72d2e0b29329be40a8e9",
-      "sha256": "7e99107795853ecf5365dbdd815282af32e6ad9159e86ff9fe98ef8362b64b9f"
+      "blob_sha": "823ce796d28ad25832da1f1632822108d4e93856",
+      "sha256": "4482aea1340a7ad36d4a52bc02968b768c5953135bbbfcb3eded843fc804ade2"
     },
     {
       "path": "scripts/commercial_leads/dbutil.py",
@@ -135,8 +135,8 @@
     {
       "path": "scripts/commercial_leads/pipeline.py",
       "kind": "file",
-      "blob_sha": "d8e03a1b7ab39f1674a9a3fe0a7863761f299292",
-      "sha256": "5f73b1880a65735201bfe324bfdf069f2013eaab73a51dc5588f81f9bbfb3734"
+      "blob_sha": "2c90a3b1f65548c70d85964b94e002e2b92d0b52",
+      "sha256": "2a3b24ffccb917c53c72c4e6c53d647a2f316a495dd61b127c49eb16c77906cb"
     },
     {
       "path": "scripts/commercial_leads/profile.py",
@@ -219,8 +219,14 @@
     {
       "path": "scripts/confenge_account_intelligence/message_spine.py",
       "kind": "file",
-      "blob_sha": "637c085a959e894290e0bc193778abb2215f7a32",
-      "sha256": "7727a48f71d2c284b8892eda64b1d2fa40c486ba236b18fe44de0d64c1808fde"
+      "blob_sha": "17c4db745265365d7f6d4b97efe745063df96230",
+      "sha256": "9edbaf6f7bc4b7eaa27a085401f05636d62498673a5f8ebca23fab727d432a06"
+    },
+    {
+      "path": "scripts/confenge_activation/commercial_authority.py",
+      "kind": "file",
+      "blob_sha": "ab4728cb1fa68f7de6ed205490b876f31c84adc4",
+      "sha256": "ecf59bf41a624e33460c7d8ae519f63b61c276cb8a8e79ac948b47adfc4f4096"
     },
     {
       "path": "scripts/confenge_activation/emit_final_closure_pack.py",
@@ -243,8 +249,20 @@
     {
       "path": "scripts/confenge_activation/publish.py",
       "kind": "file",
-      "blob_sha": "4b56c2bd877cf9ecae7add806f0f62c4dadc65a5",
-      "sha256": "f5049ed343d8d5e188e467fe03a526982ace4b5cd79733bd041ac1e6264a10ba"
+      "blob_sha": "4452d8a88d8b8f1a973410d24176c46914c7bc74",
+      "sha256": "9b867195c29bf97d470293824690fa9b49ca57dd883d89248441ce3a2db3298c"
+    },
+    {
+      "path": "scripts/confenge_claim_policy/__init__.py",
+      "kind": "file",
+      "blob_sha": "586ff6dc48f5f18f26e608a122b4a31c1ec266a1",
+      "sha256": "eb5a8dee3318800cc5b78578640ddd17a7be16d696911582d2abfe215679b57a"
+    },
+    {
+      "path": "scripts/confenge_claim_policy/policy.py",
+      "kind": "file",
+      "blob_sha": "0908a2229a317b0a8497f6b99f41b5011908e5dd",
+      "sha256": "f3b5c767a10e935985aea443963e603349134c1a3c1d61fef90190fae25192c0"
     },
     {
       "path": "scripts/confenge_contact_resolution/__init__.py",
@@ -303,14 +321,20 @@
     {
       "path": "scripts/confenge_contact_resolution/send_readiness.py",
       "kind": "file",
-      "blob_sha": "2542ddfd33e136ec470c447698aa4095d82b39b2",
-      "sha256": "53c174428d2b698f7722c7a42dea3194a4749f177e6dd6c6d49a30e5818d174d"
+      "blob_sha": "307850b5ada896a88dd6c758b0cf0788dbc39d61",
+      "sha256": "bead311c9fede5e524e583bfd97ebf548e7334c807e021266d25d46cdf684d34"
+    },
+    {
+      "path": "scripts/confenge_contract_identity.py",
+      "kind": "file",
+      "blob_sha": "1389309ed62dc0406005b928b0f2cf4cee4afbc4",
+      "sha256": "981795085492e55675427af0ce1474363e1ca4f3f3c42894628815fceb5be970"
     },
     {
       "path": "scripts/confenge_outreach_pipeline/party_role.py",
       "kind": "file",
-      "blob_sha": "4f66b61a9d577e2bb7c0ec97c80b13a09fe84f5e",
-      "sha256": "ff0f5e468782f43bfa6ad90249405d2a03ed6375a9c5ded5624cb22d1c2c9156"
+      "blob_sha": "9dc387bcb131a10bf84710bfeb3eac7a89bc1e07",
+      "sha256": "b95f97889313d142c5f74de6bc0f884fc4eaa6be2b6a0dec950c9a42ce7687e1"
     },
     {
       "path": "scripts/confenge_process_enrichment/__init__.py",
@@ -441,8 +465,8 @@
     {
       "path": "scripts/confenge_sector/rebuild.py",
       "kind": "file",
-      "blob_sha": "018bdd11b92e8fb381e6bbdb5282a2a6eed6001f",
-      "sha256": "6fb9979763b82f725bf92cfaa7de17aff3449e0695c5b6e510b21ee214790d25"
+      "blob_sha": "42941f4395109e6426d96bab9dc22f020ade8a1f",
+      "sha256": "82542cecfff89f3f3c124d85b70f0e6146901a83bbc6593e5c4e6696c5341ee8"
     },
     {
       "path": "scripts/confenge_sector/store.py",
@@ -465,8 +489,8 @@
     {
       "path": "scripts/confenge_target_fit/compute.py",
       "kind": "file",
-      "blob_sha": "680219b98321f13728e3f21747c80af8e2243caf",
-      "sha256": "c528ad34a71a3c9e5fc4c91ae68c578515c725cbb95803191c29338aa70541f5"
+      "blob_sha": "c9286398822ab63a6001ce318dc09099616b0bc7",
+      "sha256": "b4ec7ca9e10e0367984952757e84605d743021fe833a7ad359956580da0360a3"
     },
     {
       "path": "scripts/confenge_target_fit/config.py",
@@ -477,8 +501,8 @@
     {
       "path": "scripts/confenge_target_fit/fingerprint.py",
       "kind": "file",
-      "blob_sha": "e4421e5ef7d6ed841fc455dee1dbd34f3a437dcb",
-      "sha256": "2774bc9bbdcd6106b84756783967a30441c097874140d51dba7460433a893abc"
+      "blob_sha": "f2070710db552778f8f8ddef1f49b0010cd1aead",
+      "sha256": "3ebde9f12c941b773764675d615173e6e180122a27a129e480b8350a27dfe077"
     },
     {
       "path": "scripts/confenge_target_fit/freshness.py",
@@ -501,8 +525,8 @@
     {
       "path": "scripts/confenge_target_fit/store.py",
       "kind": "file",
-      "blob_sha": "af56f9749fcba32cee7f31226ffff8724fed7c98",
-      "sha256": "0db76bfd0295e787e9039336847dbdd8717fbbed5aac758a30ca84459a5eb277"
+      "blob_sha": "91b804af914f77d043e07416c81d0a69c64c07df",
+      "sha256": "06357348c9d056dc49aa6a28d7130f61be000549f781ba5fcbd48bacd658f3db"
     },
     {
       "path": "scripts/confenge_target_fit/transitions.py",
@@ -517,16 +541,34 @@
       "sha256": "8e240a7f52dd26f0773348be6feeeae9558c9cfc73307b3fc0fb3207d1a6d8cf"
     },
     {
+      "path": "scripts/confenge_universe/parafiscal.py",
+      "kind": "file",
+      "blob_sha": "95f5785b19e97b021bfe4e79d4458c37b88e4eb3",
+      "sha256": "0b75f86fa22a6463bec42ed155f101c7319c9367059735aac07f00e9fa58bc13"
+    },
+    {
       "path": "scripts/confenge_universe/source.py",
       "kind": "file",
-      "blob_sha": "f8dcb7137f33e40ef2e9c1190513dae0ebcbc695",
-      "sha256": "1bf9158d2f1e80b7578d6283b04e07da3b65d5531ecba1fed11ee4e522f59055"
+      "blob_sha": "d81fee1379a56e7b4d3ce43c87b72b61aa2c5e15",
+      "sha256": "ad10913d1b39b3e38095c01368d4550c4d413eaaff6cf2fd0c3f095d587a67c4"
     },
     {
       "path": "scripts/confenge_universe/target_fit.py",
       "kind": "file",
-      "blob_sha": "1fa8b557e2b291243de89ff4da79051ac7d14bf7",
-      "sha256": "3f7609e32652f0828730e7b0a2ea3232a139f069a4b7046752f2c8604108e351"
+      "blob_sha": "85be252b3acb52ffeaa737a4c88e310a59bc9040",
+      "sha256": "8cd6d058f6557cf485c158430aae5c345073bb4802a4ccf4753cb96ea4f58ff1"
+    },
+    {
+      "path": "scripts/contracts_truth.py",
+      "kind": "file",
+      "blob_sha": "328823b260396dfe4067d5ca53ec0c21ae34ff0c",
+      "sha256": "87c4bdefa6efcdce040a8f902733d68e96e6e7d7846e549e8345a43ec9f73cd0"
+    },
+    {
+      "path": "scripts/crawl/observation_lineage.py",
+      "kind": "file",
+      "blob_sha": "cb051cc4a414bbae7b2d2bb0de75e5e665ce7a40",
+      "sha256": "815ddbaa4b52984aca089d16dd082de2a06496c6ef51935506272b62ba8496ec"
     },
     {
       "path": "scripts/crawl/run_evidence.py",
@@ -549,8 +591,8 @@
     {
       "path": "scripts/decision_unit_intelligence/batch_projection.py",
       "kind": "file",
-      "blob_sha": "4b5514a5817ee69b7cc841cf28cae27d3517ef29",
-      "sha256": "663ec83e54f17802d249dd56bc1374e844435e49ad54ac01f30278dd5a515a16"
+      "blob_sha": "17f2b8ad3aac81c011678357763cc37a517b38e9",
+      "sha256": "ebbefedfe8c07b916af658d77a65a5adc037e679844c9f531d139e689a48ba7f"
     },
     {
       "path": "scripts/decision_unit_intelligence/batch_queue.py",
@@ -795,8 +837,8 @@
     {
       "path": "scripts/ops/confenge_contact_cycle.py",
       "kind": "file",
-      "blob_sha": "6fe3d771041eb7943079e06f58d1df6f641d7086",
-      "sha256": "30aea4a2e524edd00e0a9ef6fe5aa3cbc70fc91304ba6f9b8b75a9210eef4dbe"
+      "blob_sha": "93105ee4d9723b29d17045000de23df76a5bbc15",
+      "sha256": "121b4a5344ae51769f5f29943614d35d14afaa5426016e2c58062d819cce9753"
     },
     {
       "path": "scripts/ops/confenge_contract_status.py",
@@ -813,8 +855,8 @@
     {
       "path": "scripts/ops/confenge_feed_cycle.py",
       "kind": "file",
-      "blob_sha": "9fad93bc2ab3e143497e846172fa2d056eff8475",
-      "sha256": "eee21b6d5250eda594f6746e2370060c4dd6c9e4870aba71cfb1fcec15e8ec8a"
+      "blob_sha": "f851e4b19d18d2a0c29bf0ad9d4e8fff0dec3419",
+      "sha256": "a29eceac28b91b23bdc40fb93e8d3dc8418cf3f5c9e9f8554669712f015d989c"
     },
     {
       "path": "scripts/ops/confenge_final_status.py",
@@ -951,8 +993,8 @@
     {
       "path": "scripts/warmbly_bridge/__init__.py",
       "kind": "file",
-      "blob_sha": "9bec4a982855ac0138ca3c2d7cf172617b16632a",
-      "sha256": "ca3a2cd3c92c05fe13a003ed8e9cd5280e491b9b55a080ed55eff2525deb4b16"
+      "blob_sha": "f565ecf3a9d19a600f75b966539c0aa706644caa",
+      "sha256": "a7194bb31941ced57288bdc29d0cca5b25409a70771d0b016bedc872b2ddc1ec"
     },
     {
       "path": "scripts/warmbly_bridge/constants.py",
@@ -963,8 +1005,8 @@
     {
       "path": "scripts/warmbly_bridge/export.py",
       "kind": "file",
-      "blob_sha": "db38c0a5896a905c82c162dec74a8131f242fc9e",
-      "sha256": "74e90651742956e4ff6b44f3dc306bbee1d08eee9abfbe83da5dc87d767957e6"
+      "blob_sha": "a2e1dc76e30d986ceb1d32d2151b7f32b2dab860",
+      "sha256": "a6351493a52d6c8914e0682c60cfac30ae7117ea7b574305163d23ab9cfcb59f"
     },
     {
       "path": "scripts/warmbly_bridge/io_jsonl.py",
