@@ -39,6 +39,7 @@ def _summary(payload: dict[str, Any], *, cost_ms: float) -> dict[str, Any]:
         "national_universe_id": payload.get("national_universe_id"),
         "catalog_hash": payload.get("catalog_hash"),
         "raw_hash": payload.get("raw_hash"),
+        "reconciliation_hash": payload.get("reconciliation_hash"),
         "expected_partitions": (payload.get("partitions") or {}).get("expected"),
         "closed_partitions": (payload.get("partitions") or {}).get("closed"),
         "reason_codes": payload.get("reason_codes"),
@@ -66,6 +67,9 @@ def build_parser() -> argparse.ArgumentParser:
     evaluate.add_argument("--input", required=True)
     evaluate.add_argument("--out", default=None)
     evaluate.set_defaults(func=_cmd_evaluate)
+    from scripts.national_coverage.census import add_census_subcommands
+
+    add_census_subcommands(sub)
     return parser
 
 

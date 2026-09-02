@@ -155,6 +155,7 @@ def _catalog_index(
 
 def map_publishers(snapshot: CorpusSnapshot, universe: VersionedUniverse) -> MappingStats:
     catalog = _catalog_index(universe.expected_orgs)
+    alias_keys = {normalize_org_id(alias) for org in universe.expected_orgs for alias in org.aliases}
     # Grain of the SELECT is (org, uf). Repeating the same org across UFs is
     # stock geography, not a duplicate identity. Duplicate is the same (org, uf).
     slice_counts = Counter((normalize_org_id(pub.raw_org_id), pub.uf) for pub in snapshot.publishers)
@@ -163,7 +164,7 @@ def map_publishers(snapshot: CorpusSnapshot, universe: VersionedUniverse) -> Map
     for pub in snapshot.publishers:
         raw = normalize_org_id(pub.raw_org_id)
         canonicals = list(dict.fromkeys(catalog.get(raw, [])))
-        alias_hit = any(normalize_org_id(alias) == raw for org in universe.expected_orgs for alias in org.aliases)
+        alias_hit = raw in alias_keys
         if slice_counts[(raw, pub.uf)] > 1:
             duplicate += 1
             records.append(

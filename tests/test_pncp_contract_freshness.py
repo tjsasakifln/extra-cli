@@ -554,7 +554,7 @@ def test_pncp_contracts_service_has_production_read_timeout() -> None:
     assert "Environment=CONTRACTS_PAGE_RETRY_CAP_SECONDS=30" in service
     assert "Environment=CONTRACTS_WINDOW_RETRY_MAX=2" in service
     assert "Environment=CONTRACTS_WINDOW_RETRY_DELAY_SECONDS=60" in service
-    assert "TimeoutStartSec=150min" in service
+    assert "TimeoutStartSec=320min" in service
 
 
 def test_collect_timer_snapshot_parses_systemd_stamps() -> None:
@@ -952,7 +952,7 @@ def test_shipped_timer_survives_triggered_oneshot_failure() -> None:
 
 def test_lock_busy_exit_75_is_not_fresh_or_closed_window() -> None:
     service = load_shipped_service_text()
-    assert LOCK_BUSY_EXIT in parse_success_exit_statuses(service)
+    assert LOCK_BUSY_EXIT not in parse_success_exit_statuses(service)
     status, reasons = classify_status(
         has_evidence=True,
         current_lag_hours=2.0,

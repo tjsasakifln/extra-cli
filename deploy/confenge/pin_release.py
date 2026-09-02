@@ -29,6 +29,7 @@ import json
 import re
 import subprocess
 import sys
+from decimal import Decimal
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -82,7 +83,11 @@ CHAIN_ENABLED_SERVICES = ("extra-confenge-target-fit-worker.service",)
 # PermissionError: 'output/contracts/incremental-latest.json' after a window it
 # had already crawled successfully.
 PINNED_DIRECTIVES = ("Environment=PYTHONPATH=", "ExecStart=")
-PRESERVED_DIRECTIVES = ("WorkingDirectory=",)
+# Keep operational limits authored with the versioned unit. In particular, a
+# host-local base unit may still have the old 150-minute PNCP limit; omitting
+# this from the immutable pin would silently discard the 320-minute bounded
+# two-pass recovery budget in the release being pinned.
+PRESERVED_DIRECTIVES = ("WorkingDirectory=", "TimeoutStartSec=")
 
 # With the working directory outside the release, Python would otherwise prepend
 # that directory to sys.path and let the checkout at /opt/extra-consultoria
@@ -90,9 +95,70 @@ PRESERVED_DIRECTIVES = ("WorkingDirectory=",)
 # bind the code it claims to bind.
 ISOLATED_INTERPRETER_FLAG = "-P"
 
+_DURATION_PART = re.compile(
+    # systemd accepts a leading `+` only before an integral component; `.5h`
+    # is valid, while `+.5h` is not.
+    r"(?P<value>(?:\+\d+(?:\.\d+)?|\d+(?:\.\d+)?|\.\d+))(?P<unit>"
+    # Long aliases must precede their short prefixes: `month` would otherwise
+    # be consumed as `m` plus an invalid `onth` suffix.
+    r"seconds?|minutes?|hours?|months?|years?|days?|weeks?|usec|µs|msec|min|sec|hr|"
+    r"ms|us|s|M|m|h|d|w|y)"
+)
+_DURATION_SECONDS = {
+    "usec": Decimal("0.000001"), "µs": Decimal("0.000001"), "us": Decimal("0.000001"),
+    "msec": Decimal("0.001"), "ms": Decimal("0.001"), "second": Decimal(1),
+    "seconds": Decimal(1), "sec": Decimal(1), "s": Decimal(1), "minute": Decimal(60),
+    "minutes": Decimal(60), "min": Decimal(60), "m": Decimal(60), "hour": Decimal(60 * 60),
+    "hours": Decimal(60 * 60), "hr": Decimal(60 * 60), "h": Decimal(60 * 60),
+    "day": Decimal(24 * 60 * 60), "days": Decimal(24 * 60 * 60), "d": Decimal(24 * 60 * 60),
+    "week": Decimal(7 * 24 * 60 * 60), "weeks": Decimal(7 * 24 * 60 * 60), "w": Decimal(7 * 24 * 60 * 60),
+    # systemd defines these calendar-independent units as fixed 30.44/365.25-day spans.
+    "month": Decimal("2629800"), "months": Decimal("2629800"), "M": Decimal("2629800"),
+    "year": Decimal("31557600"), "years": Decimal("31557600"), "y": Decimal("31557600"),
+}
+_MICROSECOND = Decimal("0.000001")
+
 
 class PinError(RuntimeError):
     """A pin was refused before anything on the host changed."""
+
+
+def _duration_seconds(value: str) -> Decimal | None:
+    """Parse systemd time spans, returning ``None`` for an infinite timeout."""
+    normalized = re.sub(r"\s+", "", value.strip())
+    if normalized == "infinity":
+        return None
+    if re.fullmatch(r"(?:\+\d+(?:\.\d+)?|\d+(?:\.\d+)?|\.\d+)", normalized):
+        return Decimal(normalized)
+    parts = list(_DURATION_PART.finditer(normalized))
+    if not parts or "".join(part.group(0) for part in parts) != normalized:
+        raise PinError(f"unsupported systemd duration: {value!r}")
+    return sum(
+        (Decimal(part["value"]) * _DURATION_SECONDS[part["unit"]] for part in parts),
+        Decimal(0),
+    )
+
+
+def _systemd_timeout_seconds(value: str) -> Decimal | None:
+    """Mirror systemd's integer-microsecond timeout resolution."""
+    parsed = _duration_seconds(value)
+    if parsed is None:
+        return None
+    return Decimal(int(parsed / _MICROSECOND)) * _MICROSECOND
+
+
+def _source_timeout_start_seconds(unit: str) -> tuple[bool, Decimal | None]:
+    """Return whether a unit sets the timeout plus its versioned intent."""
+    source = UNIT_SOURCE / unit
+    timeout: str | None = None
+    for line in _logical_lines(source.read_text(encoding="utf-8")):
+        if line.startswith("TimeoutStartSec="):
+            timeout = line.removeprefix("TimeoutStartSec=")
+    parsed = _systemd_timeout_seconds(timeout) if timeout is not None else None
+    # systemd treats TimeoutStartSec=0 as no start timeout and resolves it as
+    # `infinity` in TimeoutStartUSec. Compare that semantic intent, not the
+    # spelling in the source unit.
+    return timeout is not None, None if parsed == Decimal(0) else parsed
 
 
 def _logical_lines(text: str) -> list[str]:
@@ -154,10 +220,19 @@ def render_dropin(unit_text: str, sha: str) -> str:
         # otherwise immutable release. Suppress bytecode for every pinned
         # process; the venv remains the only mutable interpreter input.
         "Environment=PYTHONDONTWRITEBYTECODE=1",
+        # Parent ExecStart uses -P, but children (contact-cycle DUI export)
+        # inherit Environment only. PYTHONSAFEPATH stops cwd from shadowing
+        # the release scripts package the same way -P does for the parent.
+        "Environment=PYTHONSAFEPATH=1",
         # Clear the inherited ExecStart before appending the pinned one.
         "ExecStart=",
         exec_start,
     ]
+    # A legacy base unit on the VPS may still consider lock-busy exit 75 a
+    # success. The immutable PNCP drop-in must override that semantic even
+    # before a fresh-install base unit is deployed.
+    if "scripts.crawl.run_contracts_incremental" in unit_text:
+        body.extend(["SuccessExitStatus=", "Restart=no"])
     return "\n".join(body) + "\n"
 
 
@@ -180,6 +255,9 @@ def plan(sha: str) -> dict[str, str]:
         if not source.is_file():
             raise PinError(f"versioned unit file is missing: {source}")
         try:
+            # Validate every preserved timeout before the first host write, so
+            # an unsupported source directive cannot leave a half-pinned chain.
+            _source_timeout_start_seconds(unit)
             rendered[unit] = render_dropin(source.read_text(encoding="utf-8"), sha)
         except PinError as exc:
             raise PinError(f"{unit}: {exc}") from exc
@@ -253,6 +331,7 @@ def verify(sha: str) -> dict[str, object]:
     bytecode_writes_enabled: list[dict[str, str]] = []
     working_directory_drift: list[dict[str, str]] = []
     working_directory_not_writable: list[dict[str, str]] = []
+    timeout_start_drift: list[dict[str, str]] = []
     release = f"{RELEASE_ROOT}/{sha}"
     for unit in CHAIN_UNITS:
         result = _run(["systemctl", "show", unit, "-p", "ExecStart", "--value"], check=False)
@@ -270,6 +349,8 @@ def verify(sha: str) -> dict[str, object]:
             drift.append({"unit": unit, "resolved": environment[:400]})
         if "PYTHONDONTWRITEBYTECODE=1" not in environment:
             bytecode_writes_enabled.append({"unit": unit, "resolved": environment[:400]})
+        if "PYTHONSAFEPATH=1" not in environment:
+            unsafe_python_path.append({"unit": unit, "resolved": environment[:400]})
 
         working_directory = (
             _run(["systemctl", "show", unit, "-p", "WorkingDirectory", "--value"], check=False).stdout or ""
@@ -286,6 +367,29 @@ def verify(sha: str) -> dict[str, object]:
             if _run(writable_probe, check=False).returncode != 0:
                 working_directory_not_writable.append(
                     {"unit": unit, "user": user or "root", "working_directory": working_directory}
+                )
+        has_timeout, expected_timeout = _source_timeout_start_seconds(unit)
+        if has_timeout:
+            observed_timeout = (
+                _run(["systemctl", "show", unit, "-p", "TimeoutStartUSec", "--value"], check=False).stdout
+                or ""
+            ).strip()
+            try:
+                actual_timeout = _systemd_timeout_seconds(observed_timeout)
+            except PinError:
+                actual_timeout = None
+                timeout_was_parsed = False
+            else:
+                timeout_was_parsed = True
+            if not timeout_was_parsed or actual_timeout != expected_timeout:
+                timeout_start_drift.append(
+                    {
+                        "unit": unit,
+                        "expected": (
+                            "infinity" if expected_timeout is None else f"{expected_timeout.normalize():f}s"
+                        ),
+                        "observed": observed_timeout or "MISSING",
+                    }
                 )
     disabled: list[str] = []
     for unit in (*CHAIN_TIMERS, *CHAIN_ENABLED_SERVICES):
@@ -306,6 +410,17 @@ def verify(sha: str) -> dict[str, object]:
             independently_scheduled.append(
                 f"{unit}=enabled:{enabled or 'unknown'},active:{active or 'unknown'}"
             )
+    pncp_service_semantic_drift: list[dict[str, str]] = []
+    for prop in ("SuccessExitStatus", "Restart"):
+        observed = (
+            _run(["systemctl", "show", "pncp-contracts.service", "-p", prop, "--value"], check=False).stdout
+            or ""
+        ).strip()
+        if prop == "SuccessExitStatus":
+            if observed:
+                pncp_service_semantic_drift.append({"property": prop, "observed": observed})
+        elif observed != "no":
+            pncp_service_semantic_drift.append({"property": prop, "observed": observed})
     return {
         "schema": "confenge.release_pin_verification.v1",
         "release_sha": sha,
@@ -316,9 +431,11 @@ def verify(sha: str) -> dict[str, object]:
                 bytecode_writes_enabled,
                 working_directory_drift,
                 working_directory_not_writable,
+                timeout_start_drift,
                 disabled,
                 inactive_timers,
                 independently_scheduled,
+                pncp_service_semantic_drift,
             )
         ),
         "release_drift": drift,
@@ -326,9 +443,11 @@ def verify(sha: str) -> dict[str, object]:
         "bytecode_writes_enabled": bytecode_writes_enabled,
         "working_directory_drift": working_directory_drift,
         "working_directory_not_writable": working_directory_not_writable,
+        "timeout_start_drift": timeout_start_drift,
         "not_enabled": disabled,
         "timers_not_active": inactive_timers,
         "downstream_timers_scheduled": independently_scheduled,
+        "pncp_service_semantic_drift": pncp_service_semantic_drift,
     }
 
 

@@ -54,7 +54,15 @@ def test_source_never_bypasses_the_semantic_freshness_gate() -> None:
     source = _unit(SOURCE)
     gate = _unit(GATE)
 
-    assert "SuccessExitStatus=75" in source
+    assert "SuccessExitStatus=" not in source
+    restart_lines = [line for line in source.splitlines() if line.startswith("Restart=")]
+    assert restart_lines == ["Restart=no"]
+    assert "RestartPreventExitStatus=" not in source
+    assert "RestartForceExitStatus=" not in source
+    assert "RestartSec=" not in source
+    assert "StartLimitIntervalSec=" not in source
+    assert "StartLimitBurst=" not in source
+    assert "TimeoutStartSec=320min" in source
     assert f"OnSuccess={GATE}" in _unit_section(source)
     assert f"OnSuccess={TARGET}" not in _unit_section(source)
     assert (

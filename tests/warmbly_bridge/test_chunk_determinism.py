@@ -8,6 +8,7 @@ from pathlib import Path
 
 from scripts.warmbly_bridge.export import (
     ExportConfig,
+    _chunk_leads,
     _decision_cursor,
     _encode_chunk,
     _encoded_lead_item_size,
@@ -36,10 +37,12 @@ def test_incremental_provisional_size_matches_canonical_encoding() -> None:
     source = {"system": "extra-cli", "run_id": "run-size"}
     generated_at = "2026-08-12T12:00:00Z"
     pagination = {
-        "cursor": _decision_cursor(leads[0]),
-        "next_cursor": None,
-        "has_more": False,
         "chunk_index": 7,
+        "content_hash": "0" * 64,
+        "cursor": _decision_cursor(leads[0]),
+        "has_more": True,
+        "hashes": {"leads": "0" * 64, "snapshot": "0" * 64},
+        "next_cursor": _decision_cursor(leads[1]),
     }
     feed = {
         "schema_version": "confenge.outreach.v1",
@@ -56,9 +59,62 @@ def test_incremental_provisional_size_matches_canonical_encoding() -> None:
         generated_at=generated_at,
         cursor=pagination["cursor"],
         chunk_index=pagination["chunk_index"],
+        next_cursor=pagination["next_cursor"],
+        snapshot_hash="0" * 64,
     )
 
     assert measured == len(_encode_chunk(feed))
+    packed_without_hashes = {
+        **feed,
+        "pagination": {
+            "cursor": pagination["cursor"],
+            "next_cursor": pagination["next_cursor"],
+            "has_more": True,
+            "chunk_index": 7,
+            "content_hash": "a" * 64,
+            "hashes": {"leads": "b" * 64, "snapshot": "c" * 64},
+        },
+    }
+    assert measured == len(_encode_chunk(packed_without_hashes))
+
+
+def test_packed_chunks_stay_under_byte_ceiling_after_hash_fields_are_added() -> None:
+    """Live publication failed when packing ignored post-pack content hashes."""
+    leads = [
+        {
+            "source_lead_id": f"lead-{idx}",
+            "company": {"cnpj14": f"{idx:014d}"},
+            "target_fit_source_watermark": "wm",
+            "target_fit_computed_at": "2026-08-28T00:00:00Z",
+            "note": "payload " * 40,
+        }
+        for idx in range(1, 40)
+    ]
+    source = {"system": "extra-cli", "run_id": "run-ceiling", "snapshot_hash": "s" * 64}
+    generated_at = "2026-08-28T04:00:00Z"
+    max_bytes = 12_000
+    packed = _chunk_leads(
+        leads,
+        max_leads=100,
+        max_bytes=max_bytes,
+        source=source,
+        generated_at=generated_at,
+    )
+    assert len(packed) > 1
+    for slice_leads, pagination in packed:
+        leads_hash = "a" * 64
+        feed = {
+            "schema_version": "confenge.outreach.v1",
+            "generated_at": generated_at,
+            "source": source,
+            "pagination": {
+                **pagination,
+                "content_hash": leads_hash,
+                "hashes": {"leads": leads_hash, "snapshot": source["snapshot_hash"]},
+            },
+            "leads": slice_leads,
+        }
+        assert len(_encode_chunk(feed)) <= max_bytes
 
 
 def test_reexport_same_inputs_same_hashes(

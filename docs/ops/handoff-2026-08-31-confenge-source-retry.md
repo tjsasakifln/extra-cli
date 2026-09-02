@@ -1,0 +1,49 @@
+# Handoff: retry limitado da fonte CONFENGE
+
+**Data:** 2026-08-31
+**Estado:** `VERIFIED` no branch; requer CI, merge e validação live para `ACCEPTED`
+
+## Incidente
+
+O ciclo PNCP das 08:00 BRT terminou `partial` depois de detectar mudança de
+população durante a paginação. O serviço aguardaria o próximo slot de quatro
+horas, enquanto a autoridade de freshness usada para nova publicação expirava.
+O pipeline downstream permaneceu corretamente fechado, mas sem uma tentativa
+curta de recuperação.
+
+## Contrato implementado
+
+- `0` continua sendo o único sucesso que aciona `OnSuccess`.
+- `75` significa writer lock ocupado e não é sucesso nem condição de retry.
+- `77` é emitido somente quando todos os erros observados são transitórios:
+  source-population drift, timeout, conexão, rate limit ou HTTP 5xx.
+- O runner Python executa no máximo uma nova tentativa após cinco minutos,
+  ainda sob a mesma trava de writer. Códigos estruturais `1` e `2` não repetem.
+- A cadeia permanece serial e só avança para o freshness gate depois de um
+  resultado `0`.
+- O drop-in do release imutável limpa o legado `SuccessExitStatus=75` e fixa
+  `Restart=no`, de modo que a correção alcance hosts já provisionados sem
+  substituir unidades-base, EnvironmentFiles ou drop-ins externos.
+
+O retry não transforma freshness vencida em aprovada e não altera a
+`COMMERCIAL_AUTHORITY/2.0`. Integridade do last-good, saúde da fonte e
+autoridade comercial continuam sinais separados.
+
+## Verificação do branch
+
+```text
+pytest focado: 137 passed
+ruff check: PASS
+git diff --check: PASS
+```
+
+## Aceite live
+
+Depois do merge, cortar e pinar o release imutável. Em seguida comprovar:
+
+1. exit `77` mantém downstream parado;
+2. uma única tentativa ocorre após cinco minutos;
+3. exit `0` aciona freshness gate, target-fit, contact cycle e feed cycle;
+4. exit `1`, `2` ou `75` não reinicia nem aciona downstream;
+5. `pin_release.py --verify-only <sha>` confirma `Restart=no`, ausência de
+   success exit `75` e identidade de release sem drift.

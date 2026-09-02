@@ -19,6 +19,7 @@ REQUIRED_CONSUMER = (
     "data_freshness",
     "missingness",
     "national_claim_authorized",
+    "reconciliation_hash",
     "verdict",
     "reason_codes",
     "limitations",
@@ -41,6 +42,7 @@ def test_consumer_fields_and_omitted_coverage_pct_when_official_blocked() -> Non
     assert consumer["provenance"]["as_of"]
     assert consumer["provenance"]["indexation_authorized"] is False
     assert consumer["provenance"]["internal_tables_exposed"] is False
+    assert consumer["reconciliation_hash"] == blocked["reconciliation_hash"]
     assert "indexation_not_authorized" in consumer["limitations"]
     facts = public_read_claim_facts(consumer)
     assert facts["indexation_authorized"] is False

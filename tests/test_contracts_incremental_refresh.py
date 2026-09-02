@@ -5,10 +5,13 @@ from datetime import date, datetime, timedelta, timezone
 from scripts.crawl.contracts_crawler import CrawlCheckpoint
 from scripts.crawl.run_contracts_90d_pilot import utc_today
 from scripts.crawl.run_contracts_incremental import (
+    EXIT_RETRYABLE_SOURCE,
     current_incremental_window_key,
     current_incremental_window_keys,
     reopen_current_window,
     reopen_incremental_windows,
+    retry_exit_for_report,
+    run_with_one_retry,
 )
 
 
@@ -58,3 +61,48 @@ def test_all_daily_overlap_windows_are_reopened_for_every_timer_slot() -> None:
 
     assert reopen_incremental_windows(checkpoint, window_keys=keys) == keys
     assert checkpoint.completed_windows == ["20260701_20260730"]
+
+
+def test_only_known_transient_source_failures_request_a_bounded_service_retry() -> None:
+    drift = {
+        "windows": [{"errors": ["source_population_drift:totalRegistros 8667 -> 8772"]}]
+    }
+    timeout = {"windows": [{"errors": ["connection_failed while reading PNCP"]}]}
+    mixed = {
+        "windows": [
+            {"errors": ["source_population_drift: totalRegistros 8 -> 9", "upsert failed"]}
+        ]
+    }
+
+    assert retry_exit_for_report(drift) == EXIT_RETRYABLE_SOURCE
+    assert retry_exit_for_report(timeout) == EXIT_RETRYABLE_SOURCE
+    assert retry_exit_for_report(mixed) == 1
+    assert retry_exit_for_report({"windows": []}) == 1
+    assert retry_exit_for_report({"windows": [{"errors": ["upsert failed: statement timeout"]}]}) == 1
+    assert retry_exit_for_report({"windows": [{"errors": ["local checkpoint timeout"]}]}) == 1
+    assert retry_exit_for_report(
+        {"windows": [{"errors": ["Page 10: [connection_failed] Network read timed out"]}]}
+    ) == EXIT_RETRYABLE_SOURCE
+    assert retry_exit_for_report(
+        {"windows": [{"errors": ["Page 5: [HTTP_RATE_LIMIT] 429"]}]}
+    ) == EXIT_RETRYABLE_SOURCE
+    assert retry_exit_for_report({"windows": [{"errors": ["http_rate_limit: 429"]}]}) == EXIT_RETRYABLE_SOURCE
+
+
+def test_runner_retries_exactly_once_and_never_retries_structural_or_final_77() -> None:
+    calls: list[int] = []
+    sleeps: list[int] = []
+
+    def sequence(*results: int):
+        values = iter(results)
+        return lambda: calls.append(1) or next(values)
+
+    assert run_with_one_retry(sequence(EXIT_RETRYABLE_SOURCE, 0), sleep=sleeps.append) == 0
+    assert len(calls) == 2 and sleeps == [300]
+    calls.clear()
+    sleeps.clear()
+    assert run_with_one_retry(sequence(1), sleep=sleeps.append) == 1
+    assert len(calls) == 1 and sleeps == []
+    calls.clear()
+    assert run_with_one_retry(sequence(EXIT_RETRYABLE_SOURCE, EXIT_RETRYABLE_SOURCE), sleep=sleeps.append) == EXIT_RETRYABLE_SOURCE
+    assert len(calls) == 2 and sleeps == [300]

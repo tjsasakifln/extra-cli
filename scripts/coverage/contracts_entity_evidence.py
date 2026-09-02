@@ -320,6 +320,7 @@ def count_contracts_by_cnpj8(
 def upsert_entity_source_evidence(
     conn: Any,
     *,
+    observed_at: datetime,
     canonical_entity_key: str,
     source: str,
     run_id: str,
@@ -337,7 +338,7 @@ def upsert_entity_source_evidence(
     """Insert one coverage_evidence row for entity×source×capability."""
     if dry_run:
         return True
-    now = datetime.now(UTC)
+    now = observed_at if observed_at.tzinfo is not None else observed_at.replace(tzinfo=UTC)
     scope_key = (
         f"pncp|contracts|entity={canonical_entity_key}|"
         f"{period_start.isoformat()}..{period_end.isoformat()}"
@@ -550,6 +551,7 @@ def project_historical_contracts_evidence(
         for src in REQUIRED_SOURCES:
             ok = upsert_entity_source_evidence(
                 conn,
+                observed_at=as_of_dt,
                 canonical_entity_key=ent.entity_id,
                 source=src,
                 run_id=run_id,
