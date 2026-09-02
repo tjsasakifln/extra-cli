@@ -31,3 +31,4 @@
 - [Story 1.5 Coverage Model QA Gate](story-1.5-coverage-model-qa-gate.md) — PASS verdict, 12/12 tasks, 97/97 tests, TD-003+TD-027+TD-033 resolved, 2 low issues
 - [Story B2G-FIX-02 QA Gate](story-B2G-FIX-02-code-quality.md) — PASS verdict, 5/5 ACs (4 PASS + 1 WAIVED PostgreSQL), ruff 0, mypy 0 top-10, 100 tests pass. 4 lanes (A-D) resolved 52+ files
 - [Story PNCP Outbound Decoupling QA Gate](story-current-pncp-outbound-decoupling-01.md) — CONCERNS, invariantes #528 preservados, fail-closed >= main, ARCH-001 gatilho duplo contact-cycle aberto
+- [Story message-spine-official-contract-identity-01](story-message-spine-official-contract-identity-01.md) — PASS reancorado b4af8408 -> tip 7f2a6a8d; mutacao verificada 7/8; TST-001 resolvido, ARCH-001 segue LOW
