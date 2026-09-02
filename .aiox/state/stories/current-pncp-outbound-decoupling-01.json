@@ -1,14 +1,14 @@
 {
   "story_id": "current-pncp-outbound-decoupling-01",
   "risk_level": "HIGH-RISK",
-  "status": "InProgress",
+  "status": "InReview",
   "po_validated": true,
-  "qa_verdict": "PENDING",
+  "qa_verdict": "CONCERNS",
   "po_closed": false,
   "publication_authorized": false,
-  "reviewed_commit": null,
+  "reviewed_commit": "fdeedfbd",
   "rollback_plan": "git revert do merge commit; reaplicar OnSuccess=extra-confenge-source-freshness-gate.service em pncp-contracts.service e OnCalendar=*-*-* 01,13:20:00 em extra-confenge-feed-cycle.timer; redeploy via deploy/confenge/pin_release.py apply --sha <sha anterior>.",
-  "snapshot_evidence": null,
+  "snapshot_evidence": "QA independente (aiox-qa) em fdeedfbd: CONCERNS. Invariantes #528 preservados (nenhum call-site novo de commercial_authority_v2/rebuild_commercial_qualification; nenhum TARGET_CONFIRMED fabricado; parafiscal_institutional_hard_out e identidade #534 intactos). Fail-closed >= main. ARCH-001 (MEDIUM, gatilho duplo em contact-cycle), MNT-002 e MNT-003 corrigidos no commit seguinte; TST-001 coberto. Pendentes como follow-up: OPS-001 (LOW, ruido de fail-closed) e MNT-001 (LOW, historical_source_was_proven_fresh sem caller de producao). ruff limpo; pytest 6220 passed, 298 skipped. Falha remanescente test_golden_path_coverage::test_dual_coverage_only_exits_nonzero_when_gates_fail e os erros de tests/coverage_live_proof reproduzem em e693f2ae limpo (exigem Postgres local).",
   "scope_files": [
     "deploy/systemd/pncp-contracts.service",
     "deploy/systemd/extra-confenge-source-freshness-gate.service",
@@ -35,9 +35,9 @@
     "docs/stories/story-current-pncp-outbound-decoupling-01.md"
   ],
   "gates": {
-    "lint": "PENDING",
-    "typecheck": "PENDING",
-    "tests": "PENDING",
+    "lint": "PASS",
+    "typecheck": "NA",
+    "tests": "PASS",
     "build": "NA"
   }
 }

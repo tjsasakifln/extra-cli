@@ -154,6 +154,25 @@ def test_an_invalid_datalake_fails_closed_whatever_the_source_is_doing(
         )
 
 
+def test_a_naive_full_reconcile_timestamp_fails_closed(monkeypatch) -> None:
+    """An unanchored reconcile timestamp cannot be compared, so it cannot pass."""
+    _wire(
+        monkeypatch,
+        coverage={**_healthy_coverage(), "last_full_reconcile_completed_at": "2026-08-25T02:45:00"},
+        queue={"done": 407_513},
+    )
+
+    with pytest.raises(ValueError, match="must be timezone-aware"):
+        _published_target_fit_snapshot(
+            [{"cnpj14": "11222333000181"}],
+            dsn="postgresql://unused",
+            authoritative_source_freshness={
+                "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
+                "status": "STALE",
+            },
+        )
+
+
 @pytest.mark.parametrize("status", DEGRADED_STATUSES)
 def test_a_degraded_attestation_is_accountable_but_not_authorising(status: str) -> None:
     source_health_attestation_present({"contract_version": "PNCP_CONTRACT_FRESHNESS/1.0", "status": status})

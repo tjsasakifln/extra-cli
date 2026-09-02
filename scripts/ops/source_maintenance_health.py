@@ -66,7 +66,10 @@ def progress_max_age_seconds() -> dict[str, int]:
 # target-fit stage.  `pncp_contract_freshness --health` exits non-zero for every
 # non-FRESH contract, so an OnSuccess on either unit turns a source incident
 # into a silent downstream kill switch.  Each stage owns an independent timer.
-DECOUPLED_ON_SUCCESS = (PNCP_SERVICE, SOURCE_FRESHNESS_SERVICE)
+# Reconcile is listed too: it owns a timer, and so does the contact cycle it
+# used to chain, so a re-added OnSuccess there means a double trigger onto a
+# held flock rather than a suppressed stage.
+DECOUPLED_ON_SUCCESS = (PNCP_SERVICE, SOURCE_FRESHNESS_SERVICE, TARGET_FIT_RECONCILE_SERVICE)
 
 SYSTEMD_PROPERTIES = (
     "LoadState",

@@ -1149,7 +1149,10 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
                 ),
                 repo_sha=repo_sha,
                 authoritative_source_freshness=cfg.authoritative_source_freshness,
-                require_authoritative_source_freshness=False,
+                # Not a FRESH gate any more: this only demands the telemetry
+                # envelope, so a live build always states what the source was
+                # doing. Programmatic callers stay as accountable as the CLI.
+                require_authoritative_source_freshness=bool(cfg.dsn),
                 deactivations=deactivations,
                 previous_feed_dir=published_feed_dir,
             )

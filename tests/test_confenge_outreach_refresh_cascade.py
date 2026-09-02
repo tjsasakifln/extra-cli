@@ -31,11 +31,13 @@ def _on_success(name: str) -> list[str]:
     return values
 
 
-def test_ingestion_and_source_health_advance_nothing() -> None:
-    """`--health` exits non-zero on any non-FRESH contract.
+def test_no_stage_advances_another() -> None:
+    """Two distinct hazards, one rule: no stage may chain another.
 
-    So an OnSuccess rooted at either unit makes a source incident a silent kill
-    switch over the whole commercial plane. Neither may carry one.
+    `--health` exits non-zero on any non-FRESH contract, so an OnSuccess rooted
+    at ingestion or the gate makes a source incident a silent kill switch. And
+    every stage now owns a timer, so a surviving OnSuccess gives its successor a
+    second trigger that lands on a held flock and alerts on work already running.
     """
     graph = {
         SOURCE: _on_success(SOURCE),
@@ -48,7 +50,7 @@ def test_ingestion_and_source_health_advance_nothing() -> None:
     assert graph == {
         SOURCE: [],
         GATE: [],
-        TARGET: [CONTACT],
+        TARGET: [],
         CONTACT: [],
         FEED: [],
     }
@@ -93,8 +95,11 @@ def test_the_freshness_gate_never_owns_a_cadence() -> None:
     assert all("commercial" not in name for name in timer_names if "confenge" in name)
 
 
-def test_every_decoupled_stage_owns_an_independent_persistent_timer() -> None:
-    """Cutting OnSuccess without a timer would orphan the stage, not free it."""
+def test_every_decoupled_stage_owns_exactly_one_trigger() -> None:
+    """Cutting OnSuccess without a timer would orphan the stage, not free it.
+
+    Keeping both would double-trigger it. Each needs exactly one.
+    """
     for service in (
         "extra-confenge-target-fit-refresh.service",
         "extra-confenge-target-fit-reconcile.service",
@@ -104,6 +109,8 @@ def test_every_decoupled_stage_owns_an_independent_persistent_timer() -> None:
         timer = _unit(service.replace(".service", ".timer"))
         assert "Persistent=true" in timer
         assert f"Unit={service}" in timer
+        chained_by = [name for name in (SOURCE, GATE, TARGET, CONTACT, FEED) if service in _on_success(name)]
+        assert chained_by == [], f"{service} has both a timer and an OnSuccess trigger from {chained_by}"
 
 
 def test_feed_publication_runs_on_an_independent_four_times_daily_cadence() -> None:
