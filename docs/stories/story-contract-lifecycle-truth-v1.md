@@ -885,4 +885,72 @@ pré-existente. Os 10 errors são suítes de caminho real cujas fixtures exigem 
 
 ## QA Results
 
-_Not yet started._
+**Reviewer:** Quinn (@qa) — 2026-09-01
+**Veredito:** **PASS**
+**Commit revisado:** `4fdd5dc1d3eac2ee0fbe1052b9eeaead3a2061ac` (versão da story revisada: 4.0.1)
+**Registro autoritativo:** objeto `qa_gate` em `.aiox/state/stories/contract-lifecycle-truth-v1.json`.
+Esta seção é a transcrição legível desse gate — nenhuma verificação foi re-executada para escrevê-la,
+e o commit posterior `ddc92173` (fechamento do @po) alterou apenas a story e o state file,
+nenhum arquivo de código dentro de `scope_files`.
+
+### Verificações executadas
+
+1. **Testes reais, não simulados.** As três suítes `real_db` foram re-executadas de forma independente
+   pelo @qa (não confiando no relatório do @dev):
+   `REQUIRE_REAL_DB=1 LOCAL_DATALAKE_DSN=postgresql://test:test@127.0.0.1:5433/extra_test pytest
+   tests/test_contract_lifecycle_truth.py tests/test_contract_lifecycle_truth_precedence.py
+   tests/test_contract_lifecycle_truth_window.py -m real_db -v` → **59 passed, 0 skipped**, 114,93 s.
+   O negativo também foi rodado: as **mesmas** três suítes **sem** `REQUIRE_REAL_DB` → **59 skipped**.
+   Isso prova que o marcador `real_db` é carregador de carga, não decorativo — um verde de 59 testes
+   que também ficasse verde sem banco não provaria nada.
+2. **Testes estáticos / sem DB:** 30 passed (`migration_static` 12, `no_rebind` 14,
+   `test_all_sql_references` 4).
+3. **Fail-closed conferido lendo o SQL, não apenas por fixtures.** `lifecycle_state` é um `CASE` sobre
+   `status_normalized` isolado, com `ELSE 'UNKNOWN'`: `data_fim` e `is_active` não aparecem em lugar
+   nenhum dele, logo os estados terminais (`CANCELLED`/`TERMINATED`/`SUSPENDED`/`COMPLETED`) vencem um
+   `data_fim` futuro e vencem o `is_active` legado **por construção**, não por sorte de fixture.
+   `lifecycle_is_current_evidence` é o AND-gate (`ACTIVE_PROVEN` + `VALID`) via `IS NOT DISTINCT FROM`,
+   `TRUE` em exatamente 1 das 28 células. `QUARANTINED` só marca `lifecycle_trust='UNTRUSTED'` e nunca
+   entra em `contracting_date_in_qualification_window`.
+4. **Schema aplicado × SQL commitado, conferido byte-a-byte.** `pg_get_viewdef` confirma que a view chama
+   `contract_window_floor_v1(CURRENT_DATE)` sem aritmética de intervalo inline, preserva a ordenação de
+   dedup `DISTINCT ON (dedup_key, last_seen_at DESC NULLS LAST, id DESC)` e mantém o filtro de população.
+   `pg_proc` mostra `provolatile='i'` e `proparallel='s'` para as três rotinas, com `prosrc` batendo com
+   o texto da migration. O que está no banco é o que está no repositório.
+5. **Aditividade estrutural.** `git diff merge-base(origin/main,HEAD)..HEAD` == exatamente os 12
+   `scope_files`. Migrations 077/091/101, `commercial_authority_v2.py`,
+   `rebuild_commercial_qualification.py`, `contracts_truth.py` e `connection_policy.py` intocados.
+   Texto da migration: zero `ALTER`, zero `DROP`, `CREATE OR REPLACE` só para os 4 objetos que ela cria.
+6. **Janela de 3 anos com valores pinados.** AC15 verificada com os casos fixos
+   `2024-02-29 → 2021-03-01` (overflow de dia bissexto para frente) e `2026-09-01 → 2023-09-01`,
+   mais a paridade com a especialização `window_floor()` sob `SET TIME ZONE 'UTC'`.
+7. **Rastreabilidade AC a AC:** 19/19 ACs mapeados a código executado ou a teste
+   (AC3 com 6 permutações parametrizadas + asserção explícita de `= ''` all-NULL; AC6–AC14 pela
+   parametrização de 28 células; AC16 com `KNOWN_VIEWS`/`KNOWN_FUNCTIONS` e `EXPECTED_VIEWS = 24`).
+8. **Falha pré-existente re-confirmada como não relacionada.** Suíte mockada completa:
+   6191 passed, 1 failed, 322 skipped, 10 errors. A única falha
+   (`test_rebound_freeze_drives_shipped_verifiers_on_campaign_tree`, `BLOCKED_CODE_EXECUTION_SHA_MISMATCH`)
+   foi provada independentemente como anterior a esta story: `EXECUTED_CODE_SHA.txt` fixa `345968bf`,
+   que já divergia de `HEAD~1` (`2f0761e4`) antes do commit da story; o arquivo está fora do diff de 12
+   arquivos e o traceback não referencia nenhum dos objetos novos. Os 10 errors
+   (`tests/coverage_live_proof/`, `tests/test_live_consulting_pack.py`) são pré-condições de fixture com
+   banco local vazio (ex.: `sc_public_entities` com 0 linhas) — mesma regra de triagem.
+9. **Lint:** `ruff check scripts/ tests/` → All checks passed. `ruff format --check` nos 7 arquivos
+   Python tocados → já formatados.
+
+### Issues (3 LOW, nenhuma bloqueante)
+
+| ID | Sev. | Descrição |
+|---|---|---|
+| MNT-001 | LOW | A AC1 define a base do diff como `merge-base(main, HEAD)`; o teste estático tenta `origin/main` primeiro e cai para `main`. Substantivamente mais rigoroso aqui (o `main` local está defasado em centenas de arquivos) e documentado no docstring, mas é um desvio do texto literal da AC. |
+| MNT-002 | LOW | O Escopo IN pedia `GRANT SELECT` ao papel read-only usado por 098/101. A migration usa `REVOKE <DML> ... FROM PUBLIC` + `GRANT SELECT ... TO PUBLIC` — exatamente o padrão da 101, que subsume o papel nomeado usado só pela 098. Sem regressão de segurança; nomear `smartlic_public_reader` explicitamente aproximaria mais da 098. |
+| TST-001 | LOW | O teste secundário da AC18 coloca um `SELECT count(*)` puro entre duas execuções idênticas de `QUALIFICATION_SQL` na mesma transação, então não consegue detectar mudança de membership induzida por migration nem em princípio. Ainda agrega valor (fixture não-vácua; assere que `pg_get_viewdef` de `v_contracts_canonical_v2` não referencia nenhum dos 4 objetos novos). A AC18 é sustentada pela prova estrutural, como a própria story antecipa. |
+
+### Risco residual (registrado e aceito)
+
+Até a story 3 religar o rebuilder, a precedência de data de contratação existe em **3 cópias
+independentes**: `commercial_authority_v2.contracting_date`, o `CASE` inline de
+`rebuild_commercial_qualification.QUALIFICATION_SQL` e `contract_contracting_date_v1`/`_field_v1`.
+O teste de paridade da AC3 cobre as cópias 1 e 3 apenas — a cópia 2 ainda pode divergir silenciosamente.
+
+**Próxima ação:** nenhuma rework de @dev requerida. (@po já fechou a story em `ddc92173`.)
