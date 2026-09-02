@@ -174,6 +174,8 @@ que muda é o alvo do re-freeze pendente: ver `DOC-001` abaixo.
 - `tests/confenge_account_intelligence/test_message_spine_contract_identity.py`
 - `docs/stories/story-message-spine-official-contract-identity-01.md`
 - `.aiox/state/stories/message-spine-official-contract-identity-01.json`
+- `tests/confenge_activation/test_esr_contract_identity_reconciliation.py`
+  *(pós-QA, `0fe7e718` — fora do veredito)*
 
 ## Change Log
 
@@ -183,3 +185,4 @@ que muda é o alvo do re-freeze pendente: ver `DOC-001` abaixo.
 | 2026-09-02 | 0.2 | @dev | Implementação em `b4af8408`: `allow_legacy_surrogate=True` em `extract_contract_hook` + 5 testes de identidade. Ready → InProgress → InReview. |
 | 2026-09-02 | 0.3 | @qa (Quinn) | QA gate **PASS** em `b4af8408`, verificado por mutação (4 dos 5 casos de identidade reprovam sem o fix) e com rastreamento completo dos call-sites. InReview → Done. 3 riscos residuais LOW. |
 | 2026-09-02 | 0.4 | @po (Pax) | Fechamento administrativo. Corrigida a imprecisão do Rollback sobre o release pinado (evidência de freeze e ADR). Registrado o achado de severidade elevada do @qa em `strict_national_esr.py:720-724`. Follow-ups ARCH-001/TST-001 (@dev) e DOC-001 (@devops) registrados. Status `Done` preservado — nenhuma transição de ciclo de vida atribuída ao PO. Publicação **bloqueada** (`publication_authorized: false`): `323855d7` e `0fe7e718` entraram pós-QA e a âncora do veredito ficou obsoleta — próximo agente é @qa. `[closure-key: message-spine-official-contract-identity-01:commit:b4af8408]` |
+| 2026-09-02 | 0.5 | @dev (sessão concorrente) | Dois commits *test-only* acrescentados **após** o QA gate, sobre `b4af8408`: `323855d7` (+46 linhas em `test_message_spine_contract_identity.py` — lote misto e reordenação) e `0fe7e718` (+83 linhas, arquivo novo `tests/confenge_activation/test_esr_contract_identity_reconciliation.py` — prova end-to-end até `_primary_contract`). **Fora do veredito PASS**, que nomeia `b4af8408` e só ele. Requerem re-review do @qa antes da publicação. |
