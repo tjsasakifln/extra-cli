@@ -8,9 +8,20 @@ Rules:
 
 from __future__ import annotations
 
+from collections.abc import Callable
+from datetime import date
 from typing import Any
 
 from scripts.confenge_account_intelligence.models import epistemic_item
+from scripts.confenge_claim_policy import (
+    PAST_ONLY,
+    PURPOSE_WHY_NOW,
+    ClaimCandidate,
+    ClaimPolicyResult,
+    allows_present_tense,
+    evaluate_claim_policy,
+    is_contemporary_event,
+)
 
 # Mature contract threshold (days) for reajuste consideration.
 MATURE_DAYS = 365
@@ -19,6 +30,73 @@ RECENT_DAYS = 180
 
 def _contract_evidence_id(contract_id: str) -> str:
     return f"ev-contract-{contract_id}"
+
+
+def _as_of_date(bag: dict[str, Any]) -> date:
+    """Return the record ``as_of`` as a real date (A1: the policy never takes strings)."""
+    raw = bag.get("as_of")
+    if isinstance(raw, date):
+        return raw
+    text = str(raw or "").strip()[:10]
+    try:
+        return date.fromisoformat(text)
+    except ValueError:
+        return date.today()
+
+
+def _contract_event_date(contract: dict[str, Any]) -> date | None:
+    for key in ("start_date", "publication_date", "end_date"):
+        text = str(contract.get(key) or "").strip()[:10]
+        if not text:
+            continue
+        try:
+            return date.fromisoformat(text)
+        except ValueError:
+            continue
+    return None
+
+
+def _claim_policy_for_contract(
+    contract: dict[str, Any], *, evaluated_as_of: date
+) -> ClaimPolicyResult:
+    """Evaluate CLAIM_POLICY for one normalized contract dict."""
+    # Local import keeps hollowness ownership in message_spine (AC 23b) without
+    # forcing a duplicate implementation here.
+    from scripts.confenge_account_intelligence.message_spine import is_hollow_fact
+
+    cid = str(contract.get("id") or contract.get("contract_id") or contract.get("contrato_id") or "")
+    obj = str(contract.get("object") or contract.get("objeto") or contract.get("objeto_contrato") or "")
+    evidence_ids = (_contract_evidence_id(cid),) if cid else ()
+    event_date = _contract_event_date(contract)
+    candidate = ClaimCandidate(
+        contract_id=cid,
+        lifecycle_state=str(contract.get("lifecycle_state") or ""),
+        evidence_ids=evidence_ids,
+        has_hollow_fact=is_hollow_fact(obj),
+        has_contemporary_event=is_contemporary_event(event_date, evaluated_as_of),
+        event_date=event_date,
+    )
+    return evaluate_claim_policy(candidate, evaluated_as_of=evaluated_as_of, purpose=PURPOSE_WHY_NOW)
+
+
+def _addendum_temporal_fact(contract: dict[str, Any], policy: ClaimPolicyResult) -> str:
+    """Tense of the addendum pain-check follows lifecycle, never the mere addendum.
+
+    Replaces the previous fixed text ("...contrato público recente ou ativo"), which
+    fired for any contract carrying an addendum regardless of lifecycle.
+    """
+    del contract
+    if allows_present_tense(policy):
+        return "Aditivos/alterações observados em contrato público com vigência ativa comprovada."
+    if policy.allowed_tense == PAST_ONLY:
+        return (
+            "Aditivos/alterações registrados no histórico público de contrato já encerrado "
+            "— fato passado, sem execução atual comprovada."
+        )
+    return (
+        "Aditivos/alterações observados em registro contratual público, "
+        "sem vigência atual comprovada no input."
+    )
 
 
 def build_epistemic_layers(bag: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
@@ -298,12 +376,15 @@ def why_now(bag: dict[str, Any], layers: dict[str, list[dict[str, Any]]]) -> dic
     contracts = bag.get("contracts") or []
     as_of = bag.get("as_of")
 
-    # Priority: concrete pain with recency
-    pain_checks = [
+    evaluated_as_of = _as_of_date(bag)
+
+    # Priority: concrete pain with recency. ``text`` may be a callable so the verbal
+    # tense can follow CLAIM_POLICY instead of being fixed at declaration time.
+    pain_checks: list[tuple[str, Callable[[dict[str, Any]], Any], str | Callable[[dict[str, Any], ClaimPolicyResult], str]]] = [
         (
             "addendum",
             lambda c: c.get("has_addendum") or (c.get("addendum_count") or 0) > 0,
-            "Aditivos/alterações observados em contrato público recente ou ativo.",
+            _addendum_temporal_fact,
         ),
         (
             "glosa_medicao",
@@ -340,11 +421,21 @@ def why_now(bag: dict[str, Any], layers: dict[str, list[dict[str, Any]]]) -> dic
         matches_sorted = sorted(matches, key=recency_key)
         top = matches_sorted[0]
         age = top.get("age_days")
+        policy = _claim_policy_for_contract(top, evaluated_as_of=evaluated_as_of)
+        resolved_text = text(top, policy) if callable(text) else text
         candidate = {
             "trigger": trigger,
-            "temporal_fact": text,
+            "temporal_fact": resolved_text,
             "recency_days": age,
             "epistemic_class": "confirmed",
+            # Consumed by message_spine._extract_temporal_event so the temporal
+            # strength cannot exceed what the lifecycle authorises.
+            "lifecycle_state": policy.lifecycle_state,
+            "outreach_use_class": policy.outreach_use_class,
+            "claim_mode": policy.claim_mode,
+            "allowed_tense": policy.allowed_tense,
+            "why_now_eligible": policy.why_now_eligible,
+            "requires_current_authority": policy.requires_current_authority,
         }
         if best is None:
             best = candidate

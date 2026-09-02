@@ -6,6 +6,7 @@ from datetime import date, datetime
 from typing import Any
 
 from scripts.confenge_account_intelligence.models import cnpj14, cnpj_root, digits_only
+from scripts.confenge_claim_policy import resolve_lifecycle_state
 from scripts.confenge_contract_identity import public_contract_id
 
 
@@ -186,6 +187,17 @@ def normalize_record(raw: dict[str, Any], *, as_of: str | None = None) -> dict[s
                 "concorrencia",
             )
         )
+        # Lifecycle is derived by the single repository authority
+        # (contracts_truth via confenge_claim_policy). Raw status is forwarded so
+        # TERMINATED/CANCELLED/SUSPENDED stay reachable when a producer emits it.
+        raw_status = c.get("situacao") or c.get("status") or c.get("situacao_nome")
+        lifecycle = resolve_lifecycle_state(
+            evaluated_as_of=as_of_date,
+            raw_status=raw_status,
+            stamped_state=c.get("lifecycle_state") or c.get("activity_state") or c.get("status_normalized"),
+            start_date=start,
+            end_date=end,
+        )
         contracts.append(
             {
                 "id": public_contract_id(c) or f"contract-{i + 1}",
@@ -195,6 +207,10 @@ def normalize_record(raw: dict[str, Any], *, as_of: str | None = None) -> dict[s
                 "end_date": end.isoformat() if end else None,
                 "publication_date": pub.isoformat() if pub else None,
                 "age_days": age_days,
+                "raw_status": str(raw_status) if raw_status is not None else None,
+                "lifecycle_state": lifecycle.state,
+                "lifecycle_rule_version": lifecycle.rule_version,
+                "lifecycle_reasons": list(lifecycle.reasons),
                 "uf": c.get("uf"),
                 "orgao": c.get("orgao") or c.get("agency") or c.get("orgao_nome"),
                 "has_addendum": has_addendum,

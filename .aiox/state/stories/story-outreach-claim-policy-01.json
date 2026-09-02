@@ -1,0 +1,419 @@
+{
+  "story_id": "story-outreach-claim-policy-01",
+  "risk_level": "HIGH-RISK",
+  "status": "Done",
+  "po_validated": true,
+  "qa_verdict": "CONCERNS",
+  "po_closed": true,
+  "qa_gate": {
+    "date": "2026-09-01",
+    "reviewer": "Quinn (@qa)",
+    "verdict": "CONCERNS",
+    "reviewed_commit": "9a07228a + working tree",
+    "independent": true,
+    "status_after_gate": "InReview (fechamento e autoridade do @po)",
+    "evidence": {
+      "lint": "python3 -m ruff check scripts/confenge_claim_policy/ scripts/confenge_account_intelligence/ scripts/confenge_contact_resolution/ -> All checks passed (exit 0)",
+      "tests_scoped": "261 passed (tests/confenge_claim_policy/ + tests/confenge_contact_resolution/ + tests/confenge_account_intelligence/) — diretorios sem intersecao com as outras stories na arvore",
+      "tests_full_suite": "134 failed, 5575 passed, 261 skipped, 11 deselected, 53 errors — identico numero a numero ao baseline do @dev, apesar de HEAD ter avancado de 6c7bb0ea para 9a07228a",
+      "tests_scoped_k_filter": "1 failed / 277 passed / 43 errors — a falha e test_facade_claims_cli (ModuleNotFoundError: numpy); todos os errors sao ModuleNotFoundError de ambiente",
+      "freeze_remeasured_by_qa": "HEAD limpo 9a07228a = 161; working tree = 166; +4 atribuiveis confirmados presentes no conjunto (confenge_claim_policy/__init__.py, confenge_claim_policy/policy.py, contracts_truth.py, crawl/observation_lineage.py); +1 de outra story (confenge_universe/parafiscal.py)",
+      "tree_contamination": "RESOLVIDA — git diff --stat HEAD -- scripts/confenge_activation/publish.py e vazio; as +35 linhas foram commitadas em 9a07228a (claim-safety-audit-01)"
+    },
+    "ac_coverage": "33/33 ACs atendidas com evidencia verificada independentemente",
+    "deviation_rulings": [
+      "Desvio #3 (demote_to_historical no fail-closed de multiplos CURRENT): INTERPRETACAO VALIDA de 'rewrite obrigatorio' (AC 21). select_message_claims e fail-closed literal (claims=() + reason_codes, conforme A3); o rebaixamento ocorre uma camada acima em _spine_claim_policy, que A3 nunca governou. O invariante vinculante ('nunca mais de um CURRENT') e satisfeito com zero CURRENT. Monotonicidade AC 27 preservada. NAO retorna ao @po.",
+      "Desvio AC 15 vs AC 23 (why_you mantem selecao de HEAD): correto — AC 23 e restricao dura, AC 15 e permissiva ('pode')."
+    ],
+    "issues": [
+      {
+        "id": "MED-001",
+        "severity": "medium",
+        "category": "security",
+        "description": "policy.py:220-232 roteia raw_status para o caminho de estado carimbado: normalize_lifecycle_state(raw_status) aceita nomes de ACTIVITY_STATES case-insensitive. normalize.py:196 alimenta raw_status a partir de payload bruto (situacao/status/situacao_nome). Probe QA: normalize_record com situacao='active_proven' e ZERO datas produz lifecycle_state=ACTIVE_PROVEN (reason stamped_lifecycle_state), e why_now devolve allowed_tense=PRESENT_CONFIRMED / outreach_use_class=CURRENT_ACTIONABLE com o texto 'contrato publico com vigencia ativa comprovada'. Contorna classify_contract_activity inteiro e viola o invariante declarado 'a derivacao so pode rebaixar, nunca promover' e a leitura estrita do item normativo A4.",
+        "reachability": "ZERO em producao hoje — verificado independentemente: strict_national_esr._contracts_from_account (105-128) nao emite situacao/status, e o SELECT de rebuild_national_funnel.py:392-399 nao seleciona coluna de status. A5 do @architect reconfirmada.",
+        "recommendation": "Restringir o caminho carimbado a stamped_state=; fazer raw_status= rejeitar (ou degradar a UNKNOWN) qualquer valor que seja nome de estado de ACTIVITY_STATES sem vigencia comprovada.",
+        "blocks": "NAO bloqueia esta story. BLOQUEIA o follow-up de lifecycle-truth (plumbar status_normalized ate o bag) — esse follow-up e exatamente o que torna a porta viva."
+      },
+      {
+        "id": "LOW-001",
+        "severity": "low",
+        "category": "code",
+        "description": "message_spine.py:264 + 291/293 — _cap_from_why devolve None quando o dict why nao traz outreach_use_class, e _cap_strength('STRONG', None) devolve STRONG sem consultar lifecycle. Inalcancavel hoje (os dois retornos de facts.why_now sem chaves de politica produzem texto is_hollow_fact()==True e o branch pula textos hollow — comprovado por probe), mas e defesa-em-profundidade ausente no segundo site do bug.",
+        "recommendation": "Derivar o cap dos contratos do bag quando why nao trouxer veredito; adicionar teste de regressao para o branch de passthrough."
+      },
+      {
+        "id": "LOW-002",
+        "severity": "low",
+        "category": "tests",
+        "description": "tests/confenge_claim_policy/test_red_team_cases.py:108 — assert why.get('lifecycle_state', 'UNKNOWN') == 'UNKNOWN' passa vacuamente quando a chave nao existe (caso real do caminho portfolio_review).",
+        "recommendation": "Trocar por assert 'lifecycle_state' in why and why['lifecycle_state'] == 'UNKNOWN', ou remover a linha e manter apenas as asserções materiais de strength."
+      },
+      {
+        "id": "LOW-003",
+        "severity": "low",
+        "category": "tests",
+        "description": "tests/confenge_claim_policy/test_claim_policy_rules.py:271-276 — test_a4_stamped_state_never_enters_raw_status assere na linha 274 exatamente o comportamento do MED-001 (raw_status='ACTIVE_PROVEN' -> ACTIVE_PROVEN). O nome afirma o oposto do que a asserção fixa.",
+        "recommendation": "Renomear e corrigir junto com MED-001."
+      },
+      {
+        "id": "LOW-004",
+        "severity": "low",
+        "category": "requirements",
+        "description": "O texto neutro 'Ainda no horizonte operacional: …' (uma das tres variantes pre-existentes de _neutral(), message_spine.py) passa a cobrir mais contratos nao comprovados, porque o cap novo roteia para ele casos que antes tomavam o ramo STRONG. Probe QA com contrato UNKNOWN publicado ontem: spine.complete=True, claim_policy=RECENT_RETROSPECTIVE/NEUTRAL_FACTUAL, texto 'Ainda no horizonte operacional'. Nenhuma AC numerada e violada, mas toca o Estado-alvo ('nenhuma afirmacao material cita presente/ativo sem prova verificavel') e o objetivo da story irma claim-safety-audit-01.",
+        "recommendation": "Revisar as tres variantes de _neutral() para linguagem estritamente retrospectiva. Decisao de wording e do @po — o @qa nao altera copy."
+      }
+    ],
+    "po_backlog_mandatory": {
+      "rule": ".claude/rules/aiox-project-operating-protocol.md secao 6 — CONCERNS exige itens de backlog com owner e prazo",
+      "owner": "@po (no fechamento)",
+      "item": "Registrar MED-001 + LOW-003 como item de backlog VINCULADO ao follow-up de lifecycle-truth (plumbar status_normalized/status_observed_at ate o bag de normalize.py), com dependencia explicita: MED-001 fecha ANTES daquele trabalho comecar.",
+      "why_low_003_rides_along": "test_a4_stamped_state_never_enters_raw_status:274 vai quebrar no instante em que MED-001 for corrigido — aquela assercao pina o defeito, nao a guarda.",
+      "plain_backlog": ["LOW-001", "LOW-002", "LOW-004"]
+    },
+    "normalize_record_callers_audited": {
+      "scripts/confenge_account_intelligence/pipeline.py:93": "unico consumidor real do bag de account-intelligence",
+      "scripts/confenge_activation/rebuild_national_funnel.py:425": "SELECT (linhas 392-399) nao seleciona nenhuma coluna de status",
+      "scripts/public_integrity/cadastro.py:120": "funcao DIFERENTE — importa de scripts.public_integrity.normalize (linha 18), nao de confenge_account_intelligence",
+      "scripts/opportunity_intel/pncp_audit.py:334 e crawler_base.py:338": "funcao DIFERENTE — assinatura posicional (raw, source)",
+      "conclusion": "Nenhum caller vivo alimenta situacao/status/situacao_nome por contrato — reachability ZERO de MED-001 em producao CONFIRMADA"
+    },
+    "sister_story_note": "copy_hash ficou pinado COM o prefixo literal 'sha256:'. story-current-claim-jit-authority-01 (Draft, sem golden vector congelado ainda) deve importar compute_copy_hash de scripts.confenge_claim_policy em vez de re-derivar o digest.",
+    "environment_preexisting": [
+      "tests/test_official_status_reconfirmation.py derruba a coleta com INTERNALERROR (scripts/collect_report_data.py:52 faz sys.exit(1) no import) — confirmado pelo QA",
+      "pytest.ini exige pytest-cov, ausente no ambiente",
+      "numpy/fastapi/httpx/hypothesis/reportlab/prometheus_client ausentes — origem de todos os 53 errors e da falha test_facade_claims_cli",
+      "test_rebound_freeze_drives_shipped_verifiers_on_campaign_tree falha em HEAD limpo — pre-existente"
+    ],
+    "push_preconditions_for_devops": [
+      "2 PRs sem squash: codigo -> artifact-only re-freeze",
+      "scripts/confenge_activation/publish.py NAO pode entrar no PR de codigo desta story",
+      "Re-medir discover_frozen_input_paths imediatamente antes do PR de re-freeze (HEAD e movel)"
+    ]
+  },
+  "scope_files": [
+    "scripts/confenge_claim_policy/",
+    "scripts/confenge_account_intelligence/facts.py",
+    "scripts/confenge_account_intelligence/normalize.py",
+    "scripts/confenge_account_intelligence/message_spine.py",
+    "scripts/confenge_contact_resolution/send_readiness.py",
+    "tests/confenge_claim_policy/",
+    "tests/confenge_account_intelligence/",
+    "tests/confenge_contact_resolution/",
+    "docs/stories/story-outreach-claim-policy-01.md"
+  ],
+  "po_validation": {
+    "date": "2026-09-01",
+    "verdict": "GO",
+    "score_pre_fix": 8,
+    "score_post_fix": 10,
+    "corrections_applied_by_po": [
+      "AC 31/33 + Dev Notes: mandato de reuso de scripts/contracts_truth.py (ACTIVITY_STATES, classify_contract_activity) em vez de taxonomia de lifecycle paralela",
+      "AC 23 reescrita + AC 23a nova: resolucao do import circular confenge_claim_policy <-> message_spine (hook fica em message_spine, dependencia unidirecional)",
+      "AC 32 nova: estado SUSPENDED, omitido na v0.1.0, agora coberto e testado",
+      "AC 30 reescrita: message_spine.py e send_readiness.py ja estao no conjunto congelado (162 caminhos, medido); contracts_truth.py nao esta e sera puxado; exigido delta completo",
+      "AC 3 vs AC 7: precedencia do hard gate factual explicitada",
+      "Dependencies: aresta reversa registrada — esta story e upstream de current-claim-jit-authority-01",
+      "AC 24 reescrita como tabela do comportamento real de classify_contract_activity (end_date passado sem start_date retorna UNKNOWN, nao COMPLETED) — resolvia contradicao com AC 31",
+      "AC 24a nova: repasse de raw_status por contrato em normalize.py, sem o qual TERMINATED/CANCELLED/SUSPENDED sao inalcancaveis por derivacao",
+      "AC 23b nova: hollowness entra como booleano do chamador — evita que AC 23a force duplicacao de is_hollow_fact"
+    ],
+    "next_agent": "@architect",
+    "next_action": "Task 2a — gate de arquitetura sobre contrato de API do modulo puro e fronteira de import (AC 23a, 23b, 31), antes de Task 3-5. NAO ir direto para @dev.",
+    "risk_escalation": {
+      "from": "STANDARD",
+      "to": "HIGH-RISK",
+      "decision_by": "@po",
+      "delegated_by": "@sm (Risk Level, v0.1.0)",
+      "reason": "Dois dos quatro arquivos de integracao (message_spine.py, send_readiness.py) ja pertencem ao conjunto congelado da campanha, verificado via discover_frozen_input_paths (162 caminhos); alem disso send_readiness.py governa EMAIL_SEND_READY, que alimenta envio comercial real. Exige revisao previa de @architect, QA aprofundado e gate sistemico antes da publicacao."
+    },
+    "required_before_push": [
+      "AC 30: declarar delta completo do conjunto congelado antes/depois (bloqueia push, nao bloqueia dev)",
+      "Sequencia de 2 PRs: codigo -> artifact-only re-freeze, sem squash"
+    ]
+  },
+  "reviewed_commit": "e76c37658ec7a4a3bd13eb11f45058fc4e9a71e0",
+  "reviewed_commit_note": "SHA de 40 chars, nao abreviado: .claude/hooks/story-state.cjs:224 faz `head !== state.reviewed_commit` com estrita igualdade contra a saida integral de `git rev-parse HEAD` — qualquer abreviacao ou anotacao textual reprova o gate por si so. Os arquivos de escopo desta story estao 100% commitados em e76c3765 e a working tree NAO tem delta neles (git diff --stat HEAD -- scripts/confenge_claim_policy/ scripts/confenge_account_intelligence/ scripts/confenge_contact_resolution/ tests/confenge_claim_policy/ tests/confenge_contact_resolution/ tests/confenge_account_intelligence/ = VAZIO, re-verificado pelo @po no fechamento). Os arquivos de escopo desta story estao 100% commitados em e76c3765 e a working tree NAO tem delta neles (git diff --stat HEAD -- scripts/confenge_claim_policy/ scripts/confenge_account_intelligence/ scripts/confenge_contact_resolution/ tests/confenge_claim_policy/ tests/confenge_contact_resolution/ tests/confenge_account_intelligence/ = VAZIO, re-verificado pelo @po no fechamento). A anotacao anterior ('+ working tree (arvore multi-story)') referia-se a contaminacao por OUTRAS stories na mesma arvore, nao a esta.",
+  "gates": {
+    "lint": "PASS",
+    "typecheck": "PASS",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "rollback_plan": "Reverter os 4 arquivos de integracao ao HEAD anterior a esta story; o modulo novo scripts/confenge_claim_policy/ pode ser removido sem efeito colateral (nenhum outro modulo depende dele antes desta story).",
+  "snapshot_evidence": null,
+  "publication_authorized": false,
+  "publication_authorized_reason": "BLOQUEADO pela pre-condicao 6 do protocolo secao 8 (working tree limpa) — NAO por merito. O merito esta fechado: qa_verdict CONCERNS, po_closed=true, gates lint/tests PASS, reviewed_commit === HEAD. A arvore carrega ~26 arquivos modificados e varios nao rastreados de OUTRAS stories (claim-safety-audit-01, universe/parafiscal, commercial_leads, confenge_target_fit, pseo). Ver publication_unblock_conditions.",
+  "publication_unblock_conditions": [
+    "1. Arvore isolada para o PR de codigo desta story: exatamente os 10 arquivos da File List. scripts/confenge_activation/publish.py e scripts/confenge_universe/parafiscal.py NAO podem entrar.",
+    "2. Re-medir discover_frozen_input_paths imediatamente antes do PR de re-freeze (HEAD e movel). Baseline factual do @po no fechamento: HEAD limpo e76c3765 = 165 caminhos, JA INCLUINDO os 4 desta story; working tree = 166 (o extra e parafiscal.py, de outra story).",
+    "3. Ritual de 2 PRs sem squash: (a) PR de codigo; (b) PR artifact-only de re-freeze.",
+    "4. @devops autoriza publicacao apos 1-3; o @po nao pre-autoriza push com arvore contaminada."
+  ],
+  "maintenance_mode": false,
+  "qa_gate_iteration_2": {
+    "date": "2026-09-01",
+    "reviewer": "Quinn (@qa)",
+    "verdict": "CONCERNS",
+    "reviewed_commit": "e76c3765 — arquivos de escopo LIMPOS na working tree (git diff --stat HEAD -- scripts/confenge_claim_policy/ scripts/confenge_account_intelligence/ scripts/confenge_contact_resolution/ e VAZIO). A correcao MED-001 esta commitada em 5bb8f352 (ancestral de HEAD), verificado por git log -S RAW_STATUS_FALLBACK_STATES. Nao ha delta de working tree no escopo desta story.",
+    "independent": true,
+    "responds_to": "qa_fix_iterations[0] (correcao 0.4.1 do @dev)",
+    "status_after_gate": "InReview (fechamento e autoridade do @po)",
+    "med_001_resolution": {
+      "status": "RESOLVIDO",
+      "code_verified": "policy.py:95-100 define RAW_STATUS_FALLBACK_STATES = frozenset(ACTIVITY_STATES) - {ACTIVE_PROVEN} por subtracao (AC 31 preservada); policy.py:236-256 recusa e descarta o token quando raw_status soletra ACTIVE_PROVEN, devolvendo a decisao a classify_contract_activity",
+      "qa_own_probe": "normalize_record -> build_epistemic_layers -> why_now, zero datas, TRES chaves de entrada (situacao / status / situacao_nome) e tres grafemas: todos -> lifecycle_state=UNKNOWN, reasons ['derived_lifecycle_state','missing_status_and_vigencia','raw_status_state_name_not_promotable'], outreach_use_class=HISTORICAL_CONTEXT, allowed_tense=NEUTRAL_FACTUAL, why_now_eligible=False; temporal_fact passou a dizer 'sem vigencia atual comprovada no input'",
+      "mutation_test": "Reintroduzindo o defeito em runtime (policy.RAW_STATUS_FALLBACK_STATES = frozenset(ACTIVITY_STATES)), tests/confenge_claim_policy/ vai a 2 failed / 39 passed; as duas falhas sao exatamente test_med001_raw_status_spelling_active_proven_never_promotes e test_med001_normalize_record_probe_cannot_reach_present_confirmed. Os testes pinam o comportamento, nao passam por acidente."
+    },
+    "a4_stamped_path_regression": {
+      "status": "NAO REGREDIU",
+      "checks": [
+        "resolve_lifecycle_state(stamped_state='ACTIVE_PROVEN') -> ACTIVE_PROVEN (reason stamped_lifecycle_state)",
+        "raw_status in {COMPLETED,TERMINATED,CANCELLED,SUSPENDED,UNKNOWN} -> estado identico (fallback seguro preservado)",
+        "vigencia real ativa (2026-01-01 / 2027-06-30, sem status) -> ACTIVE_PROVEN por vigencia_window -> CURRENT_ACTIONABLE / PRESENT_CONFIRMED (promocao legitima funciona)",
+        "vigencia ativa + situacao='active_proven' -> ACTIVE_PROVEN (token recusado nao atrapalha evidencia datada)",
+        "vigencia ativa + situacao='rescindido' -> TERMINATED / PAST_ONLY (derivacao continua rebaixando)",
+        "vigencia encerrada -> COMPLETED / PAST_ONLY"
+      ]
+    },
+    "evidence": {
+      "lint": "python3 -m ruff check scripts/confenge_claim_policy/ scripts/confenge_account_intelligence/ scripts/confenge_contact_resolution/ tests/confenge_claim_policy/ -> All checks passed; ruff format --check -> 6 files already formatted",
+      "tests_scoped": "263 passed in 4.06s (tests/confenge_claim_policy/ + tests/confenge_contact_resolution/ + tests/confenge_account_intelligence/) — bate exatamente com o relatado pelo @dev (261 -> 263, +2 testes novos, zero quebras)",
+      "tests_full_suite": "NAO re-executada (429s, sem valor discriminante). Alegacao do @dev ACEITA: a mudanca 134/5575/53 -> 97/6196/10 e AMBIENTAL. Coerente com environment_preexisting do gate 0.4.0, que ja listava numpy/fastapi/httpx/hypothesis/reportlab/prometheus_client como ausentes e origem dos 53 errors de coleta. 53 -> 10 errors com +621 passes e assinatura de resolucao de import; a correcao 0.4.1 toca uma funcao pura e nao pode criar 600 passes. BASELINE NOVO = 97 failed / 6196 passed / 263 skipped / 10 errors — comparacoes com 134/5575/53 estao OBSOLETAS.",
+      "environment_premise_verified": "python3 -c 'import numpy, fastapi, httpx, hypothesis, reportlab, prometheus_client' -> IMPORT OK. A premissa da explicacao ambiental do @dev esta EVIDENCIADA, nao inferida: os seis modulos listados como ausentes no gate 0.4.0 importam agora.",
+      "change_surface_verified": "git diff --stat HEAD nos 3 diretorios de escopo e VAZIO — nenhuma alteracao nao-commitada e, portanto, nenhum arquivo do conjunto congelado (message_spine.py, send_readiness.py) foi movido de forma nao declarada. O eixo new-file/new-import do AC 30 tambem esta confirmado: os unicos arquivos novos sao scripts/confenge_claim_policy/{__init__,policy}.py.",
+      "freeze_delta": "CONFIRMADO inalterado. grep por lifecycle_reasons fora dos 3 diretorios de escopo: nenhum teste e nenhum artefato congelado assere sobre conteudo/comprimento da tupla (so normalize.py:212, que a produz). O reason code novo, anexado ao FIM, nao quebra consumidor por posicao. Re-medir discover_frozen_input_paths antes do PR de re-freeze permanece obrigatorio (HEAD e movel)."
+    },
+    "issues_resolved": ["MED-001", "LOW-002", "LOW-003"],
+    "issues_carried": ["LOW-001", "LOW-004"],
+    "issues": [
+      {
+        "id": "MED-002",
+        "severity": "medium",
+        "category": "security",
+        "supersedes_scope_of": "MED-001 (resolvido) — mesma superficie, outra chave de entrada",
+        "description": "normalize.py:196 alimenta stamped_state= a partir de c.get('lifecycle_state') or c.get('activity_state') or c.get('status_normalized'), sem verificar proveniencia. Probe QA confirmado: {'lifecycle_state': 'ACTIVE_PROVEN'} com ZERO datas ainda produz CURRENT_ACTIONABLE / PRESENT_CONFIRMED com o texto 'contrato publico com vigencia ativa comprovada' (idem para status_normalized). O canal e confiavel por CONVENCAO DE NOME, nao por verificacao.",
+        "reachability": "ZERO em producao hoje — RE-DERIVADA INDEPENDENTEMENTE nesta iteracao: os dois unicos consumidores vivos do bag sao confenge_account_intelligence/pipeline.py:93 e confenge_activation/rebuild_national_funnel.py:425; strict_national_esr._contracts_from_account (105-127) emite 12 chaves e NENHUMA e lifecycle_state/activity_state/status_normalized; o SELECT do funil (392-399) nao seleciona coluna de status.",
+        "why_not_fail": [
+          "Alcancabilidade viva ZERO verificada pelo QA, nao alegada pelo @dev",
+          "O canal e honestamente nomeado: contracts_truth.py:1102 escreve status_normalized = activity.state, ou seja, quem carimba e o proprio classify_contract_activity; lifecycle_state e a saida de normalize.py (round-trip idempotente por design)",
+          "O escopo desta story e consumir contracts_truth.py como autoridade, nao endurecer todo o pipeline de ingestao de status; a recomendacao do proprio gate 0.4.0 era 'restringir o caminho carimbado a stamped_state=' — foi o que o @dev fez"
+        ],
+        "why_not_low": [
+          "Precedente: MED-001 foi MEDIUM com alcancabilidade ZERO na iteracao 1; a superficie aqui e estruturalmente identica (ACTIVE_PROVEN alcancavel com zero datas por chave controlada pelo chamador). Severidade nao se move pela narrativa do implementador.",
+          "Janela: o residual fica vivo EXATAMENTE quando o follow-up de lifecycle-truth plumbar status_normalized ate o bag — popular essa chave e o proposito daquele trabalho. O gap existe entre 'chave populada' e 'proveniencia verificada'.",
+          "Story HIGH-RISK e send_readiness.py governa EMAIL_SEND_READY (envio comercial real)."
+        ],
+        "recommendation": "contracts_truth.py:1102-1105 escreve status_normalized, status_rule_version e status_source JUNTOS. normalize.py:196 le so o estado. Exigir metadados de carimbo co-presentes (status_rule_version/status_source) antes de honrar um ACTIVE_PROVEN carimbado.",
+        "blocks": "NAO bloqueia esta story. BLOQUEIA o follow-up de lifecycle-truth (plumbar status_normalized/status_observed_at ate o bag) — fecha ANTES daquele trabalho comecar."
+      }
+    ],
+    "tests_reviewed": {
+      "test_med001_raw_status_spelling_active_proven_never_promotes": "Exaustivo nos grafemas; assere state==UNKNOWN E presenca de REASON_RAW_STATUS_NOT_PROMOTABLE E ausencia de REASON_STAMPED_STATE (prova que o ramo de recusa executou). Tambem fixa a identidade do frozenset, os 5 estados seguros, o caminho stamped e a promocao legitima por evidencia datada.",
+      "test_med001_normalize_record_probe_cannot_reach_present_confirmed": "End-to-end pelo caminho real (normalize_record -> build_epistemic_layers -> why_now), com assercao material de que 'vigencia ativa comprovada' nao aparece no temporal_fact.",
+      "record_correction": "A premissa do briefing estava levemente errada: o teste end-to-end do MED-001 esta em test_claim_policy_rules.py, NAO em test_red_team_cases.py — esse ultimo carrega a correcao do LOW-002. Ambos verificados.",
+      "low_002": "test_red_team_cases.py cobre os dois ramos explicitamente; ausencia da chave so tolerada sob trigger=='portfolio_review'; checagem adicional de linguagem nao-presente no temporal_fact. Nao passa mais vacuamente.",
+      "low_003": "test_a4_stamped_state_takes_the_validated_path_and_never_degrades — a assercao que pinava o defeito foi removida; restam o caminho carimbado e o token PT-BR ('rescindido' -> TERMINATED)."
+    },
+    "po_backlog_mandatory": {
+      "rule": ".claude/rules/aiox-project-operating-protocol.md secao 6 — CONCERNS exige itens de backlog com owner e prazo",
+      "owner": "@po (no fechamento)",
+      "resolved_close_out": ["MED-001", "LOW-002", "LOW-003"],
+      "gated_item": "MED-002 — vinculado ao follow-up de lifecycle-truth, com dependencia explicita: fecha ANTES daquele trabalho comecar (mesma estrutura usada para MED-001 na iteracao 1)",
+      "plain_backlog": ["LOW-001", "LOW-004"],
+      "warning": "A lista da iteracao 1 esta OBSOLETA. Fechar contra esta lista, nao contra po_backlog_mandatory do bloco qa_gate."
+    },
+    "push_preconditions_for_devops": [
+      "2 PRs sem squash: codigo -> artifact-only re-freeze",
+      "scripts/confenge_activation/publish.py NAO pode entrar no PR de codigo desta story",
+      "Re-medir discover_frozen_input_paths imediatamente antes do PR de re-freeze (HEAD e movel)",
+      "reviewed_commit desta iteracao e e76c3765 + working tree; o gate de push exige reviewed_commit === HEAD no momento do push"
+    ]
+  },
+  "po_closure": {
+    "date": "2026-09-01",
+    "closed_by": "Pax (@po)",
+    "closure_key": "story-outreach-claim-policy-01:commit:e76c3765",
+    "qa_verdict_confirmed": "CONCERNS (iteracao 2, Quinn @qa, 2026-09-01)",
+    "closed_against": "qa_gate_iteration_2.po_backlog_mandatory — a lista da iteracao 1 (bloco qa_gate) esta OBSOLETA por aviso explicito do proprio @qa e NAO foi usada.",
+    "status_transition_applied": {
+      "transition": "InReview -> Done",
+      "rule_owner": "@qa (story-lifecycle.md: PASS/CONCERNS/WAIVED movem InReview -> Done)",
+      "deviation": "Ambos os gates do @qa (0.4.0 e 0.4.2) registraram status_after_gate='InReview (fechamento e autoridade do @po)', omitindo a transicao que a regra atribui ao proprio @qa. Desvio corrigido conforme protocolo secao 9.",
+      "how_applied": "O @po aplicou a transicao ADMINISTRATIVAMENTE, na forca do veredito CONCERNS ja emitido pelo @qa. Nao e um juizo de qualidade do @po e nao constitui autoapropriacao de autoridade de QA: o veredito habilitante e integralmente do @qa.",
+      "gotcha_for_future_cycles": "Nas proximas stories, o @qa deve executar a transicao InReview -> Done ele mesmo no gate; o @po nao deve herdar essa correcao como rotina."
+    },
+    "ac_reconciliation": {
+      "total": 36,
+      "total_nota": "36 itens de AC no total: 33 numeradas + 23a + 23b + 24a. O veredito do @qa fala em '33/33' contando so as numeradas.",
+      "verified": "35/36 PASS com evidencia nomeada por teste na tabela de Rastreabilidade de AC do gate (story linhas 1031-1050), re-executada de forma independente pelo @qa.",
+      "ac_23b_fora_da_tabela_do_qa": {
+        "achado_do_po": "A tabela de rastreabilidade do @qa cobre 1-33 mais 23a e 24a, mas NAO menciona a AC 23b (hollowness entra como booleano ja decidido pelo chamador; o modulo puro nunca inspeciona texto — story linha 157). Citar '33/33 conforme a tabela' seria apoiar a contagem em um artefato que nao a sustenta inteiramente.",
+        "status_real": "SATISFEITA, mas com evidencia de origem diferente: Dev Agent Record linha 468 — facts.py::_claim_policy_for_contract importa is_hollow_fact de message_spine por import LOCAL (dentro da funcao), preservando dono unico em message_spine.py e sem criar ciclo (message_spine nao importa facts). O teste test_module_purity_and_boundary.py (AST) prova o lado negativo da AC 23a; o lado positivo da 23b esta no registro do @dev, nao em verificacao independente do @qa.",
+        "ruling_do_po": "ACEITO sem reabrir a story. O mecanismo e verificavel por leitura e o risco e nulo (duplicar is_hollow_fact seria o defeito, e ele nao foi duplicado). Registrado como lacuna de RASTREABILIDADE do gate, nao de implementacao."
+      },
+      "tasks": "7/7 tasks e todas as subtasks marcadas [x]; Task 2a (gate de arquitetura) executada e registrada na v0.2.1.",
+      "test_only_declared_honestly": {
+        "acs": ["5", "24a", "32"],
+        "nota": "A5 do @architect, CONFIRMADA pelo @dev e reconfirmada duas vezes pelo @qa: satisfeitas no nivel de MECANISMO, com alcancabilidade em dado vivo ZERO. Nenhum produtor emite situacao/status/situacao_nome por contrato no bag (strict_national_esr._contracts_from_account emite 12 chaves, nenhuma delas; o SELECT de rebuild_national_funnel.py:392-399 nao seleciona coluna de status). Logo TERMINATED/CANCELLED/SUSPENDED sao inalcancaveis por derivacao com o dado real de hoje.",
+        "ruling_do_po": "LIMITACAO DECLARADA, NAO DEFEITO. A meta de seguranca da story nao e enfraquecida: em producao tudo degrada para COMPLETED (vigencia encerrada) ou UNKNOWN, e ambos ja proibem o presente pelas Regras 3/4. A cobertura verde dessas tres ACs deve ser lida como cobertura do mecanismo, e o mecanismo fica pronto para o dado quando o follow-up de lifecycle-truth chegar."
+      }
+    },
+    "backlog": [
+      {
+        "id": "MED-002",
+        "severity": "MEDIUM",
+        "category": "security",
+        "owner": "@dev",
+        "type": "GATE",
+        "prazo": "SEM PRAZO DE CALENDARIO — o gate e por dependencia, nao por data.",
+        "gate": "BLOQUEIA o inicio do follow-up de lifecycle-truth (plumbar status_normalized/status_observed_at de stamp_contract_truth_labels ate o bag de normalize.py). MED-002 deve ser RESOLVIDO ANTES daquele trabalho COMECAR — nao depois, nao em paralelo.",
+        "rationale_do_gate": "A alcancabilidade viva de MED-002 e ZERO hoje precisamente porque as chaves lifecycle_state/activity_state/status_normalized nunca sao populadas no bag. Popular essas chaves E O PROPOSITO do follow-up de lifecycle-truth. No instante em que ele comecar, o gap entre 'chave populada' e 'proveniencia verificada' fica vivo em um caminho que governa EMAIL_SEND_READY (envio comercial real). Corrigir depois significa correr com a porta aberta.",
+        "description": "normalize.py:196 alimenta stamped_state= a partir de c.get('lifecycle_state') or c.get('activity_state') or c.get('status_normalized') sem verificar proveniencia. Probe do @qa: {'lifecycle_state': 'ACTIVE_PROVEN'} com ZERO datas ainda produz CURRENT_ACTIONABLE / PRESENT_CONFIRMED com o texto 'contrato publico com vigencia ativa comprovada'. O canal e confiavel por CONVENCAO DE NOME, nao por verificacao.",
+        "fix_nomeado": "contracts_truth.py:1102-1105 escreve status_normalized, status_rule_version e status_source JUNTOS. Exigir os metadados de carimbo co-presentes (status_rule_version/status_source) antes de honrar um ACTIVE_PROVEN carimbado em normalize.py:196.",
+        "po_ruling": "Severidade MEDIUM MANTIDA. Nao rebaixo para LOW: a superficie e estruturalmente identica a de MED-001 (que foi MEDIUM com a mesma alcancabilidade zero), a story e HIGH-RISK, e severidade nao se move pela narrativa do implementador. Nao escalo para bloqueante desta story: o escopo declarado desta story e CONSUMIR contracts_truth.py como autoridade, nao endurecer o pipeline de ingestao de status — endurecer aqui seria expansao de escopo pos-QA."
+      },
+      {
+        "id": "LOW-001",
+        "severity": "LOW",
+        "category": "code",
+        "owner": "@dev",
+        "type": "SIMPLES",
+        "prazo": "Sem prazo urgente. Oportunista — proximo toque em message_spine.py.",
+        "description": "message_spine.py:264 + 291/293 — _cap_from_why devolve None quando o dict why nao traz outreach_use_class, e _cap_strength('STRONG', None) devolve STRONG sem consultar lifecycle. Inalcancavel hoje (provado por probe do @qa: os dois retornos de facts.why_now sem chaves de politica produzem texto is_hollow_fact()==True e o branch pula textos hollow), mas e defesa-em-profundidade ausente no segundo site do bug.",
+        "recommendation": "Derivar o cap dos contratos do bag quando why nao trouxer veredito; adicionar teste de regressao para o branch de passthrough.",
+        "po_ruling": "LOW confirmado. Nao ha caminho vivo e o gate de hollowness ja cobre o caso na pratica. Registro para que a defesa em profundidade nao se perca."
+      },
+      {
+        "id": "LOW-004",
+        "severity": "LOW",
+        "category": "requirements",
+        "owner": "@po",
+        "type": "SIMPLES / DECISAO DE WORDING",
+        "prazo": "Sem prazo urgente. Decisao editorial do @po — o @qa explicitamente nao altera copy.",
+        "description": "O texto neutro 'Ainda no horizonte operacional: ...' (uma das tres variantes pre-existentes de _neutral(), message_spine.py) passa a cobrir mais contratos nao comprovados, porque o cap novo roteia para ele casos que antes tomavam o ramo STRONG. Probe do @qa com contrato UNKNOWN publicado ontem: spine.complete=True, claim_policy=RECENT_RETROSPECTIVE/NEUTRAL_FACTUAL, texto 'Ainda no horizonte operacional'.",
+        "po_ruling": "Nenhuma AC numerada e violada e NAO reabro a story por isso. Mas o item toca o Estado-alvo declarado ('nenhuma afirmacao material cita presente/ativo sem prova verificavel') e o objetivo da story irma claim-safety-audit-01: 'ainda no horizonte operacional' e presente-ish por conotacao, mesmo sem ser presente por gramatica. Aceito como divida editorial com dono no @po.",
+        "acao": "Revisar as tres variantes de _neutral() para linguagem estritamente retrospectiva ou explicitamente atemporal. Deve ser feito junto com (ou logo apos) claim-safety-audit-01, que audita exatamente esse eixo."
+      }
+    ],
+    "backlog_closed_out": {
+      "MED-001": "RESOLVIDO — verificado pelo @qa por probe proprio nas 3 chaves de entrada E por teste de mutacao (reintroduzir o defeito derruba exatamente os 2 testes novos). Baixado.",
+      "LOW-002": "RESOLVIDO — assert vacuo substituido por assercoes materiais nos dois ramos. Baixado.",
+      "LOW-003": "RESOLVIDO — teste que pinava o defeito renomeado e a assercao removida; substituida por 2 testes que pinam a guarda. Baixado."
+    },
+    "freeze_record_confirmed": {
+      "ac_30": "CORRETO no conteudo, mas o BASELINE citado no Dev Agent Record esta defasado — corrigido aqui pelo @po.",
+      "medicao_do_po_no_fechamento": {
+        "head_limpo_e76c3765": 165,
+        "working_tree": 166,
+        "metodo": "git worktree add --detach + discover_frozen_input_paths(Path('.')) nos dois",
+        "leitura_correta": "Os 4 caminhos desta story JA ESTAO dentro dos 165 do HEAD limpo, porque o codigo ja esta commitado em 5bb8f352 (ancestral de e76c3765). NAO sao adicoes pendentes. O 161 -> 166 do Dev Agent Record foi medido em 6c7bb0ea, ANTES do commit — aritmetica correta, baseline obsoleto. O unico caminho presente na working tree e ausente do HEAD limpo e scripts/confenge_universe/parafiscal.py, de OUTRA story."
+      },
+      "delta_atribuivel_a_esta_story": [
+        "scripts/confenge_claim_policy/__init__.py (NOVO)",
+        "scripts/confenge_claim_policy/policy.py (NOVO)",
+        "scripts/contracts_truth.py (puxado por import do pacote novo)",
+        "scripts/crawl/observation_lineage.py (fechamento transitivo de contracts_truth.py, import de nivel de funcao na linha 1115 — correcao factual do @dev a predicao do @architect, confirmada)"
+      ],
+      "rebind_obrigatorio": [
+        "scripts/confenge_account_intelligence/message_spine.py (ja congelado antes desta story E editado por ela)",
+        "scripts/confenge_contact_resolution/send_readiness.py (ja congelado antes desta story E editado por ela)"
+      ],
+      "nao_atribuivel": "scripts/confenge_universe/parafiscal.py — outra story, arquivo nao rastreado. NAO entra em nenhum dos dois PRs desta story."
+    },
+    "sister_story_notice": {
+      "story": "docs/stories/story-current-claim-jit-authority-01.md (Draft, NO-GO 5/10 na validacao de 2026-09-01)",
+      "confirmado": true,
+      "contrato_pinado": "compute_copy_hash(body) = 'sha256:' + hashlib.sha256(body.encode('utf-8')).hexdigest() — COM o prefixo literal 'sha256:', sem normalizacao unicode, sem strip(), sem canonicalizacao de newline. Pinado por teste (test_copy_hash_contract_is_pinned_sha256_utf8, AC 20). Exportado por scripts.confenge_claim_policy.",
+      "contradicao_viva_encontrada_pelo_po": "A story irma JA CONTRADIZ o contrato: a tabela de campos (linha 139) declara copy_hash como 'string (hex SHA256)'. Hex puro NAO e o que este modulo produz — o valor real carrega o prefixo 'sha256:'. Se a JIT re-derivar o digest a partir dessa linha, o golden vector de attestation_hash (linha 154, canonicalizacao que consome copy_hash como campo material) diverge silenciosamente do valor real e o vinculo copy_hash <-> corpo enviado quebra sem erro visivel.",
+      "acao_do_po": "Aviso registrado na story irma (que esta em Draft — dentro da autoridade do @po). A JIT deve IMPORTAR compute_copy_hash de scripts.confenge_claim_policy e nunca re-derivar o hash, e a linha 139 deve ser corrigida antes de qualquer golden vector ser congelado."
+    },
+    "epic_backlog_bookkeeping": "NO-OP legitimo — nenhum artefato de epic ou backlog referencia esta story. Verificado por conteudo, nao por nome de arquivo: `grep -rn 'outreach-claim-policy|CLAIM_POLICY|claim_policy' docs/stories/epics/ docs/stories/epic-technical-debt.md` retorna VAZIO; e nao existe nenhum arquivo *backlog* no repositorio (`find -iname '*backlog*'` vazio). A story nasceu de auditoria direta de HEAD, sem epic/PRD de origem (declarado na v0.1.0 pelo @sm). O gate MED-002 foi registrado em .aiox/gotchas.json, que e o canal cross-story real deste projeto.",
+    "next_agent": "@devops",
+    "next_action": "*pre-push — mas SOMENTE apos as publication_unblock_conditions. publication_authorized permanece false."
+  },
+  "qa_fix_iterations": [
+    {
+      "iteration": 1,
+      "date": "2026-09-01",
+      "agent": "@dev",
+      "responds_to": "qa_gate 0.4.0 (CONCERNS)",
+      "status_unchanged": "InReview — re-validacao e autoridade do @qa",
+      "issues_fixed": [
+        "MED-001 — fallback de raw_status nao pode mais produzir ACTIVE_PROVEN. Novo RAW_STATUS_FALLBACK_STATES = ACTIVITY_STATES - {ACTIVE_PROVEN}: um raw_status textual so adota estados seguros por natureza (COMPLETED/TERMINATED/CANCELLED/SUSPENDED/UNKNOWN); soletrar ACTIVE_PROVEN faz o token ser recusado e descartado, devolvendo a decisao inteira a classify_contract_activity (que exige vigencia real). Reason code novo raw_status_state_name_not_promotable, anexado ao FIM de reasons. ACTIVE_PROVEN so e alcancavel via stamped_state= explicito (caminho A4) ou evidencia datada. Invariante demote-only restaurado; Regra 7 sem porta lateral.",
+        "LOW-003 — test_a4_stamped_state_never_enters_raw_status renomeado para test_a4_stamped_state_takes_the_validated_path_and_never_degrades; a assercao que pinava o defeito foi removida e substituida por dois testes de regressao (test_med001_raw_status_spelling_active_proven_never_promotes unitario; test_med001_normalize_record_probe_cannot_reach_present_confirmed end-to-end pelo caminho exato do probe do QA).",
+        "LOW-002 — assert vazio em test_red_team_cases.py substituido por assercoes materiais nos dois ramos (chave presente -> UNKNOWN + tempo nao-presente; chave ausente -> so tolerada no fallback documentado trigger=='portfolio_review'), mais checagem de que temporal_fact nao carrega linguagem de presente."
+      ],
+      "issues_not_touched": [
+        "LOW-001 — defesa-em-profundidade em _cap_from_why: fora do escopo desta iteracao (backlog do @po)",
+        "LOW-004 — wording das variantes de _neutral(): decisao do @po, nao do @dev"
+      ],
+      "residual_declared": "normalize.py:196 ainda alimenta stamped_state= a partir do mesmo dict nao-confiavel (lifecycle_state/activity_state/status_normalized), logo um payload com lifecycle_state='ACTIVE_PROVEN' e zero datas ainda promove por outra chave. NAO alterado de proposito: A4 designa stamped_state= como o caminho confiavel validado e a propria recomendacao do @qa e 'restringir o caminho carimbado a stamped_state='. Vinculado ao follow-up de lifecycle-truth (plumbar status_normalized ate o bag), que e quando essas chaves passam a ser preenchidas.",
+      "files_changed": [
+        "scripts/confenge_claim_policy/policy.py",
+        "scripts/confenge_claim_policy/__init__.py",
+        "tests/confenge_claim_policy/test_claim_policy_rules.py",
+        "tests/confenge_claim_policy/test_red_team_cases.py",
+        "docs/stories/story-outreach-claim-policy-01.md",
+        ".aiox/state/stories/story-outreach-claim-policy-01.json"
+      ],
+      "evidence": {
+        "lint": "python3 -m ruff check scripts/confenge_claim_policy/ tests/confenge_claim_policy/ -> All checks passed; ruff format --check -> 6 files already formatted",
+        "typecheck": "mypy 2.3.1 (venv descartavel; mypy ausente no ambiente, pip bloqueado por PEP 668) -> zero erro nos arquivos tocados; 3 erros pre-existentes fora de escopo (contracts_truth.py:275,:995; crawl/observation_lineage.py:79)",
+        "tests_scoped": "tests/confenge_claim_policy/ + tests/confenge_contact_resolution/ + tests/confenge_account_intelligence/ -> 263 passed (era 261 no gate; +2 testes novos, zero quebras)",
+        "tests_scoped_wide": "+ tests/dossier tests/confenge_outreach_pipeline tests/confenge_activation -> 425 passed",
+        "tests_importers": "334 passed / 12 skipped / 1 failed — a falha e test_rebound_freeze_drives_shipped_verifiers_on_campaign_tree, pre-existente em HEAD limpo",
+        "tests_full_suite": "97 failed, 6196 passed, 263 skipped, 11 deselected, 10 errors (comando exato do gate do @qa, 429s)",
+        "tests_full_suite_baseline_warning": "O baseline da suite completa MUDOU POR AMBIENTE, nao por esta correcao. numpy/fastapi/httpx/hypothesis/reportlab/prometheus_client/pytest-cov — todos listados como ausentes em environment_preexisting no gate 0.4.0 — agora importam. Isso explica 53 -> 10 errors de coleta e +621 passes. O @qa deve re-baselinar, nao comparar com 134/5575/53. Evidencia de nao-atribuicao: o resumo -rfE nao contem NENHUM teste em modulo alcancavel pela mudanca (zero ocorrencias de claim_policy/account_intelligence/contact_resolution/confenge_activation/outreach_pipeline/dossier/contracts_truth); as falhas nomeadas sao test_rebound_freeze_drives_shipped_verifiers_on_campaign_tree (pre-existente) e decision_memory/test_repository_pg.py (Postgres ausente), mais 10 errors de coleta que exigem DB/rede real.",
+        "freeze_delta": "inalterado — nenhum arquivo novo, nenhum import novo; conjunto do AC 30 permanece valido (re-medir antes do PR de re-freeze permanece obrigatorio)"
+      },
+      "notes": [
+        "LOW-002 nao usa a forma literal 'assert lifecycle_state in why': medido nesta sessao, o bag do red-team 3 (sem aditivo) produz why_now com apenas ['epistemic_class','recency_days','temporal_fact','trigger'] e trigger=='portfolio_review' — a forma estrita falharia por comportamento correto e pre-existente. A forma condicional verifica os dois ramos sem tolerar ausencia silenciosa.",
+        "AC 31 preservada: RAW_STATUS_FALLBACK_STATES e derivado por subtracao de ACTIVITY_STATES (frozenset(ACTIVITY_STATES) - {ACTIVE_PROVEN}), nao uma segunda enumeracao manual; test_ac31_no_second_lifecycle_vocabulary_is_introduced continua passando."
+      ]
+    }
+  ],
+  "dev_implementation": {
+    "date": "2026-09-01",
+    "agent": "@dev",
+    "transitions": [
+      "Ready -> InProgress",
+      "InProgress -> InReview"
+    ],
+    "lint": "ruff check scripts/ tests/ -> All checks passed",
+    "typecheck": "mypy 2.3.1 (venv descartavel; mypy nao instalado no ambiente, pip bloqueado por PEP 668) -> nenhum erro novo (send_readiness 24->24; message_spine unreachable e pre-existente)",
+    "tests_scoped": "349 passed (confenge_claim_policy + confenge_account_intelligence + confenge_contact_resolution + dossier + confenge_outreach_pipeline) e 15 passed (confenge_activation, diretorio onde estavam as 2 unicas regressoes, agora verde)",
+    "tests_importers": "180 passed / 12 skipped / 1 failed — a falha (test_rebound_freeze_drives_shipped_verifiers_on_campaign_tree) reproduz em worktree limpo de HEAD, pre-existente",
+    "environment_notes": [
+      "pytest.ini exige pytest-cov, que nao esta instalado — comando canonico da story aborta sem -o addopts",
+      "tests/test_official_status_reconfirmation.py derruba a coleta com INTERNALERROR (collect_report_data faz sys.exit(1) no import) — pre-existente"
+    ],
+    "freeze_delta": {
+      "head_clean_total": 161,
+      "worktree_total": 166,
+      "attributable_to_story": [
+        "scripts/confenge_claim_policy/__init__.py",
+        "scripts/confenge_claim_policy/policy.py",
+        "scripts/contracts_truth.py",
+        "scripts/crawl/observation_lineage.py"
+      ],
+      "not_attributable": [
+        "scripts/confenge_universe/parafiscal.py (outra story, arquivo nao rastreado)"
+      ],
+      "architect_prediction_corrected": "contracts_truth.py TEM fechamento transitivo (import de nivel de funcao para scripts/crawl/observation_lineage.py na linha 1115); delta real = +4, nao +3",
+      "two_pr_sequence_confirmed": true
+    },
+    "limitations": [
+      "A5 confirmada: AC 5/32/24a sao cobertura de mecanismo — nenhum produtor emite situacao/status por contrato no bag; TERMINATED/CANCELLED/SUSPENDED inalcancaveis por dado real"
+    ],
+    "follow_ups": [
+      "Plumbar status_normalized/status_observed_at (stamp_contract_truth_labels) ate o bag de normalize.py — blast radius de crawler/projecao, fora do escopo desta story"
+    ],
+    "deviations": [
+      "AC 15 vs AC 23: why_you mantem a selecao de HEAD (primeiro contrato com objeto >= 24 chars) porque AC 23 exige resultado identico no default; AC 15 e permissiva ('pode')",
+      "Fail-closed de multiplos CURRENT rebaixa o candidato mais forte a claim historico seguro em vez de bloquear a mensagem inteira (AC 21 exige no maximo 1 CURRENT, nao zero citacoes); monotonicidade AC 27 preservada"
+    ],
+    "out_of_scope_contamination": "scripts/confenge_activation/publish.py recebeu +35 linhas de outra story na mesma arvore; nao tocado por @dev; nao deve entrar no PR de codigo desta story",
+    "tests_full_suite": "134 failed, 5575 passed, 261 skipped, 53 errors — identico ao baseline pre-implementacao; as 2 unicas falhas atribuiveis a esta story foram encontradas e corrigidas (demote_to_historical). Zero regressoes remanescentes (AC 29)."
+  }
+}

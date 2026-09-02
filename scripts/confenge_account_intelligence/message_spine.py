@@ -11,7 +11,24 @@ from dataclasses import asdict, dataclass, field
 from datetime import date, datetime
 from typing import Any
 
+from scripts.confenge_claim_policy import (
+    CURRENT_ACTIONABLE,
+    DO_NOT_CITE,
+    PRESENT_CONFIRMED,
+    PURPOSE_WHY_NOW,
+    PURPOSE_WHY_YOU,
+    ClaimCandidate,
+    ClaimPolicyResult,
+    demote_to_historical,
+    evaluate_claim_policy,
+    is_contemporary_event,
+    select_message_claims,
+)
 from scripts.confenge_contract_identity import public_contract_id
+
+# Temporal strength ladder — lower index is weaker. Used to cap (never raise) the
+# strength that a dated event may claim, according to CLAIM_POLICY.
+_STRENGTH_RANK: dict[str, int] = {"WEAK": 0, "MODERATE": 1, "STRONG": 2}
 
 # Meta evidence ids that may stay in internal lists but never seed the body.
 META_EVIDENCE_PREFIXES: tuple[str, ...] = (
@@ -82,16 +99,105 @@ def _company_label(bag: dict[str, Any]) -> str:
     return str(bag.get("razao_social") or bag.get("nome_fantasia") or "a empresa")
 
 
-def extract_contract_hook(bag: dict[str, Any]) -> tuple[str, list[str]]:
-    """Return (observed_fact, evidence_ids) from the strongest concrete contract object."""
+def _bag_as_of(bag: dict[str, Any]) -> date:
+    """Return the bag ``as_of`` as a real date (A1 — the policy never takes strings)."""
+    parsed = _parse_date(bag.get("as_of"))
+    return parsed or date.today()
+
+
+def _contract_event_date(contract: dict[str, Any]) -> date | None:
+    for key in ("start_date", "data_inicio", "publication_date", "data_publicacao", "end_date", "data_fim"):
+        parsed = _parse_date(contract.get(key))
+        if parsed is not None:
+            return parsed
+    return None
+
+
+def _contract_claim_policy(
+    contract: dict[str, Any], *, evaluated_as_of: date, purpose: str, index: int = 0
+) -> ClaimPolicyResult:
+    """Evaluate CLAIM_POLICY for one contract dict of the message-spine bag."""
+    # ``contract`` here is always an entry of an already-normalized bag (see
+    # extract_contract_hook), so ``id`` legitimately carries the official
+    # identity when normalize_record resolved one. Re-deriving from the
+    # official field names first would miss on a normalized dict — the exact
+    # regression fixed for extract_contract_hook itself.
+    cid = public_contract_id(contract, allow_legacy_surrogate=True) or f"contract-{index}"
+    obj = str(contract.get("object") or contract.get("objeto") or contract.get("objeto_contrato") or "").strip()
+    event_date = _contract_event_date(contract)
+    candidate = ClaimCandidate(
+        contract_id=cid,
+        lifecycle_state=str(contract.get("lifecycle_state") or ""),
+        evidence_ids=(f"cf-contract-{cid}",),
+        has_hollow_fact=is_hollow_fact(obj),
+        has_contemporary_event=is_contemporary_event(event_date, evaluated_as_of),
+        event_date=event_date,
+    )
+    return evaluate_claim_policy(candidate, evaluated_as_of=evaluated_as_of, purpose=purpose)
+
+
+def _strength_cap(policy: ClaimPolicyResult) -> str:
+    """Highest temporal strength the lifecycle authorises for this contract."""
+    if policy.outreach_use_class == DO_NOT_CITE:
+        return "WEAK"
+    if (
+        policy.outreach_use_class == CURRENT_ACTIONABLE
+        and policy.allowed_tense == PRESENT_CONFIRMED
+        and policy.why_now_eligible
+    ):
+        return "STRONG"
+    return "MODERATE"
+
+
+def _cap_strength(strength: str, cap: str | None) -> str:
+    if cap is None:
+        return strength
+    return strength if _STRENGTH_RANK.get(strength, 2) <= _STRENGTH_RANK.get(cap, 2) else cap
+
+
+def _cap_from_why(why: dict[str, Any]) -> str | None:
+    """Cap derived from CLAIM_POLICY fields already attached by ``facts.why_now``.
+
+    Returns ``None`` when the ``why`` dict carries no policy verdict (legacy callers),
+    so behaviour for those callers is unchanged.
+    """
+    use_class = str((why or {}).get("outreach_use_class") or "").strip()
+    if not use_class:
+        return None
+    if use_class == DO_NOT_CITE:
+        return "WEAK"
+    if (
+        use_class == CURRENT_ACTIONABLE
+        and str((why or {}).get("allowed_tense") or "") == PRESENT_CONFIRMED
+        and bool((why or {}).get("why_now_eligible"))
+    ):
+        return "STRONG"
+    return "MODERATE"
+
+
+def extract_contract_hook(bag: dict[str, Any], *, purpose: str = PURPOSE_WHY_YOU) -> tuple[str, list[str]]:
+    """Return (observed_fact, evidence_ids) from the strongest concrete contract object.
+
+    ``purpose="why_you"`` (default) preserves the historical behaviour byte-for-byte.
+    ``purpose="why_now"`` only accepts a contract that CLAIM_POLICY classifies as a
+    valid ``CURRENT_ACTIONABLE`` candidate with a contemporary dated event; otherwise
+    it returns empty rather than passing history off as the present.
+    """
     contracts = bag.get("contracts") or []
     evidence_ids: list[str] = []
+    evaluated_as_of = _bag_as_of(bag)
     for i, c in enumerate(contracts):
         if not isinstance(c, dict):
             continue
         obj = str(c.get("object") or c.get("objeto") or c.get("objeto_contrato") or "").strip()
         if len(obj) < 24:
             continue
+        if purpose == PURPOSE_WHY_NOW:
+            policy = _contract_claim_policy(
+                c, evaluated_as_of=evaluated_as_of, purpose=PURPOSE_WHY_NOW, index=i
+            )
+            if not (policy.outreach_use_class == CURRENT_ACTIONABLE and policy.why_now_eligible):
+                continue
         org = str(c.get("orgao") or c.get("agency") or c.get("orgao_nome") or "").strip()
         uf = str(c.get("uf") or "").strip()
         val = c.get("value_brl") or c.get("valor_total")
@@ -165,6 +271,8 @@ def _extract_temporal_event(bag: dict[str, Any], why: dict[str, Any]) -> tuple[s
     - WEAK: no dated temporal event (even if contract hook exists) → COPY not ready
     """
     today = date.today()
+    evaluated_as_of = _bag_as_of(bag)
+    why_cap = _cap_from_why(why or {})
     trigger = str((why or {}).get("trigger") or "").strip()
     # Explicit non-hollow temporal_fact with a date token
     for key in ("temporal_fact", "summary"):
@@ -191,9 +299,9 @@ def _extract_temporal_event(bag: dict[str, Any], why: dict[str, Any]) -> tuple[s
                         "venciment",
                     )
                 ):
-                    return val, "STRONG"
+                    return val, _cap_strength("STRONG", why_cap)
             else:
-                return val, "STRONG"
+                return val, _cap_strength("STRONG", why_cap)
 
     contracts = bag.get("contracts") or []
     dated: list[tuple[date, str, dict[str, Any]]] = []
@@ -248,18 +356,39 @@ def _extract_temporal_event(bag: dict[str, Any], why: dict[str, Any]) -> tuple[s
                 bits.append(f"órgão {org}")
             if obj:
                 bits.append(f"objeto: {obj}")
+            # A dated field alone is never proof of current execution (Rule 4).
+            # CLAIM_POLICY caps how strong this event may be claimed.
+            cap = _strength_cap(
+                _contract_claim_policy(c, evaluated_as_of=evaluated_as_of, purpose=PURPOSE_WHY_NOW)
+            )
+
+            def _neutral(bits_: list[str], age_: int) -> str:
+                h_ = (age_ + len(bits_[0])) % 3
+                mid_ = (
+                    "Marco contratual datado no portfólio: " + "; ".join(bits_) + ".",
+                    "Ainda no horizonte operacional: " + "; ".join(bits_) + ".",
+                    "Registro público com data verificável: " + "; ".join(bits_) + ".",
+                )
+                return mid_[h_]
+
+            if cap == "WEAK":
+                continue
             # Near end_date → anniversary/termination window
             if label == "término previsto":
                 days_left = (d - today).days
                 if -30 <= days_left <= 180:
-                    return (
-                        "Contrato com "
-                        + "; ".join(bits)
-                        + f" (horizonte ~{days_left} dias) — janela temporal verificável.",
-                        "STRONG",
-                    )
+                    if cap == "STRONG":
+                        return (
+                            "Contrato com "
+                            + "; ".join(bits)
+                            + f" (horizonte ~{days_left} dias) — janela temporal verificável.",
+                            "STRONG",
+                        )
+                    return _neutral(bits, age), "MODERATE"
                 continue
             if age <= 180:
+                if cap != "STRONG":
+                    return _neutral(bits, age), "MODERATE"
                 # Diversify phrasing (blind-template must not collapse all to one scaffold)
                 h = (age + len(bits[0]) + len(obj)) % 3
                 recent = (
@@ -271,13 +400,7 @@ def _extract_temporal_event(bag: dict[str, Any], why: dict[str, Any]) -> tuple[s
                 )
                 return recent[h], "STRONG"
             if age <= 400:
-                h = (age + len(bits[0])) % 3
-                mid = (
-                    "Marco contratual datado no portfólio: " + "; ".join(bits) + ".",
-                    "Ainda no horizonte operacional: " + "; ".join(bits) + ".",
-                    "Registro público com data verificável: " + "; ".join(bits) + ".",
-                )
-                return mid[h], "MODERATE"
+                return _neutral(bits, age), "MODERATE"
 
     # No dated event → WEAK (do not invent "now")
     return (
@@ -452,6 +575,9 @@ class MessageSpine:
     body_seed_fact: str = ""
     complete: bool = False
     incomplete_reasons: list[str] = field(default_factory=list)
+    # CLAIM_POLICY verdict governing the material claim carried by this spine.
+    # Consumed by send_readiness (FACTUAL_CLAIM_SAFE). Empty when no citable claim.
+    claim_policy: dict[str, Any] = field(default_factory=dict)
 
     def as_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -472,6 +598,39 @@ MICRO_BY_SERVICE: dict[str, str] = {
 }
 
 
+def _spine_claim_policy(bag: dict[str, Any]) -> dict[str, Any]:
+    """Pick the CLAIM_POLICY verdict that governs this message.
+
+    ``select_message_claims`` enforces the "at most one CURRENT claim per message"
+    rule; the verdict retained is the CURRENT one when it exists, otherwise the first
+    citable historical candidate. Empty dict when nothing is citable.
+    """
+    evaluated_as_of = _bag_as_of(bag)
+    results: list[ClaimPolicyResult] = []
+    for i, c in enumerate(bag.get("contracts") or []):
+        if not isinstance(c, dict):
+            continue
+        results.append(
+            _contract_claim_policy(c, evaluated_as_of=evaluated_as_of, purpose=PURPOSE_WHY_NOW, index=i)
+        )
+    if not results:
+        return {}
+    selection = select_message_claims(results)
+    if not selection.claims:
+        # Fail-closed on the CURRENT claim only. AC 21 forbids two CURRENT claims in
+        # one message; it does not require destroying the message. The strongest
+        # citable candidate is demoted to a safe historical claim instead, so recall
+        # of multi-contract active portfolios is preserved without present tense.
+        citable = [r for r in results if r.outreach_use_class != DO_NOT_CITE]
+        if not citable:
+            return {"claims_blocked": True, "reason_codes": list(selection.reason_codes)}
+        return demote_to_historical(citable[0], reason_codes=selection.reason_codes).as_dict()
+    for r in selection.claims:
+        if r.outreach_use_class == CURRENT_ACTIONABLE:
+            return r.as_dict()
+    return selection.claims[0].as_dict()
+
+
 def build_message_spine(
     bag: dict[str, Any],
     *,
@@ -490,7 +649,7 @@ def build_message_spine(
     company = _company_label(bag)
     confirmed = list((layers or {}).get("confirmed_facts") or [])
 
-    hook, hook_ids = extract_contract_hook(bag)
+    hook, hook_ids = extract_contract_hook(bag, purpose=PURPOSE_WHY_YOU)
     if not hook:
         conf_text, conf_ids = _non_hollow_confirmed(confirmed)
         hook, hook_ids = conf_text, conf_ids
@@ -530,4 +689,5 @@ def build_message_spine(
         body_seed_fact=body_seed,
         complete=len(incomplete) == 0 and bool(observed) and why_now_strength != "WEAK",
         incomplete_reasons=incomplete,
+        claim_policy=_spine_claim_policy(bag),
     )

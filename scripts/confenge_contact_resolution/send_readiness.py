@@ -27,6 +27,14 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
+from scripts.confenge_claim_policy import (
+    CURRENT_ACTIONABLE,
+    DO_NOT_CITE,
+    HISTORICAL_CONTEXT,
+    NEUTRAL_FACTUAL,
+    PAST_ONLY,
+    RECENT_RETROSPECTIVE,
+)
 from scripts.confenge_contact_resolution.email_policy import domain_of, is_freemail
 from scripts.confenge_contact_resolution.mailbox_purpose import (
     BLOCKED_PURPOSES,
@@ -311,12 +319,16 @@ class CopyContextResult:
     copy_context_ready: bool
     reasons: list[str] = field(default_factory=list)
     missing_fields: list[str] = field(default_factory=list)
+    # FACTUAL_CLAIM_SAFE — necessary condition, never sufficient. Defaults to True so
+    # the gate can only subtract send-readiness, never add it (monotonicity invariant).
+    factual_claim_safe: bool = True
 
     def as_dict(self) -> dict[str, Any]:
         return {
             "copy_context_ready": self.copy_context_ready,
             "reasons": list(self.reasons),
             "missing_fields": list(self.missing_fields),
+            "factual_claim_safe": self.factual_claim_safe,
         }
 
 
@@ -341,6 +353,7 @@ class EmailSendReadyResult:
     derived_from_fixture: bool = False
     human_recipient_evidence_valid: bool = False
     controlled_email_eligible: bool = False
+    factual_claim_safe: bool = True
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -363,6 +376,7 @@ class EmailSendReadyResult:
             "derived_from_fixture": self.derived_from_fixture,
             "human_recipient_evidence_valid": self.human_recipient_evidence_valid,
             "controlled_email_eligible": self.controlled_email_eligible,
+            "factual_claim_safe": self.factual_claim_safe,
         }
 
 
@@ -836,6 +850,59 @@ def _service_fit_supported(company: dict[str, Any] | None, svc: str) -> bool:
     return False
 
 
+FACTUAL_CLAIM_SAFE = "FACTUAL_CLAIM_SAFE"
+
+_SAFE_HISTORICAL_USE_CLASSES = frozenset({RECENT_RETROSPECTIVE, HISTORICAL_CONTEXT})
+_SAFE_HISTORICAL_TENSES = frozenset({NEUTRAL_FACTUAL, PAST_ONLY})
+
+
+def _claim_policy_from_company(company: dict[str, Any] | None) -> dict[str, Any]:
+    if not company:
+        return {}
+    raw_spine = company.get("message_spine")
+    spine: dict[str, Any] = raw_spine if isinstance(raw_spine, dict) else {}
+    for source in (company.get("claim_policy"), spine.get("claim_policy")):
+        if isinstance(source, dict) and source:
+            return source
+    return {}
+
+
+def evaluate_factual_claim_safe(company: dict[str, Any] | None) -> tuple[bool, list[str]]:
+    """FACTUAL_CLAIM_SAFE gate — necessary condition for citing contractual evidence.
+
+    Returns ``(safe, reasons)``. When no CLAIM_POLICY verdict is attached the result is
+    ``True`` with no reasons, so legacy payloads keep their previous behaviour and the
+    gate can never promote a case that was not send-ready before (AC 27).
+
+    The demotion decision is taken here, *before* the frozen ``CopyContextResult`` /
+    ``EmailSendReadyResult`` are constructed — never by post-hoc mutation (AC 26).
+    """
+    policy = _claim_policy_from_company(company)
+    if not policy:
+        return True, []
+
+    if policy.get("claims_blocked"):
+        return False, ["factual_claim_blocked", *[str(r) for r in (policy.get("reason_codes") or [])]]
+
+    use_class = str(policy.get("outreach_use_class") or "")
+    allowed_tense = str(policy.get("allowed_tense") or "")
+
+    if use_class == DO_NOT_CITE:
+        return False, ["factual_claim_do_not_cite"]
+
+    if use_class == CURRENT_ACTIONABLE:
+        # A CURRENT claim requires contemporary authority. Without it the message may
+        # only stand on historical ground — it cannot be sent as present tense.
+        if bool(policy.get("requires_current_authority")) and not bool(policy.get("why_now_eligible")):
+            return False, ["factual_claim_current_without_contemporary_authority"]
+        return True, ["factual_claim_current_authorized"]
+
+    if use_class in _SAFE_HISTORICAL_USE_CLASSES and allowed_tense in _SAFE_HISTORICAL_TENSES:
+        return True, ["factual_claim_historical_safe"]
+
+    return False, ["factual_claim_unclassified"]
+
+
 def evaluate_copy_context_ready(
     company: dict[str, Any] | None, *, service_code: str | None = None
 ) -> CopyContextResult:
@@ -943,13 +1010,24 @@ def evaluate_copy_context_ready(
     if company.get("message_spine_complete") is False:
         missing.append("message_spine_incomplete")
 
+    # FACTUAL_CLAIM_SAFE: subtractive only — may append to `missing`, never remove.
+    claim_safe, claim_reasons = evaluate_factual_claim_safe(company)
+    reasons.extend(claim_reasons)
+    if not claim_safe:
+        missing.append("factual_claim_safe")
+
     ready = len(missing) == 0
     if ready:
         reasons.append("copy_context_complete")
     else:
         reasons.append("copy_context_incomplete")
         reasons.extend(f"missing:{m}" for m in missing)
-    return CopyContextResult(copy_context_ready=ready, reasons=reasons, missing_fields=missing)
+    return CopyContextResult(
+        copy_context_ready=ready,
+        reasons=reasons,
+        missing_fields=missing,
+        factual_claim_safe=claim_safe,
+    )
 
 
 def _published_target_fit_from_company(
@@ -1505,6 +1583,7 @@ def evaluate_email_send_ready(
         derived_from_fixture=prov_res.derived_from_fixture,
         human_recipient_evidence_valid=human_evidence_ok,
         controlled_email_eligible=controlled_email_eligible,
+        factual_claim_safe=copy_res.factual_claim_safe,
     )
 
 
