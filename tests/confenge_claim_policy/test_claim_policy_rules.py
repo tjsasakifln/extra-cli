@@ -330,7 +330,7 @@ def test_med001_normalize_record_probe_cannot_reach_present_confirmed() -> None:
             "razao_social": "EMPRESA PROBE LTDA",
             "contracts": [
                 {
-                    "id": "C-PROBE",
+                    "contrato_id": "C-PROBE",
                     "objeto": "Execução de obra de pavimentação urbana com drenagem completa",
                     "orgao": "Prefeitura de Coxilha",
                     "uf": "RS",
@@ -378,3 +378,40 @@ def test_copy_hash_contract_is_pinned_sha256_utf8() -> None:
 
     body = "Olá,\ncontrato público observado.\n"
     assert compute_copy_hash(body) == "sha256:" + hashlib.sha256(body.encode("utf-8")).hexdigest()
+
+
+def test_contract_claim_policy_carries_the_official_identity_not_a_surrogate() -> None:
+    """_contract_claim_policy must resolve identity the same way extract_contract_hook does.
+
+    ``contract`` here is always an entry of an already-normalized bag, so ``id``
+    legitimately carries the official identity when normalize_record resolved one.
+    Re-deriving from the official field names first (contrato_id/numero_controle_pncp/
+    contract_id) would miss on a normalized dict and leak a positional
+    ``contract-{index}`` into ClaimPolicyResult.contract_id / .evidence_ids.
+    """
+    from scripts.confenge_account_intelligence.message_spine import _contract_claim_policy
+    from scripts.confenge_account_intelligence.normalize import normalize_record
+
+    bag = normalize_record(
+        {
+            "cnpj14": "02810894000100",
+            "razao_social": "ACME CONSTRUTORA LTDA",
+            "contracts": [
+                {
+                    "numero_controle_pncp": "07854402000186-1-000123/2024",
+                    "object": "Execução de obra de pavimentação asfáltica em CBUQ nas vias urbanas",
+                    "orgao": "DNIT",
+                    "uf": "SC",
+                    "value_brl": 4_800_000,
+                }
+            ],
+        },
+        as_of=AS_OF.isoformat(),
+    )
+    contract = bag["contracts"][0]
+    assert contract["id"] == "07854402000186-1-000123/2024"
+
+    result = _contract_claim_policy(contract, evaluated_as_of=AS_OF, purpose="why_now", index=0)
+
+    assert result.contract_id == "07854402000186-1-000123/2024"
+    assert result.evidence_ids == ("cf-contract-07854402000186-1-000123/2024",)

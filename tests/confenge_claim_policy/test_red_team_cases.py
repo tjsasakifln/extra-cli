@@ -84,7 +84,7 @@ def test_red_team_3_unknown_published_yesterday_does_not_authorize_present() -> 
     bag = _bag(
         [
             {
-                "id": "C-PUB",
+                "contrato_id": "C-PUB",
                 "object": BIG_OBJECT,
                 "orgao": "Prefeitura de Coxilha",
                 "uf": "RS",
@@ -128,7 +128,7 @@ def test_red_team_4_why_you_uses_big_history_while_why_now_only_uses_current() -
     bag = _bag(
         [
             {
-                "id": "C-HIST",
+                "contrato_id": "C-HIST",
                 "object": BIG_OBJECT,
                 "orgao": "DNIT",
                 "uf": "SC",
@@ -137,7 +137,7 @@ def test_red_team_4_why_you_uses_big_history_while_why_now_only_uses_current() -
                 "end_date": (TODAY - timedelta(days=900)).isoformat(),
             },
             {
-                "id": "C-ATIVO",
+                "contrato_id": "C-ATIVO",
                 "object": SMALL_OBJECT,
                 "orgao": "Prefeitura de Palhoça",
                 "uf": "SC",
@@ -163,7 +163,7 @@ def test_red_team_4b_why_now_is_empty_when_only_history_exists() -> None:
     bag = _bag(
         [
             {
-                "id": "C-HIST",
+                "contrato_id": "C-HIST",
                 "object": BIG_OBJECT,
                 "orgao": "DNIT",
                 "uf": "SC",
@@ -186,7 +186,7 @@ def test_red_team_5_no_eligible_why_now_invents_zero_urgency() -> None:
     bag = _bag(
         [
             {
-                "id": "C-OLD",
+                "contrato_id": "C-OLD",
                 "object": BIG_OBJECT,
                 "orgao": "DNIT",
                 "uf": "SC",
@@ -215,7 +215,7 @@ def test_red_team_6_addendum_of_closed_contract_is_past_never_recent_or_active()
     bag = _bag(
         [
             {
-                "id": "C-ENC",
+                "contrato_id": "C-ENC",
                 "object": BIG_OBJECT + " com aditivo de prazo",
                 "orgao": "Prefeitura de Içara",
                 "uf": "SC",
@@ -241,7 +241,7 @@ def test_red_team_6b_addendum_of_active_contract_may_read_as_active() -> None:
     bag = _bag(
         [
             {
-                "id": "C-ATV",
+                "contrato_id": "C-ATV",
                 "object": BIG_OBJECT + " com aditivo de prazo",
                 "orgao": "Prefeitura de Içara",
                 "uf": "SC",
@@ -284,7 +284,7 @@ def test_two_active_contracts_demote_to_historical_instead_of_killing_the_messag
 
     def _active(i: int, obj: str) -> dict[str, object]:
         return {
-            "id": f"C-{i}",
+            "contrato_id": f"C-{i}",
             "object": obj,
             "orgao": f"Prefeitura {i}",
             "uf": "SC",
