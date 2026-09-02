@@ -11,7 +11,7 @@
     "verdict": "CONCERNS",
     "reviewer": "Quinn (@qa)",
     "reviewed_at": "2026-09-01",
-    "reviewed_commit": "26c892052f42a2c43f4dd84e51b2760b5e9bd492",
+    "reviewed_commit": "c5d8cb30d2d76a22accdfa1c87bd9a7e5c4d759b",
     "gate_file": "docs/qa/gates/claim-safety-audit-01-claim-safety-audit.yml",
     "acs_verified": 21,
     "acs_violated": 0,
@@ -97,8 +97,8 @@
     "tests/confenge_claim_safety/test_rewrite.py",
     "docs/stories/story-claim-safety-audit-01.md"
   ],
-  "reviewed_commit": "26c892052f42a2c43f4dd84e51b2760b5e9bd492",
-  "reviewed_commit_note": "26c89205 e o commit PORTADOR DE CODIGO e o SHA sobre o qual todos os gates foram medidos. O HEAD do branch fica N commits SOMENTE-DOCUMENTACAO acima (N>=1), sendo um deles o que carrega esta propria atualizacao de story/state — que por definicao nao pode se auto-referenciar por SHA. Verificavel por 'git diff 26c89205 HEAD --name-only', que deve listar APENAS caminhos de documentacao/estado de story: docs/stories/story-claim-safety-audit-01.md, .aiox/state/stories/claim-safety-audit-01.json, docs/stories/story-outreach-claim-policy-01.md, .aiox/state/stories/story-outreach-claim-policy-01.json e .aiox/gotchas.json. Nenhum caminho sob scripts/ ou tests/ pode aparecer nessa lista; se aparecer, o gate reprova de verdade e a story volta ao @qa. Rodar os gates em 26c89205 ou no HEAD produz resultado identico.",
+  "reviewed_commit": "c5d8cb30d2d76a22accdfa1c87bd9a7e5c4d759b",
+  "reviewed_commit_note": "c5d8cb30 e o commit PORTADOR DE CODIGO e o SHA sobre o qual todos os gates foram medidos. O HEAD do branch fica N commits SOMENTE-DOCUMENTACAO acima (N>=1), sendo um deles o que carrega esta propria atualizacao de story/state — que por definicao nao pode se auto-referenciar por SHA. Verificavel por 'git diff c5d8cb30 HEAD --name-only', que deve listar APENAS caminhos de documentacao/estado de story: docs/stories/story-claim-safety-audit-01.md, .aiox/state/stories/claim-safety-audit-01.json, docs/stories/story-outreach-claim-policy-01.md, .aiox/state/stories/story-outreach-claim-policy-01.json e .aiox/gotchas.json. Nenhum caminho sob scripts/ ou tests/ pode aparecer nessa lista; se aparecer, o gate reprova de verdade e a story volta ao @qa. Rodar os gates em c5d8cb30 ou no HEAD produz resultado identico.",
   "gates": {
     "lint": "PASS",
     "typecheck": "NA",
@@ -459,5 +459,19 @@
     ".gitignore recebeu artifacts/confenge/claim-safety/build/ (fora do escopo IN declarado): o --apply copia ~145MB de release para o build dir. Relatorio JSON da auditoria continua rastreado.",
     "AC 9 provado tambem por teste COMPORTAMENTAL que chama _addendum_temporal_fact com politica que proibe presente. Isso acopla o teste a scripts/confenge_claim_policy, modulo da story concorrente - quebra ali e sinal de drift, nao regressao desta story."
   ],
-  "production_apply_executed": false
+  "production_apply_executed": false,
+  "devops_packaging": {
+    "repackaged_by": "@devops (Gage)",
+    "repackaged_at": "2026-09-01",
+    "branch": "feat/claim-safety-audit-01",
+    "new_base": "8fc01192 (HEAD de origin/feat/outreach-claim-policy-01, PR #532)",
+    "commit_remap": "26c89205 -> c5d8cb30 (codigo), e76c3765 -> aa2726b0, b93fecfc -> 2ea64059 (docs)",
+    "scope_identity_proof": "git diff 26c89205 c5d8cb30 --stat -- scripts/confenge_claim_safety scripts/confenge/claim_safety_audit tests/confenge_claim_safety scripts/confenge_activation/publish.py scripts/confenge/__main__.py artifacts/ docs/stories/story-claim-safety-audit-01.md .aiox/state/stories/claim-safety-audit-01.json e VAZIO. O escopo desta story e byte-identico ao revisado pelo @qa; apenas a base mudou.",
+    "sister_story_supersede": "5bb8f352 (reconstrucao verbatim feita pelo @dev DESTA story) foi SUBSTITUIDO por eef2c828, o SHA real de story-outreach-claim-policy-01 publicado no PR #532. patch-id identico (1e1cfefec71ecdac9db5aa8461dad34b03a640cb) comprova equivalencia byte a byte. Os dois NAO coexistem: apenas eef2c828 esta nesta branch. Isto e exatamente o durable_fix_outside_this_story previsto neste state file, e supera o veredito MOOT de qa_gate.stack.preferred_replacement_resolution — aquele veredito era correto no instante em que foi emitido, quando eef2c828 ainda nao existia. Corrigir o proprio registro e autoridade do ciclo da story irma; aqui fica o alerta.",
+    "publish_py_base_identity": "scripts/confenge_activation/publish.py e o mesmo blob (4c813126) em origin/main, em 6c7bb0ea e na nova base — o trabalho do #468 ja entrou em main por squash (PR #521 MERGED). O hunk de claim-safety aplica sobre a mesma arvore sobre a qual foi medido; nao ha dependencia em commit nao mergeado.",
+    "tests_on_new_base": "406 passed / 0 failed em worktree limpo: 333 em tests/confenge_claim_safety + tests/confenge_claim_policy + tests/confenge_contact_resolution + tests/confenge_account_intelligence; 73 em tests/test_confenge_feed_publication.py + tests/test_commercial_authority.py (as suites que exercitam publish.py). git status --short vazio antes e depois.",
+    "merge_order": "Merge DEPOIS do PR #532. main e squash-only (historia linear); apos o squash de #532 esta branch precisa de rebase sobre main antes do merge, senao o diff retargeted replica as 2.964 linhas da story irma.",
+    "not_carried": "f1162db8 (fechamento PO de story-outreach-claim-policy-01) NAO foi trazido: seu conteudo de story/state ja esta em 8fc01192 e sua unica parte nao duplicada (.aiox/gotchas.json) pertence ao ciclo daquela story. Os commits de outbound-sector-classifier-false-positive-01 (9c56403a, 3e19cae8) tambem nao foram trazidos: story distinta, sem overlap de arquivos, ja publicada no PR #529.",
+    "cherry_pick_conflicts": "nenhum"
+  }
 }
