@@ -6,6 +6,8 @@
 
 > Transicionada `Ready → InProgress → InReview` por @dev (Dex) em 2026-09-01. Ver Change Log e Dev Agent Record.
 
+> **HANDOFF PARA @qa BLOQUEADO pelo @po (Pax) em 2026-09-01 — Decisão nº 6.** O mérito da AC 9 está **resolvido** (o desvio do @dev de não editar `facts.py` está confirmado como correto). O bloqueio é de **empacotamento**: o commit `d8375d16` não é auto-consistente — `tests/confenge_claim_safety/test_template_set_drift.py` não coleta em árvore limpa, deixando ACs 9, 20 e 21 sem evidência. Requisito de liberação em **Decisão nº 6.4**.
+
 > Validada por @po (Pax) em 2026-09-01 com veredito **GO — 8/10**. Status transicionado explicitamente de `Draft` para `Ready`.
 >
 > **Correções aplicadas pelo @po durante a validação** (autoridade de @po sobre AC/Scope, conforme `.claude/rules/story-lifecycle.md`):
@@ -157,9 +159,13 @@ Após `--apply`:
 
 8. **Given** um objeto de contrato contendo a substring "em execução" dentro da citação do objeto (ex.: "execução de obras de EMPREENDIMENTOS HABITACIONAIS"), **when** o `why_now_code` associado é `PORTFOLIO_REVIEW` ou `INSUFFICIENT_FACTS` (claim `NONE` pelo template), **then** o lead classifica `SAFE_NO_CURRENT_CLAIM` — não é tratado como falso positivo de claim presente só porque o texto do objeto contém palavras de vigência. Este teste prova que a classificação é por template (`why_now_code`), não por regex sobre o texto renderizado final.
 
-**Causa raiz — facts.py:306:**
+**Causa raiz — template `ADDENDUM` em `facts.py`:**
 
-9. **Given** o template `ADDENDUM` em `scripts/confenge_account_intelligence/facts.py`, **when** a linha 306 é lida após a correção, **then** a string não contém mais o token "ativo" como afirmação de presente (ex.: "Aditivos/alterações observados em contrato público." sem a cláusula "ou ativo").
+9. **[REESCRITA PELO @po em 2026-09-01 — Decisão nº 6.1. Texto anterior preservado abaixo.]** **Given** o template `ADDENDUM` em `scripts/confenge_account_intelligence/facts.py::why_now`, **when** ele é inspecionado após a correção, **then** **nenhuma afirmação incondicional de vigência presente sobrevive**. Duas formas satisfazem esta AC, e só estas duas:
+   - **(a) String fixa** — o literal não pode carregar claim de presente: `detect_temporal_claim(texto) != CLAIM_PRESENT`. Em particular, o literal `"Aditivos/alterações observados em contrato público recente ou ativo."` deve estar ausente do fonte.
+   - **(b) Callable governado por política** — o template pode ser um callable (forma adotada por `story-outreach-claim-policy-01`, dona concorrente do arquivo), desde que o **branch de presente seja condicionado a `allows_present_tense(policy)`** e que, chamado com uma política que proíbe o presente, o copy emitido satisfaça `detect_temporal_claim(emitido) != CLAIM_PRESENT`. Sob a forma (b), o copy do branch permitido **pode** conter o token "ativa/ativo" — porque a afirmação deixou de ser gratuita e passou a ser condicionada a lifecycle provado, e porque `classify_lead` desta story a re-verifica independentemente contra `contracts_truth` (`ACTIVE_PROVEN`) antes de considerá-la segura.
+
+   > **Racional da reescrita (@po):** o texto original exigia a ausência do token "ativo" e citava a linha 306. Ambos ficaram factualmente obsoletos: o resolver está em `facts.py:82` (chamado em ~`:387`), e a forma (b) — estritamente **mais forte** que a exigência original, pois só afirma presente quando há prova — emite `"...contrato público com vigência ativa comprovada."`. Mantido o texto literal, a AC seria **insatisfazível sobre a árvore que atende a sua própria intenção**. A AC passa a fixar o invariante, não a redação. Texto anterior, para rastreabilidade: *"when a linha 306 é lida após a correção, then a string não contém mais o token 'ativo' como afirmação de presente"*.
 
 **Gates de QA obrigatórios (HIGH-RISK) — cada um é um AC:**
 
@@ -264,14 +270,20 @@ Após `--apply`:
 - Padrão de subcomando a seguir para `scripts/confenge/__main__.py`: o dispatch existente de `human_review` (import tardio dentro do `if cmd in {...}`, retornando o `int` do `main` do submódulo), e a estrutura de pacote `scripts/confenge/human_review/cli.py` — que é exatamente o formato proposto para `scripts/confenge/claim_safety_audit/cli.py`. Lembrar de atualizar também o texto de `--help` do `__main__.py`, hoje hardcoded apenas com `human_review`.
 - `scripts/confenge_account_intelligence/facts.py::why_now` é a fonte real dos triggers (`pain_checks` + fallbacks). Os valores em `facts.py` são **minúsculos** (`addendum`, `mature_no_reajuste`, ...); o uppercase que produz `why_now_code` acontece em `scripts/confenge_outreach_pipeline/adapt.py:388`. Atenção a essa diferença de caixa ao fixar o conjunto reconhecido (AC 21).
 
-### Contexto de colisão com story em andamento
+### Contexto de colisão com stories em andamento
 
-`story-outbound-sector-classifier-false-positive-01.md` está `InProgress` e toca `identity.py`, `target_fit.py`, `eligibility.py`, `pipeline.py`, `parafiscal.py` (novo). Esta story não tem overlap direto de arquivos, mas ambas produzem releases no mesmo `feed-www/`. Ver seção **Dependencies and sizing**.
+**[CORRIGIDO PELO @po em 2026-09-01 — reconciliação pós-implementação. Ver Decisão nº 6.]** São **duas** stories concorrentes, não uma:
+
+1. `story-outbound-sector-classifier-false-positive-01.md` — `InProgress`, toca `identity.py`, `target_fit.py`, `eligibility.py`, `pipeline.py`, `parafiscal.py` (novo). **Sem overlap de arquivos.** Colisão apenas de release no mesmo `feed-www/`. Serialização restrita ao `--apply`.
+2. `story-outreach-claim-policy-01.md` — **`InReview`** (não `Ready`, como o registro de desvio do @dev afirmou), HIGH-RISK, `po_validated: true`, dev concluído, `qa_verdict: PENDING`. Declara `scripts/confenge_account_intelligence/facts.py` em seus `scope_files` e **já reescreveu** o template `ADDENDUM`. **Overlap real de um arquivo (`facts.py`) e dependência de módulo (`scripts/confenge_claim_policy/`, não rastreado no HEAD).** Ver Decisão nº 6.
 
 ## Change Log
 
 | Date | Version | Description | Author |
 |------|---------|-------------|--------|
+| 2026-09-01 | 0.5.0 | **Bloqueio de empacotamento resolvido pela Opção 1 do @po** (a Opção 2 era inexecutável: exigia nomear o SHA da story irmã, e ela não tinha nenhum — `reviewed_commit: null`, e o `9a07228a` citado no `qa_gate` dela era uma revisão pré-amend **desta** story). O trabalho não commitado de `story-outreach-claim-policy-01` foi materializado **verbatim** no commit `5bb8f352`, e `claim-safety-audit-01` foi reordenada para ficar **em cima** dele (`26c89205`). Prova em worktree isolado: base `5bb8f352` sozinha → 263 passed nas suítes da irmã; topo `26c89205` → `tests/confenge_claim_safety/` **70 passed** sem qualquer arquivo não commitado, com `test_template_set_drift.py` coletando e passando (5/5, ACs 9/20/21). Árvore do topo idêntica à anterior (`git diff` vazio) — reordenação não alterou conteúdo. Durante a operação a árvore da irmã estava **viva** (@dev dela fechando MED-001/LOW-002); o primeiro snapshot saiu rasgado e foi descartado; a base foi reconstruída após quiescência medida de ~130 s (última mutação 21:13:07). `gates.tests` promovido a `PASS` com evidência. `po_qa_handoff.blocked` **não** alterado — é campo do @po. | Dex (@dev) |
+| 2026-09-01 | 0.4.1 | **AC 9 reescrita pelo @po** (autoridade de @po sobre AC). O texto original exigia ausência do token "ativo" e citava `facts.py:306` — ambos obsoletos: o resolver está em `:82` e a forma governada por política emite "…com vigência ativa comprovada.". Mantido o literal, a AC seria **insatisfazível sobre a própria árvore que atende sua intenção** — mesma classe de defeito já recusada nesta base. AC 9 passa a fixar o invariante em duas formas admissíveis (string fixa sem claim presente **ou** callable com branch presente condicionado a `allows_present_tense`), com texto anterior preservado para rastreabilidade. `gates.tests` no state file rebaixado de `PASS` para `PENDING` (não `PASS_CONDITIONAL`: o enum do schema é fechado); qualificação completa em `gates_qualification`. | Pax (@po) |
+| 2026-09-01 | 0.4.0 | **Reconciliação do @po (Decisão nº 6)** do desvio material nº 1. Mérito: **sem conflito** — `_addendum_temporal_fact` da `story-outreach-claim-policy-01` é estritamente mais forte que a AC 9 literal; medido que o branch presente continua sendo `PRESENT` para `detect_temporal_claim` e é re-verificado contra `contracts_truth` por `classify_lead` (sem falso-seguro). Empacotamento: **bloqueia** — em worktree isolado no `d8375d16`, `test_template_set_drift.py` não coleta (`ModuleNotFoundError: scripts.confenge_claim_policy`, import de nível de módulo), e com o import stubbado a asserção estrutural da AC 9 também falha (o `facts.py` versionado ainda carrega o literal). ACs 9/20/21 sem evidência no próprio commit. Decisão nº 3 retificada: a dependência com `outreach-claim-policy-01` é **dura, de ordem de merge**, não paralela. **Não liberado para `*qa-gate`** até empilhamento sobre a story concorrente ou declaração de gates condicionais com commit nomeado. | Pax (@po) |
 | 2026-09-01 | 0.1.0 | Story criada em Draft a partir de mandato HIGH-RISK aprovado por @architect (GO), com medição real de produção incorporada. | River (@sm) |
 | 2026-09-01 | 0.3.1 | Revisão pós-implementação: âncora de rollback passou a ser gravada **condicionalmente** (só para publicação com bloco `claim_safety`), evitando que uma publicação de rotina posterior desloque a âncora e torne o rollback um no-op silencioso; AC 9 ganhou metade **comportamental** (chama o resolver com política que proíbe presente, em vez de só verificar substring no fonte); `artifacts/confenge/claim-safety/build/` adicionado ao `.gitignore`. 70 testes, 240 na regressão de publicação. | Dex (@dev) |
 | 2026-09-01 | 0.3.0 | Implementacao (`*dev-develop-story`, YOLO). Transicoes `Ready -> InProgress` e `InProgress -> InReview`. Modulo `confenge_claim_safety` + CLI `claim_safety_audit` + 2 mudancas cirurgicas em `publish.py`. Dry-run real de producao: **98** `UNSAFE_PRESENT_CLAIM` (nao ~179); ressalva do @po confirmada (GLOSA_MEDICAO/REEQUILIBRIO nao sao claim de presente). Falso positivo de 5 leads `PORTFOLIO_REVIEW` encontrado e corrigido na selecao de spans de evidencia. `facts.py` NAO editado - AC 9 ja satisfeito por `story-outreach-claim-policy-01` (colisao de escopo nao declarada, requer reconciliacao do @po). 67 testes novos, 0 regressao de escopo. | Dex (@dev) |
@@ -376,7 +388,8 @@ Correção em `claim_surface.strip_evidence_spans`: seleção de spans **não so
 
 | Gate | Resultado |
 |---|---|
-| `pytest tests/confenge_claim_safety/ -v` | **70 passed** |
+| `pytest tests/confenge_claim_safety/ -o addopts="" -q` **em worktree isolado no topo do stack `26c89205`** | **70 passed** — autoconsistente, sem nenhum arquivo não commitado (ver "Stack de commits") |
+| `pytest tests/confenge_claim_safety/ -v` (árvore de trabalho integrada) | **70 passed** |
 | Regressão de publicação (`tests/test_confenge_feed_publication.py`, `tests/warmbly_bridge/`, `tests/confenge_activation/`, `tests/confenge_outreach_pipeline/`) | **240 passed** |
 | Suite ampla (`tests/`, 2 módulos ignorados por `httpx` ausente) | 5.548 passed, 134 failed, 53 errors, 271 skipped — **nenhum** dos 18 arquivos com falha importa qualquer módulo do escopo desta story; todas as falhas são o baseline ambiental documentado (dependências ausentes, sem Postgres local) |
 | `ruff check` (arquivos novos e modificados) | All checks passed |
@@ -394,6 +407,44 @@ Correção em `claim_surface.strip_evidence_spans`: seleção de spans **não so
 6. Rollback, se necessário: `python3 -m scripts.confenge claim_safety_audit rollback`.
 
 **@dev não executou nenhum passo remoto.** Publicação remota, PR e release são autoridade exclusiva de @devops.
+
+### Stack de commits — como o @qa deve rodar esta story
+
+A story **não** é um commit isolado. É o topo de um stack de dois:
+
+| Ordem | SHA | Story | Conteúdo |
+|---|---|---|---|
+| base | `5bb8f352` | `story-outreach-claim-policy-01` | Materialização **verbatim** da working tree daquela story, que nunca havia sido commitada |
+| topo | `26c89205` | `claim-safety-audit-01` (**esta**) | Igual a `d8375d16`, apenas reordenada para cima da base |
+| pai comum | `6c7bb0ea` | — | `main`-side, pré-stack |
+
+Comando de verificação usado (reproduzível), em worktree limpo e detached, com `-o addopts=""` porque o `pytest.ini` exige `pytest-cov`, ausente no ambiente:
+
+```bash
+git worktree add --detach /tmp/verify 26c89205
+cd /tmp/verify
+python3 -c "import scripts.confenge_claim_safety as s; print(s.__file__)"   # confirma que o import resolve DENTRO do worktree
+python3 -m pytest tests/confenge_claim_safety/ -o addopts="" -q
+```
+
+Resultados medidos por @dev em 2026-09-01:
+
+| Alvo | Comando | Resultado |
+|---|---|---|
+| Base `5bb8f352` sozinha | `pytest tests/confenge_claim_policy/ tests/confenge_contact_resolution/ tests/confenge_account_intelligence/` | **263 passed** |
+| Topo `26c89205` | `pytest tests/confenge_claim_safety/` | **70 passed** |
+| Topo `26c89205` — ACs 9/20/21 | `pytest tests/confenge_claim_safety/test_template_set_drift.py -v` | **5 passed** (`test_ac9_addendum_template_no_longer_asserts_present_activity`, `test_ac9_callable_addendum_template_emits_no_present_claim_when_ungated`, `test_ac21_classify_recognizes_exactly_the_codes_facts_can_produce`, `test_ac21_mature_no_reajuste_is_covered_and_declared_ambiguous`, `test_the_ast_extraction_is_not_vacuous`) |
+| Topo `26c89205` — não-regressão sobre a irmã | as três suítes da irmã | **263 passed** |
+
+Identidade da reordenação: `git diff <topo-antes-do-reorder> 26c89205` é **vazio**. O reorder moveu commits, não conteúdo.
+
+`26c89205` é o commit **portador de código** e o SHA sobre o qual todos os gates acima foram medidos. O `HEAD` do branch fica **um commit acima**: um commit somente-documentação que carrega esta própria seção (não teria como se auto-referenciar por SHA). Verificável por `git diff 26c89205 HEAD --name-only`, que deve listar apenas `docs/stories/story-claim-safety-audit-01.md` e `.aiox/state/stories/claim-safety-audit-01.json`. Rodar os gates em `26c89205` ou no `HEAD` dá o mesmo resultado.
+
+**Fragilidade que o @qa e o @po precisam conhecer.** A base é uma reconstrução feita por @dev **desta** story, não pelo dono da story irmã, e a irmã está em `InReview` com `qa_verdict: CONCERNS`. Enquanto @dev dessa story fechava MED-001/LOW-002, a árvore mudou por baixo do primeiro snapshot (o commit inicial saiu com `policy.py` corrigido mas os testes na forma pré-correção — 1 failed / 260 passed). Esse commit foi descartado. A base atual foi tirada após quiescência medida de ~130 s (última mutação em `21:13:07`; base construída a partir de `21:15:12`). **Qualquer nova rodada de correção da irmã invalida `5bb8f352` e força rebase + re-verificação de `26c89205`.**
+
+**Correção durável (fora da autoridade desta story):** o @dev de `story-outreach-claim-policy-01` commitar o próprio trabalho. Se isso acontecer antes do `*qa-gate`, `5bb8f352` deve ser **substituído** pelo SHA real deles, e não coexistir com ele.
+
+**Sinalização, não correção:** o `qa_gate` da story irmã registra `reviewed_commit: "9a07228a + working tree"`. `9a07228a` **não existe** em nenhum branch — era uma revisão pré-amend do commit desta story (o próprio texto dela diz "as +35 linhas foram commitadas em 9a07228a (claim-safety-audit-01)"). Corrigir esse campo é autoridade do ciclo da story irmã; fica registrado aqui apenas como alerta.
 
 ### Acoplamento declarado ao @qa
 
@@ -439,7 +490,18 @@ Um item para o backlog, **não** dívida desta story: promover `MATURE_NO_REAJUS
 
 **NÃO modificados (declarados no escopo IN, mas deliberadamente intocados):**
 
-- `scripts/confenge_account_intelligence/facts.py` — ver Desvio nº 1. AC 9 já satisfeito por story concorrente que detém o arquivo.
+- `scripts/confenge_account_intelligence/facts.py` — ver Desvio nº 1. AC 9 já satisfeito por story concorrente que detém o arquivo. **Continua intocado por esta story:** o `facts.py` que agora aparece no stack chega pelo commit-base `5bb8f352`, verbatim da story irmã, sem uma linha editada por @dev desta story.
+
+**Commitados pelo @dev desta story mas de propriedade de outra (commit-base `5bb8f352`, `story-outreach-claim-policy-01`):**
+
+Materializados verbatim como fix de empacotamento (Opção 1 do @po). Nenhuma linha alterada; nenhuma AC desta story reivindica autoria sobre eles.
+
+- `scripts/confenge_claim_policy/__init__.py`, `scripts/confenge_claim_policy/policy.py`
+- `scripts/confenge_account_intelligence/facts.py`, `message_spine.py`, `normalize.py`
+- `scripts/confenge_contact_resolution/send_readiness.py`
+- `tests/confenge_claim_policy/` (`__init__.py`, `test_claim_policy_rules.py`, `test_module_purity_and_boundary.py`, `test_red_team_cases.py`)
+- `tests/confenge_contact_resolution/test_factual_claim_safe.py`
+- `docs/stories/story-outreach-claim-policy-01.md`, `.aiox/state/stories/story-outreach-claim-policy-01.json`
 
 ## QA Results
 
@@ -485,6 +547,61 @@ Confirmado, com evidência textual: a seção Baseline diz "≈179 (a confirmar 
 ### Decisão nº 5 — DoD "suite verde" era insatisfazível
 
 O @sm exigiu `pytest tests/ -q --tb=no -x` (suite completa) **verde**. Esse requisito não é atingível neste repositório: a medição do @qa na story sector-classifier registra 135 failed / 51 errors **constantes** antes e depois da mudança (186 IDs de falha idênticos), todas ambientais (dependências ausentes e sem Postgres local). Um AC/DoD insatisfazível força waiver no fechamento e corrói o gate. **Substituído por:** zero regressão contra baseline medido, via delta before/after do conjunto de IDs de falha — o mesmo método que o @qa já usou e que o @po já aceitou como evidência na story irmã.
+
+### Decisão nº 6 — Reconciliação da colisão em `facts.py` com `story-outreach-claim-policy-01` (2026-09-01, pós-implementação)
+
+**Corrige a Decisão nº 3, que era incompleta.** A Decisão nº 3 comparou escopo apenas contra `outbound-sector-classifier-false-positive-01` e concluiu "interseção vazia". Existe uma **terceira** story — `story-outreach-claim-policy-01` (HIGH-RISK, hoje `InReview`, `po_validated: true`, dev concluído, `qa_verdict: PENDING`) — que detém `facts.py` em seus `scope_files`. A Decisão nº 3 fica **retificada**: o overlap não é vazio.
+
+#### 6.1 No mérito: o @dev agiu corretamente; **não** há conflito semântico
+
+Verificação direta na working tree (não no que a story documentou):
+
+- O literal inseguro `"Aditivos/alterações observados em contrato público recente ou ativo."` **não existe mais** em `facts.py`. Foi substituído por `_addendum_temporal_fact(contract, policy)` (`facts.py:82`), cujo tempo verbal segue `allows_present_tense(policy)`.
+- As três saídas do resolver foram medidas contra `detect_temporal_claim` desta story:
+
+| Branch | Copy emitido | `detect_temporal_claim` |
+|---|---|---|
+| `allows_present_tense` | "...contrato público com vigência ativa comprovada." | `PRESENT` |
+| `PAST_ONLY` | "...contrato já encerrado — fato passado..." | `PAST` |
+| default (fail-closed) | "...sem vigência atual comprovada no input." | `NONE` |
+
+- **Ponto decisivo:** o branch presente continua sendo lido como `PRESENT` pelo auditor desta story, que então exige `ACTIVE_PROVEN` de `scripts/contracts_truth.py` via `classify_lead`. **O auditor não herda confiança da política upstream — ele re-deriva independentemente.** Não há falso-seguro. `policy_authored_copy` só é escrito pelo `rewrite.py` desta própria story, então também não existe brecha de confiança cruzada.
+- A forma da `outreach-claim-policy-01` é **estritamente mais forte** do que o pedido literal da AC 9 ("remover 'ou ativo'"): em vez de nunca afirmar presente, ela só afirma presente quando o lifecycle prova. **AC 9 satisfeita no mérito, sem editar `facts.py`.**
+
+**Decisão:** confirmado o desvio do @dev de não sobrescrever `facts.py`. Não há merge de intenção a fazer; não há disputa de prioridade entre as duas stories no conteúdo do template.
+
+#### 6.2 No empacotamento: **o commit `d8375d16` não é auto-consistente** — isto bloqueia
+
+Medido em worktree isolado no commit `d8375d16` (`git worktree add`, árvore limpa, sem os arquivos não commitados da story concorrente):
+
+1. `tests/confenge_claim_safety/test_template_set_drift.py:22` faz import **de nível de módulo** de `scripts.confenge_claim_policy` — módulo **não rastreado no HEAD**, propriedade da story concorrente. Resultado: `ModuleNotFoundError` na **coleta**, derrubando o módulo inteiro — **AC 9 (ambas as metades), AC 20 e AC 21 ficam sem evidência alguma**.
+2. Com o import stubbado, a metade estrutural **também falha**: em `d8375d16` o `facts.py` versionado ainda carrega o literal, logo `assert '"...recente ou ativo."' not in source` → `False`, e o branch `ast.Constant` cai em `detect_temporal_claim(...) == PRESENT` → `False`.
+
+Consequência: **`gates.tests: PASS` só é verdadeiro sobre uma working tree contaminada pelos arquivos não commitados de outra story HIGH-RISK que ela própria ainda aguarda QA.** Isso é evidência de ambiente, não evidência de commit — a mesma classe de defeito já recusada nesta base de código.
+
+Espaço de remédio (fechado, sem hedge):
+
+- Mover o import para dentro da função + `skip` **não** torna `d8375d16` verde (falha nº 2 permanece).
+- Fazer a asserção estrutural passar sobre o `facts.py` do HEAD exigiria ou editar `facts.py:306` (que o @dev corretamente recusou) ou **esvaziar a asserção** — anti-padrão já rejeitado nesta base.
+- **Portanto:** as ACs 9/20/21 desta story só são avaliáveis sobre uma árvore onde `scripts/confenge_claim_policy/` **e** o `facts.py` em forma de callable estejam ambos presentes.
+
+#### 6.3 Dependência corrigida (substitui a da Decisão nº 3)
+
+| Story | Overlap de arquivo | Tipo de dependência |
+|---|---|---|
+| `outbound-sector-classifier-false-positive-01` | nenhum | apenas `--apply` em produção serializado atrás do release dela |
+| `story-outreach-claim-policy-01` | `facts.py` + módulo `confenge_claim_policy` | **dependência dura de ordem de merge/PR** — esta story vem *depois*, empilhada sobre ela |
+
+Nota adicional: os `+43` em `publish.py` de `d8375d16` são exatamente a `out_of_scope_contamination` que as dev notes da `outreach-claim-policy-01` registraram. Consistente, não é problema novo — mas as **sequências de dois PRs (código → re-freeze artifact-only) das duas stories agora interagem** e devem ser ordenadas pelo @devops, não expandidas aqui.
+
+#### 6.4 Veredito do @po: **NÃO liberado para `*qa-gate` ainda**
+
+Entregar assim garante round-trip de FAIL (módulo de teste que nem coleta). Requisito único de liberação, à escolha do @dev:
+
+- **(preferido)** Empilhar/rebasear `claim-safety-audit-01` sobre `story-outreach-claim-policy-01`, de modo que `reviewed_commit` aponte para uma árvore onde `tests/confenge_claim_safety/` **coleta e passa** por si só; ou
+- Registrar formalmente que os gates desta story são avaliáveis **somente** sobre a árvore integrada, nomeando o commit/stack exato que o @qa deve conferir, e corrigir `gates.tests` de `PASS` puro para `PASS_CONDITIONAL`.
+
+Nada mais é exigido: o mérito da AC 9 está resolvido (6.1) e não retorna ao @dev.
 
 ### Ressalva registrada (não bloqueante)
 

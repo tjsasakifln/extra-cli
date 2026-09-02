@@ -31,11 +31,108 @@
     "tests/confenge_claim_safety/test_rewrite.py",
     "docs/stories/story-claim-safety-audit-01.md"
   ],
+  "reviewed_commit": "26c892052f42a2c43f4dd84e51b2760b5e9bd492",
+  "reviewed_commit_note": "26c89205 e o commit PORTADOR DE CODIGO e o SHA sobre o qual todos os gates foram medidos. O HEAD do branch fica um commit acima: um commit somente-documentacao que carrega esta propria atualizacao de story/state (nao pode se auto-referenciar por SHA). Verificavel por 'git diff 26c89205 HEAD --name-only', que deve listar apenas docs/stories/story-claim-safety-audit-01.md e .aiox/state/stories/claim-safety-audit-01.json. Rodar os gates em 26c89205 ou no HEAD produz resultado identico.",
   "gates": {
     "lint": "PASS",
     "typecheck": "NA",
     "tests": "PASS",
     "build": "NA"
+  },
+  "gates_qualification": {
+    "tests_enum_note": "Promovido de PENDING para PASS em 2026-09-01 pelo @dev apos resolver o bloqueio de empacotamento (Opcao 1 do @po). A condicionalidade que justificava PENDING deixou de existir: a suite agora coleta e passa em arvore isolada, sem nenhum arquivo nao commitado.",
+    "tests": "AUTOCONSISTENTE no topo do stack 26c89205. Medido em git worktree detached e limpo. Nota historica: a qualificacao anterior do @po ('verde SOMENTE sobre a working tree integrada', medida em d8375d16) era correta para aquele commit e foi superada pela reordenacao — d8375d16 nao e mais o commit desta story.",
+    "measured_by": "@dev",
+    "measured_at": "2026-09-01",
+    "superseded_po_measurement": {
+      "measured_by": "@po",
+      "measured_at": "2026-09-01",
+      "commit": "d8375d16",
+      "finding": "test_template_set_drift.py nao coletava (ModuleNotFoundError: scripts.confenge_claim_policy) e, com o import stubbado, a metade estrutural da AC 9 falhava. Achado correto; resolvido por empacotamento, nao por mudanca de codigo."
+    },
+    "evidence": {
+      "environment_flag": "pytest.ini exige pytest-cov, ausente no ambiente — todos os comandos usam -o addopts=\"\"",
+      "import_resolution_proof": "python3 -c 'import scripts.confenge_claim_safety as s; print(s.__file__)' executado DENTRO do worktree resolve para o proprio worktree, nao para /home/tjsasakifln/code/confenge/extra-cli. Sem install editavel: sys.path so carrega ~/.local/lib/python3.12/site-packages.",
+      "reorder_identity_proof": "git diff <topo-pre-reorder> 26c89205 --stat e VAZIO. A reordenacao moveu commits, nao conteudo.",
+      "worktree_clean_proof": "git status --short no worktree detached e vazio nos dois SHAs.",
+      "runs": [
+        {
+          "target": "5bb8f352 (base, story irma sozinha)",
+          "command": "python3 -m pytest tests/confenge_claim_policy/ tests/confenge_contact_resolution/ tests/confenge_account_intelligence/ -o addopts=\"\" -q",
+          "result": "263 passed",
+          "why": "base nao pode ser vermelha — um commit-base red e exatamente a classe de defeito que o @po bloqueou"
+        },
+        {
+          "target": "26c89205 (topo, esta story)",
+          "command": "python3 -m pytest tests/confenge_claim_safety/ -o addopts=\"\" -q",
+          "result": "70 passed"
+        },
+        {
+          "target": "26c89205 — ACs 9/20/21 nomeadas",
+          "command": "python3 -m pytest tests/confenge_claim_safety/test_template_set_drift.py -o addopts=\"\" -v",
+          "result": "5 passed: test_ac9_addendum_template_no_longer_asserts_present_activity, test_ac9_callable_addendum_template_emits_no_present_claim_when_ungated, test_ac21_classify_recognizes_exactly_the_codes_facts_can_produce, test_ac21_mature_no_reajuste_is_covered_and_declared_ambiguous, test_the_ast_extraction_is_not_vacuous",
+          "why": "a metade COMPORTAMENTAL da AC 9 (_addendum_temporal_fact sob politica que proibe presente) e a AC 21 (drift contra os 6 why_now_code de facts.py) sao o ponto de acoplamento; provar so a coleta seria insuficiente"
+        },
+        {
+          "target": "26c89205 — nao-regressao sobre a irma",
+          "command": "python3 -m pytest tests/confenge_claim_policy/ tests/confenge_contact_resolution/ tests/confenge_account_intelligence/ -o addopts=\"\" -q",
+          "result": "263 passed"
+        }
+      ]
+    }
+  },
+  "dev_resolution_2026_09_01": {
+    "agent": "@dev (Dex)",
+    "responds_to": "po_qa_handoff.release_requires_one_of",
+    "option_chosen": "Opcao 1 (empilhamento) — release_requires_one_of[0]",
+    "option_2_was_impossible": "A Opcao 2 exigia nomear o commit/stack exato de AMBAS as stories. story-outreach-claim-policy-01 nao possuia SHA algum: reviewed_commit e null e seu trabalho inteiro estava apenas na working tree. O 9a07228a citado em seu qa_gate NAO existe em nenhum branch (git log --all confirmado) — era uma revisao pre-amend do commit DESTA story, como o proprio texto do qa_gate revela ('as +35 linhas foram commitadas em 9a07228a (claim-safety-audit-01)'). Nao havia nada a nomear. A Opcao 1 nao era apenas preferida; era a unica executavel.",
+    "what_was_done": [
+      "Materializou verbatim a working tree de story-outreach-claim-policy-01 no commit-base 5bb8f352 (13 arquivos, exatamente os scope_files dela; zero linhas alteradas; verificado por git diff --cached --name-status antes do commit).",
+      "Reordenou o stack para 6c7bb0ea -> 5bb8f352 (irma) -> 26c89205 (esta story), de modo que a dependencia fique ABAIXO. Commit no topo teria deixado esta story ainda nao-coletavel.",
+      "Aplicou o stack na arvore principal via git reset --soft, preservando integralmente o trabalho nao commitado das outras 4 stories vivas (verificado: git diff --cached vazio e git status inalterado fora do escopo da irma)."
+    ],
+    "torn_snapshot_incident": {
+      "what": "O primeiro commit-base (e29ee198, descartado) foi tirado enquanto o @dev de story-outreach-claim-policy-01 estava fechando MED-001/LOW-002. Capturou policy.py ja corrigido mas os testes na forma pre-correcao: 1 failed / 260 passed em arvore isolada (test_a4_stamped_state_never_enters_raw_status, o teste do LOW-003 que pinava o defeito).",
+      "detected_by": "Rodar as suites da IRMA no worktree isolado, nao so as desta story. Se so a suite propria tivesse sido medida, o stack teria sido entregue ao @qa com base vermelha e a falha pareceria uma regressao desta story.",
+      "resolution": "Commit descartado. Aguardada quiescencia medida por mtime (ultima mutacao 21:13:07; base reconstruida a partir de 21:15:12, ~130s sem mudanca). Base refeita e re-verificada."
+    },
+    "stack_fragility": "A base e uma RECONSTRUCAO feita pelo @dev desta story, nao pelo dono da story irma, e a irma esta InReview com qa_verdict CONCERNS e @po nao fechado. Qualquer nova rodada de correcao dela invalida 5bb8f352 e forca rebase + re-verificacao de 26c89205. A base e valida como MEDIDA EM UM INSTANTE NOMEADO, nao como base estavel.",
+    "durable_fix_outside_this_story": "O @dev de story-outreach-claim-policy-01 commitar o proprio trabalho. Se isso ocorrer antes do *qa-gate, 5bb8f352 deve ser SUBSTITUIDO pelo SHA real deles, nao coexistir.",
+    "not_touched": [
+      "po_qa_handoff.blocked permanece true — o campo tem blocked_by @po e limpa-lo e autoridade do @po, nao do @dev.",
+      "scripts/confenge_account_intelligence/facts.py permanece sem uma unica linha editada por esta story; o facts.py do stack chega verbatim pelo commit-base.",
+      "Nenhum item de QA da story irma (MED-001, LOW-001..004) foi endereçado aqui."
+    ],
+    "flag_for_sister_story_cycle": "O qa_gate de story-outreach-claim-policy-01 registra reviewed_commit '9a07228a + working tree', SHA inexistente. Corrigir e autoridade do ciclo daquela story; registrado aqui apenas como alerta ao @po."
+  },
+  "po_qa_handoff": {
+    "blocked": true,
+    "blocked_by": "@po",
+    "blocked_at": "2026-09-01",
+    "decision_ref": "Decisao no 6 (docs/stories/story-claim-safety-audit-01.md)",
+    "reason": "Empacotamento, nao merito. A AC 9 esta satisfeita no merito e nao retorna ao @dev. O commit d8375d16 nao e auto-consistente: o modulo de teste que prova ACs 9/20/21 nao coleta em arvore limpa.",
+    "release_requires_one_of": [
+      "Empilhar/rebasear claim-safety-audit-01 sobre story-outreach-claim-policy-01 e apontar reviewed_commit para uma arvore onde tests/confenge_claim_safety/ coleta e passa por si so (preferido)",
+      "Declarar formalmente gates avaliaveis somente sobre a arvore integrada, nomeando o commit/stack exato que o @qa deve conferir, mantendo gates.tests como PASS_CONDITIONAL"
+    ],
+    "explicitly_not_required": "Editar scripts/confenge_account_intelligence/facts.py. O desvio do @dev esta confirmado como correto."
+  },
+  "po_reconciliation_2026_09_01": {
+    "trigger": "Desvio material no 1 do @dev — facts.py nao editado por colisao de escopo nao declarada",
+    "verdict_merito": "SEM CONFLITO — a forma de story-outreach-claim-policy-01 (_addendum_temporal_fact, tempo verbal governado por allows_present_tense) e estritamente mais forte que o pedido literal da AC 9. Literal inseguro ausente da working tree.",
+    "evidence": {
+      "detect_temporal_claim_por_branch": {
+        "allows_present_tense": "PRESENT (…com vigencia ativa comprovada.)",
+        "PAST_ONLY": "PAST",
+        "default_fail_closed": "NONE"
+      },
+      "no_false_safe": "O branch presente permanece PRESENT para o auditor, que exige ACTIVE_PROVEN de scripts/contracts_truth via classify_lead. O auditor re-deriva independentemente, nao herda confianca da politica upstream.",
+      "no_cross_story_trust_hole": "policy_authored_copy e escrito exclusivamente por scripts/confenge_claim_safety/rewrite.py (esta story); outreach-claim-policy nao o emite."
+    },
+    "verdict_empacotamento": "BLOQUEIA — ver po_qa_handoff",
+    "decisao_3_retificada": "A Decisao no 3 comparou escopo apenas contra outbound-sector-classifier-false-positive-01 e concluiu interseccao vazia. Incompleto. A dependencia com story-outreach-claim-policy-01 e dura e de ordem de merge/PR, nao paralela.",
+    "premissa_do_prompt_corrigida": "story-outreach-claim-policy-01 esta InReview (po_validated true, dev concluido, qa_verdict PENDING), nao Ready. A suite verde desta story depende da working tree nao commitada de outra story HIGH-RISK que ela propria ainda aguarda QA.",
+    "publish_py_freeze_interaction": "Os +43 em publish.py de d8375d16 sao a out_of_scope_contamination ja registrada pelas dev notes de outreach-claim-policy-01. As sequencias de dois PRs (codigo -> re-freeze artifact-only) das duas stories interagem e devem ser ordenadas pelo @devops."
   },
   "rollback_plan": "claim_safety_rollback_anchor gravado em publication-state.json ANTES do swap atomico do symlink current durante o --apply. Rollback via 'python3 -m scripts.confenge claim_safety_audit rollback', que restaura o symlink current para o release ancorado (distinto de last_good_publication, sobrescrito pelo proprio apply) e revalida _assert_membership_deactivation_delta no estado pos-rollback. Exercitado em teste automatizado (AC 17) antes de qualquer execucao em producao. facts.py:306 nao precisa de rollback (correcao textual isolada). Reverter tambem o PR artifact-only de re-freeze da campanha se ja aplicado.",
   "po_decisions": [
@@ -48,12 +145,47 @@
     "Antes de qualquer --apply em producao: release da sector-classifier publicado, ou registro explicito no relatorio de apply de que nao foi (Decisao 3).",
     "Antes da publicacao: plano de re-freeze da campanha declarado para publish.py — PR de codigo seguido de PR artifact-only de re-freeze (Decisao 2)."
   ],
-  "serialization_dependency": {
-    "story_id": "outbound-sector-classifier-false-positive-01",
-    "file_overlap": "none",
-    "implementation": "parallel",
-    "production_apply": "serialized_after_sector_classifier_release"
-  },
+  "serialization_dependency": [
+    {
+      "story_id": "outbound-sector-classifier-false-positive-01",
+      "file_overlap": "none",
+      "implementation": "parallel",
+      "production_apply": "serialized_after_sector_classifier_release"
+    },
+    {
+      "story_id": "story-outreach-claim-policy-01",
+      "story_status_observed": "InReview",
+      "file_overlap": [
+        "scripts/confenge_account_intelligence/facts.py",
+        "scripts/confenge_claim_policy/ (dependencia de modulo; nao rastreado no HEAD)"
+      ],
+      "implementation": "hard_merge_order_dependency",
+      "direction": "claim-safety-audit-01 vem DEPOIS, empilhada sobre story-outreach-claim-policy-01",
+      "reason": "ACs 9, 20 e 21 so sao avaliaveis sobre uma arvore onde scripts/confenge_claim_policy/ e o facts.py em forma de callable estejam ambos presentes.",
+      "added_by": "@po (Decisao no 6, 2026-09-01) — omitida na Decisao no 3",
+      "resolved_by": "@dev, 2026-09-01, via empilhamento (Opcao 1)",
+      "stack": {
+        "branch": "feat/468-commercial-authority-split",
+        "parent": "6c7bb0ea",
+        "base_commit": "5bb8f352506d208640436ab908e87aa875994e7a",
+        "base_owner": "story-outreach-claim-policy-01",
+        "base_authored_by": "@dev de claim-safety-audit-01 (reconstrucao verbatim; a story dona nunca commitou)",
+        "top_commit": "26c892052f42a2c43f4dd84e51b2760b5e9bd492",
+        "top_owner": "claim-safety-audit-01",
+        "supersedes": "d8375d16 (mesmo conteudo, ordem anterior; nao usar)",
+        "quiescence_measured_at": "2026-09-01T21:15:12-03:00",
+        "quiescence_window": "~130s sem mutacao nos scope_files da story irma; ultima mutacao observada 21:13:07",
+        "invalidated_by": "qualquer nova edicao em scripts/confenge_claim_policy/, scripts/confenge_account_intelligence/, scripts/confenge_contact_resolution/ ou tests/confenge_claim_policy/ pela story irma. Nesse caso: rebase e re-verificacao de 26c89205 obrigatorios antes do *qa-gate.",
+        "preferred_replacement": "Se o @dev de story-outreach-claim-policy-01 commitar o proprio trabalho, substituir 5bb8f352 pelo SHA real deles."
+      },
+      "sister_story_qa_state_at_stacking": {
+        "status": "InReview",
+        "qa_verdict": "CONCERNS",
+        "po_closed": false,
+        "note": "MED-001 e LOW-002 foram fechados pela story irma DURANTE esta operacao de empacotamento; a base captura o estado pos-correcao (263 passed)."
+      }
+    }
+  ],
   "campaign_freeze": {
     "campaign": "CONFENGE-COMMERCIAL-READY-01",
     "policy": "frozen_confenge_inputs_v1",
