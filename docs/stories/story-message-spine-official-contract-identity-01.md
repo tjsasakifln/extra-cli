@@ -90,9 +90,25 @@ explícito) fica preservada; o opt-in agora é declarado onde é legítimo.
 
 ## Testes
 
-`tests/confenge_account_intelligence/test_message_spine_contract_identity.py`
-(5 casos). Verificado por mutação: com o código de `main`, 4 dos 5 reprovam; o
-quinto (substituto legítimo) passa nos dois, como deve.
+Estado final (após o re-review do @qa em `7f2a6a8d`) — **8 casos em 2 arquivos**:
+
+- `tests/confenge_account_intelligence/test_message_spine_contract_identity.py`
+  — identidade no `extract_contract_hook`, lote misto, reordenação.
+- `tests/confenge_activation/test_esr_contract_identity_reconciliation.py`
+  — prova end-to-end `raw → normalize → spine → ESR` até `_primary_contract`,
+  com *decoy row* em primeira posição.
+
+Execução do @qa em checkout completo de `7f2a6a8d`: **8 passed em 127.14s**.
+Verificado por mutação (remover `allow_legacy_surrogate=True` da linha 103 de
+`message_spine.py`): **7 reprovam, 1 passa**. O sobrevivente é
+`test_a_contract_with_no_official_identity_still_gets_a_stable_surrogate`,
+corretamente insensível ao fix (AC3 cobre o caso sem identidade oficial, onde o
+substituto posicional é o comportamento esperado com e sem o fix).
+
+*Histórico do contador, reconciliado por medição e não por transcrição:* o
+veredito original falava em "4 dos 5" (suite de `b4af8408`); `323855d7` alegou
+"5 dos 7"; `0fe7e718` alegou "7 dos 8". O @qa executou a mutação em `7f2a6a8d` e
+mediu 7/8 — a alegação mais recente confere.
 
 ## Escopo OUT
 
@@ -172,10 +188,15 @@ que muda é o alvo do re-freeze pendente: ver `DOC-001` abaixo.
   `--amend` está proibido nesta árvore (ver `po_git_incident`) e não há como
   antecipar o próprio SHA. A divergência é **docs/state-only e auditável**:
   `git diff --name-only 7f2a6a8d..HEAD -- scripts/ tests/` é vazio. O @devops
-  avalia essa condição com a justificativa acima; nenhum hook ativo a bloqueia
-  automaticamente (`checkPushGate` está exportado em
+  avalia essa condição com a justificativa acima. Nenhum hook ativo a verifica —
+  checado em três níveis: `checkPushGate` está exportado em
   `.claude/hooks/story-state.cjs:335` mas não é invocado por
-  `enforce-git-push-authority.cjs` nem por `pre-push-gate.cjs`).
+  `enforce-git-push-authority.cjs` nem por `pre-push-gate.cjs`; `story-state.cjs`
+  está registrado como comando em `.claude/settings.local.json:80` porém **não
+  tem bloco `main`/CLI** (o arquivo termina em `module.exports`), logo executá-lo
+  é no-op; e `pre-push-gate.cjs`, que de fato intercepta `git push`/`git commit`,
+  só checa o frescor (<5 min) de `.claude/.pre-push-passed`. O @devops ainda
+  precisa satisfazer **esse** gate (`/pre-push` + `touch`).
 - **Condição operacional (2) — worktree.** O pre-push e o PR precisam ser feitos
   **a partir deste worktree**, com a story branch ativa. Enquanto ele existir, o
   checkout principal não consegue dar `git checkout` nesta branch (ver

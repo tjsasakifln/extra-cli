@@ -16,5 +16,4 @@
 - [Story B2G-FIX-04 Close](story-b2g-fix-04-close.md) -- B2G-FIX-04 Schema Alignment closed, 5/5 ACs PASS, 47 migrations green, QA PASS, publication authorized
 - [CM-07 Validation](cm-07-validation.md) -- GO 8.0/10, Draft->Ready, epic alignment condition (CM-07 vs DOM-SC mismatch)
 - [Epic TD Complete](epic-technical-debt-complete.md) -- Epic de Resolucao de Debitos Tencicos completo (5/5 stories). Proximo: P0-06 a P0-09
-- [Story PNCP Outbound Decoupling Close](story-pncp-outbound-decoupling-close.md) -- fechamento PO, RE-QA PASS, desvio de qa_verdict pelo @dev e armadilha do HEAD vs reviewed_commit
-- [Story Message Spine Contract Identity Close](story-message-spine-official-contract-identity-01-close.md) -- fechamento PO b4af8408, freeze pinado, achado _primary_contract e arvore compartilhada
+- [Message Spine Contract Identity — reclose](story-message-spine-official-contract-identity-01-reclose.md) -- 2o fechamento PO, publicacao liberada; padrao para duas closure keys e reviewed_commit != HEAD docs-only
