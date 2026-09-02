@@ -62,10 +62,14 @@ def progress_max_age_seconds() -> dict[str, int]:
         "reconcile": 31 * 60 * 60,
     }
 
-EXPECTED_ON_SUCCESS = {
-    PNCP_SERVICE: SOURCE_FRESHNESS_SERVICE,
-    SOURCE_FRESHNESS_SERVICE: TARGET_FIT_RECONCILE_SERVICE,
-}
+# Ingestion and source-health observation must not advance any commercial or
+# target-fit stage.  `pncp_contract_freshness --health` exits non-zero for every
+# non-FRESH contract, so an OnSuccess on either unit turns a source incident
+# into a silent downstream kill switch.  Each stage owns an independent timer.
+# Reconcile is listed too: it owns a timer, and so does the contact cycle it
+# used to chain, so a re-added OnSuccess there means a double trigger onto a
+# held flock rather than a suppressed stage.
+DECOUPLED_ON_SUCCESS = (PNCP_SERVICE, SOURCE_FRESHNESS_SERVICE, TARGET_FIT_RECONCILE_SERVICE)
 
 SYSTEMD_PROPERTIES = (
     "LoadState",
@@ -361,11 +365,9 @@ def build_contract(snapshot: Mapping[str, Any]) -> dict[str, Any]:
     if worker.get("ActiveState") != "active":
         reasons.append("TARGET_FIT_WORKER_NOT_ACTIVE")
 
-    for source, expected in EXPECTED_ON_SUCCESS.items():
-        if _words(units.get(source, {}).get("OnSuccess")) != {expected}:
-            reasons.append(
-                f"{source.upper().replace('-', '_').replace('.', '_')}_ONSUCCESS_NOT_EXACT"
-            )
+    for source in DECOUPLED_ON_SUCCESS:
+        if _words(units.get(source, {}).get("OnSuccess")):
+            reasons.append(f"{source.upper().replace('-', '_').replace('.', '_')}_ONSUCCESS_COUPLED")
 
     progress_error = progress.get("_error")
     if progress_error:

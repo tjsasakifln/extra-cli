@@ -30,3 +30,4 @@
 - [Story 1.3 Universe Authority QA Gate](story-1.3-qa-gate.md) — CONCERNS verdict, core infra complete, 5 issues (2 REQ, 1 TST, 2 MNT), 11/11 tests
 - [Story 1.5 Coverage Model QA Gate](story-1.5-coverage-model-qa-gate.md) — PASS verdict, 12/12 tasks, 97/97 tests, TD-003+TD-027+TD-033 resolved, 2 low issues
 - [Story B2G-FIX-02 QA Gate](story-B2G-FIX-02-code-quality.md) — PASS verdict, 5/5 ACs (4 PASS + 1 WAIVED PostgreSQL), ruff 0, mypy 0 top-10, 100 tests pass. 4 lanes (A-D) resolved 52+ files
+- [Story PNCP Outbound Decoupling QA Gate](story-current-pncp-outbound-decoupling-01.md) — CONCERNS, invariantes #528 preservados, fail-closed >= main, ARCH-001 gatilho duplo contact-cycle aberto

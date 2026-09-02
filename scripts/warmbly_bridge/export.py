@@ -203,21 +203,15 @@ def validate_inputs(cfg: ExportConfig) -> None:
         )
     if cfg.expected_universe_count is not None and cfg.expected_universe_count < 1:
         raise InputError("--expected-universe-count must be >= 1")
+    # PNCP freshness is acquisition telemetry and never authorises or blocks an
+    # export. `require_authoritative_source_freshness` now only demands that the
+    # telemetry envelope be present and well-formed, so a shipped manifest still
+    # records what the source was doing without ever fabricating FRESH.
     freshness = cfg.authoritative_source_freshness or {}
-    if cfg.require_authoritative_source_freshness:
-        if freshness.get("contract_version") != "PNCP_CONTRACT_FRESHNESS/1.0":
-            raise InputError("authoritative PNCP freshness contract missing or unsupported")
-        if freshness.get("status") != "FRESH":
-            raise InputError(
-                "authoritative PNCP freshness must be FRESH before export; "
-                f"observed={freshness.get('status') or 'MISSING'}"
-            )
-        try:
-            expires_at = datetime.fromisoformat(str(freshness.get("expires_at") or "").replace("Z", "+00:00"))
-        except ValueError as exc:
-            raise InputError("authoritative PNCP freshness expires_at missing or invalid") from exc
-        if expires_at <= datetime.now(UTC):
-            raise InputError("authoritative PNCP freshness expired before export")
+    if cfg.require_authoritative_source_freshness and freshness.get("contract_version") != (
+        "PNCP_CONTRACT_FRESHNESS/1.0"
+    ):
+        raise InputError("source operational health envelope missing or unsupported")
 
 
 def _encode_chunk(feed: dict[str, Any]) -> bytes:
@@ -1451,6 +1445,7 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
         "datalake_watermark": datalake_watermark,
         "authoritative_freshness": freshness or None,
         "authoritative_freshness_hash": freshness_hash,
+        "source_operational_health": freshness or None,
     }
 
     chunk_specs = _chunk_leads(
@@ -1606,6 +1601,7 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
             "previous_membership_count": len(previous_members),
         },
         "authoritative_source_freshness": freshness or None,
+        "source_operational_health": freshness or None,
         "authoritative_target_membership": target_membership,
         "authoritative_party_roles": party_role_projection,
         "authoritative_contact_projection": contact_projection,

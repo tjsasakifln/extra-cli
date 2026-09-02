@@ -250,20 +250,30 @@ def test_long_running_worker_is_marked_for_reboot_persistence():
     assert "extra-confenge-target-fit-worker.service" in CHAIN_ENABLED_SERVICES
 
 
-def test_only_source_and_monitor_timers_are_scheduled():
+def test_every_decoupled_stage_is_scheduled_and_none_is_suppressed():
+    """With the OnSuccess cascade gone, an unscheduled stage is an orphan.
+
+    Ingestion, datalake maintenance and commercial publication each need their
+    own timer, and no stage may be disabled into having no trigger at all.
+    """
     source = (Path(__file__).resolve().parents[1] / "deploy" / "confenge" / "pin_release.py").read_text(
         encoding="utf-8"
     )
     assert '"enable", "--now", *CHAIN_TIMERS' in source
     assert '"disable", "--now", *CHAIN_DISABLED_TIMERS' in source
     assert '"timers_not_active"' in source, "verification must read back whether the timer is loaded"
-    assert set(CHAIN_TIMERS) == {"pncp-contracts.timer", "extra-confenge-feed-monitor.timer"}
-    assert set(CHAIN_DISABLED_TIMERS) == {
-        "extra-confenge-target-fit-reconcile.timer",
+    assert set(CHAIN_TIMERS) == {
+        "pncp-contracts.timer",
         "extra-confenge-target-fit-refresh.timer",
+        "extra-confenge-target-fit-reconcile.timer",
         "extra-confenge-contact-cycle.timer",
         "extra-confenge-feed-cycle.timer",
+        "extra-confenge-feed-monitor.timer",
     }
+    assert set(CHAIN_DISABLED_TIMERS) == set()
+    unit_dir = Path(__file__).resolve().parents[1] / "deploy" / "systemd"
+    for timer in CHAIN_TIMERS:
+        assert (unit_dir / timer).is_file()
 
 
 def test_pncp_checkpoint_dir_is_versioned_and_outside_the_release():
@@ -366,7 +376,7 @@ def test_verify_reads_back_isolation_release_and_writable_working_directory(tmp_
         "bytecode-enabled",
         "readonly-workdir",
         "release-workdir",
-        "downstream-timer",
+        "required-timer-unscheduled",
         "pncp-restart",
         "pncp-success75",
         "pncp-success77",
@@ -414,8 +424,10 @@ def test_verify_fails_closed_on_runtime_isolation_drift(tmp_path, monkeypatch, f
             return subprocess.CompletedProcess(argv, 0, stdout=values[prop], stderr="")
         if argv[:2] == ["systemctl", "is-enabled"] or argv[:2] == ["systemctl", "is-active"]:
             is_downstream = argv[2] in CHAIN_DISABLED_TIMERS
-            if failure == "downstream-timer" and is_downstream:
-                value = "enabled" if argv[1] == "is-enabled" else "active"
+            if failure == "required-timer-unscheduled" and argv[2] in CHAIN_TIMERS:
+                # With no OnSuccess cascade left, a timer that is not running is
+                # an orphaned stage, not a stage waiting on its predecessor.
+                value = "disabled" if argv[1] == "is-enabled" else "inactive"
                 return subprocess.CompletedProcess(argv, 0, stdout=value)
             if argv[1] == "is-enabled":
                 value = "disabled" if is_downstream else "enabled"
@@ -439,8 +451,9 @@ def test_verify_fails_closed_on_runtime_isolation_drift(tmp_path, monkeypatch, f
         assert len(report["working_directory_not_writable"]) == len(CHAIN_UNITS)
     elif failure == "release-workdir":
         assert len(report["working_directory_drift"]) == len(CHAIN_UNITS)
-    elif failure == "downstream-timer":
-        assert len(report["downstream_timers_scheduled"]) == len(CHAIN_DISABLED_TIMERS)
+    elif failure == "required-timer-unscheduled":
+        assert len(report["timers_not_active"]) == len(CHAIN_TIMERS)
+        assert len(report["not_enabled"]) == len(CHAIN_TIMERS)
     elif failure == "pncp-timeout":
         assert report["timeout_start_drift"] == [
             {"unit": "pncp-contracts.service", "expected": "19200s", "observed": "150min"}

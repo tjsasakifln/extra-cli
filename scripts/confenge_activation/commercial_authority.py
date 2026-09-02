@@ -404,6 +404,25 @@ def root_transport_allowed(
     return allowed, reasons
 
 
+def source_health_attestation_present(freshness: Mapping[str, Any] | None) -> None:
+    """Require an accountable source-health envelope, not a FRESH verdict.
+
+    PNCP freshness is acquisition telemetry: it says whether the crawler closed
+    a window, not whether a persisted population is still commercially valid.
+    A feed must therefore always *carry* the envelope it was built under — a
+    build that cannot say what the source was doing is unaccountable — but a
+    STALE/UNKNOWN verdict cannot revoke authority that
+    ``COMMERCIAL_AUTHORITY/1.0`` grants over already-proven membership.
+    """
+    if not isinstance(freshness, dict):
+        raise ValueError("feed is missing its source operational health attestation")
+    if freshness.get("contract_version") != "PNCP_CONTRACT_FRESHNESS/1.0":
+        raise ValueError("feed has an unsupported source operational health contract")
+    status = str(freshness.get("status") or "").strip()
+    if not status:
+        raise ValueError("feed source operational health attestation has no status")
+
+
 def historical_source_was_proven_fresh(freshness: Mapping[str, Any] | None) -> None:
     """Last-good must have been FRESH at publication. Do not re-test expires_at against now."""
     if not isinstance(freshness, dict):

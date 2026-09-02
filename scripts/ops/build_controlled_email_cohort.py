@@ -41,8 +41,8 @@ if str(_ROOT) not in sys.path:
 
 from scripts.confenge_activation.commercial_authority import (  # noqa: E402
     authority_from_manifest,
-    historical_source_was_proven_fresh,
     parse_timestamp,
+    source_health_attestation_present,
 )
 from scripts.confenge_activation.publish import producer_identity, publication_semantic_hash  # noqa: E402
 from scripts.confenge_contact_resolution.discovery.official_domain import (  # noqa: E402
@@ -386,11 +386,18 @@ def write_private_feed(
 def assert_authoritative_source_freshness(
     source_manifest: dict[str, Any], *, now: datetime | None = None
 ) -> dict[str, Any]:
-    """Reject a feed that was never proven FRESH. Clock expiry is commercial authority."""
+    """Gate the cohort on commercial authority, not on live PNCP freshness.
+
+    The feed must carry an accountable source-health envelope, but a STALE or
+    UNKNOWN source is an acquisition incident: it cannot unmake a population
+    that was already published from the persisted datalake. Clock expiry and
+    binding integrity remain ``COMMERCIAL_AUTHORITY/1.0``'s job below, and stay
+    fail-closed.
+    """
     freshness = source_manifest.get("authoritative_source_freshness")
     if not isinstance(freshness, dict):
         freshness = (source_manifest.get("source") or {}).get("authoritative_freshness")
-    historical_source_was_proven_fresh(freshness if isinstance(freshness, dict) else None)
+    source_health_attestation_present(freshness if isinstance(freshness, dict) else None)
     clock = (now or datetime.now(UTC)).astimezone(UTC)
     generated_raw = source_manifest.get("generated_at") or (freshness or {}).get("as_of")
     try:

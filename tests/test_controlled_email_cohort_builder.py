@@ -108,26 +108,55 @@ def _write_export(tmp_path: Path, leads: list[dict[str, Any]]) -> Path:
     return feed_dir
 
 
-def test_stale_source_feed_is_refused_before_private_cohort_write(tmp_path: Path):
+@__import__("pytest").mark.parametrize("status", ["STALE", "UNKNOWN", "DEGRADED"])
+def test_a_degraded_source_does_not_block_a_datalake_backed_cohort(status: str, tmp_path: Path):
+    """Commercial authority, not crawler health, decides who may be contacted."""
     feed_dir = _write_export(
         tmp_path,
         [_lead("11111111000191", [_contact("contato@alphaengenharia.com.br")])],
     )
     manifest_path = feed_dir / "manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    manifest["authoritative_source_freshness"]["status"] = "STALE"
+    manifest["authoritative_source_freshness"]["status"] = status
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
 
-    with __import__("pytest").raises(ValueError, match="never proven FRESH"):
+    result = build(
+        feed_dir=feed_dir,
+        private_root=tmp_path / "private",
+        limit=10,
+        as_of="2026-08-22",
+        run_stamp=f"source-{status.lower()}",
+        now=COHORT_NOW,
+    )
+
+    assert result["member_count"] == 1
+    attestation = result["source_feed"]["authoritative_freshness"]
+    assert attestation["status"] == status
+    assert attestation["commercial_authority"]["new_admission_allowed"] is True
+
+
+def test_a_feed_without_a_source_health_attestation_is_refused(tmp_path: Path):
+    """Accountability survives: a build that cannot say what the source was doing."""
+    feed_dir = _write_export(
+        tmp_path,
+        [_lead("11111111000191", [_contact("contato@alphaengenharia.com.br")])],
+    )
+    manifest_path = feed_dir / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest.pop("authoritative_source_freshness")
+    manifest.get("source", {}).pop("authoritative_freshness", None)
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    with __import__("pytest").raises(ValueError, match="source operational health attestation"):
         build(
             feed_dir=feed_dir,
             private_root=tmp_path / "private",
             limit=10,
             as_of="2026-08-22",
-            run_stamp="stale",
+            run_stamp="unattested",
             now=COHORT_NOW,
         )
-    assert not (tmp_path / "private" / "stale").exists()
+    assert not (tmp_path / "private" / "unattested").exists()
 
 
 def test_expired_freshness_attestation_is_refused(tmp_path: Path):

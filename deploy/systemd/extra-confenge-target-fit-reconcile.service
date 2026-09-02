@@ -1,10 +1,13 @@
 [Unit]
 Description=Extra Consultoria — CONFENGE target-fit national reconciliation
 Documentation=file:/opt/extra-consultoria/docs/confenge/TARGET-FIT-CONTINUOUS-REFRESH.md
-After=network-online.target postgresql.service extra-confenge-source-freshness-gate.service
+After=network-online.target postgresql.service
 Wants=network-online.target
 OnFailure=extra-onfailure@%n.service
-OnSuccess=extra-confenge-contact-cycle.service
+# No OnSuccess: the contact cycle owns a daily timer of its own. Keeping both
+# would give it two triggers, and the second would land on a held
+# `flock --nonblock` (the cycle budgets up to 18h), exit non-zero and raise a
+# spurious OnFailure alert for work that is in fact already running.
 
 [Service]
 Type=oneshot

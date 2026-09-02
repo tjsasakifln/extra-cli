@@ -1,4 +1,4 @@
-"""Fail-closed systemd graph for the contemporary CONFENGE data refresh."""
+"""Systemd contract: PNCP ingestion must not govern the commercial plane."""
 
 from __future__ import annotations
 
@@ -31,7 +31,14 @@ def _on_success(name: str) -> list[str]:
     return values
 
 
-def test_refresh_graph_is_exact_linear_and_acyclic() -> None:
+def test_no_stage_advances_another() -> None:
+    """Two distinct hazards, one rule: no stage may chain another.
+
+    `--health` exits non-zero on any non-FRESH contract, so an OnSuccess rooted
+    at ingestion or the gate makes a source incident a silent kill switch. And
+    every stage now owns a timer, so a surviving OnSuccess gives its successor a
+    second trigger that lands on a held flock and alerts on work already running.
+    """
     graph = {
         SOURCE: _on_success(SOURCE),
         GATE: _on_success(GATE),
@@ -41,16 +48,16 @@ def test_refresh_graph_is_exact_linear_and_acyclic() -> None:
     }
 
     assert graph == {
-        SOURCE: [GATE],
-        GATE: [TARGET],
-        TARGET: [CONTACT],
-        CONTACT: [FEED],
+        SOURCE: [],
+        GATE: [],
+        TARGET: [],
+        CONTACT: [],
         FEED: [],
     }
     assert all((UNIT_DIR / successor).is_file() for values in graph.values() for successor in values)
 
 
-def test_source_never_bypasses_the_semantic_freshness_gate() -> None:
+def test_source_is_ingestion_only_and_keeps_its_failure_semantics() -> None:
     source = _unit(SOURCE)
     gate = _unit(GATE)
 
@@ -63,8 +70,7 @@ def test_source_never_bypasses_the_semantic_freshness_gate() -> None:
     assert "StartLimitIntervalSec=" not in source
     assert "StartLimitBurst=" not in source
     assert "TimeoutStartSec=320min" in source
-    assert f"OnSuccess={GATE}" in _unit_section(source)
-    assert f"OnSuccess={TARGET}" not in _unit_section(source)
+    assert "OnSuccess=" not in _unit_section(source)
     assert (
         "ExecStart=/opt/extra-consultoria/.venv/bin/python "
         "-m scripts.ops.pncp_contract_freshness --live --health"
@@ -72,7 +78,7 @@ def test_source_never_bypasses_the_semantic_freshness_gate() -> None:
     assert "SuccessExitStatus=" not in gate
 
 
-def test_each_promoting_stage_alerts_and_only_success_can_advance() -> None:
+def test_every_stage_still_alerts_on_failure() -> None:
     for name in (SOURCE, GATE, TARGET, CONTACT, FEED):
         text = _unit(name)
         assert "Type=oneshot" in text
@@ -81,8 +87,37 @@ def test_each_promoting_stage_alerts_and_only_success_can_advance() -> None:
     assert "OnSuccess=" not in _unit_section(_unit(FEED))
 
 
-def test_refresh_cascade_does_not_create_or_enable_a_commercial_timer() -> None:
+def test_the_freshness_gate_never_owns_a_cadence() -> None:
+    """Telemetry already ships through extra-health-check/health_bundle."""
     timer_names = {path.name for path in UNIT_DIR.glob("*.timer")}
 
     assert "extra-confenge-source-freshness-gate.timer" not in timer_names
     assert all("commercial" not in name for name in timer_names if "confenge" in name)
+
+
+def test_every_decoupled_stage_owns_exactly_one_trigger() -> None:
+    """Cutting OnSuccess without a timer would orphan the stage, not free it.
+
+    Keeping both would double-trigger it. Each needs exactly one.
+    """
+    for service in (
+        "extra-confenge-target-fit-refresh.service",
+        "extra-confenge-target-fit-reconcile.service",
+        CONTACT,
+        FEED,
+    ):
+        timer = _unit(service.replace(".service", ".timer"))
+        assert "Persistent=true" in timer
+        assert f"Unit={service}" in timer
+        chained_by = [name for name in (SOURCE, GATE, TARGET, CONTACT, FEED) if service in _on_success(name)]
+        assert chained_by == [], f"{service} has both a timer and an OnSuccess trigger from {chained_by}"
+
+
+def test_feed_publication_runs_on_an_independent_four_times_daily_cadence() -> None:
+    timer = _unit(FEED.replace(".service", ".timer"))
+
+    assert "OnCalendar=*-*-* 02,08,14,20:15:00" in timer
+    assert "OnCalendar=*-*-* 01,13:20:00" not in timer
+    assert "Persistent=true" in timer
+    assert "RandomizedDelaySec=10m" in timer
+    assert "PNCP ingestion health never controls this" in timer

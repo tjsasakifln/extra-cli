@@ -481,10 +481,14 @@ def _published_target_fit_snapshot(
 
     raw_cnpjs = [str(row.get("cnpj14") or row.get("cnpj") or "") for row in rows]
     lookup_cnpjs = sorted({cnpj for raw in raw_cnpjs for cnpj in (raw, canonical_cnpj14(raw)) if cnpj})
-    source_observed_at = str((authoritative_source_freshness or {}).get("source_observed_at") or "").strip()
-    if authoritative_source_freshness is not None:
-        if authoritative_source_freshness.get("status") != "FRESH":
-            raise ValueError("target-fit observation requires a FRESH authoritative PNCP source")
+    # A FRESH source lets the snapshot be re-stamped with the live observation.
+    # A STALE/UNKNOWN/absent source only means there is no new observation to
+    # project: the persisted decisions below remain the operational authority.
+    freshness = authoritative_source_freshness or {}
+    source_observed_at = ""
+    observed_dt: datetime | None = None
+    if freshness.get("status") == "FRESH":
+        source_observed_at = str(freshness.get("source_observed_at") or "").strip()
         if not source_observed_at:
             raise ValueError("FRESH authoritative PNCP source is missing source_observed_at")
         try:
@@ -499,25 +503,33 @@ def _published_target_fit_snapshot(
         published = load_published_index(conn, cnpj14s=lookup_cnpjs)
         control = get_control(conn, "cdc_watermark")
         datalake_watermark = str(control.get("watermark") or "").strip() or None
-        if source_observed_at:
-            coverage = get_control(conn, "target_fit_coverage")
-            last_full = str(coverage.get("last_full_reconcile_completed_at") or "").strip()
-            try:
-                last_full_dt = datetime.fromisoformat(last_full.replace("Z", "+00:00"))
-            except ValueError as exc:
-                raise ValueError("target-fit full-reconcile observation is missing or invalid") from exc
-            if last_full_dt.tzinfo is None or last_full_dt < observed_dt:
+        # Datalake integrity is unconditional. These are the fail-closed gates
+        # over the persisted population itself, so they must hold whatever the
+        # live source is doing: an incomplete national reconcile, an unexplained
+        # missing account, a truncated pagination or an unresolved queue item
+        # means the operational store is not a usable authority.
+        coverage = get_control(conn, "target_fit_coverage")
+        last_full = str(coverage.get("last_full_reconcile_completed_at") or "").strip()
+        try:
+            last_full_dt = datetime.fromisoformat(last_full.replace("Z", "+00:00"))
+        except ValueError as exc:
+            raise ValueError("target-fit full-reconcile observation is missing or invalid") from exc
+        if last_full_dt.tzinfo is None:
+            raise ValueError("target-fit full-reconcile observation must be timezone-aware")
+        if (
+            float(coverage.get("coverage_ratio") or 0.0) < 1.0
+            or int(coverage.get("last_full_reconcile_unexplained_missing") or 0) != 0
+            or not bool(coverage.get("pagination_exhausted_normally"))
+        ):
+            raise ValueError("target-fit national coverage is incomplete")
+        queue = queue_counts(conn)
+        unresolved = sum(int(queue.get(status) or 0) for status in ("pending", "processing", "retry", "dead"))
+        if unresolved:
+            raise ValueError(f"target-fit store has {unresolved} unresolved queue items")
+        if observed_dt is not None:
+            # Only the ordering against the live observation is PNCP-coupled.
+            if last_full_dt < observed_dt:
                 raise ValueError("target-fit full reconcile must complete after the authoritative PNCP observation")
-            if (
-                float(coverage.get("coverage_ratio") or 0.0) < 1.0
-                or int(coverage.get("last_full_reconcile_unexplained_missing") or 0) != 0
-                or not bool(coverage.get("pagination_exhausted_normally"))
-            ):
-                raise ValueError("target-fit national coverage is incomplete for source re-observation")
-            queue = queue_counts(conn)
-            unresolved = sum(int(queue.get(status) or 0) for status in ("pending", "processing", "retry", "dead"))
-            if unresolved:
-                raise ValueError(f"target-fit source re-observation has {unresolved} unresolved queue items")
             # This is the observation watermark for the fully reconciled target-fit
             # snapshot.  The evidence-change watermark remains on each decision.
             datalake_watermark = source_observed_at
@@ -618,9 +630,9 @@ def _progress(enabled: bool, msg: str) -> None:
 def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
     """Execute UNIVERSE → ACTIVATION|SAMPLE → INTEL → CONTACTS → FEED."""
     started = time.monotonic()
-    if cfg.dsn and (cfg.authoritative_source_freshness or {}).get("status") != "FRESH":
-        observed = (cfg.authoritative_source_freshness or {}).get("status") or "MISSING"
-        raise ValueError(f"authoritative PNCP freshness must be FRESH for a live feed; observed={observed}")
+    # PNCP freshness is acquisition telemetry. It is recorded on the run and
+    # never gates it: the operational authority is the persisted datalake, whose
+    # own integrity checks below stay fail-closed.
     as_of = cfg.as_of or date.today()
     out = Path(cfg.out_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -660,6 +672,7 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
         "sampling": bool(cfg.max_rows is not None),
         "use_activation_planner": use_activation,
         "force_sample_mode": bool(cfg.force_sample_mode),
+        "source_operational_health": cfg.authoritative_source_freshness,
     }
 
     # Durable checkpoint for resume != restart from zero
@@ -1136,6 +1149,9 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
                 ),
                 repo_sha=repo_sha,
                 authoritative_source_freshness=cfg.authoritative_source_freshness,
+                # Not a FRESH gate any more: this only demands the telemetry
+                # envelope, so a live build always states what the source was
+                # doing. Programmatic callers stay as accountable as the CLI.
                 require_authoritative_source_freshness=bool(cfg.dsn),
                 deactivations=deactivations,
                 previous_feed_dir=published_feed_dir,
