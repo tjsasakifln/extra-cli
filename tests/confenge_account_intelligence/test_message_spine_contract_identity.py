@@ -84,3 +84,49 @@ def test_a_contract_with_no_official_identity_still_gets_a_stable_surrogate() ->
 
     assert evidence_ids and all(eid.startswith("cf-contract-") for eid in evidence_ids)
     assert not any(eid == "cf-contract-" for eid in evidence_ids)
+
+
+def _multi_bag(contracts: list[dict[str, object]]) -> dict[str, object]:
+    return normalize_record(
+        {
+            "cnpj14": "02810894000100",
+            "razao_social": "ACME CONSTRUTORA LTDA",
+            "contracts": contracts,
+        },
+        as_of=TODAY.isoformat(),
+    )
+
+
+def test_mixed_batch_preserves_identity_only_for_identified_contracts() -> None:
+    """A batch mixing identified and unidentified contracts must not cross-contaminate ids."""
+    identified = _contract(contrato_id="CT-2024-000123", object=OBJECT + " lote A")
+    unidentified = _contract(object=OBJECT + " lote B, sem identidade oficial no cadastro")
+    bag = _multi_bag([identified, unidentified])
+
+    ids = [str(c["id"]) for c in bag["contracts"]]
+    assert ids[0] == "CT-2024-000123"
+    assert ids[1] != "CT-2024-000123"
+
+    # extract_contract_hook only surfaces one evidence id (the strongest contract),
+    # but whichever one it picks must not blend the two identities.
+    _, evidence_ids = extract_contract_hook(bag)
+    assert evidence_ids
+    for eid in evidence_ids:
+        assert eid in (f"cf-contract-{ids[0]}", f"cf-contract-{ids[1]}")
+
+
+def test_reordering_contracts_does_not_change_the_identified_contracts_identity() -> None:
+    """Identity of an identified contract must be stable regardless of its position."""
+    a = _contract(contrato_id="CT-2024-000123", object=OBJECT + " lote A")
+    b = _contract(numero_controle_pncp="07854402000186-1-000123/2024", object=OBJECT + " lote B")
+
+    forward = _multi_bag([a, b])
+    backward = _multi_bag([b, a])
+
+    forward_ids = {str(c["id"]) for c in forward["contracts"]}
+    backward_ids = {str(c["id"]) for c in backward["contracts"]}
+
+    assert forward_ids == backward_ids == {
+        "CT-2024-000123",
+        "07854402000186-1-000123/2024",
+    }
