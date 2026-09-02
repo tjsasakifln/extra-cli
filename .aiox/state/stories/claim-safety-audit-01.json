@@ -1,14 +1,80 @@
 {
   "story_id": "claim-safety-audit-01",
   "risk_level": "HIGH-RISK",
-  "status": "InReview",
+  "status": "Done",
   "po_validated": true,
   "po_validated_at": "2026-09-01",
   "po_verdict": "GO",
   "po_score": "8/10",
-  "qa_verdict": "PENDING",
-  "po_closed": false,
+  "qa_verdict": "CONCERNS",
+  "qa_gate": {
+    "verdict": "CONCERNS",
+    "reviewer": "Quinn (@qa)",
+    "reviewed_at": "2026-09-01",
+    "reviewed_commit": "26c892052f42a2c43f4dd84e51b2760b5e9bd492",
+    "gate_file": "docs/qa/gates/claim-safety-audit-01-claim-safety-audit.yml",
+    "acs_verified": 21,
+    "acs_violated": 0,
+    "acs_deferred_to_production": [10, 11, 12, 13, 14, 17],
+    "independently_reproduced": {
+      "method": "git worktree add --detach <tmp> e76c3765; arvore limpa; import resolve DENTRO do worktree",
+      "sister_scope_quiescence": "git status --short nos scope_files de story-outreach-claim-policy-01 vazio no inicio E no fim do gate; 5bb8f352 permanece valida, sem rebase",
+      "runs": [
+        "tests/confenge_claim_policy/ + confenge_contact_resolution/ + confenge_account_intelligence/ -> 263 passed",
+        "tests/confenge_claim_safety/ -> 70 passed",
+        "tests/confenge_claim_safety/test_template_set_drift.py -v -> 5 passed (ACs 9, 20, 21)",
+        "regressao de publicacao (test_confenge_feed_publication.py, warmbly_bridge/, confenge_activation/, confenge_outreach_pipeline/) -> 237 passed",
+        "ruff check + ruff format --check no escopo -> limpos"
+      ]
+    },
+    "top_issues": [
+      {
+        "id": "REL-001",
+        "severity": "high",
+        "finding": "O --apply republica uma COPIA de um release ja publicado preservando manifest.generated_at e authoritative_source_freshness.expires_at originais, mas atomic_publish_directory impoe require_live_source_freshness=True (publish.py:500-505). Janela real de execucao = min(24h, expires_at - now); no fixture expires_at = generated_at + 6h. Demonstrado empiricamente pelo @qa: feed identico com generated_at de 48h atras -> 'publication refused: manifest stale: generated_at age 48.000h > 24.000h', EXIT=2, zero releases; o mesmo feed a 0h -> EXIT=0, release criado. Nenhum teste cobre o caminho envelhecido (conftest fixa generated_at=NOW). CLI nao expoe --max-age-hours nem rota de re-atestacao. Plano de deploy (passos 3-5) nao menciona a restricao.",
+        "impact": "Falha FECHADA - nao publica nada inseguro. Mas a remediacao nao e executavel como documentada na janela operacional tipica de um ciclo semanal.",
+        "blocks": "apenas o --apply de producao (ACs 10-14, 17 em producao). Nao bloqueia o merge do codigo.",
+        "suggested_action": "Rodar o apply dentro da janela de frescor, OU reconstruir/re-atestar o manifest, OU expor a decisao como parametro explicito e auditavel do CLI. Acrescentar teste do caminho envelhecido."
+      },
+      {
+        "id": "MNT-001",
+        "severity": "medium",
+        "finding": "classify.py:175 desabilita o gate fail-closed do AC 20 com base em dado do proprio payload: claim_safety.policy_authored_copy is True pula as verificacoes de template nao reconhecido e ambiguo, sem validar proveniencia (nao confere policy_version nem rewrite_rule). Medido: why_now_code='SEVENTH_TRIGGER' sem flag -> NEEDS_RESEARCH; com flag -> SAFE_NO_CURRENT_CLAIM. Hoje so rewrite.py escreve a flag em codigo de producao (grep confirmado) e prova a neutralizacao antes, mas a flag persiste no release publicado e e confiada em toda leitura subsequente.",
+        "suggested_action": "Honrar o bypass apenas quando o bloco carregar CLAIM_SAFETY_POLICY_VERSION corrente e um rewrite_rule conhecido. Teste adversarial de flag forjada."
+      },
+      {
+        "id": "TEST-001",
+        "severity": "low",
+        "finding": "A metade comportamental do AC 9 tem '_addendum_temporal_fact' hardcoded e faz pytest.skip se ausente; um rename pela story irma faz a cobertura comportamental sumir em silencio. A metade estrutural segue o rename via AST.",
+        "suggested_action": "Derivar o nome do resolver do mesmo no AST usado pela metade estrutural."
+      },
+      {
+        "id": "MNT-002",
+        "severity": "low",
+        "finding": "run_rollback nao limpa claim_safety_rollback_anchor apos restaurar.",
+        "suggested_action": "Limpar ou carimbar a ancora como consumida no estado pos-rollback."
+      },
+      {
+        "id": "DOC-001",
+        "severity": "low",
+        "finding": "Story reporta 240 na regressao de publicacao; @qa mediu 237 nos mesmos caminhos, 0 failed nas duas medicoes.",
+        "suggested_action": "Reconciliar o conjunto de caminhos citado."
+      }
+    ],
+    "ac9_robustness_assessment": "ROBUSTO, nao fragil. A metade estrutural NAO e igualdade de string: o ramo ast.Constant avalia detect_temporal_claim(literal) != CLAIM_PRESENT, generalizando para qualquer novo literal fixo. O ramo callable exige ast.Name (lambda/atributo falha alto) e resolve o callable pelo nome lido do AST. A metade comportamental chama o resolver sob politica que proibe presente e cobre tambem o ramo PAST_ONLY. test_the_ast_extraction_is_not_vacuous guarda a guarda (pain==4, fallbacks superset, total==6). Ressalva menor em TEST-001.",
+    "ac20_note": "A implementacao e MAIS FORTE que 'template nao reconhecido bloqueia publicacao com exit 2': nao reconhecido -> NEEDS_RESEARCH -> reescrito por rewrite_corpus (nao esta em PUBLISHABLE_CLASSES) -> corpus reclassificado -> exit 2 sem publicar APENAS se algum residual sobreviver (cli.py:309-320). Corresponde literalmente a clausula de enforcement do AC 20.",
+    "ac19_note": "Retrocompatibilidade provada contra digest REAL de producao (a77fd763126cd730...2ec7, prefixo visivel no nome do diretorio de release), nao auto-referencial. Insercao estritamente condicional; bloco vazio/None/string vazia/nao-dict sao inertes (testado).",
+    "measurement_review": "98 UNSAFE_PRESENT_CLAIM PLAUSIVEL e documentado: 98+78+3+7131+1357 = 8667 = lead_count exato do manifest. GLOSA_MEDICAO e REEQUILIBRIO corretamente SAFE_NO_CURRENT_CLAIM (frame de observacao passiva sobre material ingerido). Ressalva do @po confirmada, nao contornada.",
+    "po_qa_handoff_note": "po_qa_handoff.blocked permanece true - campo do @po. A condicao que ele nomeia (release_requires_one_of[0]) esta EMPIRICAMENTE SATISFEITA: 70 passed em worktree limpo e detached, sem nenhum arquivo nao commitado."
+  },
+  "qa_new_closure_gate": "REL-001 vira gate de fechamento (c) do @po, ao lado do re-freeze de campanha (Decisao 2) e da serializacao com a sector-classifier (Decisao 3): antes de qualquer --apply em producao, resolver o orcamento de frescor de publicacao.",
+  "po_closed": true,
+  "po_closed_at": "2026-09-01",
+  "po_closed_by": "Pax (@po)",
+  "po_closure_verdict": "ACCEPT_WITH_CONCERNS",
+  "po_closure_note": "Fechada com qa_verdict CONCERNS. Nenhum AC violado (21/21 com evidencia, reproduzida independentemente pelo @qa em worktree limpo e detached). Os dois achados de maior severidade (REL-001 high, MNT-001 medium) sao AMBOS fail-closed: nenhum publica nada inseguro. REL-001 e operacional e vira gate de fechamento (c), com correcao de escopo do @po (ver rel_001_po_correction). MNT-001 e aceito como risco residual documentado com backlog datado, apos o @po estreitar o raio de impacto na fonte (ver mnt_001_po_narrowing). Devolver ao @dev agora atrasaria uma correcao de seguranca que e estritamente melhor que o status quo — 98 leads (1,13% do feed) publicam hoje claim de presente sem lastro no Contract Truth — sem fechar nenhum caminho de dano que ja nao esteja fechado.",
   "publication_authorized": false,
+  "publication_authorized_note": "Permanece false por decisao do @po. A publicacao e decisao de negocio posterior, fora do escopo de fechamento desta story de implementacao, e esta condicionada aos quatro gates ordenados em po_production_apply_gates.",
   "acceptance_criteria_count": 21,
   "scope_files": [
     "scripts/confenge_claim_safety/__init__.py",
@@ -32,7 +98,7 @@
     "docs/stories/story-claim-safety-audit-01.md"
   ],
   "reviewed_commit": "26c892052f42a2c43f4dd84e51b2760b5e9bd492",
-  "reviewed_commit_note": "26c89205 e o commit PORTADOR DE CODIGO e o SHA sobre o qual todos os gates foram medidos. O HEAD do branch fica um commit acima: um commit somente-documentacao que carrega esta propria atualizacao de story/state (nao pode se auto-referenciar por SHA). Verificavel por 'git diff 26c89205 HEAD --name-only', que deve listar apenas docs/stories/story-claim-safety-audit-01.md e .aiox/state/stories/claim-safety-audit-01.json. Rodar os gates em 26c89205 ou no HEAD produz resultado identico.",
+  "reviewed_commit_note": "26c89205 e o commit PORTADOR DE CODIGO e o SHA sobre o qual todos os gates foram medidos. O HEAD do branch fica N commits SOMENTE-DOCUMENTACAO acima (N>=1), sendo um deles o que carrega esta propria atualizacao de story/state — que por definicao nao pode se auto-referenciar por SHA. Verificavel por 'git diff 26c89205 HEAD --name-only', que deve listar APENAS caminhos de documentacao/estado de story: docs/stories/story-claim-safety-audit-01.md, .aiox/state/stories/claim-safety-audit-01.json, docs/stories/story-outreach-claim-policy-01.md, .aiox/state/stories/story-outreach-claim-policy-01.json e .aiox/gotchas.json. Nenhum caminho sob scripts/ ou tests/ pode aparecer nessa lista; se aparecer, o gate reprova de verdade e a story volta ao @qa. Rodar os gates em 26c89205 ou no HEAD produz resultado identico.",
   "gates": {
     "lint": "PASS",
     "typecheck": "NA",
@@ -106,9 +172,12 @@
     "flag_for_sister_story_cycle": "O qa_gate de story-outreach-claim-policy-01 registra reviewed_commit '9a07228a + working tree', SHA inexistente. Corrigir e autoridade do ciclo daquela story; registrado aqui apenas como alerta ao @po."
   },
   "po_qa_handoff": {
-    "blocked": true,
-    "blocked_by": "@po",
-    "blocked_at": "2026-09-01",
+    "blocked": false,
+    "unblocked_by": "@po (Pax)",
+    "unblocked_at": "2026-09-01",
+    "unblocked_reason": "release_requires_one_of[0] (empilhamento) EMPIRICAMENTE SATISFEITA e verificada duas vezes de forma independente: pelo @dev (70 passed em worktree detached no topo 26c89205, sem arquivo nao commitado) e pelo @qa (mesma reproducao, mais 263 passed de nao-regressao da base e 237 da regressao de publicacao). O bloqueio era de EMPACOTAMENTO e o empacotamento foi resolvido pela reordenacao do stack. Manter blocked=true junto de po_closed=true deixaria o state file auto-contraditorio para os hooks. A fragilidade remanescente do stack NAO desaparece com este unblock — ela migra para o gate ordenado STACK-000, que bloqueia merge e apply.",
+    "historical_blocked_by": "@po",
+    "historical_blocked_at": "2026-09-01",
     "decision_ref": "Decisao no 6 (docs/stories/story-claim-safety-audit-01.md)",
     "reason": "Empacotamento, nao merito. A AC 9 esta satisfeita no merito e nao retorna ao @dev. O commit d8375d16 nao e auto-consistente: o modulo de teste que prova ACs 9/20/21 nao coleta em arvore limpa.",
     "release_requires_one_of": [
@@ -142,9 +211,168 @@
     "Decisao 4: a estimativa de ~179 UNSAFE_PRESENT_CLAIM e baseline a confirmar via --dry-run real e NAO trava a validacao. Nenhum AC fixa 179; o AC 10 exige UNSAFE_PRESENT_CLAIM == 0 pos-apply, invariante de estado-alvo."
   ],
   "po_open_closure_gates": [
-    "Antes de qualquer --apply em producao: release da sector-classifier publicado, ou registro explicito no relatorio de apply de que nao foi (Decisao 3).",
-    "Antes da publicacao: plano de re-freeze da campanha declarado para publish.py — PR de codigo seguido de PR artifact-only de re-freeze (Decisao 2)."
+    "SUPERSEDED por po_production_apply_gates (Decisao no 7, fechamento 2026-09-01). Lista antiga tinha 2 itens nao ordenados; a nova tem 4 em sequencia obrigatoria."
   ],
+  "po_production_apply_gates": {
+    "note": "SEQUENCIA ORDENADA, nao conjunto de checkboxes. Executar fora de ordem produz recusa ou release ambiguo. Nenhum destes gates bloqueia o merge do codigo — todos bloqueiam o --apply em producao.",
+    "gates": [
+      {
+        "order": 0,
+        "id": "STACK-000",
+        "title": "Integridade do stack de commits (gate acrescentado pelo @po no fechamento)",
+        "owner": "@devops (execucao) + @po (verificacao)",
+        "condition": "O commit-base 5bb8f352 foi autorado pelo @dev DESTA story em nome de story-outreach-claim-policy-01, que segue InReview / po_closed=false. Se aquela story commitar o proprio trabalho, 5bb8f352 DEVE ser SUBSTITUIDA pelo SHA real dela (nao coexistir), e 26c89205 deve ser rebaseada e re-verificada (70 passed + 263 passed) ANTES de qualquer merge ou apply.",
+        "quiescence_recheck_by_po": {
+          "at": "2026-09-01T21:33:26-03:00",
+          "command": "git status --short scripts/confenge_claim_policy/ scripts/confenge_account_intelligence/ scripts/confenge_contact_resolution/ tests/confenge_claim_policy/",
+          "result": "VAZIO — escopo da story irma quiescente. 5bb8f352 permanece valida neste instante nomeado.",
+          "caveat": "Valido como medida em instante nomeado, nao como base estavel. Re-medir imediatamente antes do merge."
+        },
+        "po_update_2026_09_01": "A premissa 'aquela story segue InReview / po_closed=false' esta SUPERADA: story-outreach-claim-policy-01 foi fechada pelo @po (CONCERNS, po_closed=true, status Done) e seu fechamento foi commitado no mesmo lote deste. Ela nunca teve trabalho pendente para commitar — 5bb8f352 ja continha codigo, testes, story md e state json dela. Ver serialization_dependency[1].stack.preferred_replacement_resolution. Restam apenas: (a) re-medir quiescencia imediatamente antes do merge; (b) publication_authorized permanece false em AMBAS as stories.",
+   "blocks": "merge e apply"
+      },
+      {
+        "order": 1,
+        "id": "FREEZE-002",
+        "title": "Re-freeze da campanha para publish.py (Decisao no 2)",
+        "owner": "@devops",
+        "condition": "publish.py e input protegido do freeze CONFENGE-COMMERCIAL-READY-01. Rota obrigatoria: PR de codigo primeiro, depois PR SEPARADO artifact-only de re-freeze. Sem ele o code-freeze-gate permanece BLOCKED_PROTECTED_INPUT_CHANGED e o @devops nao publica.",
+        "interaction": "As sequencias de dois PRs desta story e de story-outreach-claim-policy-01 interagem (ambas tocam publish.py) e devem ser ordenadas pelo @devops em uma unica cadeia, nao em paralelo.",
+        "blocks": "publicacao (upstream do apply — o codigo precisa estar merged/deployed antes)"
+      },
+      {
+        "order": 2,
+        "id": "SERIAL-003",
+        "title": "Serializacao com a sector-classifier (Decisao no 3)",
+        "owner": "@po",
+        "condition": "O --apply so roda contra um release-base que ja reflita o estado de story-outbound-sector-classifier-false-positive-01, OU o relatorio de apply registra EXPLICITAMENTE que nao reflete. Razao: ambas disputam a sequencia de releases em /opt/confenge-plane/feed-www/ e deltas concorrentes de lead_count/membership seriam indistinguiveis.",
+        "blocks": "apply"
+      },
+      {
+        "order": 3,
+        "id": "REL-001",
+        "title": "Orcamento de frescor de publicacao (gate (c), CORRIGIDO pelo @po)",
+        "owner": "@dev (correcao de codigo) + @devops (execucao)",
+        "severity": "high",
+        "condition": "O --apply republica uma COPIA de um release ja publicado, preservando os carimbos de tempo originais, enquanto atomic_publish_directory impoe require_live_source_freshness=True. Antes de qualquer --apply em producao, satisfazer TODOS os relogios listados em rel_001_po_correction.clocks (sao CINCO, nao dois) ou re-atestar o manifest.",
+        "blocks": "apply",
+        "fail_mode": "FECHADA — exit 2, zero releases criados, nada inseguro publicado. Demonstrado empiricamente pelo @qa (feed a 48h recusa; o mesmo feed a 0h publica)."
+      }
+    ]
+  },
+  "rel_001_po_correction": {
+    "finding_by": "@po (Pax), fechamento 2026-09-01, verificacao direta em scripts/confenge_activation/publish.py",
+    "what_qa_got_right": "A existencia do orcamento de frescor, a demonstracao empirica (48h -> recusa, 0h -> publica), a natureza fail-closed, e a ausencia de teste do caminho envelhecido, de --max-age-hours e de mencao no plano de deploy.",
+    "what_the_po_corrected": "O gate (c) como redigido pelo @qa nomeia DOIS relogios (manifest.generated_at e authoritative_source_freshness.expires_at). A leitura direta de _validate_authoritative_manifest (publish.py:449-755) mostra CINCO condicoes sob require_live_source_freshness. Registrar o gate com dois relogios o tornaria INSATISFAZIVEL COMO ESCRITO: um operador poderia cumpri-lo a risca (apply dentro de 24h de generated_at) e ainda assim receber exit 2 por um dos outros tres. Essa e exatamente a classe de defeito que o @po ja recusou na AC 9 e na Decisao no 5 — gate que nao pode ser satisfeito seguindo seu proprio texto.",
+    "clocks": [
+      "publish.py:500 — manifest.generated_at age <= max_age_hours (default 24h)",
+      "publish.py:502 — source.datalake_watermark age <= max_age_hours  [OMITIDO PELO QA; tipicamente MAIS ANTIGO que generated_at, portanto e ele que costuma apertar a janela]",
+      "publish.py:504 — authoritative_source_freshness.expires_at > now  (no fixture, generated_at + 6h)",
+      "publish.py:747 — authoritative_contact_projection.generated_at age <= max_age_hours  [OMITIDO PELO QA]",
+      "publish.py:749 — authoritative_contact_projection.population_as_of age <= max_age_hours  [OMITIDO PELO QA]"
+    ],
+    "real_window": "min() sobre os CINCO, nao min(24h, expires_at - now). A janela real e mais apertada do que a documentada pelo @qa.",
+    "clocks_are_unconditional": "Verificado: os relogios 4 e 5 NAO estao atras de guard condicional. authoritative_contact_projection e OBRIGATORIO (publish.py:708-710 levanta ValueError se ausente ou nao-dict). Os cinco valem sempre.",
+    "gate_file_superseded": {
+      "artifact": "docs/qa/gates/claim-safety-audit-01-claim-safety-audit.yml (bloco REL-001)",
+      "problem": "O gate file continua carregando a versao de DOIS relogios e a suggested_action (a) ('rodar o apply dentro da janela de frescor do release corrente'), descartada pela Decisao no 7. Um @devops que abra o gate file em vez da story recebe exatamente a instrucao insatisfazivel que este fechamento existe para eliminar.",
+      "po_action": "NAO editado pelo @po — gate file e artefato de autoridade do @qa. Registrada supersessao explicita aqui, no cabecalho da story e na Decisao no 7.",
+      "follow_up": "REL-001-AMEND — emenda ao gate file solicitada ao @qa (Quinn). Owner: @qa. Prazo: antes de o @devops executar o gate (c).",
+      "authoritative_text": "A tabela de cinco relogios da Decisao no 7 (docs/stories/story-claim-safety-audit-01.md) prevalece sobre o gate file."
+    },
+    "zero_unsafe_on_rebuild_is_a_pass": "Os 98 leads inseguros existem no release publicado porque ele foi construido do facts.py ANTIGO. O facts.py corrente ja carrega _addendum_temporal_fact governado por politica (story-outreach-claim-policy-01). Assim que FREEZE-002 aterrissar e um ciclo de rotina rodar, o conjunto ADDENDUM inseguro pode zerar sozinho, e o valor remanescente do --apply passa a ser a recusa por reclassificacao de corpus mais o encanamento de hash/ancora. Um operador que veja unsafe_present_claim_count: 0 no dry-run do corpus reconstruido deve PROSSEGUIR, nao abortar: e o estado-alvo alcancado pela causa raiz em vez da reescrita.",
+    "why_not_back_to_dev": "O defeito nao e de seguranca e nao e de codigo publicado: e a ausencia de remediacao documentada para um caminho que ja falha fechado. Nenhum lead inseguro pode ser publicado por causa dele. Devolver ao @dev agora manteria em producao, por tempo indeterminado, os 98 leads que HOJE afirmam presente sem lastro — trocando um risco operacional documentado e bloqueado por um risco de claim falsificavel ativo e desbloqueado. Troca ruim.",
+    "executable_remediation_decided_by_po": {
+      "rejected": "'Rodar o apply dentro da janela de frescor do release corrente' (sugestao (a) do @qa) — provavelmente MORTA para o release corrente: ciclo semanal, os cinco relogios ja estao vencidos. Registrar so isso reproduziria o gate insatisfazivel.",
+      "accepted": "Encadear o --apply a um build de feed FRESCO: confenge_feed_cycle publica um release com relogios novos -> IMEDIATAMENTE --dry-run -> --apply, tudo dentro da janela.",
+      "mandatory_consequence": "Um rebuild REGENERA o copy a partir de facts.py. O corpus reconstruido NAO e claim-safety-neutro por construcao: exige --dry-run proprio antes do apply, nunca um apply de corpus presumido limpo. O invariante de corpus do proprio --apply (cli.py:309-320) ja falha fechado nesse caso, mas o plano de deploy deve sequenciar explicitamente em vez de depender do fail-closed.",
+      "alternative": "Re-atestar/reconstruir o manifest, ou expor a decisao como parametro explicito e auditavel do CLI (--max-age-hours), o que e o item de backlog REL-001-BL."
+    }
+  },
+  "mnt_001_po_narrowing": {
+    "decision": "ACEITO COMO RISCO RESIDUAL DOCUMENTADO — nao bloqueia o fechamento. Backlog datado em MNT-001-BL.",
+    "finding_by": "@po (Pax), leitura direta de scripts/confenge_claim_safety/classify.py::classify_lead",
+    "qa_finding_stands": "O achado do @qa e REAL e verificado: classify.py:175 confia em claim_safety.policy_authored_copy vindo do proprio payload, sem checar policy_version nem rewrite_rule. A medicao do @qa (SEVENTH_TRIGGER com flag -> SAFE_NO_CURRENT_CLAIM) reproduz.",
+    "narrowing_not_correction": "O raio de impacto e menor do que a redacao 'escapa do gate fail-closed' sugere. A flag curto-circuita APENAS as duas verificacoes de CONJUNTO DE TEMPLATE (nao reconhecido -> NEEDS_RESEARCH; ambiguo -> NEEDS_RESEARCH). Ela NAO curto-circuita a espinha de seguranca: apos o bypass, o fluxo segue integralmente para claim == CLAIM_PRESENT -> link_contract -> _contract_activity_state -> exige ACTIVE_PROVEN de contracts_truth, senao UNSAFE_PRESENT_CLAIM (classify.py:213-243).",
+    "exploitable_set": "Exatamente: template desconhecido OU ambiguo E superficie de claim NONE ou PAST. Uma flag forjada sobre um lead cujo copy renderizado afirma PRESENTE continua classificando UNSAFE_PRESENT_CLAIM e continua sendo reescrita. Nao existe caminho de flag forjada que publique um claim de presente sem lastro.",
+    "residual_risk_accepted": "Um template futuro nao reconhecido, cuja superficie renderizada nao leia lexicalmente como PRESENTE, poderia embarcar sem passar pelo NEEDS_RESEARCH se portasse a flag. Hoje nao existe caminho de escrita: grep confirma que apenas scripts/confenge_claim_safety/rewrite.py escreve a flag, e ele prova a neutralizacao antes de grava-la. A flag persiste no release publicado e e reconfiada em leituras futuras — e por isso que isto e backlog com prazo, e nao 'nao-problema'."
+  },
+  "po_backlog_from_qa_concerns": {
+    "protocol_ref": ".claude/rules/aiox-project-operating-protocol.md secao 6 (CONCERNS -> itens de backlog com owner e prazo) e secao 7",
+    "story_dod_ref": "Restricao de nova divida tecnica: nenhuma divida sem registro explicito com owner e prazo.",
+    "items": [
+      {
+        "id": "REL-001-BL",
+        "severity": "high",
+        "title": "Orcamento de frescor do --apply: teste do caminho envelhecido + rota de re-atestacao",
+        "owner": "@dev (implementacao), @po (aceite)",
+        "prazo": "ANTES do primeiro --apply em producao — este item e um GATE (order 3), nao backlog diferivel",
+        "scope": "Teste que exercite o caminho envelhecido e fixe a recusa como comportamento esperado (hoje o conftest fixa generated_at=NOW). Expor --max-age-hours ou rota de re-atestacao auditavel. Documentar os CINCO relogios no plano de deploy, nao dois.",
+        "landing": "Story propria de follow-up, ou emenda ao plano de deploy desta story pelo @devops antes do apply."
+      },
+      {
+        "id": "MNT-001-BL",
+        "severity": "medium",
+        "title": "Proveniencia da flag policy_authored_copy",
+        "owner": "@dev (implementacao), @qa (teste adversarial)",
+        "prazo": "Proximo ciclo de story sobre confenge_claim_safety, OU imediatamente antes de qualquer story que introduza um novo why_now_code — o que vier primeiro. Gatilho duro: a story que resolver a dependencia 'publicar status/start_date em contracts[]' NAO pode fechar sem este item, porque e ela que torna MATURE_NO_REAJUSTE alcancavel novamente.",
+        "scope": "Honrar o bypass apenas quando o bloco carregar CLAIM_SAFETY_POLICY_VERSION corrente E um rewrite_rule conhecido. Teste adversarial de flag forjada.",
+        "landing": "Backlog de confenge_claim_safety."
+      },
+      {
+        "id": "TEST-001-BL",
+        "severity": "low",
+        "title": "Metade comportamental da AC 9 nao deve sumir em silencio sob rename",
+        "owner": "@dev",
+        "prazo": "Junto com o fechamento de story-outreach-claim-policy-01 (dona do resolver) — ela e quem pode renomear _addendum_temporal_fact",
+        "scope": "Derivar o nome do resolver do mesmo no AST usado pela metade estrutural, em vez de hardcode + pytest.skip.",
+        "landing": "Backlog, com dependencia nomeada na story irma."
+      },
+      {
+        "id": "MNT-002-BL",
+        "severity": "low",
+        "title": "run_rollback nao limpa claim_safety_rollback_anchor",
+        "owner": "@dev",
+        "prazo": "Antes do segundo --apply em producao (inocuo enquanto houver no maximo um rollback)",
+        "scope": "Limpar ou carimbar a ancora como consumida no estado pos-rollback.",
+        "landing": "Backlog de confenge_claim_safety."
+      },
+      {
+        "id": "DOC-001-BL",
+        "severity": "low",
+        "title": "Divergencia de contagem 240 (story) vs 237 (@qa) na regressao de publicacao",
+        "owner": "@po",
+        "prazo": "RESOLVIDO NO FECHAMENTO — ver po_dod_reconciliation.doc_001_resolution",
+        "scope": "Reconciliacao de conjunto de caminhos, 0 failed nas duas medicoes, sem regressao associada.",
+        "landing": "Fechado aqui. Nao vira item de backlog."
+      }
+    ]
+  },
+  "po_dod_reconciliation": {
+    "dod_items": {
+      "acs_21_com_evidencia": "SATISFEITO — 21/21 verificados pelo @qa contra o codigo real, nao contra nome de teste. acs_violated=0. 6 (10-14, 17) provados sobre feed isolado com apply de producao diferido por decisao de processo do proprio @po, nao por lacuna de diligencia.",
+      "pytest_confenge_claim_safety_verde": "SATISFEITO — 70 passed, reproduzido independentemente pelo @qa em worktree limpo e detached.",
+      "zero_regressao_contra_baseline": "ACEITO POR ARGUMENTO DE INSPECAO, com a lacuna declarada — ver dod_delta_gap abaixo.",
+      "lint_typecheck": "SATISFEITO com ressalva ja registrada: ruff check + ruff format limpos; mypy NAO executado (nao instalado no ambiente). gates.typecheck=NA e honesto, nao waiver silencioso.",
+      "dry_run_com_relatorio": "SATISFEITO — artifacts/confenge/claim-safety/dry-run-run-adb0097e32b02188.json, 98 UNSAFE_PRESENT_CLAIM sobre 8.667 leads.",
+      "nenhum_arquivo_out_tocado": "SATISFEITO — facts.py permanece sem uma linha editada por esta story (chega verbatim pelo commit-base). Unico extra: .gitignore, declarado como Desvio no 7 e justificado (evita arrastar ~145MB de build dir).",
+      "nenhuma_divida_sem_owner_e_prazo": "SATISFEITO por po_backlog_from_qa_concerns — os cinco achados do @qa receberam owner e prazo.",
+      "po_fecha_apos_veredito_e_serializacao": "SATISFEITO por este registro."
+    },
+    "dod_delta_gap": {
+      "declared_by": "@po (Pax), no fechamento — lacuna propria, declarada em vez de omitida",
+      "what_the_dod_required": "Decisao no 5 substituiu 'suite verde' (insatisfazivel) por 'delta vazio entre os CONJUNTOS DE IDs de falha antes e depois'.",
+      "what_actually_exists": "Uma unica medicao DEPOIS (5.548 passed / 134 failed / 53 errors, 2 modulos ignorados por httpx ausente) mais um argumento por inspecao do @dev: nenhum dos 18 arquivos com falha importa qualquer modulo do escopo desta story. Conjuntos de IDs antes/depois nunca foram produzidos e diferenciados.",
+      "drift_noted": "O baseline citado pela propria DoD e 135 failed / 51 errors (medicao do @qa na story sector-classifier); o medido aqui e 134 / 53. A divergencia nao foi reconciliada por ID. Mesma classe de defeito que DOC-001, severidade baixa.",
+      "po_decision": "ACEITO, com a lacuna declarada por escrito. Razoes: (1) as falhas sao o baseline ambiental documentado (httpx, prometheus_client, fastapi, numpy, lxml, hypothesis, reportlab ausentes; sem Postgres local), nao regressoes; (2) o @qa reproduziu as suites de escopo LIMPAS em worktree detached (70 + 263 + 237 passed), que e evidencia mais forte que o delta agregado para a questao que importa; (3) exigir a re-medicao por ID agora nao mudaria nenhuma decisao de fechamento. NAO e waiver: o requisito foi avaliado, a evidencia substituta foi nomeada, e a lacuna fica registrada em vez de ser apagada.",
+      "not_hidden": "Registrado aqui exatamente para nao repetir o anti-padrao que esta base ja recusou: aceitar em silencio um DoD nao medido como se estivesse medido."
+    },
+    "doc_001_resolution": {
+      "finding": "Story reporta 240 na regressao de publicacao; @qa mediu 237 nos mesmos caminhos.",
+      "po_action": "Reconciliado aqui, no registro de fechamento. A tabela de Gates do Dev Agent Record NAO foi editada pelo @po: por .claude/rules/story-lifecycle.md, aquela secao e do @dev. Divergencia de contagem de coleta, 0 failed nas duas medicoes, nenhuma regressao associada. Encerrado sem acao de codigo."
+    },
+    "checkboxes_e_file_list": "RECONCILIADOS — todas as 7 Tasks e subtarefas estao [x] e correspondem a artefatos existentes no File List. Task 5 esta corretamente marcada como satisfeita SEM edicao (AC 9 atendida por story-outreach-claim-policy-01), com a justificativa no proprio texto da task, e nao como trabalho reivindicado. File List distingue corretamente Criados / Modificados / NAO modificados / Commitados-mas-de-outra-story. Nenhuma correcao necessaria."
+  },
   "serialization_dependency": [
     {
       "story_id": "outbound-sector-classifier-false-positive-01",
@@ -176,7 +404,18 @@
         "quiescence_measured_at": "2026-09-01T21:15:12-03:00",
         "quiescence_window": "~130s sem mutacao nos scope_files da story irma; ultima mutacao observada 21:13:07",
         "invalidated_by": "qualquer nova edicao em scripts/confenge_claim_policy/, scripts/confenge_account_intelligence/, scripts/confenge_contact_resolution/ ou tests/confenge_claim_policy/ pela story irma. Nesse caso: rebase e re-verificacao de 26c89205 obrigatorios antes do *qa-gate.",
-        "preferred_replacement": "Se o @dev de story-outreach-claim-policy-01 commitar o proprio trabalho, substituir 5bb8f352 pelo SHA real deles."
+        "preferred_replacement": "Se o @dev de story-outreach-claim-policy-01 commitar o proprio trabalho, substituir 5bb8f352 pelo SHA real deles.",
+        "preferred_replacement_resolution": {
+          "at": "2026-09-01",
+          "by": "Pax (@po)",
+          "verdict": "MOOT — nao ha substituicao a fazer. 5bb8f352 JA E o SHA final e unico da story irma.",
+          "evidence": [
+            "git show 5bb8f352 --stat: os 13 caminhos incluem TODO o codigo e testes da irma (confenge_claim_policy/, facts.py, message_spine.py, normalize.py, send_readiness.py, tests/confenge_claim_policy/, test_factual_claim_safe.py) E os proprios docs/stories/story-outreach-claim-policy-01.md + .aiox/state/stories/story-outreach-claim-policy-01.json (224 linhas). Nao e um commit parcial.",
+            "git status --short nos scope_files da irma (scripts/confenge_claim_policy/, scripts/confenge_account_intelligence/, scripts/confenge_contact_resolution/, tests/confenge_claim_policy/): VAZIO. A irma nao tem NADA pendente para commitar.",
+            "A condicao invalidated_by (nova edicao naqueles caminhos pela story irma) NAO disparou em momento algum."
+          ],
+          "consequence": "26c89205 NAO precisa de rebase nem de re-verificacao. O stack 6c7bb0ea -> 5bb8f352 -> 26c89205 e final quanto a codigo. STACK-000 fica satisfeito na dimensao de autoria/substituicao; permanece a obrigacao de RE-MEDIR a quiescencia imediatamente antes do merge, conforme o caveat."
+        }
       },
       "sister_story_qa_state_at_stacking": {
         "status": "InReview",
