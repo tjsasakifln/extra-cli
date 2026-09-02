@@ -41,12 +41,18 @@ def classifier_sha() -> str:
     """Stable hash of classifier source for materialization provenance."""
     try:
         from scripts.commercial_leads import contract_relevance as relevance_module
+        from scripts.confenge_universe import parafiscal as parafiscal_module
         from scripts.confenge_universe import target_fit as target_fit_module
 
+        # `parafiscal_module` MUST be hashed: `inspect.getsource` only sees the
+        # modules named here, so without it adding a marker to the parafiscal
+        # taxonomy would produce zero classifier drift and `reconcile` would not
+        # re-enqueue anything — reintroducing silent staleness (AC 23b).
         src = "\n".join(
             (
                 inspect.getsource(target_fit_module),
                 inspect.getsource(relevance_module),
+                inspect.getsource(parafiscal_module),
             )
         )
     except (OSError, TypeError):

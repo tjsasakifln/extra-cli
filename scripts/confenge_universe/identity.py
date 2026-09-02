@@ -13,7 +13,17 @@ from scripts.confenge_universe import (
     NOT_CONSTRUCTION,
     PUBLIC_ORGAN,
 )
+from scripts.confenge_universe.parafiscal import (
+    PARAFISCAL_INSTITUTIONAL,
+    PARAFISCAL_INSTITUTIONAL_MARKERS,
+    match_parafiscal_institutional,
+)
 from scripts.linkage.keys import is_valid_cnpj14, normalize_name
+
+# Backwards-compatible alias: the taxonomy now lives in `parafiscal.py` (single
+# source of truth shared with `classify_target_fit` — AC 23a). Re-exported here
+# so existing importers of this name keep working WITHOUT a duplicated list.
+DEFAULT_PARAFISCAL_INSTITUTIONAL_MARKERS = PARAFISCAL_INSTITUTIONAL_MARKERS
 
 DEFAULT_ORGAN_MARKERS = (
     "prefeitura",
@@ -22,7 +32,6 @@ DEFAULT_ORGAN_MARKERS = (
     "secretaria",
     "ministerio",
     "autarquia",
-    "fundacao",
     "instituto federal",
     "universidade federal",
     "camara municipal",
@@ -62,6 +71,19 @@ DEFAULT_NON_CONSTRUCTION_SUPPLIER_MARKERS = (
     "companhia energetica",
 )
 
+# Construction/engineering evidence in the legal name. Mirrors the guard already
+# used by `_looks_like_non_construction_supplier` for the bare `\bbanco\b` rule.
+# NOTE: `normalize_name` upper-cases, so these patterns are case-insensitive.
+_CONSTRUCTION_NAME_RE = re.compile(
+    r"\b(construt|construcao|construcoes|engenhari|paviment|obras|obra|edifica)\w*",
+    re.IGNORECASE,
+)
+
+# Bare "FUNDACAO ..." legal person. Public foundations must still be excluded as
+# PUBLIC_ORGAN, but private engineering companies whose name merely contains
+# "FUNDACAO" (e.g. "FUNDACAO ENGENHARIA E CONSTRUCOES LTDA") must not be.
+_FUNDACAO_NAME_RE = re.compile(r"\bfundac(?:ao|oes)\b", re.IGNORECASE)
+
 
 @dataclass(frozen=True)
 class Identity:
@@ -93,6 +115,31 @@ def _looks_like_organ(name: str, markers: tuple[str, ...]) -> bool:
     return False
 
 
+def _looks_like_parafiscal_institutional(
+    name: str,
+    markers: tuple[str, ...] = DEFAULT_PARAFISCAL_INSTITUTIONAL_MARKERS,
+) -> str | None:
+    """Thin wrapper over the shared taxonomy in `parafiscal.py` (AC 23a).
+
+    Kept as a module-level name because it is the historical entry point of this
+    module's defence-in-depth path (aggregate.py / universe builder).
+    """
+    return match_parafiscal_institutional(name, markers)
+
+
+def _looks_like_public_foundation(name: str) -> bool:
+    """True for "FUNDACAO ..." legal persons with no construction evidence in the name.
+
+    Replaces the bare "fundacao" entry previously in DEFAULT_ORGAN_MARKERS, which
+    produced a false negative for private engineering companies such as
+    "FUNDACAO ENGENHARIA E CONSTRUCOES LTDA".
+    """
+    n = normalize_name(name)
+    if not _FUNDACAO_NAME_RE.search(n):
+        return False
+    return not _CONSTRUCTION_NAME_RE.search(n)
+
+
 def _looks_like_non_construction_supplier(
     name: str,
     markers: tuple[str, ...] = DEFAULT_NON_CONSTRUCTION_SUPPLIER_MARKERS,
@@ -120,7 +167,21 @@ def resolve_identity(
 ) -> Identity:
     raw_name = (name or "").strip() or "SEM NOME"
     markers = organ_markers or DEFAULT_ORGAN_MARKERS
-    if _looks_like_organ(raw_name, markers):
+
+    parafiscal = _looks_like_parafiscal_institutional(raw_name)
+    if parafiscal:
+        c14 = normalize_cnpj14(tax_id)
+        return Identity(
+            cnpj14=c14 if c14 and is_valid_cnpj14(c14) else None,
+            cnpj_root=normalize_cnpj_root(tax_id),
+            razao_social=raw_name,
+            person_kind="organ",
+            valid=False,
+            exclusion_code=PARAFISCAL_INSTITUTIONAL,
+            exclusion_detail=f"parafiscal_institutional_name:{parafiscal}",
+        )
+
+    if _looks_like_organ(raw_name, markers) or _looks_like_public_foundation(raw_name):
         c14 = normalize_cnpj14(tax_id)
         return Identity(
             cnpj14=c14 if c14 and is_valid_cnpj14(c14) else None,
