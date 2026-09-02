@@ -116,17 +116,24 @@ def test_mixed_batch_preserves_identity_only_for_identified_contracts() -> None:
 
 
 def test_reordering_contracts_does_not_change_the_identified_contracts_identity() -> None:
-    """Identity of an identified contract must be stable regardless of its position."""
+    """Identity of an identified contract, through extract_contract_hook, is order-independent."""
     a = _contract(contrato_id="CT-2024-000123", object=OBJECT + " lote A")
     b = _contract(numero_controle_pncp="07854402000186-1-000123/2024", object=OBJECT + " lote B")
+    official_ids = {"CT-2024-000123", "07854402000186-1-000123/2024"}
 
     forward = _multi_bag([a, b])
     backward = _multi_bag([b, a])
 
-    forward_ids = {str(c["id"]) for c in forward["contracts"]}
-    backward_ids = {str(c["id"]) for c in backward["contracts"]}
+    forward_bag_ids = {str(c["id"]) for c in forward["contracts"]}
+    backward_bag_ids = {str(c["id"]) for c in backward["contracts"]}
+    assert forward_bag_ids == backward_bag_ids == official_ids
 
-    assert forward_ids == backward_ids == {
-        "CT-2024-000123",
-        "07854402000186-1-000123/2024",
-    }
+    _, forward_evidence_ids = extract_contract_hook(forward)
+    _, backward_evidence_ids = extract_contract_hook(backward)
+
+    for evidence_ids in (forward_evidence_ids, backward_evidence_ids):
+        assert evidence_ids
+        for eid in evidence_ids:
+            assert eid.removeprefix("cf-contract-") in official_ids, (
+                f"reordering surfaced a non-official identity: {evidence_ids}"
+            )
