@@ -20,7 +20,9 @@ from dataclasses import asdict, dataclass, field
 from typing import Any
 
 from scripts.commercial_leads.contract_relevance import (
+    FOUNDATION_ENGINEERING_PHRASES,
     classify_contract_relevance,
+    neutralize_evidence,
     normalize_text,
 )
 from scripts.commercial_leads.sector_fit import (
@@ -36,9 +38,15 @@ from scripts.commercial_leads.sector_fit import (
     CLASS_STRONG,
     NAME_OUT_OF_SCOPE,
 )
+from scripts.confenge_universe.parafiscal import (
+    PARAFISCAL_HARD_OUT_REASON,
+    match_parafiscal_in_names,
+)
 
 # v2: PROBABLE requires positive ICP evidence; unknown → INSUFFICIENT_EVIDENCE
-TARGET_FIT_VERSION = "confenge-target-fit-v2"
+# v3: entity-name / event-presence evidence neutralization; bare "fundacao" no
+# longer counts as structural-foundation execution evidence.
+TARGET_FIT_VERSION = "confenge-target-fit-v3"
 
 TARGET_CONFIRMED = "TARGET_CONFIRMED"
 TARGET_PROBABLE_RESEARCH = "TARGET_PROBABLE_RESEARCH"
@@ -73,15 +81,15 @@ _EXECUTION_MARKERS: tuple[str, ...] = (
     "manutencao civil",
     "recuperacao estrutural",
     "drenagem",
-    # construction foundation (not "fundacao saude" agency names)
-    "fundacao de",
-    "fundacoes de",
-    "fundacao profunda",
     "edificacao",
     "obra de arte especial",
     "reabilitacao de",
     "duplicacao de via",
     "pavimentacao asfaltica",
+    # Structural foundation phraseology. The former bare "fundacao de" /
+    # "fundacoes de" entries matched legal-person names ("Fundação de Apoio ...")
+    # and are replaced by the unambiguous engineering phrases below.
+    *FOUNDATION_ENGINEERING_PHRASES,
 )
 
 # Supply / adjacency objects that must not alone confirm ICP
@@ -165,7 +173,45 @@ def _name_hard_out(name_norm: str) -> list[str]:
     return hits
 
 
+def _parafiscal_name_surface(
+    razao_social: str | None,
+    nome_fantasia: str | None,
+    contracts: list[dict[str, Any]],
+) -> list[str]:
+    """Full name surface evaluated by the parafiscal gate (design C4).
+
+    `razao_social` alone is NOT enough: `loader._load_contracts` picks it as the
+    first non-null `fornecedor_nome` of a query without ORDER BY, so it is
+    non-deterministic between runs. Measured in production: the 4 Sistema S roots
+    have 235 distinct supplier-name variants, 15 of which match no marker
+    ("SESCRS", "SEBRAEMG", truncated and mojibake variants). Scanning every
+    distinct supplier name makes the gate deterministic regardless of which
+    variant the loader happens to pick.
+    """
+    surface: list[str] = []
+    seen: set[str] = set()
+    for candidate in (razao_social, nome_fantasia):
+        if isinstance(candidate, str) and candidate.strip() and candidate not in seen:
+            seen.add(candidate)
+            surface.append(candidate)
+    for c in contracts:
+        if not isinstance(c, dict):
+            continue
+        nome = c.get("fornecedor_nome") or c.get("nome_fornecedor")
+        if isinstance(nome, str) and nome.strip() and nome not in seen:
+            seen.add(nome)
+            surface.append(nome)
+    return surface
+
+
 def _object_is_execution(obj: str) -> bool:
+    # Strip entity-name / event-presence evidence BEFORE any evaluation. The
+    # `rel.strong_hits and not supply_adjacency` fallback below would otherwise
+    # keep a hit via "construcao civil" coming from the event theme alone.
+    stripped = neutralize_evidence(obj)
+    if stripped != normalize_text(obj):
+        obj = stripped
+
     n = normalize_text(obj)
     if not n:
         return False
@@ -266,6 +312,54 @@ def classify_target_fit(
     # Official CNAE construction/engineering prefixes
     cnae_digits = "".join(ch for ch in str(cnae_principal or "") if ch.isdigit())
     cnae_eng = cnae_digits.startswith(("41", "42", "43", "7111", "7112", "7113", "7120"))
+
+    # ------------------------------------------------------------------
+    # Parafiscal / Sistema S institutional gate (AC 21, 22 — design C3/C4).
+    #
+    # UNCONDITIONAL: no `n_exec == 0` clause. Sistema S does refurbish its own
+    # buildings, so it does accumulate real execution contracts (measured: 6/3/3
+    # for SESC-RS / SENAC / SENAI) — and is still never a CONFENGE client. This
+    # is an ICP policy decision, not a text-precision one.
+    #
+    # Placed AFTER the contract loop on purpose: `relevant_execution_contract_count`
+    # stays truthful and auditable in the suppressed result, so a reviewer can see
+    # "a root with 6 real execution contracts was suppressed" and contest it.
+    #
+    # This is the PRIMARY defence of the outbound path (reconcile → compute →
+    # confenge_target_fit_shadow → continuous feed). `resolve_identity`'s
+    # PARAFISCAL_INSTITUTIONAL exclusion is defence in depth for the universe
+    # builder path only — `classify_target_fit` never calls it.
+    # ------------------------------------------------------------------
+    parafiscal_hit = match_parafiscal_in_names(
+        _parafiscal_name_surface(razao_social, nome_fantasia, contracts)
+    )
+    if parafiscal_hit:
+        matched_name, marker = parafiscal_hit
+        reasons.append(PARAFISCAL_HARD_OUT_REASON)
+        reasons.append(f"parafiscal_marker:{marker}")
+        # Which name variant fired the gate — audit trail for the C4 surface,
+        # since it is frequently NOT `razao_social`.
+        evidence = [
+            *evidence[:10],
+            {
+                "id": "parafiscal-name-match",
+                "type": "PARAFISCAL_NAME",
+                "excerpt": matched_name[:240],
+                "marker": marker,
+            },
+        ]
+        return TargetFitDecision(
+            target_fit_class=TARGET_OUT_OF_SCOPE,
+            # Above the 0.9 of `sector_fit_out_without_execution`: entity-type
+            # evidence, not object-text evidence.
+            target_fit_confidence=0.95,
+            target_fit_evidence=evidence,
+            target_fit_reason_codes=reasons,
+            sector_fit=sector,
+            activity_class=activity,
+            relevant_execution_contract_count=n_exec,
+            relevant_supply_only_count=supply_only,
+        )
 
     # Hard out: OUT sector fit or activity commerce/material without execution
     if sector in {CLASS_OUT, "OUT_OF_SCOPE", "NOT_CONSTRUCTION"} and n_exec == 0:

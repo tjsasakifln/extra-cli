@@ -11,10 +11,36 @@ import unicodedata
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
-RULE_VERSION = "contract-relevance-v2"
+RULE_VERSION = "contract-relevance-v3"
+
+# Unambiguous structural-foundation phraseology. Replaces the bare token
+# "fundacao", which was also matching legal-person names ("Fundação Municipal de
+# Cultura", "Fundação de Apoio...") and produced the SEBRAE-ES false positive.
+FOUNDATION_ENGINEERING_PHRASES: tuple[str, ...] = (
+    "fundacao profunda",
+    "fundacoes profundas",
+    "fundacao rasa",
+    "fundacoes rasas",
+    "execucao de fundacao",
+    "execucao de fundacoes",
+    "servicos de fundacao",
+    "servico de fundacao",
+    "obra de fundacao",
+    "obras de fundacao",
+    "bloco de fundacao",
+    "blocos de fundacao",
+    "fundacao e estrutura",
+    "fundacoes e estruturas",
+    "estaqueamento",
+    "estaca helice",
+    "estaca raiz",
+    "sapata corrida",
+    "radier",
+    "fundacao em concreto",
+)
 
 # Layer A — strong engineering / construction phrases and tokens
-STRONG_PHRASES: tuple[str, ...] = (
+_BASE_STRONG_PHRASES: tuple[str, ...] = (
     "obra de engenharia",
     "execucao de obra",
     "execucao de obras",
@@ -25,7 +51,6 @@ STRONG_PHRASES: tuple[str, ...] = (
     "drenagem urbana",
     "saneamento",
     "terraplenagem",
-    "fundacao",
     "edificacao",
     "reforma predial",
     "projeto de engenharia",
@@ -63,6 +88,8 @@ STRONG_PHRASES: tuple[str, ...] = (
     "estrada vicinal",
 )
 
+STRONG_PHRASES: tuple[str, ...] = _BASE_STRONG_PHRASES + FOUNDATION_ENGINEERING_PHRASES
+
 # Bare tokens that are strong only when NOT purely IT/telecom/generic.
 # Note: "infraestrutura" alone is NOT here — it requires positive engineering
 # context (see POSITIVE_CONTEXT / compound STRONG_PHRASES) to avoid TI/telecom FPs.
@@ -75,10 +102,35 @@ STRONG_TOKENS: tuple[str, ...] = (
     "topografia",
     "topografico",
     "edificacao",
-    "fundacao",
     "empreitada",
     "engenheir",
     "construtora",
+)
+
+# Broad SQL prefilter seeds (recall layer). DECOUPLED on purpose from
+# STRONG_PHRASES/STRONG_TOKENS ordering: `pipeline._segment_sql_prefilter` used to
+# slice those tuples positionally (`[:12]` / `[:10]`), so removing the bare
+# "fundacao" token would have silently dropped `ILIKE '%fundacao%'` from the scan
+# over the ~4M contract table and killed recall for legitimate deep-foundation
+# works BEFORE the Python precision layer ever saw them.
+# Bare "fundacao" MUST stay here: precision is enforced downstream in Python.
+SQL_PREFILTER_SEEDS: tuple[str, ...] = (
+    "obra de engenharia",
+    "execucao de obra",
+    "execucao de obras",
+    "construcao civil",
+    "pavimentacao",
+    "pavimentacao asfaltica",
+    "drenagem",
+    "drenagem urbana",
+    "saneamento",
+    "terraplenagem",
+    "fundacao",
+    "edificacao",
+    "geotecnia",
+    "topografia",
+    "topografico",
+    "empreitada",
 )
 
 # Layer B — weak tokens (need positive engineering context)
@@ -118,7 +170,6 @@ POSITIVE_CONTEXT: tuple[str, ...] = (
     "fiscalizacao",
     "supervisao",
     "arquitetura",
-    "fundacao",
     "estrutura",
     "hidraulica",
     "eletrica predial",
@@ -218,6 +269,70 @@ CLINICAL_PATTERNS: tuple[str, ...] = (
 )
 
 
+# --- Evidence neutralization -------------------------------------------------
+# Two families of false evidence produced the SEBRAE-ES incident:
+#   (a) a legal-person name "Fundação <qualificador>" read as structural foundation;
+#   (b) physical presence at a construction-themed EVENT (booth, fair, sponsorship,
+#       congress) read as execution of construction work.
+# Both are neutralized by stripping the offending span before classification, so
+# the remaining text is judged on its own merits.
+
+ENTITY_FUNDACAO_RE = re.compile(
+    r"\bfundac(?:ao|oes)\s+(?:municipal|estadual|federal|nacional|educacional|cultural|"
+    r"universitaria|hospitalar|de\s+(?:apoio|cultura|saude|ensino|pesquisa|"
+    r"desenvolvimento|amparo|assistencia|previdencia|educacao)|"
+    r"[a-z]+\s+de\s+[a-z]+)\b"
+)
+
+# NARROW on purpose: physical event presence only. Training/education terms are
+# deliberately NOT here — "centro de capacitacao" can be a real building (AC 10).
+# `\b` boundaries keep "estande" from matching as a bare substring.
+EVENT_PRESENCE_RE = re.compile(
+    r"\b(feira|estande|expositor|exposicao|congresso|seminario|simposio|"
+    r"salao|patrocinio|inscricao|credenciamento\s+de\s+evento)\b"
+)
+
+# Execution language that overrides the event gate (real works that merely happen
+# to mention an event/venue, e.g. "reforma do estande de tiro").
+EVENT_EXECUTION_ESCAPE: tuple[str, ...] = (
+    "execucao de obra",
+    "empreitada",
+    "pavimentacao",
+    "terraplenagem",
+    "reforma predial",
+    "obra de construcao civil",
+    "construcao de",
+    "reforma d",
+    "ampliacao d",
+    "drenagem",
+    "saneamento",
+)
+
+_EVENT_THEME_WORDS_RE = re.compile(r"\b(construcao civil|construcao|engenharia|obra|obras)\b")
+
+NEUTRALIZED_REASON_CODE = "evidence_neutralized_entity_or_event"
+
+
+def neutralize_evidence(objeto: str | None) -> str:
+    """Return the normalized object with entity-name / event-theme evidence stripped.
+
+    Returns the plain normalized text when nothing was neutralized, so callers can
+    detect "no change" by comparing against ``normalize_text(objeto)``.
+    """
+    n = normalize_text(objeto)
+    if not n:
+        return n
+    stripped = n
+    if ENTITY_FUNDACAO_RE.search(n) and not any(
+        p in n for p in FOUNDATION_ENGINEERING_PHRASES
+    ):
+        stripped = ENTITY_FUNDACAO_RE.sub(" ", stripped)
+    if EVENT_PRESENCE_RE.search(n) and not any(e in n for e in EVENT_EXECUTION_ESCAPE):
+        # Event theme: the construction words describe the EVENT, not the work.
+        stripped = _EVENT_THEME_WORDS_RE.sub(" ", stripped)
+    return stripped
+
+
 @dataclass
 class ContractRelevanceResult:
     status: str  # PASS | FAIL | REVIEW
@@ -253,7 +368,7 @@ def _find_hits(norm: str, patterns: tuple[str, ...]) -> list[str]:
     return hits
 
 
-def classify_contract_relevance(objeto: str | None) -> ContractRelevanceResult:
+def _classify_relevance_raw(objeto: str | None) -> ContractRelevanceResult:
     """Classify a single contract object string.
 
     Rules:
@@ -464,6 +579,21 @@ def classify_contract_relevance(objeto: str | None) -> ContractRelevanceResult:
         reason_codes=["no_relevance_evidence"],
         normalized_object=norm[:500],
     )
+
+
+def classify_contract_relevance(objeto: str | None) -> ContractRelevanceResult:
+    """Public entry point: neutralize false evidence, then classify.
+
+    When entity-name or event-theme evidence was stripped, the classification runs
+    over the stripped text and the result carries the
+    ``evidence_neutralized_entity_or_event`` reason code for auditability.
+    """
+    stripped = neutralize_evidence(objeto)
+    if stripped != normalize_text(objeto):
+        res = _classify_relevance_raw(stripped)
+        res.reason_codes = [*res.reason_codes, NEUTRALIZED_REASON_CODE]
+        return res
+    return _classify_relevance_raw(objeto)
 
 
 def contract_passes_relevance(objeto: str | None) -> bool:

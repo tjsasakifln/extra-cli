@@ -131,7 +131,7 @@ def _segment_sql_prefilter(profile: CommercialProfile) -> tuple[str, list[Any]]:
     scan the entire 4M table blindly, but weak tokens alone never qualify
     after Python classification.
     """
-    from scripts.commercial_leads.contract_relevance import STRONG_PHRASES, STRONG_TOKENS
+    from scripts.commercial_leads.contract_relevance import SQL_PREFILTER_SEEDS
 
     kws: list[str] = []
     for seg in profile.data.get("segments") or []:
@@ -144,8 +144,10 @@ def _segment_sql_prefilter(profile: CommercialProfile) -> tuple[str, list[Any]]:
             "projeto", "consultoria", "servico", "serviço", "manutencao", "manutenção",
         }
     ]
-    strongish.extend(STRONG_PHRASES[:12])
-    strongish.extend(STRONG_TOKENS[:10])
+    # Named seed constant instead of POSITIONAL slices of STRONG_PHRASES /
+    # STRONG_TOKENS: reordering those tuples must never silently shrink the SQL
+    # recall prefilter (bare "fundacao" used to sit inside the [:12]/[:10] cuts).
+    strongish.extend(SQL_PREFILTER_SEEDS)
     # de-dupe
     seen: set[str] = set()
     ordered: list[str] = []

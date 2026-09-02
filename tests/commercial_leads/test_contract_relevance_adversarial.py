@@ -98,3 +98,68 @@ def test_filter_relevant_contracts_splits() -> None:
     assert len(kept) == 1 and kept[0]["id"] == 1
     assert len(excl) == 1 and excl[0]["id"] == 2
     assert "contract_relevance" in kept[0]
+
+
+# ---------------------------------------------------------------------------
+# story-outbound-sector-classifier-false-positive-01
+# The neutralization must live in `classify_contract_relevance` itself, not only
+# in target_fit._object_is_execution — ~15 call sites consume this function
+# directly (sector_fit, commercial_validity, pipeline, construction, gates).
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "objeto",
+    [
+        "CONTRATACAO DE EMPRESA PARA LOCACAO DE ESTANDE NA FEIRA DA CONSTRUCAO CIVIL",
+        "PATROCINIO DE ESPACO EM CONGRESSO DE CONSTRUCAO CIVIL",
+        "REPASSE A FUNDACAO MUNICIPAL DE CULTURA PARA APOIO ADMINISTRATIVO",
+        "CONTRATO COM A FUNDACAO DE APOIO AO DESENVOLVIMENTO DA PESQUISA",
+        "PRESTACAO DE SERVICOS PELA FUNDACAO EDUCACIONAL DE SAO JOSE",
+    ],
+)
+def test_neutralized_evidence_objects_do_not_pass_relevance(objeto: str) -> None:
+    r = classify_contract_relevance(objeto)
+    assert r.status != "PASS", (objeto, r)
+
+
+def test_neutralization_is_recorded_in_reason_codes() -> None:
+    from scripts.commercial_leads.contract_relevance import NEUTRALIZED_REASON_CODE
+
+    r = classify_contract_relevance(
+        "REPASSE A FUNDACAO MUNICIPAL DE CULTURA PARA APOIO ADMINISTRATIVO"
+    )
+    assert NEUTRALIZED_REASON_CODE in r.reason_codes
+
+
+@pytest.mark.parametrize(
+    "objeto",
+    [
+        "EXECUCAO DE FUNDACAO PROFUNDA COM ESTAQUEAMENTO PARA O EDIFICIO SEDE",
+        "SERVICOS DE FUNDACAO E ESTRUTURA EM CONCRETO ARMADO",
+        "EXECUCAO DE OBRA DE ENGENHARIA COM FUNDACAO EM SAPATA CORRIDA",
+        "EMPREITADA GLOBAL PARA CONSTRUCAO CIVIL DO GINASIO",
+        "CONSTRUCAO DE CENTRO DE CAPACITACAO PROFISSIONAL EM ALVENARIA ESTRUTURAL",
+    ],
+)
+def test_structural_foundation_objects_still_pass_relevance(objeto: str) -> None:
+    r = classify_contract_relevance(objeto)
+    assert r.status == "PASS", (objeto, r)
+
+
+def test_deep_foundation_is_not_neutralized_by_entity_regex() -> None:
+    """"execucao de fundacao" must escape the `Fundação <qualificador>` stripper."""
+    from scripts.commercial_leads.contract_relevance import (
+        neutralize_evidence,
+        normalize_text,
+    )
+
+    objeto = "EXECUCAO DE FUNDACAO PROFUNDA COM ESTAQUEAMENTO"
+    assert neutralize_evidence(objeto) == normalize_text(objeto)
+
+
+def test_rule_version_bumped_past_v2() -> None:
+    """AC 18 — rule version must change so downstream fingerprints invalidate."""
+    from scripts.commercial_leads.contract_relevance import RULE_VERSION
+
+    assert RULE_VERSION != "contract-relevance-v2"

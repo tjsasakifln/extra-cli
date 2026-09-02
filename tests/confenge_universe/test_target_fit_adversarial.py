@@ -197,3 +197,89 @@ def test_pharma_medication_acquisition_not_confirmed() -> None:
         activity_class="OTHER",
     )
     assert fit.target_fit_class != TARGET_CONFIRMED
+
+
+# ---------------------------------------------------------------------------
+# story-outbound-sector-classifier-false-positive-01
+# Precision: physical presence at a construction-themed EVENT and legal-person
+# "Fundação <qualificador>" names must not qualify as construction execution.
+# ---------------------------------------------------------------------------
+
+import pytest  # noqa: E402
+
+from scripts.confenge_universe.target_fit import _object_is_execution  # noqa: E402
+
+
+@pytest.mark.parametrize(
+    ("ac", "objeto"),
+    [
+        (
+            "AC1",
+            "CONTRATACAO DE EMPRESA PARA LOCACAO DE ESTANDE NA FEIRA DA "
+            "CONSTRUCAO CIVIL DE VITORIA",
+        ),
+        ("AC2", "PATROCINIO DE ESPACO EM CONGRESSO DE CONSTRUCAO CIVIL"),
+        ("AC3", "REPASSE A FUNDACAO MUNICIPAL DE CULTURA PARA APOIO ADMINISTRATIVO"),
+        ("AC4", "CONTRATO COM A FUNDACAO DE APOIO AO DESENVOLVIMENTO DA PESQUISA"),
+    ],
+)
+def test_event_presence_and_entity_fundacao_are_not_execution(ac: str, objeto: str) -> None:
+    assert _object_is_execution(objeto) is False, (ac, objeto)
+
+
+def test_sebrae_es_incident_contract_is_not_execution() -> None:
+    """AC 5 — real incident object, PNCP contract 27080530000143-2-000648/2024.
+
+    The full object is not recoverable from the versioned corpus (verified by @po);
+    the fragment below carries the discriminating tokens ("locacao de estande",
+    "feira da construcao civil") and is the fixture accepted by the story.
+    """
+    objeto = (
+        "contratacao do servico de locacao de estande com espaco personalizado "
+        "e exclusivo na ES CONSTRUCAO BRASIL 2024 - FEIRA DA CONSTRUCAO CIVIL"
+    )
+    assert _object_is_execution(objeto) is False
+
+
+@pytest.mark.parametrize(
+    ("ac", "objeto"),
+    [
+        ("AC6", "EXECUCAO DE FUNDACAO PROFUNDA COM ESTAQUEAMENTO PARA O EDIFICIO SEDE"),
+        ("AC7", "SERVICOS DE FUNDACAO E ESTRUTURA EM CONCRETO ARMADO"),
+        ("AC8", "EXECUCAO DE OBRA DE ENGENHARIA COM FUNDACAO EM SAPATA CORRIDA"),
+        ("AC9", "EMPREITADA GLOBAL PARA CONSTRUCAO CIVIL DO GINASIO"),
+        # AC10 — "capacitacao" is deliberately NOT excluded from the ICP.
+        ("AC10", "CONSTRUCAO DE CENTRO DE CAPACITACAO PROFISSIONAL EM ALVENARIA ESTRUTURAL"),
+    ],
+)
+def test_real_construction_objects_remain_execution(ac: str, objeto: str) -> None:
+    assert _object_is_execution(objeto) is True, (ac, objeto)
+
+
+def test_estande_uses_word_boundary_not_bare_substring() -> None:
+    """AC 1 guard: the event gate keys on whole words, never a naked substring."""
+    from scripts.commercial_leads.contract_relevance import EVENT_PRESENCE_RE
+
+    assert EVENT_PRESENCE_RE.search("locacao de estande na feira") is not None
+    # "estanderia" / "estandes" style substrings must not trip the whole-word gate
+    assert EVENT_PRESENCE_RE.search("contratacao de estanderia industrial") is None
+
+
+def test_sistema_s_event_contract_does_not_confirm_target() -> None:
+    """End-to-end guard for the incident: booth contract never reaches CONFIRMED."""
+    d = classify_target_fit(
+        razao_social="SEBRAE ES SERVICO DE APOIO AS MICRO E PEQUENAS EMPRESAS",
+        contracts=[
+            {
+                "objeto_contrato": (
+                    "contratacao do servico de locacao de estande com espaco "
+                    "personalizado e exclusivo na ES CONSTRUCAO BRASIL 2024 - "
+                    "FEIRA DA CONSTRUCAO CIVIL"
+                ),
+                "valor_total": 120000,
+            }
+        ],
+        sector_fit="CONFIRMED",
+    )
+    assert d.target_fit_class != TARGET_CONFIRMED
+    assert d.relevant_execution_contract_count == 0

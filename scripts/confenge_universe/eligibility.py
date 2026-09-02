@@ -15,7 +15,7 @@ from scripts.confenge_universe import (
     UNIVERSE_MEMBER_STATES,
 )
 from scripts.confenge_universe.construction import ConstructionEvidence
-from scripts.confenge_universe.identity import Identity
+from scripts.confenge_universe.identity import PARAFISCAL_INSTITUTIONAL, Identity
 
 
 @dataclass(frozen=True)
@@ -63,6 +63,16 @@ def decide_eligibility(
                 outreach_eligibility=NATURAL_PERSON,
                 in_universe=False,
                 reason=identity.exclusion_detail or "natural_person",
+            )
+        if code == PARAFISCAL_INSTITUTIONAL:
+            # Sistema S / religious / foundational-education bodies are not
+            # construction suppliers. Mapped onto the existing NOT_CONSTRUCTION
+            # outreach state so the frozen OUTREACH_ELIGIBILITY_STATES set does
+            # not have to change; the precise cause stays in `reason`.
+            return EligibilityDecision(
+                outreach_eligibility=NOT_CONSTRUCTION,
+                in_universe=False,
+                reason=identity.exclusion_detail or "parafiscal_institutional",
             )
         if code == NOT_CONSTRUCTION:
             return EligibilityDecision(
