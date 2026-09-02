@@ -31,6 +31,23 @@ A single `[x]` must not hide these differences.
   cursor ou compatibilidade legada explícita. Não autoriza feed, coorte, SMTP
   nem a saída da contenção #468. Handoff:
   `docs/ops/handoff-2026-09-02-confenge-contract-identity.md`.
+- [ ] **Alvo do re-freeze atualizado (2026-09-02).** O re-freeze pendente deste
+  item — aberto pelo #534 — precisa agora ser gerado contra um tip que **inclua
+  `b4af8408`** (`fix/message-spine-official-contract-identity`, story
+  `message-spine-official-contract-identity-01`, QA PASS). Aquele commit corrige
+  a perda de identidade oficial dentro do próprio `extract_contract_hook` e toca
+  `scripts/confenge_account_intelligence/message_spine.py`, que é caminho pinado
+  no `frozen-inputs-manifest.json` e é "contract identity mapping" na acepção do
+  ADR `docs/architecture/adr-confenge-frozen-inputs-v1.md` — logo exige
+  re-freeze + rebind. **Re-freeze NÃO executado e proibido nesta janela:** a
+  campanha o veda até o código final estar definido e ainda faltam entrar os PRs
+  #531 e #532. Nota de contexto: o manifesto ainda pina `blob_sha 637c085a`,
+  blob **pré-#534** (`e693f2ae~1`), de modo que a evidência de freeze já estava
+  inválida antes desta story — o impacto marginal de `b4af8408` é zero; o que
+  muda é o alvo, não a validade. Owner: @devops (DOC-001).
+  Fechamento PO da story:
+  `[closure-key: message-spine-official-contract-identity-01:commit:b4af8408]`
+  — `docs/stories/story-message-spine-official-contract-identity-01.md`.
 
 
 > Checklist viva para acompanhar a evolução do desenvolvimento do projeto.
