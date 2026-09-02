@@ -31,10 +31,15 @@ A single `[x]` must not hide these differences.
   cursor ou compatibilidade legada explícita. Não autoriza feed, coorte, SMTP
   nem a saída da contenção #468. Handoff:
   `docs/ops/handoff-2026-09-02-confenge-contract-identity.md`.
-- [ ] **Alvo do re-freeze atualizado (2026-09-02).** O re-freeze pendente deste
-  item — aberto pelo #534 — precisa agora ser gerado contra um tip que **inclua
-  `b4af8408`** (`fix/message-spine-official-contract-identity`, story
-  `message-spine-official-contract-identity-01`, QA PASS). Aquele commit corrige
+- [ ] **Alvo do re-freeze atualizado (2026-09-02, revisado após re-review do @qa).**
+  O re-freeze pendente deste item — aberto pelo #534 — precisa agora ser gerado
+  contra um tip que **inclua `7f2a6a8d`** (tip de código da branch
+  `fix/message-spine-official-contract-identity`, story
+  `message-spine-official-contract-identity-01`, QA PASS estendido). O commit de
+  código que altera o caminho pinado continua sendo **`b4af8408`**; os três
+  commits subsequentes (`323855d7`, `0fe7e718`, `7f2a6a8d`) são *test-only* e não
+  tocam `message_spine.py` — o alvo subiu para `7f2a6a8d` apenas para que o freeze
+  cubra o tip revisado por inteiro. Aquele commit corrige
   a perda de identidade oficial dentro do próprio `extract_contract_hook` e toca
   `scripts/confenge_account_intelligence/message_spine.py`, que é caminho pinado
   no `frozen-inputs-manifest.json` e é "contract identity mapping" na acepção do
@@ -48,6 +53,32 @@ A single `[x]` must not hide these differences.
   Fechamento PO da story:
   `[closure-key: message-spine-official-contract-identity-01:commit:b4af8408]`
   — `docs/stories/story-message-spine-official-contract-identity-01.md`.
+  Reancoragem do fechamento após o re-review do @qa (veredito PASS estendido de
+  `b4af8408` para o tip `7f2a6a8d`, delta *test-only*):
+  `[closure-key: message-spine-official-contract-identity-01:commit:7f2a6a8d]`
+  — `publication_authorized: true` liberado pelo @po em 2026-09-02.
+- [ ] **ARCH-001 (LOW, owner @dev) — surrogate "lavado" para dentro de campo de
+  aparência oficial em `confenge_universe`.** Item de backlog aberto pelo QA da
+  story `message-spine-official-contract-identity-01`; **código não modificado por
+  aquela story** (`git diff --name-only b4af8408..7f2a6a8d -- scripts/` é vazio;
+  `source.py`, `rebuild.py` e `cli.py` não foram tocados). Mecanismo confirmado:
+  em `scripts/confenge_universe/source.py`,
+  `resolve_physical_map(allow_legacy_surrogate_contract_id=True)` mapeia
+  `contrato_id -> id`; `normalize_contract_row` então escreve
+  `out["contrato_id"] = row["id"]` (linhas 201-202) **antes** de
+  `out["contrato_id"] = public_contract_id(out)` (linha 215), de modo que
+  `public_contract_id` devolve o surrogate pelo laço de campos oficiais, sem
+  precisar do opt-in. Permanece **LOW** porque o valor não é publicado como
+  identidade: `rebuild.py:83` (único `True` hardcoded) alimenta `rebuild.py:187`
+  → `SectorRootBucket.add` → `ContractHistoryAccumulator`, cujo `as_stats()` não
+  emite contract id algum; `cli.py:125` é `store_true` rotulado
+  "Compatibility only"; `pipeline.py:376` tem default `False`. O `contract_id` de
+  `rebuild.py:85` é **nome de coluna** para `ORDER BY` keyset e watermark `MAX()`
+  — chave de cursor, não identidade publicada. Escopo do trabalho: contra
+  `confenge_universe`/`confenge_sector`, **não** contra `message_spine.py`.
+  Atenção ao flag correto: `allow_legacy_surrogate_contract_id` (`source.py`) é
+  distinto de `allow_legacy_surrogate` (`confenge_contract_identity.py`, o desta
+  story).
 
 
 > Checklist viva para acompanhar a evolução do desenvolvimento do projeto.

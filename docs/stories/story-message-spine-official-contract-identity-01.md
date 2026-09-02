@@ -139,34 +139,56 @@ que muda é o alvo do re-freeze pendente: ver `DOC-001` abaixo.
 
 ## Follow-ups
 
-| ID | Sev | Item | Owner |
-|----|-----|------|-------|
-| ARCH-001 | LOW | `extract_contract_hook` não valida que o bag recebido é normalizado. Com `allow_legacy_surrogate=True`, um chamador direto que passe um bag **não** normalizado e sem campo oficial recebe o `id` bruto do registro. Não há caminho de produção (o único é `pipeline.build_dossier` → `normalize_record`). | @dev |
-| TST-001 | LOW | AC3 está coberto por asserção parcialmente infalsificável (passa com e sem o fix, por construção do caso). Reforçar a asserção do substituto legítimo. | @dev |
-| DOC-001 | LOW | Re-freeze pendente da campanha CONFENGE-COMMERCIAL-READY-01 (item já aberto pelo #534 no `DOD.md`) precisa agora cobrir um tip que **inclua `b4af8408`**. **NÃO executar re-freeze agora:** proibido nesta campanha até o código final estar definido, e ainda faltam entrar os PRs #531 e #532. | @devops |
+| ID | Sev | Item | Owner | Estado |
+|----|-----|------|-------|--------|
+| ARCH-001 | LOW | Surrogate "lavado" para dentro de campo de aparência oficial em `confenge_universe`: `resolve_physical_map(allow_legacy_surrogate_contract_id=True)` faz `normalize_contract_row` escrever `out["contrato_id"] = row["id"]` (`source.py:201-202`) **antes** de `out["contrato_id"] = public_contract_id(out)` (`source.py:215`), então `public_contract_id` devolve o surrogate pelo laço de campos oficiais. Permanece LOW: os 3 call sites (`rebuild.py:83`, `cli.py:125`, `pipeline.py:376`) não publicam o valor como identidade. **Código NÃO modificado por esta story.** | @dev | **ABERTO** — registrado como item de backlog rastreável no `DOD.md` (2026-09-02). Escopo: `confenge_universe`/`confenge_sector`. |
+| TST-001 | LOW | AC3 estava coberto por asserção parcialmente infalsificável (passava com e sem o fix, por construção do caso). | @dev | **RESOLVIDO** por `7f2a6a8d`: a reordenação agora asserta sobre a saída de `extract_contract_hook(forward)/(backward)` (linhas 131-139 da suite), não mais apenas sobre o bag. Reprova sob mutação — está entre os 7 de 8 que caem. Verificado pelo @qa no re-review. |
+| DOC-001 | LOW | Re-freeze pendente da campanha CONFENGE-COMMERCIAL-READY-01 (item já aberto pelo #534 no `DOD.md`) precisa agora cobrir um tip que **inclua `7f2a6a8d`** (o commit de código que toca o caminho pinado continua sendo `b4af8408`; o alvo subiu para o tip revisado). **NÃO executar re-freeze agora:** proibido nesta campanha até o código final estar definido, e ainda faltam entrar os PRs #531 e #532. | @devops | **ABERTO** — item de backlog rastreável no `DOD.md`, alvo atualizado em 2026-09-02. |
 
-## Handoff — publicação BLOQUEADA, próximo agente é @qa
+## Handoff — publicação LIBERADA, próximo agente é @devops
 
-- Branch `fix/message-spine-official-contract-identity`, commit de código
-  revisado `b4af8408`. `reviewed_commit` permanece ancorado nele.
-- **`publication_authorized: false`.** Durante o fechamento, **dois** commits
-  *test-only* da mesma story, de sessão concorrente, foram criados sobre
-  `b4af8408` e são ancestrais do commit de fechamento: `323855d7` (+46 linhas na
-  mesma suite — lote misto e reordenação) e `0fe7e718` (+83 linhas, arquivo novo
-  `tests/confenge_activation/test_esr_contract_identity_reconciliation.py`, prova
-  end-to-end até `_primary_contract`). O veredito PASS nomeia `b4af8408` e só
-  ele, e a âncora ficou obsoleta de forma verificável: o registro do @qa diz "4
-  dos 5 casos reprovam" por mutação; `323855d7` diz "5 dos 7"; `0fe7e718` diz "7
-  dos 8 da dupla de arquivos". A suite descrita pelo veredito foi superada duas
-  vezes.
-- Resta ainda **não commitada** na árvore uma modificação adicional (+14/-7) na
-  mesma suite, que endereça `TST-001`. O @po não a commitou — está fora do
-  veredito.
-- **Próximo passo: @qa** estende o veredito a `323855d7` e `0fe7e718` e decide
-  sobre a alteração pendente. É um delta *test-only*; não é reabertura do bug.
-  Só então `reviewed_commit` é re-ancorado e `publication_authorized` vira
-  `true`.
-- Re-freeze: ver `DOC-001` — não executar nesta janela.
+> **Histórico:** este bloco declarava publicação BLOQUEADA e próximo agente
+> `@qa`. O bloqueio **está sanado**: o @qa re-revisou em 2026-09-02, estendeu o
+> veredito PASS a `323855d7`, `0fe7e718` e `7f2a6a8d`, e reancorou
+> `reviewed_commit` no tip de código `7f2a6a8d` (`72fe9ef6`). O @po reancorou o
+> fechamento e liberou `publication_authorized: true`.
+
+- Branch `fix/message-spine-official-contract-identity`. Commit de código de
+  produção: `b4af8408` (único que toca `scripts/`). Tip de código revisado:
+  `7f2a6a8d`. `reviewed_commit` ancorado em `7f2a6a8d`.
+- **`publication_authorized: true`.** Base da liberação, verificada pelo @po
+  neste worktree: `git diff --name-only b4af8408..HEAD -- scripts/` retorna
+  **vazio** — nenhuma linha de código de produção mudou depois do commit já
+  revisado no veredito original. Os três commits subsequentes são *test-only*
+  (`323855d7`, `0fe7e718`, `7f2a6a8d`), e todos estão dentro do veredito
+  estendido. Gates `lint: PASS` / `tests: PASS` seguem válidos para o código
+  real: a suite (2 arquivos, 8 testes) foi executada pelo @qa em checkout
+  completo de `7f2a6a8d` (8 passed, 127.14s), com mutação medida (7 failed / 1
+  passed) confirmando o contador alegado.
+- **Condição operacional para o @devops (1) — `reviewed_commit` vs `HEAD`.** O
+  protocolo (seção 8) pede `reviewed_commit === HEAD`. A igualdade **não é
+  atingível** nesta story: `HEAD` já era `72fe9ef6` (docs/state do @qa) antes do
+  fechamento, e o próprio commit de fechamento do @po avança `HEAD` de novo —
+  `--amend` está proibido nesta árvore (ver `po_git_incident`) e não há como
+  antecipar o próprio SHA. A divergência é **docs/state-only e auditável**:
+  `git diff --name-only 7f2a6a8d..HEAD -- scripts/ tests/` é vazio. O @devops
+  avalia essa condição com a justificativa acima; nenhum hook ativo a bloqueia
+  automaticamente (`checkPushGate` está exportado em
+  `.claude/hooks/story-state.cjs:335` mas não é invocado por
+  `enforce-git-push-authority.cjs` nem por `pre-push-gate.cjs`).
+- **Condição operacional (2) — worktree.** O pre-push e o PR precisam ser feitos
+  **a partir deste worktree**, com a story branch ativa. Enquanto ele existir, o
+  checkout principal não consegue dar `git checkout` nesta branch (ver
+  `qa_write_destination` no state file). Remover com `git worktree remove`
+  somente depois da publicação.
+- **Condição operacional (3) — isolamento do #532.** Verificado:
+  `git log --oneline ad4d18f8..HEAD` traz exatamente os 7 commits desta story, e
+  o único arquivo de produção da branch é
+  `scripts/confenge_account_intelligence/message_spine.py`. Nenhum artefato de
+  CLAIM_POLICY. O `pr532` está estacionado em outro worktree, em `8fc01192`. O PR
+  deve ser **isolado**, sem misturar #532 — o rebase do #532 sobre esta branch
+  conflita em `message_spine.py`/`normalize.py` e é trabalho de @dev, posterior.
+- Re-freeze: ver `DOC-001` — **não executar nesta janela**.
 
 ## File List
 
@@ -175,7 +197,8 @@ que muda é o alvo do re-freeze pendente: ver `DOC-001` abaixo.
 - `docs/stories/story-message-spine-official-contract-identity-01.md`
 - `.aiox/state/stories/message-spine-official-contract-identity-01.json`
 - `tests/confenge_activation/test_esr_contract_identity_reconciliation.py`
-  *(pós-QA, `0fe7e718` — fora do veredito)*
+  *(entrou pós-QA em `0fe7e718`; **coberto** pelo veredito estendido de
+  2026-09-02 — executado pelo @qa no re-review)*
 
 ## Change Log
 
@@ -186,3 +209,5 @@ que muda é o alvo do re-freeze pendente: ver `DOC-001` abaixo.
 | 2026-09-02 | 0.3 | @qa (Quinn) | QA gate **PASS** em `b4af8408`, verificado por mutação (4 dos 5 casos de identidade reprovam sem o fix) e com rastreamento completo dos call-sites. InReview → Done. 3 riscos residuais LOW. |
 | 2026-09-02 | 0.4 | @po (Pax) | Fechamento administrativo. Corrigida a imprecisão do Rollback sobre o release pinado (evidência de freeze e ADR). Registrado o achado de severidade elevada do @qa em `strict_national_esr.py:720-724`. Follow-ups ARCH-001/TST-001 (@dev) e DOC-001 (@devops) registrados. Status `Done` preservado — nenhuma transição de ciclo de vida atribuída ao PO. Publicação **bloqueada** (`publication_authorized: false`): `323855d7` e `0fe7e718` entraram pós-QA e a âncora do veredito ficou obsoleta — próximo agente é @qa. `[closure-key: message-spine-official-contract-identity-01:commit:b4af8408]` |
 | 2026-09-02 | 0.5 | @dev (sessão concorrente) | Dois commits *test-only* acrescentados **após** o QA gate, sobre `b4af8408`: `323855d7` (+46 linhas em `test_message_spine_contract_identity.py` — lote misto e reordenação) e `0fe7e718` (+83 linhas, arquivo novo `tests/confenge_activation/test_esr_contract_identity_reconciliation.py` — prova end-to-end até `_primary_contract`). **Fora do veredito PASS**, que nomeia `b4af8408` e só ele. Requerem re-review do @qa antes da publicação. |
+| 2026-09-02 | 0.6 | @qa (Quinn) | Re-review. Veredito **PASS estendido** de `b4af8408` para `323855d7`, `0fe7e718` e `7f2a6a8d`; `reviewed_commit` reancorado no tip de código `7f2a6a8d` (commit `72fe9ef6`). Evidência de execução própria: suite de 2 arquivos em checkout completo de `7f2a6a8d` → 8 passed em 127.14s; mutação (remover `allow_legacy_surrogate=True`) → 7 failed / 1 passed, confirmando por medição o contador que antes era só transcrito. `TST-001` fechado. `ARCH-001` reconfirmado LOW após rastreamento dos 3 call sites de `allow_legacy_surrogate_contract_id`. Achado elevado: com o bug, `_primary_contract` (`strict_national_esr.py:720-724`) caía **sempre** no fallback `contracts[0]` — era quebra do casamento evidência↔contrato, não cosmética de identificador. |
+| 2026-09-02 | 0.7 | @po (Pax) | **Reancoragem do fechamento e liberação da publicação.** Verificado neste worktree: `git diff --name-only b4af8408..HEAD -- scripts/` **vazio** (delta 100% *test-only*/docs), veredito estendido cobre os 3 commits pós-QA, gates `lint`/`tests` PASS válidos para o código real. `publication_authorized: false → true`. Status `Done` preservado — nenhuma transição de ciclo de vida atribuída ao PO. `reviewed_commit` (`7f2a6a8d`) ≠ `HEAD` por construção (commits docs/state posteriores; `--amend` proibido nesta árvore): divergência **docs-only**, auditável por `git diff --name-only 7f2a6a8d..HEAD -- scripts/ tests/` vazio, e registrada como condição a ser avaliada pelo @devops. Follow-ups LOW `ARCH-001` (@dev) e `DOC-001` (@devops) registrados como itens de backlog rastreáveis no `DOD.md`; `TST-001` marcado RESOLVIDO por `7f2a6a8d`. Próximo agente: **@devops** (`*pre-push`, PR isolado a partir deste worktree, sem misturar #532). `[closure-key: message-spine-official-contract-identity-01:commit:7f2a6a8d]` |
