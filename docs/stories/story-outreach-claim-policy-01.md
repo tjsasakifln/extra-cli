@@ -2,7 +2,9 @@
 
 ## Status
 
-**InReview**
+**Done**
+
+*Fechada pelo @po em 2026-09-01 sobre o veredito **CONCERNS** do @qa (iteração 2). `publication_authorized` permanece **false** — bloqueio de empacotamento, não de mérito (ver Change Log 0.5.0).*
 
 ## Risk Level
 
@@ -425,6 +427,8 @@ Consultar `scripts/ops/confenge_frozen_inputs.py::discover_frozen_input_paths`. 
 
 | Date | Version | Description | Author |
 |------|---------|--------------|--------|
+| 2026-09-01 | 0.5.0 | **Fechamento (@po) — `[closure-key: story-outreach-claim-policy-01:commit:e76c3765]`.** Veredito **CONCERNS** do @qa (iteração 2) confirmado e aceito. **Transição `InReview → Done` aplicada administrativamente pelo @po como correção de desvio (protocolo §9):** `story-lifecycle.md` atribui essa transição ao **@qa** para PASS/CONCERNS/WAIVED, mas ambos os gates (0.4.0 e 0.4.2) registraram `status_after_gate="InReview (fechamento é autoridade do @po)"` e a omitiram. O @po aplicou-a **na força do veredito já emitido pelo @qa** — não é juízo de qualidade do @po. *Gotcha para os próximos ciclos: o @qa deve executar essa transição ele mesmo no gate.* **Reconciliação de AC:** 7/7 tasks e todas as subtasks `[x]`. São **36** itens de AC no total (33 numeradas + 23a + 23b + 24a), não 33: **35/36 PASS com evidência nomeada na tabela de rastreabilidade do gate**, e a **AC 23b não aparece naquela tabela** — achado do @po. Ela **está satisfeita**, mas por evidência de outra origem: Dev Agent Record (linha 468), `facts.py::_claim_policy_for_contract` importa `is_hollow_fact` de `message_spine` por import **local**, preservando dono único e sem ciclo. Lacuna de **rastreabilidade do gate**, não de implementação — aceita sem reabrir a story. **Nota honesta sobre ACs test-only (A5):** ACs 5, 24a e 32 estão satisfeitas no nível de **mecanismo**, com alcançabilidade em dado vivo **ZERO** — nenhum produtor emite `situacao`/`status`/`situacao_nome` por contrato no bag, logo `TERMINATED`/`CANCELLED`/`SUSPENDED` são inalcançáveis por derivação hoje. **Ruling do @po: limitação declarada, não defeito** — em produção tudo degrada para `COMPLETED` ou `UNKNOWN`, e ambos já proíbem o presente pelas Regras 3/4; o mecanismo fica pronto para quando o dado chegar. **Backlog formal registrado** (fechado contra a lista da **iteração 2**; a da iteração 1 está obsoleta por aviso do próprio @qa): **MED-002** (MEDIUM, owner @dev, **GATE** — fecha **ANTES** de o follow-up de lifecycle-truth **começar**, porque popular `status_normalized` no bag é exatamente o que torna a porta viva); **LOW-001** (LOW, owner @dev, sem prazo); **LOW-004** (LOW, owner **@po** — decisão de wording de `_neutral()`, o @qa explicitamente não altera copy). Baixados: **MED-001, LOW-002, LOW-003** (resolvidos e verificados por probe + teste de mutação). O gate de MED-002 foi replicado em `.aiox/gotchas.json` — canal cross-story real do projeto — porque um gate vivendo só no state file de uma story **fechada** é invisível para quem redigir a story de lifecycle-truth. **AC 30 — registro confirmado no conteúdo, baseline corrigido:** o `161 → 166` do Dev Agent Record foi medido em `6c7bb0ea`, **antes** de o código ser commitado. Re-medição do @po em 2026-09-01: **HEAD limpo `e76c3765` = 165** (os 4 caminhos desta story **já estão dentro**, via `5bb8f352`), **working tree = 166** (o extra é `parafiscal.py`, de outra story). Delta atribuível confirmado: `confenge_claim_policy/{__init__,policy}.py`, `contracts_truth.py`, `crawl/observation_lineage.py`; **rebind** obrigatório de `message_spine.py` e `send_readiness.py`. **Aviso à story irmã confirmado — e uma contradição viva encontrada:** `story-current-claim-jit-authority-01.md:139` declara `copy_hash` como *"string (hex SHA256)"*, mas o valor real é `"sha256:" + hexdigest` (prefixo literal, pinado por `test_copy_hash_contract_is_pinned_sha256_utf8`). Se a JIT re-derivar o digest a partir daquela linha, o golden vector de `attestation_hash` diverge em silêncio. Aviso registrado na story irmã (Draft). **`publication_authorized` = false** — **bloqueio de empacotamento, não de mérito**: a pré-condição §8.6 (working tree limpa) está falsa (~26 arquivos modificados e vários não rastreados de outras stories). Mérito fechado: CONCERNS, `po_closed=true`, lint/tests PASS, `reviewed_commit === HEAD`. `reviewed_commit` normalizado para o SHA **completo de 40 chars** `e76c37658ec7a4a3bd13eb11f45058fc4e9a71e0` — `.claude/hooks/story-state.cjs:224` compara com igualdade estrita contra `git rev-parse HEAD`, então tanto a anotação textual anterior quanto uma abreviação reprovariam o gate por si sós (o diff de escopo contra HEAD é **vazio**, re-verificado). Bookkeeping de epic/backlog: **no-op legítimo** — nenhum epic referencia esta story. | Pax (@po) |
+| 2026-09-01 | 0.4.2 | **QA Gate — iteração 2 (@qa) — veredito CONCERNS.** Re-validação independente da correção 0.4.1 sobre `e76c3765` + working tree. **MED-001 RESOLVIDO**, comprovado por dois meios que não dependem do relato do @dev: (a) probe adversarial próprio do QA repetido nas **três** chaves de entrada (`situacao`, `status`, `situacao_nome`) com zero datas — todas produzem `lifecycle_state=UNKNOWN` + reason `raw_status_state_name_not_promotable`, `outreach_use_class=HISTORICAL_CONTEXT`, `allowed_tense=NEUTRAL_FACTUAL`, e o `temporal_fact` deixou de afirmar "vigência ativa comprovada"; (b) **teste de mutação** — reintroduzindo o defeito em runtime (`RAW_STATUS_FALLBACK_STATES = frozenset(ACTIVITY_STATES)`), a suíte vai a 2 failed/39 passed e as duas falhas são exatamente os dois testes novos, provando que eles pinam o comportamento e não passam por acidente. Caminho `stamped_state=` (A4) **não regrediu**: `stamped_state="ACTIVE_PROVEN"` → `ACTIVE_PROVEN`; vigência real ativa → `ACTIVE_PROVEN`/`PRESENT_CONFIRMED`; `rescindido` sobre vigência ativa → `TERMINATED`/`PAST_ONLY` (derivação continua rebaixando, só perdeu a promoção). LOW-002 e LOW-003 fechados e verificados por leitura. Lint limpo; escopo **263 passed** (bate com o relatado); mudança de baseline da suíte completa aceita como **ambiental** (53 → 10 errors de coleta com +621 passes é assinatura de resolução de import, e os módulos foram listados como ausentes no gate 0.4.0) — re-baselinar em 97/6196/263/10. `freeze_delta: inalterado` confirmado por grep: nenhum artefato congelado assere sobre `lifecycle_reasons`. **Novo MED-002:** o residual declarado pelo @dev é real — `normalize.py:196` honra `stamped_state=` vindo de `lifecycle_state`/`activity_state`/`status_normalized` sem verificar proveniência, e `{"lifecycle_state": "ACTIVE_PROVEN"}` com zero datas ainda promove a `PRESENT_CONFIRMED`. Alcançabilidade viva **ZERO** re-derivada de forma independente (nem `_contracts_from_account` nem o `SELECT` do funil emitem essas chaves), e o canal é honestamente nomeado (`contracts_truth.py:1102` é quem carimba) — por isso **não bloqueia** esta story. Mantido MEDIUM (não LOW) por precedente com MED-001 e porque o gap fica vivo exatamente quando o follow-up de lifecycle-truth popular a chave. Fix específico já identificado: exigir `status_rule_version`/`status_source` co-presentes antes de honrar um `ACTIVE_PROVEN` carimbado. Status permanece **InReview** — fechamento é autoridade do @po. | Quinn (@qa) |
 | 2026-09-01 | 0.4.1 | **Correção de QA (@dev) — MED-001 fechado, LOW-002 e LOW-003 tratados. Status permanece InReview (re-validação é do @qa).** MED-001: o fallback de `raw_status` em `resolve_lifecycle_state` deixou de rotear para o caminho de estado carimbado sem restrição. Introduzido `RAW_STATUS_FALLBACK_STATES = ACTIVITY_STATES − {ACTIVE_PROVEN}` — um `raw_status` textual só pode adotar estados **seguros por natureza** (`COMPLETED`, `TERMINATED`, `CANCELLED`, `SUSPENDED`, `UNKNOWN`); quando ele soletra `ACTIVE_PROVEN`, o token é **recusado e descartado** (`raw_status=None`) e a decisão volta inteiramente para `classify_contract_activity`, que exige janela de vigência real. Rastro auditável: reason code novo `raw_status_state_name_not_promotable`, **anexado ao fim** de `reasons` (não prepend, para não perturbar consumidores de `lifecycle_reasons`). `ACTIVE_PROVEN` passa a ser alcançável apenas por `stamped_state=` explícito (caminho confiável definido pelo item normativo A4) ou por evidência datada — restaurando literalmente o invariante da story: **a derivação só pode rebaixar (demote), nunca promover (promote)**, e a Regra 7 (hard gate factual nunca vencido por score) deixa de ter porta lateral. Probe do QA reproduzido como teste e agora falha-fechado: `normalize_record` com `situacao="active_proven"` e zero datas → `lifecycle_state=UNKNOWN` → `allowed_tense != PRESENT_CONFIRMED`, `outreach_use_class != CURRENT_ACTIONABLE`. LOW-003: `test_a4_stamped_state_never_enters_raw_status` renomeado para `test_a4_stamped_state_takes_the_validated_path_and_never_degrades` e a asserção que pinava o defeito (linha 274) foi **removida e substituída** pelos dois testes de regressão novos (`test_med001_raw_status_spelling_active_proven_never_promotes`, unitário e exaustivo nos grafemas/estados; `test_med001_normalize_record_probe_cannot_reach_present_confirmed`, end-to-end pelo caminho exato do probe do QA). LOW-002: o assert vazio de `test_red_team_cases.py:108` foi substituído por asserções materiais em **ambos** os ramos (chave presente → `UNKNOWN` + tempo não-presente; chave ausente → só tolerada para o fallback documentado `trigger == "portfolio_review"`), mais checagem de que o `temporal_fact` não contém linguagem de presente. LOW-001 e LOW-004 **não** tocados (decisão de wording/escopo do @po). Evidência: `ruff check` + `ruff format --check` limpos; mypy 2.3.1 (venv descartável) sem erro nos arquivos tocados; escopo `tests/confenge_claim_policy/ tests/confenge_contact_resolution/ tests/confenge_account_intelligence/` = **263 passed** (261 → 263, +2 testes novos, zero quebras). | Dex (@dev) |
 | 2026-09-01 | 0.4.0 | **QA Gate (@qa) — veredito CONCERNS.** Revisão independente sobre `9a07228a` + working tree. Verificado por re-execução, não por leitura do Dev Agent Record: ruff limpo nos 3 pacotes; 261 passed em `tests/confenge_claim_policy/`+`tests/confenge_contact_resolution/`+`tests/confenge_account_intelligence/`; suíte completa `134 failed, 5575 passed, 261 skipped, 53 errors` — **idêntica número a número** ao baseline do @dev, mesmo com HEAD já avançado para `9a07228a`; AC 30 **re-medida pelo QA** em worktree limpo do HEAD atual (161 → 166, +4 atribuíveis confirmados). Os 7 casos red-team foram lidos linha a linha e têm assert material. Desvio #3 do @dev (`demote_to_historical` no fail-closed de múltiplos CURRENT) julgado **interpretação válida de "rewrite" (AC 21)** — não retorna ao @po. Monotonicidade (AC 27) confirmada estruturalmente: o gate só faz `missing.append`, e `ready = len(missing) == 0`. Contaminação de árvore **resolvida** — `publish.py` foi commitado em `9a07228a` e não está no diff desta story. Probes adversariais próprios do QA encontraram **MED-001**: `resolve_lifecycle_state` roteia `raw_status` para o caminho de estado carimbado, de modo que `normalize_record` com `situacao="active_proven"` e zero datas produz `ACTIVE_PROVEN` → `PRESENT_CONFIRMED`, contornando `classify_contract_activity`. Inalcançável em produção hoje (nenhum produtor emite situação por contrato — A5 reconfirmada pelo QA), mas **bloqueia o follow-up de lifecycle-truth** já declarado. Mais LOW-001 (`_cap_from_why` devolve `None` e deixa o branch de passthrough sem teto), LOW-002 (assert vaziano red-team 3) e LOW-003 (`test_a4_stamped_state_never_enters_raw_status` pina o oposto do que o nome afirma). Status permanece **InReview** — fechamento é autoridade do @po. | Quinn (@qa) |
 | 2026-09-01 | 0.3.0 | **Implementação (@dev).** Transições de status registradas nesta entrada: **Ready → InProgress** (início da implementação) e **InProgress → InReview** (implementação concluída, aguardando @qa). Criado o pacote puro `scripts/confenge_claim_policy/` consumindo `scripts/contracts_truth.py` como autoridade única de lifecycle (AC 31-33); integrações cirúrgicas em `normalize.py` (campo `lifecycle_state` + repasse de `raw_status`), `facts.py` (pain-check `addendum` passa a depender do lifecycle), `message_spine.py` (`purpose` em `extract_contract_hook`, cap de força temporal por CLAIM_POLICY em `_extract_temporal_event`, campo `claim_policy` no spine) e `send_readiness.py` (`FACTUAL_CLAIM_SAFE`, subtrativo por construção). Itens normativos A1-A4 do gate de arquitetura implementados. Delta de freeze medido e declarado (AC 30), incluindo **correção factual à predição do @architect**: `contracts_truth.py` **tem** fechamento transitivo (`scripts/crawl/observation_lineage.py`, import de nível de função na linha 1115), logo o delta é +4 e não +3. Desvios declarados no Dev Agent Record (AC 15 vs AC 23; demote-to-historical em vez de bloqueio total da mensagem no fail-closed de múltiplos CURRENT). | Dex (@dev) |
@@ -560,6 +564,21 @@ fallback documentado (`trigger == "portfolio_review"`, sem `outreach_use_class`)
 checagem de que o `temporal_fact` não carrega linguagem de presente. Nenhum dos dois ramos
 passa de graça.
 
+*Por que não a forma literal `assert "lifecycle_state" in why`:* medido nesta sessão — para
+o bag do red-team 3 (sem aditivo, só `publication_date` de ontem), `why_now` devolve
+exatamente `['epistemic_class', 'recency_days', 'temporal_fact', 'trigger']`. As chaves de
+política **não existem** nesse caminho (`trigger == "portfolio_review"`), então a forma
+estrita falharia por um comportamento correto e pré-existente. A forma condicional acima
+cobre os dois ramos sem tolerar ausência silenciosa: se a chave aparecer, ela é verificada;
+se não aparecer, o motivo documentado é verificado.
+
+**Nota AC 31 (vocabulário único de lifecycle) — preservada.**
+`RAW_STATUS_FALLBACK_STATES` é **derivado por subtração** de `ACTIVITY_STATES`
+(`frozenset(ACTIVITY_STATES) - {ACTIVE_PROVEN}`), não uma segunda enumeração escrita à mão —
+qualquer estado novo em `contracts_truth.py` entra automaticamente. O teste
+`test_ac31_no_second_lifecycle_vocabulary_is_introduced` continua passando, e o teste de
+regressão novo assere a igualdade da derivação explicitamente.
+
 **Residual declarado (não corrigido — fora de escopo desta iteração).**
 `normalize.py:196` ainda alimenta `stamped_state=` a partir do mesmo dict não-confiável
 (`c.get("lifecycle_state") or c.get("activity_state") or c.get("status_normalized")`), logo
@@ -579,6 +598,11 @@ na re-validação.
 - Escopo da story: `pytest tests/confenge_claim_policy/ tests/confenge_contact_resolution/ tests/confenge_account_intelligence/ -q -o addopts=''` → **263 passed** (era 261 no gate do @qa; +2 testes novos, zero quebras).
 - Escopo ampliado (+ `tests/dossier tests/confenge_outreach_pipeline tests/confenge_activation`) → **425 passed**.
 - Importadores dos módulos tocados (`grep -rl` em `tests/`) → **334 passed, 12 skipped, 1 failed**; a única falha é `test_rebound_freeze_drives_shipped_verifiers_on_campaign_tree`, pré-existente em HEAD limpo e já documentada pelo @dev e pelo @qa.
+- **Suíte completa (comando exato do gate do @qa)** — `pytest tests/ -q --tb=no -o addopts='-m "not slow"' --continue-on-collection-errors --ignore=tests/test_official_status_reconfirmation.py` → **97 failed, 6196 passed, 263 skipped, 11 deselected, 10 errors** em 429s.
+
+  **⚠️ O baseline da suíte completa mudou por motivo de AMBIENTE, não por esta correção — o @qa deve re-baselinar em vez de comparar com `134 failed / 5575 passed / 53 errors` do gate 0.4.0.** Verificado nesta sessão: `numpy`, `fastapi`, `httpx`, `hypothesis`, `reportlab`, `prometheus_client` e `pytest-cov` — todos listados como **ausentes** em `environment_preexisting` no gate do @qa — agora **importam com sucesso**. Isso explica exatamente a direção do delta: 53 → 10 errors de coleta (módulos que antes nem coletavam agora coletam) e +621 testes passando.
+
+  **Evidência de que nada disso é atribuível a esta correção:** o resumo curto (`-rfE`) de falhas/erros não contém **nenhum** teste em módulo alcançável pela mudança — zero ocorrências de `claim_policy`, `account_intelligence`, `contact_resolution`, `confenge_activation`, `outreach_pipeline`, `dossier` ou `contracts_truth`. As falhas nomeadas são `tests/commercial_leads/test_confenge_integrity_gates.py::test_rebound_freeze_drives_shipped_verifiers_on_campaign_tree` (pré-existente, já documentada) e `tests/decision_memory/test_repository_pg.py::test_record_decision_and_idempotent` (Postgres ausente), mais 10 errors de coleta em `tests/coverage_live_proof/` e `tests/test_live_consulting_pack.py` (todos exigem DB/rede real). Somado aos 425 testes verdes do escopo ampliado e aos 334 dos importadores, **AC 29 permanece satisfeita**.
 - **Delta de freeze inalterado** (nenhum arquivo novo, nenhum import novo): o conjunto declarado no AC 30 permanece válido. A re-medição imediatamente antes do PR de re-freeze continua obrigatória (HEAD é móvel).
 
 ### File List
@@ -606,7 +630,178 @@ na re-validação.
 
 ## QA Results
 
-### Gate: **CONCERNS** — Quinn (@qa), 2026-09-01
+### Gate — iteração 2 (re-validação da correção 0.4.1): **CONCERNS** — Quinn (@qa), 2026-09-01
+
+**Revisor independente.** Nenhuma alegação do Dev Agent Record ou do bloco `qa_fix_iterations` foi
+aceita sem re-execução. `reviewed_commit`: **`e76c3765`, com os arquivos de escopo limpos** —
+`git diff --stat HEAD` nos três diretórios de escopo é **vazio**, e a correção MED-001 está commitada
+em `5bb8f352` (ancestral de HEAD, confirmado por `git log -S RAW_STATUS_FALLBACK_STATES`). Não há
+delta de working tree no escopo desta story, o que também confirma que nenhum arquivo do conjunto
+congelado (`message_spine.py`, `send_readiness.py`) foi movido de forma não declarada.
+Status permanece **InReview** — a transição para Done é autoridade do @po.
+
+#### 1. MED-001 — **RESOLVIDO**, verificado por probe próprio + teste de mutação
+
+Leitura do código (`scripts/confenge_claim_policy/policy.py:95-100, 236-256`): `RAW_STATUS_FALLBACK_STATES
+= frozenset(ACTIVITY_STATES) - {ACTIVE_PROVEN}` existe e é derivado por subtração (AC 31 preservada,
+nenhuma segunda enumeração). Em `resolve_lifecycle_state`, quando `stamped_state` é ausente e o
+`raw_status` textual soletra um estado, ele só é adotado se pertencer a `RAW_STATUS_FALLBACK_STATES`;
+soletrando `ACTIVE_PROVEN` o token é descartado (`raw_status = None`) e a decisão volta inteira para
+`classify_contract_activity`, que exige vigência datada.
+
+**Probe adversarial do QA repetido** (script próprio, não o teste do @dev), via
+`normalize_record` → `build_epistemic_layers` → `why_now`, com zero datas:
+
+| Payload | `lifecycle_state` | `lifecycle_reasons` | `outreach_use_class` | `allowed_tense` |
+|---|---|---|---|---|
+| `situacao="active_proven"` | `UNKNOWN` | `derived_lifecycle_state`, `missing_status_and_vigencia`, `raw_status_state_name_not_promotable` | `HISTORICAL_CONTEXT` | `NEUTRAL_FACTUAL` |
+| `status="ACTIVE_PROVEN"` | `UNKNOWN` | idem | `HISTORICAL_CONTEXT` | `NEUTRAL_FACTUAL` |
+| `situacao_nome=" Active_Proven "` | `UNKNOWN` | idem | `HISTORICAL_CONTEXT` | `NEUTRAL_FACTUAL` |
+
+O `temporal_fact` deixou de dizer "contrato público com vigência ativa comprovada" e passou a dizer
+"registro contratual público, **sem vigência atual comprovada no input**". `why_now_eligible=False`
+nos três casos. O defeito original está fechado nas três chaves de entrada, não só na testada pelo @dev.
+
+**Teste de mutação (evidência de que os testes novos não passam por acidente):** restaurando o
+defeito em runtime (`policy.RAW_STATUS_FALLBACK_STATES = frozenset(ACTIVITY_STATES)`), a suíte
+`tests/confenge_claim_policy/` vai a **2 failed / 39 passed**, e as duas falhas são exatamente
+`test_med001_raw_status_spelling_active_proven_never_promotes` e
+`test_med001_normalize_record_probe_cannot_reach_present_confirmed`. Os testes pinam o comportamento,
+não o acidente.
+
+*Correção de registro:* o teste end-to-end do MED-001 está em
+`tests/confenge_claim_policy/test_claim_policy_rules.py::test_med001_normalize_record_probe_cannot_reach_present_confirmed`,
+não em `test_red_team_cases.py` — esse último carrega a correção do LOW-002. Ambos verificados.
+
+#### 2. Caminho `stamped_state=` (A4) — **NÃO REGREDIU**
+
+- `resolve_lifecycle_state(stamped_state="ACTIVE_PROVEN")` → `ACTIVE_PROVEN`, reason `stamped_lifecycle_state`.
+- Todos os 5 estados de `RAW_STATUS_FALLBACK_STATES` continuam adotáveis por `raw_status=` (`COMPLETED`,
+  `TERMINATED`, `CANCELLED`, `SUSPENDED`, `UNKNOWN` → idênticos).
+- Vigência real ativa (`start_date=2026-01-01`, `end_date=2027-06-30`, sem status) → `ACTIVE_PROVEN`
+  por `vigencia_window` → `CURRENT_ACTIONABLE` / `PRESENT_CONFIRMED`. A promoção legítima **funciona**.
+- Vigência ativa **+** `situacao="active_proven"` → ainda `ACTIVE_PROVEN` (o token recusado não
+  atrapalha a evidência datada; reason `raw_status_state_name_not_promotable` fica anexado ao fim).
+- Vigência ativa **+** `situacao="rescindido"` → `TERMINATED` / `PAST_ONLY`. **A derivação continua
+  rebaixando** — só perdeu a capacidade de promover.
+- Vigência encerrada → `COMPLETED` / `PAST_ONLY`.
+
+#### 3. Residual declarado pelo @dev — **REAL, e permanece MEDIUM (novo MED-002)**
+
+Confirmado por probe: `normalize.py:196` alimenta `stamped_state=` a partir de
+`c.get("lifecycle_state") or c.get("activity_state") or c.get("status_normalized")`, e um payload com
+`{"lifecycle_state": "ACTIVE_PROVEN"}` **e zero datas** ainda produz
+`CURRENT_ACTIONABLE` / `PRESENT_CONFIRMED` com o texto "…contrato público com vigência ativa comprovada."
+(idem para `status_normalized`).
+
+**Não é FAIL disfarçado, e não é teórico-inócuo. É MEDIUM, pelas razões abaixo.**
+
+Por que **não** bloqueia esta story:
+- **Alcançabilidade viva = ZERO, re-derivada de forma independente pelo QA nesta iteração.** Os dois
+  únicos consumidores vivos do bag são `confenge_account_intelligence/pipeline.py:93` e
+  `confenge_activation/rebuild_national_funnel.py:425`. O produtor
+  `strict_national_esr._contracts_from_account` (linhas 105-127) emite 12 chaves e **nenhuma** delas é
+  `lifecycle_state`/`activity_state`/`status_normalized`; o `SELECT` do funil (linhas 392-399) não
+  seleciona coluna alguma de status. Nenhum dado vivo chega a essa porta hoje.
+- O canal é **honestamente nomeado**: `status_normalized` é escrito por
+  `contracts_truth.py:1102` (`record["status_normalized"] = activity.state`), ou seja, pelo carimbador
+  real que roda `classify_contract_activity`. E `lifecycle_state` é a própria saída de `normalize.py`,
+  o que torna o round-trip idempotente por design.
+- O escopo desta story é **consumir `contracts_truth.py` como autoridade**, não endurecer todo o
+  pipeline de ingestão de status. A recomendação do próprio gate 0.4.0 foi "restringir o caminho
+  carimbado a `stamped_state=`" — foi exatamente o que o @dev fez.
+
+Por que **não** é rebaixado a LOW:
+- **Precedente.** MED-001 foi classificado MEDIUM com alcançabilidade ZERO na iteração 1. A superfície
+  aqui é estruturalmente idêntica (`ACTIVE_PROVEN` alcançável com zero datas por uma chave controlada
+  pelo chamador). Rebaixar a severidade uma iteração depois, porque o @dev argumentou "é by design",
+  seria mover a régua pela narrativa do implementador.
+- **A janela.** O residual fica vivo exatamente **quando** o follow-up de lifecycle-truth plumbar
+  `status_normalized` até o bag — popular essa chave é o propósito daquele trabalho. O gap existe no
+  intervalo entre "chave populada" e "proveniência verificada".
+- Story **HIGH-RISK**, e `send_readiness.py` governa `EMAIL_SEND_READY` (envio comercial real).
+  Na dúvida, visibilidade.
+
+**Correção específica já identificada (não é "endurecer genericamente"):**
+`contracts_truth.py:1102-1105` escreve `status_normalized`, `status_rule_version` e `status_source`
+**juntos**. `normalize.py:196` lê só o estado e ignora as duas chaves de proveniência — o canal é
+confiável por *convenção de nome*, não por verificação. O fix é exigir metadados de carimbo co-presentes
+(`status_rule_version`/`status_source`) antes de honrar um `ACTIVE_PROVEN` carimbado.
+
+#### 4. Lint e testes — números do @dev CONFIRMADOS
+
+```
+$ python3 -m ruff check scripts/confenge_claim_policy/ scripts/confenge_account_intelligence/ \
+    scripts/confenge_contact_resolution/ tests/confenge_claim_policy/
+All checks passed!
+$ python3 -m ruff format --check scripts/confenge_claim_policy/ tests/confenge_claim_policy/
+6 files already formatted
+
+$ python3 -m pytest tests/confenge_claim_policy/ tests/confenge_contact_resolution/ \
+    tests/confenge_account_intelligence/ -q -o addopts=''
+263 passed in 4.06s
+```
+
+261 → **263** (+2 testes novos, zero quebras). Bate com o relatado.
+
+#### 5. Baseline da suíte completa — alegação do @dev **ACEITA**
+
+O @dev alega que o baseline mudou (134/5575/53 → 97/6196/10) por dependências de ambiente que passaram
+a importar (numpy/fastapi/httpx/hypothesis/reportlab/prometheus_client), não por regressão. A alegação é
+**coerente com o gate 0.4.0**, que já listava exatamente esses módulos em `environment_preexisting` como
+origem dos 53 errors de coleta. Uma queda de 53 → 10 errors de coleta com +621 passes é a assinatura de
+resolução de import, não de correção de lógica — a correção 0.4.1 toca 1 função pura e não pode criar
+600 passes. Não re-executei a suíte completa (429s, sem valor discriminante adicional). **O baseline
+deve ser re-baselinado em 97/6196/263/10; comparações com 134/5575/53 estão obsoletas.**
+
+A premissa foi **verificada diretamente**, não apenas inferida:
+`python3 -c "import numpy, fastapi, httpx, hypothesis, reportlab, prometheus_client"` → `IMPORT OK`.
+Os seis módulos listados como ausentes no gate 0.4.0 importam agora.
+
+#### 6. Testes novos — lidos e validados (não passam por acidente)
+
+- `test_med001_raw_status_spelling_active_proven_never_promotes` — exaustivo nos grafemas
+  (`ACTIVE_PROVEN`, `active_proven`, `  Active_Proven  `), assere `state == UNKNOWN` **e** a presença de
+  `REASON_RAW_STATUS_NOT_PROMOTABLE` **e** a ausência de `REASON_STAMPED_STATE` (prova que o ramo de
+  recusa executou, e não que o `UNKNOWN` veio por outro motivo). Também fixa a identidade
+  `RAW_STATUS_FALLBACK_STATES == frozenset(ACTIVITY_STATES) - {ACTIVE_PROVEN}`, a sobrevivência dos 5
+  estados seguros, o caminho `stamped_state=` e a promoção legítima por evidência datada.
+- `test_med001_normalize_record_probe_cannot_reach_present_confirmed` — end-to-end pelo caminho real
+  (`normalize_record` → `build_epistemic_layers` → `why_now`), com asserção material de que
+  `"vigência ativa comprovada"` não aparece no `temporal_fact`.
+- Ambos **falham** quando o defeito é reintroduzido (teste de mutação, seção 1). Guarda real.
+- **LOW-003 fechado:** a asserção da antiga linha 274 que pinava o defeito foi removida; o teste
+  renomeado (`test_a4_stamped_state_takes_the_validated_path_and_never_degrades`) agora assere só o
+  caminho carimbado e o token PT-BR (`"rescindido"` → `TERMINATED`).
+- **LOW-002 fechado:** `test_red_team_cases.py` cobre os dois ramos explicitamente; a ausência da chave
+  só é tolerada sob `trigger == "portfolio_review"`, e há checagem de linguagem não-presente no
+  `temporal_fact`. Não passa mais vacuamente.
+
+#### 7. Freeze / AC 30 — alegação do @dev CONFIRMADA
+
+`grep` por `lifecycle_reasons` fora dos 3 diretórios de escopo: nenhum teste e **nenhum artefato
+congelado** assere sobre o conteúdo ou o comprimento da tupla (só `normalize.py:212`, que a produz, e
+duas menções na própria story). O reason code novo, anexado ao fim, não quebra consumidor por posição.
+`freeze_delta: inalterado` procede — **mas a re-medição de `discover_frozen_input_paths` imediatamente
+antes do PR de re-freeze permanece obrigatória** (HEAD é móvel).
+
+#### 8. Backlog para o @po — lista consolidada da iteração 2
+
+| Item | Estado | Ação no fechamento |
+|---|---|---|
+| MED-001 | **RESOLVIDO** (verificado por probe + mutação) | Baixar |
+| LOW-002 | **RESOLVIDO** | Baixar |
+| LOW-003 | **RESOLVIDO** | Baixar |
+| **MED-002 (novo)** | Aberto — `normalize.py:196` honra `stamped_state` sem verificar proveniência | Backlog **gated**: fecha **ANTES** de o follow-up de lifecycle-truth começar (mesma estrutura de dependência usada para MED-001 na iteração 1) |
+| LOW-001 | Carregado da iteração 1 (`_cap_from_why` sem teto no passthrough) | Backlog simples |
+| LOW-004 | Carregado da iteração 1 (wording das variantes de `_neutral()`) | Backlog simples — decisão de copy é do @po |
+
+**Veredito da iteração 2: CONCERNS.** A correção fecha o MED-001 de forma verificável e não regride o
+caminho confiável. O residual é real e merece rastreio explícito, mas não bloqueia esta story.
+
+---
+
+### Gate — iteração 1: **CONCERNS** — Quinn (@qa), 2026-09-01
 
 **Revisor independente.** Nenhuma alegação do Dev Agent Record foi aceita sem re-execução.
 `reviewed_commit`: `9a07228a` + working tree. Status permanece **InReview** (fechamento é do @po).
