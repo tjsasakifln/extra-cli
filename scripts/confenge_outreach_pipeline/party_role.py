@@ -6,6 +6,8 @@ import hashlib
 import json
 from typing import Any
 
+from scripts.confenge_contract_identity import public_contract_id
+
 CONTRACTOR_ROLE_CONFIRMED = "CONTRACTOR_ROLE_CONFIRMED"
 PARTY_ROLE_CONFLICT = "PARTY_ROLE_CONFLICT"
 PARTY_ROLE_UNKNOWN = "UNKNOWN"
@@ -40,7 +42,7 @@ def project_contractor_role(
             contract.get("supplier_cnpj14") or contract.get("fornecedor_cnpj") or contract.get("supplier_cnpj")
         )
         buyer = _cnpj14(contract.get("buyer_cnpj14") or contract.get("orgao_cnpj") or contract.get("buyer_cnpj"))
-        contract_id = str(contract.get("id") or contract.get("contrato_id") or "").strip()
+        contract_id = public_contract_id(contract)
         supplier_role = str(contract.get("supplier_role") or "").upper().strip()
         buyer_role = str(contract.get("buyer_role") or "").upper().strip()
         fact = {

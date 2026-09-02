@@ -11,6 +11,7 @@ from scripts.confenge_outreach_pipeline.party_role import (
 def _contract(*, supplier: str, buyer: str) -> dict[str, str]:
     return {
         "id": "contract-1",
+        "contrato_id": "contract-1",
         "supplier_cnpj14": supplier,
         "supplier_role": "CONTRATADA",
         "buyer_cnpj14": buyer,
@@ -80,7 +81,11 @@ def test_exact_supplier_match_is_high_confidence() -> None:
 
 def test_correct_contract_plus_conflicting_buyer_link_fails_closed() -> None:
     correct = _contract(supplier="11222333000144", buyer="99888777000166")
-    conflict = {**_contract(supplier="88777666000155", buyer="11222333000144"), "id": "contract-2"}
+    conflict = {
+        **_contract(supplier="88777666000155", buyer="11222333000144"),
+        "id": "contract-2",
+        "contrato_id": "contract-2",
+    }
     result = project_contractor_role("11222333000144", [correct, conflict])
     assert result["status"] == PARTY_ROLE_CONFLICT
     assert result["target_party_role"] == "BUYER_CONFLICT"

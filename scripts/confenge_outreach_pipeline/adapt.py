@@ -8,6 +8,7 @@ from __future__ import annotations
 from datetime import date
 from typing import Any
 
+from scripts.confenge_contract_identity import public_contract_id
 from scripts.confenge_outreach_pipeline.party_role import project_contractor_role
 
 
@@ -113,7 +114,7 @@ def universe_row_to_intelligence_input(
         )
         contracts.append(
             {
-                "id": str(c.get("contrato_id") or c.get("id") or f"u-contract-{i + 1}"),
+                "id": public_contract_id(c) or f"u-contract-{i + 1}",
                 "object": obj or None,
                 "value_brl": c.get("valor_total") or c.get("value_brl"),
                 "start_date": c.get("data_inicio") or c.get("start_date"),
@@ -288,7 +289,7 @@ def intelligence_dossier_to_bridge_row(dossier: dict[str, Any]) -> dict[str, Any
             continue
         bridge_contracts.append(
             {
-                "id": str(c.get("id") or c.get("contrato_id") or ""),
+                "id": public_contract_id(c),
                 "object": c.get("object") or c.get("objeto"),
                 "value_brl": c.get("value_brl") or c.get("valor_total"),
                 "start_date": c.get("start_date"),

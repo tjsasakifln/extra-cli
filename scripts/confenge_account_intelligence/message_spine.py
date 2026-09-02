@@ -11,6 +11,8 @@ from dataclasses import asdict, dataclass, field
 from datetime import date, datetime
 from typing import Any
 
+from scripts.confenge_contract_identity import public_contract_id
+
 # Meta evidence ids that may stay in internal lists but never seed the body.
 META_EVIDENCE_PREFIXES: tuple[str, ...] = (
     "cf-portfolio-count",
@@ -93,7 +95,7 @@ def extract_contract_hook(bag: dict[str, Any]) -> tuple[str, list[str]]:
         org = str(c.get("orgao") or c.get("agency") or c.get("orgao_nome") or "").strip()
         uf = str(c.get("uf") or "").strip()
         val = c.get("value_brl") or c.get("valor_total")
-        cid = str(c.get("id") or c.get("contrato_id") or f"contract-{i}")
+        cid = public_contract_id(c) or f"contract-{i}"
         bits = [f"objeto: {obj[:180]}"]
         if org:
             bits.append(f"órgão: {org}")

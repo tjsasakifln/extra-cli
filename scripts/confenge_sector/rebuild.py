@@ -78,7 +78,9 @@ def _relation_columns(conn: Any) -> list[str]:
 
 
 def _source_sql(available: list[str]) -> tuple[str, str, str]:
-    physical = resolve_physical_map(available)
+    # This historical sector rebuild has an explicit legacy compatibility
+    # contract; CONFENGE outbound source loading does not opt into it.
+    physical = resolve_physical_map(available, allow_legacy_surrogate_contract_id=True)
     supplier = physical.get("fornecedor_cnpj")
     contract_id = physical.get("contrato_id")
     if not supplier or not contract_id:
@@ -86,7 +88,7 @@ def _source_sql(available: list[str]) -> tuple[str, str, str]:
     identifiers = [supplier, contract_id]
     if not all(re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", item) for item in identifiers):
         raise ValueError("unsafe physical identifier")
-    selected = _select_list(available)
+    selected = _select_list(available, cursor_column=contract_id)
     root_expr = (
         "fornecedor_cnpj_8::text"
         if "fornecedor_cnpj_8" in available

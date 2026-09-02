@@ -55,6 +55,9 @@ Replace monorepo-wide allowlisting with **explicit frozen CONFENGE inputs**:
 
 - Policy changes require honest re-freeze and regeneration of SHA-bound
   commercial package fields at the new HEAD
+- Contract identity mapping (including the precedence between a PNCP control
+  number and a technical table surrogate) is commercial pipeline policy; a
+  change to it requires the same re-freeze and rebind procedure.
 - Shared-surface extractors must stay fail-closed (missing markers → fail)
 
 ### Re-freeze procedure
