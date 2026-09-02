@@ -153,7 +153,25 @@
   },
   "rollback_plan": "Pure additive migration: DROP VIEW IF EXISTS public.v_contract_lifecycle_truth_v1; DROP FUNCTION IF EXISTS public.contract_window_floor_v1(DATE); DROP FUNCTION IF EXISTS public.contract_contracting_date_field_v1(DATE,DATE,DATE,DATE); DROP FUNCTION IF EXISTS public.contract_contracting_date_v1(DATE,DATE,DATE,DATE). All 3 functions plus the view must be dropped -- contract_window_floor_v1 was added in story v4.0 and was missing from this field until the v4.0.1 PO validation. Zero impact on existing consumers because nothing was rebound to the new view in this story.",
   "snapshot_evidence": null,
-  "publication_authorized": false,
+  "publication_authorized": true,
+  "publication_authorization": {
+    "authorizer": "Gage (@devops)",
+    "date": "2026-09-01",
+    "user_authorization": "confirmed",
+    "protocol_section": "aiox-project-operating-protocol.md section 8",
+    "preconditions": {
+      "status_done": true,
+      "po_closed": true,
+      "qa_verdict": "PASS",
+      "gates_lint": "PASS",
+      "gates_tests": "PASS",
+      "working_tree_clean": true,
+      "protocol_files_untouched": "git diff --name-only origin/main...HEAD contains zero paths under .claude/ or .aiox-core/"
+    },
+    "reviewed_commit_vs_head_judgment": "Precondition 5 (reviewed_commit === HEAD) evaluated explicitly, not assumed, exactly as @po's publication_note required. qa_gate.reviewed_commit pins 4fdd5dc1; HEAD at authorization time is 0524c2a2. git diff --stat 4fdd5dc1..HEAD == exactly 2 paths -- docs/stories/story-contract-lifecycle-truth-v1.md and .aiox/state/stories/contract-lifecycle-truth-v1.json -- both inside scope_files and both docs/state only. No reviewed source file (migration 103, the 5 test files, audit_sql_references.py, the report SQL, the decision doc) changed after the QA gate, so the QA evidence still describes the code being published. 4fdd5dc1 is NOT rewritten: the branch is pushed as-is, preserving immutable QA provenance. @devops accepts the docs-only drift.",
+    "diff_scope": "git diff origin/main...HEAD --stat == 12 files, 3117 insertions, 0 deletions. 12 not 13: tests/integration/test_all_sql_references.py is listed in scope_files but required no edit (it reads KNOWN_VIEWS/KNOWN_FUNCTIONS from audit_sql_references.py, which was modified). AC1 asserts diff SUBSET-OF scope_files, so 12 satisfies it.",
+    "push_mode": "git push -u origin feat/contract-lifecycle-truth-v1 -- new branch, no force, no pull before push."
+  },
   "maintenance_mode": false,
   "reversa_context": {
     "extraction_version": null,
