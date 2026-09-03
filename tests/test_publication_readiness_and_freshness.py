@@ -15,6 +15,7 @@ Three distinct defects are covered here:
 from __future__ import annotations
 
 import subprocess
+from datetime import UTC, datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -30,7 +31,31 @@ from scripts.confenge_target_fit.coverage import (
 from scripts.decision_unit_intelligence.batch_population import _population_freshness
 from scripts.ops.confenge_feed_cycle import _pipeline_failure_message
 
-VERIFIED_AT = "2026-08-27T11:10:28+00:00"
+# The fixtures below used to be literal instants (VERIFIED_AT was
+# "2026-08-27T11:10:28+00:00" and the rows were anchored on the same week).
+# ``classify_coverage_mode`` compares them against ``datetime.now(UTC)`` with a
+# 7-day ``stale_after_seconds`` window, so the snapshot silently aged into STALE
+# exactly seven days later and the tests broke on their own, freezing the
+# mandatory "Test All (full suite)" check on main and blocking every merge in
+# the repository.
+#
+# Anchoring every fixture on a single ``_NOW`` frozen at import preserves the
+# exact temporal distances each test intends to exercise, without depending on
+# the calendar date the suite happens to run.
+
+_NOW = datetime.now(UTC)
+
+
+def _ago(delta: timedelta) -> str:
+    return (_NOW - delta).isoformat()
+
+
+_VERIFIED_AGE = timedelta(hours=12)
+VERIFIED_AT = _ago(_VERIFIED_AGE)
+# 31h32m35s older than the verified reconcile: the row that must not win.
+_STALE_ROW = _ago(_VERIFIED_AGE + timedelta(hours=31, minutes=32, seconds=35))
+# 8h49m32s newer than the verified reconcile: still must not refresh it.
+_NEWER_ROW = _ago(_VERIFIED_AGE - timedelta(hours=8, minutes=49, seconds=32))
 
 
 def _snapshot(*, canonical: int, materialized: int, exclusions: int = 0) -> dict:
@@ -136,7 +161,7 @@ def test_publisher_refuses_non_finite_or_overcomplete_coverage(ratio: float):
 
 
 def test_unchanged_but_verified_population_is_fresh_from_the_reconcile():
-    stale_rows = ["2026-08-26T03:37:53+00:00"]
+    stale_rows = [_STALE_ROW]
     out = _population_freshness(stale_rows, _snapshot(canonical=1000, materialized=1000))
     assert out["population_as_of"] == VERIFIED_AT
     assert out["population_as_of_source"] == "target_fit_full_reconcile"
@@ -145,7 +170,7 @@ def test_unchanged_but_verified_population_is_fresh_from_the_reconcile():
 
 
 def test_partial_attestation_cannot_refresh_the_population_clock():
-    stale_rows = ["2026-08-26T03:37:53+00:00"]
+    stale_rows = [_STALE_ROW]
     out = _population_freshness(stale_rows, _snapshot(canonical=1000, materialized=997, exclusions=3))
     assert out["population_as_of"] == stale_rows[-1], "falls back and stays fail-closed"
     assert out["population_as_of_source"] == "target_fit_computed_at_max"
@@ -154,23 +179,31 @@ def test_partial_attestation_cannot_refresh_the_population_clock():
 
 
 def test_missing_attestation_preserves_the_previous_fail_closed_behaviour():
-    rows = ["2026-08-26T03:37:53+00:00"]
+    rows = [_STALE_ROW]
     out = _population_freshness(rows, None)
     assert out["population_as_of"] == rows[-1]
     assert out["population_as_of_source"] == "target_fit_computed_at_max"
 
 
 def test_fresh_row_does_not_refresh_an_older_full_population_attestation():
-    newer_rows = ["2026-08-27T20:00:00+00:00"]
+    newer_rows = [_NEWER_ROW]
     out = _population_freshness(newer_rows, _snapshot(canonical=1000, materialized=1000))
     assert out["population_as_of"] == VERIFIED_AT
     assert out["population_as_of_source"] == "target_fit_full_reconcile"
 
 
 def test_timestamp_comparison_uses_instants_not_rfc3339_string_order():
-    rows = ["2026-08-27T09:30:00-03:00", "2026-08-27T12:00:00+00:00"]
+    # The first row is the later instant but the earlier RFC3339 string, because
+    # it carries a -03:00 offset. Lexicographic ordering must not decide which
+    # attestation wins.
+    base = _NOW - timedelta(hours=6)
+    rows = [
+        (base + timedelta(minutes=30)).astimezone(timezone(timedelta(hours=-3))).isoformat(),
+        base.isoformat(),
+    ]
+    assert rows[0] < rows[1], "fixture must keep the lexicographic-vs-instant inversion"
     out = _population_freshness(rows, None)
-    assert out["population_as_of"] == rows[0], "12:30Z is newer than 12:00Z"
+    assert out["population_as_of"] == rows[0], "the later instant wins, not the later string"
 
 
 # --- 3. the operator always gets the factual cause -------------------------
