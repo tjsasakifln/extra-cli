@@ -661,3 +661,40 @@ def test_emitted_reason_codes_are_disjoint_from_the_contract_vocabulary(ready_bu
         emitted |= set(payload["reason_codes"])
     assert emitted, "prova vacua: nenhum reason code emitido"
     assert emitted.isdisjoint(set(contract["reason_codes"])), sorted(emitted & set(contract["reason_codes"]))
+
+
+# --- P1 (goal CONFENGE-LIVE-INBOUND-FINAL-CUTOVER) — identidade -------------
+
+
+def test_identity_projection_proves_two_branches_same_company_ref() -> None:
+    """2 CNPJs de filial da mesma raiz -> digests distintos, MESMO company_ref."""
+    company = _company()
+    projection = li_export._build_identity_projection(
+        snapshot_id="LI-TEST-IDENTITY",
+        companies=[company],
+        manifest_hash="deadbeef",
+    )
+    assert projection["schema"] == "CONFENGE_IDENTITY_PROJECTION/1.0"
+    entries = projection["entries"]
+    assert len(entries) == 2, entries
+    digests = {e["establishment_digest"] for e in entries}
+    refs = {e["company_ref"] for e in entries}
+    assert len(digests) == 2, "filiais devem produzir establishment_digest distintos"
+    assert len(refs) == 1, "filiais da mesma raiz devem resolver ao MESMO company_ref"
+    assert next(iter(refs)) == company.company_ref()
+    # sealed_hash e determinístico e recomputável a partir do proprio payload.
+    resealed = dict(projection)
+    del resealed["sealed_hash"]
+    assert li_export.live_hash(resealed) == projection["sealed_hash"]
+
+
+def test_identity_projection_is_absent_from_every_public_bundle_file(ready_bundle) -> None:
+    """AC8: company_ref/cref1: nunca aparece em manifest.json nem em files/*.json."""
+    _snapshot_id, out, manifest = ready_bundle
+    assert "identity_projection" not in manifest
+    serialized_manifest = li_export.canonical_json(manifest)
+    assert "cref1:" not in serialized_manifest
+    for rel, payload in _files(out).items():
+        serialized = li_export.canonical_json(payload)
+        assert "cref1:" not in serialized, rel
+        assert "identity_projection" not in payload, rel

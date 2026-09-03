@@ -34,11 +34,11 @@ from collections.abc import Mapping, Sequence
 from datetime import date, datetime
 from decimal import Decimal
 from pathlib import Path
-from typing import Any
+from typing import Any, Final
 
 from scripts.confenge_live_intelligence import public_policy as policy
 from scripts.confenge_live_intelligence.fit import ordering_key
-from scripts.confenge_live_intelligence.identity import cnpj_digest
+from scripts.confenge_live_intelligence.identity import cnpj_digest, company_ref_from_root8
 from scripts.confenge_live_intelligence.schema import (
     FIT_OBSERVED,
     NO_MATCH,
@@ -64,6 +64,7 @@ from scripts.confenge_live_intelligence.verifier import (
 OPPORTUNITIES_DIR = "opportunities"
 COMPANIES_DIR = "companies"
 MANIFEST_FILE = "manifest.json"
+IDENTITY_PROJECTION_FILE = "identity_projection.json"
 
 # Dimensoes de OPPORTUNITY expostas em `coverage.dimensoes_desconhecidas`. O
 # nome publico e o do campo do payload, nao o da coluna interna.
@@ -589,7 +590,64 @@ def build_bundle(
     }
     manifest["manifest_hash"] = live_hash({k: v for k, v in manifest.items() if k != "manifest_hash"})
 
-    return {"manifest": manifest, "files": files}
+    identity_projection = _build_identity_projection(
+        snapshot_id=snapshot_id,
+        companies=companies,
+        manifest_hash=manifest["manifest_hash"],
+    )
+
+    return {"manifest": manifest, "files": files, "identity_projection": identity_projection}
+
+
+IDENTITY_PROJECTION_SCHEMA: Final = "CONFENGE_IDENTITY_PROJECTION/1.0"
+
+
+def _build_identity_projection(
+    *,
+    snapshot_id: str,
+    companies: Sequence[LiveCompany],
+    manifest_hash: str,
+) -> dict[str, Any]:
+    """Projecao PRIVADA ``establishment_digest -> company_ref``, selada pelo snapshot.
+
+    NUNCA publicada no bundle publico (AC8): nao entra em ``bundle["files"]``,
+    logo ``export_bundle`` a escreve fora da arvore servida ao publico
+    (``<out_dir>.private/``), e ``load_bundle``/o verifier nunca a leem — o
+    portao de "nenhum arquivo publico contem company_ref" continua estrutural,
+    nao dependente de disciplina de quem consome este artefato.
+
+    Cada CNPJ de estabelecimento (filial) observado produz um
+    ``establishment_digest`` (mesma funcao ``cnpj_digest`` que gera
+    ``company_digest``/``buyer_digest`` — identidade publica unica, AC6) e
+    resolve ao MESMO ``company_ref`` das demais filiais do mesmo
+    ``company_root8`` — prova estrutural de consolidacao root-level (P1 do
+    goal CONFENGE-LIVE-INBOUND-FINAL-CUTOVER), consumivel apenas server-side
+    por quem monta ``CONFENGE_WEB_INTENT/1.0``.
+    """
+    seen: dict[str, str] = {}
+    entries: list[dict[str, str]] = []
+    for company in companies:
+        ref = company_ref_from_root8(company.company_root8)
+        for raw_cnpj in company.observed_establishment_cnpjs:
+            digest = cnpj_digest(raw_cnpj)
+            if digest is None:
+                continue
+            existing = seen.get(digest)
+            if existing is not None and existing != ref:
+                raise LiveIntelligenceExportError(
+                    f"colisao de establishment_digest {digest!r}: refs {existing!r} != {ref!r}"
+                )
+            seen[digest] = ref
+            entries.append({"establishment_digest": digest, "company_ref": ref})
+    entries.sort(key=lambda e: e["establishment_digest"])
+    payload: dict[str, Any] = {
+        "schema": IDENTITY_PROJECTION_SCHEMA,
+        "snapshot_id": snapshot_id,
+        "sealed_to_manifest_hash": manifest_hash,
+        "entries": entries,
+    }
+    payload["sealed_hash"] = live_hash(payload)
+    return payload
 
 
 def export_bundle(
@@ -618,6 +676,16 @@ def export_bundle(
 
     manifest: dict[str, Any] = bundle["manifest"]
     (root / MANIFEST_FILE).write_text(canonical_json(manifest) + "\n", encoding="utf-8")
+
+    # Projecao de identidade: FORA da arvore publica `out_dir` por construcao
+    # (`.private` e irma, nao filha, de `out_dir`) — nenhum servidor estatico
+    # apontado para `out_dir` pode servi-la por acidente. AC8: company_ref
+    # nunca em payload publico, URL publica ou log compartilhado.
+    private_root = root.parent / f"{root.name}.private"
+    private_root.mkdir(parents=True, exist_ok=True)
+    (private_root / IDENTITY_PROJECTION_FILE).write_text(
+        canonical_json(bundle["identity_projection"]) + "\n", encoding="utf-8"
+    )
     return manifest
 
 
