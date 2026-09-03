@@ -359,6 +359,14 @@ def test_rollback_removes_every_object_and_reapply_is_clean(live_conn) -> None:
     finally:
         for path in MIGRATIONS:
             _run_sql_file(live_conn, path)
+        # 104's rollback drops confenge_live_intelligence_events entirely, and
+        # reapplying 104 alone recreates it WITHOUT any later additive
+        # migration's columns (106's delivery_status/delivery_attempts/etc.).
+        # This test's own assertions never reference 106, but leaving the
+        # shared DB missing those columns breaks every other test that runs
+        # afterward in the same session. Out of this test's own scope
+        # (grants/ACL, unaffected by 106) but necessary teardown hygiene.
+        _run_sql_file(live_conn, REPO_ROOT / "db" / "migrations" / "106_confenge_live_intelligence_event_delivery.sql")
 
     restored = _catalog_snapshot(live_conn)
     assert ENGINE_ROLE in restored["roles"], "reaplicacao da 104 falhou em recriar o role"

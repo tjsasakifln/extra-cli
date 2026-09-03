@@ -17,13 +17,20 @@ import json
 import os
 import threading
 import time
+from datetime import UTC, date, datetime
+from decimal import Decimal
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from typing import Any
 
 import pytest
 
+from scripts.confenge_live_intelligence import schema as li_schema
 from scripts.confenge_live_intelligence import warmbly_delivery as wd
+from scripts.confenge_live_intelligence.producer import build_snapshot
 from scripts.confenge_live_intelligence.schema import assert_write_target
 from scripts.confenge_live_intelligence.warmbly_delivery import EVENTS_TABLE
+
+from .conftest import seed_bid
 
 REQUIRE_REAL_DB = os.environ.get("REQUIRE_REAL_DB") == "1"
 
@@ -80,7 +87,12 @@ class _FakeWarmblyHandler(BaseHTTPRequestHandler):
         assert envelope["subject_key"]
         assert envelope["org_id"]
         assert envelope["payload"], "payload vazio deveria ter sido recusado no cliente"
-        self._FakeWarmblyHandler__class__.received.append(envelope)  # type: ignore[attr-defined]
+        # Nenhuma chave/valor do payload humano pode ser o nome cru da coluna
+        # SQL (evt_id, objeto, valor_band, orgao_nome, ...) — essa e exatamente
+        # a regressao de row-shape que este teste existe para pegar.
+        _RAW_COLUMN_NAMES = {"objeto", "valor_band", "orgao_nome", "event_id", "event_type"}
+        assert not (set(envelope["payload"].values()) & _RAW_COLUMN_NAMES), envelope["payload"]
+        _FakeWarmblyHandler.received.append(envelope)
         replay = envelope["event_id"] in _FakeWarmblyHandler.seen_event_ids
         _FakeWarmblyHandler.seen_event_ids.add(envelope["event_id"])
         self.send_response(200 if replay else 201)
@@ -112,6 +124,34 @@ def test_sign_request_matches_warmbly_verification():
     assert v1 == expected
 
 
+class _FakeCursor:
+    """Cursor minimo com `.description` real, para exercitar o ramo tuple
+    de `_row_to_dict` sem depender de Postgres."""
+
+    def __init__(self, columns: list[str]) -> None:
+        self.description = [(c,) for c in columns]
+
+
+def test_row_to_dict_accepts_tuple_cursor_by_position():
+    cur = _FakeCursor(["event_id", "event_type"])
+    row = ("evt-abc123", "NEW_OPPORTUNITY")
+    result = wd._row_to_dict(row, cur)
+    assert result == {"event_id": "evt-abc123", "event_type": "NEW_OPPORTUNITY"}
+    assert result["event_id"] != "event_id"
+    assert result["event_type"] != "event_type"
+
+
+def test_row_to_dict_accepts_mapping_by_name_not_position():
+    """RealDictRow (ou qualquer Mapping) nunca deve ser tratado como tuple —
+    esta e exatamente a regressao que fez event_id virar a string 'event_id'."""
+    cur = _FakeCursor(["something_else", "another_col"])  # descricao IRRELEVANTE p/ Mapping
+    row = {"event_id": "evt-real-456", "event_type": "OPPORTUNITY_CHANGED"}
+    result = wd._row_to_dict(row, cur)
+    assert result == {"event_id": "evt-real-456", "event_type": "OPPORTUNITY_CHANGED"}
+    assert result["event_id"] != "event_id"
+    assert result["event_type"] != "event_type"
+
+
 def test_load_config_from_env_fail_closed_on_missing():
     with pytest.raises(wd.WarmblyDeliveryError):
         wd.load_config_from_env({})
@@ -129,6 +169,47 @@ def test_load_config_from_env_ok():
     assert cfg.org_id == ORG_ID
 
 
+def _seed_opportunity(suffix: str, **overrides) -> li_schema.LiveOpportunity:
+    base = dict(
+        opportunity_id=f"LI-TEST-WD-{suffix}",
+        source="pncp",
+        source_as_of=datetime.now(tz=UTC),
+        objeto="Reforma de unidade basica de saude com estrutura metalica",
+        objeto_state=li_schema.OBSERVED,
+        valor_estimado_brl=Decimal("250000.00"),
+        valor_state=li_schema.OBSERVED,
+        valor_band="100K_1M",
+        modalidade="Pregao",
+        modalidade_id="6",
+        modalidade_state=li_schema.OBSERVED,
+        uf="SC",
+        municipio="Florianopolis",
+        geo_state=li_schema.OBSERVED,
+        orgao_cnpj="12345678000199",
+        orgao_nome="Prefeitura Sintetica LI-TEST",
+        orgao_state=li_schema.OBSERVED,
+        data_publicacao=date.today(),
+        data_encerramento=None,
+        deadline_state=li_schema.DEADLINE_OPEN,
+    )
+    base.update(overrides)
+    return li_schema.LiveOpportunity(**base)
+
+
+def _seed_pending_event(conn: Any, *, suffix: str) -> None:
+    """Semeia 1 evento real pending, pelo caminho de producao (build_snapshot),
+    nunca por INSERT a mao — o mesmo caminho que P2 entrega de verdade."""
+    seed_bid(conn, suffix=suffix)
+    build_snapshot(
+        conn,
+        as_of=date.today(),
+        created_by=f"LI-TEST-warmbly-delivery-{suffix}",
+        opportunities=[_seed_opportunity(suffix)],
+        companies=[],
+    )
+
+
+@pytest.mark.real_db
 @pytest.mark.skipif(not REQUIRE_REAL_DB, reason="requer REQUIRE_REAL_DB=1 e Postgres real")
 def test_deliver_pending_events_is_idempotent_on_replay(fake_warmbly, live_conn):
     """Entrega os eventos pending reais 2x seguidas (replay). Prova:
@@ -140,14 +221,15 @@ def test_deliver_pending_events_is_idempotent_on_replay(fake_warmbly, live_conn)
     """
     conn = live_conn
     config = wd.DeliveryConfig(webhook_url=fake_warmbly, hmac_secret=SECRET, org_id=ORG_ID)
+    _seed_pending_event(conn, suffix="replay")
 
     with conn.cursor() as cur:
         cur.execute(
-            f"SELECT count(*) FROM public.{assert_write_target(EVENTS_TABLE)} "
+            f"SELECT count(*) AS n FROM public.{assert_write_target(EVENTS_TABLE)} "
             "WHERE delivery_status IN ('pending','failed')"
         )
-        pending_before = cur.fetchone()[0]
-    assert pending_before > 0, "fixture do scratch precisa ter eventos pending reais"
+        pending_before = cur.fetchone()["n"]
+    assert pending_before > 0, "seed via build_snapshot precisa ter gerado evento pending real"
 
     first_pass = wd.deliver_pending_events(conn, config, limit=5)
     assert first_pass, "deveria ter entregue pelo menos 1 evento"
@@ -162,8 +244,8 @@ def test_deliver_pending_events_is_idempotent_on_replay(fake_warmbly, live_conn)
             (delivered_event_ids,),
         )
         rows = cur.fetchall()
-    assert all(status == "delivered" for status, _attempts in rows)
-    assert all(attempts == 1 for _status, attempts in rows)
+    assert all(row["delivery_status"] == "delivered" for row in rows)
+    assert all(row["delivery_attempts"] == 1 for row in rows)
 
     # Simula retry apos falha transitoria: reenvia o MESMO envelope manualmente
     # (sem passar por deliver_pending_events, que so pega pending/failed) e
@@ -176,8 +258,7 @@ def test_deliver_pending_events_is_idempotent_on_replay(fake_warmbly, live_conn)
                 f"FROM public.{assert_write_target(EVENTS_TABLE)} WHERE event_id = %s",
                 (event_id,),
             )
-            columns = [d[0] for d in cur.description]
-            row = dict(zip(columns, cur.fetchone(), strict=True))
+            row = dict(cur.fetchone())
         payload = wd._build_human_payload(conn, row["subject_key"])
         envelope = wd.build_envelope(row, payload, org_id=config.org_id)
         body = json.dumps(envelope, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -193,13 +274,15 @@ def test_deliver_pending_events_is_idempotent_on_replay(fake_warmbly, live_conn)
             "WHERE event_id = ANY(%s)",
             (delivered_event_ids,),
         )
-        statuses = [r[0] for r in cur.fetchall()]
+        statuses = [row["delivery_status"] for row in cur.fetchall()]
     assert all(s == "delivered" for s in statuses)
 
 
+@pytest.mark.real_db
 @pytest.mark.skipif(not REQUIRE_REAL_DB, reason="requer REQUIRE_REAL_DB=1 e Postgres real")
 def test_deliver_pending_events_marks_failed_on_network_error(live_conn):
     conn = live_conn
+    _seed_pending_event(conn, suffix="network-error")
     unreachable = wd.DeliveryConfig(
         webhook_url="http://127.0.0.1:1", hmac_secret=SECRET, org_id=ORG_ID
     )
@@ -212,6 +295,6 @@ def test_deliver_pending_events_marks_failed_on_network_error(live_conn):
             "WHERE event_id = %s",
             (results[0].event_id,),
         )
-        status, error = cur.fetchone()
-    assert status == "failed"
-    assert error and "network_error" in error
+        row = dict(cur.fetchone())
+    assert row["delivery_status"] == "failed"
+    assert row["last_delivery_error"] and "network_error" in row["last_delivery_error"]

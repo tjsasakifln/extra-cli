@@ -24,6 +24,7 @@ import json
 import time
 import urllib.error
 import urllib.request
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any
@@ -70,6 +71,21 @@ def load_config_from_env(env: dict[str, str]) -> DeliveryConfig:
     return DeliveryConfig(webhook_url=url, hmac_secret=secret, org_id=org_id)
 
 
+def _row_to_dict(row: Any, cur: Any) -> dict[str, Any]:
+    """Normaliza uma linha de cursor para dict, por NOME de coluna.
+
+    ``conn.cursor()`` pode devolver ``RealDictRow`` (ja um Mapping) ou uma
+    tuple posicional, dependendo de como o chamador abriu a conexao — este
+    modulo nao controla isso. Mesma convencao defensiva ja usada em
+    ``producer.py``/``events.py``/``export.py`` neste pacote: nunca depende
+    da ORDEM do SELECT para logica semantica, so do nome da coluna.
+    """
+    if isinstance(row, Mapping):
+        return dict(row)
+    columns = [d[0] for d in cur.description]
+    return dict(zip(columns, row, strict=True))
+
+
 def _fetch_pending_events(conn: Any, *, limit: int) -> list[dict[str, Any]]:
     with conn.cursor() as cur:
         cur.execute(
@@ -83,8 +99,7 @@ def _fetch_pending_events(conn: Any, *, limit: int) -> list[dict[str, Any]]:
             """,  # noqa: S608
             (limit,),
         )
-        columns = [d[0] for d in cur.description]
-        return [dict(zip(columns, row, strict=True)) for row in cur.fetchall()]
+        return [_row_to_dict(row, cur) for row in cur.fetchall()]
 
 
 def _opportunity_payload(conn: Any, opportunity_id: str) -> dict[str, str]:
@@ -103,23 +118,23 @@ def _opportunity_payload(conn: Any, opportunity_id: str) -> dict[str, str]:
             """,
             (opportunity_id,),
         )
-        row = cur.fetchone()
-    if row is None:
-        return {"opportunity_id": opportunity_id}
-    objeto, valor_band, orgao_nome, data_encerramento, uf, municipio = row
+        raw_row = cur.fetchone()
+        if raw_row is None:
+            return {"opportunity_id": opportunity_id}
+        row = _row_to_dict(raw_row, cur)
     payload = {"opportunity_id": opportunity_id}
-    if objeto:
-        payload["objeto"] = str(objeto)
-    if valor_band:
-        payload["valor_faixa"] = str(valor_band)
-    if orgao_nome:
-        payload["orgao"] = str(orgao_nome)
-    if data_encerramento:
-        payload["prazo"] = str(data_encerramento)
-    if uf:
-        payload["uf"] = str(uf)
-    if municipio:
-        payload["municipio"] = str(municipio)
+    if row.get("objeto"):
+        payload["objeto"] = str(row["objeto"])
+    if row.get("valor_band"):
+        payload["valor_faixa"] = str(row["valor_band"])
+    if row.get("orgao_nome"):
+        payload["orgao"] = str(row["orgao_nome"])
+    if row.get("data_encerramento"):
+        payload["prazo"] = str(row["data_encerramento"])
+    if row.get("uf"):
+        payload["uf"] = str(row["uf"])
+    if row.get("municipio"):
+        payload["municipio"] = str(row["municipio"])
     return payload
 
 
