@@ -52,7 +52,7 @@ Implementa os incrementos **LI-1 a LI-6** do `impact-analysis.md` (§5), mais o 
 
 ## Escopo OUT (não faz parte desta story — fica para story 2)
 
-- **LI-7 — Eventos idempotentes** (os 5 tipos: `NEW_OPPORTUNITY`, `OPPORTUNITY_CHANGED`, `DEADLINE_CHANGED`, `FIT_BECAME_RELEVANT`, `COMPANY_PORTFOLIO_CHANGED`), incluindo `confenge_live_intelligence_events` como tabela **populada** (a tabela pode nascer vazia na migration 104, mas nenhum código desta story escreve nela).
+- **LI-7 — Eventos idempotentes** (os 5 tipos: `NEW_OPPORTUNITY`, `OPPORTUNITY_CHANGED`, `DEADLINE_CHANGED`, `FIT_BECAME_RELEVANT`, `COMPANY_PORTFOLIO_CHANGED`), incluindo `confenge_live_intelligence_events` como tabela **populada** (a tabela pode nascer vazia na migration 104, e **nenhuma linha é INSERIDA nela por código desta story**). **Precisão do @po no fechamento (v1.15, MNT-004):** a redação anterior — "nenhum código desta story escreve nela" — era **literalmente falsa**. `WRITE_TARGET_ORDER` (`schema.py:45-52`) tem `confenge_live_intelligence_events` como **primeiro** elemento e `_persist` (`producer.py:508-512`) emite `DELETE` sobre ela em **todo** build, inclusive nos `BLOCKED`; `DELETE` é DML. O que a story entrega e o que o Escopo OUT quer dizer é a **ausência de INSERT**: medido pelo @qa ao longo de 5 builds, a tabela permaneceu em **0 linhas**. O `DELETE` é no-op semântico contra tabela vazia, incide sobre tabela **do próprio motor** (não outbound) e o alvo é preso por `assert_write_target()` (AR-2).
 - **LI-8 completo** — CLI `replay` e `explain-fit`.
 - Qualquer integração com `message_spine.py` ou personalização de outbound.
 - Qualquer trigger/poll worker de produção (cron, systemd unit) para rodar o producer periodicamente — esta story entrega o motor invocável via CLI/teste, não a operacionalização contínua.
@@ -389,15 +389,24 @@ Cada marcador é produzido por um teste/verificação específica:
 - [x] Migration 104 revisada e aprovada por @data-engineer (autoridade exclusiva sobre schema/DDL) — a remoção da §9 e a reescrita da seção 3 do rollback **são** essa revisão; ADR-040 Achados 1 e 2 marcados como ratificados.
 - [x] Decisões do AC12 registradas em ADR-040 (`reason_codes` = TEXT[]; role `confenge_live_intel_reader` novo, dropado no rollback; limitação de replay as-of; ausência intencional de kill switch).
 - [x] Rollback testado: ciclo `104 aplicada → rollback → catálogo sem resíduo → 104 reaplicada` em `test_rollback_removes_every_object_and_reapply_is_clean` (12 passed no arquivo).
-- [ ] Veredito de QA independente (@qa ≠ @dev). — **não é do @dev**
-- [ ] PO fecha a story conforme protocolo (§7 do `aiox-project-operating-protocol.md`). — **não é do @dev**
-- [x] Nenhuma dívida nova introduzida sem registro em follow-up com owner e severidade — TD-LI-1 absorvido pelo follow-up bloqueante; TD-LI-2 e TD-LI-3 RESOLVIDOS nesta rodada; TD-LI-4 e TD-LI-5 permanecem registrados com owner e severidade.
+- [x] Veredito de QA independente (@qa ≠ @dev). — **ATENDIDO:** gate **CONCERNS** (@qa Quinn, 2026-09-03, QA Loop iteração 2/5), após um FAIL (v1.12) e uma rodada de correção (v1.13) com re-verificação por **execução própria** do @qa. — **não é do @dev**
+- [x] PO fecha a story conforme protocolo (§7 do `aiox-project-operating-protocol.md`). — **ATENDIDO (v1.15):** ver §Fechamento do @po. — **não é do @dev**
+- [x] Nenhuma dívida nova introduzida sem registro em follow-up com owner e severidade. **ENUMERAÇÃO ATUALIZADA NO FECHAMENTO (@po v1.15, DOC-001) — a anterior parava em TD-LI-5 e estava obsoleta em duas revisões.** Estado real, item a item: **TD-LI-1** absorvido pelo follow-up bloqueante; **TD-LI-2**, **TD-LI-3** e **TD-LI-7** RESOLVIDOS; **TD-LI-4** e **TD-LI-5** registrados com owner e severidade; **TD-LI-6** (= REL-003) rulado dívida aceitável (RULING-LI-03) e absorvido pelo follow-up; **AR-3**, **AR-4**, **REL-004** e **REL-005** registrados nesta story **e** no `absorbs` do follow-up; os demais achados do gate de QA (SEC-001..004, TEST-002..005, ARCH-001, REQ-001, DOC-001..003, MNT-001..007, PUB-001..002) inventariados com id, severidade e owner em §"Registro durável dos achados do gate HIGH-RISK e do gate de QA" — **necessário porque o gate file é gitignored** (PUB-002).
 
 ## Plano de Rollback
 
 Um único arquivo, um único comando: `psql "$LOCAL_DATALAKE_DSN" -f db/rollback/104_confenge_live_intelligence_v1_rollback.sql`.
 
-O rollback deve, em ordem (FKs antes de tabelas referenciadas, funções antes de nada que dependa delas):
+> **CORRIGIDO PELO @po NO FECHAMENTO (v1.15, DOC-002 — autoridade exclusiva sobre texto normativo).**
+> O texto anterior desta seção era a **quarta localização estale** herdada da remoção da §9 da 104: mandava emitir
+> `ALTER DEFAULT PRIVILEGES ... GRANT SELECT ON TABLES TO <...>` como "inverso exato do que a 104 executou" e deixava
+> **em aberto** a pergunta sobre o destino do role. **O artefato entregue contradiz os dois.** As três localizações
+> corrigidas em RULING-LI-03 (v1.8) não incluíram esta, e `state.rollback_plan` já estava **correto** — as duas fontes
+> de verdade divergiam. Esta correção elimina a divergência **descrevendo o artefato entregue**, não reescrevendo o
+> artefato. Nenhum arquivo SQL foi tocado no fechamento.
+
+O rollback entregue (`db/rollback/104_confenge_live_intelligence_v1_rollback.sql`) faz, em ordem (FKs antes de tabelas referenciadas, função antes de nada que dependa dela):
+
 ```sql
 BEGIN;
 DROP FUNCTION IF EXISTS public.live_open_opportunities_as_of(DATE);
@@ -407,22 +416,33 @@ DROP TABLE IF EXISTS public.confenge_live_intelligence_companies;
 DROP TABLE IF EXISTS public.confenge_live_intelligence_opportunities;
 DROP TABLE IF EXISTS public.confenge_live_intelligence_source_watermarks;
 DROP TABLE IF EXISTS public.confenge_live_intelligence_snapshots;
--- + qualquer função/trigger de imutabilidade criada exclusivamente para essas tabelas
+-- + os triggers/funções de imutabilidade criados exclusivamente para essas tabelas
 
--- ★ OBRIGATÓRIO: DROP TABLE NÃO reverte ALTER DEFAULT PRIVILEGES nem remove o role.
--- Ambos são entradas de catálogo (pg_default_acl / pg_roles) que sobrevivem ao drop
--- das tabelas. Sem estas linhas, o rollback deixa resíduo e a 104 não é reaplicável
--- de forma limpa.
-ALTER DEFAULT PRIVILEGES FOR ROLE <owner-do-104> IN SCHEMA public
-    GRANT SELECT ON TABLES TO <...>;  -- inverso exato do que a 104 executou
--- Decisão do @dev/@data-engineer, a registrar no ADR do AC12: o role
--- confenge_live_intel_reader é DROPADO no rollback (DROP OWNED BY + DROP ROLE)
--- ou RETIDO como no-op inerte? Retê-lo é aceitável apenas se ele ficar sem
--- nenhum grant após o rollback — o que deve ser provado por teste.
+-- SEÇÃO 3 — ALTER DEFAULT PRIVILEGES: DELIBERADAMENTE VAZIA, NÃO ESQUECIDA.
+-- A §9 da 104 foi REMOVIDA pelo @data-engineer (TD-LI-2) após ser medida INERTE no PG16.
+-- A migration entregue tem ZERO `ALTER DEFAULT PRIVILEGES` executável (verificado por
+-- statement, via parser real de apply_migrations — substring daria falso positivo:
+-- o arquivo cita o termo 7 vezes em comentários explicando a remoção).
+-- Não há entrada em pg_default_acl criada pela 104, logo não há o que reverter.
+-- A barreira de leitura é feita pelos 14 REVOKE explícitos por objeto.
+-- Condição de retorno desta seção: se uma migration futura reintroduzir a §9,
+-- test_future_migration_under_a_different_role_is_not_affected é a guarda de regressão.
+
+-- SEÇÃO 4 — ROLE: a pergunta NÃO está em aberto. Decisão registrada em ADR-040 (AC12):
+-- confenge_live_intel_reader é DROPADO no rollback (DROP OWNED BY + DROP ROLE),
+-- não retido como no-op inerte.
 COMMIT;
 ```
 
-**Critério de aceite do rollback (verificável, não prosa):** após rodar o script em banco limpo com a 104 aplicada, uma consulta a `pg_default_acl` não retorna nenhuma entrada criada pela 104, e `\dp` sobre o schema `public` mostra o mesmo conjunto de grants que existia antes da 104. Reaplicar a 104 depois do rollback deve funcionar sem erro (idempotência do par migration/rollback).
+**Critério de aceite do rollback (o que o teste entregue realmente prova, não prosa).**
+`test_migration_grants_and_rollback.py::test_rollback_removes_every_object_and_reapply_is_clean` (12 passed no arquivo) prova o ciclo `104 aplicada → rollback → 104 reaplicada` e assere:
+
+1. **Nenhum objeto da 104 sobrevive** ao rollback (6 tabelas + a função + os triggers de imutabilidade ausentes de `pg_class`/`pg_proc`).
+2. **`pg_default_acl` sem nenhuma entrada** criada pela 104 — retido como **guarda de regressão** do retorno da §9, não como reversão de algo que a 104 tenha criado.
+3. **O role `confenge_live_intel_reader` é removido** (`pg_roles` sem a entrada).
+4. **A 104 é reaplicável sem erro** após o rollback, com catálogo idêntico (idempotência do par migration/rollback).
+
+**Limite declarado desta evidência (AR-3, dívida ABERTA, owner @dev — ver §Dívida técnica).** O texto anterior desta seção afirmava que `\dp` sobre `public` mostra *"o mesmo conjunto de grants que existia **antes** da 104"*. **Isso não é o que o teste prova.** `test_migration_grants_and_rollback.py:292` captura `before_rollback` com a **104 já aplicada**; não existe baseline **pré-104** capturado em lugar nenhum. O que está provado é *"o rollback remove o que a 104 acrescentou e a reaplicação é limpa"* — asserção **relativa ao estado pós-104**, não à ausência de resíduo contra um mundo pré-104. Fechar essa lacuna é exatamente **AR-3** (baseline pré-104), ação **não bloqueante** do gate HIGH-RISK do @architect, que permanece aberta como dívida HIGH. A afirmação forte fica **retirada do texto normativo** em vez de continuar selada sem evidência.
 
 Nenhuma tabela ou view outbound é tocada pelo rollback — por construção, o rollback só referencia objetos criados por esta story. Sem impacto no pipeline outbound antes, durante ou depois do rollback.
 
@@ -717,6 +737,50 @@ sobre o conteúdo persistido e é a prova independente disso.
 | TD-LI-7 | **RESOLVIDO na v1.11 (@dev).** Correção: `today_utc()` → `today_cutoff_tz()` em `conftest.py`, derivando de `ZoneInfo(CUTOFF_TIMEZONE)` com `CUTOFF_TIMEZONE` **importado por nome** de `scripts.confenge_live_intelligence.schema` — a mesma constante que `pin_session_timezone()` usa e que `policy_hash()` sela; zero segundo literal de fuso no fixture. 5 call sites atualizados. `scripts/confenge_live_intelligence/**` não tocado. Guarda determinística nova (`test_fixture_civil_date_matches_the_engine_timezone`) torna a prova independente da hora do relógio. Re-medição **dentro da janela de manifestação** (`current_date`=2026-09-03 vs SP=2026-09-02): `1 failed / 121 passed` — a falha de TD-LI-7 desapareceu, resta apenas TD-LI-6. 3 testes de AR-1 verdes isolados. Controle negativo (derivação UTC reintroduzida em memória) reproduz `2 failed`, provando que o verde é atribuível à correção. Ver §"TD-LI-7 — correção e re-medição (v1.11)". **Histórico do item abaixo, para auditoria.** ACHADO na v1.9. RULADO NA v1.10: CORRIGIR NESTA STORY, escopo autorizado (RULING-LI-04) — NÃO é dívida aceitável. `test_as_of_recovers_row_excluded_by_the_view` (`test_sources_as_of.py:33`) falha por **fronteira de fuso no fixture**, não por poluição de banco e não por defeito do motor. `today_utc()` (`conftest.py:136`) devolve a data em **UTC**, mas `live_open_opportunities_as_of()` resolve a data civil em **`America/Sao_Paulo`** (`pin_session_timezone`, AC5) — de propósito e corretamente. Entre ~21:00 e 00:00 UTC as duas datas divergem em 1 dia: medido em 2026-09-03 00:24 UTC → `current_date`=2026-09-03 e `(now() AT TIME ZONE 'America/Sao_Paulo')::date`=2026-09-02. Janela de ~3h/dia ⇒ verde nas execuções anteriores. **CORREÇÃO DO @po ao texto original:** (a) a alegação "cobertura de AC4 não fica descoberta porque `test_as_of_current_date_equals_canonical_view` continua provando a generalização estrita" **está superestimada** — esse teste **também** chama `today_utc()` (`:52`), assim como `test_session_timezone_is_pinned_before_reading` (`:60`); ele sobrevive à janela por sorte da distribuição do seed (`+30d`/`−10d` longe da fronteira), **não** por imunidade, logo a cobertura de AC4 não é independente do defeito; (b) `today_utc()` é chamada em `test_no_outbound_write_runtime.py:128` e `:183`, isto é, **dentro da única evidência de AR-1**, ação BLOQUEANTE do gate HIGH-RISK — o defeito contamina a prova do gate, não apenas um teste de leitura. Por (a)+(b) e pela ausência de identidade de causa raiz com RULING-LI-03 (aqui não falta insumo externo algum), o item **não** se classifica como dívida. Correção exigida: a data civil do teste deve derivar da **mesma fonte de fuso que o motor fixa**, sem segundo literal de `ZoneInfo` no fixture; `scripts/confenge_live_intelligence/**` não deve ser tocado; re-medição obrigatória da suíte do motor | @dev (correção, escopo autorizado v1.10) / @qa (classificação) | **HIGH** (era MEDIUM; elevado por contaminar a evidência de AR-1) |
 
 Nenhum `TODO`/`FIXME` foi deixado no código.
+
+#### Registro durável dos achados do gate HIGH-RISK e do gate de QA (@po, fechamento v1.15 — DOC-001 + PUB-002)
+
+> **POR QUE ESTA TABELA EXISTE.** O @qa descobriu, ao verificar uma afirmação própria, que `docs/qa/gates/` está em
+> `.gitignore:58` e que o `git log` do gate file é **vazio** — o gate é **sobrescrito a cada iteração do QA Loop, sem
+> histórico recuperável** (PUB-002). Logo **o gate file não é registro durável de dívida; esta story é.** O @po ratifica
+> a política de não versionar o gate (ver RULING-LI-06) **exatamente porque** transcreve aqui, em artefato versionado,
+> o inventário completo dos **27 achados** com id, severidade e owner. **Aritmética, porque esta tabela é o substituto
+> durável de um artefato gitignored e será auditada contra o gate:** o gate file carrega **28 ids distintos**; **3**
+> deles — `REL-001`, `REL-002` e `TEST-001` — são os bloqueadores do FAIL da v1.12, **RESOLVIDOS** na v1.13 e
+> re-verificados por execução própria do @qa na v1.14, e por isso **não** entram como dívida aberta; restam **25**,
+> mais **AR-3** e **AR-4** (dívida HIGH do gate do @architect, que não tinham linha própria em lugar nenhum) = **27**.
+> Os textos integrais medidos permanecem no gate file
+> local (`concerns_carried_forward.items`, com `qa_disposition_v2` por item) enquanto ele existir.
+
+| ID | Severidade | Item | Owner | Portador |
+|---|---|---|---|---|
+| **AR-3** | **HIGH** | Evidência de rollback sem **baseline pré-104**: o teste captura `before_rollback` com a 104 **já aplicada** (`test_migration_grants_and_rollback.py:292`), logo prova "remove o que a 104 acrescentou", não "não sobra resíduo contra o mundo pré-104". Ação **não bloqueante** do gate HIGH-RISK do @architect (ADR-040), explicitamente deixada aberta como dívida no fechamento daquele gate | @dev | follow-up `outbound-equivalence-gate` (`absorbs`) |
+| **AR-4** | **HIGH** | Hardening do regex `MUTATING` em `tests/test_live_intelligence_outbound_equivalence.py:54` — cobre 5 formas verbais e deixa de fora `DROP CONSTRAINT` (32 ocorrências no repo), `DROP TRIGGER` (31), `DROP FUNCTION` (21), `DROP INDEX` (8), `DROP MATERIALIZED VIEW`. Confirmado **não implementado** pelo @architect no fechamento do gate. Idêntico a **TEST-003** do gate de QA | @dev | follow-up `outbound-equivalence-gate` (`absorbs`) |
+| **REL-004** | **medium** | `SNAPSHOT_SUPERSEDED` existe na lista fechada de estados, na transição documentada da 104 (`:136`), em `superseded_at` e no CHECK — **sem emissor e sem teste**. Com o watermark **movido** por um crawl, dois `READY_CANONICAL` do mesmo `as_of_date` **coexistem** com `superseded_at=NULL` e sem desempate (medido pelo @qa; a 104 não tem `UNIQUE`/`EXCLUDE` sobre estado). Classe **PROVA**, não comportamento — por isso CONCERNS e não FAIL | @architect (adjudicação da máquina de estados) → @dev (implementação) | follow-up `outbound-equivalence-gate` (`absorbs`) + adjudicação ao @architect |
+| **REL-005** | **low** | Nota de escopo, para que "replayable" não seja sobre-lido a jusante: a propriedade provada é **mesmos dados de entrada + mesmo `as_of` ⇒ mesmo `snapshot_id`**; **não** é estabilidade do `snapshot_id` por `as_of` entre crawls. `source_as_of` é o watermark **global** de `pncp_raw_bids`, logo o `UPDATE` de **uma** linha qualquer — inclusive de um edital que o filtro as-of descarta — muda o `source_as_of` de todas as linhas projetadas | @architect | follow-up `outbound-equivalence-gate` (`absorbs`) |
+| SEC-001 | **high** | AC10 vende "whitelist, não blacklist", mas `OPPORTUNITY/COMPANY/FIT_PAYLOAD_KEYS` derivam de `frozenset(f.name for f in fields(...))` e `_as_payload` compara `asdict(obj)` contra o **mesmo** conjunto — `extra` é provadamente sempre vazio. A whitelist **auto-expande**. **CONCERNS porque o risco é drift futuro e o texto literal do AC10 está atendido — MAS VOLTA COMO BLOQUEADOR se um campo novo entrar em qualquer dataclass do motor** (condição escrita pelo @qa e ratificada aqui) | @dev | esta tabela + gate de QA |
+| SEC-002 | medium | A asserção AC10 do verifier é **inalcançável no caminho executado**: `verify_snapshot` faz `SELECT *` mas entrega a `assert_no_undeclared_keys` o `obj.as_payload()` reconstruído campo-a-campo por `_rebuild_*`; colunas extras da linha são descartadas **antes** da checagem | @dev | esta tabela |
+| SEC-003 | low | Os 4 `ALTER ROLE ... SET` (`statement_timeout`, `lock_timeout`, `idle_in_transaction_session_timeout`, `default_transaction_read_only`) são **inertes**: o role é `NOLOGIN` e GUCs de `pg_db_role_setting` não são reaplicados por `SET ROLE`. Medido: após `SET ROLE`, `statement_timeout='0'` e `default_transaction_read_only='off'` | @data-engineer | esta tabela |
+| SEC-004 | low | `GRANT EXECUTE` de `live_open_opportunities_as_of` para `confenge_live_intel_reader` é incoerente com o grant-set: a função é `SECURITY INVOKER` e lê `pncp_raw_bids`/`sc_public_entities`, sobre as quais o role tem zero privilégio por desenho. Medido sob `SET ROLE`: **DENIED** | @data-engineer | esta tabela |
+| TEST-002 | medium | AC1 (P0) protege os **padrões** `opportunity_intel*` e `canonical_snapshot_*`, mas `PROTECTED_OBJECTS` colapsa-os em literais e as asserções usam `\b`, que não casa antes de `_`. Medido: existem 5 tabelas `canonical_snapshot%`; **3** (`documents`, `event_revisions`, `invalidations`) ficam **fora** da proteção e são objetos reais | @dev | esta tabela |
+| TEST-003 | medium | **= AR-4.** Regex `MUTATING` cobre 5 formas verbais das 3 famílias que o AC1 exige sem restringir o substantivo; famílias `DROP CONSTRAINT`/`DROP TRIGGER`/`DROP FUNCTION`/`DROP INDEX`/`DROP MATERIALIZED VIEW` usadas pelo próprio repo não são cobertas | @dev | esta tabela + follow-up (como AR-4) |
+| TEST-004 | medium | **RESOLVIDO na v1.13/v1.14.** "Regressão dirigida: 391 passed / 34 skipped" havia sido medida **sem** `REQUIRE_REAL_DB=1`. Re-medido **com** o prefixo por @dev e re-executado por @qa: `2 failed / 540 passed / 8 skipped`, ambas as falhas já caracterizadas (volume de `sc_public_entities`, alheio à 104; e TD-LI-6) | @dev | RESOLVIDO |
+| TEST-005 | medium | AC8, 3ª cláusula, enumera lista **fechada** de 6 condições de bloqueio; o producer emite **3** (`EMPTY_CONTRACT_ID`, `AS_OF_MISSING`, `WATERMARK_MISSING`). `BLOCKER_HASH_DIVERGENCE` só aparece injetado por `extra_blockers`, cujo único chamador no repo é o próprio teste. Mesma classe de REL-004: estado declarado sem emissor vivo | @dev (implementação) / @po (se a emenda de AC for o caminho) | esta tabela |
+| ARCH-001 | medium | `_apply_row_exclusions` exclui uma OPPORTUNITY se **qualquer** fit contra **qualquer** empresa ativa tiver `UNKNOWN` em dimensão REQUERIDA; mas `dim_object`/`dim_geography` resolvem `UNKNOWN` pelo lado **EMPRESA**. Repro: **uma única** empresa com `observed_ufs=()` zera 100% do universo consumível mantendo `PARTIAL` selado. **§7.2 e §4.1 do impact-analysis divergem** quanto ao predicado ser da linha da oportunidade — adjudicar spec é autoridade do @architect | @architect (adjudicação) → @dev | adjudicação ao @architect |
+| REQ-001 | medium | §7.2 do impact-analysis exige que `excluded_opportunity_count`/`excluded_company_count` **entrem no `universe_hash`**; `universe_hash_of` hasheia apenas `as_of_date`, `cutoff_timezone`, `schema_version`, `opportunity_ids`, `company_roots`. Ou o código passa a incluí-los, ou §7.2 e a linha de ADR-040 sobre R5 são **emendadas** | @architect (decisão) / @dev (execução) | adjudicação ao @architect |
+| REL-003 | medium | **= TD-LI-6.** `test_blocked_when_watermark_is_missing` falha de forma determinística no DSN documentado porque `fetch_source_watermark` faz `MAX(updated_at)` sobre `pncp_raw_bids` **inteira**. Rulado dívida aceitável por **RULING-LI-03** (identidade de causa raiz com RULING-LI-02: mesmo insumo, 2º DSN descartável, mesmo owner) | @devops (2º DSN) / @dev (injeção do watermark) | follow-up `outbound-equivalence-gate` (`absorbs`, já listado) |
+| DOC-001 | medium | **RESOLVIDO por este fechamento (v1.15).** Dívida aberta sem portador durável (AR-3, AR-4, REL-004, REL-005) e enumeração obsoleta do checkbox de DoD. Ver esta tabela + `absorbs` do follow-up + DoD atualizado | @po | RESOLVIDO |
+| DOC-002 | medium | **RESOLVIDO por este fechamento (v1.15).** §Plano de Rollback reescrita para descrever o artefato entregue; linha do critério de aceite reescrita para o que o teste realmente prova, com o gap de baseline pré-104 declarado e atribuído a AR-3 | @po (texto) / @dev (AR-3) | RESOLVIDO (texto); AR-3 aberto |
+| DOC-003 | low | `razao_social` (de `supplier_nome`) e `objeto` (texto livre do edital) podem transportar **dado de pessoa natural** — para MEI/empresário individual o nome empresarial frequentemente **é** o nome da pessoa, às vezes com CPF embutido. Não é defeito (ambos são necessários ao motor), mas merece registro de tratamento de dados | @architect | esta tabela |
+| MNT-001 | low | **= FIND-LI-01.** O state file não valida contra `.aiox/state/stories/schema.json`: `snapshot_evidence` é objeto, o schema declara `type: ["string","null"]`. **RULADO DÍVIDA por RULING-LI-05 (v1.15)** — ver §Ruling do @po sobre MNT-001 | @architect (corrigir o schema, repo-wide) | esta tabela + RULING-LI-05 |
+| MNT-002 | low | `tests/confenge_live_intelligence/test_no_outbound_dml_static.py` — o arquivo que **produz** a evidência P0 do AC1/AC2 ainda declara no docstring "Estado de AC2 nesta story: BLOCKED-PENDING-AUTHORIZATION" e trata a prova de importação como "evidência parcial". Ambos **superados por RULING-LI-02**, que promoveu essa prova a **produtor nomeado** do AC2 | @dev | esta tabela |
+| MNT-003 | low | Citação de linha errada para o produtor nomeado do AC2: `test_no_outbound_module_imports_live_intelligence` está em `test_no_outbound_dml_static.py:128`, não `:110`. Registrado porque a story usa citações `arquivo:linha` como mecanismo primário de prova | @dev | esta tabela |
+| MNT-004 | low | **RESOLVIDO por este fechamento (v1.15).** Sentença do Escopo OUT precisada: "nenhuma linha é **INSERIDA**" (o `DELETE` ocorre em todo build; a tabela ficou em 0 linhas nos 5 builds do @qa) | @po | RESOLVIDO |
+| MNT-005 | low | O rollback **não remove a linha de `public._migrations`** (medido: version `'104'` permanece), então pelo caminho canônico (`python3 -m scripts.ops.apply_migrations`) a 104 seria "skip (ledger)" e os objetos **não voltariam**. **Sem culpa desta story:** nenhum rollback do repo toca o ledger — é convenção repo-wide, logo é dívida de plataforma, não desta wave | @data-engineer / @devops | esta tabela |
+| MNT-006 | low | `matched_dimensions TEXT[]` não tem `CHECK` e não tem consumidor semântico (grep completo). Sendo redundante com as 5 colunas de dimensão, seu único uso distintivo seria contagem — `cardinality()/5.0` dá exatamente o percentual que a Decisão 4 / R6 **proíbem** | @data-engineer | esta tabela |
+| MNT-007 | low | `READY_CANONICAL` e `handoff_marker=YES` são alcançáveis com **zero** empresas e **zero** fits avaliados — o critério é puramente `excluded == 0`, sem exigir conteúdo consumível. Repro: 2 oportunidades, 0 empresas, 0 fits → `READY_CANONICAL` / marker `YES`, e o verifier aprova. Topicamente adjacente a ARCH-001 | @architect / @dev | esta tabela |
+| PUB-001 | medium | **RESOLVIDO (@dev, commit `a0b99fd6`) e verificado no fechamento (v1.15).** O pacote do motor, a migration 104, o rollback e a documentação de arquitetura estavam **untracked**, logo `reviewed_commit=49989740` não continha o código revisado | @dev (commit) / @po (ordem) / @devops (alinhamento final) | RESOLVIDO — ver §Fechamento do @po |
+| PUB-002 | low | **RATIFICADO por RULING-LI-06 (v1.15).** `docs/qa/gates/` é gitignored (`.gitignore:58`) e o gate file não tem histórico versionado. Aceito **condicionalmente** à existência desta tabela como registro durável | @po (registro) / @devops (política de `.gitignore`) | RATIFICADO — ver RULING-LI-06 |
 
 ### AR-1 e AR-2 — ações BLOQUEANTES do gate HIGH-RISK do @architect: RESOLVIDAS (@dev, v1.9)
 
@@ -1410,6 +1474,148 @@ O lado COMPANY da **projeção** não é alcançável pelo build no DSN document
 
 ---
 
+## Fechamento do @po (v1.15, 2026-09-03) — `po-close-story.md`
+
+**Chave de idempotência de fechamento:** `confenge-live-intelligence-01:commit:a0b99fd68a28ccdeb6ecce6d447ce00b7690efc4`
+(o marcador canônico em forma de colchetes é gravado **uma única vez** neste artefato, na linha v1.15 do Change Log, que é a fonte autoritativa de metadado de fechamento da story — a repetição aqui é deliberadamente em forma não-marcador, para que uma segunda execução de `po-close-story.md` detecte exatamente uma ocorrência e reporte no-op.)
+
+**Veredito de fechamento: FECHADA.** Status preservado em `Done` — a transição `InReview → Done` é do @qa e **não** é atribuída ao @po. `po_closed: true`. `publication_authorized` permanece `false`: autorizar publicação é do @devops, após os gates.
+
+### Pré-condições verificadas antes de qualquer escrita
+
+| Pré-condição (`po-close-story.md`) | Estado |
+|---|---|
+| Story `Done` | ✅ |
+| Veredito QA ∈ {PASS, CONCERNS, WAIVED} | ✅ **CONCERNS**, `reviewer: Quinn (@qa)` |
+| Proveniência do QA casa com a revisão atual | ✅ **reconciliada** — ver bloco abaixo |
+| AC/tasks/File List e evidência completos | ✅ com os limites declarados (DoD da suíte completa permanece `[ ]`, honestamente) |
+
+**Reconciliação de proveniência (o `reviewed_revision` do gate estava estale na face).** O gate registra
+`commit:49989740 + working tree com story v1.13` porque o pacote estava **untracked** — o @qa verificou o **estado**
+dos arquivos, não o delta, e declarou esse limite. Sem baseline de git, a identidade "bytes que o @qa leu ≡ bytes de
+`a0b99fd6`" foi estabelecida por **dois lados independentes**, medidos no fechamento:
+
+1. **Ordem temporal.** Todos os 26 arquivos de código, SQL, teste e arquitetura do commit têm `mtime` **anterior** à
+   escrita do gate file (`2026-09-02 23:28:54`): o mais recente é `verifier.py` às `23:04:38`; a migration 104 e o
+   rollback, às `20:06:31` e `20:06:37`, mais de **3h antes**. O commit foi às `23:32:36`. Nenhum arquivo foi tocado
+   entre a revisão e o commit.
+2. **Árvore limpa no escopo.** `git status --porcelain db/ scripts/confenge_live_intelligence/ tests/confenge_live_intelligence/ docs/architecture/` retorna **vazio** — a working tree atual é byte-idêntica a `a0b99fd6` nesses caminhos.
+
+Isso satisfaz a condição *"diff vazio transfere o veredito"* de **PUB-001**, inclusive na sua cláusula precisada
+(*"diff não-vazio em QUALQUER arquivo SQL RETORNA AO @qa"*): os arquivos SQL são os mais antigos do conjunto.
+**Nenhum retorno ao @qa é devido.**
+
+### Disposição dos 7 itens de `required_before_po_closure`
+
+| # | Item | Disposição do @po |
+|---|---|---|
+| 1 | **PUB-001** — commitar o pacote e alinhar `reviewed_commit` | **RESOLVIDO** pelo @dev em `a0b99fd6` (28 arquivos, estritamente aditivo). Proveniência reconciliada acima. O **alinhamento final** de `reviewed_commit` ao SHA do commit de fechamento é do **@devops** — ver §Circularidade abaixo |
+| 2 | **PUB-002** — gate file não versionado | **RATIFICADO como aceitável, condicionalmente** — RULING-LI-06 |
+| 3 | **MNT-001** — state file não valida contra o schema Draft7 | **RULADO DÍVIDA, não bloqueador de fechamento** — RULING-LI-05 |
+| 4 | **DOC-001** — registrar AR-3/AR-4/REL-004/REL-005 e atualizar o checkbox | **RESOLVIDO** — nova §"Registro durável dos achados…" (**27** itens com id, severidade e owner), `absorbs` do follow-up ampliado, checkbox de DoD reescrito |
+| 5 | **DOC-002** — §Plano de Rollback estale + linha do critério de aceite | **RESOLVIDO** — seção reescrita para descrever o artefato entregue; critério de aceite substituído pelo que o teste prova, com o gap de baseline pré-104 declarado e atribuído a **AR-3** |
+| 6 | **MNT-004** — sentença do Escopo OUT literalmente falsa | **RESOLVIDO** — "nenhuma linha é **INSERIDA**", com o `DELETE` de todo build explicitado |
+| 7 | **REL-004 / REL-005** — registrar no registro canônico de dívida | **RESOLVIDO** — registrados nesta story **e** no `absorbs` do follow-up bloqueante |
+
+**Nada foi implementado pelo @po.** Todo item que exigia código ou teste (AR-3, AR-4, a emissão de `SUPERSEDED`, a
+correção do schema) saiu como **item de backlog com owner**, não como edição de `scripts/`, `tests/` ou `db/`. As
+únicas edições deste fechamento são **documentação e state** — é essa restrição que torna verdadeira a afirmação
+"delta pós-QA é docs/state apenas" no bloco de alinhamento de commit.
+
+### RULING-LI-05 — MNT-001 (FIND-LI-01) é dívida, não bloqueador de fechamento
+
+**Conflito.** O @qa condicionou `po_closed: true` à resolução de MNT-001, invocando §8 e §11 do protocolo ("os hooks
+leem o state file como fonte operacional"). O próprio @po havia escrito, na v1.8, *"resolver antes do fechamento"*.
+
+**Medição que decide.** O risco declarado em FIND-LI-01 era: *"hooks que validem o state file contra o schema antes de
+publicar podem falhar"*. Fui verificar em vez de assumir. **Não existe nenhum consumidor de `.aiox/state/stories/schema.json`
+no repositório:** `grep -rn "schema\.json" .claude/hooks/ bin/` retorna **vazio**, e não há `jsonschema`/`ajv` em
+`.claude/hooks/`. O gate real é `.claude/hooks/story-state.cjs::validateStoryState()` — **checagem de campos escrita à
+mão**, que não carrega o schema e não olha `snapshot_evidence`. O risco é **empiricamente nulo**: o antecedente do
+condicional é falso.
+
+**Segunda medição, que reatribui o problema.** Dos 21 state files do repo, **11 usam `snapshot_evidence` como objeto**
+e 10 como string. Não é este arquivo que está errado sobre o schema — é **o schema que está errado sobre a prática
+estabelecida**, repo-wide, em mais da metade dos casos.
+
+**Por que não corrijo aqui, tendo autoridade sobre o state file.** As duas correções locais são piores que a dívida:
+(a) transformar `snapshot_evidence` em string **adultera evidência de outro agente** — precisamente o que o @qa se
+recusou a fazer e o que o @po vinha se recusando a fazer desde a v1.8; (b) alargar o schema para aceitar objeto é
+correção **repo-wide de artefato de governança**, que a própria FIND-LI-01 atribuiu ao @architect. Fazê-la no
+fechamento de uma story contradiria o achado que a levantou.
+
+**Decisão: DÍVIDA ACEITÁVEL. Não bloqueia `po_closed`, não bloqueia publicação.** Owner **@architect**, escopo
+**repo-wide** (`type: ["string","object","null"]` em `properties.snapshot_evidence`, ou decisão explícita em sentido
+contrário), severidade **low**. Consistente com o mecanismo de RULING-LI-03: item cujo consumidor vivo não existe é
+**não-determinismo/higiene de instrumento**, não requisito não provado. Difere de RULING-LI-04 porque ali a correção
+era alcançável **e** o defeito contaminava a prova de um gate BLOQUEANTE; aqui não há prova contaminada e a correção
+alcançável está **fora** da autoridade correta.
+
+### RULING-LI-06 — PUB-002: gate file gitignored é aceitável, condicionalmente
+
+**Decisão: RATIFICADO como aceitável.** `docs/qa/gates/` permanece em `.gitignore:58`. Manter artefatos de gate como
+**runtime local/CI** é prática corrente do repo e não é anomalia desta story; o `.gitignore` não é editado por este
+fechamento (política de ignore é do **@devops**, como o próprio @qa atribuiu).
+
+**A condição, que é o que torna a ratificação honesta.** O @qa demonstrou que o gate é **sobrescrito a cada iteração
+do QA Loop sem histórico recuperável** — logo ele **não é** registro durável de dívida, e essa foi a razão pela qual
+o @qa restaurou os 21 textos integrais em vez de condensá-los. Ratificar sem mais nada transferiria a evidência para
+um artefato que a próxima iteração destrói. Por isso a ratificação é **condicionada e a condição foi cumprida neste
+mesmo fechamento**: o inventário completo dos **27 achados** (id, severidade, item, owner, portador) passa a viver em
+§"Registro durável dos achados do gate HIGH-RISK e do gate de QA", **na story, que é versionada**. Antes desta
+correção a story nomeava 18 dos 24 ids do gate — **MNT-002 a MNT-007 não apareciam em lugar nenhum versionado** e
+teriam desaparecido com a próxima sobrescrita. Verificado por comparação de conjuntos de ids entre story e gate file.
+
+**Follow-up registrado (não bloqueante):** avaliar com o @devops se gates de QA de stories HIGH-RISK devem ser
+versionados ou arquivados em `docs/qa/archive/`. Owner **@devops**.
+
+### Adjudicações pendentes ao @architect — encaminhadas, NÃO bloqueantes
+
+O @qa as listou **fora** de `required_before_po_closure`, e o @po não as converte em bloqueio. Mas elas não evaporam:
+
+| Adjudicação | Pergunta | Owner |
+|---|---|---|
+| **ARCH-001** | §7.2 (predicado de exclusão é da **linha da oportunidade**) vs §4.1 (`UNKNOWN` inclui o lado empresa) — qual prevalece? | @architect |
+| **REQ-001** | As contagens de exclusão **entram** no `universe_hash`, ou §7.2 e a linha de ADR-040 sobre R5 são **emendadas**? | @architect |
+| **REL-004** | Máquina de estados: **emitir** `SUPERSEDED`, ou **emendar** a lista de estados para a máquina efetivamente implementada nesta wave? | @architect |
+
+Registradas na §"Registro durável…" com portador. **REL-004 aparece nas duas listas** — é dívida registrada **e**
+pergunta de adjudicação, e permanece nas duas.
+
+### Circularidade `reviewed_commit` / state file — resolução
+
+O hook `.claude/hooks/story-state.cjs::checkPushGate` compara `reviewed_commit` com `HEAD` por **igualdade literal de
+string** (`:220-226`). Commitar os metadados de fechamento (story md + state json) cria um novo `HEAD` e quebra a
+igualdade; editar `reviewed_commit` à mão para o SHA do próprio commit é impossível antes de o commit existir.
+
+**Resolução, seguindo o precedente vivo do repo** (`.aiox/state/stories/ROI-cand-post-merge-truth-gate-honesty.json`,
+bloco `reviewed_commit_alignment` com `honest_note`, `aligned_by: "@devops (Gage)"`): o @po **não inventa SHA**. O
+state file recebe um bloco `reviewed_commit_alignment` com `aligned_to_head: null` e `status: PENDING_DEVOPS`,
+registrando a proveniência já reconciliada e a razão pela qual o avanço é legítimo — **o delta pós-QA é docs/state
+apenas**. O @devops alinha `reviewed_commit` ao SHA do commit de fechamento **imediatamente antes do push**, preenche
+`aligned_to_head`/`aligned_by`/`aligned_at` e só então avalia `publication_authorized`. Se o delta deixar de ser
+docs/state — qualquer byte sob `db/`, `scripts/` ou `tests/` — a razão do bloco fica falsa e o item **retorna ao @qa**,
+não ao @devops.
+
+### Bookkeeping de epic/backlog
+
+Busca por artefato de epic/backlog da missão **CONFENGE-REVENUE-MULTI-ENGINE-W1**: a missão é nomeada apenas em
+`docs/architecture/confenge-live-intelligence-impact-analysis.md` e nesta story; **não existe** arquivo de epic em
+`docs/stories/epics/` nem campanha em `artifacts/campaigns/`, `.campaign/` ou `docs/ops/campaigns/` correspondente.
+Registro explícito de **no-op para esse artefato** — nenhum marcador de conclusão de epic é escrito, e isso é o
+resultado correto, não uma etapa pulada. O portador de backlog desta wave é a story de follow-up bloqueante
+[`story-confenge-live-intelligence-outbound-equivalence-gate.md`](story-confenge-live-intelligence-outbound-equivalence-gate.md),
+cujo `absorbs` foi ampliado por este fechamento.
+
+### Próxima story elegível
+
+`confenge-live-intelligence-outbound-equivalence-gate` (status `Draft`, criada pelo @sm em resposta a AR-5) —
+**bloqueante para qualquer story que operacionalize o motor** (cron/systemd, integração com `message_spine.py`,
+personalização de outbound). Pré-requisito não satisfeito: **2º DSN descartável** (owner @devops). Requer validação
+do @po antes de implementação.
+
+---
+
 ## Handoff (pós-validação @po)
 
 - **`next_agent`: @architect** (com **@data-engineer** obrigatório para a migration 104 / LI-2).
@@ -1438,3 +1644,4 @@ O lado COMPANY da **projeção** não é alcançável pelo build no DSN document
 | 2026-09-03 | 1.12 | **QA Gate FAIL — Status: InReview → InProgress (@qa).** Gate file: `docs/qa/gates/confenge-live-intelligence-01-live-intelligence-foundation.yml`. **Critério do veredito: defeito de PROVA vs. defeito de COMPORTAMENTO.** O gate do @architect fechou com AR-3/AR-4 abertas como dívida HIGH, o que estabelece nesta story que lacuna de instrumento não bloqueia; aplico o mesmo critério com consistência e registro como dívida a tautologia do AC10 (SEC-001), a asserção inalcançável do verifier (SEC-002), a estreiteza de `PROTECTED_OBJECTS` (TEST-002) e o regex `MUTATING` (TEST-003, = AR-4). **O bloqueador é de comportamento, reproduzido pelo @qa em Python puro sem tocar o banco:** `source_as_of` cai em `datetime.now(tz=UTC)` em `producer.py:182-184` (o `RETURNS TABLE` da função as-of declara 25 colunas e nenhuma se chama `source_as_of`) e é incondicionalmente relógio de parede em `producer.py:260`; o campo entra em `content_hash()` → `data_hash_of()` → `_snapshot_id()`, logo dois builds sobre os mesmos dados e o mesmo `as_of` geram `snapshot_id` distinto (`content_hash equal: False`, `data_hash equal: False`, `universe_hash equal: True`), o `DELETE ... WHERE snapshot_id` de `_persist` nunca casa e as tabelas do motor ACUMULAM em vez de reconstruir — o comentário `producer.py:503` ("Replay idempotente") é falso no caminho de produção, contra o Valor e o Estado-alvo declarados da story. **Elemento decisivo:** `test_replay_is_idempotent_for_the_same_universe` passa `opportunities=` E `companies=`, desvia em `producer.py:395-397` e nunca chama a projeção, com os helpers fixando `source_as_of=UTC_NOW` exatamente no campo que a produção randomiza — o checkbox de DoD linha 384 ("com evidência") está selado sobre evidência vácua para essa propriedade; busca repo-wide confirma que não há segundo teste. Empacotado: `date.today()` em `_blocked_result` (REL-002), mesma classe de TD-LI-7 e ponto cego de RULING-LI-04. **Devolução com 3 propriedades de aceite + re-medição obrigatória incluindo os 3 testes de AR-1.** **O que este FAIL NÃO faz:** não reabre o gate do @architect (ADR-040 segue Accepted, `gate_satisfied: true`; verifiquei `1 failed / 121 passed` DENTRO da janela de TD-LI-7 e AR-1 3 passed — o selo não cai), não reabre RULING-LI-01..04, não reabre a exceção de `pncp_raw_bids`, não reclassifica TD-LI-6 como bloqueador (verificado nos dois sentidos, não re-litigado) e não reabre AR-3/AR-4. ARCH-001 (exclusão contaminada pelo lado COMPANY, §7.2 vs §4.1) fica como pedido de adjudicação ao @architect, não como bloqueio. Revisão read-only: nenhum arquivo de `scripts/`, `tests/` ou `db/` editado. | @qa |
 | 2026-09-03 | 1.13 | **Status: InProgress → InReview. Os 3 bloqueadores do QA FAIL corrigidos (iteração 1/5 do QA Loop), com prova real e checagem de mutação.** **(1) REL-001.** `source_as_of` deixou de vir de `datetime.now()` nos três sítios: `project_opportunity()` e `project_companies()` agora **exigem** o parâmetro, cujo único produtor é `fetch_source_watermark(...)['watermark_at']` — o `MAX(updated_at)` que o gate apontou como já computado e descartado. Ausência de watermark curto-circuita em `BLOCKED` **antes** da projeção; `require_watermark` removido porque "projetar sem watermark" era a única via pela qual o relógio de parede voltaria a ser necessário. `[AUTO-DECISION]` watermark do lado COMPANY = o mesmo de `fetch_source_watermark` (literalmente a `suggested_action` (1) do gate, que nomeia os dois sítios); a alternativa (`MAX` sobre `pncp_supplier_contracts`) abriria nova superfície de leitura outbound, fora de `scope_files` e de autoridade do @dev. **(2) Defeito adicional que a prova revelou, mesma classe, não estava no gate:** `fetch_source_watermark` lia `TIMESTAMPTZ` **sem** fixar o `TimeZone` da sessão, violando o invariante do próprio `sources.py`; o mesmo instante voltava com `tzinfo` diferente entre os dois builds e, como `live_hash` usa `isoformat()`, o `snapshot_id` **ainda divergia** com os três `datetime.now()` já removidos. Corrigido nas duas frentes independentes: `pin_session_timezone()` antes da leitura e `normalize_source_as_of()` (→ UTC) na construção — hash função do instante, não do fuso, a mesma propriedade do AC5. **(3) TEST-001.** Teste vácuo substituído por dois `build_snapshot()` **sem** universo injetado e **sem** `source_as_of` fixado, com contagem **TOTAL** de linhas **sem filtro de `snapshot_id`** (o filtro era o que escondia a acumulação) mais `COUNT(DISTINCT snapshot_id) == 1`. Adicionado teste do lado COMPANY porque `v_contracts_canonical_v2` tem 0 fornecedores no DSN e o teste de replay **não alcança** `producer.py:260` — sem ele, a propriedade escrita no gate estaria satisfeita provando metade do bug. **(4) REL-002.** `today_in_cutoff_timezone()` com `CUTOFF_TIMEZONE` importado por nome (nenhum segundo literal de fuso); asserção de `as_of_date`/`snapshot_id` adicionada — e, como a mutação `date.today()` **passou** por essa asserção no horário desta rodada (janela de ~3h/dia), foi adicionado teste sob dois fusos de SO a **25h** de distância, onde `date.today()` nunca coincide: prova determinística a qualquer hora. **(4b) Terceiro sítio da mesma classe, encontrado por auditoria própria depois de corrigir a escrita: o caminho de VERIFY.** `verifier.py` reconstrói os objetos de `row['source_as_of']` (`TIMESTAMPTZ` lido no fuso da sessão) e re-deriva os hashes de linha — medido que o verify **falha fechado sobre um snapshot íntegro** quando roda na MESMA conexão que fez o build (que pina `CUTOFF_TIMEZONE`), e passa em conexão nova. Todo caminho verde existente desviava: os testes do verifier injetam o universo (nunca pinam) e `cli verify` abre conexão nova. Corrigido com `normalize_source_as_of()` em `_rebuild_opportunity`/`_rebuild_company` e travado por `test_verify_on_the_same_connection_that_built_the_snapshot` (projeção real + asserção da pré-condição de fuso). **(5) Checagem de mutação:** os 4 sítios revertidos individualmente, cada um detectado pelo seu teste (tabela nas Dev Notes). **(6) Prova real de idempotência** (manual, fora da suíte): `snapshot_id` idêntico, `opportunities` 1→1 e `snapshots` 1→1 entre replays; controle negativo com o defeito reintroduzido: 1→2 e 1→2, `distinct_snapshot_id=2`. **(7) Re-medição:** motor **1 failed / 124 passed** (única falha = TD-LI-6/REL-003, dívida rulada; baseline 121, delta = os 3 testes novos); **AR-1 isolado 3 passed** (verificado primeiro, por ser o selo sensível a regressão); regressão dirigida **COM** `REQUIRE_REAL_DB=1` = **2 failed / 540 passed / 8 skipped**, ambas as falhas já caracterizadas pelo gate (volume de `sc_public_entities` e TD-LI-6) — **TEST-004 corrigido**; `ruff check`/`format --check` limpos. **Nada fora dos 3 bloqueadores foi tocado:** SEC-001/002, TEST-002..005, ARCH-001, REQ-001, REL-003, DOC-001..003, MNT-001..007, TD-LI-6 e RULING-LI-01..04 permanecem como estão; migration 104 e rollback **não** tocados. | @dev |
 | 2026-09-03 | 1.14 | **QA Gate CONCERNS (iteração 2/5 do QA Loop) — Status: InReview → Done.** Os 3 bloqueadores do FAIL estão **corrigidos no caminho de produção**, e a prova é do @qa, não aceite do relato do @dev. **(1) Prova independente de idempotência** (script próprio, seeds `QA2-IDEM-` prefixo-escopados sob RULING-LI-01, teardown em `finally`): **três** builds sobre o mesmo snapshot de entrada, separados por 1,5s de relógio de parede **e** sob fusos de SO a 25h de distância (`Pacific/Kiritimati` UTC+14, `Pacific/Niue` UTC−11) → `snapshot_id` idêntico (`LI-2026-10-01-3a32e64d…`), `content_hash`/`data_hash`/`universe_hash` iguais, contagem **total por tabela sem filtro de `snapshot_id`** inalterada (`opportunities` 2→2→2, `snapshots` 1→1→1), `COUNT(DISTINCT snapshot_id)=1`, anti-vacuidade OK (`READY_CANONICAL`, `observed_opportunity_count=2`, 1º build persistiu). **(2) O terceiro sítio, do @dev, verificado no cenário que discrimina:** `verify_snapshot()` na **mesma conexão** que fez o build (sessão pinada em `CUTOFF_TIMEZONE`) aprova os 7 checks — era exatamente onde o verifier falhava fechado sobre snapshot íntegro. **(3) Verificação de código, não de comentário:** `source_as_of` é parâmetro keyword **obrigatório sem default** nos dois sítios (fallback de relógio de parede não é representável sem mudar a assinatura); `datetime.now()` sobrevive em 1 sítio (`producer.py:567`, colunas de auditoria) e a igualdade de hash acima **prova** que ele não é insumo de hash; zero `date.today()` em código executável do pacote; zero segundo literal de fuso. **(4) O vetor que decidiu o veredito e que nenhum teste exercitava — nem o meu, nem o do @dev:** ambas as provas mantinham o **watermark constante**, mas o caminho operacional normal é o crawl **mover** o watermark, o que muda todo hash e faz o `DELETE ... WHERE snapshot_id` não casar. Testei (build → `UPDATE updated_at +1h` escopado → build), depois de confirmar por grep que a 104 não tem `UNIQUE`/`EXCLUDE` sobre estado: INSERT sucedeu, **dois** snapshots coexistem, ambos `READY_CANONICAL`, ambos verificáveis. Se tivesse quebrado por constraint, o motor falharia no seu **segundo build real** — comportamento, e FAIL novo. Não quebrou. **(5) Achado novo REL-004 (medium):** `SNAPSHOT_SUPERSEDED` existe na lista fechada de estados, na transição documentada da 104 (:136), em `superseded_at` e no CHECK — mas **sem emissor e sem teste**; dois `READY_CANONICAL` do mesmo `as_of_date` coexistem com `superseded_at=NULL` e sem desempate. Mesma classe de TEST-005, sem consumidor vivo nesta wave. **REL-005 (low):** nota de escopo — a garantia é "mesmos dados de entrada ⇒ mesmo id", **não** estabilidade do id por `as_of` entre crawls (`source_as_of` é o watermark **global**); consistente com o risco residual §6.3 já declarado, e ratifico a `[AUTO-DECISION]` do @dev de não abrir segunda superfície de leitura outbound. **(6) Re-medição executada por mim, conferindo dígito a dígito:** motor **1 failed / 124 passed**; **AR-1 isolado 3 passed** — a condição anexada ao selo do @architect segue satisfeita, **o selo não cai**; regressão dirigida **com** `REQUIRE_REAL_DB=1` **2 failed / 540 passed / 8 skipped** — **TEST-004 corrigido**; `ruff` limpo. A única falha do motor é TD-LI-6/REL-003 (dívida rulada, mensagem exata da causa raiz); as duas da dirigida são as que eu mesma caracterizei. **Nenhuma falha nova.** **(7) Disposição dos 21 não-bloqueadores:** todos permanecem CONCERNS/dívida com owner e prazo no gate file; reexaminei o fundamento de cada um contra o código atual e nada mudou a razão — são lacuna de **instrumento**, não de **comportamento**, o mesmo critério com que o @architect fechou o gate HIGH-RISK com AR-3/AR-4 abertas. **SEC-001 é `high` e fica em CONCERNS** porque o risco é drift futuro e o texto literal do AC10 está atendido — **mas volta como bloqueador se um campo novo entrar em qualquer dataclass do motor**. **MNT-001 não condiciona este veredito, condiciona o fechamento do @po** (§8/§11: hooks leem o state file); não o agravei — escrevi só os campos de veredito e não reescrevi `snapshot_evidence`, conteúdo de outro agente. **(8) Ratifico a decisão de escopo do @dev:** corrigir os 2 sítios da **mesma classe** fora da minha lista foi correto (arquivos já em `scope_files`; sem eles a correção sairia com a metade de leitura quebrada — verifiquei), e não tocar nenhum item CONCERNS-class foi correto. Não é precedente para auto-ampliação. **(9) Limites da minha evidência, declarados:** o pacote está **untracked**, logo não tenho baseline de diff — verifiquei o **estado** dos arquivos, não o delta, e não endosso "apenas 6 arquivos tocados"; o lado COMPANY da projeção não é alcançável pelo build neste DSN (`verified_companies=0`), sua cobertura vem do teste do @dev que **auditei**; sem 2º DSN; `test_snapshot_reconciliation.py` skipped. Seeds `QA2-` criados e removidos (estado final: zero linhas, zero snapshots); nenhum arquivo de `scripts/`, `tests/` ou `db/` editado; nenhuma migration aplicada. **`next_agent`: @po** (fechamento, com os 5 itens de `return_to_po` do gate) → @devops. **Não reabre** o gate do @architect, RULING-LI-01..04, o reescopo do AC2, a exceção de `pncp_raw_bids`, TD-LI-6 nem AR-3/AR-4. **(10) Dois achados que só apareceram porque fui verificar uma afirmação minha.** **PUB-002 (low):** ao condensar os 21 não-bloqueadores eu escrevi que os textos integrais ficavam "preservados no histórico deste arquivo (git)" — fui verificar e é **falso**: `git check-ignore -v` aponta `.gitignore:58` → `docs/qa/gates/` e o `git log` do gate é **vazio**. A condensação teria **destruído** a evidência medida que os follow-ups consomem (os 7 termos de PII fora da blacklist de 11, as 3 tabelas `canonical_snapshot_*` fora de `PROTECTED_OBJECTS`, as contagens por família de `DROP`, a inércia dos GUCs, a sonda `DENIED`). **Restaurei os 21 blocos na íntegra**, com `qa_disposition_v2` por item. Um gate sobrescrito a cada iteração e sem histórico **não é registro durável de dívida** — o da story é, o que promove DOC-001 a única salvaguarda. **PUB-001 (medium):** `state.reviewed_commit=49989740` **não contém o código que revisei** (pacote, migration e rollback untracked), logo as pré-condições §8 **#5** (`reviewed_commit === HEAD`) e **#6** (working tree limpa) são hoje **mutuamente insatisfazíveis**. Commitar o pacote antes do fechamento e setar `reviewed_commit` para o SHA resultante; minha re-confirmação é `git diff` contra o estado que li, não nova revisão. Não bloqueia o veredito; bloqueia publicação limpa. | @qa |
+| 2026-09-03 | 1.15 | **Fechamento do @po — story FECHADA (`po_closed: true`). Status preservado em `Done`; nenhuma transição de ciclo de vida é atribuída ao @po.** `[closure-key: confenge-live-intelligence-01:commit:a0b99fd68a28ccdeb6ecce6d447ce00b7690efc4]` **(1) Proveniência do QA reconciliada, não assumida.** O `reviewed_revision` do gate (`commit:49989740 + working tree`) estava estale na face porque o pacote estava untracked. A identidade "bytes revisados ≡ bytes de `a0b99fd6`" foi estabelecida por dois lados: todos os 26 arquivos de codigo/SQL/teste/arquitetura tem `mtime` anterior a escrita do gate (`23:28:54`; o mais recente e `verifier.py` as `23:04:38`, a 104 e o rollback as `20:06`), e `git status --porcelain` nos caminhos `db/`, `scripts/confenge_live_intelligence/`, `tests/confenge_live_intelligence/`, `docs/architecture/` retorna **vazio**. **PUB-001 satisfeito, inclusive na clausula "diff nao-vazio em QUALQUER arquivo SQL RETORNA AO @qa"** — os SQL sao os arquivos mais antigos do conjunto. Nenhum retorno ao @qa e devido. **(2) Os 7 itens de `required_before_po_closure` processados:** PUB-001 RESOLVIDO (@dev, `a0b99fd6`); PUB-002 RATIFICADO condicionalmente (**RULING-LI-06**); MNT-001 RULADO DIVIDA (**RULING-LI-05**); DOC-001, DOC-002, MNT-004 e o registro de REL-004/REL-005 RESOLVIDOS por edicao de texto normativo. **(3) RULING-LI-05 — MNT-001 e divida, nao bloqueador.** Fui verificar o risco declarado em vez de herda-lo: **nao existe nenhum consumidor de `.aiox/state/stories/schema.json` no repo** (`grep -rn "schema\.json" .claude/hooks/ bin/` vazio; sem `jsonschema`/`ajv` nos hooks). O gate real e `story-state.cjs::validateStoryState()`, checagem de campos escrita a mao que nao carrega o schema. O antecedente do condicional de FIND-LI-01 e **falso**. Segunda medicao: **11 dos 21 state files do repo usam `snapshot_evidence` como objeto** — nao e este arquivo que erra sobre o schema, e o schema que erra sobre a pratica estabelecida. As duas correcoes locais sao piores que a divida: stringificar **adultera evidencia de outro agente** (o que @qa e @po vinham recusando desde a v1.8) e alargar o schema e correcao repo-wide de governanca que a propria FIND-LI-01 atribuiu ao @architect. Owner **@architect**, escopo repo-wide, severidade low. **(4) RULING-LI-06 — PUB-002 ratificado, com condicao cumprida no mesmo ato.** `docs/qa/gates/` segue gitignored (pratica corrente; politica de ignore e do @devops). Mas o gate e sobrescrito a cada iteracao sem historico, logo **nao e registro duravel de divida**. Ratificar sem mais nada transferiria a evidencia para um artefato que a proxima iteracao destroi — por isso o inventario completo dos **27 achados** (id, severidade, item, owner, portador) passa a viver na story, versionada. Medido: **antes desta correcao a story nomeava 18 dos 24 ids do gate; MNT-002 a MNT-007 nao existiam em nenhum artefato versionado** e teriam desaparecido na proxima sobrescrita. **(5) DOC-002:** §Plano de Rollback reescrita para descrever o artefato entregue — a secao 3 e **deliberadamente vazia** (a §9 da 104 foi removida por TD-LI-2; zero `ALTER DEFAULT PRIVILEGES` executavel) e o destino do role **nao esta em aberto** (DROPADO, ADR-040/AC12); era a **quarta** localizacao estale, nao coberta por RULING-LI-03, e `state.rollback_plan` ja estava correto, logo as duas fontes de verdade divergiam. O criterio de aceite foi substituido pelo que `test_rollback_removes_every_object_and_reapply_is_clean` **realmente** prova, e a afirmacao forte "`\dp` mostra o mesmo conjunto de grants que existia **antes** da 104" foi **retirada**: o teste captura `before_rollback` com a 104 **ja aplicada** (`:292`) e nao existe baseline pre-104 em lugar nenhum — fechar essa lacuna e **AR-3**, que fica declarada como divida HIGH aberta em vez de continuar selada sem evidencia. **(6) MNT-004:** Escopo OUT precisado para "nenhuma linha e **INSERIDA**" — a redacao anterior era literalmente falsa, porque `_persist` emite `DELETE` sobre `confenge_live_intelligence_events` em **todo** build (inclusive `BLOCKED`) e `DELETE` e DML; medido pelo @qa: 0 linhas ao longo de 5 builds. **(7) DOC-001:** AR-3, AR-4, REL-004 e REL-005 registrados na story **e** no `absorbs` do follow-up; enumeracao do checkbox de DoD reescrita (parava em TD-LI-5, obsoleta em duas revisoes). **(8) Circularidade `reviewed_commit`/state file resolvida pelo precedente do repo**, nao por edicao arbitraria: `checkPushGate` (`story-state.cjs:220-226`) compara `reviewed_commit` com `HEAD` por igualdade literal, entao commitar os metadados de fechamento quebra a igualdade e nenhum SHA pode ser escrito antes de o commit existir. Seguindo `ROI-cand-post-merge-truth-gate-honesty.json` (bloco `reviewed_commit_alignment`, `aligned_by: @devops`), o @po **nao inventa SHA**: grava o bloco com `aligned_to_head: null` e `status: PENDING_DEVOPS`, e o @devops alinha imediatamente antes do push. A razao que legitima o avanco — **delta pos-QA e docs/state apenas** — e verdadeira **por construcao deste fechamento**: nenhum byte sob `db/`, `scripts/` ou `tests/` foi editado; todo item que exigia codigo ou teste (AR-3, AR-4, emissao de `SUPERSEDED`, correcao do schema) saiu como backlog com owner. **(9) Adjudicacoes ARCH-001, REQ-001 e REL-004 encaminhadas ao @architect — NAO bloqueantes** (o @qa as listou fora de `required_before_po_closure`), mas registradas com portador para nao evaporarem. **(10) Bookkeeping de epic: no-op declarado** — nao existe artefato de epic/campanha da missao CONFENGE-REVENUE-MULTI-ENGINE-W1 (busca em `docs/stories/epics/`, `artifacts/campaigns/`, `.campaign/`, `docs/ops/campaigns/`); o portador de backlog e a story de follow-up bloqueante. **(11) O que este fechamento NAO faz:** nao altera Status, nao reabre o gate do @architect, RULING-LI-01..04, o reescopo do AC2, a excecao de `pncp_raw_bids`, TD-LI-6 nem qualquer veredito do @qa; **nao seta `publication_authorized`**, que permanece `false` — autoridade do @devops. **Story NAO esta pronta para push como esta:** `reviewed_commit` desalinhara no commit de fechamento (item 8) e a working tree tem arquivos modificados/untracked alheios a esta story. `next_agent`: **@devops** (`*pre-push`). | @po |
