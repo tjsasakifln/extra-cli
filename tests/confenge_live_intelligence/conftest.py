@@ -11,6 +11,7 @@ intel, canonical snapshots) e escrita em nenhum momento.
 
 from __future__ import annotations
 
+import os
 from collections.abc import Iterator
 from datetime import UTC, date, datetime, timedelta
 from typing import Any
@@ -48,12 +49,35 @@ def _open_connection() -> tuple[Any, str]:
 
         return psycopg2.connect(dsn, cursor_factory=psycopg2.extras.RealDictCursor, **kwargs)
 
-    return admit_ready_connection(
-        required_tables=REQUIRED_TABLES,
-        required_views=("v_open_opportunities_canonical",),
-        context="confenge_live_intelligence",
-        opener=opener,
-    )
+    # LI-W2 / AC10 e TD-LI-6 — `make li-equiv` exporta `LI_EQUIV_DSN` (DSN
+    # ADMINISTRATIVO apontando para `extra_li_equiv`; o role restrito
+    # `li_equiv_runner` e usado apenas por `test_outbound_equivalence.py`, que e
+    # onde a restricao de privilegio E a prova) e as MESMAS
+    # suites passam a rodar contra o banco ISOLADO `extra_li_equiv`, sem alterar
+    # nenhuma asserção e sem ampliar o escopo do `DELETE ... LIKE 'LI-TEST-%'`
+    # abaixo. A correcao do nao-determinismo de
+    # `test_blocked_when_watermark_is_missing` e isolamento de banco, nao
+    # relaxamento de assert: o watermark de `extra_test` e compartilhado com as
+    # demais suites e contamina o caso BLOCKED.
+    # `real_db_guard` nao e tocado (infra compartilhada): a redirecao e local e
+    # restaurada no `finally`.
+    equivalence_dsn = os.environ.get("LI_EQUIV_DSN", "").strip()
+    previous = os.environ.get("LOCAL_DATALAKE_DSN")
+    if equivalence_dsn:
+        os.environ["LOCAL_DATALAKE_DSN"] = equivalence_dsn
+    try:
+        return admit_ready_connection(
+            required_tables=REQUIRED_TABLES,
+            required_views=("v_open_opportunities_canonical",),
+            context="confenge_live_intelligence",
+            opener=opener,
+        )
+    finally:
+        if equivalence_dsn:
+            if previous is None:
+                os.environ.pop("LOCAL_DATALAKE_DSN", None)
+            else:
+                os.environ["LOCAL_DATALAKE_DSN"] = previous
 
 
 @pytest.fixture

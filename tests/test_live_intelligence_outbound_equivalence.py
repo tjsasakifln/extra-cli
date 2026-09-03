@@ -29,8 +29,26 @@ import pytest
 from scripts.ops.apply_migrations import is_executable, split_sql
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-MIGRATION = REPO_ROOT / "db" / "migrations" / "104_confenge_live_intelligence_v1.sql"
-ROLLBACK = REPO_ROOT / "db" / "rollback" / "104_confenge_live_intelligence_v1_rollback.sql"
+
+# LI-W2 Task 11 — a 105 e coberta ESTENDENDO este arquivo, nunca criando um
+# terceiro. Um arquivo novo seria um SEGUNDO instrumento para a MESMA proposicao
+# ("nenhum statement alcanca objeto outbound") — a classe de defeito que a story
+# ja rejeita em identidade e em allowlist.
+MIGRATIONS = (
+    REPO_ROOT / "db" / "migrations" / "104_confenge_live_intelligence_v1.sql",
+    REPO_ROOT / "db" / "migrations" / "105_confenge_live_intelligence_company_ref.sql",
+)
+ROLLBACKS = (
+    REPO_ROOT / "db" / "rollback" / "104_confenge_live_intelligence_v1_rollback.sql",
+    REPO_ROOT / "db" / "rollback" / "105_confenge_live_intelligence_company_ref_rollback.sql",
+)
+ALL_SQL_PATHS = (*MIGRATIONS, *ROLLBACKS)
+ALL_SQL_IDS = ("migration-104", "migration-105", "rollback-104", "rollback-105")
+MIGRATION_IDS = ("migration-104", "migration-105")
+
+# Compatibilidade: modulos externos importam estes nomes por referencia.
+MIGRATION = MIGRATIONS[0]
+ROLLBACK = ROLLBACKS[0]
 
 # §8.2 do impact-analysis — objetos outbound protegidos.
 PROTECTED_OBJECTS = (
@@ -66,12 +84,12 @@ def _strip_comments(statement: str) -> str:
     return re.sub(r"/\*.*?\*/", "", body, flags=re.DOTALL)
 
 
-def test_migration_104_exists() -> None:
-    assert MIGRATION.is_file(), "migration 104 ausente"
-    assert ROLLBACK.is_file(), "rollback 104 ausente"
+@pytest.mark.parametrize("path", ALL_SQL_PATHS, ids=ALL_SQL_IDS)
+def test_migration_files_exist(path: Path) -> None:
+    assert path.is_file(), f"{path.name} ausente"
 
 
-@pytest.mark.parametrize("path", [MIGRATION, ROLLBACK], ids=["migration", "rollback"])
+@pytest.mark.parametrize("path", ALL_SQL_PATHS, ids=ALL_SQL_IDS)
 def test_no_mutating_statement_touches_outbound_object(path: Path) -> None:
     """AC1 — asserção POR STATEMENT.
 
@@ -89,7 +107,7 @@ def test_no_mutating_statement_touches_outbound_object(path: Path) -> None:
             )
 
 
-@pytest.mark.parametrize("path", [MIGRATION, ROLLBACK], ids=["migration", "rollback"])
+@pytest.mark.parametrize("path", ALL_SQL_PATHS, ids=ALL_SQL_IDS)
 def test_no_dml_over_outbound_object(path: Path) -> None:
     for statement in _executable_statements(path):
         body = _strip_comments(statement)
@@ -101,9 +119,10 @@ def test_no_dml_over_outbound_object(path: Path) -> None:
             )
 
 
-def test_no_trigger_over_outbound_object() -> None:
+@pytest.mark.parametrize("path", MIGRATIONS, ids=MIGRATION_IDS)
+def test_no_trigger_over_outbound_object(path: Path) -> None:
     """Nenhum CREATE TRIGGER sobre tabela outbound, em nenhuma circunstancia."""
-    for statement in _executable_statements(MIGRATION):
+    for statement in _executable_statements(path):
         body = _strip_comments(statement)
         if "CREATE TRIGGER" not in body.upper():
             continue
@@ -111,9 +130,10 @@ def test_no_trigger_over_outbound_object() -> None:
             assert obj not in body, f"trigger sobre objeto outbound {obj!r}"
 
 
-def test_migration_does_not_create_dedicated_schema() -> None:
+@pytest.mark.parametrize("path", MIGRATIONS, ids=MIGRATION_IDS)
+def test_migration_does_not_create_dedicated_schema(path: Path) -> None:
     """Decisao 8, §8.4 — schema dedicado foi avaliado e rejeitado nesta wave."""
-    for statement in _executable_statements(MIGRATION):
+    for statement in _executable_statements(path):
         assert "CREATE SCHEMA" not in _strip_comments(statement).upper()
 
 
