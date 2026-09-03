@@ -358,6 +358,19 @@ _HEX64_KEYS: Final[tuple[str, ...]] = ("content_hash", "manifest_hash")
 _HEX16_RE: Final[re.Pattern[str]] = re.compile(r"^[0-9a-f]{16}$")
 _HEX64_RE: Final[re.Pattern[str]] = re.compile(r"^[0-9a-f]{64}$")
 
+# `oportunidades_aderentes[].opportunity_id` (chave publica declarada do
+# contrato) embute o CNPJ do orgao comprador no proprio formato PNCP
+# (`<cnpj>-<modalidade>-<seq>/<ano>`) — o MESMO orgao_cnpj ja publicado, sem
+# mascara, em `opportunities/*.json` (linha ~538: exempcao deliberada do
+# contrato). Sem esta mascara, a varredura AC6 falso-positivava contra
+# qualquer empresa com opportunity_id real na lista de aderencia — nunca
+# reproduzido pelos fixtures de teste, que nao usam IDs no formato PNCP real.
+# Nao mascara CNPJ da PROPRIA empresa: aquele nunca aparece como
+# `opportunity_id` (chave semantica diferente, validada por formato antes de
+# mascarar, igual ao par hex16/hex64 acima).
+_OPPORTUNITY_ID_KEYS: Final[tuple[str, ...]] = ("opportunity_id",)
+_OPPORTUNITY_ID_RE: Final[re.Pattern[str]] = re.compile(r"^\d{14}-\d+-\d+/\d{4}$")
+
 # 14 digitos consecutivos (CNPJ cru) e CNPJ mascarado (99.999.999/9999-99).
 _CNPJ_RAW_RE: Final[re.Pattern[str]] = re.compile(r"(?<!\d)\d{14}(?!\d)")
 _CNPJ_MASKED_RE: Final[re.Pattern[str]] = re.compile(r"(?<!\d)\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2}(?!\d)")
@@ -383,6 +396,8 @@ def _mask_hex_tokens(node: Any) -> Any:
             if key in _HEX16_KEYS and isinstance(value, str) and _HEX16_RE.match(value):
                 out[key] = _DIGEST_MASK
             elif key in _HEX64_KEYS and isinstance(value, str) and _HEX64_RE.match(value):
+                out[key] = _DIGEST_MASK
+            elif key in _OPPORTUNITY_ID_KEYS and isinstance(value, str) and _OPPORTUNITY_ID_RE.match(value):
                 out[key] = _DIGEST_MASK
             else:
                 out[key] = _mask_hex_tokens(value)

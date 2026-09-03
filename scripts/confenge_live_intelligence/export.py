@@ -630,6 +630,13 @@ def load_bundle(out_dir: str | Path) -> dict[str, Any]:
         directory = root / sub
         if not directory.is_dir():
             continue
-        for path in sorted(directory.glob("*.json")):
-            files[f"{sub}/{path.name}"] = json.loads(path.read_text(encoding="utf-8"))
+        # rglob, nao glob: opportunity_id pode conter "/" (ex.: PNCP
+        # "<cnpj>-<seq>/<ano>"), e o writer (linha ~475) cria subdiretorios
+        # reais para esses IDs. glob("*.json") nao-recursivo os ignorava
+        # silenciosamente, fazendo o verifier acusar AC1 falso-negativo contra
+        # qualquer bundle com opportunity_id real (achado provando P0 com
+        # dados de producao reais, nunca reproduzido pelos fixtures de teste).
+        for path in sorted(directory.rglob("*.json")):
+            rel_name = path.relative_to(directory).as_posix()
+            files[f"{sub}/{rel_name}"] = json.loads(path.read_text(encoding="utf-8"))
     return {"manifest": manifest, "files": files}
