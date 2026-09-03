@@ -22,6 +22,7 @@
 | ADR-037 | Papel da contratada e primeiro toque delegado da CONFENGE | **Accepted by founder decision** (2026-08-25) |
 | ADR-038 | National census entity-authority boundary | **Proposed** (2026-08-29) |
 | ADR-039 | Desacoplamento da ingestão PNCP do plano comercial outbound | **Proposed** (2026-09-02) |
+| ADR-040 | Fundação do motor CONFENGE_LIVE_INTELLIGENCE (decisões abertas do AC12) | **Accepted** (2026-09-02) — gate HIGH-RISK de arquitetura FECHADO (`gate_satisfied: true`) com AR-3/AR-4 registradas como dívida. Piso de evidência de arquitetura, **não** veredito do @qa. Ver §"Fechamento do gate HIGH-RISK" |
 
 ## ADRs revogadas / supersedidas
 
