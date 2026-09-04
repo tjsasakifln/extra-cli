@@ -46,8 +46,8 @@ def evaluate_freshness(
             blocks_send=True,
         )
 
-    op = current.get("operational_status") or "ok"
-    cls = current.get("target_fit_class") or ""
+    op = str(current.get("operational_status") or "ok").strip().lower()
+    cls = str(current.get("target_fit_class") or "").strip().upper()
     computed = current.get("computed_at")
     if isinstance(computed, str):
         computed = _parse_wm(computed)
@@ -57,6 +57,18 @@ def evaluate_freshness(
         if computed.tzinfo is None:
             computed = computed.replace(tzinfo=UTC)
         age = (now - computed).total_seconds()
+
+    if op in {"partial", "error", "unknown"} or cls in {"PARTIAL", "ERROR", "UNKNOWN"}:
+        return FreshnessDecision(
+            company_key=company_key,
+            target_fit_fresh=False,
+            target_fit_age_seconds=age,
+            target_fit_computed_at=computed if isinstance(computed, datetime) else None,
+            target_fit_source_watermark=tf_wm,
+            datalake_watermark=datalake_watermark or "",
+            reason="TARGET_FIT_UNTRUSTED",
+            blocks_send=True,
+        )
 
     if op in {"refresh_failed"} or cls == "REFRESH_FAILED":
         return FreshnessDecision(

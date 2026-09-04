@@ -341,17 +341,36 @@ def finalize_bucket(
 
 
 def _identity_root_exclusions(agg: UniverseAggregator) -> dict[str, dict[str, Any]]:
-    """Collapse row-level identity failures into root-level exclusion keys when possible."""
+    """Collapse row-level identity failures into root-level exclusion keys.
+
+    These entities never enter a bucket. They must still appear in the
+    exclusion universe (jsonl + returned list) so a root whose every row was
+    rejected cannot vanish for lack of a bucket.
+    """
     by_key: dict[str, dict[str, Any]] = {}
     for sample in agg.identity_excluded_rows:
-        raw = sample.get("tax_id") or sample.get("name") or "unknown"
+        raw = sample.get("entity_key") or sample.get("cnpj_root") or sample.get("tax_id") or sample.get("name") or "unknown"
         key = f"identity:{raw}"
-        code = sample.get("code") or "INVALID_IDENTITY"
+        code = str(sample.get("code") or "INVALID_IDENTITY")
+        identity = Identity(
+            cnpj14=str(sample.get("tax_id") or "") or None,
+            cnpj_root=str(sample.get("cnpj_root") or "") or None,
+            razao_social=str(sample.get("name") or "SEM NOME"),
+            person_kind="unknown",
+            valid=False,
+            exclusion_code=code,
+            exclusion_detail=str(sample.get("detail") or code),
+        )
+        decision = decide_eligibility(identity=identity, construction=None)
         by_key[key] = {
             "entity_key": key,
-            "cnpj_root": None,
-            "outreach_eligibility": code,
-            "reason": sample.get("detail") or code,
+            "cnpj_root": sample.get("cnpj_root"),
+            "cnpj14": sample.get("tax_id"),
+            "razao_social": sample.get("name"),
+            "outreach_eligibility": decision.outreach_eligibility,
+            "reason": decision.reason,
+            "identity_exclusion_code": code,
+            "rejected_row_count": int(sample.get("row_count") or 1),
         }
     return by_key
 
@@ -500,6 +519,10 @@ def run_universe_build(
     if sum(bucket_excl_breakdown.values()) != n_excl_from_buckets:
         recon_ok = False
 
+    # Identity-only entities never entered a bucket; persist them in the
+    # exclusion universe so they cannot disappear from the census.
+    exclusions.extend(identity_extra)
+
     jsonl_meta = write_jsonl_stream(records, jsonl_path)
     exclusions_path = out / DEFAULT_EXCLUSIONS_JSONL_NAME
     exclusions_meta = write_jsonl_stream(exclusions, exclusions_path)
@@ -511,6 +534,7 @@ def run_universe_build(
         "identity_row_exclusions": agg.stats["identity_exclusions"],
         "identity_exclusion_breakdown": dict(agg.stats["identity_exclusion_breakdown"]),
         "identity_extra_entities": len(identity_extra),
+        "identity_exclusion_entities": len(identity_extra),
         "eligibility_breakdown": dict(elig_breakdown),
         "exclusion_breakdown": dict(bucket_excl_breakdown),
         "dnc_in_universe": elig_breakdown.get(DNC, 0),
