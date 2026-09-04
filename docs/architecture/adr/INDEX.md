@@ -1,6 +1,6 @@
 # Índice de ADRs — Extra Consultoria
 
-**Atualizado:** 2026-08-29
+**Atualizado:** 2026-09-04
 
 | ADR | Título | Status |
 |-----|--------|--------|
@@ -21,13 +21,15 @@
 | ADR-036 | Universo integral e GO do piloto CONFENGE | **Proposed** (2026-08-10) |
 | ADR-037 | Papel da contratada e primeiro toque delegado da CONFENGE | **Accepted by founder decision** (2026-08-25) |
 | ADR-038 | National census entity-authority boundary | **Proposed** (2026-08-29) |
-| ADR-039 | Desacoplamento da ingestão PNCP do plano comercial outbound | **Proposed** (2026-09-02) |
+| ADR-039 | Desacoplamento da ingestão PNCP do plano comercial outbound | **Accepted/Effective** (2026-09-02) — PR #535 merge `ad4d18f8`; QA `d99dc92c`; story Done / PASS. Não adota `COMMERCIAL_AUTHORITY/2.0`. |
 | ADR-040 | Fundação do motor CONFENGE_LIVE_INTELLIGENCE (decisões abertas do AC12) | **Accepted** (2026-09-02) — gate HIGH-RISK de arquitetura FECHADO (`gate_satisfied: true`) com AR-3/AR-4 registradas como dívida. Piso de evidência de arquitetura, **não** veredito do @qa. Ver §"Fechamento do gate HIGH-RISK" |
 
 ## ADRs revogadas / supersedidas
 
-Nenhuma ADR neste diretório está marcada como **Revogada** na data deste índice.  
-Se uma ADR for supersedida, registre aqui com data, ADR substituta e motivo.
+A cascata systemd `OnSuccess` PNCP→outbound descrita em handoffs anteriores a
+2026-09-02 está **supersedida** por ADR-039. O arquivo ADR-038 *deste* índice
+permanece a fronteira de autoridade do censo nacional; a ADR-038 de população
+`COMMERCIAL_AUTHORITY/2.0` existiu só no PR #528 e **não** é vigente.
 
 ## Notas de runtime (não substituem ADR formal)
 

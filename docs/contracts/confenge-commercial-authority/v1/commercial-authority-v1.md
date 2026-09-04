@@ -4,6 +4,17 @@ Additive, machine-readable contract over the last fully proven
 `confenge.outreach.v1` publication. It does **not** replace
 `PNCP_CONTRACT_FRESHNESS/1.0`.
 
+**Scope of this contract:** last-good aging / admission vs already-bound
+transport. It does **not** decide which plane governs a commercial cycle.
+That is `CONFENGE_COMMERCIAL_PLANE_OPERATING_AUTHORITY/1.0`
+(`docs/contracts/confenge-commercial-plane/v1/operating-authority.json`,
+ADR-039 Accepted/Effective).
+
+**SUPERSEDED row:** “Live PNCP not `FRESH` → refuse new facts” no longer
+governs commercial publication. New publication is fail-closed on Data Lake
+integrity, membership and the source-health *envelope*; live PNCP `FRESH`
+neither authorizes nor blocks it.
+
 ## Two planes
 
 | Plane | Contract | Question |

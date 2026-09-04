@@ -1,8 +1,18 @@
 # ADR-039 — Desacoplar a ingestão PNCP do plano comercial outbound
 
-- **Status:** Proposed (2026-09-02)
-- **Contexto de código:** `main` @ `e693f2ae` (#529 + #534)
+- **Status:** Accepted/Effective (2026-09-02)
+- **Aceitação:** merge do PR #535 em `ad4d18f8d37c81a24ea9837b83c3a07fc820b2be`
+  (ancestral de `origin/main`). Commit revisado pelo QA: `d99dc92c82446ec3e64fa5d30aa1eded6340f633`
+  (RE-QA PASS). Story `current-pncp-outbound-decoupling-01` = Done.
+- **Contexto de código na aceitação:** `main` @ `e693f2ae` (#529 + #534) como base do PR.
+- **População:** **não** se adotou `COMMERCIAL_AUTHORITY/2.0`. Autoridade populacional
+  vigente = projeção target-fit persistida.
+- **Contrato de plano:** `docs/contracts/confenge-commercial-plane/v1/operating-authority.json`
+  (não duplica `COMMERCIAL_AUTHORITY/1.0`).
 - **Relacionadas:** ADR-035 (feed target-fit autoritativo), ADR-037 (papel da contratada)
+- **Supersede:** cascata systemd `OnSuccess` PNCP→gate→reconcile→contact→feed;
+  PR #528 como implementação vigente (SUPERSEDED / PARTIALLY_REUSED).
+- **Lei superior:** `DOD.md` § P0 plano comercial / incidente #468.
 
 ## Contexto
 
@@ -78,6 +88,20 @@ e carimba `target_fit_class = "TARGET_CONFIRMED"` para toda raiz qualificada, o
 que é uma decisão comercial separada. A semântica de targeting vigente pós-#529
 (inclusive `parafiscal_institutional_hard_out`) e a identidade oficial de
 contratos de #534 são preservadas integralmente.
+
+## Terminologia canônica
+
+| Termo | Uso |
+|-------|-----|
+| PNCP ingestion run | crawler / `pncp-contracts.service` |
+| commercial refresh | refresh/reconcile no Data Lake persistido |
+| source health | telemetria; não governa o comercial |
+| source run canônico *(sem namespace)* | **proibido** |
+| PENDING_ONSUCCESS | **estado inválido** para target-fit/contact/feed |
+
+Saúde da fonte ≠ prontidão do Data Lake. Um crawler `STALE` com Data Lake
+íntegro não bloqueia o plano comercial; um crawler `FRESH` com Data Lake
+inválido não o autoriza.
 
 ## Consequências
 

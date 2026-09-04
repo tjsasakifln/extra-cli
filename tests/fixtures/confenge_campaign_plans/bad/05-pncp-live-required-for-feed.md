@@ -1,0 +1,3 @@
+# Plano ativo — CURRENT
+
+PNCP_LIVE_REQUIRED_FOR_FEED=YES

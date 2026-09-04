@@ -1,0 +1,108 @@
+{
+  "contract_id": "CONFENGE_COMMERCIAL_PLANE_OPERATING_AUTHORITY",
+  "version": "1.0",
+  "status": "ACTIVE",
+  "effective_date": "2026-09-02",
+  "accepted_by": {
+    "adr": "ADR-039",
+    "adr_status": "Accepted/Effective",
+    "pr": 535,
+    "merge_commit": "ad4d18f8d37c81a24ea9837b83c3a07fc820b2be",
+    "qa_reviewed_commit": "d99dc92c82446ec3e64fa5d30aa1eded6340f633",
+    "story_id": "current-pncp-outbound-decoupling-01",
+    "story_status": "Done",
+    "qa_verdict": "PASS"
+  },
+  "pncp_live_role": "ASYNC_INGESTION_AND_TELEMETRY_ONLY",
+  "commercial_operational_source": "PERSISTED_CANONICAL_DATALAKE",
+  "current_population_authority": "TARGET_FIT_PERSISTED_PROJECTION",
+  "not_adopted": [
+    "COMMERCIAL_AUTHORITY/2.0"
+  ],
+  "does_not_duplicate": [
+    "COMMERCIAL_AUTHORITY/1.0"
+  ],
+  "commercial_cycle_stages": [
+    "read_persisted_datalake_or_target_fit_projection",
+    "target_fit_refresh",
+    "target_fit_reconcile",
+    "contact_discovery",
+    "feed_publication"
+  ],
+  "source_health_statuses": [
+    "FRESH",
+    "DEGRADED",
+    "STALE",
+    "UNKNOWN"
+  ],
+  "source_health_rules": {
+    "recorded_verbatim": true,
+    "never_fabricated_as_FRESH": true,
+    "authorizes_publication": false,
+    "blocks_publication": false,
+    "alters_membership": false,
+    "renews_watermark": false,
+    "substitutes_datalake_gates": false
+  },
+  "datalake_fail_closed_gates": [
+    "datalake_availability",
+    "coverage_ratio",
+    "unexplained_missing",
+    "pagination_exhausted_normally",
+    "terminal_queue",
+    "membership_binding",
+    "official_identity",
+    "parafiscal_institutional_hard_out",
+    "suppression_dnc_revocation",
+    "contact_validity",
+    "semantic_integrity",
+    "real_recency_of_publication_and_persisted_state",
+    "source_health_envelope_present"
+  ],
+  "prohibited_dependency_edges": [
+    "pncp-contracts.service -> extra-confenge-source-freshness-gate.service",
+    "extra-confenge-source-freshness-gate.service -> extra-confenge-target-fit-reconcile.service",
+    "extra-confenge-target-fit-reconcile.service -> extra-confenge-contact-cycle.service",
+    "extra-confenge-contact-cycle.service -> extra-confenge-feed-cycle.service",
+    "pncp_fresh_status -> contact_discovery",
+    "pncp_fresh_status -> feed_publication",
+    "pncp_live_window_close -> commercial_cycle"
+  ],
+  "prohibited_terminal_states": [
+    "PENDING_ONSUCCESS"
+  ],
+  "terminology": {
+    "pncp_ingestion_run": "Independent crawler oneshot. Not a commercial predecessor.",
+    "commercial_refresh": "target-fit refresh/reconcile over the persisted Data Lake.",
+    "source_run_canonico_unqualified": "PROHIBITED_TERMINOLOGY",
+    "source_health": "Telemetry envelope FRESH|DEGRADED|STALE|UNKNOWN. Not commercial authority."
+  },
+  "superseded_artifacts": [
+    {
+      "ref": "pull/528",
+      "status": "SUPERSEDED_PARTIALLY_REUSED",
+      "note": "Decoupling landed in pull/535. COMMERCIAL_AUTHORITY/2.0 population change was not approved."
+    },
+    {
+      "ref": "PNCP_OnSuccess_cascade",
+      "status": "SUPERSEDED",
+      "note": "pncp-contracts -> freshness-gate -> reconcile -> contact -> feed"
+    }
+  ],
+  "owner_boundaries": {
+    "pncp_ingestion": "scripts.crawl.run_contracts_incremental / pncp-contracts.service",
+    "source_health_telemetry": "scripts.ops.pncp_contract_freshness / source_maintenance_health / extra-health-check.timer",
+    "population": "published target-fit projection (not COMMERCIAL_AUTHORITY/2.0)",
+    "commercial_cycle": "target-fit refresh/reconcile, contact-cycle, feed-cycle",
+    "transport": "Warmbly; extra-cli does not authorize SMTP"
+  },
+  "rollback_semantics": {
+    "reintroducing_OnSuccess": "FAIL_CLOSED merge blocker",
+    "orphaning_commercial_timer": "FAIL_CLOSED merge blocker",
+    "treating_PNCP_FRESH_as_commercial_gate": "FAIL_CLOSED merge blocker",
+    "dropping_datalake_fail_closed_gate": "FAIL_CLOSED merge blocker",
+    "runtime_deploy": "Not required for documentation/offline-gate-only change"
+  },
+  "preflight": "python3 -m scripts.ops.check_confenge_commercial_plane",
+  "campaign_plan_linter": "python3 -m scripts.ops.check_confenge_campaign_plan"
+}

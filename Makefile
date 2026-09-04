@@ -1051,3 +1051,13 @@ li-equiv-up:
 
 li-equiv-down:
 	@python3 -m scripts.ops.li_equiv_db down
+
+# --- CONFENGE commercial-plane authority (outside frozen Makefile#CONFENGE) ---
+.PHONY: verify-confenge-commercial-plane verify-confenge-campaign-plan
+verify-confenge-commercial-plane:
+	python3 -m scripts.ops.check_confenge_commercial_plane
+
+# PLAN=path required. Example: make verify-confenge-campaign-plan PLAN=docs/ops/confenge-commercial-plane-authority.md
+verify-confenge-campaign-plan:
+	@test -n "$(PLAN)" || (echo "PLAN=<arquivo> is required" >&2; exit 2)
+	python3 -m scripts.ops.check_confenge_campaign_plan --file "$(PLAN)"
