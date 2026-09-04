@@ -74,6 +74,12 @@ REAL_SISTEMA_S_ROOTS = [
         0,
         id="16589137-sebrae-mg",
     ),
+    pytest.param(
+        "27080530",
+        "SEBRAE ES SERVICO DE APOIO AS MICRO E PEQUENAS EMPRESAS DO ESPIRITO SANTO",
+        3,
+        id="27080530-sebrae-es",
+    ),
 ]
 
 

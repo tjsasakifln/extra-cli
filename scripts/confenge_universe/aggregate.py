@@ -253,9 +253,13 @@ class UniverseAggregator:
             "identity_exclusions": 0,
             "identity_exclusion_breakdown": defaultdict(int),
         }
-        # Roots that were identity-invalid only (no valid cnpj) — counted later
-        self.identity_excluded_rows: list[dict[str, Any]] = []
-        self._max_identity_excluded_samples = 100
+        # Unique identity-invalid entities (every rejected row stays represented;
+        # never a 100-row sample that drops the rest of the universe).
+        self._identity_excluded: dict[str, dict[str, Any]] = {}
+
+    @property
+    def identity_excluded_rows(self) -> list[dict[str, Any]]:
+        return list(self._identity_excluded.values())
 
     def _bucket_display_name(self, bucket: EntityBucket) -> str | None:
         """Deterministic name for brand-split comparisons (no set-iter)."""
@@ -340,15 +344,26 @@ class UniverseAggregator:
                 self.stats["identity_exclusions"] += 1
                 code = identity.exclusion_code or "UNKNOWN"
                 self.stats["identity_exclusion_breakdown"][code] += 1
-                if len(self.identity_excluded_rows) < self._max_identity_excluded_samples:
-                    self.identity_excluded_rows.append(
-                        {
-                            "tax_id": row.get("fornecedor_cnpj"),
-                            "name": row.get("fornecedor_nome"),
-                            "code": code,
-                            "detail": identity.exclusion_detail,
-                        }
-                    )
+                entity_key = (
+                    identity.cnpj_root
+                    or identity.cnpj14
+                    or str(row.get("fornecedor_cnpj") or "").strip()
+                    or str(row.get("fornecedor_nome") or "").strip()
+                    or "unknown"
+                )
+                existing = self._identity_excluded.get(entity_key)
+                if existing is None:
+                    self._identity_excluded[entity_key] = {
+                        "entity_key": entity_key,
+                        "tax_id": identity.cnpj14 or row.get("fornecedor_cnpj"),
+                        "cnpj_root": identity.cnpj_root,
+                        "name": identity.razao_social or row.get("fornecedor_nome"),
+                        "code": code,
+                        "detail": identity.exclusion_detail,
+                        "row_count": 1,
+                    }
+                else:
+                    existing["row_count"] = int(existing.get("row_count") or 0) + 1
                 continue
 
             rel = relevance_fn(row.get("objeto_contrato") or row.get("objeto"))

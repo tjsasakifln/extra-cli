@@ -542,8 +542,8 @@ def evaluate_published_send_gate(
         reasons.append(fresh.reason)
     if suppressed and "TARGET_FIT_DOWNGRADE" not in reasons:
         reasons.append("TARGET_FIT_DOWNGRADE")
-    op = str(published.get("operational_status") or "")
-    if op in {"refresh_failed", "recompute_required", "stale"}:
+    op = str(published.get("operational_status") or "").strip().lower()
+    if op in {"refresh_failed", "recompute_required", "stale", "partial", "error", "unknown"}:
         if op.upper() not in {r.upper() for r in reasons}:
             reasons.append(f"operational_status:{op}")
     blocks = bool(reasons) or cls != TARGET_CONFIRMED or fresh.blocks_send
