@@ -1026,3 +1026,28 @@ command-center-dev:
 .PHONY: test-bid-readiness
 test-bid-readiness:
 	python -m pytest tests/bid_readiness/ -q --tb=short
+
+# --- CONFENGE Live Intelligence W2 — prova de equivalencia outbound (AC10) ---
+# Banco ISOLADO `extra_li_equiv` + role dedicado `li_equiv_runner`, criados e
+# destruidos exclusivamente por scripts/ops/li_equiv_db.py. Nenhuma migration
+# concede DML; `confenge_live_intel_reader` continua SELECT-only em todo
+# database. O teardown roda mesmo se o pytest falhar — role vazado e residuo de
+# catalogo cluster-global.
+.PHONY: li-equiv li-equiv-up li-equiv-down
+li-equiv:
+	@python3 -m scripts.ops.li_equiv_db up
+	@LI_EQUIV_RUNNER_DSN="$$(python3 -m scripts.ops.li_equiv_db dsn)" REQUIRE_REAL_DB=1 \
+		python3 -m pytest tests/confenge_live_intelligence/test_outbound_equivalence.py \
+		-q --tb=short --no-cov; status=$$?; \
+	python3 -m scripts.ops.li_equiv_db up >/dev/null; \
+	LI_EQUIV_DSN="$$(python3 -m scripts.ops.li_equiv_db admin-dsn)" REQUIRE_REAL_DB=1 \
+		python3 -m pytest \
+		"tests/confenge_live_intelligence/test_producer_state_criteria.py::test_blocked_when_watermark_is_missing" \
+		-q --tb=short --no-cov || status=$$?; \
+	python3 -m scripts.ops.li_equiv_db down; exit $$status
+
+li-equiv-up:
+	@python3 -m scripts.ops.li_equiv_db up
+
+li-equiv-down:
+	@python3 -m scripts.ops.li_equiv_db down

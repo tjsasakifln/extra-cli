@@ -40,6 +40,7 @@ from scripts.confenge_live_intelligence.fit import (
     required_dimension_unknown,
     sort_fits,
 )
+from scripts.confenge_live_intelligence.identity import only_digits
 from scripts.confenge_live_intelligence.schema import (
     BLOCKER_AS_OF_MISSING,
     BLOCKER_EMPTY_CONTRACT_ID,
@@ -127,6 +128,11 @@ class _Universe:
 
 
 # --- projecao --------------------------------------------------------------
+
+
+def _only_digits(value: Any) -> str:
+    """Reducao a digitos. Fonte UNICA: ``identity.only_digits`` (§B.1)."""
+    return only_digits(value)
 
 
 def _as_date(value: Any) -> date | None:
@@ -298,7 +304,26 @@ def project_companies(
             sorted({"".join(ch for ch in str(r.get("buyer_cnpj") or "") if ch.isdigit()) for r in rows} - {""})
         )
         objects = tuple(sorted({str(r.get("objeto")) for r in rows if r.get("objeto")}))
+        # §B.3 — CNPJ14 de ESTABELECIMENTO observados, no MESMO laco que produz
+        # `observed_buyer_cnpjs`. Diferenca deliberada em relacao a `buyers`:
+        # aqui o filtro de comprimento e aplicado, porque esta coluna e o insumo
+        # da identidade PUBLICA (company_digest) e a migration 105 tem CHECK de
+        # elemento de 14 digitos. Um CNPJ malformado nao vira digest silencioso.
+        establishments = tuple(
+            sorted({d for d in (_only_digits(r.get("supplier_cnpj")) for r in rows) if len(d) == 14})
+        )
         razao = next((str(r.get("supplier_nome")) for r in rows if r.get("supplier_nome")), None)
+
+        # AC8/§B.3 — invisibilidade silenciosa e proibida. Uma company
+        # ROW_COMPLETE sem NENHUM CNPJ14 de estabelecimento nao geraria arquivo
+        # `companies/<digest>.json` algum: ficaria contada em `observed` e
+        # invisivel no bundle, sem reason code. Fail-closed aqui, na projecao,
+        # onde a causa (dado de origem) ainda e diagnosticavel.
+        if completeness == ROW_COMPLETE and not establishments:
+            raise LiveIntelligenceProducerError(
+                f"company ROW_COMPLETE sem CNPJ14 de estabelecimento observado: root8={root!r} "
+                f"— produziria zero company_digest e uma empresa invisivel no bundle (AC8/§B.3)"
+            )
 
         companies.append(
             LiveCompany(
@@ -311,6 +336,7 @@ def project_companies(
                 observed_value_bands=bands,
                 observed_ufs=ufs,
                 observed_buyer_cnpjs=buyers,
+                observed_establishment_cnpjs=establishments,
                 most_recent_contracting_date=resolved if observed_date else None,
                 contracting_date_state=OBSERVED if observed_date else UNKNOWN,
                 row_completeness_state=completeness,
@@ -503,6 +529,12 @@ def build_snapshot(
     )
     if persist:
         _persist(conn, result, opportunities_final, universe.companies, fits, created_by=created_by)
+        # LI-W2 Task 4 — eventos sao encadeados LOGO APOS o snapshot ser selado.
+        # Import tardio deliberado: `events` importa `verifier`, que importa este
+        # modulo; um import de topo fecharia o ciclo.
+        from scripts.confenge_live_intelligence.events import generate_events
+
+        generate_events(conn, snapshot_id=result.snapshot_id)
     return result
 
 
@@ -669,11 +701,11 @@ def _persist(
                 INSERT INTO public.confenge_live_intelligence_companies (
                     snapshot_id, company_root8, razao_social,
                     portfolio_contract_ids, observed_objects, observed_value_bands,
-                    observed_ufs, observed_buyer_cnpjs,
+                    observed_ufs, observed_buyer_cnpjs, observed_establishment_cnpjs,
                     most_recent_contracting_date, contracting_date_state, date_resolver_version,
                     row_completeness_state, exclusion_reason_codes, reason_codes,
-                    portfolio_hash, source_as_of
-                ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                    portfolio_hash, source_as_of, company_ref
+                ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                 """,
                 (
                     result.snapshot_id,
@@ -684,6 +716,7 @@ def _persist(
                     list(company.observed_value_bands),
                     list(company.observed_ufs),
                     list(company.observed_buyer_cnpjs),
+                    list(company.observed_establishment_cnpjs),
                     company.most_recent_contracting_date,
                     company.contracting_date_state,
                     company.date_resolver_version,
@@ -692,6 +725,9 @@ def _persist(
                     list(company.reason_codes),
                     company.portfolio_hash(),
                     company.source_as_of,
+                    # §B.2 — coluna INTERNA da 105. Derivada do metodo, nunca de
+                    # um campo da dataclass (nao entra em COMPANY_PAYLOAD_KEYS).
+                    company.company_ref(),
                 ),
             )
         for fit in sort_fits(list(fits)):

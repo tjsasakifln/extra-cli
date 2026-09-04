@@ -21,6 +21,7 @@ disciplina que o repo ja adota e evita divergencia de parsing.
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from typing import Any
 
@@ -31,8 +32,26 @@ from scripts.ops.apply_migrations import is_executable, split_sql
 pytestmark = pytest.mark.real_db
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-MIGRATION = REPO_ROOT / "db" / "migrations" / "104_confenge_live_intelligence_v1.sql"
-ROLLBACK = REPO_ROOT / "db" / "rollback" / "104_confenge_live_intelligence_v1_rollback.sql"
+# LI-W2 Task 11 — tuplas ORDENADAS: 104 → 105 para aplicar, 105 → 104 para
+# reverter. Arquivo NOVO para a 105 e proibido (segundo instrumento para a mesma
+# proposicao); funcoes novas AQUI sao bem-vindas.
+MIGRATIONS = (
+    REPO_ROOT / "db" / "migrations" / "104_confenge_live_intelligence_v1.sql",
+    REPO_ROOT / "db" / "migrations" / "105_confenge_live_intelligence_company_ref.sql",
+)
+ROLLBACKS = (
+    REPO_ROOT / "db" / "rollback" / "105_confenge_live_intelligence_company_ref_rollback.sql",
+    REPO_ROOT / "db" / "rollback" / "104_confenge_live_intelligence_v1_rollback.sql",
+)
+MIGRATION_IDS = ("migration-104", "migration-105")
+
+MIGRATION = MIGRATIONS[0]
+ROLLBACK = ROLLBACKS[-1]
+
+# Colunas ADITIVAS da 105 (§B.3). O criterio de aceite do @data-engineer virou
+# guarda de regressao: `attacl IS NULL` nas duas e `relacl` da tabela inalterado.
+MIGRATION_105_COLUMNS = ("company_ref", "observed_establishment_cnpjs")
+MIGRATION_105_TABLE = "confenge_live_intelligence_companies"
 
 ENGINE_TABLES = (
     "confenge_live_intelligence_snapshots",
@@ -59,6 +78,12 @@ def _run_sql_file(conn: Any, path: Path) -> None:
                 cur.execute(statement)
     finally:
         conn.autocommit = old_autocommit
+
+
+def _strip_sql_comments(statement: str) -> str:
+    """Remove comentarios ``--`` e ``/* */`` — mesma disciplina do teste estatico."""
+    body = re.sub(r"--[^\n]*", "", statement)
+    return re.sub(r"/\*.*?\*/", "", body, flags=re.DOTALL)
 
 
 def _catalog_snapshot(conn: Any) -> dict[str, Any]:
@@ -226,7 +251,8 @@ def test_future_migration_under_a_different_role_is_not_affected(live_conn) -> N
         live_conn.autocommit = old_autocommit
 
 
-def test_104_barrier_is_explicit_revokes_without_default_privileges(live_conn) -> None:
+@pytest.mark.parametrize("migration", MIGRATIONS, ids=MIGRATION_IDS)
+def test_104_barrier_is_explicit_revokes_without_default_privileges(live_conn, migration: Path) -> None:
     """A barreira da 104 sao os REVOKE explicitos por objeto — e so eles.
 
     A §9 (``ALTER DEFAULT PRIVILEGES``) FOI REMOVIDA da 104 pelo @data-engineer
@@ -247,11 +273,17 @@ def test_104_barrier_is_explicit_revokes_without_default_privileges(live_conn) -
        ela so precisa voltar a emitir o GRANT inverso se a §9 retornar e passar a
        gravar linha.
     """
-    statements = [s for s in split_sql(MIGRATION.read_text(encoding="utf-8")) if is_executable(s)]
-    assert statements, "104: nenhum statement executavel"
+    statements = [s for s in split_sql(migration.read_text(encoding="utf-8")) if is_executable(s)]
+    assert statements, f"{migration.name}: nenhum statement executavel"
 
-    offenders = [s for s in statements if "ALTER DEFAULT PRIVILEGES" in " ".join(s.upper().split())]
-    assert offenders == [], f"104 voltou a emitir ALTER DEFAULT PRIVILEGES: {offenders}"
+    # `split_sql` mantem o comentario que precede o statement COLADO a ele, e as
+    # duas migrations explicam em comentario por que NAO emitem
+    # `ALTER DEFAULT PRIVILEGES`. Sem remover comentario, a propria explicacao
+    # dispararia a asserção — falso positivo, nao regressao.
+    offenders = [
+        s for s in statements if "ALTER DEFAULT PRIVILEGES" in " ".join(_strip_sql_comments(s).upper().split())
+    ]
+    assert offenders == [], f"{migration.name} emite ALTER DEFAULT PRIVILEGES: {offenders}"
 
     # ``split_sql`` mantem o comentario que precede o statement colado a ele, entao
     # a busca e por conteudo do statement, nao por igualdade da string inteira.
@@ -260,13 +292,26 @@ def test_104_barrier_is_explicit_revokes_without_default_privileges(live_conn) -
     def _emitted(fragment: str) -> bool:
         return any(fragment in statement for statement in normalized)
 
-    for table in ENGINE_TABLES:
+    if migration == MIGRATIONS[0]:
+        for table in ENGINE_TABLES:
+            for grantee in ("PUBLIC", "SMARTLIC_PUBLIC_READER"):
+                expected = f"REVOKE ALL ON TABLE PUBLIC.{table.upper()} FROM {grantee}"
+                assert _emitted(expected), f"104 sem REVOKE explicito: {expected}"
         for grantee in ("PUBLIC", "SMARTLIC_PUBLIC_READER"):
-            expected = f"REVOKE ALL ON TABLE PUBLIC.{table.upper()} FROM {grantee}"
-            assert _emitted(expected), f"104 sem REVOKE explicito: {expected}"
-    for grantee in ("PUBLIC", "SMARTLIC_PUBLIC_READER"):
-        expected = f"REVOKE ALL ON FUNCTION PUBLIC.{ENGINE_FUNCTION.upper()}(DATE) FROM {grantee}"
-        assert _emitted(expected), f"104 sem REVOKE explicito na funcao: {expected}"
+            expected = f"REVOKE ALL ON FUNCTION PUBLIC.{ENGINE_FUNCTION.upper()}(DATE) FROM {grantee}"
+            assert _emitted(expected), f"104 sem REVOKE explicito na funcao: {expected}"
+    else:
+        # A 105 e ADITIVA sobre UMA tabela: reassere os REVOKE/GRANT da 104
+        # apenas sobre ela. Exigir as 6 aqui seria exigir escopo que a migration
+        # nao tem — e a reassercao existe como defesa contra drift manual de ACL.
+        for grantee in ("PUBLIC", "SMARTLIC_PUBLIC_READER"):
+            expected = f"REVOKE ALL ON TABLE PUBLIC.{MIGRATION_105_TABLE.upper()} FROM {grantee}"
+            assert _emitted(expected), f"105 sem reassercao de REVOKE: {expected}"
+        assert _emitted(f"GRANT SELECT ON TABLE PUBLIC.{MIGRATION_105_TABLE.upper()} TO CONFENGE_LIVE_INTEL_READER"), (
+            "105 sem reassercao do GRANT SELECT da 104"
+        )
+        assert not _emitted("GRANT INSERT"), "105 concede DML — proibido (AC10): o role e SELECT-only"
+        assert not _emitted("GRANT DELETE"), "105 concede DML — proibido (AC10): o role e SELECT-only"
 
     with live_conn.cursor() as cur:
         cur.execute(
@@ -278,7 +323,7 @@ def test_104_barrier_is_explicit_revokes_without_default_privileges(live_conn) -
         )
         entries = cur.fetchone()["n"]
     assert entries == 0, (
-        "pg_default_acl com entrada em public: a §9 da 104 foi removida, entao "
+        "pg_default_acl com entrada em public: nem a 104 nem a 105 gravam la; "
         "nada aqui deveria gravar linha. Se a §9 voltar, a secao 3 do rollback "
         "precisa voltar a emitir o GRANT inverso"
     )
@@ -295,7 +340,11 @@ def test_rollback_removes_every_object_and_reapply_is_clean(live_conn) -> None:
         assert table in before_rollback["rel_acl"]
 
     try:
-        _run_sql_file(live_conn, ROLLBACK)
+        # Ciclo EMPILHADO (Task 11): 104+105 ja aplicadas → rollback 105 →
+        # rollback 104 → checagem de residuo → reaplicar 104+105. A ordem dos
+        # arquivos muda; nenhuma asserção muda.
+        for path in ROLLBACKS:
+            _run_sql_file(live_conn, path)
         after = _catalog_snapshot(live_conn)
 
         for table in ENGINE_TABLES:
@@ -308,7 +357,16 @@ def test_rollback_removes_every_object_and_reapply_is_clean(live_conn) -> None:
                 f"ACL de objeto pre-existente mudou apos o rollback: {name}"
             )
     finally:
-        _run_sql_file(live_conn, MIGRATION)
+        for path in MIGRATIONS:
+            _run_sql_file(live_conn, path)
+        # 104's rollback drops confenge_live_intelligence_events entirely, and
+        # reapplying 104 alone recreates it WITHOUT any later additive
+        # migration's columns (106's delivery_status/delivery_attempts/etc.).
+        # This test's own assertions never reference 106, but leaving the
+        # shared DB missing those columns breaks every other test that runs
+        # afterward in the same session. Out of this test's own scope
+        # (grants/ACL, unaffected by 106) but necessary teardown hygiene.
+        _run_sql_file(live_conn, REPO_ROOT / "db" / "migrations" / "106_confenge_live_intelligence_event_delivery.sql")
 
     restored = _catalog_snapshot(live_conn)
     assert ENGINE_ROLE in restored["roles"], "reaplicacao da 104 falhou em recriar o role"
@@ -318,3 +376,52 @@ def test_rollback_removes_every_object_and_reapply_is_clean(live_conn) -> None:
     assert restored["pro_acl"] == before_rollback["pro_acl"], "ACLs de funcao divergiram"
     assert restored["default_acl"] == before_rollback["default_acl"]
     assert restored["roles"] == before_rollback["roles"]
+
+
+# --- LI-W2 / migration 105: guardas de catalogo -----------------------------
+
+
+def _column_acl(conn: Any, table: str, column: str) -> tuple[bool, str | None]:
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT a.attacl::text AS acl
+            FROM pg_attribute a
+            JOIN pg_class c ON c.oid = a.attrelid
+            JOIN pg_namespace n ON n.oid = c.relnamespace
+            WHERE n.nspname = 'public' AND c.relname = %s AND a.attname = %s AND NOT a.attisdropped
+            """,
+            (table, column),
+        )
+        row = cur.fetchone()
+    return (row is not None, row["acl"] if row else None)
+
+
+@pytest.mark.parametrize("column", MIGRATION_105_COLUMNS)
+def test_105_columns_have_no_column_level_acl(live_conn, column: str) -> None:
+    """`attacl IS NULL` — a 104 nao gravou nenhum grant de coluna, e a 105 tambem nao.
+
+    Um `GRANT SELECT (col)` gravaria linha em `pg_attribute.attacl`, onde nao
+    existe nenhuma: divergencia silenciosa de catalogo que nenhum teste anterior
+    pegaria. Criterio de aceite provado a mao pelo @data-engineer na Task 1,
+    promovido aqui a guarda de regressao.
+    """
+    exists, acl = _column_acl(live_conn, MIGRATION_105_TABLE, column)
+    assert exists, f"coluna {column} ausente: migration 105 nao aplicada"
+    assert acl is None, f"{MIGRATION_105_TABLE}.{column}: grant de coluna gravado ({acl})"
+
+
+def test_105_does_not_change_the_table_acl(live_conn) -> None:
+    """`pg_class.relacl` da tabela alvo IDENTICO antes e depois da 105."""
+    before = _catalog_snapshot(live_conn)["rel_acl"][MIGRATION_105_TABLE]
+    _run_sql_file(live_conn, MIGRATIONS[1])  # reaplicar a 105 e no-op declarado
+    after = _catalog_snapshot(live_conn)["rel_acl"][MIGRATION_105_TABLE]
+    assert after == before, f"a 105 alterou o ACL da tabela: {before!r} -> {after!r}"
+
+
+def test_105_is_idempotent(live_conn) -> None:
+    """Reaplicar o arquivo pelo MESMO parser de `apply_migrations` e no-op."""
+    _run_sql_file(live_conn, MIGRATIONS[1])
+    for column in MIGRATION_105_COLUMNS:
+        exists, _acl = _column_acl(live_conn, MIGRATION_105_TABLE, column)
+        assert exists, f"coluna {column} sumiu apos reaplicar a 105"

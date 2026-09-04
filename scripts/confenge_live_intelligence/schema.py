@@ -25,9 +25,16 @@ from datetime import date, datetime
 from decimal import Decimal
 from typing import Any, Final
 
+from scripts.confenge_live_intelligence.identity import company_ref_from_root8
+
 ENGINE_ID: Final[str] = "CONFENGE_LIVE_INTELLIGENCE"
-ENGINE_VERSION: Final[str] = "1.0"
-SCHEMA_VERSION: Final[str] = "confenge-live-intelligence-schema/1.0"
+# LI-W2: `observed_establishment_cnpjs` entra em COMPANY_PAYLOAD_KEYS (derivado
+# de `fields(LiveCompany)`), logo muda `schema_hash()` -> `content_hash` ->
+# `snapshot_id`. Quebra versionada e intencional (§B.3 / AC11). O
+# `contract_version` PUBLICO permanece "1.0" — as duas linhas de versao sao
+# independentes por desenho.
+ENGINE_VERSION: Final[str] = "1.1"
+SCHEMA_VERSION: Final[str] = "confenge-live-intelligence-schema/1.1"
 POLICY_VERSION: Final[str] = "confenge-live-intelligence-policy/1.0"
 CUTOFF_TIMEZONE: Final[str] = "America/Sao_Paulo"
 
@@ -286,6 +293,10 @@ class LiveCompany:
     observed_value_bands: tuple[str, ...] = ()
     observed_ufs: tuple[str, ...] = ()
     observed_buyer_cnpjs: tuple[str, ...] = ()
+    # LI-W2 §B.3 — CNPJ14 de ESTABELECIMENTO observados para a mesma raiz.
+    # Insumo dos N `company_digest` publicos (um arquivo companies/<digest>.json
+    # por elemento). Interno: nunca serializado cru no bundle publico (AC6).
+    observed_establishment_cnpjs: tuple[str, ...] = ()
     most_recent_contracting_date: date | None = None
     contracting_date_state: str = UNKNOWN
     row_completeness_state: str = ROW_COMPLETE
@@ -315,6 +326,19 @@ class LiveCompany:
 
     def portfolio_hash(self) -> str:
         return live_hash({"schema_version": SCHEMA_VERSION, "company": self.as_payload()})
+
+    def company_ref(self) -> str:
+        """Pseudonimo INTERNO 1:1 com a empresa (§B.2). METODO, nunca campo.
+
+        Como campo entraria em ``COMPANY_PAYLOAD_KEYS`` (derivado de
+        ``fields()``) e em ``portfolio_hash()`` — redundante, ja que e funcao
+        pura de ``company_root8``, que ja esta no payload. E a dataclass e
+        ``frozen``: atribuir em ``__post_init__`` exigiria ``object.__setattr__``.
+
+        **PROIBIDO em payload publico** (AC8). Uso restrito a coluna interna da
+        migration 105, ``subject_key`` de evento de empresa e auditoria interna.
+        """
+        return company_ref_from_root8(self.company_root8)
 
 
 @dataclass(frozen=True)

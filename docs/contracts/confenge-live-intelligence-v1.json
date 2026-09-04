@@ -1,0 +1,192 @@
+{
+  "schema": "CONFENGE_LIVE_INTELLIGENCE/1.0",
+  "contract_version": "v1.0.0",
+  "public_read_base": "v1.0.0",
+  "compatibility": "additive_nullable_within_v1",
+  "status": "DECLARED_NOT_YET_SHIPPED_BY_PRODUCER",
+  "consumer": {
+    "id": "web-cfg/live-intelligence",
+    "family": "web-cfg / live-intelligence engine",
+    "repository": "tjsasakifln/web-cfg",
+    "issues": ["CONFENGE-REVENUE-MULTI-ENGINE-W1"],
+    "decision": "May consume official FACTUAL opportunity and company-fit facts. extra-cli never emits INDEX. DATA_READY is not permission to index. web-cfg owns every editorial, INDEX, SEO and CTA decision. UNKNOWN is never treated as zero. Historical adherence is never eligibility, habilitação, capacity, recommendation or a prediction of award."
+  },
+  "wedge": {
+    "id": "live-intelligence-publishing",
+    "label": "Fan-in of live opportunity facts and public contractual history into a consumer-bound FACTUAL pack",
+    "reuse": "Adapters bind existing producer families; this projection does not crawl, re-identify, rescore or recompute the producer's canonical facts"
+  },
+  "grain": "opportunity_id | company_digest",
+  "keys": ["opportunity_id", "company_digest"],
+  "source_families": ["live-opportunity/1.0", "company-fit-profile/1.0"],
+  "producer_contracts": {
+    "live_opportunity": {
+      "schema": "live-opportunity/1.0",
+      "accepted_schemas": ["live-opportunity/1.0"],
+      "accepted_versions": ["1.0", "v1.0.0"],
+      "grain": "opportunity_id",
+      "payload_fields": [
+        "opportunity_id",
+        "objeto",
+        "valor",
+        "orgao",
+        "local",
+        "prazo",
+        "fonte",
+        "as_of",
+        "freshness",
+        "coverage",
+        "limitations",
+        "epistemic_classes",
+        "data_state",
+        "reason_codes",
+        "content_hash"
+      ],
+      "notes": "valor is the declared public estimate carried by the source document. It is not a CONFENGE price, quote, fee or offer, and it is never rendered next to a commitment word."
+    },
+    "company_fit_profile": {
+      "schema": "company-fit-profile/1.0",
+      "accepted_schemas": ["company-fit-profile/1.0"],
+      "accepted_versions": ["1.0", "v1.0.0"],
+      "grain": "company_digest",
+      "payload_fields": [
+        "company_digest",
+        "perfil",
+        "categorias",
+        "faixas",
+        "geografias",
+        "compradores",
+        "oportunidades_aderentes",
+        "gaps",
+        "unknowns",
+        "as_of",
+        "freshness",
+        "coverage",
+        "limitations",
+        "epistemic_classes",
+        "data_state",
+        "reason_codes",
+        "content_hash"
+      ],
+      "identity": {
+        "key": "company_digest",
+        "derivation": "consumer-side digest of the visitor-supplied CNPJ (scripts/conversion/cnpj.cjs hashCnpj)",
+        "raw_cnpj_in_payload": false,
+        "raw_cnpj_in_url": false,
+        "raw_cnpj_in_analytics": false,
+        "note": "The payload never carries a raw CNPJ. The consumer never builds a second identity model; the digest is a lookup key, not an identifier the producer resolves."
+      }
+    }
+  },
+  "data_state": {
+    "enum": ["DATA_READY", "DATA_HOLD", "DATA_REJECT"],
+    "forbidden": ["INDEX", "PUBLISHABLE_INDEX", "PUBLISHABLE_NOINDEX"],
+    "owner": "extra-cli emits only DATA_*; editorial INDEX is owned by the consumer",
+    "data_ready_is_not_index_permission": true
+  },
+  "epistemic_classes": ["FACT", "CALCULATION", "INFERENCE", "UNKNOWN"],
+  "prazo_status_enum": ["ABERTA", "SUSPENSA", "ENCERRADA", "UNKNOWN"],
+  "reason_codes": [
+    "schema_absent",
+    "schema_unsupported",
+    "contract_version_unsupported",
+    "content_hash_absent",
+    "content_hash_mismatch",
+    "manifest_hash_mismatch",
+    "freshness_absent",
+    "freshness_stale",
+    "as_of_absent",
+    "as_of_unparseable",
+    "coverage_absent",
+    "source_absent",
+    "fixture_as_live",
+    "producer_status_not_official_live"
+  ],
+  "hold_reason_codes": ["freshness_stale"],
+  "reject_reason_codes": [
+    "schema_absent",
+    "schema_unsupported",
+    "contract_version_unsupported",
+    "content_hash_absent",
+    "content_hash_mismatch",
+    "manifest_hash_mismatch",
+    "freshness_absent",
+    "as_of_absent",
+    "as_of_unparseable",
+    "coverage_absent",
+    "source_absent",
+    "fixture_as_live",
+    "producer_status_not_official_live"
+  ],
+  "as_of": "source_as_of declared by the producer export; never wall-clock",
+  "freshness": {
+    "policy": "live-intelligence-freshness-slo-v1",
+    "layer": "publication",
+    "max_age_hours": 48,
+    "generated_at": "declared export timestamp from the input payload; never wall-clock",
+    "source_as_of": "producer snapshot cutoff",
+    "expires_rule": "source_as_of plus max_age_hours",
+    "stale_rule": "generated_at minus source_as_of exceeds max_age_hours, or source_as_of is unparseable",
+    "invalidation_triggers": [
+      "opportunity identity, objeto, valor, prazo or status changes after source_as_of",
+      "the source document set of an opportunity changes after source_as_of",
+      "public contractual history of a company_digest changes after source_as_of"
+    ],
+    "invalidation_scope": "only the affected opportunity_id / company_digest payloads",
+    "refresh": "re-run python3 -m scripts.live_intelligence.consume; no new scheduler, no crawler"
+  },
+  "value_semantics": {
+    "unknown_policy": "UNKNOWN remains UNKNOWN; absence of evidence is never zero",
+    "not": [
+      "a CONFENGE price, fee, quote or offer",
+      "unit price",
+      "deflated BRL",
+      "eligibility or habilitação",
+      "technical or financial capacity",
+      "a recommendation to bid",
+      "a prediction of award",
+      "INDEX"
+    ]
+  },
+  "adherence_semantics": {
+    "definition": "Adherence describes overlap between the public contractual history of a company_digest and the declared attributes of an opportunity.",
+    "is_not": [
+      "habilitação",
+      "eligibility",
+      "capacidade técnica",
+      "capacidade financeira",
+      "recomendação",
+      "previsão de resultado"
+    ],
+    "disclaimer_pt": "Aderência histórica não é habilitação, capacidade nem recomendação. Os dados descrevem o histórico público declarado nas fontes citadas e podem estar incompletos."
+  },
+  "catalog_mode": {
+    "fixture": "labeled fixture; never consumed or labeled as live",
+    "official_live": "only when producers are live official artifacts and claimed_live is true"
+  },
+  "fixture_schema": {
+    "schema": "confenge-live-intelligence-fixture/1.0",
+    "note": "Structurally distinct from the live schema. It is rejected by schema negotiation and by the fixture-catalog guard, so a fixture can never be projected as live and can never reach PUBLISHABLE_INDEX."
+  },
+  "publication": {
+    "w1_surface_a_state": "PUBLISHABLE_NOINDEX",
+    "index_requires": "a declared family in data/organic/public-family-registry.json plus the full editorial gate; W1 declares none and ships noindex"
+  },
+  "forbidden_public_language": [
+    "extra-cli",
+    "scripts.public_read",
+    "scripts.live_intelligence",
+    "SmartLic"
+  ],
+  "forbidden_conclusion_fields": [
+    "habilitado",
+    "elegivel",
+    "capacidade",
+    "recomendacao",
+    "vencedor",
+    "probabilidade_vitoria",
+    "should_bid",
+    "INDEX"
+  ],
+  "branding": "truth plane and export are source-agnostic; brand marks and internal repo jargon are forbidden in public consumer fields"
+}

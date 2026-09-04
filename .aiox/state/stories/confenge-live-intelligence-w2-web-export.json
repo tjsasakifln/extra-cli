@@ -1,0 +1,120 @@
+{
+  "story_id": "confenge-live-intelligence-w2-web-export",
+  "risk_level": "HIGH-RISK",
+  "status": "Done",
+  "status_note": "InReview -> Done REGISTRADO pelo @qa (Quinn) em 2026-09-03, ato formal devido e NAO uma nova rodada de gate. Base normativa literal de story-lifecycle.md: 'PASS, CONCERNS, and WAIVED move the story to Done' e '@qa MUST update the story status and Change Log before reporting the gate result'. O veredito e CONCERNS (rodada 2, escopo reduzido a PRC-001); a transicao nao havia sido registrada por omissao do proprio @qa, e o @po corretamente nao a executou (po-close-story.md proibe alterar Status). PROVENIENCIA VERIFICADA ANTES DO REGISTRO, porque o gate cobre a arvore de trabalho e o @qa declarou que edicao de codigo posterior o invalidaria: (a) git status do worktree sem arquivo de codigo adicionado/removido/renomeado vs. o gate; (b) mtime dos 25 scope_files — codigo mais recente 03:03:35 (cli.py, public_policy.py, test_export_contract.py), anterior as unicas escritas posteriores, que sao docs/stories/ 03:21:41 e .aiox/state/ 03:25:22, ambas do @po; (c) reproducao POR CONTEUDO de duas afirmacoes do bloco da rodada 2 — ruff check + ruff format --check devolveram 'All checks passed!' / '26 files already formatted' (contador identico) e test_export_contract.py coletou 45 testes (identico). O aviso de invalidacao NAO foi acionado: o gate da rodada 2 permanece valido. O QUE DONE NAO SIGNIFICA: nao fecha PRC-001, nao promove po_closed (campo do @po) e NAO autoriza publicacao — publication_authorized permanece false. Se o CodeRabbit Pre-PR voltar com CRITICAL, a correcao entra como NOVA STORY, nao como reversao Done -> InProgress (transicao bloqueada pelo paragrafo 11 do protocolo).",
+  "po_validated": true,
+  "po_validation_score": "9.6/10 (rubrica 10 pontos, rodada 3, story v1.0.4); prontidao para implementacao 9/10",
+  "qa_verdict": "CONCERNS",
+  "qa_verdict_note": "CONCERNS emitido pelo @qa (Quinn) em sessao independente da do @dev, nivel HIGH-RISK aprofundado, PostgreSQL 16.15 real com REQUIRE_REAL_DB=1 em todas as invocacoes. Rodada 1: 4 issues (MNT-001 MEDIUM, REQ-001/SEC-001/DOC-001 LOW) + PRC-001 MEDIUM. Rodada 2 (re-verificacao escopada): escopo reduzido a UM item, PRC-001, dono @devops. MNT-001 e REQ-001 re-verificados pelo proprio @qa; SEC-001 e DOC-001 fechados por adjudicacao/ratificacao do @architect sem mudanca de codigo. O gate declara textualmente: 'CONCERNS aqui NAO bloqueia o fechamento do @po nem o push do @devops'. Pelo paragrafo 8 do protocolo, publicacao e evidence-based e aceita PASS, CONCERNS ou WAIVED. Se o CodeRabbit Pre-PR voltar limpo (ou so com achados nao-CRITICAL), PRC-001 fecha e o veredito equivale a PASS SEM nova rodada de @qa (declaracao do proprio @qa). Se voltar CRITICAL, volta ao @dev e o gate reabre.",
+  "po_closed": true,
+  "po_closed_note": "PROMOVIDO A TRUE em 2026-09-03 pelo @po (Pax). O bloqueio que o mantinha false — status=InReview — caiu quando o @qa registrou InReview -> Done. Nenhuma analise nova foi feita nem era devida: o fechamento administrativo do po-close-story.md ja estava integralmente executado e registrado no Change Log v1.4 (veredito CONCERNS aceito, checkboxes reconciliados, tabela de debitos criada e reconciliada com a story irma, state file criado). po_closed=true com qa_verdict=CONCERNS e legal pelo paragrafo 8 do protocolo (publicacao aceita PASS, CONCERNS ou WAIVED); o paragrafo 11 so proibe po_closed=true com FAIL. FECHAMENTO ADMINISTRATIVO NAO E AUTORIZACAO DE PUBLICACAO: publication_authorized permanece false e e campo do @devops. || NOTA ORIGINAL DO @po, preservada: FALSE DE PROPOSITO, e a razao NAO e trabalho pendente do @po. po_closed=true com status=InReview e exatamente o estado inconsistente que os hooks existem para pegar (paragrafo 11 do protocolo: transicoes impossiveis). Este campo passa a true no MESMO ato em que o @qa registrar Done — sem nova analise, sem nova rodada.",
+  "closure_key": null,
+  "closure_key_note": "NENHUMA das tres formas aceitas pelo passo 2 do po-close-story.md existe. (a) :commit:<sha> — HEAD e d80e7080, que e o commit ANTERIOR a implementacao; todo o codigo da story continua M/?? no worktree, NADA foi commitado (fato registrado pelo proprio @qa em 'Aviso sobre reviewed_commit'). Usar d80e7080 seria proveniencia FALSA: afirmaria que o @qa revisou codigo que aquele commit nao contem. (b) :pr:<number> — nao existe PR. (c) :digest:<reviewed_revision> — a proveniencia do gate e 'a arvore de trabalho como esta agora', que nao e um digest determinístico de conteudo. Consequencia aplicada conforme o passo 2: no-op declarado, NENHUM marcador de fechamento escrito na story nem na story irma. A entrada v1.4 do Change Log e bookkeeping de reconciliacao e NAO uma entrada de fechamento — deliberadamente sem closure-key.",
+  "reviewed_commit": null,
+  "reviewed_commit_note": "NULL porque nao ha commit. O gate de QA (rodada 1 e rodada 2) cobre a ARVORE DE TRABALHO NAO COMMITADA sobre HEAD=d80e7080. O paragrafo 8 exige reviewed_commit === HEAD; a igualdade e inatingivel enquanto nada estiver commitado, e inventar um SHA seria falsear a evidencia. ORDEM CORRETA para o @devops: (1) commitar a arvore de trabalho da story, filtrando ENV-001; (2) esse commit vira reviewed_commit; (3) rodar CodeRabbit Pre-PR sobre ele. AVISO DO @qa QUE E LOAD-BEARING: qualquer edicao de CODIGO posterior ao bloco 'QA Results — Re-verificacao escopada (rodada 2)' invalida o gate. As edicoes desta sessao do @po sao exclusivamente em docs/stories/ e .aiox/state/ — ZERO arquivo de codigo tocado, logo o gate permanece valido.",
+  "publication_authorized": false,
+  "publication_authorized_note": "FALSE. O @po nao autoriza publicacao — a autoridade e do @devops (@devops promove para true apos os pre-requisitos abaixo). Dois motivos independentes, ambos suficientes: (1) PRC-001 aberto — o CodeRabbit Pre-PR e verificacao OBRIGATORIA do gate HIGH-RISK e ainda nao rodou (CLI existe em ~/.local/bin/coderabbit mas esta 'signed out'; exige credencial que as sessoes @dev e @qa nao possuiam); (2) nao ha commit, logo reviewed_commit === HEAD e insatisfazivel por construcao. O item (2) e o mais duro: nao e prudencia, e ausencia do artefato que o gate mede.",
+  "scope_files": [
+    "db/migrations/105_confenge_live_intelligence_company_ref.sql",
+    "db/rollback/105_confenge_live_intelligence_company_ref_rollback.sql",
+    "scripts/confenge_live_intelligence/identity.py",
+    "scripts/confenge_live_intelligence/public_policy.py",
+    "scripts/confenge_live_intelligence/export.py",
+    "scripts/confenge_live_intelligence/events.py",
+    "scripts/confenge_live_intelligence/schema.py",
+    "scripts/confenge_live_intelligence/producer.py",
+    "scripts/confenge_live_intelligence/verifier.py",
+    "scripts/confenge_live_intelligence/cli.py",
+    "scripts/ops/li_equiv_db.py",
+    "fixtures/confenge_live_intelligence/equivalence_seed.sql",
+    "tests/confenge_live_intelligence/test_identity.py",
+    "tests/confenge_live_intelligence/test_events.py",
+    "tests/confenge_live_intelligence/test_export_contract.py",
+    "tests/confenge_live_intelligence/test_outbound_equivalence.py",
+    "tests/confenge_live_intelligence/conftest.py",
+    "tests/confenge_live_intelligence/test_migration_grants_and_rollback.py",
+    "tests/test_live_intelligence_outbound_equivalence.py",
+    "Makefile",
+    "docs/architecture/confenge-live-intelligence-w2-decisions.md",
+    "docs/contracts/confenge-live-intelligence-v1.json",
+    "docs/contracts/confenge-live-intelligence-v1.md",
+    "docs/stories/story-confenge-live-intelligence-w2-web-export.md",
+    "docs/stories/story-confenge-live-intelligence-outbound-equivalence-gate.md"
+  ],
+  "gates": {
+    "lint": "PASS",
+    "typecheck": "PASS",
+    "tests": "PASS",
+    "build": "NA",
+    "lint_note": "ruff check e ruff format --check limpos em scripts/confenge_live_intelligence/ e tests/confenge_live_intelligence/. Medicao propria do @qa na rodada 2 e re-confirmada pelo @architect na adjudicacao REQ-001 (v1.3).",
+    "typecheck_note": "mypy 2.3.1 (venv isolado, config do pyproject.toml): 12 erros / 6 arquivos. PASS PARA O ESCOPO DESTA STORY, com a ressalva declarada: dos 12, CINCO sao baseline PRE-EXISTENTE e fora de escopo (verifier.py:253/256/257/258 e cli.py:38 — _connect sem anotacao de retorno) e ZERO e novo desta story. Historico auditavel: 19 erros / 7 arquivos antes do MNT-001 -> 12 / 6 depois (delta exato de -7, com export.py saindo por completo da lista), re-verificado POR CONTEUDO pelo @qa (nao por aceite do relato do @dev) e mantido identico apos a adjudicacao REQ-001. A redacao original da story ('mypy nao executado, nao instalado neste ambiente') esta SUPERADA e foi corrigida na Task 12 pelo @po. Reducao da baseline de 5 e divida pre-existente, nao desta story.",
+    "tests_note": "PASS PARA O ESCOPO DESTA STORY, com a ressalva de TD-LI-6/extra_li_equiv DOCUMENTADA e nao mascarada. Numeros reais medidos pelo @qa e reconfirmados pelo @architect (REQUIRE_REAL_DB=1, PostgreSQL 16.15 em postgresql://test:test@127.0.0.1:5433/extra_test): tests/confenge_live_intelligence/ + tests/test_live_intelligence_outbound_equivalence.py = 234 passed / 33 skipped / 1 failed; test_export_contract.py isolado = 45 passed. OS 33 SKIPPED sao test_outbound_equivalence.py (AC10), que exige LI_EQUIV_RUNNER_DSN; sob 'make li-equiv' o arquivo roda e da 33 passed, com teardown sem residuo de database nem de role. O 1 FAILED e test_producer_state_criteria.py::test_blocked_when_watermark_is_missing, que e EXATAMENTE a divida TD-LI-6: contra o DSN compartilhado extra_test ha 5 linhas em pncp_raw_bids fora do prefixo LI-TEST-, logo existe watermark real e build_snapshot devolve READY_CANONICAL em vez de BLOCKED. Esse failure e IDENTICO A BASELINE pre-implementacao (HEAD d80e7080: 129 passed / 1 failed, o mesmo teste) e passa sob 'make li-equiv' (banco isolado extra_li_equiv): 1 passed. NENHUMA FALHA NOVA, NENHUMA ASSERCAO RELAXADA, e o DELETE ... LIKE 'LI-TEST-%' do conftest.py:23 permanece com o escopo original. E POR ISSO QUE PASS E HONESTO: o unico vermelho da suite e a propria divida que o AC10 fecha, e ela fecha no banco isolado que esta story criou."
+  },
+  "debt_reconciliation": {
+    "closed_by_this_story": [
+      {
+        "id": "TD-LI-6",
+        "class": "debito tecnico",
+        "state": "FECHADO",
+        "closed_by": "AC10",
+        "evidence": "Banco isolado extra_li_equiv (CREATE DATABASE ... TEMPLATE template0) provisionado por scripts/ops/li_equiv_db.py + make li-equiv, migrations ate a 105, role dedicado li_equiv_runner com grants derivados de schema.WRITE_TARGET_ORDER importado por nome, guarda fail-closed de DSN (dbname == extra_li_equiv + loopback) e teardown obrigatorio DROP OWNED BY -> DROP DATABASE -> DROP ROLE. test_blocked_when_watermark_is_missing passa determinísticamente contra esse banco COM AS ASSERCOES ORIGINAIS INTACTAS e SEM ampliar o escopo do DELETE ... LIKE 'LI-TEST-%'. Verificado de forma independente pelo @qa.",
+        "sibling_reconciliation": "COERENTE E CONFIRMADA NESTA SESSAO. docs/stories/story-confenge-live-intelligence-outbound-equivalence-gate.md v1.2 ja tem a linha TD-LI-6 TACHADA na tabela de debitos, marcada '(transferido — nao e mais absorvido por esta story)', com 'Dono formal do fechamento: W2, AC10' e a guarda explicita de que, se a W2 perder o AC10, TD-LI-6 volta a ser divida SEM portador e deve ser reatribuido explicitamente, NAO retornando aquela story por default. A W2 fechou o AC10, logo a guarda nao dispara e o debito FECHA. Verificado por diff nesta sessao. NENHUMA edicao adicional foi necessaria na story irma, e nenhum marcador de fechamento foi escrito la (ver closure_key_note: no-op declarado por ausencia de chave). AS DEPENDENCIAS DA STORY IRMA PERMANECEM INTACTAS: extra_li_equiv NAO descarrega '@devops provisiona 2o DSN', porque o protocolo de dois bracos exige DOIS bancos em niveis de migration DISTINTOS (Banco A <=102, Banco B <=104+) e extra_li_equiv e UM banco em nivel <=105. TD-LI-1, AR-3, AR-4, REL-004 e REL-005 continuam absorvidos por ela e nao foram tocados."
+      }
+    ],
+    "publication_items_not_technical_debt": [
+      {
+        "id": "PRC-001",
+        "severity": "MEDIUM",
+        "owner": "@devops",
+        "state": "ABERTO — unico item restante do gate",
+        "action": "coderabbit --prompt-only --base main (Pre-PR)",
+        "classification_rationale": "CLASSIFICADO COMO ITEM DE PUBLICACAO, NAO COMO DEBITO TECNICO — a distincao e deliberada. Debito tecnico e trabalho que SOBREVIVE a story e precisa de portador; item de publicacao e um gate que roda UMA VEZ antes do push e depois deixa de existir. PRC-001 nao deixa nada para carregar depois de rodar: ou volta limpo (e o veredito equivale a PASS) ou volta com CRITICAL (e retorna ao @dev como trabalho, nao como divida). Registra-lo em tabela de divida tecnica criaria um item permanente para um passo de processo — ruido que polui o backlog. Nao entra em nenhuma tabela de divida.",
+        "blocking": "Nao bloqueia o fechamento administrativo do @po. Bloqueia publication_authorized, junto com a ausencia de commit."
+      },
+      {
+        "id": "ENV-001",
+        "severity": "LOW",
+        "owner": "@devops",
+        "state": "PRE-EXISTENTE, fora do escopo desta story",
+        "action": "NAO INCLUIR NO PR — filtro de staging",
+        "classification_rationale": "Sujeira de working tree alheia a esta story em artifacts/predictive/* e docs/ops/campaigns/*. O @qa mediu antes/depois e confirmou DELTA ZERO atribuivel a esta story (as execucoes dele foram escopadas aos diretorios da LI). E instrucao operacional para quem montar o commit, nao divida desta story."
+      },
+      {
+        "id": "PR-BUDGET",
+        "severity": "MEDIUM",
+        "owner": "@devops",
+        "state": "RESTRICAO DE PUBLICACAO VIVA — registrada na v1.0.4 pelo @po, reafirmada pelo @architect no gate sistemico",
+        "action": "A implementacao W2 VAI EM PR SEPARADO",
+        "classification_rationale": "Antes da implementacao o branch ja somava ~29 arquivos / ~8008 linhas adicionadas vs origin/main, contra MAX_FILES_READY=60 e MAX_TEXTUAL_LINES_ADDED=10_000 (scripts/ops/check_pr_reviewability.py:31-32). Folga de ~1992 linhas — insuficiente para os 11 arquivos novos da implementacao (migration 105 + 4 modulos de teste + modulos de runtime). NAO E JUIZO DISCRICIONARIO DO @devops: e restricao registrada pelo @po na validacao e reafirmada pelo @architect. O checkbox de DoD 'pr-reviewability-policy conferido' foi marcado [x] SOMENTE SOB ESSA QUALIFICACAO; se @devops empacotar tudo em um PR unico, o checkbox volta a [ ] por construcao."
+      }
+    ],
+    "qa_issues_closed": [
+      "MNT-001 (MEDIUM) — RESOLVIDO, re-verificado pelo @qa por conteudo (mypy 12/6, delta -7)",
+      "REQ-001 (LOW) — RESOLVIDO, re-verificado pelo @qa no MESMO caminho que falhou na rodada 1 (catalog_mode reivindicado, default fail-closed 'fixture')",
+      "SEC-001 (LOW) — FECHADO por adjudicacao do @architect (emenda do AC5: igualdade para FORBIDDEN_FIELDS, substring para FORBIDDEN_STRINGS), sem mudanca de codigo, com tripwire nomeado de reabertura",
+      "DOC-001 (LOW) — FECHADO por ratificacao do @architect (AC1: bundle sem payload emitido tem tratamento unico), sem mudanca de codigo"
+    ],
+    "new_debt_introduced_by_this_story": "ZERO. A unica divida remanescente tocada pela story sao os 5 erros de mypy PRE-EXISTENTES (verifier.py:253/256/257/258, cli.py:38), que ja existiam antes e nao foram ampliados."
+  },
+  "rollback_plan": "Aditivo de ponta a ponta, reversao e remocao limpa. (1) Reverter os commits desta story — nenhuma coluna ou tabela existente e alterada, apenas colunas aditivas na 105 e modulos novos. (2) psql \"$LOCAL_DATALAKE_DSN\" -f db/rollback/105_confenge_live_intelligence_company_ref_rollback.sql — remove indice, CHECKs e as duas colunas novas; idempotente e permite reaplicar a 105 (ciclo aplicar -> reverter -> reaplicar exercitado contra extra_test real). (3) DROP DATABASE extra_li_equiv no cluster de teste local, se residual — nao afeta extra_test nem producao (o teardown do make li-equiv ja faz isso automaticamente, junto com DROP ROLE li_equiv_runner). (4) Se o consumidor passar a exigir supressao de orgao.cnpj em opportunities/*.json, a flag em public_policy.py e o rollback barato: nao requer migration nova nem reexport retroativo. compradores ja nasce sem CNPJ por AC6. NAO HA ROLLBACK DE PRODUCAO A PLANEJAR: a aplicacao da 105 em producao e Escopo OUT desta story.",
+  "snapshot_evidence": "[qa_environment] PostgreSQL 16.15 real (extra-test-db, postgresql://test:test@127.0.0.1:5433/extra_test), REQUIRE_REAL_DB=1 exportado em TODAS as invocacoes de pytest. Sem a flag, os itens real_db fazem SKIP limpo e o relatorio seria verde falso — armadilha declarada pelo proprio @dev e respeitada pelo @qa. || [qa_method] Nenhum item aceito a partir do relatorio do @dev. Cada afirmacao do gate tem comando rodado pelo @qa e saida real. Sondagens adversariais feitas chamando as funcoes diretamente em script descartavel — NENHUM arquivo de codigo da aplicacao foi modificado pelo @qa. A rastreabilidade AC -> teste foi provada por INJECAO ADVERSARIAL (o teste realmente falha quando a regra e violada), nao por leitura de nome de teste. || [baseline_pre_implementation] HEAD d80e7080: 129 passed / 1 failed (test_blocked_when_watermark_is_missing — exatamente a divida TD-LI-6 que o AC10 fecha). || [final_suite] 234 passed / 33 skipped / 1 failed (REQUIRE_REAL_DB=1, extra_test). test_export_contract.py isolado = 45 passed. Sob make li-equiv: +33 passed (AC10) e o failed vira 1 passed, com teardown sem residuo. || [ac10_equivalence_proof] Captura BEFORE/AFTER de conteudo por md5(string_agg(t::text, '|' ORDER BY t::text)) + count(*) sobre pncp_raw_bids, pncp_supplier_contracts, contract_role_links e sc_public_entities: IDENTICA. Delta de n_tup_ins/n_tup_upd/n_tup_del de pg_stat_all_tables (apos pg_stat_clear_snapshot()) ZERO para todo objeto fora de ALLOWED_WRITE_TARGETS, com espera ANCORADA na escrita do proprio motor para nao ler estatisticas nao descarregadas (PGSTAT_MIN_INTERVAL ~1s) e produzir falso passe. Reforco estrutural: build rodado sob o role dedicado li_equiv_runner, que so tem SELECT nos objetos outbound. || [contract_parity] company_digest provado contra vetores fixos do hashCnpj do consumidor (sha256('confenge-conversion|' + cnpj14).hexdigest()[:16]), nunca assert hash == hash. Contrato VENDORIZADO em docs/contracts/confenge-live-intelligence-v1.json (copia verbatim de tjsasakifln/web-cfg @ dea6457a14b17279713fb357cbce6c6e8087ce6c, sha256 875a9990... conferido no worktree) — test_export_contract.py roda offline, nunca contra rede nem .campaign/. || [outbound_untouched] Confirmado no diff final: nenhuma alteracao em targeting, CLAIM_POLICY, fila (queue_counts()), cadencia do outbound, scripts/testing/real_db_guard.py, nem nas migrations 104/105 em materia de grants. PROTECTED_OBJECTS, MUTATING e DML nao foram relaxados. || [migration_105_note] NAO EXISTE CHAVE 'migration' NO SCHEMA — evidencia registrada em snapshot_evidence, FORA do objeto gates, para nao inventar campo de gate que os hooks nao conhecem. Migration 105 (aditiva) validada contra PostgreSQL 16.15 REAL pelo @data-engineer e re-verificada pelo @qa (secao 6 do gate): colunas com tipo/nulidade esperados; pg_attribute.attacl IS NULL nas duas colunas novas; pg_class.relacl da tabela IDENTICO antes/depois; pg_default_acl com 0 linhas; nenhuma coluna pre-105 alterada; reexecucao e no-op (idempotente); os dois CHECK exercitados por INSERT real (9 casos, transacao revertida); rollback remove indice/CHECKs/colunas, e idempotente e permite reaplicar. Ciclo EMPILHADO verde: 104+105 -> rollback 105 -> rollback 104 -> checagem de residuo -> reaplicar 104+105. Varredura estatica de aditividade sobre os 10 statements da migration e os 7 do rollback: ZERO objeto outbound alcancado por statement mutante ou DML. NENHUMA migration ganhou GRANT INSERT/DELETE; confenge_live_intel_reader continua SELECT-only em todo database. APLICACAO EM PRODUCAO E ESCOPO OUT DESTA STORY. || [fonte_estruturada] Evidencia integral e auditavel nas secoes 'QA Results' (linha 1451) e 'QA Results — Re-verificacao escopada (rodada 2)' (linha 1782) de docs/stories/story-confenge-live-intelligence-w2-web-export.md. Serializado como string em 2026-09-03 pelo @po: o schema (.aiox/state/stories/schema.json) tipa snapshot_evidence como string|null e o valor anterior era objeto. Nenhum conteudo foi descartado — apenas achatado com prefixos [chave].",
+  "next_agent": "@devops",
+  "next_action": "ORDEM CORRETA DOS PROXIMOS PASSOS — NAO E APENAS 'CodeRabbit + PR + push'. || PASSO 1 (@qa) — CONCLUIDO em 2026-09-03: transicao InReview -> Done registrada na story (linha 3, Change Log v1.5, bloco final em QA Results) e neste arquivo. Proveniencia da arvore re-confirmada antes do registro (ver status_note); o gate da rodada 2 permanece valido. || PASSO 2 (@po) — CONCLUIDO em 2026-09-03: po_closed promovido para true neste arquivo, sem nova analise (fechamento administrativo ja registrado no Change Log v1.4). No mesmo ato, snapshot_evidence foi serializado de objeto para string por conformidade com o schema, sem perda de conteudo. || PASSO 3 (@devops): COMMITAR A ARVORE DE TRABALHO DA STORY. Isto e obrigatorio e estava fora da lista informal de pendencias: HEAD e d80e7080, que e o commit ANTERIOR a implementacao, e todo o codigo continua M/?? — NADA foi commitado. Esse commit e o que vai preencher reviewed_commit e satisfazer a igualdade reviewed_commit === HEAD exigida pelo paragrafo 8. Ao montar o commit, FILTRAR ENV-001 (sujeira pre-existente e alheia em artifacts/predictive/* e docs/ops/campaigns/*, medida pelo @qa como delta zero atribuivel a esta story — nao incluir no PR). || PASSO 4 (@devops): PRC-001 — rodar coderabbit --prompt-only --base main sobre esse commit. A CLI existe em ~/.local/bin/coderabbit mas esta 'signed out'; e necessaria credencial que as sessoes @dev e @qa nao possuiam. Limpo ou so nao-CRITICAL => PRC-001 fecha e o veredito equivale a PASS sem nova rodada de @qa. CRITICAL => volta ao @dev e o gate reabre. || PASSO 5 (@devops): DECOMPOR O PR. A implementacao W2 NAO CABE no PR atual — folga de ~1992 linhas contra 11 arquivos novos incluindo migration 105 e 4 modulos de teste. Restricao registrada pelo @po na v1.0.4 e reafirmada pelo @architect; nao e discricionaria. || PASSO 6 (@devops): promover publication_authorized para true e so entao push/PR. || ESCOPO OUT, NAO CONFUNDIR COM PENDENCIA: aplicacao da migration 105 em producao, merge do PR #538/companion e instalacao de timer/cron na VPS sao fase posterior e separada, explicitamente fora do escopo desta story.",
+  "reversa_context": {
+    "extraction_version": null,
+    "architecture": [
+      "docs/architecture/confenge-live-intelligence-w2-decisions.md"
+    ],
+    "domain": [],
+    "specifications": [
+      "docs/contracts/confenge-live-intelligence-v1.json",
+      "docs/contracts/confenge-live-intelligence-v1.md"
+    ],
+    "requirements": null,
+    "roadmap": null,
+    "actions": null,
+    "regression_watch": null,
+    "legacy_impact": null
+  }
+}
