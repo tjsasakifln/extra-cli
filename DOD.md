@@ -22,6 +22,36 @@ A single `[x]` must not hide these differences.
   contraditória e foi recusada. Produção e soak permanecem abertos.
   Runbook: `docs/ops/incidents/PNCP-458.md`.
 
+### P0 — Autoridade do plano comercial CONFENGE / incidente #468 (2026-09-04)
+
+Regra superior. Qualquer regressão que recoloque PNCP live como gate comercial
+**bloqueia o merge**.
+
+- PNCP live **não** é autoridade comercial. Papel: ingestão assíncrona +
+  telemetria `FRESH|DEGRADED|STALE|UNKNOWN`, registrada verbatim, nunca
+  fabricada. Esse status, isoladamente, não autoriza publicação, não bloqueia
+  publicação, não altera membership, não renova watermark e não substitui os
+  gates do Data Lake.
+- **commercial refresh** significa refresh/reconcile de target-fit a partir do
+  Data Lake persistido / projeção target-fit persistida.
+- **PNCP ingestion run** é operação separada (`pncp-contracts.service`). Não é
+  predecessor de contact discovery nem de feed.
+- **source run canônico** sem namespace (PNCP ingestion vs ciclo comercial no
+  Data Lake) é terminologia proibida.
+- `PENDING_ONSUCCESS` é estado inválido para target-fit, contact e feed. Os
+  estágios comerciais têm cadência independente; não se espera `OnSuccess`.
+- Os dois ciclos de aceite de #468 são **ciclos comerciais** sobre o persistido,
+  não sete janelas PNCP live.
+- Saúde do crawler (`source_maintenance_health`, freshness gate) é telemetria,
+  não autoridade comercial.
+- PR #528, handoffs e comentários da cascata PNCP→feed são SUPERSEDED como
+  instrução vigente.
+
+Contrato: `docs/contracts/confenge-commercial-plane/v1/operating-authority.json`.
+ADR: ADR-039 Accepted/Effective. Runbook:
+`docs/ops/confenge-commercial-plane-authority.md`.
+Preflight: `python3 -m scripts.ops.check_confenge_commercial_plane`.
+
 ### Identidade contratual CONFENGE / incidente #468 (2026-09-02)
 
 - [ ] Aceitar a correção de identidade somente após merge no `main`, CI do SHA

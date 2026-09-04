@@ -32,6 +32,7 @@ Existência do host **não** autoriza claims `VPS_OPERATIONAL` / `LOCAL_READY` /
 | [`searxng-private-backend.md`](searxng-private-backend.md) | SearXNG privado CONFENGE (HTTP only, AGPL, canário) |
 | [`national-census-operation.md`](national-census-operation.md) | Census nacional por catálogo oficial + checkpoints source-wide (#302) |
 | [`handoff-2026-08-29-national-census.md`](handoff-2026-08-29-national-census.md) | Limites de autoridade, validação e próxima ação do PR #525 |
+| [`confenge-commercial-plane-authority.md`](confenge-commercial-plane-authority.md) | **CURRENT** — PNCP live ≠ autoridade comercial; ciclo sobre Data Lake |
 
 ## Host / Netcup / recovery
 

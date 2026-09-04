@@ -7,8 +7,11 @@ transport?
 
 A failed refresh degrades source health. It does not rewrite a previously
 proven population into "never valid". Authority expires only by this policy
-or an explicit factual revoke. New facts still require a publication-ready
-candidate with live PNCP ``FRESH``.
+or an explicit factual revoke. Which plane governs a commercial cycle is
+``CONFENGE_COMMERCIAL_PLANE_OPERATING_AUTHORITY/1.0`` (ADR-039): live PNCP
+``FRESH`` is telemetry, not a publication gate. New facts still require a
+publication-ready candidate under Data Lake fail-closed gates plus an
+auditable source-health envelope.
 """
 
 from __future__ import annotations

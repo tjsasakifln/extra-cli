@@ -33,6 +33,15 @@ Host de record (Netcup / `ec-prod`) ≠ `VPS_OPERATIONAL`.
 
 **Norma:** `DOD.md` prevalece sobre código, stories e handoffs.
 
+Plano comercial CONFENGE (não é spec de produto aqui): PNCP live = ingestão
+assíncrona + telemetria; operação comercial lê o Data Lake persistido.
+Lei: `DOD.md` § P0 plano comercial / #468 · ADR-039 Accepted/Effective ·
+`docs/contracts/confenge-commercial-plane/v1/operating-authority.json` ·
+runbook `docs/ops/confenge-commercial-plane-authority.md`.
+Preflight: `python3 -m scripts.ops.check_confenge_commercial_plane`.
+Linter de plano: `python3 -m scripts.ops.check_confenge_campaign_plan --file <arquivo>`.
+Não tratar “source run canônico”, PR #528 ou `PENDING_ONSUCCESS` como instrução vigente.
+
 **Harness:** `python3 tools/dod_controller.py` · docs: `docs/ops/dod-convergence.md` · estado: `.dod/`
 
 ```bash

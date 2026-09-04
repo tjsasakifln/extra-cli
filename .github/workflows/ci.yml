@@ -340,6 +340,11 @@ jobs:
       - name: Validate systemd units
         run: python -m scripts.ops.validate_systemd
 
+      - name: CONFENGE commercial-plane authority (systemd / pin / ADR)
+        run: |
+          python3 -m scripts.ops.check_confenge_commercial_plane
+          python3 -m pytest tests/test_confenge_commercial_plane.py tests/test_confenge_campaign_plan.py tests/test_confenge_outreach_refresh_cascade.py tests/test_confenge_release_pin.py -q --tb=short -o addopts=
+
       - name: Migrations + resilience tests + fixture isolation (single step)
         # Single step keeps PG service state: restarts between steps can wipe ephemeral volumes.
         env:
@@ -586,6 +591,11 @@ jobs:
       - name: Profile + catalog schema
         run: |
           python -c "from scripts.commercial_leads.profile import load_profile; p=load_profile('config/commercial_profiles/confenge.yaml'); assert p.profile_id=='confenge'; assert len(p.signal_ids)>=12"
+      - name: Commercial-plane authority preflight + campaign-plan fixtures
+        run: |
+          make verify-confenge-commercial-plane
+          python3 -m scripts.ops.check_confenge_campaign_plan --file tests/fixtures/confenge_campaign_plans/good/01-stale-source-valid-datalake.md
+          python3 -m pytest tests/test_confenge_campaign_plan.py tests/test_confenge_commercial_plane.py -q --tb=short -o addopts=
       - name: Full commercial_leads unit suite
         run: |
           python -m pytest tests/commercial_leads/ -q --tb=short -o addopts=
