@@ -549,18 +549,28 @@ def build_bundle(
     blockers = header.get("blockers") or []
     aggregated_codes |= {str(b) for b in blockers}
 
+    public_decision = policy.public_decision_for(
+        catalog_mode=catalog_mode,
+        data_state=data_state,
+        freshness_state=str(freshness["state"]),
+    )
     manifest: dict[str, Any] = {
         # AC1 — a chave de envelope chama-se `schema`. `contract` NAO e emitido,
         # sem alias: alias e um segundo lugar para divergir, e `schema_absent`
         # esta em `reject_reason_codes` do contrato.
         "schema": policy.CONTRACT_SCHEMA,
         "contract_version": policy.CONTRACT_VERSION,
+        # Identidade estavel do snapshot selado. ``source_run_id`` e o mesmo
+        # valor: um segundo identificador seria um segundo lugar para divergir.
+        "snapshot_id": snapshot_id,
+        "source_run_id": snapshot_id,
         # REQ-001 — proveniencia REIVINDICADA, nunca literal. Os tres campos sao
         # derivados do mesmo `catalog_mode` para que nao exista um segundo lugar
         # onde a proposicao "este bundle e oficial ao vivo" possa divergir.
         "catalog_mode": catalog_mode,
         "official_live": official_live,
         "producer_status": policy.producer_status_for(catalog_mode),
+        "public_decision": public_decision,
         "as_of": as_of.isoformat(),
         "generated_at": freshness["generated_at"],
         "source_as_of": freshness["source_as_of"],

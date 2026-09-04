@@ -112,9 +112,12 @@ def main(argv: list[str] | None = None) -> int:
             )
             payload = {
                 "snapshot_id": args.snapshot_id,
+                "source_run_id": manifest["source_run_id"],
                 "out_dir": args.out_dir,
                 "catalog_mode": manifest["catalog_mode"],
                 "official_live": manifest["official_live"],
+                "public_decision": manifest["public_decision"],
+                "as_of": manifest["as_of"],
                 "data_state": manifest["data_state"],
                 "coverage": manifest["coverage"],
                 "manifest_hash": manifest["manifest_hash"],

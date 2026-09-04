@@ -64,6 +64,27 @@ def producer_status_for(catalog_mode: str) -> str:
     return PRODUCER_STATUS_OFFICIAL_LIVE if catalog_mode == CATALOG_MODE_OFFICIAL_LIVE else PRODUCER_STATUS_FIXTURE
 
 
+# Decisao PUBLICA de publicacao. Distinta de ``data_state`` (completude) e de
+# ``catalog_mode`` (proveniencia): so e ``public_safe`` quando as tres condicoes
+# coincidem. Nao e INDEX — INDEX e decisao do consumidor.
+PUBLIC_SAFE: Final[str] = "public_safe"
+NOT_PUBLIC_SAFE: Final[str] = "not_public_safe"
+PUBLIC_DECISIONS: Final[tuple[str, ...]] = (PUBLIC_SAFE, NOT_PUBLIC_SAFE)
+
+
+def public_decision_for(*, catalog_mode: str, data_state: str, freshness_state: str) -> str:
+    """Decisao explicita ``public_safe`` / ``not_public_safe``.
+
+    Fail-closed: omitir qualquer eixo (proveniencia, completude, frescor) nao
+    produz ``public_safe``. Fixture, DATA_HOLD/DATA_REJECT e STALE sao todos
+    ``not_public_safe``. Nao le relogio, IO nem o payload — so os tres rotulos
+    ja derivados.
+    """
+    if catalog_mode == CATALOG_MODE_OFFICIAL_LIVE and data_state == DATA_READY and freshness_state == FRESHNESS_FRESH:
+        return PUBLIC_SAFE
+    return NOT_PUBLIC_SAFE
+
+
 # --- §A.1 mapas de enum ----------------------------------------------------
 
 DATA_READY: Final[str] = "DATA_READY"
