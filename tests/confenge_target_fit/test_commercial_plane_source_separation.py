@@ -44,6 +44,25 @@ def dsn() -> str:
     return DSN
 
 
+@pytest.fixture
+def terminal_queue(dsn: str):
+    """Other real_db tests may leave dirty rows; commercial gates require a terminal queue."""
+    conn = connect(dsn, readonly=False)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                UPDATE confenge_target_fit_dirty
+                SET status = 'done'
+                WHERE status IN ('pending', 'processing', 'retry', 'dead')
+                """
+            )
+        conn.commit()
+    finally:
+        conn.close()
+    return dsn
+
+
 def _envelope(status: str, *, reason: str, fresh_observed: bool = False) -> dict[str, object]:
     payload: dict[str, object] = {
         "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
@@ -92,6 +111,7 @@ def _seed(conn, *, coverage_ratio: float, unexplained: int, pagination: bool) ->
     conn.commit()
 
 
+@pytest.mark.usefixtures("terminal_queue")
 @pytest.mark.parametrize(
     "status,reason",
     [
@@ -119,6 +139,7 @@ def test_valid_datalake_does_not_abort_on_non_fresh_source(dsn: str, status: str
     assert _envelope(status, reason=reason)["status"] == status
 
 
+@pytest.mark.usefixtures("terminal_queue")
 def test_invalid_datalake_fails_closed_even_when_source_is_fresh(dsn: str) -> None:
     conn = connect(dsn, readonly=False)
     try:
