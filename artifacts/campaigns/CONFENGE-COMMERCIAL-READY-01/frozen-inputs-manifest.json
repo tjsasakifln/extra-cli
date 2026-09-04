@@ -1,7 +1,7 @@
 {
   "schema_version": "confenge-frozen-inputs/1.0",
   "campaign": "CONFENGE-COMMERCIAL-READY-01",
-  "freeze_sha": "49a86d5f15684a37562f1e4143bf5988eed7b750",
+  "freeze_sha": "d1ca724668403a111df7bc3626e92aa142982e36",
   "policy": "frozen_confenge_inputs_v1",
   "inputs": [
     {
@@ -507,8 +507,8 @@
     {
       "path": "scripts/confenge_target_fit/freshness.py",
       "kind": "file",
-      "blob_sha": "f76f7e9704fe0a2fc9af5d775072ab33c5dcd33b",
-      "sha256": "e598d0773b8198e5fe89cc2e42eae21913841404c70559c573fc0a68ab5312da"
+      "blob_sha": "49cb44b0a216ae2ea8d4efe8deba42f23c0abf08",
+      "sha256": "a6ac992812bf35feee55191efa468332e22a08ba1a3a9bff4ec9a8eb1dfe0764"
     },
     {
       "path": "scripts/confenge_target_fit/models.py",
@@ -519,8 +519,8 @@
     {
       "path": "scripts/confenge_target_fit/published.py",
       "kind": "file",
-      "blob_sha": "a722633ccb2906cddc1c913b0975a7357f7a894d",
-      "sha256": "cd18eeddbd4520b89caea08c82e5b713bc9f773f843c08ae7a8344d8f0290201"
+      "blob_sha": "12718be85d980fffd6cb3cbacfe5e5c574b073a0",
+      "sha256": "96ef945400df579c485cfa5a1e681850926bf65f92ff7d3dc8c892d5ac162811"
     },
     {
       "path": "scripts/confenge_target_fit/store.py",
