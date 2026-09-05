@@ -14,7 +14,6 @@ import pytest
 
 from scripts.contracts.engineering_class import (
     attach_engineering_class,
-    classify_engineering_class,
     stamp_engineering_class_labels,
 )
 from scripts.crawl.pncp_contract_terms import map_pncp_term
