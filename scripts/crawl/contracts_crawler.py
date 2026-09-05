@@ -35,6 +35,10 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
+from scripts.contracts.engineering_class import (
+    attach_engineering_class,
+    stamp_engineering_class_labels,
+)
 from scripts.contracts_identity import normalize_supplier_identity
 from scripts.contracts_truth import (
     PaginationReconcile,
@@ -54,6 +58,7 @@ from scripts.crawl.common import (
 from scripts.crawl.common import (
     trunc as trunc,
 )
+from scripts.crawl.pncp_structural_fields import attach_structural_fields
 from scripts.crawl.security import USER_AGENT, sanitize_url_param, validate_url_scheme
 
 # Add project root for standalone imports
@@ -393,6 +398,7 @@ def _persist_window_if_enabled(raw_items: list[dict]) -> int:
             )
             rows = cur.fetchall()
             stamped = stamp_contract_truth_labels(conn, transformed)
+            stamp_engineering_class_labels(conn, transformed)
             conn.commit()
         finally:
             conn.close()
@@ -761,7 +767,9 @@ def _transform_record(rec: dict) -> dict | None:
             "municipio": municipio,
             "source_id": contrato_id,
         }
-        return annotate_transformed_contract(record, raw=rec)
+        attach_structural_fields(record, rec)
+        annotated = annotate_transformed_contract(record, raw=rec)
+        return attach_engineering_class(annotated)
 
     except Exception as e:
         logger.warning("Transform error for record %s: %s", rec.get("numeroControlePNCP", ""), e)

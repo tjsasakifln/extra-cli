@@ -42,6 +42,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
+from scripts.contracts.engineering_class import stamp_engineering_class_labels  # noqa: E402
 from scripts.contracts_truth import PaginationReconcile, stamp_contract_truth_labels  # noqa: E402
 from scripts.crawl import contracts_crawler as _cc  # noqa: E402
 from scripts.crawl.contracts_crawler import (  # noqa: E402
@@ -627,6 +628,7 @@ def _upsert_batch(conn: Any, rows: list[dict]) -> tuple[int, int]:
         )
         actions = cur.fetchall()
         stamp_contract_truth_labels(conn, payload)
+        stamp_engineering_class_labels(conn, payload)
         conn.commit()
     except Exception:
         conn.rollback()
