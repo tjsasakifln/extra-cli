@@ -54,6 +54,7 @@ from scripts.crawl.common import (
 from scripts.crawl.common import (
     trunc as trunc,
 )
+from scripts.crawl.pncp_structural_fields import attach_structural_fields
 from scripts.crawl.security import USER_AGENT, sanitize_url_param, validate_url_scheme
 
 # Add project root for standalone imports
@@ -761,6 +762,7 @@ def _transform_record(rec: dict) -> dict | None:
             "municipio": municipio,
             "source_id": contrato_id,
         }
+        attach_structural_fields(record, rec)
         return annotate_transformed_contract(record, raw=rec)
 
     except Exception as e:
