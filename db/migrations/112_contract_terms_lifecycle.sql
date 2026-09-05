@@ -86,6 +86,8 @@ BEGIN
            upserted.term_id
     FROM upserted;
 
+    -- Terminal events stay sticky unless a newer *dated* term exists.
+    -- An undated later ADITIVO must not clobber REVOGACAO/ANULACAO/RESCISAO.
     UPDATE public.pncp_supplier_contracts AS contract
     SET lifecycle_event_last = term.tipo_termo,
         lifecycle_event_at = term.data_assinatura
@@ -95,9 +97,19 @@ BEGIN
           SELECT rec->>'term_id' FROM jsonb_array_elements(p_records) rec
       )
       AND (
-          contract.lifecycle_event_at IS NULL
-          OR term.data_assinatura IS NULL
-          OR term.data_assinatura >= contract.lifecycle_event_at
+          (
+              term.data_assinatura IS NOT NULL
+              AND (
+                  contract.lifecycle_event_at IS NULL
+                  OR term.data_assinatura >= contract.lifecycle_event_at
+              )
+          )
+          OR (
+              term.data_assinatura IS NULL
+              AND COALESCE(contract.lifecycle_event_last, '') NOT IN (
+                  'REVOGACAO', 'ANULACAO', 'RESCISAO'
+              )
+          )
       );
 END;
 $$;
