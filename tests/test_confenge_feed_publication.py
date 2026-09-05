@@ -275,6 +275,35 @@ def _zero_membership_build(root: Path, *, include_drop: bool = True) -> Path:
     return build
 
 
+def test_publish_does_not_refuse_when_persisted_datalake_watermark_is_older_than_max_age(
+    tmp_path: Path,
+) -> None:
+    """Live #468 REV-05 cycle-1 retry failed here: datalake watermark 27h > 24h.
+
+    ADR-039: PNCP/datalake observation age is telemetry. A complete contact
+    projection and coverage_complete feed must still publish. The previous
+    current is kept only on true Data Lake/membership failure, not on watermark age.
+    """
+    public, state, alerts = _paths(tmp_path)
+    build = _build(tmp_path / "build-stale-watermark")
+    manifest_path = build / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    stale = (NOW - timedelta(hours=27, minutes=27)).isoformat().replace("+00:00", "Z")
+    manifest["source"]["datalake_watermark"] = stale
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    result = atomic_publish_directory(
+        build,
+        public,
+        state_path=state,
+        alert_ledger=alerts,
+        now=NOW,
+        max_age_hours=24,
+    )
+    assert result["ok"] is True
+    assert json.loads(state.read_text())["last_status"] == "PUBLISHED"
+    assert not alerts.exists()
+
+
 def test_publish_records_live_contact_metrics_and_immutable_release(tmp_path: Path) -> None:
     public, state, alerts = _paths(tmp_path)
     result = atomic_publish_directory(

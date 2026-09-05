@@ -887,6 +887,7 @@ def atomic_publish_directory(
             manifest,
             max_age_hours=max_age_hours,
             now=clock,
+            require_live_source_freshness=False,
         )
     except Exception as exc:
         detail = {"build_dir": str(build_dir), "error": str(exc)}
