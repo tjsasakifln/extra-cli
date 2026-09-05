@@ -8,6 +8,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 from scripts.ops.check_confenge_commercial_plane import main as preflight_main
 from scripts.ops.confenge_commercial_plane import (
     apply_host_readback,
@@ -123,6 +125,25 @@ def test_stale_as_commercial_block_fails(tmp_path: Path) -> None:
     pipeline.write_text(
         pipeline.read_text(encoding="utf-8")
         + '\nif freshness.get("status") != "FRESH":\n    raise ValueError("stale blocks commerce")\n',
+        encoding="utf-8",
+    )
+    ev = evaluate_repo(clone)
+    assert any(c.name == "pncp_fresh_not_commercial_gate" and not c.ok for c in ev.checks)
+
+
+@pytest.mark.parametrize(
+    "assignment",
+    [
+        "datalake_watermark = source_observed_at",
+        'projected["source_watermark"] = source_observed_at',
+    ],
+)
+def test_telemetry_watermark_restamp_fails(tmp_path: Path, assignment: str) -> None:
+    clone = _minimal_tree(tmp_path)
+    pipeline = clone / "scripts/confenge_outreach_pipeline/pipeline.py"
+    pipeline.write_text(
+        pipeline.read_text(encoding="utf-8")
+        + '\nif freshness.get("status") == "FRESH":\n    ' + assignment + "\n",
         encoding="utf-8",
     )
     ev = evaluate_repo(clone)

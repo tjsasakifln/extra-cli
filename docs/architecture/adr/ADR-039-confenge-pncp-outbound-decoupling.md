@@ -75,9 +75,12 @@ DSN. Agora é incondicional com DSN, independente da saúde da fonte:
 - envelope de source health ausente ou malformado (build inauditável);
 - recência da própria publicação (`generated_at`, watermark do datalake).
 
-Apenas três comportamentos permanecem acoplados ao PNCP, e só quando o contrato
-é `FRESH`: a ordenação `last_full_reconcile >= source_observed_at`, a reescrita
-de `source_watermark` e o carimbo `target_fit_observation_run_id`.
+O binding comercial conserva o watermark CDC e os watermarks de decisão lidos
+do Data Lake. Mesmo `FRESH`, `source_observed_at` é apenas telemetria: não
+substitui esses valores nem carimba um run de observação nas decisões. A
+recência do full reconcile continua sendo provada pelo estado persistido.
+Correção causal do incidente #468; prova e gate de retomada em
+`docs/ops/handoff-2026-09-05-468-persisted-watermark-binding.md`.
 
 ## Escopo explicitamente fora
 

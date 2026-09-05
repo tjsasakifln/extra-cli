@@ -481,28 +481,13 @@ def _published_target_fit_snapshot(
 
     raw_cnpjs = [str(row.get("cnpj14") or row.get("cnpj") or "") for row in rows]
     lookup_cnpjs = sorted({cnpj for raw in raw_cnpjs for cnpj in (raw, canonical_cnpj14(raw)) if cnpj})
-    # A FRESH source lets the snapshot be re-stamped with the live observation.
-    # A STALE/UNKNOWN/absent source only means there is no new observation to
-    # project: the persisted decisions below remain the operational authority.
-    freshness = authoritative_source_freshness or {}
-    source_observed_at = ""
-    observed_dt: datetime | None = None
-    if freshness.get("status") == "FRESH":
-        source_observed_at = str(freshness.get("source_observed_at") or "").strip()
-        if not source_observed_at:
-            raise ValueError("FRESH authoritative PNCP source is missing source_observed_at")
-        try:
-            observed_dt = datetime.fromisoformat(source_observed_at.replace("Z", "+00:00"))
-        except ValueError as exc:
-            raise ValueError("authoritative PNCP source_observed_at is invalid") from exc
-        if observed_dt.tzinfo is None:
-            raise ValueError("authoritative PNCP source_observed_at must be timezone-aware")
-
     conn = connect(dsn, readonly=True)
     try:
         published = load_published_index(conn, cnpj14s=lookup_cnpjs)
         control = get_control(conn, "cdc_watermark")
         datalake_watermark = str(control.get("watermark") or "").strip() or None
+        if not datalake_watermark:
+            raise ValueError("persisted CDC watermark is missing")
         # Datalake integrity is unconditional. These are the fail-closed gates
         # over the persisted population itself, so they must hold whatever the
         # live source is doing: an incomplete national reconcile, an unexplained
@@ -526,14 +511,6 @@ def _published_target_fit_snapshot(
         unresolved = sum(int(queue.get(status) or 0) for status in ("pending", "processing", "retry", "dead"))
         if unresolved:
             raise ValueError(f"target-fit store has {unresolved} unresolved queue items")
-        project_live_observation = False
-        if observed_dt is not None and last_full_dt >= observed_dt:
-            # Reconcile already covers this PNCP observation: stamp it.
-            # A newer FRESH observation is telemetry only — ADR-039: the
-            # commercial plane publishes the last complete persisted reconcile
-            # and does not wait for another target-fit pass after PNCP live.
-            datalake_watermark = source_observed_at
-            project_live_observation = True
     finally:
         conn.close()
 
@@ -547,16 +524,9 @@ def _published_target_fit_snapshot(
             continue
         if not str(decision.get("source_watermark") or decision.get("target_fit_source_watermark") or "").strip():
             continue
-        projected = dict(decision)
-        if project_live_observation and source_observed_at:
-            projected["target_fit_evidence_watermark"] = str(
-                decision.get("source_watermark") or decision.get("target_fit_source_watermark") or ""
-            )
-            projected["source_watermark"] = source_observed_at
-            projected["target_fit_observation_run_id"] = str((authoritative_source_freshness or {}).get("run_id") or "")
         snapshot.append(
             {
-                **projected,
+                **decision,
                 "cnpj14": canonical,
                 "cnpj_raiz": canonical[:8],
                 "company_key": f"cnpj_root:{canonical[:8]}",
