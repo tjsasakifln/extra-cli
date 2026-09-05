@@ -3,6 +3,7 @@
 from unittest.mock import patch
 
 from scripts.crawl import contracts_crawler as cc
+from scripts.crawl.pncp_structural_fields import STRUCTURAL_FIELD_KEYS
 
 # ---------------------------------------------------------------------------
 # Mock data
@@ -218,6 +219,7 @@ class TestTransformRecord:
             "source",
             "source_contract_id",
             "parent_procurement_id",
+            *STRUCTURAL_FIELD_KEYS,
         }
         assert set(result.keys()) == expected_fields, (
             f"Field mismatch. Extra: {set(result.keys()) - expected_fields}. "
