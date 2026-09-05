@@ -140,6 +140,47 @@ def test_failed_partial_cycle_keeps_previous_projection_and_is_resumable(tmp_pat
     assert all(command[command.index("batch") + 1] not in {"publish", "export-contacts"} for command in runner.commands)
 
 
+def test_export_failure_after_snapshot_keeps_current_projection_unchanged(tmp_path: Path) -> None:
+    """A failed cohort never atomically swaps a partial contact projection into current."""
+    output = tmp_path / "contact-discovery"
+    previous = output / "projections" / "previous"
+    previous.mkdir(parents=True)
+    (previous / "contacts.jsonl").write_text("old\n", encoding="utf-8")
+    (previous / "contact-projection-report.json").write_text("{}\n", encoding="utf-8")
+    (output / "current").symlink_to(Path("projections") / "previous", target_is_directory=True)
+    runner = FakeRunner([terminal_progress()])
+
+    def fail_export(command: list[str]) -> dict:
+        if command[command.index("batch") + 1] == "export-contacts":
+            partial = Path(command[command.index("--out") + 1])
+            partial.parent.mkdir(parents=True, exist_ok=True)
+            partial.write_text('{"partial":true}\n', encoding="utf-8")
+            raise RuntimeError("simulated projection export failure")
+        return runner(command)
+
+    with pytest.raises(RuntimeError, match="simulated projection export failure"):
+        run_cycle(
+            output_root=output,
+            state_path=tmp_path / "state.json",
+            alert_ledger=tmp_path / "alerts.jsonl",
+            search_backend="searxng",
+            searxng_url=None,
+            service="reajuste_14133",
+            backend_concurrency=12,
+            domain_concurrency=1,
+            poll_seconds=0,
+            timeout_seconds=60,
+            runner=fail_export,
+            sleep=lambda _seconds: None,
+            now=lambda: NOW,
+        )
+
+    assert (output / "current" / "contacts.jsonl").read_text(encoding="utf-8") == "old\n"
+    assert (output / "current").resolve() == previous.resolve()
+    state = json.loads((tmp_path / "state.json").read_text(encoding="utf-8"))
+    assert state["last_status"] == "FAILED"
+
+
 def test_resume_terminal_cohort_does_not_enqueue_again(tmp_path: Path) -> None:
     state = tmp_path / "state.json"
     state.write_text(

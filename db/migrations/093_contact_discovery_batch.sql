@@ -71,8 +71,9 @@ CREATE TABLE IF NOT EXISTS contact_discovery_jobs (
     )
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS uq_contact_discovery_jobs_active_identity
+CREATE UNIQUE INDEX IF NOT EXISTS uq_contact_discovery_jobs_active_identity_v2
     ON contact_discovery_jobs (
+        cohort_id,
         canonical_account_id,
         discovery_policy_version,
         input_evidence_version,
