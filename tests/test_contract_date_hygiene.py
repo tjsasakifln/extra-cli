@@ -12,8 +12,8 @@ from scripts.contracts_truth import (
     QUARANTINED,
     annotate_transformed_contract,
     classify_contract_quality,
-    null_implausible_contract_dates,
 )
+from scripts.crawl.date_semantics import null_implausible_contract_dates
 from scripts.testing.real_db_guard import canonical_dsn
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -52,7 +52,8 @@ def test_inferred_status_does_not_get_fabricated_observed_at() -> None:
         raw={"objetoContrato": "obra"},
     )
     assert not record.get("status_raw")
-    assert record["status_observed_at"] is None
+    # Python annotate must not invent now(); persist trigger fills only official status.
+    assert record.get("status_observed_at") is None
 
 
 def test_official_status_does_not_invent_now() -> None:
