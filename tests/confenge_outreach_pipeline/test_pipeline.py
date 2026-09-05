@@ -479,7 +479,7 @@ def test_published_decision_without_a_watermark_is_tombstoned_not_exported(monke
     assert [row["cnpj_raiz"] for row in snapshot] == ["11222333"]
 
 
-def test_fresh_closed_source_reobserves_full_target_fit_without_erasing_evidence_watermark(
+def test_fresh_closed_source_preserves_persisted_target_fit_binding(
     monkeypatch,
 ) -> None:
     import scripts.confenge_outreach_pipeline.pipeline as pipeline
@@ -532,10 +532,10 @@ def test_fresh_closed_source_reobserves_full_target_fit_without_erasing_evidence
 
     assert conn.closed is True
     assert authority == "published_target_fit_store"
-    assert watermark == "2026-08-25T02:42:00Z"
-    assert snapshot[0]["source_watermark"] == "2026-08-25T02:42:00Z"
-    assert snapshot[0]["target_fit_evidence_watermark"] == "2026-08-16T08:30:23Z"
-    assert snapshot[0]["target_fit_observation_run_id"] == "contracts-live-1"
+    assert watermark == "2026-08-24T03:26:43Z"
+    assert snapshot[0]["source_watermark"] == "2026-08-16T08:30:23Z"
+    assert "target_fit_evidence_watermark" not in snapshot[0]
+    assert "target_fit_observation_run_id" not in snapshot[0]
 
 
 def test_target_fit_reobservation_fails_closed_until_full_reconcile_and_queue_drain(

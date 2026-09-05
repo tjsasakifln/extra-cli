@@ -322,12 +322,16 @@ def evaluate_commercial_code(root: Path) -> list[Check]:
             envelope_ok = True
         if _FRESH_ABORT.search(text):
             hits.append(str(rel))
-    # pipeline.py restamps watermark only when status == FRESH; that is allowed.
+    # Even FRESH telemetry must not replace persisted binding watermarks.
     pipeline = root / "scripts/confenge_outreach_pipeline/pipeline.py"
     if pipeline.is_file():
         text = _read(pipeline)
-        if "if freshness.get(\"status\") == \"FRESH\"" not in text:
-            hits.append("pipeline_missing_fresh_restamp_guard")
+        if re.search(
+            r'''(?:\bdatalake_watermark|\[["'](?:source_watermark|target_fit_source_watermark)["']\])'''
+            r"\s*=\s*source_observed_at\b",
+            text,
+        ):
+            hits.append("pipeline_telemetry_rewrites_persisted_watermark")
         abort_on_non_fresh = re.search(
             r'if freshness\.get\("status"\) != "FRESH"',
             text,

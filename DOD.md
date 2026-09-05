@@ -52,6 +52,11 @@ ADR: ADR-039 Accepted/Effective. Runbook:
 `docs/ops/confenge-commercial-plane-authority.md`.
 Preflight: `python3 -m scripts.ops.check_confenge_commercial_plane`.
 
+- [ ] #468: provar binding CDC/decisões preservado sob telemetria PNCP `FRESH`,
+  inclusive observação anterior ou igual ao full reconcile. A correção não
+  encerra o incidente: exige SHA implantado, novo checkpoint do founder e dois
+  ciclos novos. Evidência: `docs/ops/handoff-2026-09-05-468-persisted-watermark-binding.md`.
+
 ### Identidade contratual CONFENGE / incidente #468 (2026-09-02)
 
 - [ ] Aceitar a correção de identidade somente após merge no `main`, CI do SHA

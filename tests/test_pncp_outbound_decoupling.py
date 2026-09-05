@@ -34,7 +34,13 @@ def _healthy_coverage() -> dict[str, object]:
     }
 
 
-def _wire(monkeypatch, *, coverage: dict[str, object], queue: dict[str, int]) -> _FakeConnection:
+def _wire(
+    monkeypatch,
+    *,
+    coverage: dict[str, object],
+    queue: dict[str, int],
+    cdc_watermark: str | None = "2026-08-24T03:26:43Z",
+) -> _FakeConnection:
     import scripts.confenge_outreach_pipeline.pipeline as pipeline
     import scripts.confenge_target_fit.db as target_fit_db
 
@@ -55,7 +61,7 @@ def _wire(monkeypatch, *, coverage: dict[str, object], queue: dict[str, int]) ->
     monkeypatch.setattr(
         pipeline,
         "get_control",
-        lambda connection, key: ({"watermark": "2026-08-24T03:26:43Z"} if key == "cdc_watermark" else coverage),
+        lambda connection, key: ({"watermark": cdc_watermark} if key == "cdc_watermark" else coverage),
     )
     monkeypatch.setattr(pipeline, "queue_counts", lambda connection: queue)
     return conn
@@ -98,8 +104,22 @@ def test_an_unreachable_source_is_indistinguishable_from_a_degraded_one(monkeypa
     assert [row["cnpj_raiz"] for row in snapshot] == ["11222333"]
 
 
-def test_a_fresh_source_still_reobserves_the_snapshot(monkeypatch) -> None:
-    """Regression guard: the FRESH path must stay byte-for-byte compatible."""
+@pytest.mark.parametrize(
+    "source_observed_at",
+    [
+        "2026-08-25T02:42:00Z",  # before the persisted full reconcile
+        "2026-08-25T02:45:00Z",  # equal to the persisted full reconcile
+        "2026-08-25T02:50:00Z",  # after the persisted full reconcile
+        "2026-08-25T02:42:00",  # timezone-naive telemetry must not gate it
+        "",  # absent telemetry must not gate the persisted snapshot
+        "not-a-timestamp",  # malformed telemetry must not gate it either
+    ],
+)
+def test_source_telemetry_never_rewrites_persisted_binding(
+    source_observed_at: str,
+    monkeypatch,
+) -> None:
+    """PNCP freshness is telemetry, never persisted binding provenance."""
     _wire(monkeypatch, coverage=_healthy_coverage(), queue={"done": 407_513})
 
     snapshot, _, watermark = _published_target_fit_snapshot(
@@ -108,15 +128,36 @@ def test_a_fresh_source_still_reobserves_the_snapshot(monkeypatch) -> None:
         authoritative_source_freshness={
             "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
             "status": "FRESH",
-            "source_observed_at": "2026-08-25T02:42:00Z",
+            "source_observed_at": source_observed_at,
             "run_id": "contracts-live-1",
         },
     )
 
-    assert watermark == "2026-08-25T02:42:00Z"
-    assert snapshot[0]["source_watermark"] == "2026-08-25T02:42:00Z"
-    assert snapshot[0]["target_fit_evidence_watermark"] == "2026-08-16T08:30:23Z"
-    assert snapshot[0]["target_fit_observation_run_id"] == "contracts-live-1"
+    assert watermark == "2026-08-24T03:26:43Z"
+    assert snapshot[0]["source_watermark"] == "2026-08-16T08:30:23Z"
+    assert "target_fit_evidence_watermark" not in snapshot[0]
+    assert "target_fit_observation_run_id" not in snapshot[0]
+
+
+@pytest.mark.parametrize("cdc_watermark", [None, "", "   "])
+def test_a_missing_persisted_cdc_watermark_fails_closed(cdc_watermark: str | None, monkeypatch) -> None:
+    _wire(
+        monkeypatch,
+        coverage=_healthy_coverage(),
+        queue={"done": 407_513},
+        cdc_watermark=cdc_watermark,
+    )
+
+    with pytest.raises(ValueError, match="persisted CDC watermark is missing"):
+        _published_target_fit_snapshot(
+            [{"cnpj14": "11222333000181"}],
+            dsn="postgresql://unused",
+            authoritative_source_freshness={
+                "contract_version": "PNCP_CONTRACT_FRESHNESS/1.0",
+                "status": "FRESH",
+                "source_observed_at": "2026-08-25T02:42:00Z",
+            },
+        )
 
 
 @pytest.mark.parametrize("status", [*DEGRADED_STATUSES, "FRESH"])
