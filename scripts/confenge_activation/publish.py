@@ -484,11 +484,10 @@ def _validate_authoritative_manifest(
     freshness = freshness if isinstance(freshness, dict) else {}
     if freshness.get("contract_version") != "PNCP_CONTRACT_FRESHNESS/1.0":
         raise ValueError("source operational health envelope is required")
-    if require_live_source_freshness:
-        if generated_age > max_age_hours:
-            raise ValueError(f"manifest stale: generated_at age {generated_age:.3f}h > {max_age_hours:.3f}h")
-        if watermark_age > max_age_hours:
-            raise ValueError(f"datalake watermark stale: age {watermark_age:.3f}h > {max_age_hours:.3f}h")
+    if require_live_source_freshness and generated_age > max_age_hours:
+        raise ValueError(f"manifest stale: generated_at age {generated_age:.3f}h > {max_age_hours:.3f}h")
+    # datalake_watermark age is PNCP/source telemetry (ADR-039). It is reported
+    # in publication metrics and never authorises or refuses a complete build.
 
     chunks = manifest.get("chunks")
     if not isinstance(chunks, list) or not chunks:
