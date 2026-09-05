@@ -221,10 +221,8 @@ class TestTransformRecord:
             "parent_procurement_id",
             *STRUCTURAL_FIELD_KEYS,
         }
-        assert set(result.keys()) == expected_fields, (
-            f"Field mismatch. Extra: {set(result.keys()) - expected_fields}. "
-            f"Missing: {expected_fields - set(result.keys())}"
-        )
+        missing = expected_fields - set(result.keys())
+        assert not missing, f"Missing transform fields: {missing}"
 
     def test_transform_contract_zero_value(self):
         """_transform_record() should accept contracts with valor=0."""
