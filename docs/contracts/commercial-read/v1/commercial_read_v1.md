@@ -20,3 +20,11 @@ Role: `confenge_commercial_read_v1` (SELECT-only, NOLOGIN, no credentials in rep
 Do not derive one from another.
 
 Engineering class comes from `contract_engineering_class` (#544), never from objeto regex.
+
+## Candidate additive columns (migration 116)
+
+Official identity (not objeto regex): `tipo_contrato_*`, `categoria_processo_*`, `modalidade_*`, `regime_execucao_*`, `srp`.
+
+Fail-closed #545: `procurement_result_status` is `UNKNOWN` unless a persisted `RESULT_PUBLISHED` or `HOMOLOGATED` row exists for `parent_procurement_id`. `trigger_type` is never `RESULT_PUBLISHED`, `ADJUDICATED`, or `HOMOLOGATED`. Absence of a field or event stays `UNKNOWN`.
+
+Cadastral contact is `v_supplier_cadastral_contact` (SELECT-only). It is not decision-maker contact.
