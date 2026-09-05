@@ -302,6 +302,7 @@ def test_publish_does_not_refuse_when_persisted_datalake_watermark_is_older_than
     assert result["ok"] is True
     assert json.loads(state.read_text())["last_status"] == "PUBLISHED"
     assert not alerts.exists()
+    assert result["watermark_age_hours"] > 24.0
 
 
 def test_publish_records_live_contact_metrics_and_immutable_release(tmp_path: Path) -> None:
