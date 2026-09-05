@@ -22,6 +22,15 @@ def test_term_types_are_distinct() -> None:
     assert classify_term_type("Anulacao do contrato") == "ANULACAO"
 
 
+def test_migration_keeps_terminal_lifecycle_sticky() -> None:
+    sql = (ROOT / "db/migrations/112_contract_terms_lifecycle.sql").read_text(encoding="utf-8")
+    assert "sticky" in sql.lower()
+    assert "term.data_assinatura IS NOT NULL" in sql
+    assert "NOT IN (" in sql
+    assert "REVOGACAO" in sql
+    assert "OR term.data_assinatura IS NULL\n          OR term.data_assinatura >=" not in sql
+
+
 def test_mapper_is_idempotent() -> None:
     payload = {
         "numeroControlePNCP": "term-548",

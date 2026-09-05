@@ -62,6 +62,15 @@ def test_migration_versions_107_to_116_are_unique() -> None:
     assert versions == [f"{n:03d}" for n in range(107, 117)], versions
 
 
+def test_terminal_lifecycle_is_sticky_against_undated_terms() -> None:
+    sql = (ROOT / "db/migrations/112_contract_terms_lifecycle.sql").read_text(encoding="utf-8")
+    assert "An undated later ADITIVO must not clobber" in sql
+    assert "term.data_assinatura IS NOT NULL" in sql
+    assert "NOT IN (" in sql
+    assert "'REVOGACAO', 'ANULACAO', 'RESCISAO'" in sql
+    assert "OR term.data_assinatura IS NULL\n          OR term.data_assinatura >=" not in sql
+
+
 def test_cadastral_contact_view_is_not_decision_maker() -> None:
     sql = (ROOT / "db/migrations/109_engineering_supplier_registry.sql").read_text(encoding="utf-8")
     assert "v_supplier_cadastral_contact" in sql
@@ -412,6 +421,79 @@ def test_candidate_view_class_dates_lifecycle_identity_clocks_and_adversarial() 
             assert "UPDATE" not in privs
             assert "DELETE" not in privs
 
+        conn.commit()
+    finally:
+        try:
+            with conn.cursor() as cur:
+                _cleanup(cur)
+            conn.commit()
+        except Exception:
+            conn.rollback()
+        conn.close()
+
+
+@pytest.mark.real_db
+@pytest.mark.database
+def test_undated_aditivo_does_not_make_revoked_win_actionable() -> None:
+    """Dated REVOGACAO then undated ADITIVO must stay NOT_ACTIONABLE on the shipped view."""
+    conn = _connect()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT 1 FROM information_schema.views WHERE table_name = 'v_recent_engineering_wins'"
+            )
+            if cur.fetchone() is None:
+                pytest.fail("v_recent_engineering_wins missing — apply candidate migrations")
+            _cleanup(cur)
+            rec = _base_contract(
+                "sticky-revoked",
+                "Execucao de obra de pavimentacao asfaltica urbana",
+                data_assinatura="2026-08-25",
+                data_publicacao_fonte="2026-08-26",
+            )
+            _upsert(cur, rec)
+            _stamp(conn, rec)
+            revogacao = map_pncp_term(
+                {
+                    "numeroControlePNCP": rec["contrato_id"],
+                    "tipoTermoNome": "Revogacao",
+                    "numeroTermo": "1",
+                    "dataAssinatura": "2026-08-28",
+                }
+            )
+            assert revogacao["tipo_termo"] == "REVOGACAO"
+            assert revogacao["data_assinatura"] == "2026-08-28"
+            cur.execute(
+                "SELECT action FROM apply_contract_terms(%s::jsonb)",
+                (json.dumps([revogacao], default=str),),
+            )
+            cur.fetchall()
+            undated = map_pncp_term(
+                {
+                    "numeroControlePNCP": rec["contrato_id"],
+                    "tipoTermoNome": "Termo Aditivo",
+                    "numeroTermo": "2",
+                }
+            )
+            assert undated["tipo_termo"] == "ADITIVO"
+            assert undated["data_assinatura"] is None
+            cur.execute(
+                "SELECT action FROM apply_contract_terms(%s::jsonb)",
+                (json.dumps([undated], default=str),),
+            )
+            cur.fetchall()
+            cur.execute(
+                "SELECT lifecycle_event_last, lifecycle_event_at "
+                "FROM pncp_supplier_contracts WHERE contrato_id = %s",
+                (rec["contrato_id"],),
+            )
+            row = cur.fetchone()
+            assert row["lifecycle_event_last"] == "REVOGACAO"
+            win = _win(cur, rec["contrato_id"])
+            assert win is not None
+            assert win["lifecycle_status"] == "REVOGACAO"
+            assert win["commercial_actionability"] == "NOT_ACTIONABLE"
+            assert win["commercial_actionability"] not in {"HOT", "WARM", "ACTIVE"}
         conn.commit()
     finally:
         try:
