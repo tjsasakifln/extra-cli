@@ -588,6 +588,28 @@ def in_active_proven(activity: ContractActivity) -> bool:
     return activity.state == ACTIVE_PROVEN
 
 
+_DATE_COLUMNS_FOR_MAX = (
+    "data_assinatura",
+    "data_inicio",
+    "data_fim",
+    "data_publicacao",
+    "data_publicacao_fonte",
+    "data_atualizacao_fonte",
+    "source_event_date",
+)
+
+
+def null_implausible_contract_dates(record: dict[str, Any]) -> dict[str, Any]:
+    """Drop dates that would contaminate MAX/recency. Quality already labeled."""
+    for name in _DATE_COLUMNS_FOR_MAX:
+        parsed = _as_date(record.get(name))
+        if parsed is None:
+            continue
+        if parsed.year >= 8000 or parsed.year > _PLAUSIBLE_YEAR_MAX or parsed.year < _PLAUSIBLE_YEAR_MIN:
+            record[name] = None
+    return record
+
+
 def classify_contract_quality(
     *,
     data_assinatura: Any = None,
@@ -1106,6 +1128,11 @@ def annotate_transformed_contract(record: dict[str, Any], *, raw: Mapping[str, A
     record["quality_reasons"] = list(quality.reasons)
     record["quality_rule_version"] = quality.rule_version
     record["report_ready"] = report_ready_allowed(quality)
+    # Official status observation only. Inferred vigencia never gets a timestamp.
+    # When status_raw is present, the DB trigger records last_seen_at as the
+    # observation time — Python must not invent now().
+    if not activity.raw_status:
+        record["status_observed_at"] = None
     record["canonical_contract_id"] = ident.canonical_contract_id
     record["source"] = ident.source
     record["source_contract_id"] = ident.source_contract_id
@@ -1131,6 +1158,7 @@ TRUTH_STAMP_FIELDS = (
     "canonical_contract_id",
     "source_contract_id",
     "parent_procurement_id",
+    "status_observed_at",
 )
 
 
@@ -1160,6 +1188,7 @@ def stamp_contract_truth_labels(conn: Any, records: Iterable[Mapping[str, Any]])
                 "source": raw.get("source"),
                 "source_contract_id": raw.get("source_contract_id"),
                 "parent_procurement_id": raw.get("parent_procurement_id"),
+                "status_observed_at": raw.get("status_observed_at"),
             }
         )
     if not payload:
@@ -1179,7 +1208,8 @@ def stamp_contract_truth_labels(conn: Any, records: Iterable[Mapping[str, Any]])
                 canonical_contract_id = stamp.canonical_contract_id,
                 source = COALESCE(stamp.source, target.source),
                 source_contract_id = stamp.source_contract_id,
-                parent_procurement_id = stamp.parent_procurement_id
+                parent_procurement_id = stamp.parent_procurement_id,
+                status_observed_at = stamp.status_observed_at
             FROM jsonb_to_recordset(%s::jsonb) AS stamp(
                 contrato_id TEXT,
                 status_raw TEXT,
@@ -1193,7 +1223,8 @@ def stamp_contract_truth_labels(conn: Any, records: Iterable[Mapping[str, Any]])
                 canonical_contract_id TEXT,
                 source TEXT,
                 source_contract_id TEXT,
-                parent_procurement_id TEXT
+                parent_procurement_id TEXT,
+                status_observed_at TIMESTAMPTZ
             )
             WHERE target.contrato_id = stamp.contrato_id
             """,
