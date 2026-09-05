@@ -498,6 +498,40 @@ RULES: tuple[tuple[str, re.Pattern[str]], ...] = (
             r"(?i)(PNCP\s+FRESH|status\s*=\s*FRESH).{0,80}(contact discovery|CONTACT_DISCOVERY)"
         ),
     ),
+    # PNCP async acquisition boundary (extends ADR-039 beyond the commercial
+    # plane: same invariant applies to every consumer — Warmbly, web-cfg,
+    # meetcfg, reports/views, and coding agent sessions).
+    (
+        "consumer_depends_on_pncp_live",
+        re.compile(
+            r"(?is)(consumidor|warmbly|web-?cfg|meetcfg|ciclo\s+comercial|commercial\s+cycle|"
+            r"campanha|sess[aã]o)"
+            r".{0,120}(depend\w*|requer\w*|precisa\w*|obrigat[oó]rio)"
+            r".{0,80}PNCP\s+(live|ao\s+vivo)"
+        ),
+    ),
+    (
+        "session_pncp_polling_as_normal_operation",
+        re.compile(
+            r"(?is)((toda|cada)\s+sess[aã]o.{0,80}(polling|consultar?|chamar?).{0,40}PNCP"
+            r"|PNCP\s+live\s+(é|e)\s+fonte\s+normal\s+d[oa]\s+consumidor)"
+        ),
+    ),
+    (
+        "second_acquisition_path_outside_lake",
+        re.compile(
+            r"(?is)segund[oa]\s+(caminho|fonte|pipeline)\s+de\s+aquisi[cç][aã]o"
+            r".{0,100}(fora|sem\s+passar).{0,60}(VPS|Data\s*Lake)"
+        ),
+    ),
+    (
+        "canary_payload_as_permanent_operation",
+        re.compile(
+            r"(?is)(--from-pncp|polling\s+manual|can[aá]rio)"
+            r".{0,100}(opera[cç][aã]o\s+permanente|caminho\s+operacional\s+permanente|"
+            r"substitui\s+o\s+coletor)"
+        ),
+    ),
 )
 
 
