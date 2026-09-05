@@ -592,16 +592,76 @@ def test_target_fit_reobservation_fails_closed_until_full_reconcile_and_queue_dr
         ),
     )
     monkeypatch.setattr(pipeline, "queue_counts", lambda connection: {"done": 407_513})
-    with __import__("pytest").raises(ValueError, match="full reconcile must complete after"):
-        _published_target_fit_snapshot(
-            [{"cnpj14": "11222333000181"}],
-            dsn="postgresql://unused",
-            authoritative_source_freshness={
-                "status": "FRESH",
-                "source_observed_at": "2026-08-25T02:50:00Z",
-                "run_id": "contracts-live-1",
-            },
-        )
+    snapshot, authority, watermark = _published_target_fit_snapshot(
+        [{"cnpj14": "11222333000181"}],
+        dsn="postgresql://unused",
+        authoritative_source_freshness={
+            "status": "FRESH",
+            "source_observed_at": "2026-08-25T02:50:00Z",
+            "run_id": "contracts-live-1",
+        },
+    )
+    # Newer PNCP FRESH is telemetry. Complete persisted reconcile remains authority.
+    assert authority == "published_target_fit_store"
+    assert snapshot == []
+    assert watermark == "2026-08-24T03:26:43Z"
+
+
+def test_fresh_pncp_observation_after_complete_reconcile_does_not_abort_publication(
+    monkeypatch,
+) -> None:
+    """Live #468 cycle-1 feed failed here: FRESH observed_at > last_full_reconcile.
+
+    ADR-039: commercial publication reads the persisted Data Lake. PNCP live
+    observation after a complete reconcile must not abort the feed.
+    """
+    import scripts.confenge_outreach_pipeline.pipeline as pipeline
+    import scripts.confenge_target_fit.db as target_fit_db
+
+    class FakeConnection:
+        def close(self) -> None:
+            return None
+
+    monkeypatch.setattr(target_fit_db, "connect", lambda dsn, readonly: FakeConnection())
+    monkeypatch.setattr(
+        pipeline,
+        "load_published_index",
+        lambda connection, cnpj14s: {
+            "11222333": {
+                "source_watermark": "2026-08-24T03:26:43Z",
+                "target_fit_class": "TARGET_CONFIRMED",
+            }
+        },
+    )
+    monkeypatch.setattr(
+        pipeline,
+        "get_control",
+        lambda connection, key: (
+            {"watermark": "2026-08-24T03:26:43Z"}
+            if key == "cdc_watermark"
+            else {
+                "coverage_ratio": 1.0,
+                "pagination_exhausted_normally": True,
+                "last_full_reconcile_unexplained_missing": 0,
+                "last_full_reconcile_completed_at": "2026-09-05T02:15:43+00:00",
+            }
+        ),
+    )
+    monkeypatch.setattr(pipeline, "queue_counts", lambda connection: {"done": 411_778})
+
+    snapshot, authority, watermark = _published_target_fit_snapshot(
+        [{"cnpj14": "11222333000181"}],
+        dsn="postgresql://unused",
+        authoritative_source_freshness={
+            "status": "FRESH",
+            "source_observed_at": "2026-09-05T04:00:00+00:00",
+            "run_id": "contracts-live-after-reconcile",
+        },
+    )
+    assert authority == "published_target_fit_store"
+    assert watermark == "2026-08-24T03:26:43Z"
+    assert snapshot[0]["cnpj_raiz"] == "11222333"
+    assert snapshot[0]["source_watermark"] == "2026-08-24T03:26:43Z"
 
 
 def test_production_activation_does_not_use_limit_downstream_as_capacity(tmp_path: Path) -> None:

@@ -526,13 +526,14 @@ def _published_target_fit_snapshot(
         unresolved = sum(int(queue.get(status) or 0) for status in ("pending", "processing", "retry", "dead"))
         if unresolved:
             raise ValueError(f"target-fit store has {unresolved} unresolved queue items")
-        if observed_dt is not None:
-            # Only the ordering against the live observation is PNCP-coupled.
-            if last_full_dt < observed_dt:
-                raise ValueError("target-fit full reconcile must complete after the authoritative PNCP observation")
-            # This is the observation watermark for the fully reconciled target-fit
-            # snapshot.  The evidence-change watermark remains on each decision.
+        project_live_observation = False
+        if observed_dt is not None and last_full_dt >= observed_dt:
+            # Reconcile already covers this PNCP observation: stamp it.
+            # A newer FRESH observation is telemetry only — ADR-039: the
+            # commercial plane publishes the last complete persisted reconcile
+            # and does not wait for another target-fit pass after PNCP live.
             datalake_watermark = source_observed_at
+            project_live_observation = True
     finally:
         conn.close()
 
@@ -547,7 +548,7 @@ def _published_target_fit_snapshot(
         if not str(decision.get("source_watermark") or decision.get("target_fit_source_watermark") or "").strip():
             continue
         projected = dict(decision)
-        if source_observed_at:
+        if project_live_observation and source_observed_at:
             projected["target_fit_evidence_watermark"] = str(
                 decision.get("source_watermark") or decision.get("target_fit_source_watermark") or ""
             )
