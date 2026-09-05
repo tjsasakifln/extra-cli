@@ -103,6 +103,75 @@ Saúde da fonte ≠ prontidão do Data Lake. Um crawler `STALE` com Data Lake
 íntegro não bloqueia o plano comercial; um crawler `FRESH` com Data Lake
 inválido não o autoriza.
 
+## Extensão — fronteira de aquisição assíncrona (global, 2026-09-05)
+
+*Origem: EXTRA-HOMOLOGATION-LIVE-EVIDENCE-DISCOVERY-01 (#545/#554/#568).
+Generaliza a Decisão acima — não a substitui, não cria autoridade concorrente.*
+
+A Decisão original tratou o plano **comercial** (systemd cascade, target-fit,
+contact-cycle, feed-cycle). O mesmo princípio é, por construção, uma
+invariante de arquitetura do extra-cli inteiro, não uma regra local do
+outbound comercial:
+
+1. **A VPS/Data Lake é a fronteira de aquisição da CONFENGE.** Proibido
+   qualquer consumidor — campanhas comerciais, relatórios, views, Warmbly,
+   web-cfg, meetcfg, ou sessões de coding agents — depender da
+   disponibilidade síncrona do PNCP.
+2. **PNCP live é upstream assíncrono do Data Lake.** Sua indisponibilidade
+   pode atrasar a atualização de uma família de dados, mas não pode
+   transformar uma sessão CLI nem um consumidor downstream em cliente direto
+   obrigatório do PNCP.
+3. **Toda nova família de dados segue o mesmo fluxo:**
+   `PNCP/fonte oficial → coletor resiliente executado na VPS → raw/CAS quando
+   aplicável → persistência canônica no Data Lake → consumidores`. O
+   consumidor lê **apenas** o estado persistido.
+4. **Chamadas PNCP live feitas por coding agents são permitidas SOMENTE
+   para:** discovery técnico; captura do primeiro payload real; teste/canário
+   de uma nova integração; diagnóstico excepcional. Elas **não** constituem
+   arquitetura operacional, freshness comercial, requisito recorrente de
+   sessão, nem fonte normal de um consumidor.
+5. **Após um novo coletor ser validado contra pelo menos um payload oficial
+   real, a próxima etapa obrigatória é operacionalizá-lo na VPS** com:
+   timer/job próprio e resiliente; retry/backoff; checkpoint/resume; raw
+   archive/CAS quando cabível; observabilidade/freshness próprios;
+   idempotência; persistência no Data Lake. Proibido manter um caminho
+   manual de captura (ex.: `--from-pncp` opt-in por linha de comando) como
+   caminho operacional permanente — ele é apenas o canário que prova o
+   parser antes do job.
+6. **Se o PNCP estiver indisponível:** consumidores continuam usando o
+   último estado persistido, com recência/freshness declaradas; ausência de
+   dado novo permanece `UNKNOWN`/`STALE` conforme o contrato da família;
+   nenhuma informação é inventada; a indisponibilidade upstream não bloqueia
+   trabalho downstream que possa legitimamente usar dados já persistidos.
+7. **Exceção explícita (gate de aceitação, não dependência arquitetural):**
+   para uma família nova que nunca foi coletada (caso #545), é legítimo dizer
+   que `LIVE_PARSER_PROVEN` ainda falta até existir um payload oficial real.
+   Isso é um gate de **aceitação do coletor**, não uma dependência
+   arquitetural do produto. Depois de provado uma vez, a coleta migra para a
+   VPS e deixa de depender de sessões CLI.
+
+**Terminologia adicional (soma à tabela acima, não a substitui):**
+
+| Termo | Uso |
+|-------|-----|
+| Segundo caminho de aquisição | **proibido** — toda coleta PNCP passa pelo coletor resiliente na VPS |
+| Canário de payload | prova o parser uma vez; **não** é operação permanente |
+| Polling PNCP por sessão | **proibido** como operação normal de qualquer consumidor |
+
+**Preflight:** `python3 -m scripts.ops.check_confenge_campaign_plan --file <arquivo>`
+passa a rejeitar (regras `consumer_depends_on_pncp_live`,
+`session_pncp_polling_as_normal_operation`,
+`second_acquisition_path_outside_lake`,
+`canary_payload_as_permanent_operation`) qualquer plano que reintroduza estas
+quatro violações, para qualquer consumidor — não só o outbound comercial.
+
+**Para #568 especificamente:** o polling CLI usado para validar o candidato
+isolado de #545 foi apenas canário de validação (ponto 4 acima). Não deve
+continuar como polling indefinido por sessão. Após o primeiro payload real e
+o parser provado, a próxima ação é projetar o job VPS que coleta resultados
+periodicamente para `pncp_procurement_results`. Consumidores futuros de
+homologação devem ler essa tabela — nunca chamar o PNCP diretamente.
+
 ## Consequências
 
 - Uma indisponibilidade do PNCP degrada observabilidade, não receita.
