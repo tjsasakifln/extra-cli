@@ -35,6 +35,10 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
+from scripts.contracts.engineering_class import (
+    attach_engineering_class,
+    stamp_engineering_class_labels,
+)
 from scripts.contracts_identity import normalize_supplier_identity
 from scripts.contracts_truth import (
     PaginationReconcile,
@@ -394,6 +398,7 @@ def _persist_window_if_enabled(raw_items: list[dict]) -> int:
             )
             rows = cur.fetchall()
             stamped = stamp_contract_truth_labels(conn, transformed)
+            stamp_engineering_class_labels(conn, transformed)
             conn.commit()
         finally:
             conn.close()
@@ -763,7 +768,8 @@ def _transform_record(rec: dict) -> dict | None:
             "source_id": contrato_id,
         }
         attach_structural_fields(record, rec)
-        return annotate_transformed_contract(record, raw=rec)
+        annotated = annotate_transformed_contract(record, raw=rec)
+        return attach_engineering_class(annotated)
 
     except Exception as e:
         logger.warning("Transform error for record %s: %s", rec.get("numeroControlePNCP", ""), e)
