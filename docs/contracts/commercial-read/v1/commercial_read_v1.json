@@ -1,0 +1,56 @@
+{
+  "id": "commercial_read_v1",
+  "version": "1.0.0",
+  "view": "public.v_recent_engineering_wins",
+  "role": "confenge_commercial_read_v1",
+  "issue": 550,
+  "columns": [
+    "company_cnpj",
+    "company_name",
+    "procurement_id",
+    "contract_id",
+    "trigger_type",
+    "event_at",
+    "source_published_at",
+    "first_seen_at",
+    "detection_lag_days",
+    "publication_lag_days",
+    "object",
+    "value",
+    "buyer",
+    "buyer_cnpj",
+    "uf",
+    "municipio",
+    "engineering_class",
+    "engineering_confidence",
+    "lifecycle_status",
+    "event_confidence",
+    "data_freshness",
+    "commercial_age_days",
+    "commercial_actionability",
+    "evidence_refs"
+  ],
+  "clocks": {
+    "DATA_FRESHNESS": "data_freshness = first_seen_at - source_published_at",
+    "EVENT_RECENCY": "commercial_age_days = today - event_at",
+    "COMMERCIAL_ACTIONABILITY": "HOT/WARM/ACTIVE/LATE from event recency; NOT_ACTIONABLE if terminal lifecycle"
+  },
+  "candidate_additive_columns": [
+    "tipo_contrato_id",
+    "tipo_contrato_nome",
+    "categoria_processo_id",
+    "categoria_processo_nome",
+    "modalidade_id",
+    "modalidade_nome",
+    "regime_execucao_id",
+    "regime_execucao_nome",
+    "srp",
+    "procurement_result_status"
+  ],
+  "fail_closed": {
+    "procurement_result_status": "UNKNOWN unless a persisted #545 RESULT_PUBLISHED or HOMOLOGATED event exists",
+    "trigger_type_never": ["RESULT_PUBLISHED", "ADJUDICATED", "HOMOLOGATED"],
+    "missing_field": "UNKNOWN",
+    "terminal_lifecycle": ["REVOGACAO", "ANULACAO", "RESCISAO"]
+  }
+}

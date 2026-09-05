@@ -1,0 +1,186 @@
+{
+  "main": "3919f4d9af1363e2db641c7edadb8a8404874ec4",
+  "SOURCE_PR_HEADS": {
+    "555": "5f61f28ee628f609f1a98adc2051f695d2b0a7fd",
+    "556": "48e201f9178b714582a690cc3b57f3f4dc48d8f8",
+    "557": "fbc05737b542c7b36da3bdadd61580c58f73c11f",
+    "558": "b596cc1308dbd9d87c047dfafccb16916c88e598",
+    "559": "f80f0d447b6f6d345f212d04e4528cf33c4f5ea5",
+    "560": "98c711f5e4c385a150267a059cd01d59eb2a7854",
+    "561": "57de978a28d252162465fc9e5b6d29f7e6104ec4",
+    "562": "2dbc36c97f013db1040f7c676e93046532b23ca2",
+    "563": "c053f7f3a7ccfef259598ec8a0a1eedf29365202"
+  },
+  "raw_commit_count": 26,
+  "unique_patch_count": 12,
+  "unique_patches": [
+    {
+      "canonical_sha": "831fdbeb42e65bef677cf93175e7a69d48551a64",
+      "duplicate_count": 1,
+      "subject": "feat(pncp): persist official structural fields on contracts (#546)",
+      "migrations": [
+        "db/migrations/107_pncp_structural_fields.sql",
+        "db/rollback/107_pncp_structural_fields_rollback.sql"
+      ],
+      "prs": [
+        555,
+        556,
+        558,
+        559,
+        560,
+        561,
+        562,
+        563
+      ]
+    },
+    {
+      "canonical_sha": "abb29c1d8405a7b631f9027fe5651121796eab29",
+      "duplicate_count": 1,
+      "subject": "feat(contracts): quarantine absurd dates and declare empty canonical surfaces (#552)",
+      "migrations": [
+        "db/migrations/108_contract_date_hygiene.sql",
+        "db/rollback/108_contract_date_hygiene_rollback.sql"
+      ],
+      "prs": [
+        557
+      ]
+    },
+    {
+      "canonical_sha": "e00effe851b87240884f409a32ebb75b40508bf8",
+      "duplicate_count": 1,
+      "subject": "feat(registry): cover engineering suppliers and cadastral contact join (#549)",
+      "migrations": [
+        "db/migrations/109_engineering_supplier_registry.sql",
+        "db/rollback/109_engineering_supplier_registry_rollback.sql"
+      ],
+      "prs": [
+        556
+      ]
+    },
+    {
+      "canonical_sha": "c55a45c93893362cadaf33f8dfe21bc47ea7edc3",
+      "duplicate_count": 1,
+      "subject": "feat(contracts): persist versioned engineering class per contract (#544)",
+      "migrations": [
+        "db/migrations/110_contract_engineering_class.sql",
+        "db/rollback/110_contract_engineering_class_rollback.sql"
+      ],
+      "prs": [
+        558,
+        559,
+        560,
+        561,
+        562,
+        563
+      ]
+    },
+    {
+      "canonical_sha": "7ff757d2081971a2c9d0f9f86fe1c713cf9be1be",
+      "duplicate_count": 1,
+      "subject": "feat(pncp): ingest item results and homologation before signature (#545)",
+      "migrations": [
+        "db/migrations/111_pncp_procurement_results.sql",
+        "db/rollback/111_pncp_procurement_results_rollback.sql"
+      ],
+      "prs": [
+        559,
+        560,
+        561,
+        562,
+        563
+      ]
+    },
+    {
+      "canonical_sha": "7cb9bc8573d376f33d179317cdafbd74703914a8",
+      "duplicate_count": 1,
+      "subject": "feat(contracts): persist terms and lifecycle events (#548)",
+      "migrations": [
+        "db/migrations/112_contract_terms_lifecycle.sql",
+        "db/rollback/112_contract_terms_lifecycle_rollback.sql"
+      ],
+      "prs": [
+        560,
+        561,
+        562,
+        563
+      ]
+    },
+    {
+      "canonical_sha": "709e16f190d52df3d81ad605c49dc1516d136699",
+      "duplicate_count": 1,
+      "subject": "feat(intel): materialize daily F1-F8 supplier structural profile (#547)",
+      "migrations": [
+        "db/migrations/113_supplier_structural_profile.sql",
+        "db/rollback/113_supplier_structural_profile_rollback.sql"
+      ],
+      "prs": [
+        561
+      ]
+    },
+    {
+      "canonical_sha": "b100a1c9b7f59befff53b03eef5a101ad6478bf8",
+      "duplicate_count": 1,
+      "subject": "feat(intel): view organs that repeatedly buy engineering design (#551)",
+      "migrations": [
+        "db/migrations/114_orgaos_contratantes_projeto.sql",
+        "db/rollback/114_orgaos_contratantes_projeto_rollback.sql"
+      ],
+      "prs": [
+        562
+      ]
+    },
+    {
+      "canonical_sha": "1bbcb84f646d871caf782f16287a9b6a91e155df",
+      "duplicate_count": 1,
+      "subject": "feat(commercial): publish commercial_read_v1 and v_recent_engineering_wins (#550)",
+      "migrations": [
+        "db/migrations/115_commercial_read_v1.sql",
+        "db/rollback/115_commercial_read_v1_rollback.sql"
+      ],
+      "prs": [
+        563
+      ]
+    },
+    {
+      "canonical_sha": "5223f24b7bc23dd22cba07acbf6c1592ef573944",
+      "duplicate_count": 8,
+      "subject": "fix(pncp): sort adapter imports and freeze structural transform keys (#546)",
+      "migrations": [],
+      "prs": [
+        555,
+        556,
+        558,
+        559,
+        560,
+        561,
+        562,
+        563
+      ]
+    },
+    {
+      "canonical_sha": "5f61f28ee628f609f1a98adc2051f695d2b0a7fd",
+      "duplicate_count": 8,
+      "subject": "fix(pncp): require structural keys without forbidding later class fields (#546)",
+      "migrations": [],
+      "prs": [
+        555,
+        556,
+        558,
+        559,
+        560,
+        561,
+        562,
+        563
+      ]
+    },
+    {
+      "canonical_sha": "fbc05737b542c7b36da3bdadd61580c58f73c11f",
+      "duplicate_count": 1,
+      "subject": "fix(contracts): keep date hygiene off the CONFENGE freeze tree (#552)",
+      "migrations": [],
+      "prs": [
+        557
+      ]
+    }
+  ]
+}
