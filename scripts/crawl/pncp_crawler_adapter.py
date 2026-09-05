@@ -18,7 +18,6 @@ import requests
 from scripts.contracts_identity import normalize_supplier_identity
 from scripts.contracts_truth import canonical_contract_identity
 from scripts.crawl.common import safe_float, safe_int
-from scripts.crawl.pncp_structural_fields import extract_pncp_structural_fields
 from scripts.crawl.dlq_sync import dlq_write
 from scripts.crawl.ingestion._base.crawler import CrawlRequest, FetchResult
 from scripts.crawl.pncp_contract import (
@@ -34,6 +33,7 @@ from scripts.crawl.pncp_contract import (
     parse_modalidades_from_env,
     parse_target,
 )
+from scripts.crawl.pncp_structural_fields import extract_pncp_structural_fields
 from scripts.crawl.security import USER_AGENT, public_get
 from scripts.crawl.watermark_sync import watermark_commit, watermark_read
 
