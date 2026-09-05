@@ -68,6 +68,7 @@ def canonical_payload_hash(payload: Any) -> str:
 
 def idempotency_key(
     *,
+    cohort_id: str,
     canonical_account_id: str,
     service: str,
     discovery_policy_version: str,
@@ -75,9 +76,55 @@ def idempotency_key(
     search_backend: str,
     budget_version: str,
 ) -> str:
-    canonical = "|".join(
+    if not cohort_id.strip():
+        raise ValueError("cohort_id is required")
+    return _hashed_idempotency_key(
+        cohort_id=cohort_id,
+        canonical_account_id=canonical_account_id,
+        service=service,
+        discovery_policy_version=discovery_policy_version,
+        input_evidence_version=input_evidence_version,
+        search_backend=search_backend,
+        budget_version=budget_version,
+    )
+
+
+def _legacy_idempotency_key(
+    *,
+    canonical_account_id: str,
+    service: str,
+    discovery_policy_version: str,
+    input_evidence_version: str,
+    search_backend: str,
+    budget_version: str,
+) -> str:
+    """Match the pre-#468 key only to recognize a replay in its own cohort."""
+    return _hashed_idempotency_key(
+        cohort_id=None,
+        canonical_account_id=canonical_account_id,
+        service=service,
+        discovery_policy_version=discovery_policy_version,
+        input_evidence_version=input_evidence_version,
+        search_backend=search_backend,
+        budget_version=budget_version,
+    )
+
+
+def _hashed_idempotency_key(
+    *,
+    cohort_id: str | None,
+    canonical_account_id: str,
+    service: str,
+    discovery_policy_version: str,
+    input_evidence_version: str,
+    search_backend: str,
+    budget_version: str,
+) -> str:
+    parts = [JOB_TYPE]
+    if cohort_id is not None:
+        parts.append(cohort_id)
+    parts.extend(
         (
-            JOB_TYPE,
             normalize_account_id(canonical_account_id),
             service,
             discovery_policy_version,
@@ -86,7 +133,7 @@ def idempotency_key(
             budget_version,
         )
     )
-    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+    return hashlib.sha256("|".join(parts).encode("utf-8")).hexdigest()
 
 
 @dataclass(frozen=True)
@@ -264,6 +311,15 @@ class ContactDiscoveryQueue:
         if not account:
             raise ValueError("canonical_account_id / CNPJ is required")
         key = idempotency_key(
+            cohort_id=cohort_id,
+            canonical_account_id=account,
+            service=service,
+            discovery_policy_version=discovery_policy_version,
+            input_evidence_version=input_evidence_version,
+            search_backend=search_backend,
+            budget_version=budget_version,
+        )
+        legacy_key = _legacy_idempotency_key(
             canonical_account_id=account,
             service=service,
             discovery_policy_version=discovery_policy_version,
@@ -273,6 +329,19 @@ class ContactDiscoveryQueue:
         )
         resolved_domain = domain_key or f"account:{account}"
         with self.cursor() as cursor_handle:
+            cursor_handle.execute(
+                """
+                SELECT id
+                FROM contact_discovery_jobs
+                WHERE cohort_id = %s AND idempotency_key IN (%s, %s)
+                ORDER BY id
+                LIMIT 1
+                """,
+                (cohort_id, key, legacy_key),
+            )
+            existing = fetch_one(cursor_handle)
+            if existing:
+                return int(existing["id"]), False
             cursor_handle.execute(
                 """
                 INSERT INTO contact_discovery_jobs (
@@ -288,7 +357,7 @@ class ContactDiscoveryQueue:
                     %s, %s, %s::jsonb, %s, %s,
                     %s, %s
                 )
-                ON CONFLICT (idempotency_key) DO NOTHING
+                ON CONFLICT DO NOTHING
                 RETURNING id
                 """,
                 (
@@ -326,8 +395,8 @@ class ContactDiscoveryQueue:
                 )
                 return int(inserted["id"]), True
             cursor_handle.execute(
-                "SELECT id FROM contact_discovery_jobs WHERE idempotency_key = %s",
-                (key,),
+                "SELECT id FROM contact_discovery_jobs WHERE idempotency_key = %s AND cohort_id = %s",
+                (key, cohort_id),
             )
             existing = fetch_one(cursor_handle)
             if not existing:

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import threading
@@ -52,7 +53,10 @@ from scripts.decision_unit_intelligence.models import (
 )
 from tests.recipient_attestation_fixtures import exact_page_attestation
 
-MIGRATION = Path(__file__).resolve().parents[1] / "db" / "migrations" / "093_contact_discovery_batch.sql"
+MIGRATIONS = (
+    Path(__file__).resolve().parents[1] / "db" / "migrations" / "093_contact_discovery_batch.sql",
+    Path(__file__).resolve().parents[1] / "db" / "migrations" / "107_contact_discovery_cohort_scoped_identity.sql",
+)
 DSN = os.getenv("LOCAL_DATALAKE_DSN") or os.getenv("TEST_DSN") or "postgresql://test:test@127.0.0.1:5433/extra_test"
 
 
@@ -71,12 +75,12 @@ def dsn() -> str:
     _skip_without_pg()
     import psycopg2
 
-    sql = MIGRATION.read_text(encoding="utf-8")
     connection = psycopg2.connect(DSN)
     connection.autocommit = True
     try:
         with connection.cursor() as cursor:
-            cursor.execute(sql)
+            for migration in MIGRATIONS:
+                cursor.execute(migration.read_text(encoding="utf-8"))
             cursor.execute(
                 """
                 TRUNCATE contact_discovery_snapshots,
@@ -250,6 +254,22 @@ def _seed(
     return ids
 
 
+def _legacy_key(*, account: str) -> str:
+    """The exact pre-deploy key shape, used to seed an immutable historical row."""
+    canonical = "|".join(
+        (
+            "CONFENGE_CONTACT_DISCOVERY",
+            account,
+            "reajuste_14133",
+            "dui.policy.v1",
+            "input.v1",
+            "off",
+            "budget.test",
+        )
+    )
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
 def test_duplicate_enqueue_does_not_create_second_truth(dsn: str) -> None:
     with connect(dsn) as connection:
         queue = ContactDiscoveryQueue(connection)
@@ -270,6 +290,7 @@ def test_duplicate_enqueue_does_not_create_second_truth(dsn: str) -> None:
         jobs = queue.inspect(cohort_id="c-dup")
         assert len(jobs) == 1
         assert jobs[0]["idempotency_key"] == idempotency_key(
+            cohort_id="c-dup",
             canonical_account_id="11222333000181",
             service="reajuste_14133",
             discovery_policy_version="dui.policy.v1",
@@ -277,6 +298,298 @@ def test_duplicate_enqueue_does_not_create_second_truth(dsn: str) -> None:
             search_backend="off",
             budget_version="budget.test",
         )
+
+
+def test_cohort_idempotency_preserves_stored_cohort_bytes_after_validation() -> None:
+    """Whitespace-only ids are rejected, but distinct stored cohort ids never collide."""
+    kwargs = {
+        "canonical_account_id": "11222333000181",
+        "service": "reajuste_14133",
+        "discovery_policy_version": "dui.policy.v1",
+        "input_evidence_version": "input.v1",
+        "search_backend": "off",
+        "budget_version": "budget.test",
+    }
+    assert idempotency_key(cohort_id="c", **kwargs) != idempotency_key(cohort_id=" c", **kwargs)
+    with pytest.raises(ValueError, match="cohort_id is required"):
+        idempotency_key(cohort_id=" \t", **kwargs)
+
+
+def test_same_contract_in_distinct_active_cohorts_creates_distinct_jobs(dsn: str) -> None:
+    """A fresh authorized cohort is not deduplicated against an active predecessor."""
+    with connect(dsn) as connection:
+        queue = ContactDiscoveryQueue(connection)
+        first = _seed(queue, cohort="c-first", accounts=["11222333000181"])
+        queue.upsert_cohort(
+            cohort_id="c-second",
+            service="reajuste_14133",
+            offer_context="canary",
+            discovery_policy_version="dui.policy.v1",
+            search_backend="off",
+            budget_version="budget.test",
+            code_sha="sha-test",
+            input_evidence_version="input.v1",
+        )
+        second, created = queue.enqueue(
+            cohort_id="c-second",
+            canonical_account_id="11222333000181",
+            service="reajuste_14133",
+            offer_context="canary",
+            discovery_policy_version="dui.policy.v1",
+            search_backend="off",
+            budget_version="budget.test",
+            code_sha="sha-test",
+            input_evidence_version="input.v1",
+        )
+
+        assert created is True
+        assert second != first[0]
+        assert len(queue.inspect(cohort_id="c-first")) == 1
+        assert len(queue.inspect(cohort_id="c-second")) == 1
+        assert queue.progress(cohort_id="c-second")["denominator"] == 1
+
+
+def test_cancelled_prior_cohort_cannot_block_new_cohort_contract(dsn: str) -> None:
+    """Cancellation is terminal evidence, never a source of future job reuse."""
+    with connect(dsn) as connection:
+        queue = ContactDiscoveryQueue(connection)
+        queue.upsert_cohort(
+            cohort_id="c-aborted",
+            service="reajuste_14133",
+            offer_context="canary",
+            discovery_policy_version="dui.policy.v1",
+            search_backend="off",
+            budget_version="budget.test",
+            code_sha="sha-test",
+            input_evidence_version="input.v1",
+        )
+        legacy_key = _legacy_key(account="11222333000181")
+        with queue.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO contact_discovery_jobs (
+                    cohort_id, canonical_account_id, service, offer_context,
+                    discovery_policy_version, search_backend, budget_version,
+                    code_sha, input_evidence_version, idempotency_key,
+                    domain_key, backend_key
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING id
+                """,
+                (
+                    "c-aborted", "11222333000181", "reajuste_14133", "canary",
+                    "dui.policy.v1", "off", "budget.test", "sha-test", "input.v1",
+                    legacy_key, "account:11222333000181", "off",
+                ),
+            )
+            old_id = int(cursor.fetchone()["id"])
+        assert queue.request_cancel(cohort_id="c-aborted") == 1
+        assert queue.inspect(job_id=old_id)[0]["status"] == "CANCELLED"
+        queue.upsert_cohort(
+            cohort_id="c-fresh",
+            service="reajuste_14133",
+            offer_context="canary",
+            discovery_policy_version="dui.policy.v1",
+            search_backend="off",
+            budget_version="budget.test",
+            code_sha="sha-test",
+            input_evidence_version="input.v1",
+        )
+        fresh_id, created = queue.enqueue(
+            cohort_id="c-fresh",
+            canonical_account_id="11222333000181",
+            service="reajuste_14133",
+            offer_context="canary",
+            discovery_policy_version="dui.policy.v1",
+            search_backend="off",
+            budget_version="budget.test",
+            code_sha="sha-test",
+            input_evidence_version="input.v1",
+        )
+
+        assert created is True
+        assert fresh_id != old_id
+        old = queue.inspect(job_id=old_id)[0]
+        assert old["status"] == "CANCELLED"
+        assert old["cohort_id"] == "c-aborted"
+        assert old["idempotency_key"] == legacy_key
+        assert queue.progress(cohort_id="c-fresh")["denominator"] == 1
+
+
+def test_legacy_key_replay_in_same_cohort_returns_historical_job(dsn: str) -> None:
+    """Deploying the scoped key cannot duplicate an old cohort's retry."""
+    with connect(dsn) as connection:
+        queue = ContactDiscoveryQueue(connection)
+        queue.upsert_cohort(
+            cohort_id="c-legacy",
+            service="reajuste_14133",
+            offer_context="canary",
+            discovery_policy_version="dui.policy.v1",
+            search_backend="off",
+            budget_version="budget.test",
+            code_sha="sha-test",
+            input_evidence_version="input.v1",
+        )
+        with queue.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO contact_discovery_jobs (
+                    cohort_id, canonical_account_id, service, offer_context,
+                    discovery_policy_version, search_backend, budget_version,
+                    code_sha, input_evidence_version, idempotency_key,
+                    domain_key, backend_key
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING id
+                """,
+                (
+                    "c-legacy", "11222333000181", "reajuste_14133", "canary",
+                    "dui.policy.v1", "off", "budget.test", "sha-test", "input.v1",
+                    _legacy_key(account="11222333000181"), "account:11222333000181", "off",
+                ),
+            )
+            old_id = int(cursor.fetchone()["id"])
+        replay_id, created = queue.enqueue(
+            cohort_id="c-legacy",
+            canonical_account_id="11222333000181",
+            service="reajuste_14133",
+            offer_context="canary",
+            discovery_policy_version="dui.policy.v1",
+            search_backend="off",
+            budget_version="budget.test",
+            code_sha="sha-test",
+            input_evidence_version="input.v1",
+        )
+
+        assert created is False
+        assert replay_id == old_id
+        rows = queue.inspect(cohort_id="c-legacy")
+        assert len(rows) == 1
+        assert rows[0]["idempotency_key"] == _legacy_key(account="11222333000181")
+        assert rows[0]["status"] == "PENDING"
+
+
+def test_upgrade_migration_scopes_active_identity_and_is_reapplicable(dsn: str) -> None:
+    """The upgrade changes only the active index definition, not historical rows."""
+    import psycopg2
+
+    from scripts.ops.apply_migrations import apply_file
+
+    connection = psycopg2.connect(dsn)
+    connection.autocommit = True
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("DROP INDEX IF EXISTS uq_contact_discovery_jobs_active_identity_v2")
+            cursor.execute("DROP INDEX IF EXISTS uq_contact_discovery_jobs_active_identity")
+            cursor.execute(
+                """
+                CREATE UNIQUE INDEX uq_contact_discovery_jobs_active_identity
+                    ON contact_discovery_jobs (
+                        canonical_account_id, discovery_policy_version,
+                        input_evidence_version, search_backend, budget_version, service
+                    )
+                    WHERE status IN ('PENDING', 'RUNNING', 'RETRYABLE')
+                """
+            )
+        apply_file(connection, MIGRATIONS[1])
+        apply_file(connection, MIGRATIONS[1])
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT pg_get_indexdef('uq_contact_discovery_jobs_active_identity_v2'::regclass)"
+            )
+            indexdef = str(cursor.fetchone()[0])
+        assert "(cohort_id, canonical_account_id" in indexdef
+        assert "WHERE (status = ANY" in indexdef
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT to_regclass('uq_contact_discovery_jobs_active_identity')")
+            assert cursor.fetchone()[0] is None
+    finally:
+        connection.close()
+
+
+def test_upgrade_migration_create_failure_keeps_old_active_constraint(
+    dsn: str, tmp_path: Path
+) -> None:
+    """If v2 cannot be built, migration must not remove the old active constraint."""
+    import psycopg2
+
+    from scripts.ops.apply_migrations import apply_file
+
+    setup = psycopg2.connect(dsn)
+    setup.autocommit = True
+    try:
+        with setup.cursor() as cursor:
+            cursor.execute("DROP INDEX IF EXISTS uq_contact_discovery_jobs_active_identity_v2")
+            cursor.execute("DROP INDEX IF EXISTS uq_contact_discovery_jobs_active_identity")
+            cursor.execute(
+                """
+                CREATE UNIQUE INDEX uq_contact_discovery_jobs_active_identity
+                    ON contact_discovery_jobs (
+                        canonical_account_id, discovery_policy_version,
+                        input_evidence_version, search_backend, budget_version, service
+                    )
+                    WHERE status IN ('PENDING', 'RUNNING', 'RETRYABLE')
+                """
+            )
+        migration = tmp_path / "107_create_failure.sql"
+        migration.write_text(
+            MIGRATIONS[1].read_text(encoding="utf-8").replace(
+                "CREATE UNIQUE INDEX", "SELECT 1 / 0;\n\nCREATE UNIQUE INDEX", 1
+            ),
+            encoding="utf-8",
+        )
+        with pytest.raises(psycopg2.errors.DivisionByZero):
+            apply_file(setup, migration)
+        with setup.cursor() as cursor:
+            cursor.execute("SELECT to_regclass('uq_contact_discovery_jobs_active_identity')")
+            assert cursor.fetchone()[0] == "uq_contact_discovery_jobs_active_identity"
+            cursor.execute("SELECT to_regclass('uq_contact_discovery_jobs_active_identity_v2')")
+            assert cursor.fetchone()[0] is None
+    finally:
+        setup.close()
+
+
+def test_concurrent_same_cohort_replay_creates_one_logical_job(dsn: str) -> None:
+    """Concurrent replays remain idempotent within their cohort boundary."""
+    with connect(dsn) as connection:
+        _seed(ContactDiscoveryQueue(connection), cohort="c-replay", accounts=[])
+
+    results: list[tuple[int, bool]] = []
+    failures: list[BaseException] = []
+    barrier = threading.Barrier(4)
+
+    def _enqueue() -> None:
+        try:
+            with connect(dsn) as connection:
+                barrier.wait(timeout=10)
+                results.append(
+                    ContactDiscoveryQueue(connection).enqueue(
+                        cohort_id="c-replay",
+                        canonical_account_id="11222333000181",
+                        service="reajuste_14133",
+                        offer_context="canary",
+                        discovery_policy_version="dui.policy.v1",
+                        search_backend="off",
+                        budget_version="budget.test",
+                        code_sha="sha-test",
+                        input_evidence_version="input.v1",
+                    )
+                )
+        except BaseException as exc:  # pragma: no cover - asserted after threads join
+            failures.append(exc)
+
+    threads = [threading.Thread(target=_enqueue) for _ in range(4)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join(timeout=15)
+
+    assert not failures
+    assert len(results) == 4
+    assert len({job_id for job_id, _created in results}) == 1
+    assert sum(created for _job_id, created in results) == 1
+    with connect(dsn) as connection:
+        queue = ContactDiscoveryQueue(connection)
+        assert len(queue.inspect(cohort_id="c-replay")) == 1
+        assert queue.progress(cohort_id="c-replay")["denominator"] == 1
 
 
 def test_claim_without_injected_time_uses_database_clock(
