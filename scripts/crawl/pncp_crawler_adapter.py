@@ -33,6 +33,7 @@ from scripts.crawl.pncp_contract import (
     parse_modalidades_from_env,
     parse_target,
 )
+from scripts.crawl.pncp_procurement_results import item_resultados_url
 from scripts.crawl.pncp_structural_fields import extract_pncp_structural_fields
 from scripts.crawl.security import USER_AGENT, public_get
 from scripts.crawl.watermark_sync import watermark_commit, watermark_read
@@ -937,6 +938,26 @@ def _fetch_list_endpoint(url: str) -> FetchResult:
 def fetch_compra_items(cnpj: str, ano: int, sequencial: int) -> FetchResult:
     url = f"https://pncp.gov.br/api/pncp/v1/orgaos/{digits_only(cnpj)}/compras/{int(ano)}/{int(sequencial)}/itens"
     return _fetch_list_endpoint(url)
+
+
+def _records_from_payload(payload: Any) -> list[dict[str, Any]]:
+    if isinstance(payload, list):
+        return [item for item in payload if isinstance(item, dict)]
+    if isinstance(payload, dict):
+        data = payload.get("data")
+        if isinstance(data, list):
+            return [item for item in data if isinstance(item, dict)]
+        return [payload]
+    return []
+
+
+def fetch_item_resultados(cnpj: str, ano: int, sequencial: int, item_numero: int) -> FetchResult:
+    """GET /orgaos/{cnpj}/compras/{ano}/{seq}/itens/{n}/resultados (#545)."""
+    url = item_resultados_url(cnpj, ano, sequencial, item_numero)
+    payload, result = _http_get_payload(url)
+    result.records = _records_from_payload(payload)
+    result.empty_confirmed = bool(result.request_completed) and not result.records
+    return result
 
 
 def fetch_compra_documents(cnpj: str, ano: int, sequencial: int) -> FetchResult:

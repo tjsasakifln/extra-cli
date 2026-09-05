@@ -8,12 +8,17 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Mapping
+import re
+from collections.abc import Iterable, Mapping
 from datetime import UTC, datetime
 from typing import Any
 
 from scripts.contracts_identity import normalize_supplier_identity
+from scripts.crawl.pncp_contract import digits_only
 from scripts.crawl.pncp_structural_fields import _as_bool, _as_int, _as_text
+
+PNCP_API_V1 = "https://pncp.gov.br/api/pncp/v1"
+PNCP_CONTROLE_ID = re.compile(r"^(\d{14})-\d+-(\d+)/(\d{4})$")
 
 RULE_VERSION = "pncp-procurement-results-v1"
 RESULT_PUBLISHED = "RESULT_PUBLISHED"
@@ -29,6 +34,21 @@ def _as_date(value: Any) -> str | None:
         return None
     text = str(value).strip()
     return text[:10] if text else None
+
+
+def parse_pncp_controle_id(value: str | None) -> tuple[str, int, int] | None:
+    """Parse ``{cnpj}-{kind}-{sequencial}/{ano}`` into ``(cnpj, ano, sequencial)``."""
+    match = PNCP_CONTROLE_ID.match((value or "").strip())
+    if not match:
+        return None
+    return match.group(1), int(match.group(3)), int(match.group(2))
+
+
+def item_resultados_url(cnpj: str, ano: int, sequencial: int, item_numero: int) -> str:
+    return (
+        f"{PNCP_API_V1}/orgaos/{digits_only(cnpj)}/compras/{int(ano)}/{int(sequencial)}"
+        f"/itens/{int(item_numero)}/resultados"
+    )
 
 
 def result_event_type(situacao: str | None, homologado: bool | None) -> str:
@@ -133,3 +153,61 @@ def plan_result_ingest(
         seen.add(mapped["result_id"])
         rows.append(mapped)
     return rows
+
+
+def expand_result_payloads(
+    documents: Iterable[Any],
+    *,
+    parent_procurement_id: str | None = None,
+) -> list[Mapping[str, Any]]:
+    """Flatten JSONL/archive envelopes into raw PNCP resultado objects."""
+    out: list[Mapping[str, Any]] = []
+    for document in documents:
+        out.extend(_expand_one(document, parent_procurement_id=parent_procurement_id, item_numero=None))
+    return out
+
+
+def _expand_one(
+    document: Any,
+    *,
+    parent_procurement_id: str | None,
+    item_numero: int | None,
+) -> list[Mapping[str, Any]]:
+    if isinstance(document, list):
+        rows: list[Mapping[str, Any]] = []
+        for item in document:
+            rows.extend(
+                _expand_one(item, parent_procurement_id=parent_procurement_id, item_numero=item_numero)
+            )
+        return rows
+    if not isinstance(document, Mapping):
+        return []
+    parent = (
+        parent_procurement_id
+        or document.get("parent_procurement_id")
+        or document.get("numeroControlePNCPCompra")
+        or document.get("numeroControlePncpCompra")
+    )
+    item = item_numero
+    if item is None:
+        raw_item = document.get("numeroItem") or document.get("item_numero") or document.get("item")
+        item = _as_int(raw_item)
+    nested = document.get("resultados")
+    if isinstance(nested, list):
+        rows = []
+        for result in nested:
+            rows.extend(_expand_one(result, parent_procurement_id=parent, item_numero=item))
+        return rows
+    data = document.get("data")
+    if isinstance(data, list) and not document.get("niFornecedor") and not document.get("cnpjFornecedor"):
+        rows = []
+        for result in data:
+            rows.extend(_expand_one(result, parent_procurement_id=parent, item_numero=item))
+        return rows
+    payload = dict(document)
+    if parent:
+        payload.setdefault("numeroControlePNCPCompra", parent)
+        payload.setdefault("parent_procurement_id", parent)
+    if item is not None:
+        payload.setdefault("numeroItem", item)
+    return [payload]
