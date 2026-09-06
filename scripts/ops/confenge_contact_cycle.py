@@ -170,6 +170,7 @@ def run_cycle(
     runner: JsonRunner = _run_json,
     sleep: Callable[[float], None] = time.sleep,
     now: Callable[[], datetime] = _utcnow,
+    operation_id: str | None = None,
 ) -> dict[str, Any]:
     """Run or resume one full TARGET_CONFIRMED cycle and promote only at 100%."""
     if search_backend == "off":
@@ -183,7 +184,12 @@ def run_cycle(
     projections.mkdir(parents=True, exist_ok=True)
     state = _read_state(state_path)
     prior_active = str(state.get("active_cohort") or "").strip()
-    resume = bool(prior_active and state.get("last_status") != "COMPLETED")
+    resume = bool(
+        prior_active
+        and state.get("last_status") == "RUNNING"
+        and operation_id
+        and state.get("active_operation_id") == operation_id
+    )
     cohort = prior_active if resume else f"target-confirmed-auto-{now().strftime('%Y%m%dT%H%M%SZ')}"
     started_at = now()
     started_monotonic = time.monotonic()
@@ -210,6 +216,7 @@ def run_cycle(
                     **state,
                     "schema_id": "confenge.contact_discovery.cycle_state.v1",
                     "active_cohort": None,
+                    "active_operation_id": None,
                     "last_status": "COMPLETED",
                     "last_success_at": _iso(now()),
                     "last_result": result,
@@ -263,6 +270,7 @@ def run_cycle(
                 **state,
                 "schema_id": "confenge.contact_discovery.cycle_state.v1",
                 "active_cohort": cohort,
+                "active_operation_id": operation_id,
                 "last_status": "RUNNING",
                 "last_started_at": _iso(started_at),
                 "last_progress": progress,
@@ -292,6 +300,7 @@ def run_cycle(
                 {
                     **_read_state(state_path),
                     "active_cohort": cohort,
+                    "active_operation_id": operation_id,
                     "last_status": "RUNNING",
                     "last_progress_at": _iso(now()),
                     "last_progress": progress,
@@ -364,6 +373,7 @@ def run_cycle(
                 **_read_state(state_path),
                 "schema_id": "confenge.contact_discovery.cycle_state.v1",
                 "active_cohort": None,
+                "active_operation_id": None,
                 "last_status": "COMPLETED",
                 "last_success_at": _iso(now()),
                 "last_result": result,
@@ -384,6 +394,7 @@ def run_cycle(
                 **_read_state(state_path),
                 "schema_id": "confenge.contact_discovery.cycle_state.v1",
                 "active_cohort": cohort,
+                "active_operation_id": operation_id,
                 "last_status": "FAILED",
                 "last_failure": failure,
             },
@@ -404,27 +415,42 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--domain-concurrency", type=int, default=1)
     parser.add_argument("--poll-seconds", type=float, default=30.0)
     parser.add_argument("--timeout-hours", type=float, default=18.0)
+    parser.add_argument("--commercial-operation-id")
+    parser.add_argument("--commercial-operation-scope", choices=("stage", "cycle"))
+    parser.add_argument("--commercial-owner-id")
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
-        result = run_cycle(
-            output_root=args.output_root,
-            state_path=args.state,
-            alert_ledger=args.alert_ledger,
-            search_backend=args.search_backend,
-            searxng_url=args.searxng_url,
-            service=args.service,
-            backend_concurrency=args.backend_concurrency,
-            domain_concurrency=args.domain_concurrency,
-            poll_seconds=args.poll_seconds,
-            timeout_seconds=args.timeout_hours * 3600,
-        )
+        from scripts.ops.confenge_commercial_mutex import acquire_stage_from_env
+
+        with acquire_stage_from_env(
+            "contact",
+            operation_id=args.commercial_operation_id,
+            scope=args.commercial_operation_scope,
+            owner_id=args.commercial_owner_id,
+        ) as claim:
+            result = run_cycle(
+                output_root=args.output_root,
+                state_path=args.state,
+                alert_ledger=args.alert_ledger,
+                search_backend=args.search_backend,
+                searxng_url=args.searxng_url,
+                service=args.service,
+                backend_concurrency=args.backend_concurrency,
+                domain_concurrency=args.domain_concurrency,
+                poll_seconds=args.poll_seconds,
+                timeout_seconds=args.timeout_hours * 3600,
+                operation_id=claim.operation_id,
+            )
+            claim.complete({"cohort": result.get("cohort"), "current": result.get("current")})
     except Exception as exc:  # noqa: BLE001
         print(json.dumps({"ok": False, "error": str(exc)}, ensure_ascii=False), file=sys.stderr)
-        return 1
+        from scripts.ops.confenge_commercial_mutex import EXIT_AUTHORITY_BUSY, AuthorityError
+
+        return EXIT_AUTHORITY_BUSY if isinstance(exc, AuthorityError) else 1
     print(json.dumps(result, ensure_ascii=False, indent=2, default=str))
     return 0
 

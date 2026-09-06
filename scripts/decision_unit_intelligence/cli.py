@@ -314,14 +314,22 @@ def _resolve_dsn(explicit: str | None) -> str:
     return dsn
 
 
+def _require_commercial_contact_authority() -> None:
+    from scripts.ops.confenge_commercial_mutex import assert_inherited_authority
+
+    assert_inherited_authority("contact")
+
+
 def cmd_batch_enqueue(args: argparse.Namespace) -> int:
-    contact_seed_inputs = manifest_contact_seed_inputs(args.existing_contacts or [])
-    population = None
     if args.population:
         if args.cnpjs or args.manifest or args.limit is not None:
             raise SystemExit("--population cannot be combined with --cnpjs, --manifest, or --limit")
         if args.search_backend == "off":
             raise SystemExit("canonical population enrichment requires a public --search-backend")
+    _require_commercial_contact_authority()
+    contact_seed_inputs = manifest_contact_seed_inputs(args.existing_contacts or [])
+    population = None
+    if args.population:
         population = load_discovery_population(
             _resolve_dsn(args.dsn),
             population=args.population,
@@ -427,6 +435,7 @@ def cmd_batch_failures(args: argparse.Namespace) -> int:
 
 
 def cmd_batch_retry(args: argparse.Namespace) -> int:
+    _require_commercial_contact_authority()
     with connect(args.dsn) as connection:
         n = ContactDiscoveryQueue(connection).retry(
             cohort_id=args.cohort,
@@ -445,12 +454,14 @@ def cmd_batch_cancel(args: argparse.Namespace) -> int:
 
 
 def cmd_batch_resume(args: argparse.Namespace) -> int:
+    _require_commercial_contact_authority()
     with connect(args.dsn) as connection:
         _print(ContactDiscoveryQueue(connection).resume(cohort_id=args.cohort))
     return 0
 
 
 def cmd_batch_publish(args: argparse.Namespace) -> int:
+    _require_commercial_contact_authority()
     with connect(args.dsn) as connection:
         result = publish_snapshot(
             ContactDiscoveryQueue(connection),
@@ -463,6 +474,7 @@ def cmd_batch_publish(args: argparse.Namespace) -> int:
 
 
 def cmd_batch_export_contacts(args: argparse.Namespace) -> int:
+    _require_commercial_contact_authority()
     with connect(args.dsn) as connection:
         result = write_contact_projection(
             ContactDiscoveryQueue(connection),
@@ -807,7 +819,13 @@ def _add_site_crawl_args(parser: argparse.ArgumentParser) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    result = args.func(args)
+    from scripts.ops.confenge_commercial_mutex import EXIT_AUTHORITY_BUSY, AuthorityError
+
+    try:
+        result = args.func(args)
+    except AuthorityError as exc:
+        print(json.dumps({"ok": False, "error": str(exc)}), file=sys.stderr)
+        return EXIT_AUTHORITY_BUSY
     return int(result)
 
 

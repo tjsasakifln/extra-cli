@@ -42,6 +42,12 @@ Regra superior. Qualquer regressão que recoloque PNCP live como gate comercial
   estágios comerciais têm cadência independente; não se espera `OnSuccess`.
 - Os dois ciclos de aceite de #468 são **ciclos comerciais** sobre o persistido,
   não sete janelas PNCP live.
+- Todo entrypoint mutante de refresh, reconcile, contact ou feed deve adquirir
+  `confenge.commercial.authority.v1` antes da primeira mutação. A autoridade é
+  única no host, atômica, observável e fail-closed; operação abortada não é
+  retomável e estado `ACTIVE` órfão exige recuperação explícita com prova de
+  morte do owner. Locks isolados por unit/arquivo de state não satisfazem esta
+  regra.
 - Saúde do crawler (`source_maintenance_health`, freshness gate) é telemetria,
   não autoridade comercial.
 - PR #528, handoffs e comentários da cascata PNCP→feed são SUPERSEDED como
@@ -56,6 +62,11 @@ Preflight: `python3 -m scripts.ops.check_confenge_commercial_plane`.
   inclusive observação anterior ou igual ao full reconcile. A correção não
   encerra o incidente: exige SHA implantado, novo checkpoint do founder e dois
   ciclos novos. Evidência: `docs/ops/handoff-2026-09-05-468-persisted-watermark-binding.md`.
+- [ ] #468 recovery: integrar/deployar a autoridade concorrente canônica,
+  rebindar artefatos somente depois do merge de código e provar no host mutex,
+  stale recovery, feed preservado, dispatch pausado e SMTP delta zero. Isso não
+  executa nem aceita C1/C2. Evidência:
+  `docs/ops/handoff-2026-09-05-468-artifact-binding-canonical-mutex-recovery.md`.
 
 ### Identidade contratual CONFENGE / incidente #468 (2026-09-02)
 

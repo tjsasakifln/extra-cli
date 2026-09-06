@@ -43,6 +43,7 @@ def test_preflight_emits_objective_tokens_twice() -> None:
         assert "PNCP_FRESH_IS_COMMERCIAL_GATE=NO" in blob
         assert "COMMERCIAL_STAGE_ORPHANS=ZERO" in blob
         assert "DATALAKE_FAIL_CLOSED_GATES=PASS" in blob
+        assert "CANONICAL_MUTEX=PASS" in blob
         assert "ARCHITECTURE_AUTHORITY=PASS" in blob
         payload = json.loads(blob.split("\n\n", 1)[0])
         assert payload["ok"] is True
@@ -61,6 +62,9 @@ def test_evaluate_repo_requires_adr_accepted() -> None:
     assert names["adr_index_coherent"] is True
     assert names["dod_p0_section"] is True
     assert names["versioned_onsuccess_zero"] is True
+    assert names["canonical_mutex_module"] is True
+    assert names["canonical_mutex_code_boundaries"] is True
+    assert names["canonical_mutex_systemd_boundaries"] is True
     assert names["pncp_fresh_not_commercial_gate"] is True
     assert names["pr528_not_current_implementation"] is True
 
@@ -117,6 +121,18 @@ def test_removing_independent_timer_fails(tmp_path: Path) -> None:
     )
     ev = evaluate_repo(clone)
     assert any(c.name == "chain_timers_cover_commercial" and not c.ok for c in ev.checks)
+
+
+def test_removing_a_mutex_boundary_fails_preflight(tmp_path: Path) -> None:
+    clone = _minimal_tree(tmp_path)
+    contact = clone / "scripts/ops/confenge_contact_cycle.py"
+    contact.write_text(
+        contact.read_text(encoding="utf-8").replace("acquire_stage_from_env", "removed_mutex_boundary"),
+        encoding="utf-8",
+    )
+    ev = evaluate_repo(clone)
+    assert any(c.name == "canonical_mutex_code_boundaries" and not c.ok for c in ev.checks)
+    assert ev.tokens["CANONICAL_MUTEX"] == "FAIL"
 
 
 def test_stale_as_commercial_block_fails(tmp_path: Path) -> None:
@@ -188,6 +204,13 @@ def _minimal_tree(tmp_path: Path) -> Path:
         "scripts/confenge_activation/publish.py",
         "scripts/warmbly_bridge/export.py",
         "scripts/ops/build_controlled_email_cohort.py",
+        "scripts/ops/confenge_commercial_mutex.py",
+        "scripts/ops/confenge_contact_cycle.py",
+        "scripts/ops/confenge_feed_cycle.py",
+        "scripts/confenge_target_fit/cli.py",
+        "scripts/confenge_target_fit/hook_after_datalake.py",
+        "scripts/confenge_activation/cli.py",
+        "scripts/decision_unit_intelligence/cli.py",
         "deploy/systemd/pncp-contracts.service",
         "deploy/systemd/extra-confenge-source-freshness-gate.service",
         "deploy/systemd/extra-confenge-target-fit-refresh.service",

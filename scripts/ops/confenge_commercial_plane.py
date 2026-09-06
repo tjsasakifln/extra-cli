@@ -20,6 +20,7 @@ ADR_RELATIVE = Path("docs/architecture/adr/ADR-039-confenge-pncp-outbound-decoup
 ADR_INDEX_RELATIVE = Path("docs/architecture/adr/INDEX.md")
 DOD_RELATIVE = Path("DOD.md")
 RUNBOOK_RELATIVE = Path("docs/ops/confenge-commercial-plane-authority.md")
+MUTEX_RELATIVE = Path("scripts/ops/confenge_commercial_mutex.py")
 
 CONTRACT_ID = "CONFENGE_COMMERCIAL_PLANE_OPERATING_AUTHORITY"
 REQUIRED_CONTRACT_FIELDS = (
@@ -62,6 +63,22 @@ COMMERCIAL_CODE_PATHS = (
     Path("scripts/confenge_activation/publish.py"),
     Path("scripts/warmbly_bridge/export.py"),
     Path("scripts/ops/build_controlled_email_cohort.py"),
+)
+
+MUTEX_CODE_BOUNDARIES = (
+    (Path("scripts/confenge_target_fit/cli.py"), "acquire_stage_from_env"),
+    (Path("scripts/confenge_target_fit/hook_after_datalake.py"), "acquire_stage_from_env"),
+    (Path("scripts/ops/confenge_contact_cycle.py"), "acquire_stage_from_env"),
+    (Path("scripts/ops/confenge_feed_cycle.py"), "acquire_stage_from_env"),
+    (Path("scripts/confenge_activation/cli.py"), "acquire_stage_from_env"),
+    (Path("scripts/decision_unit_intelligence/cli.py"), "assert_inherited_authority"),
+)
+
+MUTEX_UNITS = (
+    "extra-confenge-target-fit-refresh.service",
+    "extra-confenge-target-fit-reconcile.service",
+    "extra-confenge-contact-cycle.service",
+    "extra-confenge-feed-cycle.service",
 )
 
 # Live PNCP FRESH used as a commercial abort. Watermark restamp under FRESH is
@@ -272,6 +289,38 @@ def evaluate_units(root: Path) -> list[Check]:
     ]
 
 
+def evaluate_canonical_mutex(root: Path) -> list[Check]:
+    mutex = root / MUTEX_RELATIVE
+    missing_boundaries: list[str] = []
+    for relative, marker in MUTEX_CODE_BOUNDARIES:
+        path = root / relative
+        if not path.is_file() or marker not in _read(path):
+            missing_boundaries.append(str(relative))
+    bad_units: list[str] = []
+    for name in MUTEX_UNITS:
+        path = root / "deploy/systemd" / name
+        if not path.is_file():
+            bad_units.append(f"missing:{name}")
+            continue
+        text = _read(path)
+        if "CONFENGE_COMMERCIAL_OPERATION_SCOPE=stage" not in text or "/usr/bin/flock" in text:
+            bad_units.append(name)
+    mutex_text = _read(mutex) if mutex.is_file() else ""
+    primitives = (
+        "fcntl.flock",
+        "process_start_ticks",
+        "boot_id",
+        "recover_stale_authority",
+        "StageAlreadyCompletedError",
+    )
+    missing_primitives = [item for item in primitives if item not in mutex_text]
+    return [
+        Check("canonical_mutex_module", mutex.is_file() and not missing_primitives, ",".join(missing_primitives)),
+        Check("canonical_mutex_code_boundaries", not missing_boundaries, ",".join(missing_boundaries)),
+        Check("canonical_mutex_systemd_boundaries", not bad_units, ",".join(bad_units)),
+    ]
+
+
 def _assign_tuple(source: str, name: str) -> tuple[str, ...]:
     tree = ast.parse(source)
     for node in tree.body:
@@ -388,6 +437,7 @@ def evaluate_repo(root: Path) -> PlaneEvaluation:
     ev.checks.extend(evaluate_adr(root))
     ev.checks.extend(evaluate_dod(root))
     ev.checks.extend(evaluate_units(root))
+    ev.checks.extend(evaluate_canonical_mutex(root))
     ev.checks.extend(evaluate_pin_timers(root))
     ev.checks.extend(evaluate_commercial_code(root))
     ev.checks.extend(evaluate_pr528_not_current(root))
@@ -400,6 +450,7 @@ def evaluate_repo(root: Path) -> PlaneEvaluation:
         "HOST_ONSUCCESS_COUPLING": "NOT_TESTED",
         "COMMERCIAL_STAGE_ORPHANS": "ZERO" if architecture_ok else "FAIL",
         "DATALAKE_FAIL_CLOSED_GATES": "PASS" if architecture_ok else "FAIL",
+        "CANONICAL_MUTEX": "PASS" if architecture_ok else "FAIL",
         "ARCHITECTURE_AUTHORITY": "PASS" if architecture_ok else "FAIL",
     }
     if not architecture_ok:

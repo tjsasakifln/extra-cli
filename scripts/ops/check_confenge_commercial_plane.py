@@ -79,6 +79,7 @@ def _emit(ev: PlaneEvaluation, *, json_only: bool) -> None:
         "HOST_ONSUCCESS_COUPLING",
         "COMMERCIAL_STAGE_ORPHANS",
         "DATALAKE_FAIL_CLOSED_GATES",
+        "CANONICAL_MUTEX",
         "ARCHITECTURE_AUTHORITY",
     ):
         print(f"{key}={ev.tokens.get(key, 'UNKNOWN')}")

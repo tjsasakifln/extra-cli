@@ -20,10 +20,11 @@ Environment=CONFENGE_CONTACT_BACKEND_CONCURRENCY=12
 Environment=CONFENGE_CONTACT_DOMAIN_CONCURRENCY=1
 Environment=CONFENGE_CONTACT_POLL_SECONDS=30
 Environment=CONFENGE_CONTACT_TIMEOUT_HOURS=18
+Environment=CONFENGE_COMMERCIAL_OPERATION_SCOPE=stage
 EnvironmentFile=-/opt/extra-consultoria/.env
 EnvironmentFile=-/etc/extra-consultoria/crawler.env
 EnvironmentFile=-/etc/extra-consultoria/contact-discovery.env
-ExecStart=/usr/bin/flock --nonblock /run/extra-confenge-contact-cycle/cycle.lock /opt/extra-consultoria/.venv/bin/python -m scripts.ops.confenge_contact_cycle --output-root ${CONFENGE_CONTACT_OUTPUT_ROOT} --search-backend ${CONFENGE_CONTACT_SEARCH_BACKEND} --backend-concurrency ${CONFENGE_CONTACT_BACKEND_CONCURRENCY} --domain-concurrency ${CONFENGE_CONTACT_DOMAIN_CONCURRENCY} --poll-seconds ${CONFENGE_CONTACT_POLL_SECONDS} --timeout-hours ${CONFENGE_CONTACT_TIMEOUT_HOURS}
+ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.ops.confenge_contact_cycle --output-root ${CONFENGE_CONTACT_OUTPUT_ROOT} --search-backend ${CONFENGE_CONTACT_SEARCH_BACKEND} --backend-concurrency ${CONFENGE_CONTACT_BACKEND_CONCURRENCY} --domain-concurrency ${CONFENGE_CONTACT_DOMAIN_CONCURRENCY} --poll-seconds ${CONFENGE_CONTACT_POLL_SECONDS} --timeout-hours ${CONFENGE_CONTACT_TIMEOUT_HOURS}
 TimeoutStartSec=20h
 Nice=15
 IOSchedulingClass=best-effort

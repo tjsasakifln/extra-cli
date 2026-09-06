@@ -36,6 +36,56 @@ ssh ec-prod "systemctl list-timers 'extra-confenge-*' 'pncp-contracts.timer' --a
 
 Não iniciar jobs comerciais a partir deste runbook.
 
+## Mutex canônico e identidade de operação
+
+Estado e lock duráveis:
+`/var/lib/extra-consultoria/commercial-cycle-authority/authority.{json,lock}`.
+Diagnóstico não mutante:
+
+```bash
+python3 -m scripts.ops.confenge_commercial_mutex status
+```
+
+Os units/timers de refresh, reconcile, contact e feed recebem um
+`INVOCATION_ID` do systemd e usam scope `stage`. Uma execução explícita de ciclo
+deve fornecer o mesmo ID e owner nos quatro comandos:
+
+```bash
+export CONFENGE_COMMERCIAL_OPERATION_ID='<checkpoint>:cycle-1'
+export CONFENGE_COMMERCIAL_OPERATION_SCOPE=cycle
+export CONFENGE_COMMERCIAL_OWNER_ID='<session-owner>'
+```
+
+O primeiro estágio reserva a operação; a ordem aceita é exatamente refresh →
+reconcile → contact → feed. Replay de estágio completo e operação concorrente
+saem 75 antes da mutação. Nunca editar o JSON nem apagar o lock.
+
+Após crash `ACTIVE`, primeiro inspecionar e então recuperar somente o operation
+ID observado:
+
+```bash
+python3 -m scripts.ops.confenge_commercial_mutex recover-stale \
+  --expected-operation-id '<id>' --recovered-by '<operator>'
+```
+
+Se uma operação estiver `OPEN` entre estágios e for formalmente abandonada, usar
+`abort-open` com ID, ator e motivo. `recover-stale` nunca toma lock vivo e
+`abort-open` nunca aceita `ACTIVE`.
+
+### Cobertura de entrypoints
+
+| Entrada | Boundary canônico |
+|---|---|
+| `systemctl start|restart` e timers dos quatro stages | CLI pinado → mutex único |
+| `systemd-run`/shell/agent chamando os mesmos módulos | operation ID obrigatório → mutex único |
+| `scripts.confenge_target_fit refresh|reconcile` | `acquire_stage_from_env` |
+| hook `notify_datalake_committed` | refresh stage-scope; soft-fail se sem autoridade |
+| `scripts.ops.confenge_contact_cycle` | contact; state arbitrário não contorna o mutex |
+| DUI `batch enqueue|retry|resume|publish|export-contacts` | exige processo descendente do owner contact ativo; não depende do nome da coorte |
+| `scripts.ops.confenge_feed_cycle` e `scripts.confenge_activation publish` | feed antes de build/promote |
+| target-fit/contact workers | subordinados: processam filas; não iniciam/reiniciam nem promovem ciclo |
+| feed monitor/status/progress/inspect | somente leitura; não adquire autoridade |
+
 ## Sequência correta de um ciclo comercial
 
 1. Confirmar Data Lake disponível e projeção target-fit persistida.

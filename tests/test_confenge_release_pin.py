@@ -225,6 +225,18 @@ def test_multi_line_execstart_is_joined_not_truncated():
     assert "reconcile" in exec_lines[0]
 
 
+def test_commercial_operation_scope_is_pinned_from_versioned_units():
+    for unit_name in (
+        "extra-confenge-target-fit-refresh.service",
+        "extra-confenge-target-fit-reconcile.service",
+        "extra-confenge-contact-cycle.service",
+        "extra-confenge-feed-cycle.service",
+    ):
+        unit = (UNIT_SOURCE / unit_name).read_text(encoding="utf-8")
+        body = render_dropin(unit, SHA)
+        assert "Environment=CONFENGE_COMMERCIAL_OPERATION_SCOPE=stage" in body
+
+
 def test_environment_placeholders_survive_rendering():
     unit = (UNIT_SOURCE / "extra-confenge-contact-cycle.service").read_text(encoding="utf-8")
     body = render_dropin(unit, SHA)

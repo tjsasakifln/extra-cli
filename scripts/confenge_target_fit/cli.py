@@ -43,6 +43,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument("--dsn", default=None, help="State/source Postgres DSN")
     p.add_argument("-v", "--verbose", action="store_true")
+    p.add_argument("--commercial-operation-id")
+    p.add_argument("--commercial-operation-scope", choices=("stage", "cycle"))
+    p.add_argument("--commercial-owner-id")
     sub = p.add_subparsers(dest="cmd", required=True)
 
     r = sub.add_parser("refresh", help="CDC enqueue + optional worker drain")
@@ -134,12 +137,30 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     if args.cmd == "refresh":
-        stats = run_refresh(
-            dsn,
-            cfg=cfg,
-            drain_worker=not args.no_drain,
-            max_worker_batches=args.max_batches,
+        from scripts.ops.confenge_commercial_mutex import (
+            EXIT_AUTHORITY_BUSY,
+            AuthorityError,
+            acquire_stage_from_env,
         )
+
+        try:
+            with acquire_stage_from_env(
+                "refresh",
+                operation_id=args.commercial_operation_id,
+                scope=args.commercial_operation_scope,
+                owner_id=args.commercial_owner_id,
+            ) as claim:
+                stats = run_refresh(
+                    dsn,
+                    cfg=cfg,
+                    drain_worker=not args.no_drain,
+                    max_worker_batches=args.max_batches,
+                )
+                if not stats.error:
+                    claim.complete(stats.as_dict())
+        except AuthorityError as exc:
+            print(f"AUTHORITY_REFUSED: {exc}", file=sys.stderr)
+            return EXIT_AUTHORITY_BUSY
         print(json.dumps(stats.as_dict(), indent=2, default=str))
         return 1 if stats.error else 0
 
@@ -157,13 +178,31 @@ def main(argv: list[str] | None = None) -> int:
         return 1 if stats.error else 0
 
     if args.cmd == "reconcile":
-        stats = run_reconcile(
-            dsn,
-            cfg=cfg,
-            max_enqueue=args.max_enqueue,
-            drain_worker=bool(getattr(args, "drain_worker", False)),
-            max_worker_batches=int(getattr(args, "max_worker_batches", 0) or 0),
+        from scripts.ops.confenge_commercial_mutex import (
+            EXIT_AUTHORITY_BUSY,
+            AuthorityError,
+            acquire_stage_from_env,
         )
+
+        try:
+            with acquire_stage_from_env(
+                "reconcile",
+                operation_id=args.commercial_operation_id,
+                scope=args.commercial_operation_scope,
+                owner_id=args.commercial_owner_id,
+            ) as claim:
+                stats = run_reconcile(
+                    dsn,
+                    cfg=cfg,
+                    max_enqueue=args.max_enqueue,
+                    drain_worker=bool(getattr(args, "drain_worker", False)),
+                    max_worker_batches=int(getattr(args, "max_worker_batches", 0) or 0),
+                )
+                if not stats.error:
+                    claim.complete(stats.as_dict())
+        except AuthorityError as exc:
+            print(f"AUTHORITY_REFUSED: {exc}", file=sys.stderr)
+            return EXIT_AUTHORITY_BUSY
         print(json.dumps(stats.as_dict(), indent=2, default=str))
         return 1 if stats.error else 0
 

@@ -211,7 +211,7 @@ def test_the_shipped_decoupled_units_pass_the_readback() -> None:
     assert not any(reason.endswith("_ONSUCCESS_COUPLED") for reason in contract["reason_codes"])
 
 
-def test_ingestion_and_source_health_carry_no_on_success_and_locks_are_verbose() -> None:
+def test_ingestion_and_source_health_carry_no_on_success_and_commercial_mutex_is_internal() -> None:
     pncp = (ROOT / "deploy/systemd/pncp-contracts.service").read_text(encoding="utf-8")
     gate = (ROOT / "deploy/systemd/extra-confenge-source-freshness-gate.service").read_text(
         encoding="utf-8"
@@ -225,8 +225,10 @@ def test_ingestion_and_source_health_carry_no_on_success_and_locks_are_verbose()
     assert "OnSuccess=" not in pncp.split("[Service]", 1)[0]
     assert "OnSuccess=" not in gate.split("[Service]", 1)[0]
     assert f"OnSuccess={TARGET_FIT_RECONCILE_SERVICE}" not in pncp
-    assert "/usr/bin/flock --verbose --nonblock" in refresh
-    assert "/usr/bin/flock --verbose --nonblock" in reconcile
+    assert "CONFENGE_COMMERCIAL_OPERATION_SCOPE=stage" in refresh
+    assert "CONFENGE_COMMERCIAL_OPERATION_SCOPE=stage" in reconcile
+    assert "/usr/bin/flock" not in refresh
+    assert "/usr/bin/flock" not in reconcile
     assert "OnFailure=extra-onfailure@%n.service" in refresh
     worker = (ROOT / "deploy/systemd/extra-confenge-target-fit-worker.service").read_text(
         encoding="utf-8"

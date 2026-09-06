@@ -89,7 +89,11 @@ CHAIN_ENABLED_SERVICES = ("extra-confenge-target-fit-worker.service",)
 # cwd into the release made the PNCP crawler die on
 # PermissionError: 'output/contracts/incremental-latest.json' after a window it
 # had already crawled successfully.
-PINNED_DIRECTIVES = ("Environment=PYTHONPATH=", "ExecStart=")
+PINNED_DIRECTIVES = (
+    "Environment=PYTHONPATH=",
+    "Environment=CONFENGE_COMMERCIAL_OPERATION_SCOPE=",
+    "ExecStart=",
+)
 # Keep operational limits authored with the versioned unit. In particular, a
 # host-local base unit may still have the old 150-minute PNCP limit; omitting
 # this from the immutable pin would silently discard the 320-minute bounded
