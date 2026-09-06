@@ -74,8 +74,8 @@ unchanged.
 
 - Artifact root cause includes both stale five-field result/queue binding after
   #571 and missing freeze discovery coverage for mutating CLIs. The recovery
-  requires code integration first and artifact-only rebind second because main
-  uses squash merges.
+  requires code integration first and artifact-only rebind second. Both PRs use
+  merge commits so the bound code SHA remains in main ancestry.
 - Canonical authority uses one host path, nonblocking kernel `flock`, atomic
   fsynced state, durable terminal history, process identity and explicit stale
   recovery. No naming convention selects the lock domain.
@@ -87,6 +87,9 @@ unchanged.
   and the unmodified suite then passed.
 - CodeRabbit CLI required interactive OAuth and was unavailable; manual
   adversarial review found and fixed durable-history and cohort-name bypasses.
+- The canonical deploy previously always used `enable --now` for commercial
+  timers. `--preserve-timer-state` now pins and verifies the immutable release
+  without changing a founder-paused schedule, failing on concurrent state drift.
 - Merge, artifact-only rebind, deployment and live-host proof remain the final
   unchecked task. No C1/C2 was run.
 
@@ -94,6 +97,7 @@ unchanged.
 
 - `DOD.md`
 - `deploy/confenge/pin_release.py`
+- `deploy/confenge/cut_release.sh`
 - `deploy/systemd/extra-confenge-{target-fit-refresh,target-fit-reconcile,contact-cycle,feed-cycle}.service`
 - `docs/architecture/adr/ADR-039-confenge-pncp-outbound-decoupling.md`
 - `docs/ops/confenge-commercial-plane-authority.md`

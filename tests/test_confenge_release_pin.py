@@ -208,6 +208,14 @@ def test_existing_release_is_reverified_before_pin():
     assert source.index('if find "$TARGET"') < source.index(pin)
 
 
+def test_release_cut_can_preserve_a_paused_timer_plane():
+    source = (Path(__file__).resolve().parents[1] / "deploy" / "confenge" / "cut_release.sh").read_text(
+        encoding="utf-8"
+    )
+    assert "--preserve-timer-state" in source
+    assert '"${PIN_ARGS[@]}"' in source
+
+
 def test_isolation_flag_is_not_duplicated():
     unit = (UNIT_SOURCE / "extra-confenge-feed-cycle.service").read_text(encoding="utf-8")
     once = render_dropin(unit, SHA)
@@ -286,6 +294,72 @@ def test_every_decoupled_stage_is_scheduled_and_none_is_suppressed():
     unit_dir = Path(__file__).resolve().parents[1] / "deploy" / "systemd"
     for timer in CHAIN_TIMERS:
         assert (unit_dir / timer).is_file()
+
+
+def test_pause_preserving_pin_never_mutates_timer_state(tmp_path, monkeypatch):
+    import subprocess
+
+    import deploy.confenge.pin_release as pin
+
+    release_root = tmp_path / "releases"
+    (release_root / SHA / ".venv" / "bin").mkdir(parents=True)
+    (release_root / SHA / ".venv" / "bin" / "python").touch()
+    monkeypatch.setattr(pin, "RELEASE_ROOT", release_root)
+    monkeypatch.setattr(pin, "SYSTEMD_ROOT", tmp_path / "systemd")
+    calls: list[list[str]] = []
+    paused = {
+        unit: {
+            "enabled": "enabled" if unit in {"pncp-contracts.timer", "extra-confenge-feed-monitor.timer"} else "disabled",
+            "active": "active" if unit in {"pncp-contracts.timer", "extra-confenge-feed-monitor.timer"} else "inactive",
+        }
+        for unit in CHAIN_TIMERS
+    }
+
+    def fake_run(argv: list[str], *, check: bool = True) -> subprocess.CompletedProcess[str]:
+        del check
+        calls.append(argv)
+        if argv[:2] == ["systemctl", "is-enabled"]:
+            return subprocess.CompletedProcess(argv, 0, stdout=paused[argv[2]]["enabled"])
+        if argv[:2] == ["systemctl", "is-active"]:
+            return subprocess.CompletedProcess(argv, 0, stdout=paused[argv[2]]["active"])
+        return subprocess.CompletedProcess(argv, 0, stdout="")
+
+    monkeypatch.setattr(pin, "_run", fake_run)
+    report = pin.apply(SHA, preserve_timer_state=True)
+
+    assert report["timer_policy"] == "PRESERVE"
+    assert report["timer_states_before"] == paused
+    assert ["systemctl", "daemon-reload"] in calls
+    assert not any(call[:3] in (["systemctl", "enable", "--now"], ["systemctl", "disable", "--now"]) for call in calls)
+
+
+def test_pause_preserving_pin_fails_on_concurrent_timer_state_drift(tmp_path, monkeypatch):
+    import subprocess
+
+    import deploy.confenge.pin_release as pin
+
+    release_root = tmp_path / "releases"
+    (release_root / SHA / ".venv" / "bin").mkdir(parents=True)
+    (release_root / SHA / ".venv" / "bin" / "python").touch()
+    monkeypatch.setattr(pin, "RELEASE_ROOT", release_root)
+    monkeypatch.setattr(pin, "SYSTEMD_ROOT", tmp_path / "systemd")
+    reads = 0
+
+    def fake_run(argv: list[str], *, check: bool = True) -> subprocess.CompletedProcess[str]:
+        nonlocal reads
+        del check
+        if argv[:2] == ["systemctl", "is-enabled"]:
+            reads += 1
+            value = "enabled" if reads > len(CHAIN_TIMERS) else "disabled"
+            return subprocess.CompletedProcess(argv, 0, stdout=value)
+        if argv[:2] == ["systemctl", "is-active"]:
+            return subprocess.CompletedProcess(argv, 0, stdout="inactive")
+        return subprocess.CompletedProcess(argv, 0, stdout="")
+
+    monkeypatch.setattr(pin, "_run", fake_run)
+
+    with pytest.raises(PinError, match="timer state changed"):
+        pin.apply(SHA, preserve_timer_state=True)
 
 
 def test_pncp_checkpoint_dir_is_versioned_and_outside_the_release():

@@ -36,6 +36,20 @@ ssh ec-prod "systemctl list-timers 'extra-confenge-*' 'pncp-contracts.timer' --a
 
 Não iniciar jobs comerciais a partir deste runbook.
 
+### Deploy durante pausa comercial
+
+Quando refresh, reconcile, contact ou feed estiverem pausados por autoridade
+operacional, o deploy imutável deve preservar exatamente o estado dos timers:
+
+```bash
+deploy/confenge/cut_release.sh '<full-sha>' --preserve-timer-state
+```
+
+Esse modo fotografa `enabled/active`, instala e verifica o pin sem executar
+`enable`, `disable`, `start` ou `stop` nos timers, e falha se o estado mudar
+concorrentemente. O modo normal continua aplicando a agenda canônica. Nunca
+usar o deploy como forma implícita de despausar um ciclo.
+
 ## Mutex canônico e identidade de operação
 
 Estado e lock duráveis:
