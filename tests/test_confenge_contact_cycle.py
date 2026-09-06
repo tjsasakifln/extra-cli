@@ -106,7 +106,7 @@ def test_full_cycle_promotes_only_after_terminal_projection(tmp_path: Path) -> N
     assert export[export.index("--prior-contacts") + 1] == str((previous / "contacts.jsonl").resolve())
 
 
-def test_failed_partial_cycle_keeps_previous_projection_and_is_resumable(tmp_path: Path) -> None:
+def test_failed_partial_cycle_keeps_previous_projection_and_is_not_reused(tmp_path: Path) -> None:
     output = tmp_path / "contact-discovery"
     previous = output / "projections" / "previous"
     previous.mkdir(parents=True)
@@ -138,6 +138,33 @@ def test_failed_partial_cycle_keeps_previous_projection_and_is_resumable(tmp_pat
     assert state["active_cohort"].startswith("target-confirmed-auto-")
     assert "CONTACT_CYCLE_FAILED" in (tmp_path / "alerts.jsonl").read_text(encoding="utf-8")
     assert all(command[command.index("batch") + 1] not in {"publish", "export-contacts"} for command in runner.commands)
+
+    first_cohort = state["active_cohort"]
+    second_runner = FakeRunner([terminal_progress()])
+    later = datetime(2026, 8, 24, 20, 1, tzinfo=UTC)
+    result = run_cycle(
+        output_root=output,
+        state_path=tmp_path / "state.json",
+        alert_ledger=tmp_path / "alerts.jsonl",
+        search_backend="searxng",
+        searxng_url=None,
+        service="reajuste_14133",
+        backend_concurrency=12,
+        domain_concurrency=1,
+        poll_seconds=0,
+        timeout_seconds=60,
+        runner=second_runner,
+        sleep=lambda _seconds: None,
+        now=lambda: later,
+        operation_id="new-authorized-operation",
+    )
+
+    assert result["cohort"] != first_cohort
+    assert result["resumed"] is False
+    assert any(
+        command[command.index("batch") + 1] == "enqueue"
+        for command in second_runner.commands
+    )
 
 
 def test_export_failure_after_snapshot_keeps_current_projection_unchanged(tmp_path: Path) -> None:
@@ -181,14 +208,15 @@ def test_export_failure_after_snapshot_keeps_current_projection_unchanged(tmp_pa
     assert state["last_status"] == "FAILED"
 
 
-def test_resume_terminal_cohort_does_not_enqueue_again(tmp_path: Path) -> None:
+def test_running_same_operation_cohort_does_not_enqueue_again(tmp_path: Path) -> None:
     state = tmp_path / "state.json"
     state.write_text(
         json.dumps(
             {
                 "schema_id": "confenge.contact_discovery.cycle_state.v1",
                 "active_cohort": "target-confirmed-auto-existing",
-                "last_status": "FAILED",
+                "active_operation_id": "authorized-operation",
+                "last_status": "RUNNING",
             }
         ),
         encoding="utf-8",
@@ -209,6 +237,7 @@ def test_resume_terminal_cohort_does_not_enqueue_again(tmp_path: Path) -> None:
         runner=runner,
         sleep=lambda _seconds: None,
         now=lambda: NOW,
+        operation_id="authorized-operation",
     )
 
     assert result["resumed"] is True

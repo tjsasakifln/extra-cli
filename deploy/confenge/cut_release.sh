@@ -14,11 +14,19 @@
 #   * publication is an atomic rename of a fully-built staging directory;
 #   * the chain is pinned and verified through deploy/confenge/pin_release.py.
 #
-# Usage (as root on the host):  cut_release.sh <full-40-char-sha>
+# Usage (as root on the host):
+#   cut_release.sh <full-40-char-sha> [--preserve-timer-state]
 set -euo pipefail
 
 SHA="${1:?full 40-character release SHA required}"
 [[ "$SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "CUT_RELEASE_ERROR: not a full SHA: $SHA" >&2; exit 1; }
+PIN_ARGS=("$SHA")
+if [ "${2:-}" = "--preserve-timer-state" ] && [ "$#" -eq 2 ]; then
+  PIN_ARGS+=("--preserve-timer-state")
+elif [ "$#" -ne 1 ]; then
+  echo "CUT_RELEASE_ERROR: usage: cut_release.sh <full-40-char-sha> [--preserve-timer-state]" >&2
+  exit 1
+fi
 
 APP=/opt/extra-consultoria
 RELEASES=/opt/extra-consultoria-releases
@@ -95,4 +103,4 @@ do
     echo "CUT_RELEASE_ERROR: release file does not match $SHA: $CRITICAL_PATH" >&2; exit 1; }
 done
 
-PYTHONDONTWRITEBYTECODE=1 python3 -P "$TARGET/deploy/confenge/pin_release.py" "$SHA"
+PYTHONDONTWRITEBYTECODE=1 python3 -P "$TARGET/deploy/confenge/pin_release.py" "${PIN_ARGS[@]}"

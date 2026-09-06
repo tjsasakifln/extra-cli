@@ -61,6 +61,21 @@ Datalake   = fonte operacional do outbound     — fail-closed de verdade
    `authoritative_source_freshness`, e **nunca é fabricado como `FRESH`**: uma
    sonda inalcançável vira `UNKNOWN` + `PNCP_TELEMETRY_UNAVAILABLE`.
 
+### Extensão — autoridade concorrente do ciclo comercial (2026-09-05)
+
+Os estágios mantêm cadências independentes, mas compartilham uma única
+autoridade de mutação no host. Refresh, reconcile, contact e feed adquirem
+atomicamente `confenge.commercial.authority.v1` antes da primeira mutação. Para
+um ciclo explícito, a reserva permanece `OPEN` entre estágios e impede outra
+operação; timers usam scope de estágio e continuam independentes.
+
+O lock kernel é acompanhado por registro durável com operation ID, owner, host,
+PID + process start ticks, boot ID e timestamps. Um crash libera o lock kernel,
+mas deixa `ACTIVE`: nova aquisição falha até recuperação explícita comprovar que
+o owner morreu e marcar a operação `ABORTED`. Não há timeout/takeover automático.
+Retry de estágio concluído é recusado antes da mutação; contact `FAILED` ou de
+outra operação nunca reutiliza a coorte anterior.
+
 ### O que continua fail-closed
 
 Nada abaixo foi afrouxado; o gate de integridade do datalake foi na verdade

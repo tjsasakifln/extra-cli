@@ -57,6 +57,7 @@ CHAIN_UNITS = (
     "extra-confenge-target-fit-refresh.service",
     "extra-confenge-target-fit-worker.service",
     "extra-confenge-contact-cycle.service",
+    "extra-contact-discovery-worker@.service",
     "extra-confenge-feed-cycle.service",
     "extra-confenge-feed-monitor.service",
 )
@@ -89,7 +90,11 @@ CHAIN_ENABLED_SERVICES = ("extra-confenge-target-fit-worker.service",)
 # cwd into the release made the PNCP crawler die on
 # PermissionError: 'output/contracts/incremental-latest.json' after a window it
 # had already crawled successfully.
-PINNED_DIRECTIVES = ("Environment=PYTHONPATH=", "ExecStart=")
+PINNED_DIRECTIVES = (
+    "Environment=PYTHONPATH=",
+    "Environment=CONFENGE_COMMERCIAL_OPERATION_SCOPE=",
+    "ExecStart=",
+)
 # Keep operational limits authored with the versioned unit. In particular, a
 # host-local base unit may still have the old 150-minute PNCP limit; omitting
 # this from the immutable pin would silently discard the 320-minute bounded
@@ -296,7 +301,23 @@ def foreign_execstart_dropins() -> dict[str, list[str]]:
     return found
 
 
-def apply(sha: str, *, dry_run: bool = False) -> dict[str, object]:
+def timer_states() -> dict[str, dict[str, str]]:
+    """Return the observable enabled/active state of every canonical timer."""
+    return {
+        unit: {
+            "enabled": _run(["systemctl", "is-enabled", unit], check=False).stdout.strip() or "unknown",
+            "active": _run(["systemctl", "is-active", unit], check=False).stdout.strip() or "unknown",
+        }
+        for unit in CHAIN_TIMERS
+    }
+
+
+def apply(
+    sha: str,
+    *,
+    dry_run: bool = False,
+    preserve_timer_state: bool = False,
+) -> dict[str, object]:
     rendered = plan(sha)
     if foreign := foreign_execstart_dropins():
         raise PinError(
@@ -304,6 +325,7 @@ def apply(sha: str, *, dry_run: bool = False) -> dict[str, object]:
             f"move their configuration into deploy/systemd and remove them: {foreign}"
         )
     written: list[str] = []
+    timer_states_before = timer_states() if preserve_timer_state and not dry_run else None
     if not dry_run:
         for unit, body in rendered.items():
             target_dir = SYSTEMD_ROOT / f"{unit}.d"
@@ -314,27 +336,37 @@ def apply(sha: str, *, dry_run: bool = False) -> dict[str, object]:
             tmp.replace(target)
             written.append(str(target))
         _run(["systemctl", "daemon-reload"])
-        # --now is required for both the source trigger and independent monitor;
-        # enabling alone would defer them until the next boot.
-        _run(["systemctl", "enable", "--now", *CHAIN_TIMERS])
-        if CHAIN_DISABLED_TIMERS:
-            # `systemctl disable --now` with no unit argument is a usage error,
-            # so an empty suppression contract must be a no-op, not a failure.
-            _run(["systemctl", "disable", "--now", *CHAIN_DISABLED_TIMERS])
+        if not preserve_timer_state:
+            # --now is required for both the source trigger and independent monitor;
+            # enabling alone would defer them until the next boot.
+            _run(["systemctl", "enable", "--now", *CHAIN_TIMERS])
+            if CHAIN_DISABLED_TIMERS:
+                # `systemctl disable --now` with no unit argument is a usage error,
+                # so an empty suppression contract must be a no-op, not a failure.
+                _run(["systemctl", "disable", "--now", *CHAIN_DISABLED_TIMERS])
         _run(["systemctl", "enable", *CHAIN_ENABLED_SERVICES])
+        if preserve_timer_state and timer_states() != timer_states_before:
+            raise PinError("timer state changed while a pause-preserving release pin was applied")
     return {
         "schema": "confenge.release_pin.v1",
         "release_sha": sha,
         "units_pinned": list(rendered),
-        "timers_enabled": list(CHAIN_TIMERS),
-        "timers_disabled": list(CHAIN_DISABLED_TIMERS),
+        "timer_policy": "PRESERVE" if preserve_timer_state else "CANONICAL_SCHEDULE",
+        "timers_enabled": [] if preserve_timer_state else list(CHAIN_TIMERS),
+        "timers_disabled": [] if preserve_timer_state else list(CHAIN_DISABLED_TIMERS),
+        "timer_states_before": timer_states_before,
         "services_enabled": list(CHAIN_ENABLED_SERVICES),
         "dropins_written": written,
         "dry_run": dry_run,
     }
 
 
-def verify(sha: str) -> dict[str, object]:
+def verify(
+    sha: str,
+    *,
+    require_canonical_schedule: bool = True,
+    expected_timer_states: dict[str, dict[str, str]] | None = None,
+) -> dict[str, object]:
     """Read back what systemd actually resolved, not what we intended to write."""
     drift: list[dict[str, str]] = []
     unsafe_python_path: list[dict[str, str]] = []
@@ -401,17 +433,25 @@ def verify(sha: str) -> dict[str, object]:
                         "observed": observed_timeout or "MISSING",
                     }
                 )
+    observed_timer_states = timer_states()
+    timer_state_drift = (
+        []
+        if expected_timer_states is None or observed_timer_states == expected_timer_states
+        else [{"expected": expected_timer_states, "observed": observed_timer_states}]
+    )
     disabled: list[str] = []
-    for unit in (*CHAIN_TIMERS, *CHAIN_ENABLED_SERVICES):
+    scheduled_units = (*CHAIN_TIMERS, *CHAIN_ENABLED_SERVICES) if require_canonical_schedule else CHAIN_ENABLED_SERVICES
+    for unit in scheduled_units:
         state = _run(["systemctl", "is-enabled", unit], check=False).stdout.strip()
         if state != "enabled":
             disabled.append(f"{unit}={state or 'unknown'}")
     # A timer that is enabled but not loaded fires nothing until the next boot.
     inactive_timers: list[str] = []
-    for unit in CHAIN_TIMERS:
-        state = _run(["systemctl", "is-active", unit], check=False).stdout.strip()
-        if state != "active":
-            inactive_timers.append(f"{unit}={state or 'unknown'}")
+    if require_canonical_schedule:
+        for unit in CHAIN_TIMERS:
+            state = observed_timer_states[unit]["active"]
+            if state != "active":
+                inactive_timers.append(f"{unit}={state or 'unknown'}")
     independently_scheduled: list[str] = []
     for unit in CHAIN_DISABLED_TIMERS:
         enabled = _run(["systemctl", "is-enabled", unit], check=False).stdout.strip()
@@ -444,6 +484,7 @@ def verify(sha: str) -> dict[str, object]:
                 timeout_start_drift,
                 disabled,
                 inactive_timers,
+                timer_state_drift,
                 independently_scheduled,
                 pncp_service_semantic_drift,
             )
@@ -456,6 +497,9 @@ def verify(sha: str) -> dict[str, object]:
         "timeout_start_drift": timeout_start_drift,
         "not_enabled": disabled,
         "timers_not_active": inactive_timers,
+        "timer_policy": "CANONICAL_SCHEDULE" if require_canonical_schedule else "PRESERVE",
+        "timer_states": observed_timer_states,
+        "timer_state_drift": timer_state_drift,
         "downstream_timers_scheduled": independently_scheduled,
         "pncp_service_semantic_drift": pncp_service_semantic_drift,
     }
@@ -466,14 +510,30 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("sha", help="full 40-character release SHA under /opt/extra-consultoria-releases")
     parser.add_argument("--dry-run", action="store_true", help="render and validate without touching the host")
     parser.add_argument("--verify-only", action="store_true", help="only read back the resolved host state")
+    parser.add_argument(
+        "--preserve-timer-state",
+        action="store_true",
+        help="pin code without enabling, disabling, starting, or stopping any timer",
+    )
     args = parser.parse_args(argv)
     try:
         if args.verify_only:
-            report = verify(args.sha)
+            report = verify(args.sha, require_canonical_schedule=not args.preserve_timer_state)
         else:
-            report = apply(args.sha, dry_run=args.dry_run)
+            report = apply(
+                args.sha,
+                dry_run=args.dry_run,
+                preserve_timer_state=args.preserve_timer_state,
+            )
             if not args.dry_run:
-                report = {**report, "verification": verify(args.sha)}
+                report = {
+                    **report,
+                    "verification": verify(
+                        args.sha,
+                        require_canonical_schedule=not args.preserve_timer_state,
+                        expected_timer_states=report.get("timer_states_before"),
+                    ),
+                }
     except (PinError, OSError, subprocess.SubprocessError) as exc:
         print(json.dumps({"ok": False, "error": str(exc)}, ensure_ascii=False), file=sys.stderr)
         return 1

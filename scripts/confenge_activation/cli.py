@@ -56,6 +56,9 @@ def build_parser() -> argparse.ArgumentParser:
     pub.add_argument("--max-age-hours", type=float, default=DEFAULT_MAX_AGE_HOURS)
     pub.add_argument("--state", type=Path, default=DEFAULT_STATE_PATH)
     pub.add_argument("--alert-ledger", type=Path, default=DEFAULT_ALERT_LEDGER)
+    pub.add_argument("--commercial-operation-id")
+    pub.add_argument("--commercial-operation-scope", choices=("stage", "cycle"))
+    pub.add_argument("--commercial-owner-id")
 
     check = sub.add_parser("check-publication", help="Validate freshness and integrity of the public current feed")
     check.add_argument("--publish-dir", required=True, help="Publication root containing current symlink")
@@ -72,16 +75,28 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "publish":
         try:
-            result = atomic_publish_directory(
-                Path(args.build_dir),
-                Path(args.publish_dir),
-                max_age_hours=args.max_age_hours,
-                state_path=args.state,
-                alert_ledger=args.alert_ledger,
-            )
+            from scripts.ops.confenge_commercial_mutex import acquire_stage_from_env
+
+            with acquire_stage_from_env(
+                "feed",
+                operation_id=args.commercial_operation_id,
+                scope=args.commercial_operation_scope,
+                owner_id=args.commercial_owner_id,
+            ) as claim:
+                result = atomic_publish_directory(
+                    Path(args.build_dir),
+                    Path(args.publish_dir),
+                    max_age_hours=args.max_age_hours,
+                    state_path=args.state,
+                    alert_ledger=args.alert_ledger,
+                )
+                if result.get("ok"):
+                    claim.complete({"publication": result})
         except Exception as exc:  # noqa: BLE001
             print(json.dumps({"ok": False, "error": str(exc)}), file=sys.stderr)
-            return 1
+            from scripts.ops.confenge_commercial_mutex import EXIT_AUTHORITY_BUSY, AuthorityError
+
+            return EXIT_AUTHORITY_BUSY if isinstance(exc, AuthorityError) else 1
         print(json.dumps(result, indent=2, ensure_ascii=False))
         return 3 if result.get("skipped_same") else 0
 

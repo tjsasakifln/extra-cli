@@ -193,19 +193,42 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--max-age-hours", type=float, default=DEFAULT_MAX_AGE_HOURS)
     parser.add_argument("--state", type=Path, default=DEFAULT_STATE_PATH)
     parser.add_argument("--alert-ledger", type=Path, default=DEFAULT_ALERT_LEDGER)
+    parser.add_argument("--commercial-operation-id")
+    parser.add_argument("--commercial-operation-scope", choices=("stage", "cycle"))
+    parser.add_argument("--commercial-owner-id")
     args = parser.parse_args(argv)
     started = time.monotonic()
     attempted_at = datetime.now(UTC)
+    from scripts.ops.confenge_commercial_mutex import (
+        EXIT_AUTHORITY_BUSY,
+        AuthorityError,
+        acquire_stage_from_env,
+    )
+
     try:
-        result = run_cycle(
-            output_root=args.output_root,
-            durable_contacts=args.durable_contacts,
-            publish_dir=args.publish_dir,
-            as_of=args.as_of,
-            max_age_hours=args.max_age_hours,
-            state_path=args.state,
-            alert_ledger=args.alert_ledger,
+        claim = acquire_stage_from_env(
+            "feed",
+            operation_id=args.commercial_operation_id,
+            scope=args.commercial_operation_scope,
+            owner_id=args.commercial_owner_id,
         )
+    except AuthorityError as exc:
+        print(json.dumps({"ok": False, "error": str(exc)}, ensure_ascii=False), file=sys.stderr)
+        return EXIT_AUTHORITY_BUSY
+
+    try:
+        with claim:
+            result = run_cycle(
+                output_root=args.output_root,
+                durable_contacts=args.durable_contacts,
+                publish_dir=args.publish_dir,
+                as_of=args.as_of,
+                max_age_hours=args.max_age_hours,
+                state_path=args.state,
+                alert_ledger=args.alert_ledger,
+            )
+            if result.get("ok"):
+                claim.complete({"run_dir": result.get("run_dir"), "publication": result.get("publication")})
     except Exception as exc:  # noqa: BLE001
         record_feed_cycle_state(
             args.state,

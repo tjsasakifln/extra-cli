@@ -5,8 +5,8 @@ After=network-online.target postgresql.service
 Wants=network-online.target
 OnFailure=extra-onfailure@%n.service
 # No OnSuccess: the contact cycle owns a daily timer of its own. Keeping both
-# would give it two triggers, and the second would land on a held
-# `flock --nonblock` (the cycle budgets up to 18h), exit non-zero and raise a
+# would give it two triggers, and the second would meet the held canonical
+# commercial authority (the cycle budgets up to 18h), exit non-zero and raise a
 # spurious OnFailure alert for work that is in fact already running.
 
 [Service]
@@ -17,10 +17,11 @@ WorkingDirectory=/opt/extra-consultoria
 Environment=PYTHONPATH=/opt/extra-consultoria
 Environment=TARGET_FIT_ASYNC_MODE=SHADOW
 Environment=TARGET_FIT_EXPORT_DB=1
+Environment=CONFENGE_COMMERCIAL_OPERATION_SCOPE=stage
 EnvironmentFile=-/opt/extra-consultoria/.env
 EnvironmentFile=-/etc/extra-cli/extra-collector.env
-ExecStart=/usr/bin/flock --verbose --nonblock /run/lock/extra-confenge-target-fit-reconcile.lock \
-  /opt/extra-consultoria/.venv/bin/python -m scripts.confenge_target_fit reconcile
+ExecStart=/opt/extra-consultoria/.venv/bin/python \
+  -m scripts.confenge_target_fit reconcile
 Nice=15
 TimeoutStartSec=6h
 StandardOutput=journal

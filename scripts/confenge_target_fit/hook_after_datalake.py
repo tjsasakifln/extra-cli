@@ -33,15 +33,19 @@ def notify_datalake_committed(
     try:
         from scripts.confenge_target_fit.config import TargetFitRefreshConfig
         from scripts.confenge_target_fit.refresh import run_refresh
+        from scripts.ops.confenge_commercial_mutex import acquire_stage_from_env
 
         cfg = TargetFitRefreshConfig.from_env()
         resolved = dsn or cfg.resolve_state_dsn()
-        stats = run_refresh(
-            resolved,
-            cfg=cfg,
-            drain_worker=drain_worker,
-            max_worker_batches=1 if drain_worker else 0,
-        )
+        with acquire_stage_from_env("refresh", scope="stage") as claim:
+            stats = run_refresh(
+                resolved,
+                cfg=cfg,
+                drain_worker=drain_worker,
+                max_worker_batches=1 if drain_worker else 0,
+            )
+            if not stats.error:
+                claim.complete(stats.as_dict())
         return stats.as_dict()
     except Exception as exc:  # noqa: BLE001 — intentional soft boundary
         logger.warning(

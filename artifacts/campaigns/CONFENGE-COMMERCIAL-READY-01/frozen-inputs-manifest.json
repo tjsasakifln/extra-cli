@@ -1,7 +1,7 @@
 {
   "schema_version": "confenge-frozen-inputs/1.0",
   "campaign": "CONFENGE-COMMERCIAL-READY-01",
-  "freeze_sha": "03d51d49ae90bc079ec295702f153cd8e2c93d70",
+  "freeze_sha": "8a3b425fac128c8c942d9895eff101341b3215f4",
   "policy": "frozen_confenge_inputs_v1",
   "inputs": [
     {
@@ -223,6 +223,18 @@
       "sha256": "9edbaf6f7bc4b7eaa27a085401f05636d62498673a5f8ebca23fab727d432a06"
     },
     {
+      "path": "scripts/confenge_activation/__init__.py",
+      "kind": "file",
+      "blob_sha": "17da63c6867ada00181a66a1696b55ba8015b7c8",
+      "sha256": "837e12546f88493a4ea0787140e4ff7c83eae6ccbd669446f6ed20dc94632bb6"
+    },
+    {
+      "path": "scripts/confenge_activation/cli.py",
+      "kind": "file",
+      "blob_sha": "9ffb52453e9edbe549b90aea8a594691d1d1c36f",
+      "sha256": "aa01e8beb4fd9c6b2e11a14acc2ac3ee2a9ae7c79476e5c88671be8d6e15a3e0"
+    },
+    {
       "path": "scripts/confenge_activation/commercial_authority.py",
       "kind": "file",
       "blob_sha": "ab4728cb1fa68f7de6ed205490b876f31c84adc4",
@@ -233,6 +245,18 @@
       "kind": "file",
       "blob_sha": "61859cfd15e1c122fd1adac69a0e615735deeafc",
       "sha256": "54476225a08c2ae875ed963bef190866838f87f326b92acbb02bc4f24fc7650c"
+    },
+    {
+      "path": "scripts/confenge_activation/funnel.py",
+      "kind": "file",
+      "blob_sha": "df4b262665032c7efb9739f08d06a3bcc6fb9dbe",
+      "sha256": "60d7a0fb75447931b4067f4eb3d83c6d052e1cd0521f18c03143e1f89111dd51"
+    },
+    {
+      "path": "scripts/confenge_activation/models.py",
+      "kind": "file",
+      "blob_sha": "1db5a4fb53e0005bc147585018f649f6f68a2a03",
+      "sha256": "41ab2e3d826b23ce32f181b602ec16e93361d286f63549360a010b7e8d9209c2"
     },
     {
       "path": "scripts/confenge_activation/operational_metrics.py",
@@ -247,10 +271,40 @@
       "sha256": "5f53455221b7da4e15e65897400f523ba50e061f4e4cc1649b43d766087a1a65"
     },
     {
+      "path": "scripts/confenge_activation/planner.py",
+      "kind": "file",
+      "blob_sha": "03423e94ef732d3e1d8c03f54cb7f5084f1e6571",
+      "sha256": "0fc255521a0eb2cebaff22777402f255954580c3a6681762796bdc4cddb71664"
+    },
+    {
+      "path": "scripts/confenge_activation/policy.py",
+      "kind": "file",
+      "blob_sha": "1e2491c8be319cc8e368ddec6549e872acd835f4",
+      "sha256": "1c5869f692ec6ba67aeb40d5d69648dba0e4523d71963ec15031fc80cfabd109"
+    },
+    {
       "path": "scripts/confenge_activation/publish.py",
       "kind": "file",
       "blob_sha": "2197aa9c1aadfe178361991408ec6c0129fac0ba",
       "sha256": "2558273989d877b4147afebb931822ff0a09083fd5cae80d6118df1c0eca2503"
+    },
+    {
+      "path": "scripts/confenge_activation/score.py",
+      "kind": "file",
+      "blob_sha": "6bf36692d02dfc05afe0e00fa7aa9f48024dcf47",
+      "sha256": "493f558066fff9420b0d0f76f52cfde6f75b3d83f61f75c687be03295e93e9f1"
+    },
+    {
+      "path": "scripts/confenge_activation/store.py",
+      "kind": "file",
+      "blob_sha": "afb7fa453969e880fc017545238e0061e7d75151",
+      "sha256": "6c5c27c5e37ae75fae6317f10acba9bf478c296d228f74fd5465e8c4e5cc519c"
+    },
+    {
+      "path": "scripts/confenge_activation/triggers.py",
+      "kind": "file",
+      "blob_sha": "152e1beebbe50c2929472fb99aa08cb586d9914c",
+      "sha256": "859764cf1d6117aec5b0131bda1d1c3fcbc97534580565e109eaf9ecebdeb921"
     },
     {
       "path": "scripts/confenge_claim_policy/__init__.py",
@@ -271,10 +325,76 @@
       "sha256": "840d4598c4ca304705915419b38fe86dab670c7ad2ff349904e97467712d537a"
     },
     {
+      "path": "scripts/confenge_contact_resolution/adapters/base.py",
+      "kind": "file",
+      "blob_sha": "1bb9457dde455fcf9f95822ebe8e1016d19e70e0",
+      "sha256": "e1f0fde5bfef5299d59b835a0afc081bb4fe25a4edb9e5c691a8a7960877b20f"
+    },
+    {
+      "path": "scripts/confenge_contact_resolution/adapters/contact_pages.py",
+      "kind": "file",
+      "blob_sha": "7271cceeb24652181d7079ddad507beba53aceae",
+      "sha256": "00dcc585dd7f84c64a0be49d32f8fc621645fdefc138d58f422bce4df05a24f5"
+    },
+    {
+      "path": "scripts/confenge_contact_resolution/adapters/public_docs.py",
+      "kind": "file",
+      "blob_sha": "656bac8f5470562c6b2e1023a139eefe590043f7",
+      "sha256": "7d880b0040848d59ce9e32cf2919fce3377808dbf8e6bc97f002b185c84008d8"
+    },
+    {
+      "path": "scripts/confenge_contact_resolution/adapters/registry.py",
+      "kind": "file",
+      "blob_sha": "054c3970090345e74b5b019679966490a8026ae7",
+      "sha256": "98970aac5c45f1d6d7324d2e0504cd80c292d3f082a02f7a7742b9cadd6ce14b"
+    },
+    {
+      "path": "scripts/confenge_contact_resolution/adapters/site.py",
+      "kind": "file",
+      "blob_sha": "99d9c72edb3dc40dc0b0a35e0196d745bc240051",
+      "sha256": "92c191032a94109ba30ebbdcc6a1b80023e43650c036769f4aa5aee123fd0713"
+    },
+    {
+      "path": "scripts/confenge_contact_resolution/adapters/web_search.py",
+      "kind": "file",
+      "blob_sha": "91a5d5dc40f4ca27d0b3af4a2875f809abcc814b",
+      "sha256": "57ad61ce9e1d22ff263f6b8b31a0d8e4954e06a08fd09b33d6c49c8112636fdb"
+    },
+    {
+      "path": "scripts/confenge_contact_resolution/cache.py",
+      "kind": "file",
+      "blob_sha": "ca483b9d2d6e0fd6925c6cf3021c7b2c48d376b4",
+      "sha256": "22af5a3ffd2ca3bd2f56607d2ee973bc4a9a3e259b2d4c1c7f175834caf0e617"
+    },
+    {
+      "path": "scripts/confenge_contact_resolution/contact_coverage.py",
+      "kind": "file",
+      "blob_sha": "6d83ab15fd485659c48df5123d8e912a5ad0d209",
+      "sha256": "95f403ab29ea7487348c56c623072829df2ae83e0fe4e35690fde846a1b2bb87"
+    },
+    {
+      "path": "scripts/confenge_contact_resolution/continuous_from_target_fit.py",
+      "kind": "file",
+      "blob_sha": "7b8179fb679a5c8787d2cec1ba96efb4a8edb3b0",
+      "sha256": "dab4fc29247b4cf026f3f2bd0c64df23451124d677e851962aa817a5fda448d7"
+    },
+    {
+      "path": "scripts/confenge_contact_resolution/discovery/extract.py",
+      "kind": "file",
+      "blob_sha": "555879c5e85e1efe4b0867c2cebcc5a1c9744a73",
+      "sha256": "41daaa9d98256542cb939958863450e91ea547e3028f7782e7dc819f08682b81"
+    },
+    {
       "path": "scripts/confenge_contact_resolution/discovery/official_domain.py",
       "kind": "file",
       "blob_sha": "56181b61f4ba9b9dc4ba3c38e29f860054446103",
       "sha256": "7eb3fff805bc63e630822fac5a6604633b498f1bdfc2a752ed01076bb0743e6e"
+    },
+    {
+      "path": "scripts/confenge_contact_resolution/discovery/web_search_providers.py",
+      "kind": "file",
+      "blob_sha": "65d76992adfa2caf6ec434a874d47a263b0980b5",
+      "sha256": "25ccfa3b05fe7bf08c45cf51471c329d517f6f49cb763e2939fc750e85a4f1fb"
     },
     {
       "path": "scripts/confenge_contact_resolution/discovery_state.py",
@@ -289,6 +409,18 @@
       "sha256": "c900827d62fdb350f16f4ad56ca9ac95d7ce2b1bfbcc792e5398d9064db28e95"
     },
     {
+      "path": "scripts/confenge_contact_resolution/enrichment_batch.py",
+      "kind": "file",
+      "blob_sha": "55b71b1fb78455909a46fa2b02805d1036fd54f2",
+      "sha256": "616c71ae8ddca886b352fe0bfc90538d664dfdc3bf81eb83631545e36eb04c27"
+    },
+    {
+      "path": "scripts/confenge_contact_resolution/freshness.py",
+      "kind": "file",
+      "blob_sha": "8c28e3641dde367e082701bed79a08493c436e73",
+      "sha256": "82becb5f87b6b6b7e65a9a23ec6a8942a4254945f5411e9ab95ed714900a97cf"
+    },
+    {
       "path": "scripts/confenge_contact_resolution/human_review.py",
       "kind": "file",
       "blob_sha": "b6ef5518a7247e9a2a97190902aed0dff9e34c71",
@@ -299,6 +431,12 @@
       "kind": "file",
       "blob_sha": "7c665d0b89adcc036700dcc3ae136f3cf5eba70f",
       "sha256": "68db55f0b6b18512d2f144ef9874fb60d5284a6e70650640808e125526c891d1"
+    },
+    {
+      "path": "scripts/confenge_contact_resolution/merge.py",
+      "kind": "file",
+      "blob_sha": "a05cb59afacc4e10157e525190fe909fe148049d",
+      "sha256": "2fbe0d1ebe2a03e814cbe8e84db8a13888dd9570a9a0cfc006e26a287a34c4dc"
     },
     {
       "path": "scripts/confenge_contact_resolution/models.py",
@@ -313,16 +451,58 @@
       "sha256": "84d7aaab09d2bbf7239b402161c2c539e1c0e6d63e61cc9088c285550b22058b"
     },
     {
+      "path": "scripts/confenge_contact_resolution/phone_policy.py",
+      "kind": "file",
+      "blob_sha": "2842cfe5cab86776540c2d83eb38dbc1bcf0b42d",
+      "sha256": "1bbca7554764a2d2a915bf1b3f08bdabe745704dcb745ae43090c96f2ba06c20"
+    },
+    {
       "path": "scripts/confenge_contact_resolution/provenance_trust.py",
       "kind": "file",
       "blob_sha": "0d10f29b4752144539e5ae69bceba38be4e501c2",
       "sha256": "f6fe318496585a0adbcb1baa370e498796f7ae4acdf84284ec3d15a3ac846dc1"
     },
     {
+      "path": "scripts/confenge_contact_resolution/ranking.py",
+      "kind": "file",
+      "blob_sha": "51fa513dd65aa2013ad92e8c361d4d6299edc1db",
+      "sha256": "09bd15604fd8f328b80b53797653fd0a7203d43834eaf4d54c9fb448be8f9d17"
+    },
+    {
+      "path": "scripts/confenge_contact_resolution/rate_limit.py",
+      "kind": "file",
+      "blob_sha": "db82f5a7c64838098befdbec976a147523d20eea",
+      "sha256": "58b5765fcdbe8cbab5202fa4d92fd6ddb4ed510e2258e9186165f71a3941be2f"
+    },
+    {
+      "path": "scripts/confenge_contact_resolution/resolver.py",
+      "kind": "file",
+      "blob_sha": "af59de62af67225738022e5ce4887b5f9fa48286",
+      "sha256": "21d7cc31f71694e668182460a08c1fc20ab68e9a8ed395a5d186dfe807aaba08"
+    },
+    {
+      "path": "scripts/confenge_contact_resolution/reuse_graph.py",
+      "kind": "file",
+      "blob_sha": "a76980c33f5b39833b3c3d06a675951aedf82a8b",
+      "sha256": "d529363ddeb862d1f8aae81b7884f55cad0224475d92f02ed9b8302737ff315a"
+    },
+    {
+      "path": "scripts/confenge_contact_resolution/role_map.py",
+      "kind": "file",
+      "blob_sha": "90a1fd8b10288cef3c0f13613c2b1c56dd71cad5",
+      "sha256": "0a67c4258078e211259a33df6921f5d0031c967428fa0f70fe0fe73656c110a0"
+    },
+    {
       "path": "scripts/confenge_contact_resolution/send_readiness.py",
       "kind": "file",
       "blob_sha": "307850b5ada896a88dd6c758b0cf0788dbc39d61",
       "sha256": "bead311c9fede5e524e583bfd97ebf548e7334c807e021266d25d46cdf684d34"
+    },
+    {
+      "path": "scripts/confenge_contact_resolution/third_party_registry.py",
+      "kind": "file",
+      "blob_sha": "7956ee37d41a7e8cf4d1497f952047f928d9807e",
+      "sha256": "1a4d8910944f948e493234e52ac22c9a0c668fdb1a0f54079f75e91b23c300ea"
     },
     {
       "path": "scripts/confenge_contract_identity.py",
@@ -481,6 +661,18 @@
       "sha256": "6f90f41f82af30988ba2fe94834704d766e4512123fe1725a7ae5d1b4fbea93a"
     },
     {
+      "path": "scripts/confenge_target_fit/cdc.py",
+      "kind": "file",
+      "blob_sha": "3677c9446c3adabc6e0d7095753af8a940a323e5",
+      "sha256": "3e836a67dbad9162431dd017d4d89c97505deb6ce3fa9641b85add6e6a420169"
+    },
+    {
+      "path": "scripts/confenge_target_fit/cli.py",
+      "kind": "file",
+      "blob_sha": "05d91a3c91285f01f1593bc48852158e50664ea5",
+      "sha256": "29fdde8c4aa87f7edcd9faae9ce7d9b46ecc0a007d8ef55a4be5eab4547e2f80"
+    },
+    {
       "path": "scripts/confenge_target_fit/company_key.py",
       "kind": "file",
       "blob_sha": "ac27b09d6bdf01bd9552190cb34f08fa8599b7b7",
@@ -499,6 +691,24 @@
       "sha256": "691ea0b7d01e05b76086cf59ada125d683419690e85b6d1be52733a4730a93ce"
     },
     {
+      "path": "scripts/confenge_target_fit/coverage.py",
+      "kind": "file",
+      "blob_sha": "d4e9e4b3c08acad3e44e048b0cb2fd7998acd663",
+      "sha256": "e2c17d524c19e2c66d31880af2daa7219877e41910c52aef02893f502ab35f1e"
+    },
+    {
+      "path": "scripts/confenge_target_fit/db.py",
+      "kind": "file",
+      "blob_sha": "5df0d3b50d6170ec4a5952f74764296405f0c480",
+      "sha256": "77642c07352447f232f002049729efcf65dc355c1efcdafa222afebaf2a4230a"
+    },
+    {
+      "path": "scripts/confenge_target_fit/explain.py",
+      "kind": "file",
+      "blob_sha": "95a46eac060d117b38102480b8df9fab2f88d1bb",
+      "sha256": "0efa4f70c66a034906bbe367cf5213599da4fef57c76195f7fec1955a4402c26"
+    },
+    {
       "path": "scripts/confenge_target_fit/fingerprint.py",
       "kind": "file",
       "blob_sha": "f2070710db552778f8f8ddef1f49b0010cd1aead",
@@ -509,6 +719,18 @@
       "kind": "file",
       "blob_sha": "49cb44b0a216ae2ea8d4efe8deba42f23c0abf08",
       "sha256": "a6ac992812bf35feee55191efa468332e22a08ba1a3a9bff4ec9a8eb1dfe0764"
+    },
+    {
+      "path": "scripts/confenge_target_fit/hook_after_datalake.py",
+      "kind": "file",
+      "blob_sha": "8c7d2cc09785ea854c610bac08048efae73f415d",
+      "sha256": "c54358978b1abf7543aaf31372a52e2e3043576dafcb4b69e747d4991de0cfce"
+    },
+    {
+      "path": "scripts/confenge_target_fit/loader.py",
+      "kind": "file",
+      "blob_sha": "5d250b5b5551311dc56cd71ad3c87af39fd9c33c",
+      "sha256": "276daaf575ac51d41ea5c308d396f021a70d4c47a54ff352096234a1a37a5655"
     },
     {
       "path": "scripts/confenge_target_fit/models.py",
@@ -523,6 +745,30 @@
       "sha256": "96ef945400df579c485cfa5a1e681850926bf65f92ff7d3dc8c892d5ac162811"
     },
     {
+      "path": "scripts/confenge_target_fit/reclassify_insufficient.py",
+      "kind": "file",
+      "blob_sha": "b1f532cae0c56f625ed4c872bcc48bfff18c17f1",
+      "sha256": "bee874d2658532f5995e75dbd8b74675fb09a4b689f1decf10c0b388c778397b"
+    },
+    {
+      "path": "scripts/confenge_target_fit/reconcile.py",
+      "kind": "file",
+      "blob_sha": "dad2d0d8bb615d5cc13f4840a8ae68b9b1bfb931",
+      "sha256": "6fe6cd389eb36092ba734aeb4c92d9e83394f6e24c79e1c32a5b50503bb4cc76"
+    },
+    {
+      "path": "scripts/confenge_target_fit/refresh.py",
+      "kind": "file",
+      "blob_sha": "e85dcd6def4db74f4047878936acb9e282c1f426",
+      "sha256": "cee13bd9e55b4473effb646f15c650f5fc3769004c820afcd98c8dfa350ef0ac"
+    },
+    {
+      "path": "scripts/confenge_target_fit/status.py",
+      "kind": "file",
+      "blob_sha": "df8dc0a8572b853608f4d233cbe83e095386ea92",
+      "sha256": "87c1ddf7e8e9a6aa26b731bb99e002daea4eee74ee3212894d0aa278c659f6d7"
+    },
+    {
       "path": "scripts/confenge_target_fit/store.py",
       "kind": "file",
       "blob_sha": "91b804af914f77d043e07416c81d0a69c64c07df",
@@ -535,10 +781,22 @@
       "sha256": "11a9a00f78828f9c1f74c75afea69956ca1579276cc145bb9779f06cc9d9c1ac"
     },
     {
+      "path": "scripts/confenge_target_fit/worker.py",
+      "kind": "file",
+      "blob_sha": "3b7a9ddc5f6102476446d20e38809362403704d4",
+      "sha256": "f18e98db80112cf3cdd810ee18619d0976baac95ffc10b22d15c9c7a92e1a5bf"
+    },
+    {
       "path": "scripts/confenge_universe/__init__.py",
       "kind": "file",
       "blob_sha": "031b3b24c6a880d92f87f1fbee650349073d2cf6",
       "sha256": "8e240a7f52dd26f0773348be6feeeae9558c9cfc73307b3fc0fb3207d1a6d8cf"
+    },
+    {
+      "path": "scripts/confenge_universe/construction.py",
+      "kind": "file",
+      "blob_sha": "21040ce84588bf7d25b7fd4e6db194560f4bf1c5",
+      "sha256": "f56888c897b3fef7e610bb9e2fceed690224d9e0c6d352c94c84b931a7d8bf95"
     },
     {
       "path": "scripts/confenge_universe/parafiscal.py",
@@ -559,10 +817,88 @@
       "sha256": "8cd6d058f6557cf485c158430aae5c345073bb4802a4ccf4753cb96ea4f58ff1"
     },
     {
+      "path": "scripts/contracts_identity.py",
+      "kind": "file",
+      "blob_sha": "e7cec3aecded30a3df37898296fa16767bc02508",
+      "sha256": "a23d4c85514b2426f9c21d047667956e13e55551155e2946a06c84ed8fa745fa"
+    },
+    {
       "path": "scripts/contracts_truth.py",
       "kind": "file",
       "blob_sha": "328823b260396dfe4067d5ca53ec0c21ae34ff0c",
       "sha256": "87c4bdefa6efcdce040a8f902733d68e96e6e7d7846e549e8345a43ec9f73cd0"
+    },
+    {
+      "path": "scripts/coverage/sector_engineering.py",
+      "kind": "file",
+      "blob_sha": "5023b91a75a699529d39e654181150884381061d",
+      "sha256": "0bf8f1382995f6267198323c930107e5d7ccedf12987ff7985d75c5be5375b86"
+    },
+    {
+      "path": "scripts/crawl/__init__.py",
+      "kind": "file",
+      "blob_sha": "f165ca06000927cd0573ddbdc4d0cead970e76d7",
+      "sha256": "c0399bc1f67e2dc066e4099c2c30077c95fe9d8e131a25488a0ddd78bcd38b21"
+    },
+    {
+      "path": "scripts/crawl/act_classifier.py",
+      "kind": "file",
+      "blob_sha": "83297cb31cf9558a2815de1b2dbcdd7cf67e24a4",
+      "sha256": "a704e3e54c2c533d99eb74d94b4e4bfac82345bcfa97ae0f72d381a4217965a0"
+    },
+    {
+      "path": "scripts/crawl/ciga_ckan_crawler.py",
+      "kind": "file",
+      "blob_sha": "45ff22216c7cea385eed6ae6f3163b4f4c63451d",
+      "sha256": "6396d0e6a73adf7341f64405f469da1968fd9eb11e5f11e2383325b0942013ec"
+    },
+    {
+      "path": "scripts/crawl/ciga_dom_publications.py",
+      "kind": "file",
+      "blob_sha": "e8ded23cc3fc8f67d6a41394bda551c9537212c0",
+      "sha256": "517c1eb34649d7bd945cdad438977f8b384ed36fde6639df036fbf30b62c4dc9"
+    },
+    {
+      "path": "scripts/crawl/common.py",
+      "kind": "file",
+      "blob_sha": "044fccf8a773ca1b44d627fdef0a9f11081b020d",
+      "sha256": "6e9d1aa2188ef5b5e33eeaaebc694cccead693eb6329b7909ef05af7d594eeef"
+    },
+    {
+      "path": "scripts/crawl/credential_validator.py",
+      "kind": "file",
+      "blob_sha": "d14b944e34910769e8b890f790555b4ce43c53ba",
+      "sha256": "58385169c3016d66bc487068d086fbb56fb7355eaea290552739be9df7df4b73"
+    },
+    {
+      "path": "scripts/crawl/dlq.py",
+      "kind": "file",
+      "blob_sha": "b574e0a806bc62f0612e8fc453caa1211963e3c8",
+      "sha256": "6be17cff4d6820250a94d177cd6126f9a8392a15fef9ee685f0245fe78553ee5"
+    },
+    {
+      "path": "scripts/crawl/dlq_sync.py",
+      "kind": "file",
+      "blob_sha": "d840988588ff459fc7017dbfa1fb4dfef1af545c",
+      "sha256": "5a48e4ed4b25a0b3d9dbbae9e1b622f57f47cb8a4715543a7384bd71da147bc1"
+    },
+    {
+      "path": "scripts/crawl/ingestion/_base/crawler.py",
+      "kind": "file",
+      "blob_sha": "aa0411619a4cc0452657e323a9cb2f9876d4eb9f",
+      "sha256": "1ef8d3e622405593b3d11d5f18f4c1e087f73de2e4fdb271545a078f1430b7f9"
+    },
+    {
+      "path": "scripts/crawl/metrics.py",
+      "kind": "file",
+      "blob_sha": "1649932218078e38067c2633202998c79e1e2394",
+      "sha256": "e32853bd869f6b2b452479a5fcfdb24e484930f7f963867b8706848580555e13"
+    },
+    {
+      "path": "scripts/crawl/monitor.py",
+      "kind": "file",
+      "blob_sha": "fb94c5d4f9a88b6d1a54a6cd4250a9530e7145c3",
+      "sha256": "c7115d31c281e4d6c80b49f39d6f8f82035a116c9e853b7cfb8eb8b5a8457b44"
     },
     {
       "path": "scripts/crawl/observation_lineage.py",
@@ -571,10 +907,166 @@
       "sha256": "815ddbaa4b52984aca089d16dd082de2a06496c6ef51935506272b62ba8496ec"
     },
     {
+      "path": "scripts/crawl/pipeline.py",
+      "kind": "file",
+      "blob_sha": "76c51347c3f19a5f8531dc257b15705e6a4261ac",
+      "sha256": "a34625693dbccc73efc0ecaf0ba5d9b8f1853b1b3c29515d0af1e12c8d47ffa1"
+    },
+    {
+      "path": "scripts/crawl/pncp_contract.py",
+      "kind": "file",
+      "blob_sha": "8832e4196ebf60161204df13f46178c62e8b1bd6",
+      "sha256": "f55eaf1b8c7554326b6e8cdaa48726b82fb2bd2a7807abcef5c8a17091bb0f3a"
+    },
+    {
+      "path": "scripts/crawl/pncp_crawler_adapter.py",
+      "kind": "file",
+      "blob_sha": "05cfef9219b4c0bf0518d4a49ca20785d62e4f84",
+      "sha256": "3af7d09f97cb8fa806705c33183547746fac6706963a29a7d5d63726e0d96609"
+    },
+    {
+      "path": "scripts/crawl/pncp_engineering.py",
+      "kind": "file",
+      "blob_sha": "41f0b0aa727057009676abe15a941c05be293074",
+      "sha256": "2a0e1a0fe10dd137f6952a266cde21addc594c98d65cd84d9cb4437ce0719757"
+    },
+    {
+      "path": "scripts/crawl/pncp_geo.py",
+      "kind": "file",
+      "blob_sha": "2de8b54648558fdbc5b9b2a51326da8b270e9882",
+      "sha256": "59de745120dbbca00b0c98fc5b58be11c4fe6d48ee8d90fe485a76d8db91c324"
+    },
+    {
+      "path": "scripts/crawl/provenance.py",
+      "kind": "file",
+      "blob_sha": "01abbd23a5de00746dcd3aa644f7e06ae564a5da",
+      "sha256": "e8dcc33d695b7647e7735b3d30600e2f2682ef78bdd17798d3edd2be23adad4e"
+    },
+    {
+      "path": "scripts/crawl/provenance_sync.py",
+      "kind": "file",
+      "blob_sha": "e7fc82b36a14b16499f416822e0a568a87e5685b",
+      "sha256": "02fa542537d2eda422eda3abedcef02c4f8591d0c2e6c9ae55ed719d97d7340b"
+    },
+    {
+      "path": "scripts/crawl/registry.py",
+      "kind": "file",
+      "blob_sha": "fb91b79e44d6be2cb2636a76717720ea90c3e582",
+      "sha256": "97aa89af5bb168244b1179e5e7d04f3a47d3b72f73973c455ae8954b75ced086"
+    },
+    {
+      "path": "scripts/crawl/resilience/adapters.py",
+      "kind": "file",
+      "blob_sha": "9e14e1981baa4491282282ddd10d0c5f654d5bc8",
+      "sha256": "23266eb4f04b1708e0e80a1b833a1199883510baf35ce29c416c61bf7fb1341b"
+    },
+    {
+      "path": "scripts/crawl/resilience/circuit_breaker.py",
+      "kind": "file",
+      "blob_sha": "12828bf11be52cb5b2c1f2e6ef99a4d609ce6ee4",
+      "sha256": "839c4935d4e3d89d96eeaa3bdc42efb149eb16ad3e87a05b5eb6bd096e8ed3d8"
+    },
+    {
+      "path": "scripts/crawl/resilience/config.py",
+      "kind": "file",
+      "blob_sha": "b3628b86877b5ed5a40532a6b84809455f5aeb26",
+      "sha256": "05a54ee8897fd0bf80438813a23579bf3fa9dd411a4d3ffcee1e41ef6d06823f"
+    },
+    {
+      "path": "scripts/crawl/resilience/diagnostics.py",
+      "kind": "file",
+      "blob_sha": "6f3c19678015bc0d61fb0f0e5a7b7b33eed6a1ba",
+      "sha256": "cebec46ae5910b55cd5bc4e646a1448e155d9a7969f3f4569c4ae39c329cf22e"
+    },
+    {
+      "path": "scripts/crawl/resilience/domain_policy.py",
+      "kind": "file",
+      "blob_sha": "0c8fafdf0cc3a91a39d735ce8f75daeba822d2c4",
+      "sha256": "bb16f92aa505ccc556486e0f32961ca5f4a7d384b6f054976e72cf22a711a3ae"
+    },
+    {
+      "path": "scripts/crawl/resilience/http_policy.py",
+      "kind": "file",
+      "blob_sha": "ee46ca0ffbe439827af755fa4d16a0f7996a6793",
+      "sha256": "ca303e6c658f4afce555c1eae48daf94f713962ad1442b4dc2200641a4baa38c"
+    },
+    {
+      "path": "scripts/crawl/resilience/persistence.py",
+      "kind": "file",
+      "blob_sha": "91dea6d371d840463c399b055b3530edac19a108",
+      "sha256": "7788f4ec65e6eb9f5182b89d20acbf15ae0d237a3097e884240cb2163176d8c7"
+    },
+    {
+      "path": "scripts/crawl/resilience/pipeline.py",
+      "kind": "file",
+      "blob_sha": "8aeecf26a4c906949b7f1284f2f85c444425b3a0",
+      "sha256": "c574424f89f09337a3169ac242dada56bee1d04dbc5227221396a028ed59839e"
+    },
+    {
+      "path": "scripts/crawl/resilience/stages.py",
+      "kind": "file",
+      "blob_sha": "77fd7107f98cc8b37f8049e860268f980c385382",
+      "sha256": "3599617ae3981d4d7914794418943fe759e201adb768cf727685ea266d2b3dce"
+    },
+    {
+      "path": "scripts/crawl/resilience/state.py",
+      "kind": "file",
+      "blob_sha": "a1e2affd06a7c68a337403bb34d04f5f8a385c7f",
+      "sha256": "8c512a46053d45d937bf77c2275f34ed9dc76e6c9729067714924187f0f94cff"
+    },
+    {
       "path": "scripts/crawl/run_evidence.py",
       "kind": "file",
       "blob_sha": "f3f24a84b496707147469a048d64323aefbcde29",
       "sha256": "ecaa81dd97bf242b228e5c85510a5d0493f39afe30b7decfa3b04460ebbed459"
+    },
+    {
+      "path": "scripts/crawl/runtime_queue.py",
+      "kind": "file",
+      "blob_sha": "fa90b2a184df6ef9fd18759d9931377240986784",
+      "sha256": "b50d145efe1a551bed8b73c206084e3251403275bdc90c8ed19eb1b2a95a6fe3"
+    },
+    {
+      "path": "scripts/crawl/sc_compras_crawler.py",
+      "kind": "file",
+      "blob_sha": "3f5b68a2bb1223a27fdb33ed08e912387074e819",
+      "sha256": "983adceefca360c1eb07f2f0712df164516d297314e75c1df5cb625d807d0b7c"
+    },
+    {
+      "path": "scripts/crawl/scheduler.py",
+      "kind": "file",
+      "blob_sha": "e25c2f5e4193218310dfa9ead11b65f05cb583f2",
+      "sha256": "96d3eb9f45474c370e324f525cb343a2dbc1609cb63ca583d68c106fec45c469"
+    },
+    {
+      "path": "scripts/crawl/security.py",
+      "kind": "file",
+      "blob_sha": "1a0b0637021baf6911f33fafc1565d5149e60a6a",
+      "sha256": "ef88d33fb6decd616d7c912767f0dcef85d82915fefb72b57ed00d6884be7d07"
+    },
+    {
+      "path": "scripts/crawl/watermark.py",
+      "kind": "file",
+      "blob_sha": "3c8c95459b40224819df28d09a44fe72d632a01a",
+      "sha256": "90eda8ea12d66e4d834ef232cc53fe329444501928b10609e184e3038563ae00"
+    },
+    {
+      "path": "scripts/crawl/watermark_sync.py",
+      "kind": "file",
+      "blob_sha": "0c255fb2aeff5c5898263db9318bf1d76464306f",
+      "sha256": "7c57b5536dd669aec30fcede2490ff6b325b1802711512c117e91db5ada25c51"
+    },
+    {
+      "path": "scripts/crawl/worker.py",
+      "kind": "file",
+      "blob_sha": "910a331326e93c1692a273fc8154bf5ca6b2aedc",
+      "sha256": "b9137a894f77eabc1e04e1a858c50216d5afe139724593aa86168cbb068c0d67"
+    },
+    {
+      "path": "scripts/decision_unit_intelligence/__init__.py",
+      "kind": "file",
+      "blob_sha": "32cd649a1a5eddbbfc740b6bf6fab4a01f1a1feb",
+      "sha256": "f07777c178023b66a25ad6a141d3620dd1b1c39bb9a93a2296eea8221cfb4301"
     },
     {
       "path": "scripts/decision_unit_intelligence/affiliation_policy.py",
@@ -583,10 +1075,28 @@
       "sha256": "0c2bb44788d561039acf1c4e6131efa81b738065ba06ba1053f34b2d059f3d87"
     },
     {
+      "path": "scripts/decision_unit_intelligence/affiliation_report.py",
+      "kind": "file",
+      "blob_sha": "61fb93262786dd398509b9fe2a7faec8d2f9c637",
+      "sha256": "f5245edc0c63521b18e1ffd890d1e68685e889e0ba4fcea23f819fadbc54c90b"
+    },
+    {
       "path": "scripts/decision_unit_intelligence/batch_contact_metadata.py",
       "kind": "file",
       "blob_sha": "df4740c8934322d2091dd911e189024e00303a82",
       "sha256": "9e85a87b5e276ca7e2dd29df8b436d04d67b9d888d50b64808f35a2982199ad6"
+    },
+    {
+      "path": "scripts/decision_unit_intelligence/batch_outcomes.py",
+      "kind": "file",
+      "blob_sha": "adcac4aaceba6832cbbe40b8db8a099fe27130cd",
+      "sha256": "a9233f8056c44323e10db85debccf27bc104dbefb222920ff3ef9d55fb6dcda8"
+    },
+    {
+      "path": "scripts/decision_unit_intelligence/batch_population.py",
+      "kind": "file",
+      "blob_sha": "37522be50db84615b71bfaa01fc108d5157f2d8d",
+      "sha256": "974857b84ff7c60d2b0d66707bdf001a762655eb73bd980749b8939f1e895573"
     },
     {
       "path": "scripts/decision_unit_intelligence/batch_projection.py",
@@ -601,6 +1111,36 @@
       "sha256": "83592b123f97c6e30f995297847833b07b99c636b98a5b00a7a2390f28160e24"
     },
     {
+      "path": "scripts/decision_unit_intelligence/batch_snapshot.py",
+      "kind": "file",
+      "blob_sha": "f69535b543803bc6c51fd96a29bbc2949f4ea266",
+      "sha256": "37de1a1559668128173abcd0af6e61ac993cd0917e4b51875195d96c7e521191"
+    },
+    {
+      "path": "scripts/decision_unit_intelligence/batch_worker.py",
+      "kind": "file",
+      "blob_sha": "ce09b75b2ab312306021a2746e09685916d57eb9",
+      "sha256": "d42f77a5820e0813c6a5672596d5d5c89f60740c7d7b63b0dbc484e0673c443d"
+    },
+    {
+      "path": "scripts/decision_unit_intelligence/benchmark.py",
+      "kind": "file",
+      "blob_sha": "7b3df12d7a7d3e3b007c591800aacfbc4cedb643",
+      "sha256": "22a4b8a30c44ceaca2b3a6b012536622ba2703d752c10656d4d33ed10dcd0bd4"
+    },
+    {
+      "path": "scripts/decision_unit_intelligence/cli.py",
+      "kind": "file",
+      "blob_sha": "1fcf105aeb632f0bd48450afa3ce88dfcda95fd4",
+      "sha256": "9dc91d8880abcbddef3f20ca7fe219362c21a7559f3b872a4c554647075546c6"
+    },
+    {
+      "path": "scripts/decision_unit_intelligence/cohort.py",
+      "kind": "file",
+      "blob_sha": "a2b53628a5213713095db228f0a43bf460c71633",
+      "sha256": "b0531e5c27216b5c747a26ea13050323ce6fb04c94f55f98b55052ba75682484"
+    },
+    {
       "path": "scripts/decision_unit_intelligence/contact_discovery/public_documents.py",
       "kind": "file",
       "blob_sha": "3f033aef778a715728b4bb4b093607d69b15508a",
@@ -611,6 +1151,12 @@
       "kind": "file",
       "blob_sha": "43332fbdc86571272ef8f47cd3d010f3f91a244c",
       "sha256": "ff69f4b36b8456d273b9a196f09fe4dbbc44cbe1a61e64e0f3e0eba03b2e4cb9"
+    },
+    {
+      "path": "scripts/decision_unit_intelligence/controlled_email_cohort.py",
+      "kind": "file",
+      "blob_sha": "09e93c4b58ea126831299f25beb25d1346dacd16",
+      "sha256": "4731f52d8e492807685776356ac7c30c93c89cae40afdda9e32ddcad2cbc3da2"
     },
     {
       "path": "scripts/decision_unit_intelligence/corroboration.py",
@@ -671,6 +1217,12 @@
       "kind": "file",
       "blob_sha": "4c5213ffdd089f6c48cf1e7b9531cc0f01c520d0",
       "sha256": "b1f7223668ba235b5112a9cfaed7fa93add320cda70826ed54dadc0989758ec0"
+    },
+    {
+      "path": "scripts/decision_unit_intelligence/operator_pack.py",
+      "kind": "file",
+      "blob_sha": "5d187dc424258034c7918f76f390245c186d51b1",
+      "sha256": "9f79dc5d3861fb66dd7ae8ece29e1214f9ce6ea74e8a61f645a6c4a46f10d6de"
     },
     {
       "path": "scripts/decision_unit_intelligence/orchestrator.py",
@@ -811,10 +1363,40 @@
       "sha256": "272d12bc00816ba5a5c3bf64addef26247d7e91c39dd9df1e29f1440c8d47087"
     },
     {
+      "path": "scripts/lib/entity_resolver.py",
+      "kind": "file",
+      "blob_sha": "9596e047b89a8fee6b7f527cbcf223652087134d",
+      "sha256": "901f5c3bb3a55a16df6e505e618942d59275811235f659e747282e1a95505660"
+    },
+    {
+      "path": "scripts/lib/geocode.py",
+      "kind": "file",
+      "blob_sha": "3f7612b29a2f438be69f12b5a2713d3f8efb3fcb",
+      "sha256": "8e64ac5fec54a0e7e5b378085fce0d497371be5dbf4c982105c7a83f385afebb"
+    },
+    {
+      "path": "scripts/lib/name_normalizer.py",
+      "kind": "file",
+      "blob_sha": "a3fc417d179c9edd5aa438d61e723d305dd8d99b",
+      "sha256": "3e59bb3c4c152c663718cd70431d398907a7ec0607e684f879f6f2b0a643542c"
+    },
+    {
       "path": "scripts/linkage/keys.py",
       "kind": "file",
       "blob_sha": "cf344e78cbb52f5a0acc19a02f7fb0df544f9b28",
       "sha256": "63ab9d40ca4b3a81c8b9cc7d04299269605288aae7678ecc62a11c0ba67ac77e"
+    },
+    {
+      "path": "scripts/matching/entity_matcher.py",
+      "kind": "file",
+      "blob_sha": "328fcf673d23c1d0158d17f6ee2fe1b48c11b27c",
+      "sha256": "12fb8f785c78efc202f8a3ec109328b9245206986cb3d850418d20ae6a45bde3"
+    },
+    {
+      "path": "scripts/opportunity_intel/source_projection.py",
+      "kind": "file",
+      "blob_sha": "93d32c066895bcd844d4200c46fa131966b51adc",
+      "sha256": "a3d9646c27899de0b7b93653367441af656a2e6bb2e8de048ec734a9de476d37"
     },
     {
       "path": "scripts/ops/confenge_code_freeze.py",
@@ -835,10 +1417,16 @@
       "sha256": "ac4d319b6a96c9d5f9982d34d18c8ddb1901d25741ae227b0d399dd52dbc379b"
     },
     {
+      "path": "scripts/ops/confenge_commercial_mutex.py",
+      "kind": "file",
+      "blob_sha": "b2da7e09a5e00ed2ada1e41a48c67a1732902bec",
+      "sha256": "1002d717074348cf980353b0cce31737c3fc14e41d7762acde7e5656355c4bf3"
+    },
+    {
       "path": "scripts/ops/confenge_contact_cycle.py",
       "kind": "file",
-      "blob_sha": "93105ee4d9723b29d17045000de23df76a5bbc15",
-      "sha256": "121b4a5344ae51769f5f29943614d35d14afaa5426016e2c58062d819cce9753"
+      "blob_sha": "8a75fbdc2c6c8bdd2d42e0773f44147ac32c9a6c",
+      "sha256": "a58f75add9fbe4442c6e319e0d36fd3f99b0b2ac78dd2685eaa26464ed913b3c"
     },
     {
       "path": "scripts/ops/confenge_contract_status.py",
@@ -855,8 +1443,8 @@
     {
       "path": "scripts/ops/confenge_feed_cycle.py",
       "kind": "file",
-      "blob_sha": "f851e4b19d18d2a0c29bf0ad9d4e8fff0dec3419",
-      "sha256": "a29eceac28b91b23bdc40fb93e8d3dc8418cf3f5c9e9f8554669712f015d989c"
+      "blob_sha": "ad84182c7f81d00d0e98f0e781afb8702ee16778",
+      "sha256": "dc821fbb312724510d2b4e23be70ea20f0e40eab64e2115914c1a7cadae80c51"
     },
     {
       "path": "scripts/ops/confenge_final_status.py",
@@ -867,8 +1455,8 @@
     {
       "path": "scripts/ops/confenge_frozen_inputs.py",
       "kind": "file",
-      "blob_sha": "f9339ec0a69472810fc30ac4493bb56609863982",
-      "sha256": "cd58e10dbcd5c951479639475bc39d589f255601ebbf53662a2a6c223f89a952"
+      "blob_sha": "5ddcc4e20c7ac07983882fc5cfbfce05bb981425",
+      "sha256": "1f4ec39cf6369a4f48a3c553020417caf89b02bcdbd9f38b8dcb2dd567fa4ce9"
     },
     {
       "path": "scripts/ops/confenge_full_pipeline_e2e.py",
@@ -949,6 +1537,12 @@
       "sha256": "a8db8b9c65b991d7cca9ef16a8693ee787aad7e1260ba460bc24993cf204656b"
     },
     {
+      "path": "scripts/ops/resilient_cycle.py",
+      "kind": "file",
+      "blob_sha": "262db78c4cfed21da2dff473d172d42a9dba5d13",
+      "sha256": "cce85108a57bb526e7e467295f6b393b7d3b960ab3168183b82a0c3f9361b8a5"
+    },
+    {
       "path": "scripts/ops/verify_confenge_artifact_binding.py",
       "kind": "file",
       "blob_sha": "5e603223abbdc40b5cf80011da53089a9f248430",
@@ -989,6 +1583,12 @@
       "kind": "file",
       "blob_sha": "17fda030ca3715478058c79f0e456b6199c2a2d5",
       "sha256": "281bf5c709fa114b59c205511e2b6805b35a7a4e43be8e81cbaae58cee697a59"
+    },
+    {
+      "path": "scripts/schema/official_acts.py",
+      "kind": "file",
+      "blob_sha": "8e042532cdbd828d15126001443c2ec9c12d92f3",
+      "sha256": "e883e0c843f7a110c564eccdaeb7faa3884474ac0181b69ee8709c14257af457"
     },
     {
       "path": "scripts/warmbly_bridge/__init__.py",

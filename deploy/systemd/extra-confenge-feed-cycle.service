@@ -12,9 +12,10 @@ Group=extra-consultoria
 WorkingDirectory=/opt/extra-consultoria
 Environment=PYTHONPATH=/opt/extra-consultoria
 Environment=CONFENGE_FEED_MAX_AGE_HOURS=24
+Environment=CONFENGE_COMMERCIAL_OPERATION_SCOPE=stage
 EnvironmentFile=-/opt/extra-consultoria/.env
 EnvironmentFile=-/etc/extra-consultoria/confenge-feed.env
-ExecStart=/usr/bin/flock --nonblock /run/extra-confenge-feed/feed-cycle.lock /opt/extra-consultoria/.venv/bin/python -m scripts.ops.confenge_feed_cycle --output-root ${CONFENGE_FEED_BUILD_ROOT} --durable-contacts ${CONFENGE_DURABLE_CONTACTS} --publish-dir ${CONFENGE_FEED_PUBLISH_DIR} --max-age-hours ${CONFENGE_FEED_MAX_AGE_HOURS}
+ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.ops.confenge_feed_cycle --output-root ${CONFENGE_FEED_BUILD_ROOT} --durable-contacts ${CONFENGE_DURABLE_CONTACTS} --publish-dir ${CONFENGE_FEED_PUBLISH_DIR} --max-age-hours ${CONFENGE_FEED_MAX_AGE_HOURS}
 TimeoutStartSec=6h
 Nice=15
 IOSchedulingClass=best-effort

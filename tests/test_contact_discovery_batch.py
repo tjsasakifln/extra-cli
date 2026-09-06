@@ -619,6 +619,7 @@ def test_canonical_population_enqueue_preserves_selection_evidence(
     from scripts.confenge_contact_resolution.enrichment_batch import CompanyJob
     from scripts.decision_unit_intelligence import cli
     from scripts.decision_unit_intelligence.batch_population import DiscoveryPopulation
+    from scripts.ops import confenge_commercial_mutex as mutex
 
     jobs = (
         CompanyJob(
@@ -665,27 +666,37 @@ def test_canonical_population_enqueue_preserves_selection_evidence(
         encoding="utf-8",
     )
 
-    assert (
-        cli.main(
-            [
-                "batch",
-                "enqueue",
-                "--cohort",
-                "c-population",
-                "--population",
-                "target-confirmed",
-                "--search-backend",
-                "searxng",
-                "--searxng-url",
-                "http://search.invalid",
-                "--existing-contacts",
-                str(existing_contacts),
-                "--dsn",
-                dsn,
-            ]
+    paths = mutex.AuthorityPaths(tmp_path / "authority")
+    monkeypatch.setattr(mutex, "default_paths", lambda: paths)
+    with mutex.acquire_stage(
+        paths=paths,
+        operation_id="population-test",
+        stage="contact",
+        scope="stage",
+        owner_id="pytest",
+    ) as claim:
+        assert (
+            cli.main(
+                [
+                    "batch",
+                    "enqueue",
+                    "--cohort",
+                    "c-population",
+                    "--population",
+                    "target-confirmed",
+                    "--search-backend",
+                    "searxng",
+                    "--searxng-url",
+                    "http://search.invalid",
+                    "--existing-contacts",
+                    str(existing_contacts),
+                    "--dsn",
+                    dsn,
+                ]
+            )
+            == 0
         )
-        == 0
-    )
+        claim.complete({"test": True})
     payload = __import__("json").loads(capsys.readouterr().out)
     assert payload["enqueued"] == 2
     assert payload["job_ids_omitted"] == 0
@@ -1348,6 +1359,8 @@ def test_classify_never_emits_sem_contato() -> None:
 def test_cli_enqueue_worker_progress_publish_is_idempotent(
     dsn: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    from scripts.ops import confenge_commercial_mutex as mutex
+
     monkeypatch.setenv("LOCAL_DATALAKE_DSN", dsn)
     monkeypatch.setenv("DATABASE_URL", dsn)
     out = tmp_path / "cli-out"
@@ -1361,16 +1374,26 @@ def test_cli_enqueue_worker_progress_publish_is_idempotent(
         "--dsn",
         dsn,
     ]
-    assert main(["batch", "enqueue", *common, "--out", str(out)]) == 0
-    monkeypatch.setenv("CONTACT_DISCOVERY_ADMISSION", "off")
-    assert main(["batch", "worker", "--dsn", dsn, "--worker-id", "cli-w1", "--out", str(out)]) == 0
-    assert main(["batch", "worker", "--dsn", dsn, "--worker-id", "cli-w2", "--out", str(out)]) == 0
-    assert main(["batch", "inspect", "--cohort", "c-cli", "--dsn", dsn]) == 0
-    assert main(["batch", "progress", "--cohort", "c-cli", "--dsn", dsn]) == 0
-    rc = main(["batch", "publish", "--cohort", "c-cli", "--out", str(out), "--dsn", dsn])
-    assert rc == 0
-    first = main(["batch", "enqueue", *common, "--out", str(out)])
-    assert first == 0
+    paths = mutex.AuthorityPaths(tmp_path / "authority")
+    monkeypatch.setattr(mutex, "default_paths", lambda: paths)
+    with mutex.acquire_stage(
+        paths=paths,
+        operation_id="cli-idempotency-test",
+        stage="contact",
+        scope="stage",
+        owner_id="pytest",
+    ) as claim:
+        assert main(["batch", "enqueue", *common, "--out", str(out)]) == 0
+        monkeypatch.setenv("CONTACT_DISCOVERY_ADMISSION", "off")
+        assert main(["batch", "worker", "--dsn", dsn, "--worker-id", "cli-w1", "--out", str(out)]) == 0
+        assert main(["batch", "worker", "--dsn", dsn, "--worker-id", "cli-w2", "--out", str(out)]) == 0
+        assert main(["batch", "inspect", "--cohort", "c-cli", "--dsn", dsn]) == 0
+        assert main(["batch", "progress", "--cohort", "c-cli", "--dsn", dsn]) == 0
+        rc = main(["batch", "publish", "--cohort", "c-cli", "--out", str(out), "--dsn", dsn])
+        assert rc == 0
+        first = main(["batch", "enqueue", *common, "--out", str(out)])
+        assert first == 0
+        claim.complete({"test": True})
     with connect(dsn) as connection:
         progress = ContactDiscoveryQueue(connection).progress(cohort_id="c-cli")
         assert progress["denominator"] == 2
