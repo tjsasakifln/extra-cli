@@ -312,6 +312,19 @@ def timer_states() -> dict[str, dict[str, str]]:
     }
 
 
+def _systemd_readback_unit(unit: str) -> str:
+    """Return a concrete unit name that systemd can resolve for readback.
+
+    ``systemctl show foo@.service`` succeeds but returns empty properties on
+    the production systemd version.  A synthetic, inactive instance resolves
+    the same template and drop-ins without starting it or changing its enabled
+    state, so verification observes the effective configuration fail-closed.
+    """
+    if unit.endswith("@.service"):
+        return f"{unit.removesuffix('@.service')}@pin-readback.service"
+    return unit
+
+
 def apply(
     sha: str,
     *,
@@ -376,7 +389,8 @@ def verify(
     timeout_start_drift: list[dict[str, str]] = []
     release = f"{RELEASE_ROOT}/{sha}"
     for unit in CHAIN_UNITS:
-        result = _run(["systemctl", "show", unit, "-p", "ExecStart", "--value"], check=False)
+        readback_unit = _systemd_readback_unit(unit)
+        result = _run(["systemctl", "show", readback_unit, "-p", "ExecStart", "--value"], check=False)
         resolved = (result.stdout or "").strip()
         if release not in resolved:
             drift.append({"unit": unit, "resolved": resolved[:400]})
@@ -385,7 +399,8 @@ def verify(
             unsafe_python_path.append({"unit": unit, "resolved": resolved[:400]})
 
         environment = (
-            _run(["systemctl", "show", unit, "-p", "Environment", "--value"], check=False).stdout or ""
+            _run(["systemctl", "show", readback_unit, "-p", "Environment", "--value"], check=False).stdout
+            or ""
         ).strip()
         if f"PYTHONPATH={release}" not in environment:
             drift.append({"unit": unit, "resolved": environment[:400]})
@@ -395,9 +410,12 @@ def verify(
             unsafe_python_path.append({"unit": unit, "resolved": environment[:400]})
 
         working_directory = (
-            _run(["systemctl", "show", unit, "-p", "WorkingDirectory", "--value"], check=False).stdout or ""
+            _run(["systemctl", "show", readback_unit, "-p", "WorkingDirectory", "--value"], check=False).stdout
+            or ""
         ).strip()
-        user = (_run(["systemctl", "show", unit, "-p", "User", "--value"], check=False).stdout or "").strip()
+        user = (
+            _run(["systemctl", "show", readback_unit, "-p", "User", "--value"], check=False).stdout or ""
+        ).strip()
         if not working_directory or working_directory == release or working_directory.startswith(f"{release}/"):
             working_directory_drift.append({"unit": unit, "working_directory": working_directory or "MISSING"})
         else:
@@ -413,7 +431,10 @@ def verify(
         has_timeout, expected_timeout = _source_timeout_start_seconds(unit)
         if has_timeout:
             observed_timeout = (
-                _run(["systemctl", "show", unit, "-p", "TimeoutStartUSec", "--value"], check=False).stdout
+                _run(
+                    ["systemctl", "show", readback_unit, "-p", "TimeoutStartUSec", "--value"],
+                    check=False,
+                ).stdout
                 or ""
             ).strip()
             try:

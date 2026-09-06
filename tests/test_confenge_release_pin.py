@@ -420,12 +420,15 @@ def test_verify_reads_back_isolation_release_and_writable_working_directory(tmp_
     workdir = tmp_path / "writable"
     workdir.mkdir()
     monkeypatch.setattr(pin, "RELEASE_ROOT", release_root)
+    shown_units: list[str] = []
 
     def fake_run(argv: list[str], *, check: bool = True) -> subprocess.CompletedProcess[str]:
         del check
         if argv[:2] == ["systemctl", "show"]:
+            shown_units.append(argv[2])
             prop = argv[argv.index("-p") + 1]
-            has_timeout, timeout = pin._source_timeout_start_seconds(argv[2])
+            source_unit = argv[2].replace("@pin-readback.service", "@.service")
+            has_timeout, timeout = pin._source_timeout_start_seconds(source_unit)
             values = {
                 "ExecStart": f"{release}/.venv/bin/python -P -m scripts.example",
                 "Environment": f"PYTHONPATH={release} EXTRA_DEPLOYED_SHA={SHA} PYTHONDONTWRITEBYTECODE=1 PYTHONSAFEPATH=1",
@@ -459,6 +462,8 @@ def test_verify_reads_back_isolation_release_and_writable_working_directory(tmp_
     assert report["timeout_start_drift"] == []
     assert report["downstream_timers_scheduled"] == []
     assert report["pncp_service_semantic_drift"] == []
+    assert "extra-contact-discovery-worker@.service" not in shown_units
+    assert "extra-contact-discovery-worker@pin-readback.service" in shown_units
 
 
 @pytest.mark.parametrize(
@@ -489,7 +494,8 @@ def test_verify_fails_closed_on_runtime_isolation_drift(tmp_path, monkeypatch, f
         del check
         if argv[:2] == ["systemctl", "show"]:
             prop = argv[argv.index("-p") + 1]
-            has_timeout, timeout = pin._source_timeout_start_seconds(argv[2])
+            source_unit = argv[2].replace("@pin-readback.service", "@.service")
+            has_timeout, timeout = pin._source_timeout_start_seconds(source_unit)
             values = {
                 "ExecStart": (
                     f"{release}/.venv/bin/python -m scripts.example"
