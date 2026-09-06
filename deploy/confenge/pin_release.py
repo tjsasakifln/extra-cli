@@ -57,6 +57,7 @@ CHAIN_UNITS = (
     "extra-confenge-target-fit-refresh.service",
     "extra-confenge-target-fit-worker.service",
     "extra-confenge-contact-cycle.service",
+    "extra-contact-discovery-worker@.service",
     "extra-confenge-feed-cycle.service",
     "extra-confenge-feed-monitor.service",
 )

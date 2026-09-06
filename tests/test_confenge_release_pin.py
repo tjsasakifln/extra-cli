@@ -44,6 +44,7 @@ def test_the_canonical_chain_order_is_covered():
         "extra-confenge-source-freshness-gate.service",
         "extra-confenge-target-fit-reconcile.service",
         "extra-confenge-contact-cycle.service",
+        "extra-contact-discovery-worker@.service",
         "extra-confenge-feed-cycle.service",
     ):
         assert unit in CHAIN_UNITS
@@ -268,6 +269,11 @@ def test_unknown_release_is_refused_before_touching_the_host():
 
 def test_long_running_worker_is_marked_for_reboot_persistence():
     assert "extra-confenge-target-fit-worker.service" in CHAIN_ENABLED_SERVICES
+
+
+def test_every_mutating_worker_template_is_release_pinned():
+    assert "extra-confenge-target-fit-worker.service" in CHAIN_UNITS
+    assert "extra-contact-discovery-worker@.service" in CHAIN_UNITS
 
 
 def test_every_decoupled_stage_is_scheduled_and_none_is_suppressed():

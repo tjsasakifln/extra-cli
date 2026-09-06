@@ -90,6 +90,9 @@ unchanged.
 - The canonical deploy previously always used `enable --now` for commercial
   timers. `--preserve-timer-state` now pins and verifies the immutable release
   without changing a founder-paused schedule, failing on concurrent state drift.
+- The live inventory found the versioned DUI worker template outside the
+  immutable pin set. It is now pinned with the rest of the mutating chain so a
+  post-deploy `RUNNING_SHA` cannot hide old worker code.
 - Merge, artifact-only rebind, deployment and live-host proof remain the final
   unchecked task. No C1/C2 was run.
 

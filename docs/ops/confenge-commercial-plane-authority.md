@@ -97,7 +97,7 @@ Se uma operação estiver `OPEN` entre estágios e for formalmente abandonada, u
 | `scripts.ops.confenge_contact_cycle` | contact; state arbitrário não contorna o mutex |
 | DUI `batch enqueue|retry|resume|publish|export-contacts` | exige processo descendente do owner contact ativo; não depende do nome da coorte |
 | `scripts.ops.confenge_feed_cycle` e `scripts.confenge_activation publish` | feed antes de build/promote |
-| target-fit/contact workers | subordinados: processam filas; não iniciam/reiniciam nem promovem ciclo |
+| target-fit/contact workers | subordinados: processam filas; não iniciam/reiniciam nem promovem ciclo; ambos são pinados ao release canônico |
 | feed monitor/status/progress/inspect | somente leitura; não adquire autoridade |
 
 ## Sequência correta de um ciclo comercial
