@@ -1,4 +1,4 @@
--- Rollback of db/migrations/109_engineering_supplier_registry.sql
+-- Rollback of db/migrations/112_engineering_supplier_registry.sql
 
 BEGIN;
 

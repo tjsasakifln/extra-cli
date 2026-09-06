@@ -1,10 +1,15 @@
--- Rollback of db/migrations/107_pncp_structural_fields.sql
+-- Rollback of db/migrations/108_pncp_structural_fields.sql
 -- Restores v_contracts_canonical_v2 / upsert from 077 / 076 and drops #546 columns.
 
 BEGIN;
 
 DROP FUNCTION IF EXISTS public.apply_pncp_structural_fields(JSONB);
 DROP TABLE IF EXISTS public.pncp_structural_fields_backfill_state;
+
+-- PostgreSQL cannot remove view columns with CREATE OR REPLACE. Drop the
+-- dependent value view first, then recreate both exact migration-077 shapes.
+DROP VIEW IF EXISTS public.v_value_observations_canonical_v2;
+DROP VIEW IF EXISTS public.v_contracts_canonical_v2;
 
 CREATE OR REPLACE VIEW public.v_contracts_canonical_v2 AS
 SELECT
@@ -86,6 +91,11 @@ SELECT
     contract.buyer_within_200km
 FROM public.v_contracts_canonical_v2 contract
 WHERE contract.valor IS NOT NULL AND contract.valor > 0;
+
+COMMENT ON VIEW public.v_contracts_canonical_v2 IS
+    'Canonical contracts v2: buyer from orgao_cnpj only; supplier is a distinct typed identity. Use for #291/#292 and all new consumers.';
+COMMENT ON VIEW public.v_value_observations_canonical_v2 IS
+    'Value observations v2: contract entity fields always represent the buyer resolved from orgao_cnpj.';
 
 CREATE OR REPLACE FUNCTION public.upsert_pncp_supplier_contracts(p_records JSONB)
 RETURNS TABLE (action TEXT, contrato_id TEXT)

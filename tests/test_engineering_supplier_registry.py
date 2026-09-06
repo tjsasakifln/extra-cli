@@ -11,7 +11,7 @@ from scripts.ops.refresh_engineering_supplier_registry import refresh
 from scripts.testing.real_db_guard import canonical_dsn
 
 ROOT = Path(__file__).resolve().parents[1]
-MIGRATION = ROOT / "db/migrations/109_engineering_supplier_registry.sql"
+MIGRATION = ROOT / "db/migrations/112_engineering_supplier_registry.sql"
 
 
 def test_universe_uses_official_categoria_not_objeto_regex() -> None:
@@ -119,7 +119,7 @@ def test_cadastral_contact_join_carries_source_and_enriched_at() -> None:
                 "WHERE table_name = 'v_supplier_cadastral_contact'"
             )
             if cur.fetchone() is None:
-                pytest.fail("migration 109 not applied")
+                pytest.fail("migration 112 not applied")
             cur.execute(
                 """
                 INSERT INTO supplier_registry (

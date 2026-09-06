@@ -1,4 +1,4 @@
--- 112_contract_terms_lifecycle.sql
+-- 111_contract_terms_lifecycle.sql
 -- #548: aditivo, retificação, rescisão, revogação, anulação as distinct events.
 -- A later-invalidated contract must not remain a silent commercial win.
 

@@ -17,7 +17,7 @@ from scripts.crawl.date_semantics import null_implausible_contract_dates
 from scripts.testing.real_db_guard import canonical_dsn
 
 ROOT = Path(__file__).resolve().parents[1]
-MIGRATION = ROOT / "db/migrations/108_contract_date_hygiene.sql"
+MIGRATION = ROOT / "db/migrations/109_contract_date_hygiene.sql"
 
 
 def test_year_8406_is_nulled_before_max_contamination() -> None:
@@ -104,7 +104,7 @@ def test_absurd_date_does_not_win_max_and_status_observed_at_stays_null() -> Non
                 "SELECT 1 FROM pg_proc WHERE proname = 'fn_quarantine_implausible_contract_dates'"
             )
             if cur.fetchone() is None:
-                pytest.fail("migration 108 not applied")
+                pytest.fail("migration 109 not applied")
             record = {
                 "contrato_id": "hygiene-8406",
                 "orgao_cnpj": "12345678000199",

@@ -1,13 +1,13 @@
--- 109_engineering_supplier_registry.sql
+-- 112_engineering_supplier_registry.sql
 -- #549: expand supplier_registry coverage to engineering-contract suppliers
 -- of the last 24 months, and expose a cadastral contact join with provenance.
 -- Engineering universe uses official PNCP categoria_processo (#546), never
 -- objeto regex. Decision-maker discovery is out of scope.
 --
--- Depends on #546 / migration 107 (categoria_processo_* columns).
+-- Depends on #546 / migration 108 (categoria_processo_* columns).
 --
 -- ROLLBACK:
---   psql "$LOCAL_DATALAKE_DSN" -f db/rollback/109_engineering_supplier_registry_rollback.sql
+--   psql "$LOCAL_DATALAKE_DSN" -f db/rollback/112_engineering_supplier_registry_rollback.sql
 
 BEGIN;
 

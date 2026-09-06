@@ -1,11 +1,11 @@
--- 108_contract_date_hygiene.sql
+-- 109_contract_date_hygiene.sql
 -- #552: quarantine absurd dates before they contaminate MAX/recency;
 -- resolve status_observed_at as real observation of an official status
 -- (never a fabricated now()); mark empty 088 canonical event/supplier
 -- tables NON-OPERATIONAL (successor: dedicated result/term tables in #545/#548).
 --
 -- ROLLBACK:
---   psql "$LOCAL_DATALAKE_DSN" -f db/rollback/108_contract_date_hygiene_rollback.sql
+--   psql "$LOCAL_DATALAKE_DSN" -f db/rollback/109_contract_date_hygiene_rollback.sql
 
 BEGIN;
 

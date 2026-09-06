@@ -58,6 +58,7 @@ TIMER_UNIT = "pncp-contracts.timer"
 SERVICE_UNIT = "pncp-contracts.service"
 TIMER_UNIT_PATH = _PROJECT_ROOT / "deploy" / "systemd" / "pncp-contracts.timer"
 SERVICE_UNIT_PATH = _PROJECT_ROOT / "deploy" / "systemd" / "pncp-contracts.service"
+PRODUCTION_EVIDENCE_PATH = Path("/opt/extra-consultoria/output/contracts/incremental-latest.json")
 LOGICAL_JOB_ID = "pncp-contracts-incremental"
 LOCK_BUSY_EXIT = 75
 EXPLICIT_TIMEZONES = frozenset({"UTC", "GMT", "Z", "America/Sao_Paulo"})
@@ -1340,9 +1341,14 @@ def collect_snapshot(
         return data
 
     now = as_of or datetime.now(UTC)
-    evidence_json = (
-        Path(evidence_path) if evidence_path is not None else Path("output/contracts/incremental-latest.json")
-    )
+    if evidence_path is not None:
+        evidence_json = Path(evidence_path)
+    elif live:
+        evidence_json = Path(
+            os.getenv("EXTRA_CONTRACTS_EVIDENCE_PATH") or str(PRODUCTION_EVIDENCE_PATH)
+        )
+    else:
+        evidence_json = (repo_root or _PROJECT_ROOT) / "output/contracts/incremental-latest.json"
     evidence: dict[str, Any] = {}
     if evidence_json.is_file():
         try:
@@ -1464,7 +1470,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
-    snapshot = collect_snapshot(live=args.live, snapshot_path=args.from_snapshot)
+    snapshot = collect_snapshot(
+        live=args.live,
+        snapshot_path=args.from_snapshot,
+        production=True if args.live else None,
+    )
     contract = build_contract(snapshot)
     text = json.dumps(contract, ensure_ascii=False, indent=2, default=str)
     if args.output:

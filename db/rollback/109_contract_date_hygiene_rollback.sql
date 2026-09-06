@@ -1,4 +1,4 @@
--- Rollback of db/migrations/108_contract_date_hygiene.sql
+-- Rollback of db/migrations/109_contract_date_hygiene.sql
 -- Does NOT restore previously nulled absurd dates (they were invalid).
 
 BEGIN;

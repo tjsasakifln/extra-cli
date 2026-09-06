@@ -1,9 +1,9 @@
--- 107_pncp_structural_fields.sql
+-- 108_pncp_structural_fields.sql
 -- #546: persist official PNCP structural fields (not inferred from objeto).
 -- Additive columns + upsert persist + canonical v2 expose + resumable backfill RPC.
 --
 -- ROLLBACK:
---   psql "$LOCAL_DATALAKE_DSN" -f db/rollback/107_pncp_structural_fields_rollback.sql
+--   psql "$LOCAL_DATALAKE_DSN" -f db/rollback/108_pncp_structural_fields_rollback.sql
 --
 -- Authority: scripts/crawl/pncp_structural_fields.py maps the PNCP payload;
 -- this migration persists those mapped keys. Do not re-derive from objeto.

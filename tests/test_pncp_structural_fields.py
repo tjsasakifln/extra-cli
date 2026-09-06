@@ -18,7 +18,7 @@ from scripts.crawl.pncp_structural_fields import (
 from scripts.testing.real_db_guard import canonical_dsn
 
 ROOT = Path(__file__).resolve().parents[1]
-MIGRATION = ROOT / "db/migrations/107_pncp_structural_fields.sql"
+MIGRATION = ROOT / "db/migrations/108_pncp_structural_fields.sql"
 
 PAYLOAD_ID_NOME = {
     "numeroControlePNCP": "00000000000000000001",
@@ -216,7 +216,7 @@ def test_upsert_round_trip_persists_structural_fields_on_canonical_view() -> Non
                 "AND column_name = 'tipo_contrato_id'"
             )
             if cursor.fetchone() is None:
-                pytest.fail("migration 107 not applied: tipo_contrato_id missing")
+                pytest.fail("migration 108 not applied: tipo_contrato_id missing")
             cursor.execute(
                 "SELECT * FROM upsert_pncp_supplier_contracts(%s::jsonb)",
                 (json.dumps([record], default=str),),

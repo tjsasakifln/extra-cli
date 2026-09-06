@@ -68,7 +68,7 @@ def test_revoked_contract_is_marked_on_lifecycle() -> None:
                 "SELECT 1 FROM information_schema.tables WHERE table_name = 'contract_terms'"
             )
             if cur.fetchone() is None:
-                pytest.fail("migration 112 not applied")
+                pytest.fail("migration 111 not applied")
             cur.execute(
                 "SELECT * FROM upsert_pncp_supplier_contracts(%s::jsonb)",
                 (json.dumps([contract]),),

@@ -1,8 +1,10 @@
 # commercial_read_v1
 
-Version: `v1.0.0`  
-Issue: #550  
-View: `public.v_recent_engineering_wins`  
+Version: `v1.1.0-candidate.2`
+
+Issue: #550
+
+View: `public.v_recent_engineering_wins`
 Role: `confenge_commercial_read_v1` (SELECT-only, NOLOGIN, no credentials in repo)
 
 ## Columns
@@ -20,3 +22,15 @@ Role: `confenge_commercial_read_v1` (SELECT-only, NOLOGIN, no credentials in rep
 Do not derive one from another.
 
 Engineering class comes from `contract_engineering_class` (#544), never from objeto regex.
+
+## Candidate v2 boundary
+
+Migration 116 appends official PNCP structural fields and `event_type`. The only
+event types exposed by this candidate are `CONTRACT_SIGNED` and
+`CONTRACT_PUBLISHED`. Homologation, adjudication and result publication remain
+deferred and fail-closed under #554; this release has no result table, mapper,
+ingest CLI, migration, join or output.
+
+Supplier e-mail/phone is cadastral provenance, not a decision-maker claim.
+Terminal lifecycle (`REVOGACAO`, `ANULACAO`, `RESCISAO`) is always
+`NOT_ACTIONABLE`.

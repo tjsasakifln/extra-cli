@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Expand supplier_registry to engineering suppliers of the last 24 months (#549).
 
-Universe: official PNCP categoria_processo (migration 109), never objeto regex.
+Universe: official PNCP categoria_processo (migration 112), never objeto regex.
 Cadastral contact stays on enriched_entities with enriched_at + source.
 Does not discover decision-makers.
 
