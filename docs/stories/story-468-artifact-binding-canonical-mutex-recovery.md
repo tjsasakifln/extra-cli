@@ -74,8 +74,10 @@ unchanged.
 
 - Artifact root cause includes both stale five-field result/queue binding after
   #571 and missing freeze discovery coverage for mutating CLIs. The recovery
-  requires code integration first and artifact-only rebind second. Both PRs use
-  merge commits so the bound code SHA remains in main ancestry.
+  requires code integration first and artifact-only rebind second. Main enforces
+  linear history, so the code PR is squash-merged; the second PR binds that
+  integrated SHA, and its own squash adds only artifacts while leaving the bound
+  SHA in main ancestry.
 - Canonical authority uses one host path, nonblocking kernel `flock`, atomic
   fsynced state, durable terminal history, process identity and explicit stale
   recovery. No naming convention selects the lock domain.
