@@ -73,6 +73,7 @@ KNOWN_VIEWS: set[str] = {
     "v_schema_integrity",
     "v_migration_status",
     "v_entity_match_summary",
+    "v_contract_lifecycle_truth_v1",
 }
 
 KNOWN_FUNCTIONS: set[str] = {
@@ -87,6 +88,9 @@ KNOWN_FUNCTIONS: set[str] = {
     "fn_capture_contract_snapshot",
     "fn_purge_old_data",
     "fn_value_statistics",
+    "contract_contracting_date_v1",
+    "contract_contracting_date_field_v1",
+    "contract_window_floor_v1",
 }
 
 KNOWN_SCHEMA_OBJECTS = KNOWN_TABLES | KNOWN_VIEWS | KNOWN_FUNCTIONS
