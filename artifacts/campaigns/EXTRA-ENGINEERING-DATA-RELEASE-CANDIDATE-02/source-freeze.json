@@ -1,0 +1,56 @@
+{
+  "campaign_id": "EXTRA-ENGINEERING-DATA-RELEASE-CANDIDATE-02",
+  "base_sha": "96f1bea8fa5f2a44d9563943f9875b350da3ccc4",
+  "historical_candidate": {
+    "pr": 564,
+    "head_sha": "02fa305c16472f8d9505089e1b8a693f90104aa8",
+    "merge_base_sha": "3919f4d9af1363e2db641c7edadb8a8404874ec4",
+    "changed_files": 50,
+    "decision": "DO_NOT_REUSE_WHOLE_STACK"
+  },
+  "source_pr_heads": {
+    "555": "5f61f28ee628f609f1a98adc2051f695d2b0a7fd",
+    "556": "48e201f9178b714582a690cc3b57f3f4dc48d8f8",
+    "557": "fbc05737b542c7b36da3bdadd61580c58f73c11f",
+    "558": "b596cc1308dbd9d87c047dfafccb16916c88e598",
+    "560": "7b239a0fc8fa5312344a9ff6d6a7ab5c1b0ec728",
+    "561": "95637782d9a7b7c86f88a26c7e41683bd82bdf15",
+    "562": "9496e6479010896f20a414389a260c735a200568",
+    "563": "e2a8389aaf1f83cb810324aa7093afe2b7c129f2"
+  },
+  "included_issues": [544, 546, 547, 548, 549, 550, 551, 552, 553],
+  "release_boundary_issue": 554,
+  "excluded_pre_signature_results": {
+    "issue": 545,
+    "prs": [559, 568],
+    "source_heads": [
+      "e99d096d1ba4927128646f5879f72080277de6be",
+      "b5db3a0e16a85bceda91cad05b03341f0472dbfe"
+    ],
+    "decision": "DEFERRED_FAIL_CLOSED"
+  },
+  "write_set": [
+    "db/migrations/108..116 engineering candidate only",
+    "db/rollback/108..116 matching rollbacks",
+    "scripts/contracts/engineering_class.py",
+    "scripts/crawl/contracts_crawler.py",
+    "scripts/crawl/date_semantics.py",
+    "scripts/crawl/pncp_contract_terms.py",
+    "scripts/crawl/pncp_crawler_adapter.py",
+    "scripts/crawl/pncp_structural_fields.py",
+    "scripts/crawl/run_contracts_90d_pilot.py",
+    "scripts/ops/backfill_engineering_class.py",
+    "scripts/ops/backfill_pncp_structural_fields.py",
+    "scripts/ops/refresh_engineering_supplier_registry.py",
+    "scripts/ops/pncp_contract_freshness.py",
+    "docs/contracts/commercial-read/v1/*",
+    "tests focused on included capabilities and candidate fixtures",
+    "artifacts/campaigns/EXTRA-ENGINEERING-DATA-RELEASE-CANDIDATE-02/*"
+  ],
+  "flags": {
+    "MERGE_BLOCKED_BY_EXTRA_468": "YES",
+    "PRODUCTION_EVIDENCE_PENDING": "YES",
+    "NO_MERGE": "YES",
+    "NO_DEPLOY": "YES"
+  }
+}

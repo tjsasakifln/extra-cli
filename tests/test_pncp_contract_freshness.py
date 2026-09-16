@@ -16,6 +16,7 @@ from scripts.ops.pncp_contract_freshness import (
     DESIRED_HARD_GUARDRAIL_HOURS,
     DESIRED_OPERATIONAL_TARGET_HOURS,
     LOCK_BUSY_EXIT,
+    PRODUCTION_EVIDENCE_PATH,
     REASON_BACKUP_UNAVAILABLE,
     REASON_CADENCE_CANNOT_MEET_6H,
     REASON_CADENCE_CANNOT_MEET_24H,
@@ -363,6 +364,70 @@ def test_stale_checkpoint_conflict_and_worktree_refused(tmp_path: Path) -> None:
         extra_reasons=[REASON_STALE_CHECKPOINT],
     )
     assert stale[0] == "STALE"
+
+
+def test_live_cli_forces_durable_resolution_independent_of_cwd(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    observed: list[dict[str, object]] = []
+
+    def fake_collect_snapshot(**kwargs: object) -> dict:
+        observed.append(kwargs)
+        return _snapshot()
+
+    monkeypatch.setattr(
+        "scripts.ops.pncp_contract_freshness.collect_snapshot",
+        fake_collect_snapshot,
+    )
+    for cwd in (tmp_path / "release-a", tmp_path / "wrong-cwd"):
+        cwd.mkdir()
+        monkeypatch.chdir(cwd)
+        assert main(["--live", "--json"]) == 0
+        capsys.readouterr()
+
+    assert [call["production"] for call in observed] == [True, True]
+    assert [call["live"] for call in observed] == [True, True]
+
+
+def test_live_default_evidence_path_does_not_follow_cwd(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    wrong = tmp_path / "stale-release" / "output" / "contracts"
+    wrong.mkdir(parents=True)
+    (wrong / "incremental-latest.json").write_text(
+        json.dumps({"windows": [{"window_key": "stale-cwd"}]}),
+        encoding="utf-8",
+    )
+    stable = tmp_path / "durable" / "incremental-latest.json"
+    stable.parent.mkdir(parents=True)
+    stable.write_text(
+        json.dumps({"windows": [{"window_key": "current-persisted"}]}),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        "scripts.ops.pncp_contract_freshness.PRODUCTION_EVIDENCE_PATH",
+        stable,
+    )
+    monkeypatch.delenv("EXTRA_CONTRACTS_EVIDENCE_PATH", raising=False)
+    monkeypatch.setattr(
+        "scripts.ops.pncp_contract_freshness.collect_checkpoint_snapshot",
+        lambda **_kwargs: {"completed_windows": []},
+    )
+    monkeypatch.setattr(
+        "scripts.ops.pncp_contract_freshness.collect_db_snapshot",
+        lambda **_kwargs: {"available": False, "error": "NO_DSN"},
+    )
+
+    observed: list[list[str]] = []
+    for cwd in (wrong.parent.parent, tmp_path / "unrelated-cwd"):
+        cwd.mkdir(parents=True, exist_ok=True)
+        monkeypatch.chdir(cwd)
+        snapshot = collect_snapshot(live=True, production=True, timer={}, backup={})
+        observed.append([window["window_key"] for window in snapshot["windows"]])
+
+    assert observed == [["current-persisted"], ["current-persisted"]]
+    assert PRODUCTION_EVIDENCE_PATH.is_absolute()
+    assert PRODUCTION_EVIDENCE_PATH != wrong / "incremental-latest.json"
 
 
 def test_restart_does_not_skip_pending_unit() -> None:

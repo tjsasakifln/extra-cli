@@ -1,0 +1,32 @@
+{
+  "contract": {
+    "contrato_id": "EDRC2-TERMINAL",
+    "orgao_cnpj": "12345678000199",
+    "orgao_nome": "Prefeitura de Florianopolis",
+    "fornecedor_cnpj": "33444555000114",
+    "fornecedor_nome": "Infraestrutura Exemplo Ltda",
+    "supplier_id_type": "UNKNOWN",
+    "objeto_contrato": "Execucao de obra de pavimentacao urbana",
+    "valor_total": "900000.00",
+    "data_assinatura": "2026-08-28",
+    "data_publicacao_fonte": "2026-08-29",
+    "data_publicacao": "2026-08-29",
+    "uf": "SC",
+    "municipio": "Florianopolis",
+    "source": "pncp",
+    "source_id": "EDRC2-TERMINAL",
+    "tipo_contrato_id": 1,
+    "tipo_contrato_nome": "Contrato",
+    "categoria_processo_id": 1,
+    "categoria_processo_nome": "Obras",
+    "modalidade_id": 8,
+    "modalidade_nome": "Dispensa de licitacao",
+    "srp": false
+  },
+  "term": {
+    "numeroControlePNCP": "EDRC2-TERMINAL",
+    "tipoTermoNome": "Revogacao",
+    "numeroTermo": "1",
+    "dataAssinatura": "2026-09-03"
+  }
+}

@@ -33,6 +33,7 @@ from scripts.crawl.pncp_contract import (
     parse_modalidades_from_env,
     parse_target,
 )
+from scripts.crawl.pncp_structural_fields import extract_pncp_structural_fields
 from scripts.crawl.security import USER_AGENT, public_get
 from scripts.crawl.watermark_sync import watermark_commit, watermark_read
 
@@ -862,6 +863,7 @@ def transform_contracts(raw_records: list[dict[str, Any]]) -> list[dict[str, Any
             ]
         )
         content_hash = hashlib.sha256(content_hash_source.encode("utf-8")).hexdigest()
+        structural = extract_pncp_structural_fields(raw)
 
         transformed.append(
             {
@@ -881,9 +883,11 @@ def transform_contracts(raw_records: list[dict[str, Any]]) -> list[dict[str, Any
                 "fornecedor_pais_codigo": raw.get("codigoPaisFornecedor"),
                 "ano_contrato": ano_contrato,
                 "sequencial_contrato": sequencial_contrato,
-                "tipo_contrato": raw.get("tipoContrato"),
+                **structural,
+                "tipo_contrato": structural.get("tipo_contrato_nome") or raw.get("tipoContrato"),
                 "numero_contrato_empenho": raw.get("numeroContratoEmpenho"),
-                "categoria_processo": raw.get("categoriaProcesso"),
+                "categoria_processo": structural.get("categoria_processo_nome")
+                or raw.get("categoriaProcesso"),
                 "processo": raw.get("processo"),
                 "informacao_complementar": raw.get("informacaoComplementar"),
                 "data_assinatura": raw.get("dataAssinatura"),
