@@ -25,9 +25,9 @@ def _run(path: Path) -> subprocess.CompletedProcess[str]:
     )
 
 
-def test_seven_negative_fixtures_rejected_twice() -> None:
+def test_eleven_negative_fixtures_rejected_twice() -> None:
     files = sorted(BAD.glob("*.md"))
-    assert len(files) == 7
+    assert len(files) == 11
     for path in files:
         first = _run(path)
         second = _run(path)
@@ -37,9 +37,9 @@ def test_seven_negative_fixtures_rejected_twice() -> None:
         assert linter_main(["--file", str(path)]) == 1
 
 
-def test_six_positive_fixtures_accepted_twice() -> None:
+def test_ten_positive_fixtures_accepted_twice() -> None:
     files = sorted(GOOD.glob("*.md"))
-    assert len(files) == 6
+    assert len(files) == 10
     for path in files:
         first = _run(path)
         second = _run(path)
@@ -54,6 +54,34 @@ def test_wait_for_pncp_plan_is_rejected() -> None:
     verdict = classify_plan(text, path="wait")
     assert verdict.accepted is False
     assert "wait_pncp_before_feed" in verdict.violations
+
+
+def test_consumer_depends_on_pncp_live_is_rejected() -> None:
+    text = (BAD / "08-consumer-depends-on-pncp-live.md").read_text(encoding="utf-8")
+    verdict = classify_plan(text, path="consumer-dep")
+    assert verdict.accepted is False
+    assert "consumer_depends_on_pncp_live" in verdict.violations
+
+
+def test_session_pncp_polling_as_normal_operation_is_rejected() -> None:
+    text = (BAD / "09-session-pncp-polling-normal.md").read_text(encoding="utf-8")
+    verdict = classify_plan(text, path="session-poll")
+    assert verdict.accepted is False
+    assert "session_pncp_polling_as_normal_operation" in verdict.violations
+
+
+def test_second_acquisition_path_outside_lake_is_rejected() -> None:
+    text = (BAD / "10-second-acquisition-path.md").read_text(encoding="utf-8")
+    verdict = classify_plan(text, path="second-path")
+    assert verdict.accepted is False
+    assert "second_acquisition_path_outside_lake" in verdict.violations
+
+
+def test_canary_payload_as_permanent_operation_is_rejected() -> None:
+    text = (BAD / "11-canary-as-permanent-operation.md").read_text(encoding="utf-8")
+    verdict = classify_plan(text, path="canary-permanent")
+    assert verdict.accepted is False
+    assert "canary_payload_as_permanent_operation" in verdict.violations
 
 
 def test_historical_cascade_is_accepted() -> None:
