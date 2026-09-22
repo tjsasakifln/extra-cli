@@ -92,3 +92,29 @@ def validate_contract_dates(
             warnings.append("outside_query_window")
 
     return warnings
+
+
+# Persist-time quarantine is the SQL trigger in 108. This helper is the same
+# rule for fixtures/tests: years outside 1994–2100 (or >=8000) cannot feed MAX.
+_PLAUSIBLE_YEAR_MIN = 1994
+_PLAUSIBLE_YEAR_MAX = 2100
+_DATE_COLUMNS_FOR_MAX = (
+    "data_assinatura",
+    "data_inicio",
+    "data_fim",
+    "data_publicacao",
+    "data_publicacao_fonte",
+    "data_atualizacao_fonte",
+    "source_event_date",
+)
+
+
+def null_implausible_contract_dates(record: dict[str, Any]) -> dict[str, Any]:
+    """Drop dates that would contaminate MAX/recency. Does not invent timestamps."""
+    for name in _DATE_COLUMNS_FOR_MAX:
+        parsed = _as_date(record.get(name))
+        if parsed is None:
+            continue
+        if parsed.year >= 8000 or parsed.year > _PLAUSIBLE_YEAR_MAX or parsed.year < _PLAUSIBLE_YEAR_MIN:
+            record[name] = None
+    return record
