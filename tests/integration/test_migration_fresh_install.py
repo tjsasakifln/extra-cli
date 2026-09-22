@@ -52,6 +52,7 @@ EXPECTED_VIEWS = CANONICAL_VIEWS_5 | {
     "v_opportunity_open",
     "v_opportunity_by_source",
     "v_opportunity_coverage_summary",
+    "v_contract_lifecycle_truth_v1",
 }
 EXPECTED_CONSTRAINTS = {
     "uq_spe_cnpj_8",
