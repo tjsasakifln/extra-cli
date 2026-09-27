@@ -72,6 +72,7 @@ LAST_BACKUP_PATH=""
 LAST_BACKUP_SIZE_BYTES=0
 CURRENT_STAGING_GZIP=""
 CURRENT_STAGING_CUSTOM=""
+CURRENT_REMOTE_STAGING=""
 
 # ─── Funções ────────────────────────────────────────────────────────────────
 
@@ -107,6 +108,10 @@ cleanup() {
   if [ -n "$CURRENT_STAGING_CUSTOM" ]; then
     rm -f -- "$CURRENT_STAGING_CUSTOM"
     CURRENT_STAGING_CUSTOM=""
+  fi
+  if [ -n "$CURRENT_REMOTE_STAGING" ]; then
+    rm -f -- "$CURRENT_REMOTE_STAGING"
+    CURRENT_REMOTE_STAGING=""
   fi
   if [ -f "$LOCK_FILE" ]; then
     rm -f "$LOCK_FILE"
@@ -385,29 +390,40 @@ do_backup() {
       # Publish atomically. A partially copied file must never have the final
       # name because freshness checks treat that name as backup evidence.
       local remote_staging="${dump_path}.partial.$$"
+      CURRENT_REMOTE_STAGING="$remote_staging"
       rm -f "$remote_staging"
       log "INFO" "Copiando para off-site (staging): $remote_staging"
       if ! cp -f "$staging_path" "$remote_staging"; then
         log "ERROR" "Falha ao copiar dump para destino off-site $dump_path"
         rm -f "$remote_staging"
+        CURRENT_REMOTE_STAGING=""
         notify_failure "Backup DB - Falha" "Falha ao copiar dump off-site"
         return 1
       fi
-      sync
+      if ! sync "$remote_staging"; then
+        log "ERROR" "Falha ao sincronizar staging off-site: $remote_staging"
+        rm -f "$remote_staging"
+        CURRENT_REMOTE_STAGING=""
+        notify_failure "Backup DB - Falha" "fsync do staging off-site falhou"
+        return 1
+      fi
       local remote_size
       remote_size="$(stat --printf='%s' "$remote_staging" 2>/dev/null || echo 0)"
       if [ "$remote_size" != "$file_size" ]; then
         log "ERROR" "Tamanho off-site ($remote_size) != local ($file_size)"
         rm -f "$remote_staging"
+        CURRENT_REMOTE_STAGING=""
         notify_failure "Backup DB - Falha" "Size mismatch after off-site copy"
         return 1
       fi
       if ! mv -f "$remote_staging" "$dump_path"; then
         log "ERROR" "Falha ao publicar dump off-site $dump_path"
         rm -f "$remote_staging"
+        CURRENT_REMOTE_STAGING=""
         notify_failure "Backup DB - Falha" "Falha ao publicar dump off-site"
         return 1
       fi
+      CURRENT_REMOTE_STAGING=""
       log "INFO" "Backup off-site concluído: $dump_name | Tamanho: $(numfmt --to=iec "$file_size")"
       LAST_BACKUP_PATH="$dump_path"
       LAST_BACKUP_SIZE_BYTES=$(( $(stat --printf='%b' "$dump_path") * 512 ))
@@ -522,7 +538,8 @@ do_byte_balanced_retention() {
     return 2
   fi
 
-  local free_before free_after observed_delta freed=0 index
+  local free_before free_after observed_delta freed=0 index filesystem_type
+  filesystem_type="$(stat --file-system --format='%T' "$daily_dir")"
   free_before=$(( $(df -Pk "$daily_dir" | awk 'NR==2 {print $4}') * 1024 ))
   # Revalidate the whole plan before the first unlink. A changed path makes the
   # operation fail closed without partially executing a stale plan.
@@ -542,7 +559,25 @@ do_byte_balanced_retention() {
     if [ "$DRY_RUN" = true ]; then
       log "INFO" "[DRY-RUN] Byte retention removeria: $(basename "$candidate") bytes=${deletion_sizes[index]}"
     else
-      rm -f -- "$candidate"
+      # Revalidate again immediately before each unlink.  The all-plan pass
+      # above prevents known partial execution; this pass narrows the path
+      # replacement window between validation and deletion.
+      if [ -L "$candidate" ] || [ ! -f "$candidate" ] \
+        || [ "$(stat --printf='%d' "$candidate")" != "$destination_device" ] \
+        || [ "$(stat --printf='%h' "$candidate")" -ne 1 ] \
+        || [ "$(stat --printf='%i' "$candidate")" != "${deletion_inodes[index]}" ] \
+        || [ $(( $(stat --printf='%b' "$candidate") * 512 )) -ne "${deletion_sizes[index]}" ]; then
+        log "ERROR" "Byte retention recusou candidato alterado no unlink: $candidate"
+        return 2
+      fi
+      if ! rm -f -- "$candidate"; then
+        log "ERROR" "Byte retention falhou ao remover candidato: $candidate"
+        return 2
+      fi
+      if [ -e "$candidate" ] || [ -L "$candidate" ]; then
+        log "ERROR" "Byte retention não comprovou unlink do candidato: $candidate"
+        return 2
+      fi
       log "INFO" "Byte retention removeu: $(basename "$candidate") bytes=${deletion_sizes[index]}"
     fi
     freed=$(( freed + deletion_sizes[index] ))
@@ -551,14 +586,33 @@ do_byte_balanced_retention() {
     log "INFO" "Byte retention planejada: required=$incoming_bytes planned=$freed files=$planned"
     return 0
   fi
-  sync
-  free_after=$(( $(df -Pk "$daily_dir" | awk 'NR==2 {print $4}') * 1024 ))
+  if ! sync -f "$daily_dir"; then
+    log "ERROR" "Byte retention não conseguiu sincronizar o filesystem: $daily_dir"
+    return 2
+  fi
+  free_after=$(( $(df --sync -Pk "$daily_dir" | awk 'NR==2 {print $4}') * 1024 ))
   observed_delta=$(( free_after > free_before ? free_after - free_before : 0 ))
-  if [ "$observed_delta" -lt "$incoming_bytes" ] || [ "$free_after" -lt "$copy_headroom_bytes" ]; then
+  if [ "$free_after" -lt "$copy_headroom_bytes" ]; then
     log "ERROR" "Byte retention não comprovou capacidade: required_growth=$incoming_bytes allocated_deleted=$freed df_delta=$observed_delta free_after=$free_after copy_headroom=$copy_headroom_bytes"
     return 2
   fi
-  log "INFO" "Byte retention satisfeita antes da cópia: required_growth=$incoming_bytes df_delta=$observed_delta free_after=$free_after files=$planned"
+  if [ "$observed_delta" -lt "$incoming_bytes" ]; then
+    case "$filesystem_type" in
+      nfs|nfs4)
+        # NFS quota/statfs accounting may lag a successful unlink even after
+        # sync.  The whole deletion plan was revalidated by device, inode,
+        # hardlink count and allocated blocks; every path is now absent, and
+        # the destination still has enough immediately reported headroom for
+        # the atomic staging copy.  Keep local filesystems fail-closed on df.
+        log "WARN" "Byte retention aceitou contabilização NFS atrasada: required_growth=$incoming_bytes allocated_deleted=$freed df_delta=$observed_delta free_after=$free_after copy_headroom=$copy_headroom_bytes"
+        ;;
+      *)
+        log "ERROR" "Byte retention não comprovou liberação no filesystem: type=$filesystem_type required_growth=$incoming_bytes allocated_deleted=$freed df_delta=$observed_delta free_after=$free_after"
+        return 2
+        ;;
+    esac
+  fi
+  log "INFO" "Byte retention satisfeita antes da cópia: required_growth=$incoming_bytes allocated_deleted=$freed df_delta=$observed_delta free_after=$free_after files=$planned filesystem_type=$filesystem_type"
 }
 
 do_retention() {
