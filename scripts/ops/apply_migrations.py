@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import Any
 
 _CONCURRENTLY = re.compile(r"\bCREATE\s+INDEX\s+CONCURRENTLY\b", re.IGNORECASE)
+MIGRATION_ADVISORY_LOCK_KEY = 0x45584D49  # "EXMI", session-scoped
 
 # Errors that mean the migration target is already present (upgrade repair path).
 _REPAIRABLE_MARKERS = (
@@ -35,7 +36,6 @@ _REPAIRABLE_MARKERS = (
     "cannot change name of input parameter",
     "cannot change name of view column",
     "cannot drop columns from view",
-    "must be owner of",
     "is not unique",
     "more than one function named",
 )
@@ -270,6 +270,11 @@ def apply_range(
     # Always autocommit: concurrent index rewrite + failed statements must not poison the session
     conn.autocommit = True
     try:
+        with conn.cursor() as lock_cursor:
+            lock_cursor.execute("SELECT pg_try_advisory_lock(%s)", (MIGRATION_ADVISORY_LOCK_KEY,))
+            lock_row = lock_cursor.fetchone()
+        if not lock_row or not bool(lock_row[0]):
+            raise RuntimeError("another migration runner owns the database advisory lock")
         ensure_ledger(conn)
         applied_set = load_applied(conn)
         for path in files:
@@ -306,6 +311,16 @@ def apply_range(
                     continue
                 raise
     finally:
+        try:
+            with conn.cursor() as lock_cursor:
+                lock_cursor.execute("SELECT pg_advisory_unlock(%s)", (MIGRATION_ADVISORY_LOCK_KEY,))
+        except Exception as unlock_error:
+            # Closing the session always releases a session advisory lock.
+            print(
+                f"warning: advisory unlock failed ({type(unlock_error).__name__}); closing session",
+                file=sys.stderr,
+                flush=True,
+            )
         conn.close()
     return result
 

@@ -1,6 +1,7 @@
 ---
-# Minimal idempotent host config for contracts operational path (ADR-008).
-# Does NOT enable PNCP crawl timers while laptop is single writer.
+# Minimal idempotent host config for the contracts operational path (ADR-008).
+# pncp-contracts.timer is the sole recurring production writer and must remain
+# enabled after an idempotent re-apply of this playbook.
 # Usage:
 #   ansible-playbook -i deploy/ansible/inventory/hosts.yml deploy/ansible/site-contracts-ops.yml
 - name: Extra Consultoria contracts ops host
@@ -19,16 +20,28 @@
       - extra-collect-metrics.service
       - extra-collect-metrics.timer
       - extra-onfailure@.service
-      - pncp-crawl-inc.service
-      - pncp-contracts.service
-    # Keep crawl timers disabled until cutover
-    disabled_timers:
-      - pncp-crawl-inc.timer
-      - pncp-contracts.timer
+      - extra-crawl-pncp.service
       - extra-crawl-pncp.timer
+      - pncp-crawl-inc.service
+      - pncp-crawl-inc.timer
+      - pncp-crawl-full.service
+      - pncp-crawl-full.timer
+      - pncp-contracts.service
+      - pncp-contracts.timer
+    # pncp-contracts has its own production writer lock.  Keep only legacy
+    # crawl routes disabled; disabling the canonical timer creates an outage.
+    disabled_timers:
+      - pncp-crawl-full.timer
+      - pncp-crawl-inc.timer
+      - extra-crawl-pncp.timer
+    disabled_services:
+      - pncp-crawl-full.service
+      - pncp-crawl-inc.service
+      - extra-crawl-pncp.service
     enabled_timers:
       - extra-health-check.timer
       - extra-db-backup.timer
+      - pncp-contracts.timer
   tasks:
     - name: Install systemd units from repo tree
       copy:
@@ -37,6 +50,9 @@
         mode: "0644"
       loop: "{{ unit_files }}"
       notify: Reload systemd
+
+    - name: Reload systemd before managing installed units
+      meta: flush_handlers
 
     - name: Ensure staging directories
       file:
@@ -50,14 +66,37 @@
         - /var/lib/extra-consultoria/backups
         - /var/lib/extra-consultoria/checkpoints
         - /var/lib/extra-consultoria/backfill
+        - /var/lib/extra-consultoria/locks
 
-    - name: Disable crawl timers (single-writer guard)
+    - name: Disable legacy crawl timers
       systemd:
         name: "{{ item }}"
         enabled: false
         state: stopped
       loop: "{{ disabled_timers }}"
-      failed_when: false
+
+    - name: Stop legacy crawl services
+      systemd:
+        name: "{{ item }}"
+        state: stopped
+      loop: "{{ disabled_services }}"
+
+    - name: Read back legacy timer states
+      command: "systemctl show {{ item }} -p ActiveState -p UnitFileState --value"
+      changed_when: false
+      register: legacy_timer_state
+      failed_when: >-
+        legacy_timer_state.stdout_lines | length < 2 or
+        legacy_timer_state.stdout_lines[0] != 'inactive' or
+        legacy_timer_state.stdout_lines[1] not in ['disabled', 'masked']
+      loop: "{{ disabled_timers }}"
+
+    - name: Read back legacy service states
+      command: "systemctl show {{ item }} -p ActiveState --value"
+      changed_when: false
+      register: legacy_service_state
+      failed_when: legacy_service_state.stdout.strip() != 'inactive'
+      loop: "{{ disabled_services }}"
 
     - name: Enable ops timers
       systemd:

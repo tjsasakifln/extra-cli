@@ -8,7 +8,7 @@ not a second crawler and never marks success from inserts alone.
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any
 
 from scripts.contracts_truth import (
@@ -19,12 +19,15 @@ from scripts.contracts_truth import (
     DRIFT_RECONCILE,
     DRIFT_SOURCE,
     MAX_CONVERGENCE_PASSES,
+    REASON_IDS_UNSEEN,
     PaginationReconcile,
     PaginationReport,
     PopulationDriftDecision,
     PopulationDriftPolicy,
     classify_population_drift,
 )
+
+REASON_DUPLICATE_ACROSS_PAGES = "duplicate_ids_across_pages"
 
 
 @dataclass(frozen=True)
@@ -36,6 +39,40 @@ class ObservedPage:
 
 
 FetchPage = Callable[[int], ObservedPage | None]
+
+
+def pagination_identity_reason_codes(
+    *,
+    first_total_registros: int | None,
+    last_total_registros: int | None,
+    unique_ids: int,
+    page_id_sequences: Sequence[tuple[int, tuple[str, ...]]],
+) -> tuple[str, ...]:
+    """Fail closed when stable pagination repeats IDs and omits contracts.
+
+    Re-reading the same page during a bounded convergence pass is expected.
+    Seeing one contract on distinct page numbers is not: page movement can
+    displace another contract while the declared total remains unchanged.
+    """
+
+    reasons: list[str] = []
+    first_page_for_id: dict[str, int] = {}
+    for page_no, ids in page_id_sequences:
+        for item_id in ids:
+            previous = first_page_for_id.setdefault(item_id, page_no)
+            if previous != page_no:
+                reasons.append(REASON_DUPLICATE_ACROSS_PAGES)
+                break
+        if reasons:
+            break
+    if (
+        first_total_registros is not None
+        and last_total_registros is not None
+        and first_total_registros == last_total_registros
+        and unique_ids < last_total_registros
+    ):
+        reasons.append(REASON_IDS_UNSEEN)
+    return tuple(dict.fromkeys(reasons))
 
 
 @dataclass
@@ -165,7 +202,7 @@ def run_convergence(
         policy=policy,
         reconcile_counts=False,
     )
-    decision = classify_population_drift(
+    decision = classify_window_population(
         first_total_registros=reconcile.first_total_registros,
         last_total_registros=reconcile.last_total_registros,
         first_total_paginas=reconcile.first_total_paginas,
@@ -212,11 +249,26 @@ def classify_window_population(
     last_total_registros: int | None,
     **kwargs: Any,
 ) -> PopulationDriftDecision:
-    """Thin shipped wrapper so window completion and tests share one predicate."""
-    return classify_population_drift(
+    """Shipped completion predicate with ingestion-only identity safeguards."""
+    decision = classify_population_drift(
         first_total_registros=first_total_registros,
         last_total_registros=last_total_registros,
         **kwargs,
+    )
+    identity_reasons = pagination_identity_reason_codes(
+        first_total_registros=first_total_registros,
+        last_total_registros=last_total_registros,
+        unique_ids=int(kwargs.get("unique_ids") or 0),
+        page_id_sequences=kwargs.get("page_id_sequences") or (),
+    )
+    if not identity_reasons:
+        return decision
+    return replace(
+        decision,
+        status=DRIFT_SOURCE,
+        decision="refuse",
+        reason_codes=tuple(dict.fromkeys((*decision.reason_codes, *identity_reasons))),
+        allows_tail_pass=False,
     )
 
 
@@ -228,9 +280,11 @@ __all__ = [
     "DRIFT_SOURCE",
     "FetchPage",
     "ObservedPage",
+    "REASON_DUPLICATE_ACROSS_PAGES",
     "classify_window_population",
     "format_window_error",
     "observe_pages",
+    "pagination_identity_reason_codes",
     "run_convergence",
     "tail_page_numbers",
 ]

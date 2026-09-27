@@ -30,7 +30,8 @@ import sys
 import tempfile
 import time
 from dataclasses import dataclass, field
-from datetime import date, timedelta
+from datetime import UTC, date, datetime, timedelta
+from datetime import time as datetime_time
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -40,7 +41,6 @@ from scripts.contracts_truth import (
     PaginationReconcile,
     annotate_transformed_contract,
     resolve_checkpoint_dir,
-    stamp_contract_truth_labels,
 )
 from scripts.crawl.common import (
     digits_only as _digits_only,
@@ -54,6 +54,8 @@ from scripts.crawl.common import (
 from scripts.crawl.common import (
     trunc as trunc,
 )
+from scripts.crawl.contracts_truth_persistence import stamp_contract_truth_labels
+from scripts.crawl.population_convergence import pagination_identity_reason_codes
 from scripts.crawl.security import USER_AGENT, sanitize_url_param, validate_url_scheme
 
 # Add project root for standalone imports
@@ -297,6 +299,29 @@ def _safe_float(value: Any) -> float | None:
         return None
 
 
+def _safe_source_timestamp(value: Any) -> str | None:
+    """Return a canonical UTC timestamp without discarding PNCP time precision."""
+    if value is None or value == "":
+        return None
+    try:
+        if isinstance(value, datetime):
+            parsed = value
+        elif isinstance(value, date):
+            parsed = datetime.combine(value, datetime_time.min, tzinfo=UTC)
+        else:
+            raw = str(value).strip()
+            if not raw:
+                return None
+            if raw.endswith("Z"):
+                raw = raw[:-1] + "+00:00"
+            parsed = datetime.fromisoformat(raw)
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=UTC)
+        return parsed.astimezone(UTC).isoformat().replace("+00:00", "Z")
+    except (TypeError, ValueError):
+        return None
+
+
 _CNPJ_ROOT_UF: dict[str, str] = {
     "000000": "DF",
     "003944": "DF",
@@ -453,6 +478,68 @@ def _stamp_success_items(
     )
 
 
+def _invalid_page_envelope(
+    data: dict[str, Any],
+    *,
+    page: int,
+) -> tuple[list[Any] | None, int | None, int | None, str | None]:
+    """Validate the PNCP pagination envelope before treating HTTP 200 as success.
+
+    The PNCP endpoint has occasionally returned a JSON object describing an
+    upstream problem with HTTP 200.  A missing or incoherent pagination
+    envelope must never be converted into an empty successful page, because
+    that would advance a checkpoint over an unknown source population.
+    """
+    required = ("data", "totalRegistros", "totalPaginas")
+    missing = [field for field in required if field not in data]
+    if missing:
+        return None, None, None, f"missing required field(s): {', '.join(missing)}"
+
+    items = data["data"]
+    if not isinstance(items, list):
+        return None, None, None, "field data must be a list"
+
+    def parse_count(field: str) -> tuple[int | None, str | None]:
+        value = data[field]
+        if isinstance(value, bool):
+            return None, f"field {field} must be a non-negative integer"
+        if isinstance(value, int):
+            parsed = value
+        elif isinstance(value, str) and value.strip().isdigit():
+            parsed = int(value.strip())
+        else:
+            return None, f"field {field} must be a non-negative integer"
+        if parsed < 0:
+            return None, f"field {field} must be a non-negative integer"
+        return parsed, None
+
+    total_records, error = parse_count("totalRegistros")
+    if error:
+        return None, None, None, error
+    total_pages, error = parse_count("totalPaginas")
+    if error:
+        return None, None, None, error
+
+    if total_records is None or total_pages is None:
+        return None, None, None, "missing validated pagination counts"
+    if total_records == 0:
+        if items:
+            return None, None, None, "zero totalRegistros with non-empty data"
+        if total_pages not in {0, 1}:
+            return None, None, None, "zero totalRegistros with invalid totalPaginas"
+    else:
+        if not items:
+            return None, None, None, "non-zero totalRegistros with empty data"
+        if total_pages < 1:
+            return None, None, None, "non-zero totalRegistros with zero totalPaginas"
+        if page > total_pages:
+            return None, None, None, "requested page exceeds totalPaginas"
+        if len(items) > total_records:
+            return None, None, None, "data length exceeds totalRegistros"
+
+    return items, total_records, total_pages, None
+
+
 def _fetch_page(
     data_ini: str,
     data_fim: str,
@@ -505,14 +592,26 @@ def _fetch_page(
                     )
 
             if isinstance(data, dict):
-                items = data.get("data", [])
-                total_records = int(data.get("totalRegistros", 0))
-                total_pages = int(data.get("totalPaginas", 1))
+                items, total_records, total_pages, envelope_error = _invalid_page_envelope(
+                    data,
+                    page=page,
+                )
+                if envelope_error:
+                    return FetchResult(
+                        status=FetchStatus.PARSE_FAILED,
+                        error_message=f"Invalid PNCP page envelope: {envelope_error}",
+                        url=url,
+                        current_page=page,
+                    )
 
-                if not isinstance(items, list):
-                    items = []
-
-                status = FetchStatus.SUCCESS_ZERO if len(items) == 0 else FetchStatus.SUCCESS_DATA
+                if items is None or total_records is None or total_pages is None:
+                    return FetchResult(
+                        status=FetchStatus.PARSE_FAILED,
+                        error_message="Invalid PNCP page envelope: missing validated values",
+                        url=url,
+                        current_page=page,
+                    )
+                status = FetchStatus.SUCCESS_ZERO if total_records == 0 else FetchStatus.SUCCESS_DATA
                 stamped = _stamp_success_items(
                     items,
                     data_ini=data_ini,
@@ -532,31 +631,11 @@ def _fetch_page(
                     url=url,
                 )
 
-            if isinstance(data, list):
-                status = FetchStatus.SUCCESS_ZERO if len(data) == 0 else FetchStatus.SUCCESS_DATA
-                stamped = _stamp_success_items(
-                    data,
-                    data_ini=data_ini,
-                    data_fim=data_fim,
-                    page=page,
-                    url=url,
-                    raw_bytes=raw_bytes,
-                    attempt_no=attempt,
-                    run_id=run_id,
-                )
-                return FetchResult(
-                    status=status,
-                    items=stamped,
-                    total_records=len(data),
-                    total_pages=1,
-                    current_page=page,
-                    url=url,
-                )
-
-            # Unexpected response format
+            # A bare list does not prove a complete page population.  Keep the
+            # fetch fail-closed instead of inventing pagination totals.
             return FetchResult(
                 status=FetchStatus.PARSE_FAILED,
-                error_message="Unexpected response format (not dict or list)",
+                error_message="Invalid PNCP page envelope: expected object with pagination fields",
                 url=url,
                 current_page=page,
             )
@@ -706,8 +785,23 @@ def _transform_record(rec: dict) -> dict | None:
             or rec.get("dataPublicacao")
             or rec.get("dataPublicacaoContrato")
         )
-        data_atualizacao_fonte = _safe_date(
-            rec.get("dataAtualizacao") or rec.get("dataAtualizacaoGlobal")
+        source_update_candidates = [
+            timestamp
+            for timestamp in (
+                _safe_source_timestamp(rec.get("dataAtualizacao")),
+                _safe_source_timestamp(rec.get("dataAtualizacaoGlobal")),
+            )
+            if timestamp is not None
+        ]
+        source_updated_at = max(
+            source_update_candidates,
+            key=lambda value: datetime.fromisoformat(value.replace("Z", "+00:00")),
+            default=None,
+        )
+        data_atualizacao_fonte = (
+            source_updated_at[:10]
+            if source_updated_at
+            else _safe_date(rec.get("dataAtualizacao") or rec.get("dataAtualizacaoGlobal"))
         )
         # Best event date for the contract act
         source_event_date = data_assinatura or data_publicacao_fonte
@@ -753,6 +847,7 @@ def _transform_record(rec: dict) -> dict | None:
             "data_assinatura": data_assinatura,
             "data_publicacao_fonte": data_publicacao_fonte,
             "data_atualizacao_fonte": data_atualizacao_fonte,
+            "source_updated_at": source_updated_at,
             "source_event_date": source_event_date,
             "source_date_semantics": source_date_semantics,
             "query_window_start": query_window_start,
@@ -930,6 +1025,7 @@ def _crawl_date_range(
                 total_registros=result.total_records,
                 total_paginas=result.total_pages,
                 items=result.items,
+                page=page,
             )
             all_records.extend(result.items)
             window_items.extend(result.items)
@@ -976,9 +1072,23 @@ def _crawl_date_range(
                     fully_ok = False
                     window_errors.append("persist_zero")
                 page_report = pagination.finish()
+                identity_reasons = pagination_identity_reason_codes(
+                    first_total_registros=pagination.first_total_registros,
+                    last_total_registros=pagination.last_total_registros,
+                    unique_ids=len(pagination.seen_ids),
+                    page_id_sequences=pagination.page_id_sequences,
+                )
                 if not page_report.ok:
                     window_errors.append(page_report.status)
                     logger.warning("Window %s pagination %s", window_key, page_report.to_dict())
+                    fully_ok = False
+                if identity_reasons:
+                    window_errors.append("pagination_identity:" + ",".join(identity_reasons))
+                    logger.warning(
+                        "Window %s pagination identity refused: %s",
+                        window_key,
+                        identity_reasons,
+                    )
                     fully_ok = False
                 if fully_ok:
                     checkpoint.completed_windows.append(window_key)
@@ -1062,6 +1172,7 @@ def crawl_with_evidence(mode: str = "backfill_3y") -> CrawlResult:
         persisted_records = 0
         last_total_pages = 0
         last_page_fetched = 0
+        pagination = PaginationReconcile()
 
         while page <= CONTRACTS_MAX_PAGES:
             fetch_result = _fetch_page(data_ini, data_fim, page)
@@ -1098,6 +1209,12 @@ def crawl_with_evidence(mode: str = "backfill_3y") -> CrawlResult:
                 break
 
             window_status = FetchStatus.SUCCESS_DATA
+            pagination.observe_page(
+                total_registros=fetch_result.total_records,
+                total_paginas=fetch_result.total_pages,
+                items=fetch_result.items,
+                page=page,
+            )
             window_items.extend(fetch_result.items)
             window_records += len(fetch_result.items)
             window_pages += 1
@@ -1116,6 +1233,22 @@ def crawl_with_evidence(mode: str = "backfill_3y") -> CrawlResult:
                 f"Hit CONTRACTS_MAX_PAGES={CONTRACTS_MAX_PAGES} before source exhaustion "
                 f"(last_page={last_page_fetched}, total_pages={last_total_pages})"
             )
+
+        if scope_complete and window_records > 0:
+            pagination_report = pagination.finish(reconcile_counts=False)
+            identity_reasons = pagination_identity_reason_codes(
+                first_total_registros=pagination.first_total_registros,
+                last_total_registros=pagination.last_total_registros,
+                unique_ids=len(pagination.seen_ids),
+                page_id_sequences=pagination.page_id_sequences,
+            )
+            if not pagination_report.ok or identity_reasons:
+                window_status = FetchStatus.PARTIAL
+                window_error = (
+                    "Pagination reconciliation failed before checkpoint: "
+                    + ", ".join((*pagination_report.reason_codes, *identity_reasons))
+                )
+                scope_complete = False
 
         if scope_complete and window_records > 0 and checkpoint is not None:
             persistence_flag = os.getenv("CONTRACTS_PERSIST_EACH_WINDOW", "1").strip().lower()

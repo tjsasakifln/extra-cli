@@ -76,10 +76,13 @@ CHAIN_TIMERS = (
     "extra-confenge-feed-monitor.timer",
 )
 
-# No stage may be driven by a source-triggered cascade any more, so there is no
-# cadence left to suppress.  Kept as an explicit, readable empty contract: a
-# future stage that must not self-schedule belongs here, not in a comment.
-CHAIN_DISABLED_TIMERS: tuple[str, ...] = ()
+# Historical PNCP schedules execute alternative contract writers.  They must
+# remain stopped even when an old host still has their units enabled.
+CHAIN_DISABLED_TIMERS = (
+    "pncp-crawl-full.timer",
+    "pncp-crawl-inc.timer",
+    "extra-crawl-pncp.timer",
+)
 
 # Long-running workers that must come back after a reboot.
 CHAIN_ENABLED_SERVICES = ("extra-confenge-target-fit-worker.service",)
@@ -325,11 +328,105 @@ def _systemd_readback_unit(unit: str) -> str:
     return unit
 
 
+def _stage_dropins(rendered: dict[str, str]) -> tuple[dict[Path, bytes | None], dict[Path, Path]]:
+    """Write every replacement beside its target before replacing any target.
+
+    The snapshot is byte-for-byte rather than parsed: local comments and
+    systemd formatting are host state too, and must survive a failed pin.
+    """
+    snapshots: dict[Path, bytes | None] = {}
+    staged: dict[Path, Path] = {}
+    try:
+        for unit, body in rendered.items():
+            target_dir = SYSTEMD_ROOT / f"{unit}.d"
+            target_dir.mkdir(parents=True, exist_ok=True)
+            target = target_dir / DROPIN_NAME
+            snapshots[target] = target.read_bytes() if target.exists() else None
+            tmp = target.with_suffix(".conf.tmp")
+            tmp.write_text(body, encoding="utf-8")
+            staged[target] = tmp
+    except BaseException:
+        for tmp in staged.values():
+            tmp.unlink(missing_ok=True)
+        raise
+    return snapshots, staged
+
+
+def _restore_dropins(snapshots: dict[Path, bytes | None], staged: dict[Path, Path]) -> None:
+    """Restore the exact pre-pin files and remove any newly-created drop-ins."""
+    restore_errors: list[BaseException] = []
+    for target, original in snapshots.items():
+        try:
+            if original is None:
+                target.unlink(missing_ok=True)
+            else:
+                tmp = target.with_suffix(".conf.rollback.tmp")
+                tmp.write_bytes(original)
+                tmp.replace(target)
+        except BaseException as exc:  # pragma: no cover - catastrophic host I/O
+            restore_errors.append(exc)
+    for tmp in staged.values():
+        try:
+            tmp.unlink(missing_ok=True)
+        except OSError as exc:  # pragma: no cover - catastrophic host I/O
+            restore_errors.append(exc)
+    if restore_errors:
+        raise PinError(f"release pin rollback failed: {restore_errors[0]}") from restore_errors[0]
+
+
+def _quiesce_chain_after_failed_pin() -> None:
+    """Fail closed after a runtime-policy or verification failure.
+
+    The restored files point at the previous immutable release, but leaving a
+    timer running while systemd has just reloaded a failed transition makes the
+    operational state ambiguous.  Stop every canonical trigger and worker;
+    the next verified deploy is the only operation allowed to reschedule it.
+    Historical writer timers are separately kept disabled by the normal policy.
+    """
+    errors: list[BaseException] = []
+
+    def attempt(argv: list[str], *, check: bool = False) -> subprocess.CompletedProcess | None:
+        try:
+            return _run(argv, check=check)
+        except BaseException as exc:  # keep stopping even when one unit is broken
+            errors.append(exc)
+            return None
+
+    attempt(["systemctl", "disable", "--now", *CHAIN_TIMERS])
+    for unit in CHAIN_UNITS:
+        attempt(["systemctl", "stop", unit])
+    listed = attempt(
+        [
+            "systemctl", "list-units", "extra-contact-discovery-worker@*.service",
+            "--state=active,activating", "--no-legend", "--plain",
+        ]
+    )
+    if listed is None or listed.returncode != 0:
+        detail = errors[0] if errors else f"exit {listed.returncode}"
+        raise PinError(f"failed pin could not enumerate contact-discovery workers: {detail}")
+    contact_instances = [
+        line.split()[0]
+        for line in listed.stdout.splitlines()
+        if line.strip()
+    ]
+    for unit in contact_instances:
+        attempt(["systemctl", "stop", unit])
+    still_active = [
+        unit
+        for unit in (*CHAIN_TIMERS, *CHAIN_UNITS, *contact_instances)
+        if ((attempt(["systemctl", "is-active", unit]) or subprocess.CompletedProcess([], 1, stdout="unknown")).stdout.strip() or "unknown")
+        not in {"inactive", "failed", "unknown"}
+    ]
+    if still_active or errors:
+        raise PinError(f"failed pin quiesce errors={errors[:1]} active={still_active}")
+
+
 def apply(
     sha: str,
     *,
     dry_run: bool = False,
     preserve_timer_state: bool = False,
+    verify_after_apply: bool = False,
 ) -> dict[str, object]:
     rendered = plan(sha)
     if foreign := foreign_execstart_dropins():
@@ -340,26 +437,79 @@ def apply(
     written: list[str] = []
     timer_states_before = timer_states() if preserve_timer_state and not dry_run else None
     if not dry_run:
-        for unit, body in rendered.items():
-            target_dir = SYSTEMD_ROOT / f"{unit}.d"
-            target_dir.mkdir(parents=True, exist_ok=True)
-            target = target_dir / DROPIN_NAME
-            tmp = target.with_suffix(".conf.tmp")
-            tmp.write_text(body, encoding="utf-8")
-            tmp.replace(target)
-            written.append(str(target))
-        _run(["systemctl", "daemon-reload"])
-        if not preserve_timer_state:
-            # --now is required for both the source trigger and independent monitor;
-            # enabling alone would defer them until the next boot.
-            _run(["systemctl", "enable", "--now", *CHAIN_TIMERS])
-            if CHAIN_DISABLED_TIMERS:
-                # `systemctl disable --now` with no unit argument is a usage error,
-                # so an empty suppression contract must be a no-op, not a failure.
+        snapshots, staged = _stage_dropins(rendered)
+        try:
+            if not preserve_timer_state and CHAIN_DISABLED_TIMERS:
+                # Establish the single-writer invariant before publishing drop-ins
+                # or starting the canonical schedule.  A stop/disable failure
+                # aborts while the previous release is still fully pinned.
                 _run(["systemctl", "disable", "--now", *CHAIN_DISABLED_TIMERS])
-        _run(["systemctl", "enable", *CHAIN_ENABLED_SERVICES])
-        if preserve_timer_state and timer_states() != timer_states_before:
-            raise PinError("timer state changed while a pause-preserving release pin was applied")
+                for unit in CHAIN_DISABLED_TIMERS:
+                    enabled = _run(["systemctl", "is-enabled", unit], check=False).stdout.strip()
+                    active = _run(["systemctl", "is-active", unit], check=False).stdout.strip()
+                    if enabled not in {"disabled", "masked", "not-found"} or active not in {
+                        "inactive",
+                        "unknown",
+                    }:
+                        raise PinError(
+                            f"legacy writer did not stop: {unit}=enabled:{enabled or 'unknown'},"
+                            f"active:{active or 'unknown'}"
+                        )
+            for target, tmp in staged.items():
+                tmp.replace(target)
+                written.append(str(target))
+            _run(["systemctl", "daemon-reload"])
+            if not preserve_timer_state:
+                # --now is required for both the source trigger and independent monitor;
+                # enabling alone would defer them until the next boot.
+                _run(["systemctl", "enable", "--now", *CHAIN_TIMERS])
+                # This worker was quiesced before the pin.  Enabling without
+                # --now leaves the release healthy only after a reboot.
+                _run(["systemctl", "enable", "--now", *CHAIN_ENABLED_SERVICES])
+            if preserve_timer_state and timer_states() != timer_states_before:
+                raise PinError("timer state changed while a pause-preserving release pin was applied")
+            report: dict[str, object] = {
+                "schema": "confenge.release_pin.v1",
+                "release_sha": sha,
+                "units_pinned": list(rendered),
+                "timer_policy": "PRESERVE" if preserve_timer_state else "CANONICAL_SCHEDULE",
+                "timers_enabled": [] if preserve_timer_state else list(CHAIN_TIMERS),
+                "timers_disabled": [] if preserve_timer_state else list(CHAIN_DISABLED_TIMERS),
+                "timer_states_before": timer_states_before,
+                "services_enabled": list(CHAIN_ENABLED_SERVICES),
+                "dropins_written": written,
+                "dry_run": dry_run,
+            }
+            if verify_after_apply:
+                verification = verify(
+                    sha,
+                    require_canonical_schedule=not preserve_timer_state,
+                    expected_timer_states=timer_states_before,
+                )
+                report["verification"] = verification
+                if verification.get("ok") is False:
+                    raise PinError("release pin verification failed; restoring previous drop-ins")
+            return report
+        except BaseException as original:
+            rollback_errors: list[BaseException] = []
+            try:
+                _restore_dropins(snapshots, staged)
+            except BaseException as exc:
+                rollback_errors.append(exc)
+            try:
+                _run(["systemctl", "daemon-reload"])
+            except BaseException as exc:
+                rollback_errors.append(exc)
+            if not preserve_timer_state:
+                try:
+                    _quiesce_chain_after_failed_pin()
+                except BaseException as exc:
+                    rollback_errors.append(exc)
+            if rollback_errors:
+                raise PinError(
+                    f"release pin failed ({original}); rollback also failed: {rollback_errors[0]}"
+                ) from original
+            raise
     return {
         "schema": "confenge.release_pin.v1",
         "release_sha": sha,
@@ -473,6 +623,12 @@ def verify(
             state = observed_timer_states[unit]["active"]
             if state != "active":
                 inactive_timers.append(f"{unit}={state or 'unknown'}")
+    inactive_enabled_services: list[str] = []
+    if require_canonical_schedule:
+        for unit in CHAIN_ENABLED_SERVICES:
+            state = _run(["systemctl", "is-active", unit], check=False).stdout.strip()
+            if state != "active":
+                inactive_enabled_services.append(f"{unit}={state or 'unknown'}")
     independently_scheduled: list[str] = []
     for unit in CHAIN_DISABLED_TIMERS:
         enabled = _run(["systemctl", "is-enabled", unit], check=False).stdout.strip()
@@ -505,6 +661,7 @@ def verify(
                 timeout_start_drift,
                 disabled,
                 inactive_timers,
+                inactive_enabled_services,
                 timer_state_drift,
                 independently_scheduled,
                 pncp_service_semantic_drift,
@@ -518,6 +675,7 @@ def verify(
         "timeout_start_drift": timeout_start_drift,
         "not_enabled": disabled,
         "timers_not_active": inactive_timers,
+        "enabled_services_not_active": inactive_enabled_services,
         "timer_policy": "CANONICAL_SCHEDULE" if require_canonical_schedule else "PRESERVE",
         "timer_states": observed_timer_states,
         "timer_state_drift": timer_state_drift,
@@ -545,16 +703,8 @@ def main(argv: list[str] | None = None) -> int:
                 args.sha,
                 dry_run=args.dry_run,
                 preserve_timer_state=args.preserve_timer_state,
+                verify_after_apply=not args.dry_run,
             )
-            if not args.dry_run:
-                report = {
-                    **report,
-                    "verification": verify(
-                        args.sha,
-                        require_canonical_schedule=not args.preserve_timer_state,
-                        expected_timer_states=report.get("timer_states_before"),
-                    ),
-                }
     except (PinError, OSError, subprocess.SubprocessError) as exc:
         print(json.dumps({"ok": False, "error": str(exc)}, ensure_ascii=False), file=sys.stderr)
         return 1

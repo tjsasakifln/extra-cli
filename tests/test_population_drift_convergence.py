@@ -15,6 +15,7 @@ from scripts.contracts_truth import (
     REASON_CRASH_BEFORE_COMMIT,
     REASON_DUPLICATE_CONFLICT,
     REASON_GROWTH_UNPROVEN,
+    REASON_IDS_UNSEEN,
     REASON_JUMP,
     REASON_MONOTONIC_GROWTH,
     REASON_OSCILLATION,
@@ -29,7 +30,12 @@ from scripts.contracts_truth import (
     classify_population_drift,
     growth_within_budget,
 )
-from scripts.crawl.population_convergence import ObservedPage, run_convergence
+from scripts.crawl.population_convergence import (
+    REASON_DUPLICATE_ACROSS_PAGES,
+    ObservedPage,
+    classify_window_population,
+    run_convergence,
+)
 from scripts.crawl.run_contracts_90d_pilot import evaluate_window_completion
 
 
@@ -167,6 +173,52 @@ def test_duplicate_page_conflicting_ids_fails() -> None:
     )
     assert decision.status == DRIFT_SOURCE
     assert REASON_DUPLICATE_CONFLICT in decision.reason_codes
+
+
+def test_duplicate_across_distinct_pages_refuses_completion_and_detects_omission() -> None:
+    """A page-boundary shift cannot silently skip the fourth declared contract."""
+    reconcile = PaginationReconcile()
+    reconcile.observe_page(total_registros=4, total_paginas=2, items=_items("a", "b"), page=1)
+    reconcile.observe_page(total_registros=4, total_paginas=2, items=_items("b", "c"), page=2)
+    reconcile.record_persisted(4)
+
+    decision = classify_window_population(
+        first_total_registros=reconcile.first_total_registros,
+        last_total_registros=reconcile.last_total_registros,
+        first_total_paginas=reconcile.first_total_paginas,
+        last_total_paginas=reconcile.last_total_paginas,
+        unique_ids=len(reconcile.seen_ids),
+        seen_ids=reconcile.seen_ids,
+        page_id_sequences=reconcile.page_id_sequences,
+        persisted=reconcile.persisted,
+        fetched=reconcile.fetched,
+        rejected=reconcile.rejected,
+    )
+
+    assert decision.ok is False
+    assert decision.status == DRIFT_SOURCE
+    assert REASON_DUPLICATE_ACROSS_PAGES in decision.reason_codes
+    assert REASON_IDS_UNSEEN in decision.reason_codes
+
+
+def test_pilot_window_completion_refuses_cross_page_duplicate() -> None:
+    fully_ok, errors = evaluate_window_completion(
+        [],
+        pages_exhausted=True,
+        last_total_pages=2,
+        page=2,
+        max_pages=10,
+        first_total_registros=4,
+        last_total_registros=4,
+        first_total_paginas=2,
+        last_total_paginas=2,
+        seen_ids=("a", "b", "c"),
+        page_id_sequences=((1, ("a", "b")), (2, ("b", "c"))),
+        unique_ids=3,
+    )
+
+    assert fully_ok is False
+    assert any(REASON_DUPLICATE_ACROSS_PAGES in error for error in errors)
 
 
 def test_reordered_page_same_set_is_ok() -> None:

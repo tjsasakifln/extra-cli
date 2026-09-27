@@ -160,9 +160,7 @@ def test_two_adapters_replay_to_one_canonical_and_two_observations() -> None:
     assert other_source.canonical_contract_id != crawler.canonical_contract_id
 
 
-def test_incremental_writer_uses_pg_fence_before_mutation(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_incremental_writer_uses_pg_fence_before_mutation(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     from scripts.crawl import run_contracts_incremental as inc
 
     monkeypatch.delenv("CONTRACTS_SKIP_WRITER_LOCK", raising=False)
@@ -241,7 +239,7 @@ def test_production_default_checkpoint_refuses_worktree_and_release_tree(tmp_pat
 
 
 def test_stamp_contract_truth_labels_writes_quality_not_null_valid() -> None:
-    from scripts.contracts_truth import stamp_contract_truth_labels
+    from scripts.crawl.contracts_truth_persistence import stamp_contract_truth_labels
 
     statements: list[str] = []
 
@@ -253,10 +251,13 @@ def test_stamp_contract_truth_labels_writes_quality_not_null_valid() -> None:
             statements.append(sql)
             self.rowcount = 1
             assert "quality_state = stamp.quality_state" in sql
+            assert "report_ready = stamp.report_ready" not in sql
+            assert "fn_contract_observation_not_older" in sql
             assert "COALESCE(quality_state, 'VALID')" not in sql
             payload = __import__("json").loads(params[0])
             assert payload[0]["quality_state"] == "QUARANTINED"
             assert payload[0]["status_normalized"] == "UNKNOWN"
+            assert payload[0]["source_updated_at"] == "2026-09-20T12:59:15Z"
 
         def close(self) -> None:
             return None
@@ -269,11 +270,130 @@ def test_stamp_contract_truth_labels_writes_quality_not_null_valid() -> None:
                 "status_normalized": "UNKNOWN",
                 "quality_state": "QUARANTINED",
                 "canonical_contract_id": "pncp:11111111000191-1-000001/2026",
+                "source_updated_at": "2026-09-20T12:59:15Z",
+                "data_atualizacao_fonte": "2026-09-20",
             }
         ],
     )
     assert stamped == 1
     assert statements
+
+
+def test_stamp_contract_truth_labels_deduplicates_like_the_upsert_rpc() -> None:
+    from scripts.crawl.contracts_truth_persistence import stamp_contract_truth_labels
+
+    captured: list[dict] = []
+
+    class _Cursor:
+        rowcount = 1
+
+        def execute(self, _sql, params=None):
+            captured.extend(__import__("json").loads(params[0]))
+
+        def close(self):
+            return None
+
+    class _Conn:
+        def cursor(self):
+            return _Cursor()
+
+    stamped = stamp_contract_truth_labels(
+        _Conn(),
+        [
+            {
+                "contrato_id": "duplicate-1",
+                "status_normalized": "ACTIVE",
+                "quality_state": "VALID",
+                "source_updated_at": "2026-09-20T12:00:00Z",
+            },
+            {
+                "contrato_id": "duplicate-1",
+                "status_normalized": "UNKNOWN",
+                "quality_state": "QUARANTINED",
+                "source_updated_at": "2026-09-20T11:59:59Z",
+            },
+            {
+                "contrato_id": "duplicate-1",
+                "status_normalized": "SUSPENDED",
+                "quality_state": "VALID",
+                "source_updated_at": "2026-09-20T12:00:00Z",
+            },
+        ],
+    )
+
+    assert stamped == 1
+    assert len(captured) == 1
+    assert captured[0]["status_normalized"] == "SUSPENDED"
+    assert captured[0]["quality_state"] == "VALID"
+
+
+def test_stamp_duplicate_order_matches_rpc_for_nulls_and_date_ties() -> None:
+    from scripts.crawl.contracts_truth_persistence import stamp_contract_truth_labels
+
+    captured: list[dict] = []
+
+    class _Cursor:
+        rowcount = 3
+
+        def execute(self, _sql, params=None):
+            captured.extend(__import__("json").loads(params[0]))
+
+        def close(self):
+            return None
+
+    class _Conn:
+        def cursor(self):
+            return _Cursor()
+
+    stamped = stamp_contract_truth_labels(
+        _Conn(),
+        [
+            {
+                "contrato_id": "nonnull-source-wins",
+                "status_normalized": "RPC_WINNER",
+                "source_updated_at": "2026-09-01T12:00:00Z",
+                "data_atualizacao_fonte": "2026-09-01",
+            },
+            {
+                "contrato_id": "nonnull-source-wins",
+                "status_normalized": "WRONG_COALESCED_WINNER",
+                "source_updated_at": None,
+                "data_atualizacao_fonte": "2026-09-02",
+            },
+            {
+                "contrato_id": "equal-source-date-tie",
+                "status_normalized": "RPC_DATE_WINNER",
+                "source_updated_at": "2026-09-03T12:00:00Z",
+                "data_atualizacao_fonte": "2026-09-03",
+            },
+            {
+                "contrato_id": "equal-source-date-tie",
+                "status_normalized": "WRONG_ORDINAL_WINNER",
+                "source_updated_at": "2026-09-03T12:00:00Z",
+                "data_atualizacao_fonte": "2026-09-02",
+            },
+            {
+                "contrato_id": "null-source-date-tie",
+                "status_normalized": "RPC_NULL_SOURCE_WINNER",
+                "source_updated_at": None,
+                "data_atualizacao_fonte": "2026-09-04",
+            },
+            {
+                "contrato_id": "null-source-date-tie",
+                "status_normalized": "WRONG_NULL_SOURCE_WINNER",
+                "source_updated_at": None,
+                "data_atualizacao_fonte": "2026-09-03",
+            },
+        ],
+    )
+
+    winners = {row["contrato_id"]: row["status_normalized"] for row in captured}
+    assert stamped == 3
+    assert winners == {
+        "nonnull-source-wins": "RPC_WINNER",
+        "equal-source-date-tie": "RPC_DATE_WINNER",
+        "null-source-date-tie": "RPC_NULL_SOURCE_WINNER",
+    }
 
 
 def test_purchase_id_is_not_official_contract_id() -> None:

@@ -62,6 +62,7 @@ DEFAULT_CAMPAIGN = "historical_contracts_incremental"
 INCREMENTAL_QUERY_KIND = "update"
 INCREMENTAL_WINDOW_DAYS = 1
 EXIT_RETRYABLE_SOURCE = 77
+EXIT_RETENTION_DEGRADED = 78
 RETRY_DELAY_SECONDS = 300
 
 
@@ -388,6 +389,7 @@ def _run_incremental(args: argparse.Namespace) -> int:
         logical_job_id=str(args.logical_job_id),
         campaign_id=str(args.campaign_id),
         query_kind=INCREMENTAL_QUERY_KIND,
+        writer_fence_already_held=True,
     )
     # Persist parameter binding for the next invocation
     try:
@@ -437,7 +439,16 @@ def _run_incremental(args: argparse.Namespace) -> int:
         totals.get("inserted"),
         report.get("run_id"),
     )
-    return 0 if ok else retry_exit_for_report(report)
+    if not ok:
+        return retry_exit_for_report(report)
+    if (report.get("storage_retention") or {}).get("status") == "DEGRADED":
+        logger.error(
+            "Contracts persisted, but storage retention is DEGRADED; "
+            "returning %s for systemd OnFailure without replay",
+            EXIT_RETENTION_DEGRADED,
+        )
+        return EXIT_RETENTION_DEGRADED
+    return 0
 
 
 if __name__ == "__main__":

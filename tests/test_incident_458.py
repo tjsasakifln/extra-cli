@@ -527,7 +527,7 @@ def test_live_window_artifact_reconciles_inserted_and_skipped(monkeypatch, tmp_p
     monkeypatch.setattr(pilot, "UPSERT_BATCH", 2)
     monkeypatch.setattr(pilot, "transform", lambda rows: rows)
     monkeypatch.setattr(pilot.psycopg2, "connect", lambda _dsn: FakeConnection())
-    monkeypatch.setattr(pilot, "_upsert_batch", lambda _conn, _rows: (1, 1))
+    monkeypatch.setattr(pilot, "_upsert_batch", lambda _conn, _rows, **_kwargs: (1, 1))
     monkeypatch.setattr(
         pilot,
         "_fetch_page",
@@ -561,7 +561,7 @@ def test_live_window_artifact_reconciles_inserted_and_skipped(monkeypatch, tmp_p
     assert drift["ok"] is True
     assert drift["decision"] == "accept"
 
-    monkeypatch.setattr(pilot, "_upsert_batch", lambda _conn, _rows: (1, 0))
+    monkeypatch.setattr(pilot, "_upsert_batch", lambda _conn, _rows, **_kwargs: (1, 0))
     inconsistent = pilot.run_pilot(
         "postgresql://sanitized",
         days=1,

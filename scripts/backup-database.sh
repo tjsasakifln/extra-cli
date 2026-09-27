@@ -54,6 +54,11 @@ REMOTE_DIR="${BACKUP_REMOTE_DIR:-backups/postgresql}"
 TEMP_DIR="${BACKUP_TEMP_DIR:-/tmp/pg-backup}"
 RETENTION_DAILY="${BACKUP_RETENTION_DAILY:-7}"
 RETENTION_WEEKLY="${BACKUP_RETENTION_WEEKLY:-4}"
+# Optional byte-for-byte rotation for published daily packages.  Off by
+# default until the operator reviews a dry run on the actual backup volume.
+BYTE_BALANCE_RETENTION="${BACKUP_BYTE_BALANCED_RETENTION:-0}"
+BYTE_BALANCE_MINIMUM="${BACKUP_BYTE_BALANCED_MINIMUM:-2}"
+BYTE_BALANCE_INCOMING_PATH="${BACKUP_BYTE_BALANCED_INCOMING_PATH:-}"
 LOG_FILE="${BACKUP_LOG_FILE:-/var/log/backup-database.log}"
 OBSERVER_GROUP="${BACKUP_OBSERVER_GROUP:-extra-consultoria}"
 NOTIFY_CMD="${BACKUP_NOTIFY_CMD:-}"
@@ -63,6 +68,10 @@ NFS_OPTS="${BACKUP_NFS_OPTIONS:-vers=3,nolock,hard,timeo=600,retrans=2}"
 KEEP_MOUNT="${BACKUP_KEEP_MOUNT:-0}"
 PREFIX="${BACKUP_PREFIX:-pncp_datalake}"
 LOCK_FILE="/tmp/backup-database.lock"
+LAST_BACKUP_PATH=""
+LAST_BACKUP_SIZE_BYTES=0
+CURRENT_STAGING_GZIP=""
+CURRENT_STAGING_CUSTOM=""
 
 # ─── Funções ────────────────────────────────────────────────────────────────
 
@@ -89,6 +98,16 @@ notify_failure() {
 
 cleanup() {
   local exit_code=$?
+  # Remove only the two exact local staging paths created by this process.
+  # These globals remain empty until do_backup has resolved their names.
+  if [ -n "$CURRENT_STAGING_GZIP" ]; then
+    rm -f -- "$CURRENT_STAGING_GZIP"
+    CURRENT_STAGING_GZIP=""
+  fi
+  if [ -n "$CURRENT_STAGING_CUSTOM" ]; then
+    rm -f -- "$CURRENT_STAGING_CUSTOM"
+    CURRENT_STAGING_CUSTOM=""
+  fi
   if [ -f "$LOCK_FILE" ]; then
     rm -f "$LOCK_FILE"
     log "INFO" "Lock file removido"
@@ -312,6 +331,8 @@ do_backup() {
   else
     # Stage to local file first (pg_dump --file=/dev/stdout fails fsync; NFS needs stable copy).
     local staging_custom="${TEMP_DIR%/}/${PREFIX}-${date_stamp}.dump"
+    CURRENT_STAGING_GZIP="$staging_path"
+    CURRENT_STAGING_CUSTOM="$staging_custom"
     rm -f "$staging_path" "$staging_custom"
     if pg_dump --dbname="$DSN" --format=custom --compress=9 \
         --file="$staging_custom" 2>> "$LOG_FILE"; then
@@ -325,6 +346,7 @@ do_backup() {
         return 1
       fi
       rm -f "$staging_custom"
+      CURRENT_STAGING_CUSTOM=""
       file_size="$(stat --printf='%s' "$staging_path" 2>/dev/null || echo 0)"
       log "INFO" "Dump local: $staging_path | Tamanho: $(numfmt --to=iec "$file_size") | Duração: ${duration_sec}s"
 
@@ -342,6 +364,23 @@ do_backup() {
         return 1
       fi
       log "INFO" "Integridade do gzip verificada: OK"
+
+      # Admit the package on the destination volume before starting cp. This
+      # is the point where its allocated staging size is known and no partial
+      # remote file has been created yet.
+      local incoming_allocated
+      incoming_allocated=$(( $(stat --printf='%b' "$staging_path") * 512 ))
+      local replaced_allocated=0 net_growth
+      if [ -f "$dump_path" ] && [ ! -L "$dump_path" ]; then
+        replaced_allocated=$(( $(stat --printf='%b' "$dump_path") * 512 ))
+      fi
+      net_growth=$(( incoming_allocated > replaced_allocated ? incoming_allocated - replaced_allocated : 0 ))
+      if ! do_byte_balanced_retention \
+          "${backup_base}/daily" "$dump_path" "$net_growth" "$incoming_allocated"; then
+        log "ERROR" "Destino off-site sem capacidade segura para o novo pacote"
+        notify_failure "Backup DB - Falha" "Byte-balanced retention insuficiente antes da cópia"
+        return 1
+      fi
 
       # Publish atomically. A partially copied file must never have the final
       # name because freshness checks treat that name as backup evidence.
@@ -370,13 +409,18 @@ do_backup() {
         return 1
       fi
       log "INFO" "Backup off-site concluído: $dump_name | Tamanho: $(numfmt --to=iec "$file_size")"
+      LAST_BACKUP_PATH="$dump_path"
+      LAST_BACKUP_SIZE_BYTES=$(( $(stat --printf='%b' "$dump_path") * 512 ))
       rm -f "$staging_path"
+      CURRENT_STAGING_GZIP=""
     else
       end_time="$(date +%s)"
       duration_sec=$(( end_time - start_time ))
       log "ERROR" "pg_dump falhou após ${duration_sec}s"
       notify_failure "Backup DB - Falha" "pg_dump falhou após ${duration_sec}s"
       rm -f "$staging_path" "$staging_custom"
+      CURRENT_STAGING_GZIP=""
+      CURRENT_STAGING_CUSTOM=""
       return 1
     fi
   fi
@@ -393,14 +437,142 @@ do_backup() {
 
 # ─── Retention ──────────────────────────────────────────────────────────────
 
+do_byte_balanced_retention() {
+  local daily_dir="$1"
+  local protected_destination="$2"
+  local incoming_bytes="$3"
+  local copy_headroom_bytes="${4:-$incoming_bytes}"
+
+  if [ "$BYTE_BALANCE_RETENTION" != "1" ] || [ -z "$protected_destination" ]; then
+    return 0
+  fi
+  if [ ! -d "$daily_dir" ] || [ -L "$daily_dir" ]; then
+    log "ERROR" "Byte retention recusada: diretório diário inválido: $daily_dir"
+    return 1
+  fi
+  if ! [[ "$incoming_bytes" =~ ^[0-9]+$ ]] || [ "$incoming_bytes" -lt 0 ]; then
+    log "ERROR" "Byte retention recusada: tamanho inválido: $incoming_bytes"
+    return 1
+  fi
+  if ! [[ "$copy_headroom_bytes" =~ ^[0-9]+$ ]] || [ "$copy_headroom_bytes" -le 0 ]; then
+    log "ERROR" "Byte retention recusada: headroom de cópia inválido: $copy_headroom_bytes"
+    return 1
+  fi
+  if ! [[ "$BYTE_BALANCE_MINIMUM" =~ ^[0-9]+$ ]] || [ "$BYTE_BALANCE_MINIMUM" -lt 1 ]; then
+    log "ERROR" "BACKUP_BYTE_BALANCED_MINIMUM deve ser inteiro >= 1"
+    return 1
+  fi
+
+  local destination_device
+  destination_device="$(stat --printf='%d' "$daily_dir")"
+  if [ -e "$protected_destination" ]; then
+    if [ -L "$protected_destination" ] || [ ! -f "$protected_destination" ]; then
+      log "ERROR" "Byte retention recusada: destino protegido não é arquivo regular: $protected_destination"
+      return 1
+    fi
+    if [ "$(stat --printf='%h' "$protected_destination")" -ne 1 ]; then
+      log "ERROR" "Byte retention recusada: destino protegido possui hardlinks"
+      return 1
+    fi
+    if [ "$(stat --printf='%d' "$protected_destination")" != "$destination_device" ]; then
+      log "ERROR" "Byte retention recusada: destino protegido está em outro filesystem"
+      return 1
+    fi
+  fi
+
+  mapfile -t _balanced_files < <(
+    find "$daily_dir" -maxdepth 1 -type f -name "${PREFIX}-*.dump.gz" \
+      ! -path "$protected_destination" -printf '%T@ %p\n' 2>/dev/null | sort -n | cut -d' ' -f2-
+  ) || true
+  local total_count
+  total_count="$(find "$daily_dir" -maxdepth 1 -type f -name "${PREFIX}-*.dump.gz" 2>/dev/null | wc -l)"
+  local max_delete=$(( total_count > BYTE_BALANCE_MINIMUM ? total_count - BYTE_BALANCE_MINIMUM : 0 ))
+  local planned=0
+  local planned_bytes=0
+  local candidate candidate_device candidate_inode candidate_links candidate_blocks
+  local -a deletion_plan=()
+  local -a deletion_sizes=()
+  local -a deletion_inodes=()
+  for candidate in "${_balanced_files[@]}"; do
+    if [ "$planned_bytes" -ge "$incoming_bytes" ] || [ "$planned" -ge "$max_delete" ]; then
+      break
+    fi
+    if [ -L "$candidate" ] || [ ! -f "$candidate" ]; then
+      log "ERROR" "Byte retention recusou candidato não regular: $candidate"
+      return 1
+    fi
+    candidate_device="$(stat --printf='%d' "$candidate")"
+    candidate_inode="$(stat --printf='%i' "$candidate")"
+    candidate_links="$(stat --printf='%h' "$candidate")"
+    candidate_blocks="$(stat --printf='%b' "$candidate")"
+    if [ "$candidate_device" != "$destination_device" ] || [ "$candidate_links" -ne 1 ]; then
+      log "ERROR" "Byte retention recusou candidato inseguro (device/link): $candidate"
+      return 1
+    fi
+    local candidate_allocated=$(( candidate_blocks * 512 ))
+    deletion_plan+=("$candidate")
+    deletion_sizes+=("$candidate_allocated")
+    deletion_inodes+=("$candidate_inode")
+    planned_bytes=$(( planned_bytes + candidate_allocated ))
+    planned=$(( planned + 1 ))
+  done
+
+  if [ "$planned_bytes" -lt "$incoming_bytes" ]; then
+    log "ERROR" "Byte retention insuficiente antes da cópia: required=$incoming_bytes planned=$planned_bytes protected_minimum=$BYTE_BALANCE_MINIMUM"
+    return 2
+  fi
+
+  local free_before free_after observed_delta freed=0 index
+  free_before=$(( $(df -Pk "$daily_dir" | awk 'NR==2 {print $4}') * 1024 ))
+  # Revalidate the whole plan before the first unlink. A changed path makes the
+  # operation fail closed without partially executing a stale plan.
+  for ((index=0; index<planned; index++)); do
+    candidate="${deletion_plan[index]}"
+    if [ -L "$candidate" ] || [ ! -f "$candidate" ] \
+      || [ "$(stat --printf='%d' "$candidate")" != "$destination_device" ] \
+      || [ "$(stat --printf='%h' "$candidate")" -ne 1 ] \
+      || [ "$(stat --printf='%i' "$candidate")" != "${deletion_inodes[index]}" ] \
+      || [ $(( $(stat --printf='%b' "$candidate") * 512 )) -ne "${deletion_sizes[index]}" ]; then
+      log "ERROR" "Byte retention recusou plano alterado antes da exclusão: $candidate"
+      return 1
+    fi
+  done
+  for ((index=0; index<planned; index++)); do
+    candidate="${deletion_plan[index]}"
+    if [ "$DRY_RUN" = true ]; then
+      log "INFO" "[DRY-RUN] Byte retention removeria: $(basename "$candidate") bytes=${deletion_sizes[index]}"
+    else
+      rm -f -- "$candidate"
+      log "INFO" "Byte retention removeu: $(basename "$candidate") bytes=${deletion_sizes[index]}"
+    fi
+    freed=$(( freed + deletion_sizes[index] ))
+  done
+  if [ "$DRY_RUN" = true ]; then
+    log "INFO" "Byte retention planejada: required=$incoming_bytes planned=$freed files=$planned"
+    return 0
+  fi
+  sync
+  free_after=$(( $(df -Pk "$daily_dir" | awk 'NR==2 {print $4}') * 1024 ))
+  observed_delta=$(( free_after > free_before ? free_after - free_before : 0 ))
+  if [ "$observed_delta" -lt "$incoming_bytes" ] || [ "$free_after" -lt "$copy_headroom_bytes" ]; then
+    log "ERROR" "Byte retention não comprovou capacidade: required_growth=$incoming_bytes allocated_deleted=$freed df_delta=$observed_delta free_after=$free_after copy_headroom=$copy_headroom_bytes"
+    return 2
+  fi
+  log "INFO" "Byte retention satisfeita antes da cópia: required_growth=$incoming_bytes df_delta=$observed_delta free_after=$free_after files=$planned"
+}
+
 do_retention() {
   local backup_base="$1"
+  local incoming_path="${2:-}"
+  local incoming_bytes="${3:-0}"
   local daily_dir="${backup_base}/daily"
   local weekly_dir="${backup_base}/weekly"
   local day_of_week
   day_of_week="$(date '+%u')"  # 1=segunda .. 7=domingo
 
   log "INFO" "Executando retention (diários: até $RETENTION_DAILY, semanais: até $RETENTION_WEEKLY)"
+
+  do_byte_balanced_retention "$daily_dir" "$incoming_path" "$incoming_bytes"
 
   # ── Promove backup de domingo como semanal ──
   if [ "$day_of_week" = "7" ]; then
@@ -490,7 +662,14 @@ if [ "$MODE" = "retention-only" ]; then
     mkdir -p "$BACKUP_BASE/daily" "$BACKUP_BASE/weekly"
   fi
 
-  do_retention "$BACKUP_BASE"
+  retention_incoming_path="$BYTE_BALANCE_INCOMING_PATH"
+  retention_incoming_bytes=0
+  retention_protected_destination=""
+  if [ -n "$retention_incoming_path" ] && [ -f "$retention_incoming_path" ]; then
+    retention_incoming_bytes=$(( $(stat --printf='%b' "$retention_incoming_path") * 512 ))
+    retention_protected_destination="${BACKUP_BASE}/daily/$(basename "$retention_incoming_path")"
+  fi
+  do_retention "$BACKUP_BASE" "$retention_protected_destination" "$retention_incoming_bytes"
   _offsite_configured && umount_storage_box
   log "INFO" "=== Retention concluída ==="
   exit 0
@@ -518,7 +697,10 @@ fi
 
 # 4. Executa retention
 log "INFO" "Passo 4/4: Executando retention"
-do_retention "$BACKUP_BASE"
+# Byte-balanced admission already ran before cp, when the destination still
+# had no partial for this package. The remaining pass only applies count/time
+# retention and must not charge the same package twice.
+do_retention "$BACKUP_BASE" "" 0
 
 # Desmonta Storage Box
 umount_storage_box
