@@ -12,7 +12,6 @@ from collections.abc import Iterable, Mapping
 from datetime import UTC, date, datetime
 from typing import Any
 
-
 _MIN_SOURCE_CLOCK = datetime.min.replace(tzinfo=UTC)
 _MIN_UPDATE_DATE = date.min
 
