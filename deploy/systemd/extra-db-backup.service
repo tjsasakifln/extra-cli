@@ -15,8 +15,8 @@ StartLimitBurst=3
 [Service]
 Type=oneshot
 ExecStart=/usr/local/bin/backup-database.sh
-EnvironmentFile=-/etc/backup-database.conf
-EnvironmentFile=-/opt/extra-consultoria/.env
+# Provision this file as root:root, mode 0600.
+EnvironmentFile=/etc/backup-database.conf
 User=root
 Group=root
 Nice=19

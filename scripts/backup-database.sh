@@ -91,10 +91,23 @@ log() {
 notify_failure() {
   local subject="$1"
   local body="$2"
-  if [ -n "$NOTIFY_CMD" ]; then
-    eval "$NOTIFY_CMD" "$subject" "$body" 2>/dev/null || true
+  if [ -z "$NOTIFY_CMD" ]; then
+    return 0
   fi
-  log "WARN" "Notificação configurada como: $NOTIFY_CMD"
+  if [[ "$NOTIFY_CMD" == /* ]]; then
+    if [[ ! "$NOTIFY_CMD" =~ ^/[A-Za-z0-9._+@%=-]+(/[A-Za-z0-9._+@%=-]+)*$ ]] \
+        || [ ! -x "$NOTIFY_CMD" ]; then
+      log "WARN" "BACKUP_NOTIFY_CMD inválido; notificação desabilitada"
+      return 0
+    fi
+  elif [[ ! "$NOTIFY_CMD" =~ ^[A-Za-z0-9][A-Za-z0-9._+-]*$ ]] \
+      || ! command -v "$NOTIFY_CMD" >/dev/null 2>&1; then
+    log "WARN" "BACKUP_NOTIFY_CMD inválido; notificação desabilitada"
+    return 0
+  fi
+
+  "$NOTIFY_CMD" "$subject" "$body" 2>/dev/null \
+    || log "WARN" "BACKUP_NOTIFY_CMD falhou"
 }
 
 remove_remote_staging() {

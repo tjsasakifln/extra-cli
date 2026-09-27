@@ -14,6 +14,15 @@ def test_backup_failure_preserves_nonzero_exit_code() -> None:
     assert 'if ! do_backup "$BACKUP_BASE"; then' not in source
 
 
+def test_notification_command_is_direct_and_fail_closed() -> None:
+    source = SCRIPT.read_text(encoding="utf-8")
+    assert 'eval "$NOTIFY_CMD"' not in source
+    assert '[[ "$NOTIFY_CMD" == /* ]]' in source
+    assert '[[ ! "$NOTIFY_CMD" =~ ^[A-Za-z0-9][A-Za-z0-9._+-]*$ ]]' in source
+    assert '"$NOTIFY_CMD" "$subject" "$body"' in source
+    assert "BACKUP_NOTIFY_CMD inválido; notificação desabilitada" in source
+
+
 def test_offsite_backup_is_published_atomically() -> None:
     source = SCRIPT.read_text(encoding="utf-8")
     staging = 'remote_staging="${dump_path}.partial.$$"'
