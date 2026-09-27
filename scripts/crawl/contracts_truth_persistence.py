@@ -10,42 +10,71 @@ from __future__ import annotations
 import json
 from collections.abc import Iterable, Mapping
 from datetime import UTC, date, datetime
-from datetime import time as datetime_time
 from typing import Any
 
 
-def _freshness_rank(raw: Mapping[str, Any], ordinal: int) -> tuple[datetime, int]:
-    source_clock = raw.get("source_updated_at")
-    update_date = raw.get("data_atualizacao_fonte")
+_MIN_SOURCE_CLOCK = datetime.min.replace(tzinfo=UTC)
+_MIN_UPDATE_DATE = date.min
+
+
+def _parse_source_clock(value: Any) -> datetime | None:
+    if value is None or (isinstance(value, str) and not value.strip()):
+        return None
     try:
-        if isinstance(source_clock, datetime):
-            freshness = source_clock
-        elif source_clock:
-            freshness = datetime.fromisoformat(str(source_clock).replace("Z", "+00:00"))
-        elif isinstance(update_date, datetime):
-            freshness = update_date
-        elif isinstance(update_date, date):
-            freshness = datetime.combine(update_date, datetime_time.min, tzinfo=UTC)
-        elif update_date:
-            freshness = datetime.combine(
-                date.fromisoformat(str(update_date)[:10]), datetime_time.min, tzinfo=UTC
-            )
+        if isinstance(value, datetime):
+            parsed = value
+        elif isinstance(value, date):
+            parsed = datetime.combine(value, datetime.min.time(), tzinfo=UTC)
         else:
-            freshness = datetime.min.replace(tzinfo=UTC)
-        if freshness.tzinfo is None:
-            freshness = freshness.replace(tzinfo=UTC)
-        freshness = freshness.astimezone(UTC)
+            parsed = datetime.fromisoformat(str(value).strip().replace("Z", "+00:00"))
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=UTC)
+        return parsed.astimezone(UTC)
     except (TypeError, ValueError):
         # The upsert RPC rejects malformed clocks before this step.  Keep a
         # deterministic order if this helper is called directly.
-        freshness = datetime.min.replace(tzinfo=UTC)
-    return freshness, ordinal
+        return None
+
+
+def _parse_update_date(value: Any) -> date | None:
+    if value is None or (isinstance(value, str) and not value.strip()):
+        return None
+    try:
+        if isinstance(value, datetime):
+            return value.date()
+        if isinstance(value, date):
+            return value
+        return date.fromisoformat(str(value).strip()[:10])
+    except (TypeError, ValueError):
+        return None
+
+
+def _freshness_rank(
+    raw: Mapping[str, Any], ordinal: int
+) -> tuple[int, datetime, int, date, int]:
+    """Mirror migration 108's DISTINCT ON ordering exactly.
+
+    A non-null source timestamp always outranks a null timestamp.  The source
+    date is only a tie-breaker after the timestamp, followed by input ordinal.
+    """
+
+    source_clock = _parse_source_clock(raw.get("source_updated_at"))
+    update_date = _parse_update_date(raw.get("data_atualizacao_fonte"))
+    return (
+        int(source_clock is not None),
+        source_clock or _MIN_SOURCE_CLOCK,
+        int(update_date is not None),
+        update_date or _MIN_UPDATE_DATE,
+        ordinal,
+    )
 
 
 def stamp_contract_truth_labels(conn: Any, records: Iterable[Mapping[str, Any]]) -> int:
     """Persist labels without letting stale or duplicate observations win."""
 
-    winners: dict[str, tuple[tuple[datetime, int], dict[str, Any]]] = {}
+    winners: dict[
+        str, tuple[tuple[int, datetime, int, date, int], dict[str, Any]]
+    ] = {}
     for ordinal, raw in enumerate(records):
         contrato_id = str(raw.get("contrato_id") or "").strip()
         if not contrato_id:

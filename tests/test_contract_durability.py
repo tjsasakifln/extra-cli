@@ -327,6 +327,75 @@ def test_stamp_contract_truth_labels_deduplicates_like_the_upsert_rpc() -> None:
     assert captured[0]["quality_state"] == "VALID"
 
 
+def test_stamp_duplicate_order_matches_rpc_for_nulls_and_date_ties() -> None:
+    from scripts.crawl.contracts_truth_persistence import stamp_contract_truth_labels
+
+    captured: list[dict] = []
+
+    class _Cursor:
+        rowcount = 3
+
+        def execute(self, _sql, params=None):
+            captured.extend(__import__("json").loads(params[0]))
+
+        def close(self):
+            return None
+
+    class _Conn:
+        def cursor(self):
+            return _Cursor()
+
+    stamped = stamp_contract_truth_labels(
+        _Conn(),
+        [
+            {
+                "contrato_id": "nonnull-source-wins",
+                "status_normalized": "RPC_WINNER",
+                "source_updated_at": "2026-09-01T12:00:00Z",
+                "data_atualizacao_fonte": "2026-09-01",
+            },
+            {
+                "contrato_id": "nonnull-source-wins",
+                "status_normalized": "WRONG_COALESCED_WINNER",
+                "source_updated_at": None,
+                "data_atualizacao_fonte": "2026-09-02",
+            },
+            {
+                "contrato_id": "equal-source-date-tie",
+                "status_normalized": "RPC_DATE_WINNER",
+                "source_updated_at": "2026-09-03T12:00:00Z",
+                "data_atualizacao_fonte": "2026-09-03",
+            },
+            {
+                "contrato_id": "equal-source-date-tie",
+                "status_normalized": "WRONG_ORDINAL_WINNER",
+                "source_updated_at": "2026-09-03T12:00:00Z",
+                "data_atualizacao_fonte": "2026-09-02",
+            },
+            {
+                "contrato_id": "null-source-date-tie",
+                "status_normalized": "RPC_NULL_SOURCE_WINNER",
+                "source_updated_at": None,
+                "data_atualizacao_fonte": "2026-09-04",
+            },
+            {
+                "contrato_id": "null-source-date-tie",
+                "status_normalized": "WRONG_NULL_SOURCE_WINNER",
+                "source_updated_at": None,
+                "data_atualizacao_fonte": "2026-09-03",
+            },
+        ],
+    )
+
+    winners = {row["contrato_id"]: row["status_normalized"] for row in captured}
+    assert stamped == 3
+    assert winners == {
+        "nonnull-source-wins": "RPC_WINNER",
+        "equal-source-date-tie": "RPC_DATE_WINNER",
+        "null-source-date-tie": "RPC_NULL_SOURCE_WINNER",
+    }
+
+
 def test_purchase_id_is_not_official_contract_id() -> None:
     ident = canonical_contract_identity(
         source="pncp",
