@@ -120,10 +120,22 @@ Script principal de backup. Pode ser executado manualmente ou via systemd timer.
 | `BACKUP_TEMP_DIR` | Nao | `/tmp/pg-backup` | Diretorio temporario local |
 | `BACKUP_RETENTION_DAILY` | Nao | `7` | Numero de backups diarios a manter |
 | `BACKUP_RETENTION_WEEKLY` | Nao | `4` | Numero de backups semanais a manter |
+| `BACKUP_BYTE_BALANCED_RETENTION` | Nao | `0` | `1` ativa rotação byte-a-byte, por blocos alocados, dos diários no volume de backup |
+| `BACKUP_BYTE_BALANCED_MINIMUM` | Nao | `2` | Quantidade mínima de dumps diários mais novos que nunca é removida pela rotação em bytes |
+| `BACKUP_BYTE_BALANCED_INCOMING_PATH` | Nao | vazio | Pacote diário existente usado para planejar/testar a rotação com `--retention-only --dry-run` |
 | `BACKUP_LOG_FILE` | Nao | `/var/log/backup-database.log` | Caminho do arquivo de log |
 | `BACKUP_NOTIFY_CMD` | Nao | - | Comando executado em caso de falha |
 | `BACKUP_PREFIX` | Nao | `pncp_datalake` | Prefixo dos nomes de arquivo |
 | `SSHFS_OPTIONS` | Nao | `-o reconnect,...` | Opcoes extras para sshfs |
+
+Quando a rotação em bytes está ativa, o script calcula o crescimento líquido
+do pacote (`max(0, blocos_novos - blocos_do_backup_do_mesmo_dia)`), planeja e
+remove os candidatos mais antigos **antes** de iniciar `cp`, preserva o mínimo
+de diários mais novos e confirma tanto o delta de `df` quanto o headroom
+transitório necessário à cópia atômica. Assim, repetir o backup na mesma data
+não consome outro backup antigo apenas por ser retry. Em qualquer saída após a
+criação do dump local, o trap remove somente os dois caminhos de staging
+resolvidos por aquela execução (`.dump` e `.dump.gz`).
 
 ### `scripts/restore-database.sh`
 

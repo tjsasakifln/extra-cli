@@ -86,9 +86,18 @@ O script:
 
 Credenciais PG: `/root/.extra-pg-credentials` (0600) — copiar para vault e apagar.
 
-### Ansible / OpenTofu
+### Reaplicação Ansible
 
-Planejados (ADR-008). **Não** bloquear provision Netcup aguardando IaC.
+Depois do bootstrap, a reaplicação idempotente dos units de contratos é:
+
+```bash
+ansible-playbook -i deploy/ansible/inventory/hosts.yml deploy/ansible/site-contracts-ops.yml
+```
+
+Esse playbook mantém `pncp-contracts.timer` instalado, habilitado e ativo. Os
+timers legados `pncp-crawl-full`, `pncp-crawl-inc` e `extra-crawl-pncp`
+permanecem desabilitados: o timer de contratos é o único escritor recorrente
+dessa superfície.
 
 ### Histórico Hetzner CX22
 
@@ -114,11 +123,15 @@ Para upgrade futuro RS 4000: `HARDWARE_PROFILE=rs4000-32g` (8GB / 24GB shared/ca
 
 | Onda | `ENABLE_TIMERS` | Timers |
 |------|-----------------|--------|
-| **A (dia 1)** | `minimal` | `extra-health-check`, `extra-db-backup`, `pncp-crawl-inc`, `extra-crawl-pncp`, metrics/alerts |
+| **A (dia 1)** | `minimal` | `extra-health-check`, `extra-db-backup`, `pncp-contracts`, metrics/alerts |
 | **B** | manual enable | CIGA/CKAN, SC Compras, coverage |
-| **C** | `full` | restante (DOE, selenium, contracts, …) só com A+B estável |
+| **C** | `full` | restante (DOE, selenium, …) só com A+B estável |
 
 Não usar `ENABLE_TIMERS=full` no primeiro boot.
+
+`pncp-crawl-full`, `pncp-crawl-inc` e `extra-crawl-pncp` são rotas legadas de
+escrita de contratos. O provisionamento as para e desabilita em todas as ondas;
+`pncp-contracts.timer` é a única autoridade recorrente.
 
 ### Mapa (referência — nomes reais em `deploy/systemd/`)
 

@@ -199,6 +199,7 @@ class TestTransformRecord:
             "data_assinatura",
             "data_publicacao_fonte",
             "data_atualizacao_fonte",
+            "source_updated_at",
             "source_event_date",
             "source_date_semantics",
             "query_window_start",
@@ -320,17 +321,55 @@ class TestCrawlWithEvidenceCompletion:
         assert result.total_windows_ok == 1
 
     def test_multiple_pages_require_declared_exhaustion(self, monkeypatch):
+        second_contract = {**MOCK_CONTRACT, "numeroControlePNCP": "22345678901234567890"}
         result = self._run_one_window(
             monkeypatch,
             [
                 cc.FetchResult(cc.FetchStatus.SUCCESS_DATA, items=[MOCK_CONTRACT], total_records=2, total_pages=2),
-                cc.FetchResult(cc.FetchStatus.SUCCESS_DATA, items=[MOCK_CONTRACT], total_records=2, total_pages=2),
+                cc.FetchResult(cc.FetchStatus.SUCCESS_DATA, items=[second_contract], total_records=2, total_pages=2),
             ],
         )
         window = result.windows[0]
         assert window.status is cc.FetchStatus.SUCCESS_DATA
         assert window.pages_fetched == 2
         assert window.scope_complete is True
+
+    def test_transform_preserves_latest_same_day_source_timestamp(self):
+        rec = {
+            **MOCK_CONTRACT,
+            "dataAtualizacao": "2026-09-20T12:59:06",
+            "dataAtualizacaoGlobal": "2026-09-20T12:59:15Z",
+        }
+
+        result = cc._transform_record(rec)
+
+        assert result is not None
+        assert result["data_atualizacao_fonte"] == "2026-09-20"
+        assert result["source_updated_at"] == "2026-09-20T12:59:15Z"
+
+    def test_transform_compares_fractional_source_timestamps_chronologically(self):
+        rec = {
+            **MOCK_CONTRACT,
+            "dataAtualizacao": "2026-09-11T12:00:00Z",
+            "dataAtualizacaoGlobal": "2026-09-11T12:00:00.100000Z",
+        }
+
+        result = cc._transform_record(rec)
+
+        assert result is not None
+        assert result["source_updated_at"] == "2026-09-11T12:00:00.100000Z"
+
+
+    def test_page_envelope_rejects_fractional_pagination_counts(self):
+        items, total_records, total_pages, error = cc._invalid_page_envelope(
+            {"data": [{"numeroControlePNCP": "x"}], "totalRegistros": 1.9, "totalPaginas": 1.7},
+            page=1,
+        )
+
+        assert items is None
+        assert total_records is None
+        assert total_pages is None
+        assert error == "field totalRegistros must be a non-negative integer"
 
     def test_intermediate_failure_is_partial_and_not_checkpointed(self, monkeypatch):
         checkpoint = cc.CrawlCheckpoint(mode="full")

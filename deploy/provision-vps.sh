@@ -357,7 +357,7 @@ deploy_application() {
     deactivate || true
     chown -R "$APP_USER:$APP_USER" "$APP_DIR/.venv"
 
-    mkdir -p /var/lib/extra-consultoria/{resilience,evidence}
+    mkdir -p /var/lib/extra-consultoria/{resilience,evidence,locks}
     chown -R "$APP_USER:$APP_USER" /var/lib/extra-consultoria
 
     if [[ ! -f "$APP_DIR/.env" ]]; then
@@ -437,16 +437,28 @@ install_systemd_timers() {
     local minimal_timers=(
         extra-health-check
         extra-db-backup
-        pncp-crawl-inc
-        extra-crawl-pncp
+        # Canonical contracts writer.  A recovery cannot rely on a later
+        # "full" reprovisioning wave to resume PNCP contract ingestion.
+        pncp-contracts
         extra-collect-metrics
         extra-check-alerts
     )
 
-    # Wave full — all known timers (use only after wave A stable)
-    local full_timers=(
+    # These legacy routes also write PNCP contracts.  They must be stopped
+    # before enabling a wave so an old host state cannot create dual writers.
+    local legacy_contract_writer_timers=(
         pncp-crawl-full
         pncp-crawl-inc
+        extra-crawl-pncp
+    )
+    local legacy_contract_writer_services=(
+        pncp-crawl-full
+        pncp-crawl-inc
+        extra-crawl-pncp
+    )
+
+    # Wave full — all non-legacy timers (use only after wave A stable)
+    local full_timers=(
         pncp-contracts
         pncp-enrich
         pncp-purge
@@ -461,7 +473,6 @@ install_systemd_timers() {
         extra-crawl-ciga-ckan
         extra-crawl-ciga-dom
         extra-crawl-sc-compras
-        extra-crawl-pncp
         extra-crawl-selenium
         coverage-report
         coverage-report-weekly
@@ -471,10 +482,29 @@ install_systemd_timers() {
         extra-health-check
     )
 
+    for timer in "${legacy_contract_writer_timers[@]}"; do
+        # Units were installed above; a failure here must abort before the
+        # canonical writer can be enabled.
+        systemctl disable --now "${timer}.timer"
+        if systemctl is-active --quiet "${timer}.timer" || systemctl is-enabled --quiet "${timer}.timer"; then
+            error "Legacy contracts timer remains scheduled: ${timer}.timer"
+            return 1
+        fi
+        info "  - ${timer}.timer disabled (legacy contracts writer)"
+    done
+    for service in "${legacy_contract_writer_services[@]}"; do
+        systemctl stop "${service}.service"
+        if systemctl is-active --quiet "${service}.service"; then
+            error "Legacy contracts writer remains active: ${service}.service"
+            return 1
+        fi
+        info "  - ${service}.service stopped (legacy contracts writer)"
+    done
+
     local timers=()
     case "$ENABLE_TIMERS" in
         none|off|0)
-            info "ENABLE_TIMERS=none — units installed but none enabled"
+            info "ENABLE_TIMERS=none — units installed, legacy writers disabled, none enabled"
             return 0
             ;;
         minimal|min|wave-a|a)

@@ -314,6 +314,33 @@ class TestFetchPageMocked:
         assert result.is_success  # Still success, just empty
 
     @patch("urllib.request.urlopen")
+    def test_fetch_page_rejects_empty_data_with_nonzero_declared_total(self, mock_urlopen):
+        """HTTP 200 error envelopes must not become successful empty pages."""
+        mock_resp = MagicMock()
+        mock_resp.read.return_value = json.dumps(
+            {"data": [], "totalRegistros": 37, "totalPaginas": 1}
+        ).encode("utf-8")
+        mock_urlopen.return_value.__enter__.return_value = mock_resp
+
+        result = _fetch_page("20250101", "20250131", 1)
+
+        assert result.status == FetchStatus.PARSE_FAILED
+        assert result.is_failure
+        assert "non-zero totalRegistros with empty data" in (result.error_message or "")
+
+    @patch("urllib.request.urlopen")
+    def test_fetch_page_rejects_http_200_object_without_pagination_envelope(self, mock_urlopen):
+        mock_resp = MagicMock()
+        mock_resp.read.return_value = json.dumps({"message": "maintenance"}).encode("utf-8")
+        mock_urlopen.return_value.__enter__.return_value = mock_resp
+
+        result = _fetch_page("20250101", "20250131", 1)
+
+        assert result.status == FetchStatus.PARSE_FAILED
+        assert result.is_failure
+        assert "missing required field" in (result.error_message or "")
+
+    @patch("urllib.request.urlopen")
     def test_fetch_page_parse_failure(self, mock_urlopen):
         """Invalid JSON returns PARSE_FAILED, not empty list."""
         mock_resp = MagicMock()

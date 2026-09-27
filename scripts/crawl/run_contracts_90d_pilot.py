@@ -24,12 +24,14 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import logging
 import os
 import random
 import sys
 import time
+import uuid
 from collections.abc import Callable, Iterable, Sequence
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
@@ -70,6 +72,7 @@ from scripts.crawl.run_evidence import (  # noqa: E402
 logger = logging.getLogger("contracts_90d_pilot")
 
 UPSERT_BATCH = int(os.getenv("CONTRACTS_UPSERT_BATCH", "500"))
+EXIT_RETENTION_DEGRADED = 78
 # Isolate pilot checkpoints from concurrent short runs that share mode=full.
 DEFAULT_PILOT_CKPT_DIR = str(_PROJECT_ROOT / "data" / "contracts_checkpoints" / "a5_next30d")
 
@@ -593,7 +596,217 @@ def _apply_run_id_to_checkpoint(
     return list((checkpoint.meta or {}).get("previous_run_ids") or [])
 
 
-def _upsert_batch(conn: Any, rows: list[dict]) -> tuple[int, int]:
+def _contract_relation_sizes(conn: Any) -> dict[str, int]:
+    """Measure each relation independently; free pages are not fungible."""
+
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            """
+            SELECT relation_name,
+                   CASE WHEN relation_oid IS NULL THEN 0
+                        ELSE pg_total_relation_size(relation_oid) END::bigint
+            FROM (VALUES
+                ('pncp_supplier_contracts', to_regclass('public.pncp_supplier_contracts')),
+                ('contract_version_history', to_regclass('public.contract_version_history')),
+                ('contract_role_links', to_regclass('public.contract_role_links'))
+            ) AS tracked(relation_name, relation_oid)
+            """
+        )
+        return {str(name): int(size) for name, size in cur.fetchall()}
+    finally:
+        cur.close()
+
+
+def _storage_preflight(
+    conn: Any,
+    payload: list[dict[str, Any]],
+    *,
+    writer_fence_already_held: bool,
+) -> None:
+    """Refuse a new mutation before commit when configured headroom is unsafe."""
+
+    if os.getenv("STORAGE_RETENTION_APPLY", "0") != "1":
+        return
+    space_raw = os.getenv("STORAGE_RETENTION_SPACE_PATH", "")
+    try:
+        low_free = int(os.getenv("STORAGE_RETENTION_LOW_FREE_BYTES", "0"))
+    except ValueError as exc:
+        raise RuntimeError(
+            "STORAGE_RETENTION_LOW_FREE_BYTES must be a positive integer when apply is enabled"
+        ) from exc
+    if low_free <= 0:
+        raise RuntimeError(
+            "STORAGE_RETENTION_LOW_FREE_BYTES must be positive when STORAGE_RETENTION_APPLY=1"
+        )
+    if not space_raw:
+        raise RuntimeError(
+            "STORAGE_RETENTION_SPACE_PATH is required when STORAGE_RETENTION_APPLY=1"
+        )
+    from scripts.ops.storage_retention import filesystem_free_bytes
+
+    transport_bytes = len(json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8"))
+    factor = float(os.getenv("STORAGE_RETENTION_SAFETY_FACTOR", "1.25"))
+    required = low_free + int(transport_bytes * factor)
+    available = filesystem_free_bytes(Path(space_raw))
+    if available < required:
+        from scripts.ops.storage_retention import (
+            DEFAULT_FILE_ROOTS,
+            DEFAULT_RETENTION_LOCK_PATH,
+            FilePolicy,
+            run_retention,
+        )
+
+        configured_roots = os.getenv("STORAGE_RETENTION_FILE_ROOTS", "")
+        roots = tuple(Path(item) for item in configured_roots.split(os.pathsep) if item) or DEFAULT_FILE_ROOTS
+        existing_roots = tuple(root for root in roots if root.exists())
+        preflight = run_retention(
+            target_bytes=required - available,
+            policy=FilePolicy(
+                roots=existing_roots,
+                min_age=timedelta(hours=float(os.getenv("STORAGE_RETENTION_MIN_AGE_HOURS", "24"))),
+                protect_newest=int(os.getenv("STORAGE_RETENTION_PROTECT_NEWEST", "1")),
+            ),
+            apply=True,
+            history_connection=None,
+            lock_dir=Path(
+                os.getenv("STORAGE_RETENTION_LOCK_PATH", str(DEFAULT_RETENTION_LOCK_PATH))
+            ),
+            space_path=Path(space_raw),
+            minimum_free_bytes=required,
+            safety_factor=1.0,
+            max_reclaim_bytes=int(os.getenv("STORAGE_RETENTION_MAX_RECLAIM_BYTES", str(20 * 1024**3))),
+            writer_fence_already_held=writer_fence_already_held,
+        )
+        available = filesystem_free_bytes(Path(space_raw))
+        if preflight.status != "SATISFIED" or available < required:
+            raise RuntimeError(
+                "storage retention preflight refused batch before mutation after cleanup: "
+                f"available={available} required={required} low_free={low_free}"
+            )
+
+
+def _retention_batch_key(payload: list[dict[str, Any]], unit_key: str) -> str:
+    canonical = json.dumps(
+        {"unit_key": unit_key, "payload": payload},
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hashlib.sha256(canonical).hexdigest()
+
+
+def _claim_retention_batch(
+    conn: Any, *, batch_key: str, unit_key: str, transport_bytes: int, growth_bytes: int
+) -> tuple[str, str | None, dict[str, Any] | None]:
+    claim_token = uuid.uuid4().hex
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            """
+            INSERT INTO public.storage_retention_ledger (
+                batch_key, unit_key, claim_token, state, transport_bytes, relation_growth_bytes
+            ) VALUES (%s, %s, %s, 'CLAIMED', %s, %s)
+            ON CONFLICT (batch_key) DO NOTHING
+            RETURNING batch_key
+            """,
+            (batch_key, unit_key, claim_token, transport_bytes, growth_bytes),
+        )
+        claimed = cur.fetchone() is not None
+        if claimed:
+            conn.commit()
+            return "CLAIMED_NEW", claim_token, None
+        cur.execute(
+            """
+            SELECT state, lease_expires_at < NOW() AS lease_expired, report
+            FROM public.storage_retention_ledger
+            WHERE batch_key = %s
+            FOR UPDATE
+            """,
+            (batch_key,),
+        )
+        existing = cur.fetchone()
+        if existing and existing[0] == "CLAIMED" and bool(existing[1]):
+            cur.execute(
+                """
+                UPDATE public.storage_retention_ledger
+                SET state = 'ERROR', completed_at = NOW(),
+                    report = jsonb_build_object(
+                        'status', 'STALE_CLAIM_REQUIRES_RECONCILIATION',
+                        'reason', 'lease expired; automatic replay refused to avoid double deletion'
+                    )
+                WHERE batch_key = %s
+                """,
+                (batch_key,),
+            )
+            conn.commit()
+            return "STALE_CLAIM", None, None
+        conn.commit()
+        if not existing or existing[0] == "CLAIMED":
+            return "CLAIM_IN_PROGRESS", None, None
+        state = str(existing[0])
+        existing_report = existing[2] if isinstance(existing[2], dict) else None
+        if state == "SATISFIED":
+            return "ALREADY_COMPLETED", None, existing_report
+        if state == "DEGRADED":
+            return "ALREADY_DEGRADED", None, existing_report
+        return "ALREADY_ERROR", None, existing_report
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        cur.close()
+
+
+def _complete_retention_batch(
+    conn: Any, batch_key: str, claim_token: str, result: dict[str, Any]
+) -> None:
+    raw_status = str(result.get("status") or "")
+    state = "SATISFIED" if raw_status in {"SATISFIED", "SATISFIED_REUSABLE"} else "DEGRADED"
+    if raw_status == "RETENTION_ERROR_AFTER_COMMIT":
+        state = "ERROR"
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            """
+            UPDATE public.storage_retention_ledger
+            SET state = %s,
+                filesystem_freed_bytes = %s,
+                relation_reusable_bytes = %s,
+                report = %s::jsonb,
+                completed_at = NOW()
+            WHERE batch_key = %s
+              AND state = 'CLAIMED'
+              AND claim_token = %s
+            """,
+            (
+                state,
+                int(result.get("filesystem_freed_bytes") or 0),
+                int(result.get("relation_reusable_bytes") or 0)
+                + int(result.get("canonical_reusable_bytes") or 0),
+                json.dumps(result, ensure_ascii=False, default=str),
+                batch_key,
+                claim_token,
+            ),
+        )
+        if cur.rowcount != 1:
+            raise RuntimeError("retention ledger completion lost claim ownership")
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        cur.close()
+
+
+def _upsert_batch(
+    conn: Any,
+    rows: list[dict],
+    *,
+    writer_fence_already_held: bool = False,
+    retention_events: list[dict[str, Any]] | None = None,
+    retention_unit_key: str | None = None,
+) -> tuple[int, int]:
     """Upsert a batch; returns (inserted, skipped)."""
     if not rows:
         return 0, 0
@@ -619,6 +832,10 @@ def _upsert_batch(conn: Any, rows: list[dict]) -> tuple[int, int]:
                 item[k] = item[k].isoformat()
         payload.append(item)
 
+    retention_enabled = os.getenv("STORAGE_RETENTION_ENABLED", "0") == "1"
+    if retention_enabled:
+        _storage_preflight(conn, payload, writer_fence_already_held=writer_fence_already_held)
+    sizes_before = _contract_relation_sizes(conn) if retention_enabled else {}
     cur = conn.cursor()
     try:
         cur.execute(
@@ -634,9 +851,203 @@ def _upsert_batch(conn: Any, rows: list[dict]) -> tuple[int, int]:
     finally:
         cur.close()
 
+    if retention_enabled:
+        sizes_after = _contract_relation_sizes(conn)
+        growth_by_relation = {
+            name: max(0, size - sizes_before.get(name, 0))
+            for name, size in sizes_after.items()
+        }
+        retention_event = _retain_storage_after_durable_batch(
+            conn,
+            payload,
+            growth_bytes=sum(growth_by_relation.values()),
+            growth_by_relation=growth_by_relation,
+            writer_fence_already_held=writer_fence_already_held,
+            retention_unit_key=retention_unit_key or "adhoc",
+        )
+        if retention_event is not None and retention_events is not None:
+            retention_events.append(retention_event)
+
     inserted = sum(1 for a in actions if a and a[0] == "inserted")
     skipped = sum(1 for a in actions if a and a[0] in {"skipped", "unchanged", "updated"})
     return inserted, skipped
+
+
+def _retain_storage_after_durable_batch(
+    conn: Any,
+    payload: list[dict[str, Any]],
+    *,
+    growth_bytes: int,
+    growth_by_relation: dict[str, int] | None = None,
+    writer_fence_already_held: bool,
+    retention_unit_key: str = "adhoc",
+) -> dict[str, Any] | None:
+    """Compensate a durable PNCP batch when rolling retention is enabled.
+
+    The incremental entrypoint already holds the canonical PostgreSQL writer
+    fence. Running inside that serial domain avoids deadlocking by attempting
+    to acquire the same fence on this connection. The hook is after commit:
+    shortfall is persisted as degraded evidence and never raises into ingest,
+    so a durable batch is not replayed merely because cleanup failed.
+    """
+
+    if os.getenv("STORAGE_RETENTION_ENABLED", "0") != "1" or not payload:
+        return None
+
+    from scripts.ops.storage_retention import (
+        DEFAULT_FILE_ROOTS,
+        DEFAULT_RETENTION_LOCK_PATH,
+        FilePolicy,
+        run_retention,
+    )
+
+    apply = os.getenv("STORAGE_RETENTION_APPLY", "0") == "1"
+    transport_bytes = len(json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8"))
+    if growth_bytes <= 0:
+        return {"status": "NO_PHYSICAL_GROWTH", "transport_bytes": transport_bytes, "growth_bytes": 0}
+    batch_key = _retention_batch_key(payload, retention_unit_key)
+    growth_by_relation = dict(growth_by_relation or {})
+    if apply:
+        try:
+            claim_state, claim_token, previous_report = _claim_retention_batch(
+                conn,
+                batch_key=batch_key,
+                unit_key=retention_unit_key,
+                transport_bytes=transport_bytes,
+                growth_bytes=growth_bytes,
+            )
+        except Exception as exc:  # ledger absence/error must be visible and never permit untracked deletion
+            result = {
+                "status": "RETENTION_ERROR_AFTER_COMMIT",
+                "batch_key": batch_key,
+                "transport_bytes": transport_bytes,
+                "growth_bytes": growth_bytes,
+                "error_type": type(exc).__name__,
+                "error": f"ledger claim failed: {exc}",
+            }
+            logger.exception("storage retention ledger claim failed: %s", result)
+            return result
+        if claim_state != "CLAIMED_NEW":
+            replay = {
+                "status": claim_state,
+                "batch_key": batch_key,
+                "retention_unit_key": retention_unit_key,
+                "transport_bytes": transport_bytes,
+                "growth_bytes": growth_bytes,
+                "growth_by_relation": growth_by_relation,
+            }
+            if previous_report:
+                replay["previous_report"] = previous_report
+            return replay
+        if claim_token is None:
+            return {
+                "status": "RETENTION_ERROR_AFTER_COMMIT",
+                "batch_key": batch_key,
+                "retention_unit_key": retention_unit_key,
+                "transport_bytes": transport_bytes,
+                "growth_bytes": growth_bytes,
+                "error_type": "ClaimOwnershipError",
+                "error": "new retention claim did not return an owner token",
+            }
+    else:
+        claim_token = None
+
+    try:
+        configured_roots = os.getenv("STORAGE_RETENTION_FILE_ROOTS", "")
+        roots = tuple(
+            Path(item) for item in configured_roots.split(os.pathsep) if item
+        ) or DEFAULT_FILE_ROOTS
+        existing_roots = tuple(root for root in roots if root.exists())
+        min_age = timedelta(hours=float(os.getenv("STORAGE_RETENTION_MIN_AGE_HOURS", "24")))
+        history_min_age = timedelta(
+            days=float(os.getenv("STORAGE_RETENTION_HISTORY_MIN_AGE_DAYS", "30"))
+        )
+        safety_factor = float(os.getenv("STORAGE_RETENTION_SAFETY_FACTOR", "1.25"))
+        minimum_free_bytes = int(
+            os.getenv(
+                "STORAGE_RETENTION_MINIMUM_FREE_BYTES",
+                os.getenv("STORAGE_RETENTION_LOW_FREE_BYTES", "0"),
+            )
+        )
+        space_raw = os.getenv("STORAGE_RETENTION_SPACE_PATH", "")
+        space_path = Path(space_raw) if space_raw else None
+        prune_history = os.getenv("STORAGE_RETENTION_PRUNE_HISTORY", "0") == "1"
+        allow_canonical_purge = os.getenv("STORAGE_RETENTION_ALLOW_CANONICAL_PURGE", "0") == "1"
+        if apply and space_path is None:
+            raise ValueError("STORAGE_RETENTION_SPACE_PATH is required when STORAGE_RETENTION_APPLY=1")
+        canonical_growth = int(growth_by_relation.get("pncp_supplier_contracts", 0)) + int(
+            growth_by_relation.get("contract_role_links", 0)
+        )
+        history_growth = int(growth_by_relation.get("contract_version_history", 0))
+        # Backwards-compatible callers without a relation map treat the growth
+        # as canonical, which is the only expected writer surface.
+        if not growth_by_relation:
+            canonical_growth = growth_bytes
+        canonical_required = int(canonical_growth * safety_factor + 0.999999)
+        history_required = int(history_growth * safety_factor + 0.999999)
+        report = run_retention(
+            target_bytes=growth_bytes,
+            policy=FilePolicy(
+                roots=existing_roots,
+                min_age=min_age,
+                protect_newest=int(os.getenv("STORAGE_RETENTION_PROTECT_NEWEST", "1")),
+            ),
+            apply=apply,
+            history_connection=conn if (prune_history or allow_canonical_purge) else None,
+            history_min_age=history_min_age,
+            history_batch_rows=int(os.getenv("STORAGE_RETENTION_HISTORY_BATCH_ROWS", "1000")),
+            history_max_rows=int(os.getenv("STORAGE_RETENTION_HISTORY_MAX_ROWS", "100000")),
+            allow_canonical_purge=allow_canonical_purge,
+            canonical_hot_horizon=timedelta(
+                days=float(os.getenv("STORAGE_RETENTION_CANONICAL_HOT_HORIZON_DAYS", "730"))
+            ),
+            canonical_batch_rows=int(os.getenv("STORAGE_RETENTION_CANONICAL_BATCH_ROWS", "1000")),
+            canonical_max_rows=int(os.getenv("STORAGE_RETENTION_CANONICAL_MAX_ROWS", "100000")),
+            canonical_required_bytes=canonical_required,
+            history_required_bytes=history_required,
+            lock_dir=Path(
+                os.getenv("STORAGE_RETENTION_LOCK_PATH", str(DEFAULT_RETENTION_LOCK_PATH))
+            ),
+            space_path=space_path,
+            minimum_free_bytes=minimum_free_bytes,
+            safety_factor=safety_factor,
+            max_reclaim_bytes=int(os.getenv("STORAGE_RETENTION_MAX_RECLAIM_BYTES", str(20 * 1024**3))),
+            writer_fence_already_held=writer_fence_already_held,
+        )
+        result = report.to_dict()
+        result["transport_bytes"] = transport_bytes
+        result["growth_bytes"] = growth_bytes
+        result["growth_by_relation"] = growth_by_relation
+        result["batch_key"] = batch_key
+        result["retention_unit_key"] = retention_unit_key
+        if apply and report.status not in {"SATISFIED", "SATISFIED_REUSABLE"}:
+            logger.error("storage retention physical shortfall after durable batch: %s", result)
+        else:
+            logger.info("storage_retention=%s", json.dumps(result, ensure_ascii=False, default=str))
+        if apply:
+            try:
+                _complete_retention_batch(conn, batch_key, claim_token, result)
+            except Exception as exc:  # deletion is already complete; never repeat it
+                logger.exception("could not finalize storage retention ledger batch=%s: %s", batch_key, exc)
+        return result
+    except Exception as exc:  # noqa: BLE001 -- post-commit cleanup must not trigger ingest replay
+        result = {
+            "status": "RETENTION_ERROR_AFTER_COMMIT",
+            "transport_bytes": transport_bytes,
+            "growth_bytes": growth_bytes,
+            "growth_by_relation": growth_by_relation,
+            "batch_key": batch_key,
+            "retention_unit_key": retention_unit_key,
+            "error_type": type(exc).__name__,
+            "error": str(exc),
+        }
+        logger.exception("storage retention failed after durable batch: %s", result)
+        if apply:
+            try:
+                _complete_retention_batch(conn, batch_key, claim_token, result)
+            except Exception as ledger_exc:
+                logger.exception("could not persist storage retention error batch=%s: %s", batch_key, ledger_exc)
+        return result
 
 
 def _build_path_proof(
@@ -1004,6 +1415,7 @@ def run_pilot(
     logical_job_id: str | None = None,
     campaign_id: str | None = None,
     query_kind: str = "publication",
+    writer_fence_already_held: bool = False,
 ) -> dict[str, Any]:
     if window_days < 1:
         raise ValueError("window_days must be >= 1")
@@ -1076,6 +1488,7 @@ def run_pilot(
         "status": "running",
         "errors": [],
         "window_retry_events": [],
+        "storage_retention_events": [],
     }
 
     conn = None if dry_run else psycopg2.connect(dsn)
@@ -1206,7 +1619,13 @@ def run_pilot(
                         for i in range(0, len(rows), UPSERT_BATCH):
                             chunk = rows[i : i + UPSERT_BATCH]
                             try:
-                                ins, sk = _upsert_batch(conn, chunk)
+                                ins, sk = _upsert_batch(
+                                    conn,
+                                    chunk,
+                                    writer_fence_already_held=writer_fence_already_held,
+                                    retention_events=report["storage_retention_events"],
+                                    retention_unit_key=f"{run_id}:{window_key}:page:{page}:chunk:{i // UPSERT_BATCH}",
+                                )
                                 window_inserted += ins
                                 window_skipped += sk
                                 report["totals"]["inserted"] += ins
@@ -1257,7 +1676,13 @@ def run_pilot(
                     for i in range(0, len(rows), UPSERT_BATCH):
                         chunk = rows[i : i + UPSERT_BATCH]
                         try:
-                            ins, sk = _upsert_batch(conn, chunk)
+                            ins, sk = _upsert_batch(
+                                conn,
+                                chunk,
+                                writer_fence_already_held=writer_fence_already_held,
+                                retention_events=report["storage_retention_events"],
+                                retention_unit_key=f"{run_id}:{window_key}:flush:{i // UPSERT_BATCH}",
+                            )
                             window_inserted += ins
                             window_skipped += sk
                             report["totals"]["inserted"] += ins
@@ -1346,7 +1771,13 @@ def run_pilot(
                     window_raw_fetched += len(tail_result.items)
                     if not dry_run and conn is not None and tail_rows:
                         try:
-                            ins, sk = _upsert_batch(conn, tail_rows)
+                            ins, sk = _upsert_batch(
+                                conn,
+                                tail_rows,
+                                writer_fence_already_held=writer_fence_already_held,
+                                retention_events=report["storage_retention_events"],
+                                retention_unit_key=f"{run_id}:{window_key}:tail:{tail_page}",
+                            )
                             window_inserted += ins
                             window_skipped += sk
                             report["totals"]["inserted"] += ins
@@ -1637,6 +2068,37 @@ def run_pilot(
 
         # Final checkpoint snapshot
         report["checkpoint"] = checkpoint.to_dict()
+        retention_events = report.get("storage_retention_events") or []
+        degraded_retention = [
+            event
+            for event in retention_events
+            if event.get("status")
+            not in {
+                "SATISFIED",
+                "SATISFIED_REUSABLE",
+                "NO_PHYSICAL_GROWTH",
+                "ALREADY_COMPLETED",
+                "PLAN_SUFFICIENT",
+            }
+        ]
+        report["storage_retention"] = {
+            "status": "DEGRADED" if degraded_retention else "OK",
+            "events": len(retention_events),
+            "degraded_events": len(degraded_retention),
+            "filesystem_freed_bytes": sum(
+                int(event.get("filesystem_freed_bytes") or 0) for event in retention_events
+            ),
+            "relation_reusable_bytes": sum(
+                int(event.get("relation_reusable_bytes") or 0) for event in retention_events
+            ),
+            "canonical_reusable_bytes": sum(
+                int(event.get("canonical_reusable_bytes") or 0) for event in retention_events
+            ),
+            "deleted_canonical_rows": sum(
+                int(event.get("deleted_canonical_rows") or 0) for event in retention_events
+            ),
+            "does_not_override_ingest_status": True,
+        }
 
         # Full-coverage pilot status (never path-level alone)
         report["status"] = evaluate_pilot_status(
@@ -1883,6 +2345,7 @@ def main() -> int:
         "duration_seconds",
         "db",
         "path_proof",
+        "storage_retention",
     )
     print(
         json.dumps(
@@ -1897,6 +2360,13 @@ def main() -> int:
             _record_contracts_ingestion_run(args.dsn, report)
         except Exception as exc:  # noqa: BLE001 — never mask pilot result
             print(f"WARN: failed to write ingestion_runs for contracts: {exc}", file=sys.stderr)
+    if (report.get("storage_retention") or {}).get("status") == "DEGRADED":
+        print(
+            "ERROR: storage retention degraded after durable ingest; "
+            f"exit={EXIT_RETENTION_DEGRADED}",
+            file=sys.stderr,
+        )
+        return EXIT_RETENTION_DEGRADED
     if report["status"] == "success":
         return 0
     if report["status"] == "partial":

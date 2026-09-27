@@ -253,10 +253,13 @@ def test_stamp_contract_truth_labels_writes_quality_not_null_valid() -> None:
             statements.append(sql)
             self.rowcount = 1
             assert "quality_state = stamp.quality_state" in sql
+            assert "report_ready = stamp.report_ready" not in sql
+            assert "fn_contract_observation_not_older" in sql
             assert "COALESCE(quality_state, 'VALID')" not in sql
             payload = __import__("json").loads(params[0])
             assert payload[0]["quality_state"] == "QUARANTINED"
             assert payload[0]["status_normalized"] == "UNKNOWN"
+            assert payload[0]["source_updated_at"] == "2026-09-20T12:59:15Z"
 
         def close(self) -> None:
             return None
@@ -269,11 +272,61 @@ def test_stamp_contract_truth_labels_writes_quality_not_null_valid() -> None:
                 "status_normalized": "UNKNOWN",
                 "quality_state": "QUARANTINED",
                 "canonical_contract_id": "pncp:11111111000191-1-000001/2026",
+                "source_updated_at": "2026-09-20T12:59:15Z",
+                "data_atualizacao_fonte": "2026-09-20",
             }
         ],
     )
     assert stamped == 1
     assert statements
+
+
+def test_stamp_contract_truth_labels_deduplicates_like_the_upsert_rpc() -> None:
+    from scripts.contracts_truth import stamp_contract_truth_labels
+
+    captured: list[dict] = []
+
+    class _Cursor:
+        rowcount = 1
+
+        def execute(self, _sql, params=None):
+            captured.extend(__import__("json").loads(params[0]))
+
+        def close(self):
+            return None
+
+    class _Conn:
+        def cursor(self):
+            return _Cursor()
+
+    stamped = stamp_contract_truth_labels(
+        _Conn(),
+        [
+            {
+                "contrato_id": "duplicate-1",
+                "status_normalized": "ACTIVE",
+                "quality_state": "VALID",
+                "source_updated_at": "2026-09-20T12:00:00Z",
+            },
+            {
+                "contrato_id": "duplicate-1",
+                "status_normalized": "UNKNOWN",
+                "quality_state": "QUARANTINED",
+                "source_updated_at": "2026-09-20T11:59:59Z",
+            },
+            {
+                "contrato_id": "duplicate-1",
+                "status_normalized": "SUSPENDED",
+                "quality_state": "VALID",
+                "source_updated_at": "2026-09-20T12:00:00Z",
+            },
+        ],
+    )
+
+    assert stamped == 1
+    assert len(captured) == 1
+    assert captured[0]["status_normalized"] == "SUSPENDED"
+    assert captured[0]["quality_state"] == "VALID"
 
 
 def test_purchase_id_is_not_official_contract_id() -> None:

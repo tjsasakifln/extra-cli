@@ -24,8 +24,9 @@ IOSchedulingClass=best-effort
 IOSchedulingPriority=7
 StandardOutput=append:/var/log/backup-database.log
 StandardError=append:/var/log/backup-database.log
-Restart=on-failure
-RestartSec=300
+# The daily timer is the retry boundary.  A oneshot failure must not regenerate
+# the same multi-gigabyte dump in an unbounded restart loop.
+Restart=no
 
 [Install]
 WantedBy=multi-user.target

@@ -296,7 +296,11 @@ def test_every_decoupled_stage_is_scheduled_and_none_is_suppressed():
         "extra-confenge-feed-cycle.timer",
         "extra-confenge-feed-monitor.timer",
     }
-    assert set(CHAIN_DISABLED_TIMERS) == set()
+    assert set(CHAIN_DISABLED_TIMERS) == {
+        "pncp-crawl-full.timer",
+        "pncp-crawl-inc.timer",
+        "extra-crawl-pncp.timer",
+    }
     unit_dir = Path(__file__).resolve().parents[1] / "deploy" / "systemd"
     for timer in CHAIN_TIMERS:
         assert (unit_dir / timer).is_file()
@@ -366,6 +370,88 @@ def test_pause_preserving_pin_fails_on_concurrent_timer_state_drift(tmp_path, mo
 
     with pytest.raises(PinError, match="timer state changed"):
         pin.apply(SHA, preserve_timer_state=True)
+
+
+def test_pin_rolls_back_every_dropin_when_a_replace_fails(tmp_path, monkeypatch):
+    """A failed replace must not leave systemd resolving a mixed release SHA."""
+    import subprocess
+
+    import deploy.confenge.pin_release as pin
+
+    systemd_root = tmp_path / "systemd"
+    monkeypatch.setattr(pin, "SYSTEMD_ROOT", systemd_root)
+    monkeypatch.setattr(
+        pin,
+        "plan",
+        lambda _sha: {"alpha.service": "new alpha\n", "beta.service": "new beta\n"},
+    )
+    monkeypatch.setattr(pin, "foreign_execstart_dropins", lambda: {})
+    original = {}
+    for unit, body in (("alpha.service", b"old alpha\n"), ("beta.service", b"old beta\n")):
+        path = systemd_root / f"{unit}.d" / pin.DROPIN_NAME
+        path.parent.mkdir(parents=True)
+        path.write_bytes(body)
+        original[path] = body
+
+    def fake_run(argv: list[str], *, check: bool = True) -> subprocess.CompletedProcess[str]:
+        del check
+        if argv[:2] == ["systemctl", "is-enabled"]:
+            return subprocess.CompletedProcess(argv, 0, stdout="disabled")
+        if argv[:2] == ["systemctl", "is-active"]:
+            return subprocess.CompletedProcess(argv, 0, stdout="inactive")
+        return subprocess.CompletedProcess(argv, 0, stdout="")
+
+    monkeypatch.setattr(pin, "_run", fake_run)
+    real_replace = Path.replace
+    replaces = 0
+
+    def fail_second_staged_replace(self: Path, target: Path) -> Path:
+        nonlocal replaces
+        if self.name.endswith(".conf.tmp"):
+            replaces += 1
+            if replaces == 2:
+                raise OSError("injected second replace failure")
+        return real_replace(self, target)
+
+    monkeypatch.setattr(Path, "replace", fail_second_staged_replace)
+
+    with pytest.raises(OSError, match="injected second replace failure"):
+        pin.apply(SHA, preserve_timer_state=True)
+
+    assert {path: path.read_bytes() for path in original} == original
+
+
+def test_failed_post_enable_verification_quiesces_the_chain(tmp_path, monkeypatch):
+    """A failed readback after enable may not leave a new timer firing."""
+    import subprocess
+
+    import deploy.confenge.pin_release as pin
+
+    monkeypatch.setattr(pin, "SYSTEMD_ROOT", tmp_path / "systemd")
+    monkeypatch.setattr(pin, "plan", lambda _sha: {"alpha.service": "new alpha\n"})
+    monkeypatch.setattr(pin, "foreign_execstart_dropins", lambda: {})
+    monkeypatch.setattr(pin, "verify", lambda *_args, **_kwargs: {"ok": False})
+    calls: list[list[str]] = []
+
+    def fake_run(argv: list[str], *, check: bool = True) -> subprocess.CompletedProcess[str]:
+        del check
+        calls.append(argv)
+        if argv[:2] == ["systemctl", "is-enabled"]:
+            return subprocess.CompletedProcess(argv, 0, stdout="disabled")
+        if argv[:2] == ["systemctl", "is-active"]:
+            return subprocess.CompletedProcess(argv, 0, stdout="inactive")
+        return subprocess.CompletedProcess(argv, 0, stdout="")
+
+    monkeypatch.setattr(pin, "_run", fake_run)
+
+    with pytest.raises(PinError, match="verification failed"):
+        pin.apply(SHA, verify_after_apply=True)
+
+    assert ["systemctl", "enable", "--now", *pin.CHAIN_TIMERS] in calls
+    assert ["systemctl", "enable", "--now", *pin.CHAIN_ENABLED_SERVICES] in calls
+    assert ["systemctl", "disable", "--now", *pin.CHAIN_TIMERS] in calls
+    for unit in pin.CHAIN_UNITS:
+        assert ["systemctl", "stop", unit] in calls
 
 
 def test_pncp_checkpoint_dir_is_versioned_and_outside_the_release():
@@ -460,6 +546,7 @@ def test_verify_reads_back_isolation_release_and_writable_working_directory(tmp_
     assert report["working_directory_drift"] == []
     assert report["working_directory_not_writable"] == []
     assert report["timeout_start_drift"] == []
+    assert report["enabled_services_not_active"] == []
     assert report["downstream_timers_scheduled"] == []
     assert report["pncp_service_semantic_drift"] == []
     assert "extra-contact-discovery-worker@.service" not in shown_units
@@ -478,6 +565,7 @@ def test_verify_reads_back_isolation_release_and_writable_working_directory(tmp_
         "pncp-success75",
         "pncp-success77",
         "pncp-timeout",
+        "enabled-service-inactive",
     ],
 )
 def test_verify_fails_closed_on_runtime_isolation_drift(tmp_path, monkeypatch, failure):
@@ -530,7 +618,11 @@ def test_verify_fails_closed_on_runtime_isolation_drift(tmp_path, monkeypatch, f
             if argv[1] == "is-enabled":
                 value = "disabled" if is_downstream else "enabled"
             else:
-                value = "inactive" if is_downstream else "active"
+                value = (
+                    "inactive"
+                    if is_downstream or (failure == "enabled-service-inactive" and argv[2] in CHAIN_ENABLED_SERVICES)
+                    else "active"
+                )
             return subprocess.CompletedProcess(argv, 0, stdout=value)
         if argv[:4] == ["runuser", "-u", "extra-consultoria", "--"]:
             code = 1 if failure == "readonly-workdir" else 0
@@ -555,6 +647,10 @@ def test_verify_fails_closed_on_runtime_isolation_drift(tmp_path, monkeypatch, f
     elif failure == "pncp-timeout":
         assert report["timeout_start_drift"] == [
             {"unit": "pncp-contracts.service", "expected": "19200s", "observed": "150min"}
+        ]
+    elif failure == "enabled-service-inactive":
+        assert report["enabled_services_not_active"] == [
+            "extra-confenge-target-fit-worker.service=inactive"
         ]
     else:
         assert report["pncp_service_semantic_drift"]
