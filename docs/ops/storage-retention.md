@@ -46,6 +46,15 @@ fora de `contract_role_links ON DELETE CASCADE`. Em apply canônico, um
   `contract_role_links` e `VACUUM`; contratos ativos (`data_fim IS NULL`) ou
   dentro do hot horizon nunca são elegíveis. Cada lote adquire lock de tabela
   que bloqueia DDL e revalida triggers/FKs dentro da mesma transação do DELETE;
+- a idade canônica usa somente relógios da fonte/contrato
+  (`source_updated_at`, `data_atualizacao_fonte`, `data_publicacao_fonte`,
+  `data_publicacao`, `data_assinatura` e `data_fim`). `ingested_at` e
+  `last_seen_at` são relógios operacionais locais e não rejuvenescem contratos
+  históricos após backfill. Datas da fonte futuras ou recentes protegem a linha;
+- além de `data_fim` antiga, a poda canônica exige
+  `status_normalized = 'COMPLETED'` e `quality_state = 'VALID'`. Rótulos
+  ausentes, em revisão, quarentenados ou contraditórios falham fechado e não
+  entram na superfície de exclusão;
 - o relatório separa bytes físicos comprovados de arquivos e bytes lógicos
   reutilizáveis por relação. Páginas da canônica (incluindo o crescimento de
   `contract_role_links`) só quitam crescimento canônico; páginas de
