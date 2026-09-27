@@ -9,7 +9,7 @@ Documentation=https://github.com/extra-consultoria/docs/ops/backup.md
 [Timer]
 # 06:00 UTC = 03:00 BRT (Brasil sem horario de verao desde 2019)
 OnCalendar=*-*-* 06:00:00
-Persistent=false
+Persistent=true
 RandomizedDelaySec=300
 
 [Install]
