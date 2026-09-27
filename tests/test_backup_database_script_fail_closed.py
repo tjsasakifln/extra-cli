@@ -44,7 +44,7 @@ def test_nfs_statfs_lag_requires_verified_unlink_and_copy_headroom() -> None:
     unlink = 'rm -f -- "$candidate"'
     absent = 'if [ -e "$candidate" ] || [ -L "$candidate" ]; then'
     headroom = 'if [ "$free_after" -lt "$copy_headroom_bytes" ]; then'
-    lag = 'case "$filesystem_type" in'
+    lag = 'Byte retention aceitou contabilização NFS atrasada'
     assert unlink in source
     assert 'if ! rm -f -- "$candidate"; then' in source
     assert absent in source
@@ -52,6 +52,31 @@ def test_nfs_statfs_lag_requires_verified_unlink_and_copy_headroom() -> None:
     assert lag in source
     assert "nfs|nfs4)" in source
     assert source.index(unlink) < source.index(absent) < source.index(headroom) < source.index(lag)
+
+
+def test_nfs_directory_fsync_exception_preserves_file_fsync_publication_gate() -> None:
+    source = SCRIPT.read_text(encoding="utf-8")
+    nfs_exception = 'não exige fsync de diretório incompatível com NFS'
+    retention_call = "if ! do_byte_balanced_retention"
+    file_sync = 'if ! sync "$remote_staging"; then'
+    publish = 'mv -f "$remote_staging" "$dump_path"'
+    assert nfs_exception in source
+    assert retention_call in source
+    assert file_sync in source
+    assert source.index(retention_call) < source.index(file_sync) < source.index(publish)
+
+
+def test_df_is_synchronized_and_validated_before_any_unlink() -> None:
+    source = SCRIPT.read_text(encoding="utf-8")
+    helper = 'df_output="$(df --sync -Pk "$target")"'
+    read_before = 'free_before="$(filesystem_free_bytes "$daily_dir")"'
+    unlink = 'rm -f -- "$candidate"'
+    read_after = 'free_after="$(filesystem_free_bytes "$daily_dir")"'
+    assert helper in source
+    assert read_before in source
+    assert read_after in source
+    assert source.index(read_before) < source.index(unlink) < source.index(read_after)
+    assert "capacidade inválida do filesystem" in source
 
 
 def test_df_shortfall_remains_fail_closed_outside_nfs() -> None:

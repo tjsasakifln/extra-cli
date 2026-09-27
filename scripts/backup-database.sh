@@ -453,6 +453,23 @@ do_backup() {
 
 # ─── Retention ──────────────────────────────────────────────────────────────
 
+filesystem_free_bytes() {
+  local target="$1"
+  local df_output available_kib
+  if ! df_output="$(df --sync -Pk "$target")"; then
+    log "ERROR" "Byte retention não conseguiu consultar capacidade do filesystem: $target"
+    return 1
+  fi
+  available_kib="$(printf '%s\n' "$df_output" | awk 'NR == 2 {print $4}')"
+  case "$available_kib" in
+    ''|*[!0-9]*)
+      log "ERROR" "Byte retention recebeu capacidade inválida do filesystem: $target"
+      return 1
+      ;;
+  esac
+  printf '%s\n' "$(( available_kib * 1024 ))"
+}
+
 do_byte_balanced_retention() {
   local daily_dir="$1"
   local protected_destination="$2"
@@ -540,7 +557,9 @@ do_byte_balanced_retention() {
 
   local free_before free_after observed_delta freed=0 index filesystem_type
   filesystem_type="$(stat --file-system --format='%T' "$daily_dir")"
-  free_before=$(( $(df -Pk "$daily_dir" | awk 'NR==2 {print $4}') * 1024 ))
+  if ! free_before="$(filesystem_free_bytes "$daily_dir")"; then
+    return 2
+  fi
   # Revalidate the whole plan before the first unlink. A changed path makes the
   # operation fail closed without partially executing a stale plan.
   for ((index=0; index<planned; index++)); do
@@ -586,11 +605,25 @@ do_byte_balanced_retention() {
     log "INFO" "Byte retention planejada: required=$incoming_bytes planned=$freed files=$planned"
     return 0
   fi
-  if ! sync -f "$daily_dir"; then
-    log "ERROR" "Byte retention não conseguiu sincronizar o filesystem: $daily_dir"
+  case "$filesystem_type" in
+    nfs|nfs4)
+      # Linux NFS clients may reject fsync(2) on a directory with EINVAL even
+      # after the server has acknowledged the REMOVE RPC.  The candidates were
+      # revalidated immediately before unlink and their paths are proven absent
+      # above.  Publication still requires a full staging copy followed by a
+      # checked fsync of that regular file, so no partial backup can be renamed.
+      log "WARN" "Byte retention não exige fsync de diretório incompatível com NFS: $daily_dir"
+      ;;
+    *)
+      if ! sync -f "$daily_dir"; then
+        log "ERROR" "Byte retention não conseguiu sincronizar o filesystem: $daily_dir"
+        return 2
+      fi
+      ;;
+  esac
+  if ! free_after="$(filesystem_free_bytes "$daily_dir")"; then
     return 2
   fi
-  free_after=$(( $(df --sync -Pk "$daily_dir" | awk 'NR==2 {print $4}') * 1024 ))
   observed_delta=$(( free_after > free_before ? free_after - free_before : 0 ))
   if [ "$free_after" -lt "$copy_headroom_bytes" ]; then
     log "ERROR" "Byte retention não comprovou capacidade: required_growth=$incoming_bytes allocated_deleted=$freed df_delta=$observed_delta free_after=$free_after copy_headroom=$copy_headroom_bytes"
