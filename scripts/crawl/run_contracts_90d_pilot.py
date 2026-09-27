@@ -44,7 +44,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
-from scripts.contracts_truth import PaginationReconcile, stamp_contract_truth_labels  # noqa: E402
+from scripts.contracts_truth import PaginationReconcile  # noqa: E402
 from scripts.crawl import contracts_crawler as _cc  # noqa: E402
 from scripts.crawl.contracts_crawler import (  # noqa: E402
     CONTRACTS_FULL_DAYS,
@@ -58,6 +58,7 @@ from scripts.crawl.contracts_crawler import (  # noqa: E402
     _fmt,
     transform,
 )
+from scripts.crawl.contracts_truth_persistence import stamp_contract_truth_labels  # noqa: E402
 from scripts.crawl.population_convergence import tail_page_numbers  # noqa: E402
 from scripts.crawl.run_evidence import (  # noqa: E402
     assert_checkpoint_run_id,
@@ -222,14 +223,17 @@ def evaluate_window_completion(
     Returns:
         (fully_ok, errors) — errors may be extended with a max-pages message.
     """
-    from scripts.contracts_truth import DRIFT_CONVERGED, DRIFT_OK, classify_population_drift
-    from scripts.crawl.population_convergence import format_window_error
+    from scripts.contracts_truth import DRIFT_CONVERGED, DRIFT_OK
+    from scripts.crawl.population_convergence import (
+        classify_window_population,
+        format_window_error,
+    )
 
     errors = list(window_errors)
     if not pages_exhausted and last_total_pages and page <= last_total_pages and page > max_pages:
         errors.append(f"Hit CONTRACTS_MAX_PAGES={max_pages} before total_pages={last_total_pages}; window incomplete")
     if first_total_registros is not None and last_total_registros is not None:
-        decision = classify_population_drift(
+        decision = classify_window_population(
             first_total_registros=first_total_registros,
             last_total_registros=last_total_registros,
             first_total_paginas=first_total_paginas,

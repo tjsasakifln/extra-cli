@@ -13,7 +13,6 @@ from scripts.contracts_truth import (
     DRIFT_RECONCILE,
     DRIFT_SOURCE,
     REASON_CRASH_BEFORE_COMMIT,
-    REASON_DUPLICATE_ACROSS_PAGES,
     REASON_DUPLICATE_CONFLICT,
     REASON_GROWTH_UNPROVEN,
     REASON_IDS_UNSEEN,
@@ -31,7 +30,12 @@ from scripts.contracts_truth import (
     classify_population_drift,
     growth_within_budget,
 )
-from scripts.crawl.population_convergence import ObservedPage, run_convergence
+from scripts.crawl.population_convergence import (
+    REASON_DUPLICATE_ACROSS_PAGES,
+    ObservedPage,
+    classify_window_population,
+    run_convergence,
+)
 from scripts.crawl.run_contracts_90d_pilot import evaluate_window_completion
 
 
@@ -178,12 +182,23 @@ def test_duplicate_across_distinct_pages_refuses_completion_and_detects_omission
     reconcile.observe_page(total_registros=4, total_paginas=2, items=_items("b", "c"), page=2)
     reconcile.record_persisted(4)
 
-    report = reconcile.finish()
+    decision = classify_window_population(
+        first_total_registros=reconcile.first_total_registros,
+        last_total_registros=reconcile.last_total_registros,
+        first_total_paginas=reconcile.first_total_paginas,
+        last_total_paginas=reconcile.last_total_paginas,
+        unique_ids=len(reconcile.seen_ids),
+        seen_ids=reconcile.seen_ids,
+        page_id_sequences=reconcile.page_id_sequences,
+        persisted=reconcile.persisted,
+        fetched=reconcile.fetched,
+        rejected=reconcile.rejected,
+    )
 
-    assert report.ok is False
-    assert report.status == DRIFT_SOURCE
-    assert REASON_DUPLICATE_ACROSS_PAGES in report.reason_codes
-    assert REASON_IDS_UNSEEN in report.reason_codes
+    assert decision.ok is False
+    assert decision.status == DRIFT_SOURCE
+    assert REASON_DUPLICATE_ACROSS_PAGES in decision.reason_codes
+    assert REASON_IDS_UNSEEN in decision.reason_codes
 
 
 def test_pilot_window_completion_refuses_cross_page_duplicate() -> None:

@@ -13,15 +13,14 @@ import os
 import re
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
-from datetime import UTC, date, datetime
-from datetime import time as datetime_time
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
 ACTIVITY_RULE_VERSION = "contract-activity-v1"
 QUALITY_RULE_VERSION = "contract-quality-v1"
 IDENTITY_RULE_VERSION = "canonical-contract-v1"
-PAGINATION_RULE_VERSION = "pagination-reconcile-v3"
+PAGINATION_RULE_VERSION = "pagination-reconcile-v2"
 
 # Explicit monotonic-growth policy. Totals are classified; 44515/44517 is not special.
 GROWTH_BUDGET_ABS = 8
@@ -46,7 +45,6 @@ REASON_PAGE_JUMP = "page_count_jump"
 REASON_PAGE_SHRINK = "page_count_shrink"
 REASON_REORDER_OMIT = "pagination_reorder_omission"
 REASON_DUPLICATE_CONFLICT = "duplicate_conflicting_page"
-REASON_DUPLICATE_ACROSS_PAGES = "duplicate_ids_across_pages"
 REASON_IMPOSSIBLE = "impossible_population"
 REASON_TIMEOUT_BEFORE = "timeout_before_checkpoint"
 REASON_TIMEOUT_AFTER = "timeout_after_checkpoint"
@@ -261,24 +259,6 @@ def _conflicting_duplicate_pages(
     return False
 
 
-def _duplicate_ids_across_pages(
-    page_id_sequences: Sequence[tuple[int, tuple[str, ...]]],
-) -> bool:
-    """Detect a contract repeated on distinct pages of one source pass.
-
-    Re-reading the *same* page is safe and expected during bounded
-    convergence/replay.  Repeating an id on two different page numbers is not:
-    it means page-boundary movement can have displaced an unseen contract.
-    """
-    first_page_for_id: dict[str, int] = {}
-    for page_no, ids in page_id_sequences:
-        for item_id in ids:
-            previous = first_page_for_id.setdefault(item_id, page_no)
-            if previous != page_no:
-                return True
-    return False
-
-
 def _reorder_omitted(
     page_id_sequences: Sequence[tuple[int, tuple[str, ...]]],
     all_ids: set[str],
@@ -382,11 +362,6 @@ def classify_population_drift(
         status = DRIFT_SOURCE
         decision = "refuse"
 
-    if page_id_sequences and _duplicate_ids_across_pages(page_id_sequences):
-        reasons.append(REASON_DUPLICATE_ACROSS_PAGES)
-        status = DRIFT_SOURCE
-        decision = "refuse"
-
     if page_id_sequences and _reorder_omitted(page_id_sequences, seen | tail):
         reasons.append(REASON_REORDER_OMIT)
         status = DRIFT_SOURCE
@@ -442,15 +417,6 @@ def classify_population_drift(
 
     if first is not None and last is not None and last == first and status == DRIFT_OK:
         reasons.append(REASON_STABLE)
-
-    # A stable declared population is only complete if every declared item has
-    # a distinct canonical source id.  Without this, two different pages can
-    # repeat one id and silently checkpoint an omitted contract.
-    if first is not None and last is not None and first == last and unique < last:
-        reasons.append(REASON_IDS_UNSEEN)
-        if status == DRIFT_OK:
-            status = DRIFT_SOURCE
-            decision = "refuse"
 
     if fetched is not None and persisted is not None:
         if fetched != persisted + rejected:
@@ -1174,12 +1140,13 @@ def stamp_contract_truth_labels(conn: Any, records: Iterable[Mapping[str, Any]])
     The historical RPC does not persist these columns. Callers must stamp
     them or the lake stays unlabeled (NULL quality is not report-ready).
     """
-    winners: dict[str, tuple[tuple[datetime, int], dict[str, Any]]] = {}
-    for ordinal, raw in enumerate(records):
+    payload = []
+    for raw in records:
         contrato_id = str(raw.get("contrato_id") or "").strip()
         if not contrato_id:
             continue
-        item = {
+        payload.append(
+            {
                 "contrato_id": contrato_id,
                 "status_raw": raw.get("status_raw"),
                 "status_normalized": raw.get("status_normalized"),
@@ -1193,38 +1160,8 @@ def stamp_contract_truth_labels(conn: Any, records: Iterable[Mapping[str, Any]])
                 "source": raw.get("source"),
                 "source_contract_id": raw.get("source_contract_id"),
                 "parent_procurement_id": raw.get("parent_procurement_id"),
-                "source_updated_at": raw.get("source_updated_at"),
-                "data_atualizacao_fonte": raw.get("data_atualizacao_fonte"),
             }
-        source_clock = item.get("source_updated_at")
-        update_date = item.get("data_atualizacao_fonte")
-        try:
-            if isinstance(source_clock, datetime):
-                freshness = source_clock
-            elif source_clock:
-                freshness = datetime.fromisoformat(str(source_clock).replace("Z", "+00:00"))
-            elif isinstance(update_date, datetime):
-                freshness = update_date
-            elif isinstance(update_date, date):
-                freshness = datetime.combine(update_date, datetime_time.min, tzinfo=UTC)
-            elif update_date:
-                freshness = datetime.combine(
-                    date.fromisoformat(str(update_date)[:10]), datetime_time.min, tzinfo=UTC
-                )
-            else:
-                freshness = datetime.min.replace(tzinfo=UTC)
-            if freshness.tzinfo is None:
-                freshness = freshness.replace(tzinfo=UTC)
-            freshness = freshness.astimezone(UTC)
-        except (TypeError, ValueError):
-            # The RPC will reject malformed source clocks before this stamp is
-            # reached. Keep the ordering deterministic if called directly.
-            freshness = datetime.min.replace(tzinfo=UTC)
-        rank = (freshness, ordinal)
-        previous = winners.get(contrato_id)
-        if previous is None or rank > previous[0]:
-            winners[contrato_id] = (rank, item)
-    payload = [winner[1] for winner in winners.values()]
+        )
     if not payload:
         return 0
     cur = conn.cursor()
@@ -1252,20 +1189,13 @@ def stamp_contract_truth_labels(conn: Any, records: Iterable[Mapping[str, Any]])
                 quality_state TEXT,
                 quality_reasons JSONB,
                 quality_rule_version TEXT,
+                report_ready BOOLEAN,
                 canonical_contract_id TEXT,
                 source TEXT,
                 source_contract_id TEXT,
-                parent_procurement_id TEXT,
-                source_updated_at TIMESTAMPTZ,
-                data_atualizacao_fonte DATE
+                parent_procurement_id TEXT
             )
             WHERE target.contrato_id = stamp.contrato_id
-              AND public.fn_contract_observation_not_older(
-                  target.source_updated_at,
-                  target.data_atualizacao_fonte,
-                  stamp.source_updated_at,
-                  stamp.data_atualizacao_fonte
-              )
             """,
             (json.dumps(payload, default=str),),
         )

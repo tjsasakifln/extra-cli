@@ -9,9 +9,7 @@ from pathlib import Path
 import pytest
 
 MIGRATION = Path(__file__).resolve().parents[1] / "db/migrations/108_contract_upsert_mutable_fields.sql"
-TRIGGER_MIGRATION = (
-    Path(__file__).resolve().parents[1] / "db/migrations/110_disable_contract_versioning_trigger.sql"
-)
+TRIGGER_MIGRATION = Path(__file__).resolve().parents[1] / "db/migrations/110_disable_contract_versioning_trigger.sql"
 
 
 def test_migration_refreshes_all_material_mutable_fields() -> None:
@@ -76,7 +74,7 @@ def test_contract_version_history_trigger_is_explicitly_disabled() -> None:
 def test_rpc_refreshes_newer_fields_without_regressing_or_erasing() -> None:
     import psycopg2
 
-    from scripts.contracts_truth import stamp_contract_truth_labels
+    from scripts.crawl.contracts_truth_persistence import stamp_contract_truth_labels
 
     dsn = os.getenv("LOCAL_DATALAKE_DSN") or os.getenv("DATABASE_URL")
     assert dsn, "LOCAL_DATALAKE_DSN or DATABASE_URL is required for real_db"
@@ -171,34 +169,40 @@ def test_rpc_refreshes_newer_fields_without_regressing_or_erasing() -> None:
                 (json.dumps([no_clock]),),
             )
 
-            assert stamp_contract_truth_labels(
-                conn,
-                [
-                    {
-                        "contrato_id": contract_id,
-                        "status_normalized": "ACTIVE",
-                        "quality_state": "VALID",
-                        "quality_reasons": [],
-                        "report_ready": True,
-                        "source_updated_at": "2026-09-11T12:00:00Z",
-                        "data_atualizacao_fonte": "2026-09-11",
-                    }
-                ],
-            ) == 1
-            assert stamp_contract_truth_labels(
-                conn,
-                [
-                    {
-                        "contrato_id": contract_id,
-                        "status_normalized": "UNKNOWN",
-                        "quality_state": "QUARANTINED",
-                        "quality_reasons": ["stale"],
-                        "report_ready": False,
-                        "source_updated_at": "2026-09-11T11:59:59Z",
-                        "data_atualizacao_fonte": "2026-09-11",
-                    }
-                ],
-            ) == 0
+            assert (
+                stamp_contract_truth_labels(
+                    conn,
+                    [
+                        {
+                            "contrato_id": contract_id,
+                            "status_normalized": "ACTIVE",
+                            "quality_state": "VALID",
+                            "quality_reasons": [],
+                            "report_ready": True,
+                            "source_updated_at": "2026-09-11T12:00:00Z",
+                            "data_atualizacao_fonte": "2026-09-11",
+                        }
+                    ],
+                )
+                == 1
+            )
+            assert (
+                stamp_contract_truth_labels(
+                    conn,
+                    [
+                        {
+                            "contrato_id": contract_id,
+                            "status_normalized": "UNKNOWN",
+                            "quality_state": "QUARANTINED",
+                            "quality_reasons": ["stale"],
+                            "report_ready": False,
+                            "source_updated_at": "2026-09-11T11:59:59Z",
+                            "data_atualizacao_fonte": "2026-09-11",
+                        }
+                    ],
+                )
+                == 0
+            )
 
             cursor.execute(
                 """

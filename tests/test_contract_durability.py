@@ -160,9 +160,7 @@ def test_two_adapters_replay_to_one_canonical_and_two_observations() -> None:
     assert other_source.canonical_contract_id != crawler.canonical_contract_id
 
 
-def test_incremental_writer_uses_pg_fence_before_mutation(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_incremental_writer_uses_pg_fence_before_mutation(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     from scripts.crawl import run_contracts_incremental as inc
 
     monkeypatch.delenv("CONTRACTS_SKIP_WRITER_LOCK", raising=False)
@@ -241,7 +239,7 @@ def test_production_default_checkpoint_refuses_worktree_and_release_tree(tmp_pat
 
 
 def test_stamp_contract_truth_labels_writes_quality_not_null_valid() -> None:
-    from scripts.contracts_truth import stamp_contract_truth_labels
+    from scripts.crawl.contracts_truth_persistence import stamp_contract_truth_labels
 
     statements: list[str] = []
 
@@ -282,7 +280,7 @@ def test_stamp_contract_truth_labels_writes_quality_not_null_valid() -> None:
 
 
 def test_stamp_contract_truth_labels_deduplicates_like_the_upsert_rpc() -> None:
-    from scripts.contracts_truth import stamp_contract_truth_labels
+    from scripts.crawl.contracts_truth_persistence import stamp_contract_truth_labels
 
     captured: list[dict] = []
 

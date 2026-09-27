@@ -41,7 +41,6 @@ from scripts.contracts_truth import (
     PaginationReconcile,
     annotate_transformed_contract,
     resolve_checkpoint_dir,
-    stamp_contract_truth_labels,
 )
 from scripts.crawl.common import (
     digits_only as _digits_only,
@@ -55,6 +54,8 @@ from scripts.crawl.common import (
 from scripts.crawl.common import (
     trunc as trunc,
 )
+from scripts.crawl.contracts_truth_persistence import stamp_contract_truth_labels
+from scripts.crawl.population_convergence import pagination_identity_reason_codes
 from scripts.crawl.security import USER_AGENT, sanitize_url_param, validate_url_scheme
 
 # Add project root for standalone imports
@@ -1024,6 +1025,7 @@ def _crawl_date_range(
                 total_registros=result.total_records,
                 total_paginas=result.total_pages,
                 items=result.items,
+                page=page,
             )
             all_records.extend(result.items)
             window_items.extend(result.items)
@@ -1070,9 +1072,23 @@ def _crawl_date_range(
                     fully_ok = False
                     window_errors.append("persist_zero")
                 page_report = pagination.finish()
+                identity_reasons = pagination_identity_reason_codes(
+                    first_total_registros=pagination.first_total_registros,
+                    last_total_registros=pagination.last_total_registros,
+                    unique_ids=len(pagination.seen_ids),
+                    page_id_sequences=pagination.page_id_sequences,
+                )
                 if not page_report.ok:
                     window_errors.append(page_report.status)
                     logger.warning("Window %s pagination %s", window_key, page_report.to_dict())
+                    fully_ok = False
+                if identity_reasons:
+                    window_errors.append("pagination_identity:" + ",".join(identity_reasons))
+                    logger.warning(
+                        "Window %s pagination identity refused: %s",
+                        window_key,
+                        identity_reasons,
+                    )
                     fully_ok = False
                 if fully_ok:
                     checkpoint.completed_windows.append(window_key)
@@ -1220,11 +1236,17 @@ def crawl_with_evidence(mode: str = "backfill_3y") -> CrawlResult:
 
         if scope_complete and window_records > 0:
             pagination_report = pagination.finish(reconcile_counts=False)
-            if not pagination_report.ok:
+            identity_reasons = pagination_identity_reason_codes(
+                first_total_registros=pagination.first_total_registros,
+                last_total_registros=pagination.last_total_registros,
+                unique_ids=len(pagination.seen_ids),
+                page_id_sequences=pagination.page_id_sequences,
+            )
+            if not pagination_report.ok or identity_reasons:
                 window_status = FetchStatus.PARTIAL
                 window_error = (
                     "Pagination reconciliation failed before checkpoint: "
-                    + ", ".join(pagination_report.reason_codes)
+                    + ", ".join((*pagination_report.reason_codes, *identity_reasons))
                 )
                 scope_complete = False
 
