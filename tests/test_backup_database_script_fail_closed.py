@@ -28,7 +28,7 @@ def test_offsite_backup_is_published_atomically() -> None:
     assert source.index(copy) < source.index('if ! sync "$remote_staging"; then')
     assert source.index('if ! sync "$remote_staging"; then') < source.index(publish)
     assert 'CURRENT_REMOTE_STAGING="$remote_staging"' in source
-    assert 'rm -f -- "$CURRENT_REMOTE_STAGING"' in source
+    assert 'remove_remote_staging "$CURRENT_REMOTE_STAGING"' in source
 
 
 def test_offsite_directories_are_observable_without_exposing_dump_contents() -> None:
@@ -77,6 +77,36 @@ def test_df_is_synchronized_and_validated_before_any_unlink() -> None:
     assert read_after in source
     assert source.index(read_before) < source.index(unlink) < source.index(read_after)
     assert "capacidade inválida do filesystem" in source
+
+
+def test_weekly_promotion_is_byte_balanced_synced_and_atomic() -> None:
+    source = SCRIPT.read_text(encoding="utf-8")
+    admission = '"$weekly_dir" "$weekly_path" "$weekly_growth" "$weekly_incoming"'
+    staging = 'weekly_staging="${weekly_path}.partial.$$"'
+    copy = 'cp "$latest_daily" "$weekly_staging"'
+    sync = 'sync "$weekly_staging"'
+    compare = 'cmp -s "$latest_daily" "$weekly_staging"'
+    size = 'weekly_remote_size="$(stat --printf=\'%s\' "$weekly_staging"'
+    publish = 'mv -f "$weekly_staging" "$weekly_path"'
+    for contract in (admission, staging, copy, sync, compare, size, publish):
+        assert contract in source
+    assert source.index(admission) < source.index(staging)
+    assert source.index(staging) < source.index(copy) < source.index(sync)
+    assert source.index(sync) < source.index(compare) < source.index(size)
+    assert source.index(size) < source.index(publish)
+    assert "weekly_source_identity_after" in source
+
+
+def test_remote_partial_cleanup_is_verified_before_global_is_cleared() -> None:
+    source = SCRIPT.read_text(encoding="utf-8")
+    helper_start = source.index("remove_remote_staging()")
+    helper_end = source.index("\n}\n", helper_start)
+    helper = source[helper_start:helper_end]
+    assert 'if ! rm -f -- "$staging_path"; then' in helper
+    assert 'if [ -e "$staging_path" ] || [ -L "$staging_path" ]; then' in helper
+    assert helper.index('rm -f -- "$staging_path"') < helper.index(
+        'CURRENT_REMOTE_STAGING=""'
+    )
 
 
 def test_df_shortfall_remains_fail_closed_outside_nfs() -> None:

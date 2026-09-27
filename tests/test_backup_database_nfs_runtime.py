@@ -28,9 +28,12 @@ def _run_retention(
     available_blocks: int,
     fail_candidate_rm: bool = False,
     fail_directory_sync: bool = False,
+    fail_weekly_file_sync: bool = False,
     filesystem_type: str = "nfs",
     fail_df: bool = False,
     malformed_df: bool = False,
+    weekly_count: int = 3,
+    fail_weekly_cmp: bool = False,
 ) -> tuple[subprocess.CompletedProcess[str], Path, Path]:
     backup_base = tmp_path / "backup"
     daily = backup_base / "daily"
@@ -43,6 +46,11 @@ def _run_retention(
         candidate.write_bytes(bytes([index + 1]) * 4096)
         os.utime(candidate, (1_700_000_000 + index, 1_700_000_000 + index))
         candidates.append(candidate)
+
+    for index in range(weekly_count):
+        candidate = weekly / f"pncp_datalake-2026-08-{10 + index}.weekly.dump.gz"
+        candidate.write_bytes(bytes([index + 4]) * 4096)
+        os.utime(candidate, (1_690_000_000 + index, 1_690_000_000 + index))
 
     incoming = tmp_path / "incoming.dump.gz"
     incoming.write_bytes(b"x" * 4096)
@@ -59,7 +67,8 @@ def _run_retention(
     shim_dir.mkdir()
     real_stat = shutil.which("stat")
     real_rm = shutil.which("rm")
-    assert real_stat and real_rm
+    real_date = shutil.which("date")
+    assert real_stat and real_rm and real_date
     _write_executable(
         shim_dir / "stat",
         "#!/bin/sh\n"
@@ -76,6 +85,12 @@ def _run_retention(
             f"echo 'laggy-nfs 1000000 100 {available} 1% /fake'\n"
         )
     _write_executable(shim_dir / "df", df_body)
+    _write_executable(
+        shim_dir / "date",
+        "#!/bin/sh\n"
+        "if [ \"${1:-}\" = \"+%u\" ]; then echo 7; exit 0; fi\n"
+        f'exec "{real_date}" "$@"\n',
+    )
     if fail_candidate_rm:
         _write_executable(
             shim_dir / "rm",
@@ -83,15 +98,24 @@ def _run_retention(
             "case \"$*\" in *'/daily/'*) exit 1 ;; esac\n"
             f'exec "{real_rm}" "$@"\n',
         )
-    if fail_directory_sync:
+    if fail_directory_sync or fail_weekly_file_sync:
         real_sync = shutil.which("sync")
         assert real_sync
+        failure_cases = []
+        if fail_directory_sync:
+            failure_cases.append("*'-f '*'/daily') exit 1 ;;\n")
+        if fail_weekly_file_sync:
+            failure_cases.append("*'.weekly.dump.gz.partial.'*) exit 1 ;;\n")
         _write_executable(
             shim_dir / "sync",
             "#!/bin/sh\n"
-            "case \"$*\" in *'-f '*'/daily') exit 1 ;; esac\n"
+            "case \"$*\" in\n"
+            + "".join(failure_cases)
+            + "esac\n"
             f'exec "{real_sync}" "$@"\n',
         )
+    if fail_weekly_cmp:
+        _write_executable(shim_dir / "cmp", "#!/bin/sh\nexit 1\n")
     for command in ("pg_dump", "gzip", "getent"):
         _write_executable(shim_dir / command, "#!/bin/sh\nexit 0\n")
 
@@ -201,3 +225,67 @@ def test_df_failure_before_unlink_preserves_oldest_candidate(
     assert oldest.exists()
     assert "capacidade" in log
     assert "Byte retention removeu" not in log
+
+
+def test_weekly_promotion_reclaims_oldest_before_atomic_publish(tmp_path: Path) -> None:
+    result, _oldest, log_path = _run_retention(tmp_path, available_blocks=900_000)
+    log = log_path.read_text(encoding="utf-8")
+    weekly = log_path.parent / "backup" / "weekly"
+    old_weekly = weekly / "pncp_datalake-2026-08-10.weekly.dump.gz"
+    new_weekly = weekly / "pncp_datalake-2026-09-12.weekly.dump.gz"
+    assert result.returncode == 0, result.stderr
+    assert not old_weekly.exists()
+    assert new_weekly.is_file()
+    assert not list(weekly.glob("*.partial.*"))
+    admission = "Admissão semanal byte-balanced"
+    deletion = "Byte retention removeu: pncp_datalake-2026-08-10.weekly.dump.gz"
+    publication = "Promovido com publicação atômica"
+    assert admission in log and deletion in log and publication in log
+    assert log.index(admission) < log.index(deletion) < log.index(publication)
+
+
+def test_weekly_staging_fsync_failure_never_publishes_final_name(tmp_path: Path) -> None:
+    result, _oldest, log_path = _run_retention(
+        tmp_path,
+        available_blocks=900_000,
+        fail_weekly_file_sync=True,
+    )
+    log = log_path.read_text(encoding="utf-8")
+    weekly = log_path.parent / "backup" / "weekly"
+    new_weekly = weekly / "pncp_datalake-2026-09-12.weekly.dump.gz"
+    assert result.returncode != 0
+    assert not new_weekly.exists()
+    assert not list(weekly.glob("*.partial.*"))
+    assert "Promoção semanal falhou ao sincronizar staging" in log
+    assert "Promovido com publicação atômica" not in log
+
+
+@pytest.mark.parametrize("weekly_count", [0, 1])
+def test_weekly_bootstrap_is_bounded_by_minimum_and_headroom(
+    tmp_path: Path, weekly_count: int
+) -> None:
+    result, _oldest, log_path = _run_retention(
+        tmp_path,
+        available_blocks=900_000,
+        weekly_count=weekly_count,
+    )
+    log = log_path.read_text(encoding="utf-8")
+    weekly = log_path.parent / "backup" / "weekly"
+    assert result.returncode == 0, result.stderr
+    assert len(list(weekly.glob("*.weekly.dump.gz"))) == weekly_count + 1
+    assert "Byte retention bootstrap até o mínimo" in log
+
+
+def test_weekly_content_mismatch_is_not_published(tmp_path: Path) -> None:
+    result, _oldest, log_path = _run_retention(
+        tmp_path,
+        available_blocks=900_000,
+        fail_weekly_cmp=True,
+    )
+    log = log_path.read_text(encoding="utf-8")
+    weekly = log_path.parent / "backup" / "weekly"
+    new_weekly = weekly / "pncp_datalake-2026-09-12.weekly.dump.gz"
+    assert result.returncode != 0
+    assert not new_weekly.exists()
+    assert not list(weekly.glob("*.partial.*"))
+    assert "Origem da promoção semanal mudou durante a cópia" in log

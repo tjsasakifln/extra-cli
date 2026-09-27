@@ -97,6 +97,22 @@ notify_failure() {
   log "WARN" "Notificação configurada como: $NOTIFY_CMD"
 }
 
+remove_remote_staging() {
+  local staging_path="$1"
+  [ -n "$staging_path" ] || return 0
+  if ! rm -f -- "$staging_path"; then
+    log "ERROR" "Falha ao remover staging off-site: $staging_path"
+    return 1
+  fi
+  if [ -e "$staging_path" ] || [ -L "$staging_path" ]; then
+    log "ERROR" "Unlink do staging off-site não foi comprovado: $staging_path"
+    return 1
+  fi
+  if [ "$CURRENT_REMOTE_STAGING" = "$staging_path" ]; then
+    CURRENT_REMOTE_STAGING=""
+  fi
+}
+
 cleanup() {
   local exit_code=$?
   # Remove only the two exact local staging paths created by this process.
@@ -110,8 +126,9 @@ cleanup() {
     CURRENT_STAGING_CUSTOM=""
   fi
   if [ -n "$CURRENT_REMOTE_STAGING" ]; then
-    rm -f -- "$CURRENT_REMOTE_STAGING"
-    CURRENT_REMOTE_STAGING=""
+    if ! remove_remote_staging "$CURRENT_REMOTE_STAGING"; then
+      exit_code=1
+    fi
   fi
   if [ -f "$LOCK_FILE" ]; then
     rm -f "$LOCK_FILE"
@@ -395,15 +412,13 @@ do_backup() {
       log "INFO" "Copiando para off-site (staging): $remote_staging"
       if ! cp -f "$staging_path" "$remote_staging"; then
         log "ERROR" "Falha ao copiar dump para destino off-site $dump_path"
-        rm -f "$remote_staging"
-        CURRENT_REMOTE_STAGING=""
+        remove_remote_staging "$remote_staging" || true
         notify_failure "Backup DB - Falha" "Falha ao copiar dump off-site"
         return 1
       fi
       if ! sync "$remote_staging"; then
         log "ERROR" "Falha ao sincronizar staging off-site: $remote_staging"
-        rm -f "$remote_staging"
-        CURRENT_REMOTE_STAGING=""
+        remove_remote_staging "$remote_staging" || true
         notify_failure "Backup DB - Falha" "fsync do staging off-site falhou"
         return 1
       fi
@@ -411,15 +426,13 @@ do_backup() {
       remote_size="$(stat --printf='%s' "$remote_staging" 2>/dev/null || echo 0)"
       if [ "$remote_size" != "$file_size" ]; then
         log "ERROR" "Tamanho off-site ($remote_size) != local ($file_size)"
-        rm -f "$remote_staging"
-        CURRENT_REMOTE_STAGING=""
+        remove_remote_staging "$remote_staging" || true
         notify_failure "Backup DB - Falha" "Size mismatch after off-site copy"
         return 1
       fi
       if ! mv -f "$remote_staging" "$dump_path"; then
         log "ERROR" "Falha ao publicar dump off-site $dump_path"
-        rm -f "$remote_staging"
-        CURRENT_REMOTE_STAGING=""
+        remove_remote_staging "$remote_staging" || true
         notify_failure "Backup DB - Falha" "Falha ao publicar dump off-site"
         return 1
       fi
@@ -498,7 +511,7 @@ do_byte_balanced_retention() {
 
   local destination_device
   destination_device="$(stat --printf='%d' "$daily_dir")"
-  if [ -e "$protected_destination" ]; then
+  if [ -e "$protected_destination" ] || [ -L "$protected_destination" ]; then
     if [ -L "$protected_destination" ] || [ ! -f "$protected_destination" ]; then
       log "ERROR" "Byte retention recusada: destino protegido não é arquivo regular: $protected_destination"
       return 1
@@ -517,9 +530,12 @@ do_byte_balanced_retention() {
     find "$daily_dir" -maxdepth 1 -type f -name "${PREFIX}-*.dump.gz" \
       ! -path "$protected_destination" -printf '%T@ %p\n' 2>/dev/null | sort -n | cut -d' ' -f2-
   ) || true
-  local total_count
+  local total_count destination_adds_slot=0 bootstrap_without_old_data=0
   total_count="$(find "$daily_dir" -maxdepth 1 -type f -name "${PREFIX}-*.dump.gz" 2>/dev/null | wc -l)"
-  local max_delete=$(( total_count > BYTE_BALANCE_MINIMUM ? total_count - BYTE_BALANCE_MINIMUM : 0 ))
+  if [ ! -e "$protected_destination" ] && [ ! -L "$protected_destination" ]; then
+    destination_adds_slot=1
+  fi
+  local max_delete=$(( total_count + destination_adds_slot > BYTE_BALANCE_MINIMUM ? total_count + destination_adds_slot - BYTE_BALANCE_MINIMUM : 0 ))
   local planned=0
   local planned_bytes=0
   local candidate candidate_device candidate_inode candidate_links candidate_blocks
@@ -551,14 +567,30 @@ do_byte_balanced_retention() {
   done
 
   if [ "$planned_bytes" -lt "$incoming_bytes" ]; then
-    log "ERROR" "Byte retention insuficiente antes da cópia: required=$incoming_bytes planned=$planned_bytes protected_minimum=$BYTE_BALANCE_MINIMUM"
-    return 2
+    if [ "$destination_adds_slot" -eq 1 ] && [ "$total_count" -lt "$BYTE_BALANCE_MINIMUM" ]; then
+      # Bootstrap is the only case in which no equally old package exists yet.
+      # Permit growth only until the configured minimum snapshot baseline and
+      # still require absolute copy headroom below. Once the baseline exists,
+      # every new destination slot must replace enough old allocated bytes.
+      bootstrap_without_old_data=1
+    else
+      log "ERROR" "Byte retention insuficiente antes da cópia: required=$incoming_bytes planned=$planned_bytes protected_minimum=$BYTE_BALANCE_MINIMUM"
+      return 2
+    fi
   fi
 
   local free_before free_after observed_delta freed=0 index filesystem_type
   filesystem_type="$(stat --file-system --format='%T' "$daily_dir")"
   if ! free_before="$(filesystem_free_bytes "$daily_dir")"; then
     return 2
+  fi
+  if [ "$bootstrap_without_old_data" -eq 1 ]; then
+    if [ "$free_before" -lt "$copy_headroom_bytes" ]; then
+      log "ERROR" "Byte retention bootstrap sem capacidade: free_before=$free_before copy_headroom=$copy_headroom_bytes"
+      return 2
+    fi
+    log "WARN" "Byte retention bootstrap até o mínimo: existing=$total_count minimum=$BYTE_BALANCE_MINIMUM free_before=$free_before copy_headroom=$copy_headroom_bytes"
+    return 0
   fi
   # Revalidate the whole plan before the first unlink. A changed path makes the
   # operation fail closed without partially executing a stale plan.
@@ -667,10 +699,74 @@ do_retention() {
     local latest_daily
     latest_daily="$(ls -1t "$daily_dir"/"${PREFIX}"-*.dump.gz 2>/dev/null | head -1 || true)"
     if [ -n "$latest_daily" ] && [ "$DRY_RUN" = false ]; then
-      local weekly_name
+      if [ -L "$latest_daily" ] || [ ! -f "$latest_daily" ]; then
+        log "ERROR" "Promoção semanal recusou origem não regular: $latest_daily"
+        return 1
+      fi
+      local weekly_name weekly_path weekly_staging
+      local weekly_incoming weekly_replaced=0 weekly_growth weekly_source_size weekly_remote_size
+      local weekly_source_identity weekly_source_identity_after
       weekly_name="$(basename "$latest_daily" | sed 's/.dump.gz/.weekly.dump.gz/')"
-      cp "$latest_daily" "$weekly_dir/$weekly_name"
-      log "INFO" "Promovido: $weekly_name"
+      weekly_path="$weekly_dir/$weekly_name"
+      weekly_incoming=$(( $(stat --printf='%b' "$latest_daily") * 512 ))
+      weekly_source_size="$(stat --printf='%s' "$latest_daily")"
+      weekly_source_identity="$(stat --printf='%d:%i:%h:%b:%s:%Y' "$latest_daily")"
+      if [ -e "$weekly_path" ]; then
+        if [ -L "$weekly_path" ] || [ ! -f "$weekly_path" ]; then
+          log "ERROR" "Promoção semanal recusou destino não regular: $weekly_path"
+          return 1
+        fi
+        weekly_replaced=$(( $(stat --printf='%b' "$weekly_path") * 512 ))
+      fi
+      weekly_growth=$(( weekly_incoming > weekly_replaced ? weekly_incoming - weekly_replaced : 0 ))
+      log "INFO" "Admissão semanal byte-balanced: growth=$weekly_growth headroom=$weekly_incoming"
+      if ! do_byte_balanced_retention \
+          "$weekly_dir" "$weekly_path" "$weekly_growth" "$weekly_incoming"; then
+        log "ERROR" "Destino off-site sem capacidade segura para promoção semanal"
+        return 1
+      fi
+
+      weekly_staging="${weekly_path}.partial.$$"
+      CURRENT_REMOTE_STAGING="$weekly_staging"
+      if ! rm -f -- "$weekly_staging"; then
+        log "ERROR" "Promoção semanal não conseguiu limpar staging anterior: $weekly_staging"
+        return 1
+      fi
+      if [ "$(stat --printf='%d:%i:%h:%b:%s:%Y' "$latest_daily")" != "$weekly_source_identity" ]; then
+        log "ERROR" "Origem da promoção semanal mudou antes da cópia: $latest_daily"
+        remove_remote_staging "$weekly_staging" || true
+        return 1
+      fi
+      if ! cp "$latest_daily" "$weekly_staging"; then
+        log "ERROR" "Promoção semanal falhou ao copiar staging: $weekly_staging"
+        remove_remote_staging "$weekly_staging" || true
+        return 1
+      fi
+      if ! sync "$weekly_staging"; then
+        log "ERROR" "Promoção semanal falhou ao sincronizar staging: $weekly_staging"
+        remove_remote_staging "$weekly_staging" || true
+        return 1
+      fi
+      weekly_source_identity_after="$(stat --printf='%d:%i:%h:%b:%s:%Y' "$latest_daily")"
+      if [ "$weekly_source_identity_after" != "$weekly_source_identity" ] \
+          || ! cmp -s "$latest_daily" "$weekly_staging"; then
+        log "ERROR" "Origem da promoção semanal mudou durante a cópia: $latest_daily"
+        remove_remote_staging "$weekly_staging" || true
+        return 1
+      fi
+      weekly_remote_size="$(stat --printf='%s' "$weekly_staging" 2>/dev/null || echo 0)"
+      if [ "$weekly_remote_size" != "$weekly_source_size" ]; then
+        log "ERROR" "Promoção semanal divergiu em tamanho: source=$weekly_source_size remote=$weekly_remote_size"
+        remove_remote_staging "$weekly_staging" || true
+        return 1
+      fi
+      if ! mv -f "$weekly_staging" "$weekly_path"; then
+        log "ERROR" "Promoção semanal falhou ao publicar: $weekly_path"
+        remove_remote_staging "$weekly_staging" || true
+        return 1
+      fi
+      CURRENT_REMOTE_STAGING=""
+      log "INFO" "Promovido com publicação atômica: $weekly_name"
     elif [ "$DRY_RUN" = true ]; then
       log "INFO" "[DRY-RUN] Promoveria daily mais recente para weekly"
     else
