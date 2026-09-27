@@ -135,3 +135,8 @@ def test_backup_oneshot_does_not_restart_and_refill_staging() -> None:
     unit = (ROOT / "deploy" / "systemd" / "extra-db-backup.service").read_text(encoding="utf-8")
     assert "Restart=no" in unit
     assert "Restart=on-failure" not in unit
+
+
+def test_backup_timer_runs_missed_backup_after_reboot() -> None:
+    unit = (ROOT / "deploy" / "systemd" / "extra-db-backup.timer").read_text(encoding="utf-8")
+    assert "Persistent=true" in unit
