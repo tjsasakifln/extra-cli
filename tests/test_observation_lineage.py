@@ -131,7 +131,7 @@ def test_fetch_page_stamps_lineage_and_transform_persist_keep_it() -> None:
             }
         ],
         "totalRegistros": 1,
-        "totalPaginas": 1,
+        "totalPaginas": 2,
     }
     raw_bytes = json.dumps(payload).encode("utf-8")
     mock_resp = MagicMock()

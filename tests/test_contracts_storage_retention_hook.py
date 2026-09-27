@@ -405,8 +405,6 @@ def test_canonical_retention_deletes_only_cold_completed_contract_and_cascades_r
 
     dsn = os.getenv("LOCAL_DATALAKE_DSN") or os.getenv("DATABASE_URL")
     assert dsn, "LOCAL_DATALAKE_DSN or DATABASE_URL is required for real_db"
-    if os.getenv("ALLOW_DESTRUCTIVE_REAL_DB_TESTS") != "1":
-        pytest.skip("set ALLOW_DESTRUCTIVE_REAL_DB_TESTS=1 on an isolated test database")
     suffix = uuid.uuid4().hex
     contract_id = f"test-retention-cold-{suffix}"
     active_id = f"test-retention-active-{suffix}"
