@@ -409,6 +409,9 @@ def test_canonical_retention_deletes_only_cold_completed_contract_and_cascades_r
     contract_id = f"test-retention-cold-{suffix}"
     active_id = f"test-retention-active-{suffix}"
     hot_id = f"test-retention-hot-{suffix}"
+    suspended_id = f"test-retention-suspended-{suffix}"
+    updated_id = f"test-retention-updated-{suffix}"
+    review_id = f"test-retention-review-{suffix}"
     guard_trigger = f"test_retention_trigger_{suffix}"
     guard_function = f"test_retention_function_{suffix}"
     guard_table = f"test_retention_fk_{suffix}"
@@ -419,25 +422,41 @@ def test_canonical_retention_deletes_only_cold_completed_contract_and_cascades_r
                 """
                 INSERT INTO public.pncp_supplier_contracts (
                     contrato_id, source, data_publicacao, data_inicio, data_fim,
-                    ingested_at, first_seen_at, last_seen_at, source_updated_at
+                    ingested_at, first_seen_at, last_seen_at, source_updated_at,
+                    status_normalized, quality_state
                 ) VALUES
-                    (%s, 'retention-real-db', DATE '1900-01-01', DATE '1900-01-01',
-                     DATE '1900-01-02', TIMESTAMPTZ '1900-01-03 00:00:00+00',
-                     TIMESTAMPTZ '1900-01-03 00:00:00+00',
-                     TIMESTAMPTZ '1900-01-03 00:00:00+00',
-                     TIMESTAMPTZ '1900-01-03 00:00:00+00'),
-                    (%s, 'retention-real-db', DATE '1900-01-01', DATE '1900-01-01',
-                     NULL, TIMESTAMPTZ '1900-01-03 00:00:00+00',
-                     TIMESTAMPTZ '1900-01-03 00:00:00+00',
-                     TIMESTAMPTZ '1900-01-03 00:00:00+00',
-                     TIMESTAMPTZ '1900-01-03 00:00:00+00'),
+                    (%s, 'retention-real-db', DATE '2020-01-01', DATE '2020-01-01',
+                     DATE '2020-01-02', TIMESTAMPTZ '2026-09-26 00:00:00+00',
+                     TIMESTAMPTZ '2026-09-26 00:00:00+00',
+                     TIMESTAMPTZ '2026-09-26 00:00:00+00',
+                     TIMESTAMPTZ '2020-01-03 00:00:00+00', 'COMPLETED', 'VALID'),
+                    (%s, 'retention-real-db', DATE '2020-01-01', DATE '2020-01-01',
+                     NULL, TIMESTAMPTZ '2026-09-26 00:00:00+00',
+                     TIMESTAMPTZ '2026-09-26 00:00:00+00',
+                     TIMESTAMPTZ '2026-09-26 00:00:00+00',
+                     TIMESTAMPTZ '2020-01-03 00:00:00+00', 'ACTIVE_PROVEN', 'VALID'),
                     (%s, 'retention-real-db', DATE '2026-01-01', DATE '2026-01-01',
                      DATE '2026-01-02', TIMESTAMPTZ '2026-01-03 00:00:00+00',
                      TIMESTAMPTZ '2026-01-03 00:00:00+00',
                      TIMESTAMPTZ '2026-01-03 00:00:00+00',
-                     TIMESTAMPTZ '2026-01-03 00:00:00+00')
+                     TIMESTAMPTZ '2026-01-03 00:00:00+00', 'COMPLETED', 'VALID'),
+                    (%s, 'retention-real-db', DATE '2019-01-01', DATE '2019-01-01',
+                     DATE '2019-01-02', TIMESTAMPTZ '2026-09-26 00:00:00+00',
+                     TIMESTAMPTZ '2026-09-26 00:00:00+00',
+                     TIMESTAMPTZ '2026-09-26 00:00:00+00',
+                     TIMESTAMPTZ '2019-01-03 00:00:00+00', 'SUSPENDED', 'VALID'),
+                    (%s, 'retention-real-db', DATE '2019-01-01', DATE '2019-01-01',
+                     DATE '2019-01-02', TIMESTAMPTZ '2026-09-26 00:00:00+00',
+                     TIMESTAMPTZ '2026-09-26 00:00:00+00',
+                     TIMESTAMPTZ '2026-09-26 00:00:00+00',
+                     TIMESTAMPTZ '2026-09-26 00:00:00+00', 'COMPLETED', 'VALID'),
+                    (%s, 'retention-real-db', DATE '2018-01-01', DATE '2018-01-01',
+                     DATE '2018-01-02', TIMESTAMPTZ '2026-09-26 00:00:00+00',
+                     TIMESTAMPTZ '2026-09-26 00:00:00+00',
+                     TIMESTAMPTZ '2026-09-26 00:00:00+00',
+                     TIMESTAMPTZ '2018-01-03 00:00:00+00', 'COMPLETED', 'REVIEW')
                 """,
-                (contract_id, active_id, hot_id),
+                (contract_id, active_id, hot_id, suspended_id, updated_id, review_id),
             )
             cursor.execute(
                 """
@@ -457,7 +476,7 @@ def test_canonical_retention_deletes_only_cold_completed_contract_and_cascades_r
         rows, reusable, vacuumed = reclaim_canonical_contracts(
             conn,
             target_bytes=1,
-            cutoff=datetime(2000, 1, 1, tzinfo=UTC),
+            cutoff=datetime(2024, 1, 1, tzinfo=UTC),
             batch_rows=1,
             max_rows=1,
             apply=True,
@@ -477,10 +496,17 @@ def test_canonical_retention_deletes_only_cold_completed_contract_and_cascades_r
             )
             assert cursor.fetchone() == (0,)
             cursor.execute(
-                "SELECT contrato_id FROM public.pncp_supplier_contracts WHERE contrato_id IN (%s, %s)",
-                (active_id, hot_id),
+                "SELECT contrato_id FROM public.pncp_supplier_contracts "
+                "WHERE contrato_id IN (%s, %s, %s, %s, %s)",
+                (active_id, hot_id, suspended_id, updated_id, review_id),
             )
-            assert {row[0] for row in cursor.fetchall()} == {active_id, hot_id}
+            assert {row[0] for row in cursor.fetchall()} == {
+                active_id,
+                hot_id,
+                suspended_id,
+                updated_id,
+                review_id,
+            }
 
             cursor.execute(
                 sql.SQL(
@@ -542,7 +568,16 @@ def test_canonical_retention_deletes_only_cold_completed_contract_and_cascades_r
             )
             cursor.execute(
                 "DELETE FROM public.pncp_supplier_contracts WHERE contrato_id = ANY(%s)",
-                ([contract_id, active_id, hot_id],),
+                (
+                    [
+                        contract_id,
+                        active_id,
+                        hot_id,
+                        suspended_id,
+                        updated_id,
+                        review_id,
+                    ],
+                ),
             )
         conn.commit()
         conn.close()

@@ -324,6 +324,36 @@ def test_each_canonical_apply_batch_locks_then_revalidates_before_delete(
     assert connection.commit_count == 2
 
 
+def test_canonical_age_uses_source_contract_clocks_not_local_ingest_clocks(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    connection = CanonicalBatchConnection()
+    monkeypatch.setattr(
+        "scripts.ops.storage_retention._assert_canonical_purge_safe", lambda _connection: None
+    )
+
+    _canonical_batch(
+        connection,
+        cutoff=NOW,
+        batch_rows=1,
+        target_bytes=1,
+        apply=False,
+    )
+
+    query = next(sql for sql in connection.sql if "WITH eligible AS" in sql)
+    assert "source_updated_at" in query
+    assert "data_atualizacao_fonte" in query
+    assert "data_publicacao_fonte" in query
+    assert "data_publicacao" in query
+    assert "data_assinatura" in query
+    assert "c.data_fim::timestamp AT TIME ZONE 'UTC'" in query
+    assert "c.status_normalized = 'COMPLETED'" in query
+    assert "c.quality_state = 'VALID'" in query
+    assert "last_seen_at" not in query
+    assert "ingested_at" not in query
+    assert "ORDER BY observed.recency ASC, c.id ASC" in query
+
+
 def test_history_apply_only_deletes_superseded_history_and_vacuums(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

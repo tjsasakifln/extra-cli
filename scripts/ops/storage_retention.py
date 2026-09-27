@@ -572,14 +572,29 @@ def _canonical_batch(
               ON roles.contract_id = c.contrato_id
             CROSS JOIN LATERAL (
                 SELECT GREATEST(
+                    c.data_fim::timestamp AT TIME ZONE 'UTC',
                     COALESCE(c.source_updated_at, '-infinity'::timestamptz),
-                    COALESCE(c.data_atualizacao_fonte::timestamptz, '-infinity'::timestamptz),
-                    COALESCE(c.last_seen_at, '-infinity'::timestamptz),
-                    COALESCE(c.ingested_at, '-infinity'::timestamptz),
-                    COALESCE(c.data_publicacao::timestamptz, '-infinity'::timestamptz)
+                    COALESCE(
+                        c.data_atualizacao_fonte::timestamp AT TIME ZONE 'UTC',
+                        '-infinity'::timestamptz
+                    ),
+                    COALESCE(
+                        c.data_publicacao_fonte::timestamp AT TIME ZONE 'UTC',
+                        '-infinity'::timestamptz
+                    ),
+                    COALESCE(
+                        c.data_publicacao::timestamp AT TIME ZONE 'UTC',
+                        '-infinity'::timestamptz
+                    ),
+                    COALESCE(
+                        c.data_assinatura::timestamp AT TIME ZONE 'UTC',
+                        '-infinity'::timestamptz
+                    )
                 ) AS recency
             ) AS observed
             WHERE observed.recency < %s
+              AND c.status_normalized = 'COMPLETED'
+              AND c.quality_state = 'VALID'
               AND c.data_fim IS NOT NULL
               AND c.data_fim < %s::date
             ORDER BY observed.recency ASC, c.id ASC
