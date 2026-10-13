@@ -68,6 +68,29 @@ python3 tools/dod_controller.py report
 - Um item por vez (máx. 2 pré-requisitos). Spec Kit: integração `grok`, workflow `dod-convergence`.
 - Constituição: `.specify/memory/constitution.md`.
 
+## Fronteira de aquisição PNCP (invariante global, leitura obrigatória)
+
+A VPS/Data Lake é a fronteira de aquisição da CONFENGE. PNCP live é upstream
+assíncrono: toda família de dados segue `fonte oficial → coletor resiliente
+na VPS → raw/CAS → Data Lake canônico → consumidor`; o consumidor lê apenas
+o estado persistido.
+
+Proibido: qualquer consumidor (campanha, relatório, view, Warmbly, web-cfg,
+meetcfg, ou **esta sessão**) depender de PNCP live. Proibido criar um
+segundo caminho de aquisição fora da VPS/Data Lake. Proibido manter o
+polling manual (`--from-pncp` ou equivalente) como operação permanente: um
+coletor novo, após provado com um payload real, migra para job na VPS com
+timer, retry/backoff, checkpoint/resume e idempotência.
+
+Chamada PNCP live nesta sessão só é legítima para discovery técnico, captura
+do primeiro payload real de uma família nova, teste/canário de nova
+integração, ou diagnóstico excepcional. PNCP indisponível não bloqueia
+trabalho downstream sobre dados já persistidos; ausência de dado novo é
+`UNKNOWN`/`STALE`, nunca inventada.
+
+Lei: ADR-039 §"Extensão — fronteira de aquisição assíncrona (global)".
+Preflight: `python3 -m scripts.ops.check_confenge_campaign_plan --file <arquivo>`.
+
 ## PR governance (fail-closed)
 
 Before opening or marking ready for review:
