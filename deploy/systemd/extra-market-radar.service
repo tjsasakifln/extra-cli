@@ -3,7 +3,6 @@ Description=Extra Consultoria — sanitized PNCP Market Radar projection
 Documentation=file:/opt/confenge-market-radar-producer/current/docs/contracts/market-radar-v1.md
 After=postgresql.service
 Wants=postgresql.service
-OnFailure=extra-onfailure@%n.service
 # Independent read consumer of the persisted datalake. Never couple this unit
 # to pncp-contracts.service with OnSuccess, Requires or BindsTo.
 
@@ -17,6 +16,8 @@ ExecStart=/opt/extra-consultoria/.venv/bin/python /opt/confenge-market-radar-pro
     --output-dir /var/lib/confenge-market-radar
 UMask=0027
 Nice=10
+CPUQuota=150%
+MemoryMax=2G
 IOSchedulingClass=idle
 TimeoutStartSec=45m
 NoNewPrivileges=true
