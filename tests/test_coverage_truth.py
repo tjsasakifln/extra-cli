@@ -12,7 +12,7 @@ Key properties proven:
 
 from __future__ import annotations
 
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 
 import pytest
 
@@ -528,6 +528,11 @@ class TestSimulatedPipeline:
 
     def test_full_pipeline_simulation(self, compute_metrics_fn):
         """End-to-end: simulate a crawl run with entity-level evidence."""
+        # Keep this synthetic run fresh as the suite moves through calendar
+        # time; the assertions exercise freshness semantics, not a historical
+        # date frozen in the past.
+        today = date.today()
+        run_day = datetime.combine(today, datetime.min.time(), tzinfo=UTC)
         # ── Setup: 5 entities within 200km ────────────────────────────
         entities = [
             make_entity(1, "Prefeitura Alpha", lat=-27.5, lon=-48.5),
@@ -544,37 +549,37 @@ class TestSimulatedPipeline:
                 "pncp",
                 "success_with_data",
                 entity_id=1,
-                completed_at=datetime(2026, 7, 12, 9, 0, 0, tzinfo=UTC),
+                completed_at=run_day.replace(hour=9),
             ),
             make_evidence(
                 "pncp",
                 "success_with_data",
                 entity_id=2,
-                completed_at=datetime(2026, 7, 12, 9, 0, 0, tzinfo=UTC),
+                completed_at=run_day.replace(hour=9),
             ),
             make_evidence(
                 "pncp",
                 "success_with_data",
                 entity_id=3,
-                completed_at=datetime(2026, 7, 12, 9, 0, 0, tzinfo=UTC),
+                completed_at=run_day.replace(hour=9),
             ),
             make_evidence(
                 "pncp",
                 "success_with_data",
                 entity_id=4,
-                completed_at=datetime(2026, 7, 12, 9, 0, 0, tzinfo=UTC),
+                completed_at=run_day.replace(hour=9),
             ),
             make_evidence(
-                "pncp", "success_zero", entity_id=5, completed_at=datetime(2026, 7, 12, 9, 0, 0, tzinfo=UTC)
+                "pncp", "success_zero", entity_id=5, completed_at=run_day.replace(hour=9)
             ),
         ]
 
         # entity_coverage after PNCP run (bid presence — separate from monitoring)
         pncp_coverage = [
-            make_coverage(1, "pncp", is_covered=True, total_bids=50, last_seen_at=date(2026, 7, 12)),
-            make_coverage(2, "pncp", is_covered=True, total_bids=30, last_seen_at=date(2026, 7, 10)),
-            make_coverage(3, "pncp", is_covered=True, total_bids=20, last_seen_at=date(2026, 7, 8)),
-            make_coverage(4, "pncp", is_covered=True, total_bids=10, last_seen_at=date(2026, 7, 5)),
+            make_coverage(1, "pncp", is_covered=True, total_bids=50, last_seen_at=today),
+            make_coverage(2, "pncp", is_covered=True, total_bids=30, last_seen_at=today - timedelta(days=2)),
+            make_coverage(3, "pncp", is_covered=True, total_bids=20, last_seen_at=today - timedelta(days=4)),
+            make_coverage(4, "pncp", is_covered=True, total_bids=10, last_seen_at=today - timedelta(days=7)),
         ]
 
         # ── Simulate contracts crawl run ─────────────────────────────
@@ -583,19 +588,19 @@ class TestSimulatedPipeline:
                 "contracts",
                 "success_with_data",
                 entity_id=1,
-                completed_at=datetime(2026, 7, 12, 10, 0, 0, tzinfo=UTC),
+                completed_at=run_day.replace(hour=10),
             ),
             make_evidence(
                 "contracts",
                 "success_with_data",
                 entity_id=3,
-                completed_at=datetime(2026, 7, 12, 10, 0, 0, tzinfo=UTC),
+                completed_at=run_day.replace(hour=10),
             ),
         ]
 
         contracts_coverage = [
-            make_coverage(1, "contracts", is_covered=True, total_bids=5, last_seen_at=date(2026, 7, 11)),
-            make_coverage(3, "contracts", is_covered=True, total_bids=2, last_seen_at=date(2026, 7, 9)),
+            make_coverage(1, "contracts", is_covered=True, total_bids=5, last_seen_at=today),
+            make_coverage(3, "contracts", is_covered=True, total_bids=2, last_seen_at=today - timedelta(days=3)),
         ]
 
         # ── Simulate DOM-SC crawl run (FAILED) ───────────────────────
@@ -604,7 +609,7 @@ class TestSimulatedPipeline:
                 "dom_sc",
                 "connection_failed",
                 entity_id=1,
-                completed_at=datetime(2026, 7, 12, 8, 0, 0, tzinfo=UTC),
+                completed_at=run_day.replace(hour=8),
             ),
         ]
 

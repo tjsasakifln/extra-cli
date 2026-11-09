@@ -13,6 +13,16 @@
 CI green or field-presence tests do **not** promote a claim across tiers.
 A single `[x]` must not hide these differences.
 
+### Projeção pública do Radar de Mercado Público (2026-11-09)
+
+- [ ] Integrar e provar a projeção `confenge.market-radar/v1`: CI do SHA exato,
+  exportação real com papel PostgreSQL limitado a SELECT, reconciliação do
+  recorte, consumidor público e timer independente. Não altera o aceite dos
+  incidentes ou campanhas existentes. A primeira exportação comprova apenas
+  aquela execução; a recorrência exige observar o timer. Decisão e limites:
+  `docs/architecture/adr-market-radar-public-projection.md`. Operação e
+  evidências: `docs/ops/market-radar-public-projection.md`.
+
 ### Incidente ativo #458 (2026-08-22)
 
 - [ ] Aceitar #458 somente após CI verde no `main`, janela real controlada no
