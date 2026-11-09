@@ -7,13 +7,16 @@ import os
 import sqlite3
 from decimal import Decimal
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import pytest
 
 from scripts.public_exports.market_radar import (
     POINTER_SCHEMA,
+    REQUIRED_COLUMN_TYPES,
     SNAPSHOT_SCHEMA,
     ExportError,
+    _require_schema,
     build_snapshot,
     normalize_contract,
     sanitize_text,
@@ -21,6 +24,20 @@ from scripts.public_exports.market_radar import (
 
 TODAY = dt.date(2026, 11, 9)
 NOW = dt.datetime(2026, 11, 9, 15, 0, tzinfo=dt.UTC)
+
+
+def test_schema_preflight_accepts_cursor_pairs_and_refuses_missing_or_changed_type():
+    connection = MagicMock()
+    cursor = connection.cursor.return_value.__enter__.return_value
+    columns = {name: sorted(types)[0] for name, types in REQUIRED_COLUMN_TYPES.items()}
+    cursor.fetchall.return_value = list(columns.items())
+    assert len(_require_schema(connection)) == 64
+    cursor.fetchall.return_value = [(name, kind) for name, kind in columns.items() if name != "valor_total"]
+    with pytest.raises(ExportError, match="missing required columns: valor_total"):
+        _require_schema(connection)
+    cursor.fetchall.return_value = list({**columns, "valor_total": "text"}.items())
+    with pytest.raises(ExportError, match="incompatible required types: valor_total=text"):
+        _require_schema(connection)
 
 
 def row(**changes):

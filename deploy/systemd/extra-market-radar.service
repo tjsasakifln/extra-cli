@@ -20,6 +20,7 @@ Nice=10
 IOSchedulingClass=idle
 TimeoutStartSec=45m
 NoNewPrivileges=true
+RestrictAddressFamilies=AF_UNIX
 PrivateTmp=true
 ProtectHome=true
 ProtectSystem=strict

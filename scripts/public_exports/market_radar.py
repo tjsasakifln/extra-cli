@@ -616,7 +616,7 @@ def _require_schema(connection: Any) -> str:
             "ORDER BY ordinal_position"
         )
         available = dict(cursor.fetchall())
-    missing = sorted(REQUIRED_COLUMNS - available)
+    missing = sorted(REQUIRED_COLUMNS - available.keys())
     if missing:
         raise ExportError("live schema missing required columns: " + ", ".join(missing))
     mismatches = sorted(
