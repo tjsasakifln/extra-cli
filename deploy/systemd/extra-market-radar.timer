@@ -1,0 +1,13 @@
+[Unit]
+Description=Timer — sanitized PNCP Market Radar projection
+# This schedule is intentionally independent from PNCP ingestion. It reads the
+# persisted datalake and records its own transaction cut.
+
+[Timer]
+OnCalendar=*-*-* 02,06,10,14,18,22:20:00 America/Sao_Paulo
+RandomizedDelaySec=300
+Persistent=true
+Unit=extra-market-radar.service
+
+[Install]
+WantedBy=timers.target
