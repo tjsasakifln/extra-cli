@@ -654,8 +654,11 @@ def _source_metadata(connection: Any, *, months: int) -> dict[str, Any]:
 
 def _calendar_window_start(connection: Any, *, today: dt.date, months: int) -> dt.date:
     with connection.cursor() as cursor:
-        cursor.execute("SELECT %s::date - make_interval(months => %s)", (today, months))
-        return cursor.fetchone()[0]
+        cursor.execute("SELECT (%s::date - make_interval(months => %s))::date", (today, months))
+        start = _date(cursor.fetchone()[0])
+        if start is None:
+            raise ExportError("source publication window is not a calendar date")
+        return start
 
 
 def _stream_rows(connection: Any, *, today: dt.date, months: int, batch_size: int) -> Iterator[dict[str, Any]]:

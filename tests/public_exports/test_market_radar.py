@@ -16,6 +16,7 @@ from scripts.public_exports.market_radar import (
     REQUIRED_COLUMN_TYPES,
     SNAPSHOT_SCHEMA,
     ExportError,
+    _calendar_window_start,
     _require_schema,
     build_snapshot,
     normalize_contract,
@@ -24,6 +25,15 @@ from scripts.public_exports.market_radar import (
 
 TODAY = dt.date(2026, 11, 9)
 NOW = dt.datetime(2026, 11, 9, 15, 0, tzinfo=dt.UTC)
+
+
+def test_postgres_interval_window_is_a_date_even_if_driver_returns_midnight_timestamp():
+    connection = MagicMock()
+    cursor = connection.cursor.return_value.__enter__.return_value
+    cursor.fetchone.return_value = (dt.datetime(2024, 11, 9, 0, 0),)
+    start = _calendar_window_start(connection, today=TODAY, months=24)
+    assert type(start) is dt.date
+    assert start.isoformat() == "2024-11-09"
 
 
 def test_schema_preflight_accepts_cursor_pairs_and_refuses_missing_or_changed_type():
