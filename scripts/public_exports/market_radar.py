@@ -483,8 +483,9 @@ def build_snapshot(
 ) -> dict[str, Any]:
     """Build, validate and atomically publish one immutable snapshot."""
     output_dir = Path(output_dir).resolve()
-    output_dir.mkdir(parents=True, exist_ok=True, mode=0o750)
-    os.chmod(output_dir, 0o750)  # noqa: S103 - group-read directory is the consumer boundary
+    output_dir.mkdir(parents=True, exist_ok=True, mode=0o2750)
+    if output_dir.stat().st_mode & 0o7777 != 0o2750:
+        os.chmod(output_dir, 0o2750)  # noqa: S103 - preserve existing root-provisioned SGID without chmod
     generated_at = generated_at or dt.datetime.now(dt.UTC)
     _validate_source_freshness(source_meta)
     _ensure_free_space(output_dir)
@@ -706,6 +707,25 @@ def export_from_postgres(
     statement_timeout_ms: int = 600_000,
 ) -> dict[str, Any]:
     """Run the read-only database export. No source row is mutated."""
+    # Root provisions the SGID output directory. The producer's private primary
+    # group must not grant access to unrelated web runtime configuration.
+    import grp
+    import stat
+
+    try:
+        boundary = output_dir.stat()
+        web_group = grp.getgrnam("confenge-web").gr_gid
+    except (OSError, KeyError) as exc:
+        raise ExportError("output boundary must be provisioned before activation") from exc
+    if (
+        not output_dir.is_dir()
+        or output_dir.is_symlink()
+        or boundary.st_uid != os.geteuid()
+        or boundary.st_gid != web_group
+        or stat.S_IMODE(boundary.st_mode) != 0o2750
+        or web_group in {os.getegid(), *os.getgroups()}
+    ):
+        raise ExportError("output boundary or producer group membership is unsafe")
     try:
         import psycopg2
     except ImportError as exc:  # pragma: no cover - production dependency gate

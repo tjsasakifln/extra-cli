@@ -6,7 +6,7 @@ declara VPS_OPERATIONAL para o produto Extra nem aceita incidentes existentes.
 ## Instalação
 
 1. Integrar código após CI verde e testes do item. Identificar o SHA exato.
-2. Criar usuário de sistema `confenge-radar`, sem shell, grupo `confenge-web`.
+2. Criar usuário de sistema `confenge-radar`, sem shell, grupo primário próprio `confenge-radar`, sem membership em `confenge-web`.
    Aplicar `deploy/market-radar/provision.sql` como administrador no banco
    `pncp_datalake`. Conferir os privilégios de escrita ausentes. A autenticação
    é peer local; não há senha no evento, no site ou no repositório.
@@ -21,8 +21,8 @@ declara VPS_OPERATIONAL para o produto Extra nem aceita incidentes existentes.
    O symlink `current` seleciona a release. Usar o Python/psycopg2 já instalado
    em `/opt/extra-consultoria/.venv`; não alterar o checkout operacional.
 4. Instalar os units versionados de `deploy/systemd/extra-market-radar.*`.
-   O serviço usa `confenge-radar:confenge-web` e escreve somente em
-   `/var/lib/confenge-market-radar` (0750). Snapshots são 0440. O runtime web
+   O serviço usa `confenge-radar:confenge-radar` e escreve somente em
+   `/var/lib/confenge-market-radar` (2750). Snapshots são 0440. O runtime web
    recebe leitura por grupo e nenhum direito de escrita na projeção ou banco.
 5. Executar uma vez, conferir retorno, pointer, digest, contagens, exclusões,
    datas e consultas. Só então ativar o timer. Conferir o próximo disparo.

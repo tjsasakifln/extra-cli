@@ -46,8 +46,8 @@ the execution location.
 
 ## Filesystem contract
 
-Directory `/var/lib/confenge-market-radar` is mode `0750`, owned by the producer
-user and `confenge-web` group. Snapshots are immutable mode `0440` files named
+Directory `/var/lib/confenge-market-radar` is mode `2750`, owned by the producer
+user and `confenge-web` group. SGID gives new files the reader group without adding the producer to that group. Snapshots are immutable mode `0440` files named
 `snapshot-<sha256>.sqlite`. `current.json` is replaced atomically only after
 SQLite `quick_check`, user version, row count, FTS count and identity checks pass.
 Failed builds leave the previous pointer untouched. Historical immutable files

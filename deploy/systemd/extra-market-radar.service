@@ -10,13 +10,11 @@ OnFailure=extra-onfailure@%n.service
 [Service]
 Type=oneshot
 User=confenge-radar
-Group=confenge-web
+Group=confenge-radar
 WorkingDirectory=/opt/confenge-market-radar-producer/current
 Environment=PYTHONPATH=/opt/confenge-market-radar-producer/current
 ExecStart=/opt/extra-consultoria/.venv/bin/python /opt/confenge-market-radar-producer/current/scripts/public_exports/market_radar.py \
     --output-dir /var/lib/confenge-market-radar
-StateDirectory=confenge-market-radar
-StateDirectoryMode=0750
 UMask=0027
 Nice=10
 IOSchedulingClass=idle
