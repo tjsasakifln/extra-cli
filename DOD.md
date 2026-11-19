@@ -23,6 +23,17 @@ A single `[x]` must not hide these differences.
   `docs/architecture/adr-market-radar-public-projection.md`. Operação e
   evidências: `docs/ops/market-radar-public-projection.md`.
 
+### Fatos oficiais para notícias de contratos (2026-11-19)
+
+- [ ] Integrar e provar `confenge.contract-news-facts/v1`: CI do SHA exato,
+  bundle aprovado, leitura autorizada da projeção existente, confirmação oficial
+  limitada, consumidor editorial e publicação real. Recorrência exige observar
+  execução agendada; teste SQLite de fixture e execução isolada não bastam.
+  Não altera ingestão, plano comercial, grants ou timers de sistema.
+  Decisão: `docs/architecture/adr-contract-news-facts.md`. Contrato:
+  `docs/contracts/contract-news-facts-v1.md`. Evidência inicial:
+  `docs/handoffs/contract-news-facts-2026-11-19.md`.
+
 ### Incidente ativo #458 (2026-08-22)
 
 - [ ] Aceitar #458 somente após CI verde no `main`, janela real controlada no
