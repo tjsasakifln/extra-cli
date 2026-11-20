@@ -34,6 +34,13 @@ A single `[x]` must not hide these differences.
   `docs/contracts/contract-news-facts-v1.md`. Evidência inicial:
   `docs/handoffs/contract-news-facts-2026-11-19.md`.
 
+- [ ] Enriquecimento documental de 2026-11-20: vincular a contratação de origem
+  e os anexos do próprio contrato, conferir o bundle com o extrator PDF fixado,
+  validar os fatos em publicação real e observar a próxima execução agendada.
+  Testes locais e consulta isolada não encerram o aceite produtivo. Contrato e
+  limites em `docs/contracts/contract-news-facts-v1.md`; evidência em
+  `docs/handoffs/contract-news-context-2026-11-20.md`.
+
 ### Incidente ativo #458 (2026-08-22)
 
 - [ ] Aceitar #458 somente após CI verde no `main`, janela real controlada no

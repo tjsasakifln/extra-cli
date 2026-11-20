@@ -35,6 +35,20 @@ O detalhe oficial fica em
 O host e o caminho derivam do ID validado. Não há redirecionamento, retry nem
 origem arbitrária; cada resposta tem limite de 256 KiB e timeout de 15 segundos.
 
+O enriquecimento adicional de 2026-11-20 consulta até cinco compras vinculadas
+distintas e os anexos de até dois contratos, com no máximo três PDFs por contrato.
+Tem orçamento total de 120 segundos, até quinze segundos por requisição, sem
+retries. Suas contagens `context_*` são independentes de `official_requests`, que
+continua contando somente os detalhes de contrato. O máximo é de treze consultas
+adicionais: cinco compras, duas listas e seis documentos. Havendo revisões e
+novidades, cada classe recebe uma vaga documental; na ausência de uma delas, a
+outra pode usar as duas. A revisão documental preserva a ordem do consumidor.
+A candidata nova gira por janela de quatro horas dentro da lista confirmada,
+ordenada por valor e ID. A janela avança continuamente entre dias, alcançando
+também posições além das seis execuções diárias. O rodízio não exclui nenhum
+recheck da confirmação oficial e não modifica a ordem final dos fatos por valor.
+As compras vinculadas das duas candidatas documentais são consultadas primeiro.
+
 ## Documento de saída
 
 | Campo | Contrato |
@@ -78,9 +92,12 @@ mesmo destino. O diretório de destino deve existir e ser previamente autorizado
 | `signed_at` | Data de assinatura `AAAA-MM-DD` ou `null` |
 | `starts_at`, `ends_at` | Datas de vigência `AAAA-MM-DD` ou `null` |
 | `administrative_location.city`, `.state` | Município/UF da unidade administrativa ou `null` |
+| `editorial_context` | Contexto documental opcional, versão `confenge.contract-news-context/v1` |
 
 Somente contrato inicial de despesa, com pessoa jurídica e CNPJ válido, entra
-nessa versão. O valor não é estimativa, soma de aditivos ou execução financeira.
+nessa versão. O valor vem de um campo contratual explícito, nunca da estimativa
+da compra, de soma de aditivos ou de execução financeira. Esse registro não
+comprova que todo o montante se tornou uma ordem de execução ou pagamento.
 O lugar administrativo não prova lugar da obra. Ausência de assinatura não é
 preenchida pela publicação. Texto, valores e datas nunca são inventados para
 completar registro; mínimos incompletos excluem o candidato.
@@ -89,6 +106,58 @@ Cada item de `recheck_results` tem `id`, `status` e `reason`.
 `verified` também entrega o registro em `records`. `ineligible` descreve
 reprovação semântica na resposta oficial. `unavailable` não é evidência de
 cancelamento e não autoriza inferência de que o contrato deixou de existir.
+
+## Contexto de apuração
+
+`editorial_context` é aditivo e opcional; consumidores antigos podem ignorá-lo.
+A compra é recuperada exclusivamente do vínculo `numeroControlePncpCompra`
+presente no detalhe confirmado. O detalhe deve devolver esse mesmo ID e órgão.
+O endpoint é `https://pncp.gov.br/api/consulta/v1/orgaos/{cnpj}/compras/{ano}/{sequencial}`.
+
+| Campo do contexto | Significado |
+| --- | --- |
+| `schema` | `confenge.contract-news-context/v1` |
+| `contract.number`, `.type`, `.category` | Número, tipo e categoria declarados no próprio detalhe do contrato, ou `null` |
+| `procurement` | Compra vinculada confirmada ou `null` quando indisponível, ausente ou fora do limite |
+| `procurement.id` | ID PNCP de compra, distinto do ID de contrato |
+| `procurement.source_url`, `.source_api_url`, `.source_sha256`, `.source_checked_at` | Portal, endpoint exato, digest dos bytes e confirmação UTC |
+| `procurement.number`, `.process`, `.modality`, `.dispute_mode`, `.instrument` | Textos oficiais, saneados, sem inferência sobre situação atual da disputa |
+| `procurement.legal_basis`, `.legal_basis_description` | Amparo declarado pelo registro, sem parecer jurídico adicional |
+| `procurement.object` | Objeto da compra, sem truncamento silencioso |
+| `procurement.estimated_value`, `.awarded_value` | `null` ou `{amount: string decimal, currency: BRL}`; zero continua zero |
+| `procurement.published_at`, `.proposal_opens_at`, `.proposal_closes_at` | Instantes UTC convertidos do fuso brasileiro quando necessário, ou `null` |
+| `documents` | Até três anexos efetivamente extraídos para aquele contrato |
+| `documents_status` | `complete`, `partial`, `unavailable` ou `not_collected` |
+| `documents_total` | Total da lista conferida, ou `null` se a listagem não foi obtida |
+| `documents_checked_at` | Instante UTC da conferência da lista ou `null` |
+
+Cada documento tem `id`, `title`, `url`, `sha256`, `checked_at`, `pages`,
+`text_pages`, `pages_without_text`, `extraction_note` e `text`. `pages_without_text` identifica
+páginas com menos de quarenta caracteres extraíveis, sem presumir que estejam
+em branco ou que suas imagens/plantas tenham sido lidas. A nota explica essa
+cobertura textual. `documents_status=complete` significa que todos os anexos
+listados e dentro dos limites foram recuperados e forneceram texto útil. Não
+significa interpretação integral de cada imagem, planta ou assinatura do PDF.
+Um documento inteiramente sem texto útil continua indisponível e impede essa
+classificação, diferentemente de desenhos anexos a um contrato textual.
+O número do documento e a URL têm vínculo exato com o contrato, conferido na
+listagem oficial. URLs externas, parâmetros, portas e substituição de identidade
+são recusados. PDFs têm até 2 MiB e vinte páginas. `text` tem até 32.000 caracteres,
+com remoção de CPF, contatos e identificadores pessoais detectáveis. O texto
+continua privado e não autoriza publicar nomes ou assinaturas de representantes.
+
+Falha em qualquer anexo muda a cobertura para `partial` ou `unavailable`; não
+apaga a confirmação do contrato. Mais de três anexos também significa `partial`.
+`complete` com `documents_total=0` significa lista vazia conferida, não pesquisa
+fora do PNCP. Campos ausentes não são reconstruídos por suposição. Metadados e
+textos desses anexos servem à apuração, não são provas automáticas de pagamento,
+início físico, entrega ou execução de todo o valor registrado.
+
+O fallback offline está em `scripts/public_exports/pdf_extract.py`. Sua wheel
+`pypdf-6.21.4-py3-none-any.whl` é importada apenas após validação de SHA-256 e em
+processo separado. A versão, digest e licença estão documentados em
+`scripts/public_exports/vendor/README.md`. O bundle inclui a wheel exata e seu
+hash no manifesto; não é preciso instalar dependências no host.
 
 ## Bundle aprovado e execução
 

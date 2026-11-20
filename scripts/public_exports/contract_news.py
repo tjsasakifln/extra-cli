@@ -31,6 +31,7 @@ from zoneinfo import ZoneInfo
 from scripts.contracts_identity import normalize_supplier_identity
 from scripts.historical_contract_authority.aec import AEC_TOKENS, aec_disposition
 from scripts.official_contract_semantics.http_client import FetchResult, fetch_official
+from scripts.public_exports.contract_news_context import EvidenceResponse, enrich_records, fetch_evidence
 from scripts.public_exports.market_radar import (
     PNCP_ID_RE,
     UF_CODES,
@@ -512,6 +513,7 @@ def build_snapshot(
     requested_rechecks: Sequence[str],
     metadata: Mapping[str, Any],
     fetch: Callable[[str], FetchResult] = fetch_contract,
+    context_fetch: Callable[[str, int, float], EvidenceResponse] = fetch_evidence,
     clock: Callable[[], dt.datetime] = lambda: dt.datetime.now(dt.UTC),
 ) -> dict[str, Any]:
     if len(new_ids) + len(recheck_ids) > MAX_REQUESTS or len(requested_rechecks) > MAX_RECHECKS:
@@ -519,6 +521,7 @@ def build_snapshot(
     if set(new_ids) & set(recheck_ids) or len(set(new_ids)) != len(new_ids) or len(set(recheck_ids)) != len(recheck_ids):
         raise ExportError("duplicate_candidate_identity")
     records: list[dict[str, Any]] = []
+    confirmed_payloads: dict[str, Mapping[str, Any]] = {}
     dispositions: list[dict[str, str]] = [
         {"id": identity, "status": "unavailable", "reason": "not_in_persisted_lake"}
         for identity in requested_rechecks if identity not in recheck_ids
@@ -566,11 +569,15 @@ def build_snapshot(
                 dispositions.append({"id": identity, "status": "ineligible", "reason": reason})
             continue
         records.append(record)
+        confirmed_payloads[identity] = payload
         if correction:
             dispositions.append({"id": identity, "status": "verified", "reason": "official_payload_confirmed"})
     # Repeated upstream errors must not masquerade as an empty success snapshot.
     if requests and unavailable == requests:
         raise ExportError("all_official_requests_unavailable")
+    context_summary = enrich_records(
+        records, confirmed_payloads, recheck_ids=recheck_ids, clock=clock, fetch=context_fetch,
+    )
     records.sort(key=lambda item: (-Decimal(item["value"]["amount"]), item["id"]))
     return {
         "schema": SCHEMA,
@@ -583,6 +590,7 @@ def build_snapshot(
             "official_requests": requests,
             "verified_records": len(records),
             "excluded": dict(sorted(excluded.items())),
+            **context_summary,
             "coverage": "bounded_recent_engineering_candidates_not_a_national_ranking",
         },
         "records": records,

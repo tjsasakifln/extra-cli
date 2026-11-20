@@ -12,6 +12,7 @@ import pytest
 from scripts.official_contract_semantics.http_client import FetchResult
 from scripts.public_exports import contract_news as news
 from scripts.public_exports import market_radar as radar
+from scripts.public_exports.contract_news_context import EvidenceResponse
 
 NOW = dt.datetime(2026, 11, 19, 16, 0, tzinfo=dt.UTC)
 ID = "11222333000181-2-000123/2026"
@@ -68,6 +69,7 @@ def snapshot(ids, fetch, rechecks=()):
     return news.build_snapshot(
         ids, recheck_ids=rechecks, requested_rechecks=rechecks,
         metadata=meta(), fetch=fetch, clock=lambda: NOW,
+        context_fetch=lambda url, limit, timeout: EvidenceResponse(url, 200, b"[]"),
     )
 
 

@@ -17,6 +17,7 @@ PROBE = """
 import json,sys
 from pathlib import Path
 import scripts.public_exports.contract_news
+from scripts.public_exports.pdf_extract import PYPDF_WHEEL, verified_wheel
 root=Path.cwd()
 files=set()
 for module in list(sys.modules.values()):
@@ -25,6 +26,8 @@ for module in list(sys.modules.values()):
         relative=Path(file).relative_to(root)
         if relative.parts[0] == 'scripts' and relative.suffix == '.py':
             files.add(relative.as_posix())
+verified_wheel(root)
+files.add(PYPDF_WHEEL)
 print(json.dumps(sorted(files)))
 """
 
