@@ -48,6 +48,47 @@ ausentes continuam nulas. A localização é administrativa, sem inferência sob
 o local da obra. Estimativas, empenhos, receitas e instrumentos de tipo diferente
 não entram na primeira versão.
 
+## Enriquecimento documental autorizado em 2026-11-20
+
+A solicitação do fundador exige qualidade editorial além da reescrita do
+registro. O produtor acrescenta `editorial_context` opcional ao contrato v1,
+preservando os campos e limites da confirmação inicial. O contexto contém a
+contratação explicitamente vinculada por `numeroControlePncpCompra` e anexos
+listados pelo próprio contrato. Nenhuma relação é inferida por similaridade de
+texto, valor, fornecedor ou município.
+
+A API vigente de compras usa `/api/consulta/v1/orgaos/.../compras/...`. A resposta
+de erro JSON que o caminho antigo devolve com HTTP 200 é recusada por identidade.
+São no máximo cinco compras distintas, com reaproveitamento dentro da rodada,
+e dois contratos com até três PDFs cada. Todo o enriquecimento tem prazo máximo
+de 120 segundos. Uma vaga documental pertence ao primeiro recheck na ordem do
+consumidor, que prioriza atualização editorial e a consulta documental mais
+antiga. A outra pertence a uma candidata nova, em rodízio por janelas sucessivas
+de quatro horas dentro do conjunto limitado ordenado pelo valor oficial.
+Quando uma das classes está vazia, a outra usa as duas vagas. As compras das
+candidatas escolhidas para documentos têm prioridade no orçamento de cinco
+consultas. Uma notícia estável ou candidata ilegível não pode ocupar ambas as
+vagas indefinidamente. As métricas desse contexto são separadas das vinte
+confirmações de contrato, que permanecem preservadas para todos os rechecks.
+
+Os anexos são lidos apenas em URLs derivadas da identidade exata e confirmadas
+na listagem oficial, sem redirecionamentos. Cada PDF tem limite de 2 MiB e vinte
+páginas. Extração tem limites de CPU, memória, tempo e saída; usa Poppler quando
+disponível ou uma wheel pypdf de versão e digest fixados, incluída no bundle.
+O fallback roda em processo `python -S` separado, sem instalação ou rede no host.
+O texto saneado é evidência privada para apuração, com até 32.000 caracteres por
+documento. A publicação não deve transportar esse texto nem dados de signatários.
+Fonte, identificador, título, digest e data de consulta permitem rastreabilidade.
+
+`documents_status` informa `complete`, `partial`, `unavailable` ou
+`not_collected`; zero anexos confirmados não prova inexistência de contratação.
+Documento excedente, ilegível, criptografado ou indisponível nunca recebe
+alegação de leitura integral. A modalidade, o valor estimado da compra e o valor
+do campo contratual permanecem conceitos separados, mesmo quando os números
+coincidem. Anexo de execução específico não substitui silenciosamente o valor
+do contrato de credenciamento. A interpretação e as ressalvas materialmente
+necessárias pertencem à redação e à revisão do consumidor.
+
 ## Responsabilidade e execução
 
 - `extra-cli`: identidade, fonte oficial, confirmação, semântica, seleção
