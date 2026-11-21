@@ -208,6 +208,7 @@ def test_stable_published_records_cannot_consume_both_documentary_slots(monkeypa
 def test_next_four_hour_window_moves_past_an_unreadable_new_candidate():
     old = "19493732000199-2-000301/2026"
     new_ids = [f"19493732000199-2-{number:06d}/2026" for number in range(302, 310)]
+    new_by_url = {context.document_urls(identity): identity for identity in new_ids}
 
     def run(at):
         rows = [record(old, "99999999"), *[record(identity, str(1000 - i)) for i, identity in enumerate(new_ids)]]
@@ -223,7 +224,7 @@ def test_next_four_hour_window_moves_past_an_unreadable_new_candidate():
         summary = context.enrich_records(rows, source, recheck_ids=[old], clock=lambda: at, fetch=fetch)
         assert summary["context_requests"] == 1 + context.MAX_NEW_DOCUMENT_PROBES
         assert context.document_urls(old) in called
-        return next(identity for identity in new_ids if context.document_urls(identity) in called)
+        return next(new_by_url[url] for url in called if url in new_by_url)
 
     first = run(NOW)
     assert run(NOW + dt.timedelta(minutes=30)) == first
