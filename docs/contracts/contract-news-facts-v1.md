@@ -35,19 +35,21 @@ O detalhe oficial fica em
 O host e o caminho derivam do ID validado. Não há redirecionamento, retry nem
 origem arbitrária; cada resposta tem limite de 256 KiB e timeout de 15 segundos.
 
-O enriquecimento adicional de 2026-11-20 consulta até cinco compras vinculadas
-distintas e os anexos de até dois contratos, com no máximo três PDFs por contrato.
+O enriquecimento consulta até cinco compras vinculadas distintas e busca contexto
+para até dois contratos, com no máximo três PDFs por contrato.
 Tem orçamento total de 120 segundos, até quinze segundos por requisição, sem
 retries. Suas contagens `context_*` são independentes de `official_requests`, que
-continua contando somente os detalhes de contrato. O máximo é de treze consultas
-adicionais: cinco compras, duas listas e seis documentos. Havendo revisões e
+continua contando somente os detalhes de contrato. O máximo é de dezessete consultas
+adicionais: cinco compras, seis listas e seis documentos. Havendo revisões e
 novidades, cada classe recebe uma vaga documental; na ausência de uma delas, a
 outra pode usar as duas. A revisão documental preserva a ordem do consumidor.
 A candidata nova gira por janela de quatro horas dentro da lista confirmada,
 ordenada por valor e ID. A janela avança continuamente entre dias, alcançando
 também posições além das seis execuções diárias. O rodízio não exclui nenhum
 recheck da confirmação oficial e não modifica a ordem final dos fatos por valor.
-As compras vinculadas das duas candidatas documentais são consultadas primeiro.
+A vaga nova passa à próxima candidata no mesmo lote se a primeira não produzir
+contexto completo. São até cinco novas candidatas sondadas. Compras vinculadas
+das candidatas sondadas têm prioridade no orçamento de compras.
 
 ## Documento de saída
 
@@ -67,7 +69,7 @@ As compras vinculadas das duas candidatas documentais são consultadas primeiro.
 | `records` | Até vinte registros confirmados, ordenados por valor e ID |
 | `recheck_results` | Resultado de cada revisão solicitada |
 
-O documento completo tem limite de 512 KiB. A troca do arquivo é atômica, com
+O documento completo tem limite de 1 MiB. A troca do arquivo é atômica, com
 fsync e modo `0440`. Um lock exclusivo impede execuções concorrentes para o
 mesmo destino. O diretório de destino deve existir e ser previamente autorizado.
 
@@ -142,12 +144,13 @@ Um documento inteiramente sem texto útil continua indisponível e impede essa
 classificação, diferentemente de desenhos anexos a um contrato textual.
 O número do documento e a URL têm vínculo exato com o contrato, conferido na
 listagem oficial. URLs externas, parâmetros, portas e substituição de identidade
-são recusados. PDFs têm até 2 MiB e vinte páginas. `text` tem até 32.000 caracteres,
+são recusados. PDFs têm até 2 MiB e vinte páginas. `text` tem até 64.000 caracteres,
 com remoção de CPF, contatos e identificadores pessoais detectáveis. O texto
 continua privado e não autoriza publicar nomes ou assinaturas de representantes.
 
-Falha em qualquer anexo muda a cobertura para `partial` ou `unavailable`; não
-apaga a confirmação do contrato. Mais de três anexos também significa `partial`.
+Falha em qualquer anexo interrompe as leituras restantes desse contrato e muda
+a cobertura para `partial` ou `unavailable`, preservando a confirmação do contrato.
+Mais de três anexos ou saldo insuficiente para ler a lista inteira resulta em `partial`.
 `complete` com `documents_total=0` significa lista vazia conferida, não pesquisa
 fora do PNCP. Campos ausentes não são reconstruídos por suposição. Metadados e
 textos desses anexos servem à apuração, não são provas automáticas de pagamento,

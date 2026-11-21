@@ -52,7 +52,7 @@ def contract_payload(purchase_id=PURCHASE):
             "tipoContrato": {"nome": "Contrato (termo inicial)"}, "categoriaProcesso": {"nome": "Serviços de Engenharia"}}
 
 
-def pdf_bytes(pages=1, empty_pages=()):
+def pdf_bytes(pages=1, empty_pages=(), repetitions=1):
     """Small valid PDF builder, parsed by the real vendored library in tests."""
     content = (b"BT /F1 12 Tf 30 700 Td (Contrato para iluminacao de praca publica. "
                b"A medicao depende dos servicos executados e dos documentos de suporte. "
@@ -64,7 +64,7 @@ def pdf_bytes(pages=1, empty_pages=()):
     for i in range(pages):
         objects.append((f"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] "
                         f"/Resources << /Font << /F1 3 0 R >> >> /Contents {5 + i * 2} 0 R >>").encode())
-        page_content = b"" if i + 1 in empty_pages else content
+        page_content = b"" if i + 1 in empty_pages else b"\n".join([content] * repetitions)
         objects.append(f"<< /Length {len(page_content)} >>\nstream\n".encode() + page_content + b"\nendstream")
     raw = b"%PDF-1.4\n"
     offsets = []
@@ -208,6 +208,7 @@ def test_stable_published_records_cannot_consume_both_documentary_slots(monkeypa
 def test_next_four_hour_window_moves_past_an_unreadable_new_candidate():
     old = "19493732000199-2-000301/2026"
     new_ids = [f"19493732000199-2-{number:06d}/2026" for number in range(302, 310)]
+    new_by_url = {context.document_urls(identity): identity for identity in new_ids}
 
     def run(at):
         rows = [record(old, "99999999"), *[record(identity, str(1000 - i)) for i, identity in enumerate(new_ids)]]
@@ -221,9 +222,9 @@ def test_next_four_hour_window_moves_past_an_unreadable_new_candidate():
             raise context.ContextError("evidence_transport_unavailable")
 
         summary = context.enrich_records(rows, source, recheck_ids=[old], clock=lambda: at, fetch=fetch)
-        assert summary["context_requests"] == 2
+        assert summary["context_requests"] == 1 + context.MAX_NEW_DOCUMENT_PROBES
         assert context.document_urls(old) in called
-        return next(identity for identity in new_ids if context.document_urls(identity) in called)
+        return next(new_by_url[url] for url in called if url in new_by_url)
 
     first = run(NOW)
     assert run(NOW + dt.timedelta(minutes=30)) == first
@@ -231,6 +232,30 @@ def test_next_four_hour_window_moves_past_an_unreadable_new_candidate():
     assert second == new_ids[(new_ids.index(first) + 1) % len(new_ids)]
     # Every position is reached, including positions after the sixth daily run.
     assert {run(NOW + dt.timedelta(hours=4 * offset)) for offset in range(len(new_ids))} == set(new_ids)
+
+
+def test_failed_new_dossier_falls_back_in_same_batch_with_a_recheck():
+    old = "19493732000199-2-000301/2026"
+    blocked = "19493732000199-2-000302/2026"
+    ready = "19493732000199-2-000303/2026"
+    rows = [record(old, "900"), record(blocked, "200"), record(ready, "100")]
+    now = dt.datetime.fromtimestamp(2 * context.DOCUMENT_ROTATION_SECONDS, dt.UTC)
+
+    def fetch(url, limit, timeout):
+        if url.endswith("/arquivos"):
+            identity = next(row["id"] for row in rows if context.document_urls(row["id"]) == url)
+            return response(url, documents(identity=identity, count=1))
+        if url == context.document_urls(blocked, 1):
+            raise context.ContextError("evidence_response_unavailable")
+        return context.EvidenceResponse(url, 200, b"%PDF-1.7 fixture")
+
+    summary = context.enrich_records(
+        rows, {row["id"]: contract_payload(None) for row in rows}, recheck_ids=[old], clock=lambda: now,
+        fetch=fetch, extract_pdf=lambda raw, timeout: {"text": "Confirmed clause.", "pages": 1},
+    )
+    statuses = {row["id"]: row["editorial_context"]["documents_status"] for row in rows}
+    assert statuses == {old: "complete", blocked: "unavailable", ready: "complete"}
+    assert summary["context_document_list_requests"] == summary["context_document_requests"] == 3
 
 
 def test_rechecks_without_new_candidates_retain_both_slots_and_consumer_order():
@@ -309,6 +334,14 @@ def test_pdf_dependency_tampering_is_rejected(tmp_path):
     modified.write_bytes(original.read_bytes() + b"tampered")
     with pytest.raises(ValueError, match="pdf_dependency_digest_mismatch"):
         pdf_extract.verified_wheel(tmp_path)
+
+
+def test_fallback_keeps_full_text_of_long_contracts(monkeypatch):
+    monkeypatch.setattr(context.shutil, "which", lambda name: None)
+    result = context.extract_pdf_text(pdf_bytes(pages=9, repetitions=30), timeout=5)
+    assert result["text_pages"] == 9
+    assert 32_000 < len(result["text"]) < context.MAX_DOCUMENT_TEXT
+    assert result["text"].count("Contrato para iluminacao") == 270
 
 
 def test_fallback_rejects_more_than_twenty_pages(monkeypatch):

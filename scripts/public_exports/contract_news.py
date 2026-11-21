@@ -50,7 +50,7 @@ MAX_REQUESTS = 20
 MAX_RECHECKS = 5
 MAX_PUBLISHED_IDS = 10_000
 MAX_BODY_BYTES = 256 * 1024
-MAX_SNAPSHOT_BYTES = 512 * 1024
+MAX_SNAPSHOT_BYTES = 1024 * 1024
 MAX_RADAR_BYTES = 4 * 1024**3
 SOURCE_MAX_AGE = dt.timedelta(hours=26)
 CLOCK_SKEW = dt.timedelta(minutes=5)
@@ -444,12 +444,13 @@ def select_from_radar(
             db.execute("PRAGMA query_only=ON")
             db.execute("PRAGMA trusted_schema=OFF")
             db.execute("PRAGMA temp_store=MEMORY")
-            deadline = time.monotonic() + 30
+            deadline = time.monotonic() + 60
             db.set_progress_handler(lambda: int(time.monotonic() > deadline), 10_000)
             if db.execute("PRAGMA user_version").fetchone()[0] != 1:
                 raise ExportError("invalid_radar_sqlite_version")
             if db.execute("PRAGMA quick_check").fetchall() != [("ok",)]:
                 raise ExportError("radar_integrity_failure")
+            deadline = time.monotonic() + 30
             table_types = dict(db.execute("SELECT name,type FROM sqlite_schema WHERE name IN ('contracts','metadata')"))
             if table_types != {"contracts": "table", "metadata": "table"}:
                 raise ExportError("invalid_radar_tables")
