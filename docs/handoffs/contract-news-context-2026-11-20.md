@@ -69,3 +69,14 @@ Restam revisão independente, CI do SHA exato, fixação desse produtor no consu
 web, execução produtiva, leitura do resultado público e observação da rotina.
 Reversão: retornar o pin produtor e o consumidor ao conjunto anteriormente aceito,
 preservando o ledger e os arquivos privados de apuração.
+
+## Correção da seleção documental em 2026-11-21
+
+Na Netcup, dois lotes confirmaram 17 registros cada e não iniciaram nova
+apuração. Cada lote testou somente um novo contrato, além do recheck da matéria
+já publicada. O PNCP listou um PDF de 9.898.732 bytes para a primeira candidata
+inviável. No outro lote, o extrator registrou `document_page_limit_or_invalid`.
+A seleção passa à próxima candidata no mesmo lote, dentro dos limites
+documentados. O teste de regressão cobre a substituição após falha de PDF na
+presença de recheck já publicado. O aceite produtivo depende de rodar o bundle
+aprovado e verificar a publicação pública pelo consumidor.

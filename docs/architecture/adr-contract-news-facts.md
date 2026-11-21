@@ -60,15 +60,17 @@ texto, valor, fornecedor ou município.
 A API vigente de compras usa `/api/consulta/v1/orgaos/.../compras/...`. A resposta
 de erro JSON que o caminho antigo devolve com HTTP 200 é recusada por identidade.
 São no máximo cinco compras distintas, com reaproveitamento dentro da rodada,
-e dois contratos com até três PDFs cada. Todo o enriquecimento tem prazo máximo
+duas vagas documentais, seis listagens e seis PDFs na rodada, com até três PDFs
+por contrato. Todo o enriquecimento tem prazo máximo
 de 120 segundos. Uma vaga documental pertence ao primeiro recheck na ordem do
 consumidor, que prioriza atualização editorial e a consulta documental mais
 antiga. A outra pertence a uma candidata nova, em rodízio por janelas sucessivas
 de quatro horas dentro do conjunto limitado ordenado pelo valor oficial.
-Quando uma das classes está vazia, a outra usa as duas vagas. As compras das
-candidatas escolhidas para documentos têm prioridade no orçamento de cinco
-consultas. Uma notícia estável ou candidata ilegível não pode ocupar ambas as
-vagas indefinidamente. As métricas desse contexto são separadas das vinte
+Quando uma das classes está vazia, a outra pode usar as duas vagas. Se um lote
+novo encontra um anexo indisponível ou não obtém contexto suficiente, a vaga
+passa à próxima candidata do rodízio na mesma execução, até cinco tentativas.
+As compras das candidatas sondadas têm prioridade no orçamento de cinco
+consultas. As métricas desse contexto são separadas das vinte
 confirmações de contrato, que permanecem preservadas para todos os rechecks.
 
 Os anexos são lidos apenas em URLs derivadas da identidade exata e confirmadas

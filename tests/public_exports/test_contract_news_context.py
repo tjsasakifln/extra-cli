@@ -221,7 +221,7 @@ def test_next_four_hour_window_moves_past_an_unreadable_new_candidate():
             raise context.ContextError("evidence_transport_unavailable")
 
         summary = context.enrich_records(rows, source, recheck_ids=[old], clock=lambda: at, fetch=fetch)
-        assert summary["context_requests"] == 2
+        assert summary["context_requests"] == 1 + context.MAX_NEW_DOCUMENT_PROBES
         assert context.document_urls(old) in called
         return next(identity for identity in new_ids if context.document_urls(identity) in called)
 
@@ -231,6 +231,30 @@ def test_next_four_hour_window_moves_past_an_unreadable_new_candidate():
     assert second == new_ids[(new_ids.index(first) + 1) % len(new_ids)]
     # Every position is reached, including positions after the sixth daily run.
     assert {run(NOW + dt.timedelta(hours=4 * offset)) for offset in range(len(new_ids))} == set(new_ids)
+
+
+def test_failed_new_dossier_falls_back_in_same_batch_with_a_recheck():
+    old = "19493732000199-2-000301/2026"
+    blocked = "19493732000199-2-000302/2026"
+    ready = "19493732000199-2-000303/2026"
+    rows = [record(old, "900"), record(blocked, "200"), record(ready, "100")]
+    now = dt.datetime.fromtimestamp(2 * context.DOCUMENT_ROTATION_SECONDS, dt.UTC)
+
+    def fetch(url, limit, timeout):
+        if url.endswith("/arquivos"):
+            identity = next(row["id"] for row in rows if context.document_urls(row["id"]) == url)
+            return response(url, documents(identity=identity, count=1))
+        if url == context.document_urls(blocked, 1):
+            raise context.ContextError("evidence_response_unavailable")
+        return context.EvidenceResponse(url, 200, b"%PDF-1.7 fixture")
+
+    summary = context.enrich_records(
+        rows, {row["id"]: contract_payload(None) for row in rows}, recheck_ids=[old], clock=lambda: now,
+        fetch=fetch, extract_pdf=lambda raw, timeout: {"text": "Confirmed clause.", "pages": 1},
+    )
+    statuses = {row["id"]: row["editorial_context"]["documents_status"] for row in rows}
+    assert statuses == {old: "complete", blocked: "unavailable", ready: "complete"}
+    assert summary["context_document_list_requests"] == summary["context_document_requests"] == 3
 
 
 def test_rechecks_without_new_candidates_retain_both_slots_and_consumer_order():

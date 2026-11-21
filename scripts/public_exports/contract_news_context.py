@@ -38,6 +38,8 @@ CONTRACT_ID = re.compile(r"^(\d{14})-2-(\d{6})/(\d{4})$")
 MAX_PURCHASES = 5
 MAX_DOCUMENT_CONTRACTS = 2
 MAX_DOCUMENTS = 3
+MAX_NEW_DOCUMENT_PROBES = 5
+MAX_DOCUMENT_REQUESTS = MAX_DOCUMENT_CONTRACTS * MAX_DOCUMENTS
 MAX_JSON_BYTES = 256 * 1024
 MAX_PDF_BYTES = 2 * 1024 * 1024
 MAX_PDF_PAGES = 20
@@ -302,12 +304,10 @@ def enrich_records(
 ) -> dict[str, Any]:
     """Enrich highest-value candidates after confirming their contract facts.
 
-    Purchase reads are capped at five unique IDs, documentary reads at two
-    contracts and three listed PDFs each. One documentary slot is reserved for
-    the first recheck in the consumer's priority order, and one for a new record.
-    New records rotate every four hours within the bounded value-ranked set so
-    an unreadable high-value record cannot permanently occupy the slot. A lone
-    group may use both slots. The whole phase has a two-minute deadline.
+    Reserve one documentary slot for the first recheck when both groups have
+    candidates. New records rotate every four hours and use the next candidate
+    in the same batch if a dossier fails. Bound list probes and PDF downloads
+    independently. The whole phase has a two-minute deadline.
     """
     deadline = monotonic() + MAX_CONTEXT_SECONDS
     counters: Counter[str] = Counter()
@@ -323,13 +323,6 @@ def enrich_records(
         # latter would starve positions beyond six when the candidate set is larger.
         offset = (int(clock().timestamp()) // DOCUMENT_ROTATION_SECONDS) % len(new_records)
         new_records = new_records[offset:] + new_records[:offset]
-    selected = ([rechecks[0], new_records[0]] if rechecks and new_records
-                else (rechecks or new_records)[:MAX_DOCUMENT_CONTRACTS])
-    documentary_ids = {row["id"] for row in selected}
-    # Purchases for the selected documentary records consume the first slots;
-    # unrelated rechecks must not exhaust the purchase budget before them.
-    ordered = selected + [row for row in ranked if row["id"] not in documentary_ids]
-
     def read(url: str, limit: int, kind: str) -> EvidenceResponse:
         remaining = deadline - monotonic()
         if remaining < 2:
@@ -338,19 +331,9 @@ def enrich_records(
         counters[kind] += 1
         return fetch(url, limit, min(15, remaining))
 
-    for record in ordered:
+    def enrich_purchase(record: dict[str, Any]) -> None:
         raw = payloads[record["id"]]
-        kind, category = raw.get("tipoContrato"), raw.get("categoriaProcesso")
-        kind = kind if isinstance(kind, dict) else {}
-        category = category if isinstance(category, dict) else {}
-        context: dict[str, Any] = {
-            "schema": SCHEMA,
-            "contract": {"number": _text(raw.get("numeroContratoEmpenho"), 150),
-                         "type": _text(kind.get("nome"), 150), "category": _text(category.get("nome"), 150)},
-            "procurement": None, "documents": [], "documents_status": "not_collected",
-            "documents_total": None, "documents_checked_at": None,
-        }
-        record["editorial_context"] = context
+        context = record["editorial_context"]
         purchase = raw.get("numeroControlePncpCompra", raw.get("numeroControlePNCPCompra"))
         if purchase:
             try:
@@ -361,8 +344,22 @@ def enrich_records(
                 context["procurement"] = purchases.get(purchase)
             except (ContextError, TypeError, OSError, TimeoutError) as exc:
                 errors[str(exc) if isinstance(exc, ContextError) else "invalid_purchase_identity"] += 1
-        if record["id"] not in documentary_ids:
-            continue
+
+    for record in ranked:
+        raw = payloads[record["id"]]
+        kind, category = raw.get("tipoContrato"), raw.get("categoriaProcesso")
+        kind = kind if isinstance(kind, dict) else {}
+        category = category if isinstance(category, dict) else {}
+        record["editorial_context"] = {
+            "schema": SCHEMA,
+            "contract": {"number": _text(raw.get("numeroContratoEmpenho"), 150),
+                         "type": _text(kind.get("nome"), 150), "category": _text(category.get("nome"), 150)},
+            "procurement": None, "documents": [], "documents_status": "not_collected",
+            "documents_total": None, "documents_checked_at": None,
+        }
+
+    def enrich_documents(record: dict[str, Any]) -> bool:
+        context = record["editorial_context"]
         try:
             documents, total = normalize_document_list(
                 read(document_urls(record["id"]), MAX_JSON_BYTES, "document_list_requests"), record["id"],
@@ -370,6 +367,12 @@ def enrich_records(
             context["documents_total"] = total
             context["documents_checked_at"] = _utc(clock())
             context["documents_status"] = "complete" if total <= MAX_DOCUMENTS else "partial"
+            # A dossier that cannot be completed within the remaining PDF
+            # budget cannot fill a slot. Save those requests for another record.
+            can_complete = total <= MAX_DOCUMENTS and total <= MAX_DOCUMENT_REQUESTS - counters["document_requests"]
+            if not can_complete:
+                context["documents_status"] = "partial"
+                return False
             for document in documents:
                 try:
                     response = read(document["url"], MAX_PDF_BYTES, "document_requests")
@@ -386,11 +389,33 @@ def enrich_records(
                 except (ContextError, OSError, TimeoutError) as exc:
                     errors[str(exc) if isinstance(exc, ContextError) else "document_unavailable"] += 1
                     context["documents_status"] = "partial"
+                    break
             if total and not context["documents"]:
                 context["documents_status"] = "unavailable"
         except (ContextError, OSError, TimeoutError) as exc:
             errors[str(exc) if isinstance(exc, ContextError) else "documents_unavailable"] += 1
             context["documents_status"] = "unavailable"
+        return context["documents_status"] == "complete" and bool(context["documents"] or context["procurement"])
+
+    recheck_slots = 1 if new_records else MAX_DOCUMENT_CONTRACTS
+    selected_rechecks = rechecks[:recheck_slots]
+    probed = set()
+    for record in selected_rechecks:
+        enrich_purchase(record)
+        enrich_documents(record)
+        probed.add(record["id"])
+    remaining_slots = MAX_DOCUMENT_CONTRACTS - len(selected_rechecks)
+    for record in new_records[:MAX_NEW_DOCUMENT_PROBES]:
+        if remaining_slots == 0 or (probed and deadline - monotonic() < 2):
+            break
+        enrich_purchase(record)
+        if enrich_documents(record):
+            remaining_slots -= 1
+        probed.add(record["id"])
+    # The limited purchase budget serves the documentary candidates first.
+    for record in ranked:
+        if record["id"] not in probed:
+            enrich_purchase(record)
     return {"context_requests": counters["requests"], "context_purchase_requests": counters["purchase_requests"],
             "context_document_list_requests": counters["document_list_requests"],
             "context_document_requests": counters["document_requests"], "context_errors": dict(sorted(errors.items()))}
