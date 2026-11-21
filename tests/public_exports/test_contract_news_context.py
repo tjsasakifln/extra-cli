@@ -52,7 +52,7 @@ def contract_payload(purchase_id=PURCHASE):
             "tipoContrato": {"nome": "Contrato (termo inicial)"}, "categoriaProcesso": {"nome": "Serviços de Engenharia"}}
 
 
-def pdf_bytes(pages=1, empty_pages=()):
+def pdf_bytes(pages=1, empty_pages=(), repetitions=1):
     """Small valid PDF builder, parsed by the real vendored library in tests."""
     content = (b"BT /F1 12 Tf 30 700 Td (Contrato para iluminacao de praca publica. "
                b"A medicao depende dos servicos executados e dos documentos de suporte. "
@@ -64,7 +64,7 @@ def pdf_bytes(pages=1, empty_pages=()):
     for i in range(pages):
         objects.append((f"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] "
                         f"/Resources << /Font << /F1 3 0 R >> >> /Contents {5 + i * 2} 0 R >>").encode())
-        page_content = b"" if i + 1 in empty_pages else content
+        page_content = b"" if i + 1 in empty_pages else b"\n".join([content] * repetitions)
         objects.append(f"<< /Length {len(page_content)} >>\nstream\n".encode() + page_content + b"\nendstream")
     raw = b"%PDF-1.4\n"
     offsets = []
@@ -334,6 +334,14 @@ def test_pdf_dependency_tampering_is_rejected(tmp_path):
     modified.write_bytes(original.read_bytes() + b"tampered")
     with pytest.raises(ValueError, match="pdf_dependency_digest_mismatch"):
         pdf_extract.verified_wheel(tmp_path)
+
+
+def test_fallback_keeps_full_text_of_long_contracts(monkeypatch):
+    monkeypatch.setattr(context.shutil, "which", lambda name: None)
+    result = context.extract_pdf_text(pdf_bytes(pages=9, repetitions=30), timeout=5)
+    assert result["text_pages"] == 9
+    assert 32_000 < len(result["text"]) < context.MAX_DOCUMENT_TEXT
+    assert result["text"].count("Contrato para iluminacao") == 270
 
 
 def test_fallback_rejects_more_than_twenty_pages(monkeypatch):

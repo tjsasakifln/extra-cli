@@ -78,7 +78,7 @@ na listagem oficial, sem redirecionamentos. Cada PDF tem limite de 2 MiB e vinte
 páginas. Extração tem limites de CPU, memória, tempo e saída; usa Poppler quando
 disponível ou uma wheel pypdf de versão e digest fixados, incluída no bundle.
 O fallback roda em processo `python -S` separado, sem instalação ou rede no host.
-O texto saneado é evidência privada para apuração, com até 32.000 caracteres por
+O texto saneado é evidência privada para apuração, com até 64.000 caracteres por
 documento. A publicação não deve transportar esse texto nem dados de signatários.
 Fonte, identificador, título, digest e data de consulta permitem rastreabilidade.
 

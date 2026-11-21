@@ -69,7 +69,7 @@ das candidatas sondadas têm prioridade no orçamento de compras.
 | `records` | Até vinte registros confirmados, ordenados por valor e ID |
 | `recheck_results` | Resultado de cada revisão solicitada |
 
-O documento completo tem limite de 512 KiB. A troca do arquivo é atômica, com
+O documento completo tem limite de 1 MiB. A troca do arquivo é atômica, com
 fsync e modo `0440`. Um lock exclusivo impede execuções concorrentes para o
 mesmo destino. O diretório de destino deve existir e ser previamente autorizado.
 
@@ -144,7 +144,7 @@ Um documento inteiramente sem texto útil continua indisponível e impede essa
 classificação, diferentemente de desenhos anexos a um contrato textual.
 O número do documento e a URL têm vínculo exato com o contrato, conferido na
 listagem oficial. URLs externas, parâmetros, portas e substituição de identidade
-são recusados. PDFs têm até 2 MiB e vinte páginas. `text` tem até 32.000 caracteres,
+são recusados. PDFs têm até 2 MiB e vinte páginas. `text` tem até 64.000 caracteres,
 com remoção de CPF, contatos e identificadores pessoais detectáveis. O texto
 continua privado e não autoriza publicar nomes ou assinaturas de representantes.
 

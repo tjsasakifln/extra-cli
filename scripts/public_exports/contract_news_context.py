@@ -43,7 +43,7 @@ MAX_DOCUMENT_REQUESTS = MAX_DOCUMENT_CONTRACTS * MAX_DOCUMENTS
 MAX_JSON_BYTES = 256 * 1024
 MAX_PDF_BYTES = 2 * 1024 * 1024
 MAX_PDF_PAGES = 20
-MAX_DOCUMENT_TEXT = 32_000
+MAX_DOCUMENT_TEXT = 64_000
 MAX_CONTEXT_SECONDS = 120
 DOCUMENT_ROTATION_SECONDS = 4 * 60 * 60
 SOURCE_TIMEZONE = ZoneInfo("America/Sao_Paulo")
@@ -323,6 +323,7 @@ def enrich_records(
         # latter would starve positions beyond six when the candidate set is larger.
         offset = (int(clock().timestamp()) // DOCUMENT_ROTATION_SECONDS) % len(new_records)
         new_records = new_records[offset:] + new_records[:offset]
+
     def read(url: str, limit: int, kind: str) -> EvidenceResponse:
         remaining = deadline - monotonic()
         if remaining < 2:

@@ -80,3 +80,9 @@ A seleção passa à próxima candidata no mesmo lote, dentro dos limites
 documentados. O teste de regressão cobre a substituição após falha de PDF na
 presença de recheck já publicado. O aceite produtivo depende de rodar o bundle
 aprovado e verificar a publicação pública pelo consumidor.
+
+O diagnóstico também encontrou contratos legíveis de 8 a 14 páginas cujo texto
+ultrapassava o limite anterior de 32.000 caracteres. Aumentar o limite de texto
+para 64.000 permite aproveitar esses PDFs sem truncar o conteúdo. A verificação
+de integridade do Radar recebe prazo próprio, já que o `quick_check` excedeu
+30 segundos em replays na Netcup.
