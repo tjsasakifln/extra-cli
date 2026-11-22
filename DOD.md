@@ -42,6 +42,8 @@ A single `[x]` must not hide these differences.
   `docs/handoffs/contract-news-context-2026-11-20.md`.
   A correção de 2026-11-21 recupera vagas de candidatas novas com anexos
   indisponíveis dentro da mesma rodada, com limite de seis downloads e 120 s.
+  Revisão de 2026-11-22: validar tema antes dos downloads usando o escopo do
+  publicador e confirmar a seleção com PNCP real e pelo menos uma pauta elegível.
 
 ### Incidente ativo #458 (2026-08-22)
 

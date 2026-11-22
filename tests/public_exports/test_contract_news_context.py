@@ -144,10 +144,10 @@ def test_procurement_cache_and_documentary_limit_do_not_change_source_values():
 
     summary = context.enrich_records(records, payloads, recheck_ids=[records[0]["id"]], clock=lambda: NOW, fetch=fetch)
     assert summary["context_purchase_requests"] == 1
-    assert summary["context_document_list_requests"] == 2
-    assert summary["context_requests"] == len(calls) == 3
+    assert summary["context_document_list_requests"] == 3
+    assert summary["context_requests"] == len(calls) == 4
     assert records[0]["editorial_context"]["documents_status"] == "complete"
-    assert sum(row["editorial_context"]["documents_status"] == "complete" for row in records[1:]) == 1
+    assert sum(row["editorial_context"]["documents_status"] == "complete" for row in records[1:]) == 2
     assert records[0]["value"]["amount"] == "100"
 
 
@@ -222,7 +222,7 @@ def test_next_four_hour_window_moves_past_an_unreadable_new_candidate():
             raise context.ContextError("evidence_transport_unavailable")
 
         summary = context.enrich_records(rows, source, recheck_ids=[old], clock=lambda: at, fetch=fetch)
-        assert summary["context_requests"] == 1 + context.MAX_NEW_DOCUMENT_PROBES
+        assert summary["context_requests"] == 1 + min(len(new_ids), context.MAX_NEW_DOCUMENT_PROBES)
         assert context.document_urls(old) in called
         return next(new_by_url[url] for url in called if url in new_by_url)
 
@@ -293,6 +293,27 @@ def test_failed_document_is_partial_not_fabricated_complete_evidence():
     assert result["documents"][0]["sha256"] == hashlib.sha256(b"%PDF-1.7 fixture").hexdigest()
     assert summary["context_errors"] == {"evidence_transport_unavailable": 1}
     assert summary["context_requests"] == len(seen) == 3
+
+
+def test_later_readable_document_still_supports_a_partial_dossier():
+    row = record()
+
+    def fetch(url, limit, timeout):
+        if url.endswith("/arquivos"):
+            return response(url, documents(count=4))
+        if url.endswith("/arquivos/2"):
+            return context.EvidenceResponse(url, 200, b"%PDF-1.7 fixture")
+        raise context.ContextError("evidence_response_unavailable")
+
+    result = context.enrich_records(
+        [row], {CONTRACT: contract_payload(None)}, recheck_ids=[], clock=lambda: NOW, fetch=fetch,
+        extract_pdf=lambda raw, timeout: {"text": "Verified technical evidence.", "pages": 1},
+    )
+    assert row["editorial_context"]["documents_status"] == "partial"
+    assert row["editorial_context"]["documents_total"] == 4
+    assert [doc["id"] for doc in row["editorial_context"]["documents"]] == ["2"]
+    assert result["context_new_ready"] == 1
+    assert result["context_document_requests"] == 3
 
 
 def test_time_budget_stops_network_without_losing_confirmed_contract_facts():

@@ -36,10 +36,11 @@ SCHEMA = "confenge.contract-news-context/v1"
 PURCHASE_ID = re.compile(r"^(\d{14})-1-(\d{6})/(\d{4})$")
 CONTRACT_ID = re.compile(r"^(\d{14})-2-(\d{6})/(\d{4})$")
 MAX_PURCHASES = 5
-MAX_DOCUMENT_CONTRACTS = 2
+MAX_NEW_DOCUMENT_CONTRACTS = 2
+MAX_RECHECK_DOCUMENT_CONTRACTS = 2
 MAX_DOCUMENTS = 3
-MAX_NEW_DOCUMENT_PROBES = 5
-MAX_DOCUMENT_REQUESTS = MAX_DOCUMENT_CONTRACTS * MAX_DOCUMENTS
+MAX_NEW_DOCUMENT_PROBES = 10
+MAX_DOCUMENT_REQUESTS = (MAX_NEW_DOCUMENT_CONTRACTS + 1) * MAX_DOCUMENTS
 MAX_JSON_BYTES = 256 * 1024
 MAX_PDF_BYTES = 2 * 1024 * 1024
 MAX_PDF_PAGES = 20
@@ -304,10 +305,9 @@ def enrich_records(
 ) -> dict[str, Any]:
     """Enrich highest-value candidates after confirming their contract facts.
 
-    Reserve one documentary slot for the first recheck when both groups have
-    candidates. New records rotate every four hours and use the next candidate
-    in the same batch if a dossier fails. Bound list probes and PDF downloads
-    independently. The whole phase has a two-minute deadline.
+    New records rotate every four hours and advance to the next candidate when
+    no documentary source is usable. Collect up to two new dossiers so the
+    publisher can continue after a rejection. Bound probes, downloads and time.
     """
     deadline = monotonic() + MAX_CONTEXT_SECONDS
     counters: Counter[str] = Counter()
@@ -367,14 +367,8 @@ def enrich_records(
             )
             context["documents_total"] = total
             context["documents_checked_at"] = _utc(clock())
-            context["documents_status"] = "complete" if total <= MAX_DOCUMENTS else "partial"
-            # A dossier that cannot be completed within the remaining PDF
-            # budget cannot fill a slot. Save those requests for another record.
-            can_complete = total <= MAX_DOCUMENTS and total <= MAX_DOCUMENT_REQUESTS - counters["document_requests"]
-            if not can_complete:
-                context["documents_status"] = "partial"
-                return False
-            for document in documents:
+            remaining_downloads = MAX_DOCUMENT_REQUESTS - counters["document_requests"]
+            for document in documents[:remaining_downloads]:
                 try:
                     response = read(document["url"], MAX_PDF_BYTES, "document_requests")
                     if response.url != document["url"] or response.status != 200:
@@ -389,29 +383,33 @@ def enrich_records(
                     })
                 except (ContextError, OSError, TimeoutError) as exc:
                     errors[str(exc) if isinstance(exc, ContextError) else "document_unavailable"] += 1
-                    context["documents_status"] = "partial"
-                    break
-            if total and not context["documents"]:
+            collected = len(context["documents"])
+            if collected == total:
+                context["documents_status"] = "complete"
+            elif collected:
+                context["documents_status"] = "partial"
+            else:
                 context["documents_status"] = "unavailable"
         except (ContextError, OSError, TimeoutError) as exc:
             errors[str(exc) if isinstance(exc, ContextError) else "documents_unavailable"] += 1
             context["documents_status"] = "unavailable"
-        return context["documents_status"] == "complete" and bool(context["documents"] or context["procurement"])
+        return bool(context["documents"] or (context["documents_status"] == "complete" and context["procurement"]))
 
-    recheck_slots = 1 if new_records else MAX_DOCUMENT_CONTRACTS
+    recheck_slots = 1 if new_records else MAX_RECHECK_DOCUMENT_CONTRACTS
     selected_rechecks = rechecks[:recheck_slots]
     probed = set()
     for record in selected_rechecks:
         enrich_purchase(record)
         enrich_documents(record)
         probed.add(record["id"])
-    remaining_slots = MAX_DOCUMENT_CONTRACTS - len(selected_rechecks)
+    ready_new = 0
     for record in new_records[:MAX_NEW_DOCUMENT_PROBES]:
-        if remaining_slots == 0 or (probed and deadline - monotonic() < 2):
+        if (ready_new == MAX_NEW_DOCUMENT_CONTRACTS or counters["document_requests"] == MAX_DOCUMENT_REQUESTS
+                or (probed and deadline - monotonic() < 2)):
             break
         enrich_purchase(record)
         if enrich_documents(record):
-            remaining_slots -= 1
+            ready_new += 1
         probed.add(record["id"])
     # The limited purchase budget serves the documentary candidates first.
     for record in ranked:
@@ -419,4 +417,5 @@ def enrich_records(
             enrich_purchase(record)
     return {"context_requests": counters["requests"], "context_purchase_requests": counters["purchase_requests"],
             "context_document_list_requests": counters["document_list_requests"],
-            "context_document_requests": counters["document_requests"], "context_errors": dict(sorted(errors.items()))}
+            "context_document_requests": counters["document_requests"], "context_new_ready": ready_new,
+            "context_errors": dict(sorted(errors.items()))}
