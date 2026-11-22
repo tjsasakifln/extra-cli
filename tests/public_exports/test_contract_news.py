@@ -88,6 +88,34 @@ def test_full_official_object_typed_value_and_exact_sources():
     assert "04252011000110" not in json.dumps(record)
 
 
+def test_authoritative_editorial_scope_rejects_it_before_collecting_documents(tmp_path):
+    scope_file = tmp_path / "scope.json"
+    scope_file.write_text(json.dumps({"schema": news.EDITORIAL_SCOPE_SCHEMA, "lookback_days": 14,
+                                      "exclude": r"\bmainframe\b", "include": [r"\bconstrucao\b"]}))
+    lookback, scope = news.load_editorial_scope(scope_file)
+    objects = {
+        ID: payload(objetoContrato="Contratação de infraestrutura virtualizada com processamento em mainframe."),
+        SECOND_ID: payload(numeroControlePNCP=SECOND_ID, dataPublicacaoPncp="2026-11-08T12:00:00Z"),
+    }
+    accessed = []
+
+    def evidence(url, limit, timeout):
+        accessed.append(url)
+        return EvidenceResponse(url, 200, b"[]")
+
+    result = news.build_snapshot(
+        list(objects), recheck_ids=[], requested_rechecks=[], metadata=meta(),
+        fetch=lambda identity: fetched(objects[identity], identity=identity), context_fetch=evidence,
+        clock=lambda: NOW, editorial_scope=scope, lookback_days=lookback,
+    )
+    assert [row["id"] for row in result["records"]] == [SECOND_ID]
+    assert result["selection"]["excluded"] == {"outside_editorial_scope": 1}
+    assert len(accessed) == 1 and "/contratos/2026/124/arquivos" in accessed[0]
+    scope_file.write_text('{"schema":"wrong"}')
+    with pytest.raises(news.ExportError, match="invalid_editorial_scope"):
+        news.load_editorial_scope(scope_file)
+
+
 @pytest.mark.parametrize("global_value", [None, 0, "0.0000"])
 def test_initial_fallback_names_its_actual_source_field(global_value):
     record = normalized(payload(valorGlobal=global_value))

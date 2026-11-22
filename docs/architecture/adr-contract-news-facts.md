@@ -41,7 +41,7 @@ Essa seleção não representa uma classificação nacional exaustiva.
 
 São elegíveis apenas contrato inicial (`tipoContrato.id=1`), despesa,
 fornecedor pessoa jurídica com CNPJ válido, objeto completo e pertinente à
-engenharia, identidade consistente e publicação nos últimos sete dias do
+engenharia, identidade consistente e publicação na janela editorial do
 calendário brasileiro. Correções explícitas podem consultar publicações mais
 antigas. Contatos e identificadores pessoais são removidos dos textos. Datas
 ausentes continuam nulas. A localização é administrativa, sem inferência sobre
@@ -49,6 +49,11 @@ o local da obra. Estimativas, empenhos, receitas e instrumentos de tipo diferent
 não entram na primeira versão.
 
 ## Enriquecimento documental autorizado em 2026-11-20
+
+Desde 2026-11-22 o site fornece sua política editorial versionada, com a janela
+vigente de 14 dias. O produtor checa o objeto oficial antes das consultas de
+compra e dos anexos. A projeção mantém a confirmação oficial e entrega até duas
+novas pautas documentadas para dar continuidade à publicação quando uma é rejeitada.
 
 A solicitação do fundador exige qualidade editorial além da reescrita do
 registro. O produtor acrescenta `editorial_context` opcional ao contrato v1,
@@ -60,15 +65,15 @@ texto, valor, fornecedor ou município.
 A API vigente de compras usa `/api/consulta/v1/orgaos/.../compras/...`. A resposta
 de erro JSON que o caminho antigo devolve com HTTP 200 é recusada por identidade.
 São no máximo cinco compras distintas, com reaproveitamento dentro da rodada,
-duas vagas documentais, seis listagens e seis PDFs na rodada, com até três PDFs
+três vagas documentais, onze listagens e nove PDFs na rodada, com até três PDFs
 por contrato. Todo o enriquecimento tem prazo máximo
 de 120 segundos. Uma vaga documental pertence ao primeiro recheck na ordem do
 consumidor, que prioriza atualização editorial e a consulta documental mais
-antiga. A outra pertence a uma candidata nova, em rodízio por janelas sucessivas
+antiga. Até duas pertencem a candidatas novas, em rodízio por janelas sucessivas
 de quatro horas dentro do conjunto limitado ordenado pelo valor oficial.
-Quando uma das classes está vazia, a outra pode usar as duas vagas. Se um lote
+Sem candidatas novas o produtor pode revisar até dois contratos. Se um lote
 novo encontra um anexo indisponível ou não obtém contexto suficiente, a vaga
-passa à próxima candidata do rodízio na mesma execução, até cinco tentativas.
+passa à próxima candidata do rodízio na mesma execução, até dez tentativas.
 As compras das candidatas sondadas têm prioridade no orçamento de cinco
 consultas. As métricas desse contexto são separadas das vinte
 confirmações de contrato, que permanecem preservadas para todos os rechecks.

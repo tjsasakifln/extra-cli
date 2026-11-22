@@ -46,11 +46,13 @@ from scripts.public_exports.market_radar import (
 )
 
 SCHEMA = "confenge.contract-news-facts/v1"
+EDITORIAL_SCOPE_SCHEMA = "confenge.contract-news-editorial-scope/v1"
+DEFAULT_LOOKBACK_DAYS = 7
 MAX_REQUESTS = 20
 MAX_RECHECKS = 5
 MAX_PUBLISHED_IDS = 10_000
 MAX_BODY_BYTES = 256 * 1024
-MAX_SNAPSHOT_BYTES = 1024 * 1024
+MAX_SNAPSHOT_BYTES = 3 * 1024 * 1024
 MAX_RADAR_BYTES = 4 * 1024**3
 SOURCE_MAX_AGE = dt.timedelta(hours=26)
 CLOCK_SKEW = dt.timedelta(minutes=5)
@@ -173,6 +175,7 @@ def normalize_official(
     checked_at: dt.datetime,
     source_sha256: str,
     correction: bool = False,
+    lookback_days: int = DEFAULT_LOOKBACK_DAYS,
 ) -> dict[str, Any]:
     """Allowlisted official facts only; lake value never enters this output."""
     portal_url, api_url = source_urls(contract_id)
@@ -201,10 +204,7 @@ def normalize_official(
         raise ExportError("buyer_identity_mismatch")
     object_text = _text(payload.get("objetoContrato"), maximum=5120, minimum=40)
     eligible, _reason = aec_disposition(object_text)
-    folded = "".join(
-        char for char in unicodedata.normalize("NFKD", object_text.casefold())
-        if not unicodedata.combining(char)
-    )
+    folded = fold_object(object_text)
     if not eligible or not ENGINEERING_OBJECT.search(folded):
         raise ExportError("object_not_engineering")
     published = _source_clock(payload.get("dataPublicacaoPncp"))
@@ -212,7 +212,7 @@ def normalize_official(
         raise ExportError("invalid_source_publication")
     today = checked_at.astimezone(SOURCE_TIMEZONE).date()
     publication_day = published.astimezone(SOURCE_TIMEZONE).date()
-    if not correction and not today - dt.timedelta(days=6) <= publication_day <= today:
+    if not correction and not today - dt.timedelta(days=lookback_days - 1) <= publication_day <= today:
         raise ExportError("outside_publication_window")
     amount = _decimal(payload.get("valorGlobal"))
     value_kind = "valorGlobal"
@@ -315,16 +315,51 @@ def load_published_ids(path: Path | None) -> tuple[list[str], list[str]]:
     return known, recheck
 
 
+def fold_object(object_text: str) -> str:
+    return "".join(c for c in unicodedata.normalize("NFKD", object_text.casefold()) if not unicodedata.combining(c))
+
+
+def load_editorial_scope(path: Path | None) -> tuple[int, Callable[[str], bool] | None]:
+    if path is None:
+        return DEFAULT_LOOKBACK_DAYS, None
+    try:
+        with path.open("rb") as stream:
+            raw = stream.read(8193)
+        if len(raw) > 8192:
+            raise ExportError("invalid_editorial_scope")
+        scope = json.loads(raw)
+        if (not isinstance(scope, dict) or set(scope) != {"schema", "lookback_days", "exclude", "include"}
+                or scope["schema"] != EDITORIAL_SCOPE_SCHEMA
+                or type(scope["lookback_days"]) is not int or not 1 <= scope["lookback_days"] <= 30):
+            raise ExportError("invalid_editorial_scope")
+        patterns = scope["include"]
+        excluded = scope["exclude"]
+        if (not isinstance(patterns, list) or not 1 <= len(patterns) <= 10
+                or any(not isinstance(value, str) or not 1 <= len(value) <= 512 for value in [excluded, *patterns])):
+            raise ExportError("invalid_editorial_scope")
+        include = [re.compile(pattern) for pattern in patterns]
+        exclude = re.compile(excluded)
+    except (OSError, ValueError, re.error) as exc:
+        raise ExportError("invalid_editorial_scope") from exc
+
+    def eligible(object_text: str) -> bool:
+        folded = fold_object(object_text)
+        return exclude.search(folded) is None and any(pattern.search(folded) for pattern in include)
+
+    return scope["lookback_days"], eligible
+
+
 def select_candidates(
     connection: Any,
     *,
     now: dt.datetime,
     published_ids: Sequence[str],
     recheck_ids: Sequence[str],
+    lookback_days: int = DEFAULT_LOOKBACK_DAYS,
 ) -> tuple[list[str], list[str], dict[str, Any]]:
     """Run inside a read-only repeatable-read transaction, without live HTTP."""
     today = now.astimezone(SOURCE_TIMEZONE).date()
-    start = today - dt.timedelta(days=6)
+    start = today - dt.timedelta(days=lookback_days - 1)
     with connection.cursor() as cursor:
         cursor.execute(SOURCE_CLOCK_SQL, (start, today))
         source_as_of, ingestion_latest = cursor.fetchone()
@@ -397,6 +432,8 @@ def select_from_radar(
     now: dt.datetime,
     published_ids: Sequence[str],
     recheck_ids: Sequence[str],
+    lookback_days: int = DEFAULT_LOOKBACK_DAYS,
+    editorial_scope: Callable[[str], bool] | None = None,
 ) -> tuple[list[str], list[str], dict[str, Any]]:
     """Consume the producer's existing verified snapshot with no DB credential.
 
@@ -474,25 +511,30 @@ def select_from_radar(
                     present.add(identity)
             due = [identity for identity in recheck_ids if identity in present]
             today = now.astimezone(SOURCE_TIMEZONE).date()
-            start = today - dt.timedelta(days=6)
+            start = today - dt.timedelta(days=lookback_days - 1)
             clauses = ["published_at BETWEEN ? AND ?", "(" + " OR ".join("object LIKE ?" for _ in AEC_TOKENS) + ")"]
             params: list[Any] = [start.isoformat(), today.isoformat(), *[f"%{token}%" for token in AEC_TOKENS]]
             if published_ids:
                 clauses.append("id NOT IN (" + ",".join("?" for _ in published_ids) + ")")
                 params.extend(_opaque("contract", identity) for identity in published_ids)
-            params.append(MAX_REQUESTS - len(due))
+            detail_slots = MAX_REQUESTS - len(due)
+            params.append(detail_slots * 4 if editorial_scope is not None else detail_slots)
             # Every clause is a literal or a bounded placeholder list; all
             # record values remain separate bound parameters.
             sql = (
-                "SELECT id,source_url FROM contracts WHERE " + " AND ".join(clauses)  # noqa: S608 - placeholders only
+                "SELECT id,source_url,object FROM contracts WHERE " + " AND ".join(clauses)  # noqa: S608 - placeholders only
                 + " ORDER BY value_cents DESC,id LIMIT ?"
             )
             fresh = []
-            for opaque_id, url in db.execute(sql, params):
+            for opaque_id, url, object_text in db.execute(sql, params):
+                if editorial_scope is not None and not editorial_scope(object_text):
+                    continue
                 identity = _identity_from_radar_url(url)
                 if _opaque("contract", identity) != opaque_id:
                     raise ExportError("radar_identity_mismatch")
                 fresh.append(identity)
+                if len(fresh) >= detail_slots:
+                    break
             return fresh, due, {
                 "source_as_of": radar_meta["source_as_of"],
                 "ingestion_latest_at": radar_meta["ingestion_latest_at"],
@@ -516,6 +558,8 @@ def build_snapshot(
     fetch: Callable[[str], FetchResult] = fetch_contract,
     context_fetch: Callable[[str, int, float], EvidenceResponse] = fetch_evidence,
     clock: Callable[[], dt.datetime] = lambda: dt.datetime.now(dt.UTC),
+    editorial_scope: Callable[[str], bool] | None = None,
+    lookback_days: int = DEFAULT_LOOKBACK_DAYS,
 ) -> dict[str, Any]:
     if len(new_ids) + len(recheck_ids) > MAX_REQUESTS or len(requested_rechecks) > MAX_RECHECKS:
         raise ExportError("request_budget_exceeded")
@@ -561,8 +605,10 @@ def build_snapshot(
         try:
             record = normalize_official(
                 payload, contract_id=identity, checked_at=clock(),
-                source_sha256=response.sha256, correction=correction,
+                source_sha256=response.sha256, correction=correction, lookback_days=lookback_days,
             )
+            if editorial_scope is not None and not editorial_scope(record["object"]):
+                raise ExportError("outside_editorial_scope")
         except ExportError as exc:
             reason = str(exc)
             excluded[reason] += 1
@@ -643,27 +689,33 @@ def write_snapshot(output: Path, snapshot: Mapping[str, Any]) -> str:
 def export_from_radar(
     *, pointer_path: Path, output: Path, published_file: Path | None = None,
     producer_commit: str | None = None,
+    scope_file: Path | None = None,
 ) -> dict[str, Any]:
     published, requested = load_published_ids(published_file)
+    lookback_days, editorial_scope = load_editorial_scope(scope_file)
     with _output_lock(output):
         new_ids, due, metadata = select_from_radar(
             pointer_path, now=dt.datetime.now(dt.UTC), published_ids=published, recheck_ids=requested,
+            lookback_days=lookback_days, editorial_scope=editorial_scope,
         )
         if producer_commit is not None:
             if not re.fullmatch(r"[a-f0-9]{40}", producer_commit):
                 raise ExportError("invalid_producer_commit")
             metadata["producer_commit"] = producer_commit
-        snapshot = build_snapshot(new_ids, recheck_ids=due, requested_rechecks=requested, metadata=metadata)
+        snapshot = build_snapshot(new_ids, recheck_ids=due, requested_rechecks=requested, metadata=metadata,
+                                  editorial_scope=editorial_scope, lookback_days=lookback_days)
         digest = write_snapshot(output, snapshot)
     return {"ok": True, "schema": SCHEMA, "sha256": digest, **snapshot["selection"]}
 
 
-def export_from_postgres(*, dsn: str, output: Path, published_file: Path | None = None) -> dict[str, Any]:
+def export_from_postgres(*, dsn: str, output: Path, published_file: Path | None = None,
+                         scope_file: Path | None = None) -> dict[str, Any]:
     try:
         import psycopg2
     except ImportError as exc:
         raise ExportError("psycopg2_dependency_unavailable") from exc
     published, requested = load_published_ids(published_file)
+    lookback_days, editorial_scope = load_editorial_scope(scope_file)
     with _output_lock(output):
         connection = psycopg2.connect(
             dsn, connect_timeout=10, application_name="confenge-contract-news-facts-v1",
@@ -673,12 +725,14 @@ def export_from_postgres(*, dsn: str, output: Path, published_file: Path | None 
             connection.set_session(readonly=True, isolation_level="REPEATABLE READ", autocommit=False)
             new_ids, due, metadata = select_candidates(
                 connection, now=dt.datetime.now(dt.UTC), published_ids=published, recheck_ids=requested,
+                lookback_days=lookback_days,
             )
             connection.rollback()
         finally:
             connection.close()
         # HTTP never holds an open database transaction or collector lock.
-        snapshot = build_snapshot(new_ids, recheck_ids=due, requested_rechecks=requested, metadata=metadata)
+        snapshot = build_snapshot(new_ids, recheck_ids=due, requested_rechecks=requested, metadata=metadata,
+                                  editorial_scope=editorial_scope, lookback_days=lookback_days)
         digest = write_snapshot(output, snapshot)
     return {"ok": True, "schema": SCHEMA, "sha256": digest, **snapshot["selection"]}
 
@@ -687,6 +741,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Export verified recent PNCP facts for CONFENGE news")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--published-ids", type=Path)
+    parser.add_argument("--editorial-scope", type=Path)
     source = parser.add_mutually_exclusive_group()
     source.add_argument("--dsn", default="dbname=pncp_datalake")
     source.add_argument("--radar-pointer", type=Path)
@@ -696,10 +751,11 @@ def main(argv: list[str] | None = None) -> int:
         if args.radar_pointer:
             result = export_from_radar(
                 pointer_path=args.radar_pointer, output=args.output,
-                published_file=args.published_ids, producer_commit=args.producer_commit,
+                published_file=args.published_ids, producer_commit=args.producer_commit, scope_file=args.editorial_scope,
             )
         else:
-            result = export_from_postgres(dsn=args.dsn, output=args.output, published_file=args.published_ids)
+            result = export_from_postgres(dsn=args.dsn, output=args.output, published_file=args.published_ids,
+                                          scope_file=args.editorial_scope)
     except ExportError as exc:
         print(json.dumps({"ok": False, "reason": str(exc)}))
         return 75 if str(exc) == "export_already_running" else 1
