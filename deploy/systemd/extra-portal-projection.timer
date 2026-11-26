@@ -1,0 +1,10 @@
+[Unit]
+Description=Atualiza a projeção privada da Extra a partir de cargas persistidas
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+AccuracySec=30s
+
+[Install]
+WantedBy=timers.target

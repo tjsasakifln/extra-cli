@@ -1,0 +1,23 @@
+[Unit]
+Description=Extra / CONFENGE — projeção privada de inteligência para a Área do Cliente
+After=postgresql.service
+Wants=postgresql.service
+ConditionPathIsSymbolicLink=/opt/confenge-extra-portal/current
+
+[Service]
+Type=oneshot
+User=confenge-extra-intel
+Group=confenge-extra-intel
+WorkingDirectory=/opt/confenge-extra-portal/current
+ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.public_exports.extra_portal --register /etc/confenge-extra-portal/review.json --output /var/lib/confenge-extra-portal/current.json
+UMask=0027
+Nice=10
+CPUQuota=50%
+MemoryMax=224M
+TimeoutStartSec=90s
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/confenge-extra-portal
+RestrictAddressFamilies=AF_UNIX
