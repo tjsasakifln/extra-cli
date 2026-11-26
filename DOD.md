@@ -13,6 +13,14 @@
 CI green or field-presence tests do **not** promote a claim across tiers.
 A single `[x]` must not hide these differences.
 
+### Radar privado de licitações da Extra (2026-11-26)
+
+- [ ] Aceitar a projeção `confenge.extra-intelligence/v1` somente após CI do
+  SHA exato, prova de SELECT com papel dedicado, revisão de positivos e
+  amostra de possíveis omissões, consumidor protegido e repetição do timer.
+  Sem alegação de cobertura integral ou dados atuais sem evidência. Contrato,
+  decisão e operação: `docs/contracts/extra-portal-intelligence-v1.md`.
+
 ### Projeção pública do Radar de Mercado Público (2026-11-09)
 
 - [ ] Integrar e provar a projeção `confenge.market-radar/v1`: CI do SHA exato,
